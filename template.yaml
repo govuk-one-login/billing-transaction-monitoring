@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for infrastructure to monitor user identity verification events for billing purposes
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Description: Environment type
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - build
+      - staging
+      - integration
+      - production
+  VpcStackName:
+    Description: Stack name for VPC in which to run
+    Type: String
+    Default: vpc
+
+Resources:
+  # These HelloWorld resources are placeholders. Please remove them, their source code, and their documentation before adding a resource.
+
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      DeadLetterQueue:
+        TargetArn: !GetAtt HelloWorldFunctionDeadLetterQueue.Arn
+        Type: SQS
+      Handler: src/handlers/hello-world.sayHello
+      KmsKeyArn: !GetAtt HelloWorldFunctionKmsKey.Arn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Sid: Logs
+              Effect: Allow
+              Action:
+                - logs:*
+              Resource: arn:aws:logs:*:*:*
+      ReservedConcurrentExecutions: 10
+      Runtime: nodejs16.x
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
+        SubnetIds:
+          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
+          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
+      Timeout: 100
+
+  HelloWorldFunctionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt HelloWorldFunctionDeadLetterQueueKmsKey.Arn
+      QueueName: hello-world-function-dead-letter-queue
+
+  HelloWorldFunctionDeadLetterQueueKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource:
+              - '*'
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - kms:Decrypt
+            Resource: '*'
+
+  HelloWorldFunctionDeadLetterQueueKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/${AWS::StackName}/${Environment}/hello-world-function-dead-letter-queue-kms-key
+      TargetKeyId: !Ref HelloWorldFunctionDeadLetterQueueKmsKey
+
+  HelloWorldFunctionKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource:
+              - '*'
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - kms:Decrypt
+            Resource: '*'
+
+  HelloWorldFunctionKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/${AWS::StackName}/${Environment}/hello-world-function-kms-key
+      TargetKeyId: !Ref HelloWorldFunctionKmsKey
