@@ -15,3 +15,8 @@ Monitors user identity verification events for billing purposes
 sam build
 sam local invoke HelloWorldFunction --no-event  # Replace this when there is something useful to run
 ```
+
+## Licence
+
+[MIT License](LICENCE)
+
