@@ -40,6 +40,13 @@ Globals:
     Timeout: 100
 
 Resources:
+
+  TestTxMASNS:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: "Test TxMA SNS topic"
+      TopicName: "TestTxMATopic"
+
   # These HelloWorld resources are placeholders. Please remove them, their source code, and their documentation before adding a resource.
 
   HelloWorldFunction:
