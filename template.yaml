@@ -3,6 +3,10 @@ Description: CloudFormation template for infrastructure to monitor user identity
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
+  CodeSigningConfigArn:
+    Description: ARN of Code Signing Config from deployment pipeline
+    Type: String
+    Default: none
   Environment:
     Description: Environment type
     Type: String
@@ -13,10 +17,27 @@ Parameters:
       - staging
       - integration
       - production
+  PermissionsBoundary:
+    Description: ARN of permissions boundary for new roles
+    Type: String
+    Default: none
   VpcStackName:
     Description: Stack name for VPC in which to run
     Type: String
     Default: vpc
+
+Conditions:
+  UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
+  UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
+
+Globals:
+  Function:
+    CodeSigningConfigArn:
+      !If [UseCodeSigning, !Ref CodeSigningConfigArn, !Ref AWS::NoValue]
+    PermissionsBoundary:
+      !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
+    Runtime: nodejs16.x
+    Timeout: 100
 
 Resources:
   # These HelloWorld resources are placeholders. Please remove them, their source code, and their documentation before adding a resource.
@@ -38,14 +59,12 @@ Resources:
                 - logs:*
               Resource: arn:aws:logs:*:*:*
       ReservedConcurrentExecutions: 10
-      Runtime: nodejs16.x
       VpcConfig:
         SecurityGroupIds:
           - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
         SubnetIds:
           - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
           - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
-      Timeout: 100
 
   HelloWorldFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -74,12 +93,6 @@ Resources:
               - kms:Decrypt
             Resource: '*'
 
-  HelloWorldFunctionDeadLetterQueueKmsKeyAlias:
-    Type: AWS::KMS::Alias
-    Properties:
-      AliasName: !Sub alias/${AWS::StackName}/${Environment}/hello-world-function-dead-letter-queue-kms-key
-      TargetKeyId: !Ref HelloWorldFunctionDeadLetterQueueKmsKey
-
   HelloWorldFunctionKmsKey:
     Type: AWS::KMS::Key
     Properties:
@@ -100,9 +113,3 @@ Resources:
             Action:
               - kms:Decrypt
             Resource: '*'
-
-  HelloWorldFunctionKmsKeyAlias:
-    Type: AWS::KMS::Alias
-    Properties:
-      AliasName: !Sub alias/${AWS::StackName}/${Environment}/hello-world-function-kms-key
-      TargetKeyId: !Ref HelloWorldFunctionKmsKey
