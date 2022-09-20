@@ -19,6 +19,12 @@ Parameters:
     Default: vpc
 
 Resources:
+
+  Filter:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: filter.handler
+
   # These HelloWorld resources are placeholders. Please remove them, their source code, and their documentation before adding a resource.
 
   HelloWorldFunction:
