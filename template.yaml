@@ -148,6 +148,9 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt CleanDeadLetterQueue.Arn
+        maxReceiveCount: 1
       QueueName: clean-queue
 
   CleanQueueKmsKey:
