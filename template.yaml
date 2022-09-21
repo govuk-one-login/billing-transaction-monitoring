@@ -37,7 +37,7 @@ Globals:
     PermissionsBoundary:
       !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
     Runtime: nodejs16.x
-    Timeout: 100
+    Timeout: 30
 
 Resources:
   CleanDeadLetterQueue:
