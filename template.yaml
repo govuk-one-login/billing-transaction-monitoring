@@ -43,29 +43,8 @@ Resources:
   CleanDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      KmsMasterKeyId: !GetAtt CleanDeadLetterQueueKmsKey.Arn
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: clean-dead-letter-queue
-
-  CleanDeadLetterQueueKmsKey:
-    Type: AWS::KMS::Key
-    Properties:
-      EnableKeyRotation: true
-      KeyPolicy:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - kms:*
-            Resource:
-              - '*'
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action:
-              - kms:Decrypt
-            Resource: '*'
 
   CleanFunction:
     Type: AWS::Serverless::Function
@@ -79,7 +58,7 @@ Resources:
           Properties:
             Queue: !GetAtt CleanQueue.Arn
       Handler: src/handlers/clean.clean
-      KmsKeyArn: !GetAtt CleanFunctionKmsKey.Arn
+      KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -99,61 +78,19 @@ Resources:
   CleanFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      KmsMasterKeyId: !GetAtt CleanFunctionDeadLetterQueueKmsKey.Arn
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: clean-function-dead-letter-queue
-
-  CleanFunctionDeadLetterQueueKmsKey:
-    Type: AWS::KMS::Key
-    Properties:
-      EnableKeyRotation: true
-      KeyPolicy:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - kms:*
-            Resource:
-              - '*'
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action:
-              - kms:Decrypt
-            Resource: '*'
-
-  CleanFunctionKmsKey:
-    Type: AWS::KMS::Key
-    Properties:
-      EnableKeyRotation: true
-      KeyPolicy:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - kms:*
-            Resource:
-              - '*'
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action:
-              - kms:Decrypt
-            Resource: '*'
 
   CleanQueue:
     Type: AWS::SQS::Queue
     Properties:
-      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt CleanDeadLetterQueue.Arn
         maxReceiveCount: 1
       QueueName: clean-queue
 
-  CleanQueueKmsKey:
+  KmsKey:
     Type: AWS::KMS::Key
     Properties:
       EnableKeyRotation: true
@@ -163,13 +100,10 @@ Resources:
           - Effect: Allow
             Principal:
               AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - kms:*
-            Resource:
-              - '*'
+            Action: kms:*
+            Resource: '*'
           - Effect: Allow
             Principal:
               Service: lambda.amazonaws.com
-            Action:
-              - kms:Decrypt
+            Action: kms:Decrypt
             Resource: '*'
