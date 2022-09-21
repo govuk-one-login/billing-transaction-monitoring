@@ -47,39 +47,13 @@ Resources:
       DisplayName: "Test TxMA SNS topic"
       TopicName: "TestTxMATopic"
 
-  # These HelloWorld resources are placeholders. Please remove them, their source code, and their documentation before adding a resource.
-
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      DeadLetterQueue:
-        TargetArn: !GetAtt HelloWorldFunctionDeadLetterQueue.Arn
-        Type: SQS
-      Handler: src/handlers/hello-world.sayHello
-      KmsKeyArn: !GetAtt HelloWorldFunctionKmsKey.Arn
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - Statement:
-            - Sid: Logs
-              Effect: Allow
-              Action:
-                - logs:*
-              Resource: arn:aws:logs:*:*:*
-      ReservedConcurrentExecutions: 10
-      VpcConfig:
-        SecurityGroupIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
-        SubnetIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
-
-  HelloWorldFunctionDeadLetterQueue:
+  CleanDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      KmsMasterKeyId: !GetAtt HelloWorldFunctionDeadLetterQueueKmsKey.Arn
-      QueueName: hello-world-function-dead-letter-queue
+      KmsMasterKeyId: !GetAtt CleanDeadLetterQueueKmsKey.Arn
+      QueueName: clean-dead-letter-queue
 
-  HelloWorldFunctionDeadLetterQueueKmsKey:
+  CleanDeadLetterQueueKmsKey:
     Type: AWS::KMS::Key
     Properties:
       EnableKeyRotation: true
@@ -100,7 +74,93 @@ Resources:
               - kms:Decrypt
             Resource: '*'
 
-  HelloWorldFunctionKmsKey:
+  CleanFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      DeadLetterQueue:
+        TargetArn: !GetAtt CleanFunctionDeadLetterQueue.Arn
+        Type: SQS
+      Events:
+        CleanEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt CleanQueue.Arn
+      Handler: src/handlers/clean.clean
+      KmsKeyArn: !GetAtt CleanFunctionKmsKey.Arn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Sid: Logs
+              Effect: Allow
+              Action:
+                - logs:*
+              Resource: arn:aws:logs:*:*:*
+      ReservedConcurrentExecutions: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
+        SubnetIds:
+          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
+          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
+
+  CleanFunctionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt CleanFunctionDeadLetterQueueKmsKey.Arn
+      QueueName: clean-function-dead-letter-queue
+
+  CleanFunctionDeadLetterQueueKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource:
+              - '*'
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - kms:Decrypt
+            Resource: '*'
+
+  CleanFunctionKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource:
+              - '*'
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - kms:Decrypt
+            Resource: '*'
+
+  CleanQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt CleanDeadLetterQueue.Arn
+        maxReceiveCount: 1
+      QueueName: clean-queue
+
+  CleanQueueKmsKey:
     Type: AWS::KMS::Key
     Properties:
       EnableKeyRotation: true
