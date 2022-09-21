@@ -19,4 +19,3 @@ sam local invoke HelloWorldFunction --no-event  # Replace this when there is som
 ## Licence
 
 [MIT License](LICENCE)
-
