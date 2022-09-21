@@ -40,6 +40,33 @@ Globals:
     Timeout: 100
 
 Resources:
+  CleanDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt CleanDeadLetterQueueKmsKey.Arn
+      QueueName: clean-dead-letter-queue
+
+  CleanDeadLetterQueueKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource:
+              - '*'
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - kms:Decrypt
+            Resource: '*'
+
   CleanFunction:
     Type: AWS::Serverless::Function
     Properties:
