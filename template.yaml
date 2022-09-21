@@ -18,12 +18,17 @@ Parameters:
     Type: String
     Default: vpc
 
+Globals:
+  Function:
+    CodeUri: dist/
+    Runtime: nodejs16.x
+
 Resources:
 
   Filter:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: filter.handler
+      Handler: filter/handler.handler
 
   # These HelloWorld resources are placeholders. Please remove them, their source code, and their documentation before adding a resource.
 
