@@ -41,13 +41,69 @@ Globals:
 
 Resources:
 
+# This is for testing only - in production we will use another SNS queue
   TestTxMASNS:
     Type: "AWS::SNS::Topic"
     Properties:
-      KmsMasterKeyId: !GetAtt CleanDeadLetterQueueKmsKey.Arn
+      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
       DisplayName: "Test TxMA SNS topic"
       TopicName: "TestTxMATopic"
+      Subscription:
+        - Protocol: sqs
+          Endpoint: !GetAtt FilterQueue.Arn
 
+#Filtering
+  FilterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt FilterDeadLetterQueue.Arn
+        maxReceiveCount: 1
+      QueueName: filter-queue
+
+  FilterDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      QueueName: filter-dead-letter-queue
+
+  FilterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      DeadLetterQueue:
+        TargetArn: !GetAtt FilterFunctionDeadLetterQueue.Arn
+        Type: SQS
+      Events:
+        FilterEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt FilterQueue.Arn
+      Handler: src/handlers/filter.filter
+      KmsKeyArn: !GetAtt CleanQueueKmsKey.Arn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Sid: Logs
+              Effect: Allow
+              Action:
+                - logs:*
+              Resource: arn:aws:logs:*:*:*
+      ReservedConcurrentExecutions: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
+        SubnetIds:
+          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
+          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
+
+  FilterFunctionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      QueueName: filter-function-dead-letter-queue
+
+  # Cleaning
   CleanDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
