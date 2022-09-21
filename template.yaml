@@ -40,43 +40,19 @@ Globals:
     Timeout: 100
 
 Resources:
-  CleanQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
-      QueueName: clean-queue
-
-  CleanQueueKmsKey:
-    Type: AWS::KMS::Key
-    Properties:
-      EnableKeyRotation: true
-      KeyPolicy:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - kms:*
-            Resource:
-              - '*'
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action:
-              - kms:Decrypt
-            Resource: '*'
-
-  # These HelloWorld resources are placeholders. Please remove them, their source code, and their documentation before adding a function.
-
-  HelloWorldFunction:
+  CleanFunction:
     Type: AWS::Serverless::Function
     Properties:
       DeadLetterQueue:
-        TargetArn: !GetAtt HelloWorldFunctionDeadLetterQueue.Arn
+        TargetArn: !GetAtt CleanFunctionDeadLetterQueue.Arn
         Type: SQS
-      Handler: src/handlers/hello-world.sayHello
-      KmsKeyArn: !GetAtt HelloWorldFunctionKmsKey.Arn
+      Events:
+        CleanEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt CleanQueue.Arn
+      Handler: src/handlers/clean.clean
+      KmsKeyArn: !GetAtt CleanFunctionKmsKey.Arn
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -93,13 +69,13 @@ Resources:
           - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
           - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
 
-  HelloWorldFunctionDeadLetterQueue:
+  CleanFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      KmsMasterKeyId: !GetAtt HelloWorldFunctionDeadLetterQueueKmsKey.Arn
-      QueueName: hello-world-function-dead-letter-queue
+      KmsMasterKeyId: !GetAtt CleanFunctionDeadLetterQueueKmsKey.Arn
+      QueueName: clean-function-dead-letter-queue
 
-  HelloWorldFunctionDeadLetterQueueKmsKey:
+  CleanFunctionDeadLetterQueueKmsKey:
     Type: AWS::KMS::Key
     Properties:
       EnableKeyRotation: true
@@ -120,7 +96,34 @@ Resources:
               - kms:Decrypt
             Resource: '*'
 
-  HelloWorldFunctionKmsKey:
+  CleanFunctionKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource:
+              - '*'
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - kms:Decrypt
+            Resource: '*'
+
+  CleanQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      QueueName: clean-queue
+
+  CleanQueueKmsKey:
     Type: AWS::KMS::Key
     Properties:
       EnableKeyRotation: true
