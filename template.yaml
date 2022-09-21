@@ -40,7 +40,34 @@ Globals:
     Timeout: 100
 
 Resources:
-  # These HelloWorld resources are placeholders. Please remove them, their source code, and their documentation before adding a resource.
+  CleanQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      QueueName: clean-queue
+
+  CleanQueueKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource:
+              - '*'
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - kms:Decrypt
+            Resource: '*'
+
+  # These HelloWorld resources are placeholders. Please remove them, their source code, and their documentation before adding a function.
 
   HelloWorldFunction:
     Type: AWS::Serverless::Function
