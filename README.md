@@ -15,6 +15,11 @@ sam build
 sam local invoke CleanFunction --no-event  # TODO: add filtered transaction event (Jira: BTM-62)
 ```
 
+## Check before commit
+```sh
+checkov -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies
+```
+
 ## Licence
 
 [MIT License](LICENCE)

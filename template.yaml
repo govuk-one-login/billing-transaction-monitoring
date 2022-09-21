@@ -44,6 +44,7 @@ Resources:
   TestTxMASNS:
     Type: "AWS::SNS::Topic"
     Properties:
+      KmsMasterKeyId: !GetAtt CleanDeadLetterQueueKmsKey.Arn
       DisplayName: "Test TxMA SNS topic"
       TopicName: "TestTxMATopic"
 
