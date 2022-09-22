@@ -67,7 +67,8 @@ Resources:
   FilterDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmActions: !Ref AlarmTopic
+      AlarmActions:
+        - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: QueueName
@@ -132,7 +133,8 @@ Resources:
   CleanDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmActions: !Ref AlarmTopic
+      AlarmActions:
+        - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: QueueName
@@ -214,7 +216,8 @@ Resources:
   StorageDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmActions: !Ref AlarmTopic
+      AlarmActions:
+        - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: QueueName
