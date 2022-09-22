@@ -230,3 +230,4 @@ Resources:
       SSESpecification:
         KMSMasterKeyId: !GetAtt KmsKey.Arn
         SSEEnabled: true
+        SSEType: KMS
