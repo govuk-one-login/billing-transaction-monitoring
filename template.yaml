@@ -111,7 +111,7 @@ Resources:
   StorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      KmsMasterKeyId: !GetAtt CleanDeadLetterQueueKmsKey.Arn
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: storage-dead-letter-queue
 
   StorageFunction:
