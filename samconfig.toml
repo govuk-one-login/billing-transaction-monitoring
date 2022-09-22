@@ -9,3 +9,8 @@ region = "eu-west-2"
 capabilities = "CAPABILITY_IAM"
 image_repositories = []
 parameter_overrides = "CodeSigningConfigArn=\"none\" Environment=\"dev\" PermissionsBoundary=\"none\" VpcStackName=\"vpc\""
+
+[local.deploy.parameters]
+stack_name = "di-btm"
+s3_bucket = ""
+parameter_overrides = "Environment=\"local\""
