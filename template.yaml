@@ -34,6 +34,7 @@ Globals:
   Function:
     CodeSigningConfigArn:
       !If [UseCodeSigning, !Ref CodeSigningConfigArn, !Ref AWS::NoValue]
+    KmsKeyArn: !GetAtt KmsKey.Arn
     PermissionsBoundary:
       !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
     Runtime: nodejs16.x
@@ -58,7 +59,6 @@ Resources:
           Properties:
             Queue: !GetAtt CleanQueue.Arn
       Handler: src/handlers/clean.clean
-      KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -107,3 +107,48 @@ Resources:
               Service: lambda.amazonaws.com
             Action: kms:Decrypt
             Resource: '*'
+
+  StorageDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt CleanDeadLetterQueueKmsKey.Arn
+      QueueName: storage-dead-letter-queue
+
+  StorageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      DeadLetterQueue:
+        TargetArn: !GetAtt StorageFunctionDeadLetterQueue.Arn
+        Type: SQS
+      Events:
+        StorageEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt StorageQueue.Arn
+      Handler: src/handlers/storage.save
+      Policies: AWSLambdaBasicExecutionRole
+      ReservedConcurrentExecutions: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
+        SubnetIds:
+          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
+          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
+
+  StorageFunctionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      QueueName: storage-function-dead-letter-queue
+
+  StorageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      QueueName: storage-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
+        maxReceiveCount: 1
+
+  StorageTable:
+    Type: AWS::Serverless::SimpleTable
