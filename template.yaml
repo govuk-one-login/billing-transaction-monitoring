@@ -72,7 +72,6 @@ Resources:
           Properties:
             Queue: !GetAtt FilterQueue.Arn
       Handler: src/handlers/filter.filter
-      KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
