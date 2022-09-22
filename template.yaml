@@ -41,6 +41,10 @@ Globals:
     Timeout: 30
 
 Resources:
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 # This is for testing only - in production we will use another SNS queue
   TestTxMASNS:
@@ -59,6 +63,21 @@ Resources:
     Properties:
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: filter-dead-letter-queue
+
+  FilterDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions: !GetAtt AlarmTopic.Arn
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt FilterDeadLetterQueue.QueueName
+      EvaluationPeriods: 1
+      MetricName: NumberOfMessagesReceived
+      Namespace: AWS/SQS
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
   FilterFunction:
     Type: AWS::Serverless::Function
@@ -109,6 +128,21 @@ Resources:
     Properties:
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: clean-dead-letter-queue
+
+  CleanDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions: !GetAtt AlarmTopic.Arn
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt CleanDeadLetterQueue.QueueName
+      EvaluationPeriods: 1
+      MetricName: NumberOfMessagesReceived
+      Namespace: AWS/SQS
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
   CleanFunction:
     Type: AWS::Serverless::Function
@@ -176,6 +210,21 @@ Resources:
     Properties:
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: storage-dead-letter-queue
+
+  StorageDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions: !GetAtt AlarmTopic.Arn
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt StorageDeadLetterQueue.QueueName
+      EvaluationPeriods: 1
+      MetricName: NumberOfMessagesReceived
+      Namespace: AWS/SQS
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
   StorageFunction:
     Type: AWS::Serverless::Function
