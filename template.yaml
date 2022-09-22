@@ -45,7 +45,7 @@ Resources:
   TestTxMASNS:
     Type: "AWS::SNS::Topic"
     Properties:
-      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
       DisplayName: "Test TxMA SNS topic"
       TopicName: "TestTxMATopic"
       Subscription:
@@ -53,19 +53,10 @@ Resources:
           Endpoint: !GetAtt FilterQueue.Arn
 
 #Filtering
-  FilterQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
-      RedrivePolicy:
-        deadLetterTargetArn: !GetAtt FilterDeadLetterQueue.Arn
-        maxReceiveCount: 1
-      QueueName: filter-queue
-
   FilterDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: filter-dead-letter-queue
 
   FilterFunction:
@@ -80,7 +71,7 @@ Resources:
           Properties:
             Queue: !GetAtt FilterQueue.Arn
       Handler: src/handlers/filter.filter
-      KmsKeyArn: !GetAtt CleanQueueKmsKey.Arn
+      KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -100,10 +91,19 @@ Resources:
   FilterFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      KmsMasterKeyId: !GetAtt CleanQueueKmsKey.Arn
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: filter-function-dead-letter-queue
 
-  # Cleaning
+  FilterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt FilterDeadLetterQueue.Arn
+        maxReceiveCount: 1
+      QueueName: filter-queue
+
+# Cleaning
   CleanDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
