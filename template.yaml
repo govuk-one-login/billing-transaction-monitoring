@@ -43,7 +43,7 @@ Globals:
 
 Resources:
 
-  Filter:
+  FilterFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: filter/handler.handler
