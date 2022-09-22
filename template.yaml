@@ -3,6 +3,10 @@ Description: CloudFormation template for infrastructure to monitor user identity
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
+  CodeSigningConfigArn:
+    Description: ARN of Code Signing Config from deployment pipeline
+    Type: String
+    Default: none
   Environment:
     Description: Environment type
     Type: String
@@ -13,15 +17,29 @@ Parameters:
       - staging
       - integration
       - production
+  PermissionsBoundary:
+    Description: ARN of permissions boundary for new roles
+    Type: String
+    Default: none
   VpcStackName:
     Description: Stack name for VPC in which to run
     Type: String
     Default: vpc
 
+Conditions:
+  UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
+  UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
+
 Globals:
   Function:
-    CodeUri: dist/
+    CodeSigningConfigArn:
+      !If [UseCodeSigning, !Ref CodeSigningConfigArn, !Ref AWS::NoValue]
+    KmsKeyArn: !GetAtt KmsKey.Arn
+    PermissionsBoundary:
+      !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
     Runtime: nodejs16.x
+    Timeout: 30
+    CodeUri: dist/
 
 Resources:
 
@@ -30,16 +48,24 @@ Resources:
     Properties:
       Handler: filter/handler.handler
 
-  # These HelloWorld resources are placeholders. Please remove them, their source code, and their documentation before adding a resource.
+  CleanDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      QueueName: clean-dead-letter-queue
 
-  HelloWorldFunction:
+  CleanFunction:
     Type: AWS::Serverless::Function
     Properties:
       DeadLetterQueue:
-        TargetArn: !GetAtt HelloWorldFunctionDeadLetterQueue.Arn
+        TargetArn: !GetAtt CleanFunctionDeadLetterQueue.Arn
         Type: SQS
-      Handler: src/handlers/hello-world.sayHello
-      KmsKeyArn: !GetAtt HelloWorldFunctionKmsKey.Arn
+      Events:
+        CleanEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt CleanQueue.Arn
+      Handler: src/handlers/clean.clean
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -49,22 +75,29 @@ Resources:
                 - logs:*
               Resource: arn:aws:logs:*:*:*
       ReservedConcurrentExecutions: 10
-      Runtime: nodejs16.x
       VpcConfig:
         SecurityGroupIds:
           - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
         SubnetIds:
           - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
           - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
-      Timeout: 100
 
-  HelloWorldFunctionDeadLetterQueue:
+  CleanFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      KmsMasterKeyId: !GetAtt HelloWorldFunctionDeadLetterQueueKmsKey.Arn
-      QueueName: hello-world-function-dead-letter-queue
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      QueueName: clean-function-dead-letter-queue
 
-  HelloWorldFunctionDeadLetterQueueKmsKey:
+  CleanQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt CleanDeadLetterQueue.Arn
+        maxReceiveCount: 1
+      QueueName: clean-queue
+
+  KmsKey:
     Type: AWS::KMS::Key
     Properties:
       EnableKeyRotation: true
@@ -74,46 +107,55 @@ Resources:
           - Effect: Allow
             Principal:
               AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - kms:*
-            Resource:
-              - '*'
+            Action: kms:*
+            Resource: '*'
           - Effect: Allow
             Principal:
               Service: lambda.amazonaws.com
-            Action:
-              - kms:Decrypt
+            Action: kms:Decrypt
             Resource: '*'
 
-  HelloWorldFunctionDeadLetterQueueKmsKeyAlias:
-    Type: AWS::KMS::Alias
+  StorageDeadLetterQueue:
+    Type: AWS::SQS::Queue
     Properties:
-      AliasName: !Sub alias/${AWS::StackName}/${Environment}/hello-world-function-dead-letter-queue-kms-key
-      TargetKeyId: !Ref HelloWorldFunctionDeadLetterQueueKmsKey
+      KmsMasterKeyId: !GetAtt CleanDeadLetterQueueKmsKey.Arn
+      QueueName: storage-dead-letter-queue
 
-  HelloWorldFunctionKmsKey:
-    Type: AWS::KMS::Key
+  StorageFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      EnableKeyRotation: true
-      KeyPolicy:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - kms:*
-            Resource:
-              - '*'
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action:
-              - kms:Decrypt
-            Resource: '*'
+      DeadLetterQueue:
+        TargetArn: !GetAtt StorageFunctionDeadLetterQueue.Arn
+        Type: SQS
+      Events:
+        StorageEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt StorageQueue.Arn
+      Handler: src/handlers/storage.save
+      Policies: AWSLambdaBasicExecutionRole
+      ReservedConcurrentExecutions: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
+        SubnetIds:
+          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
+          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
 
-  HelloWorldFunctionKmsKeyAlias:
-    Type: AWS::KMS::Alias
+  StorageFunctionDeadLetterQueue:
+    Type: AWS::SQS::Queue
     Properties:
-      AliasName: !Sub alias/${AWS::StackName}/${Environment}/hello-world-function-kms-key
-      TargetKeyId: !Ref HelloWorldFunctionKmsKey
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      QueueName: storage-function-dead-letter-queue
+
+  StorageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      QueueName: storage-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
+        maxReceiveCount: 1
+
+  StorageTable:
+    Type: AWS::Serverless::SimpleTable
