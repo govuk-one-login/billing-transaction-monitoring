@@ -13,6 +13,7 @@ Monitors user identity verification events for billing purposes
 ```sh
 sam build
 sam local invoke CleanFunction --no-event  # TODO: add filtered transaction event (Jira: BTM-62)
+sam local invoke StorageFunction --no-event  # TODO: add filtered & cleaned transaction event (Jira: BTM-63)
 ```
 
 ## Check before commit
