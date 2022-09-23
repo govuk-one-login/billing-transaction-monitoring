@@ -45,6 +45,49 @@ export const handler = async (event: SQSEvent) /* Promise<APIGatewayProxyResult>
 async function doWork(record: SQSRecord) {
     console.log('sending msg ' + JSON.stringify(record));
 
-    sqs.sendMessage();
+    var params = {
+      MessageBody: JSON.stringify(record), /* required */
+      QueueUrl: 'STRING_VALUE', /* required */
+      DelaySeconds: 5,  // TODO had to convert this to a number that I just guessed at
+      MessageAttributes: {
+        '<String>': {
+          DataType: 'STRING_VALUE', /* required */
+          BinaryListValues: [
+            Buffer.from('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
+            /* more items */
+          ],
+          BinaryValue: Buffer.from('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
+          StringListValues: [
+            'STRING_VALUE',
+            /* more items */
+          ],
+          StringValue: 'STRING_VALUE'
+        },
+        /* '<String>': ... */
+      },
+      MessageDeduplicationId: 'STRING_VALUE',
+      MessageGroupId: 'STRING_VALUE',
+      MessageSystemAttributes: {
+        '<MessageSystemAttributeNameForSends>': {
+          DataType: 'STRING_VALUE', /* required */
+          BinaryListValues: [
+            Buffer.from('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
+            /* more items */
+          ],
+          BinaryValue: Buffer.from('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
+          StringListValues: [
+            'STRING_VALUE',
+            /* more items */
+          ],
+          StringValue: 'STRING_VALUE'
+        },
+        /* '<MessageSystemAttributeNameForSends>': ... */
+      }
+    }
+
+    sqs.sendMessage(params, function(err, data) {
+          if (err) console.log(err, err.stack); // an error occurred
+          else     console.log(data);           // successful response
+        });
 }
 
