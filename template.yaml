@@ -41,12 +41,6 @@ Globals:
       !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
     Runtime: nodejs16.x
     Timeout: 30
-    VpcConfig:
-      SecurityGroupIds:
-        - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
-      SubnetIds:
-        - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
-        - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
 Resources:
   AlarmTopic:
@@ -109,6 +103,12 @@ Resources:
                 - logs:*
               Resource: arn:aws:logs:*:*:*
       ReservedConcurrentExecutions: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
+        SubnetIds:
+          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
+          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
   FilterFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -169,6 +169,12 @@ Resources:
                 - logs:*
               Resource: arn:aws:logs:*:*:*
       ReservedConcurrentExecutions: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
+        SubnetIds:
+          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
+          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
   CleanFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -239,6 +245,12 @@ Resources:
       Handler: src/handlers/storage.save
       Policies: AWSLambdaBasicExecutionRole
       ReservedConcurrentExecutions: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
+        SubnetIds:
+          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
+          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
   StorageFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
