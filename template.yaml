@@ -109,6 +109,22 @@ Resources:
         SubnetIds:
           - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
           - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
+          
+  FilterFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref FilterFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
   FilterFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -175,6 +191,22 @@ Resources:
         SubnetIds:
           - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
           - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
+          
+  CleanFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref CleanFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
   CleanFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -251,6 +283,22 @@ Resources:
         SubnetIds:
           - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
           - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
+          
+  StorageFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref StorageFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
   StorageFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
