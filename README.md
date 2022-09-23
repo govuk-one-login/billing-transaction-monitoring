@@ -21,6 +21,55 @@ sam local invoke StorageFunction --no-event  # TODO: add filtered & cleaned tran
 checkov -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies
 ```
 
+## LocalStack
+The entire stack can be brought up locally using localstack.
+
+### Requirements
+- Python
+- Docker
+
+### To install
+```sh
+python3 -m pip install localstack
+pip install aws-sam-cli-local
+```
+
+### Start localstack
+N.B. You may need to run
+```sh
+gds aws di-btm-dev -s 
+```
+before this to gain the correct privileges and will need to be on the VPN.
+
+```sh
+localstack start -d
+```
+
+or to debug
+
+```sh
+DEBUG=1 localstack start
+```
+
+### Bringing up the stack
+```sh
+samlocal build
+samlocal deploy --resolve-s3 --config-env local
+```
+
+### Interrogating the stack
+Any of the aws commands can now be used by adding the --endpoint-url parameter e.g.
+
+List all topics
+```sh
+aws --endpoint-url=http://localhost:4566 sns list-topics
+```
+
+Publish a message on the SNS topic
+```sh
+aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message 'Test Message!'
+```
+
 ## Licence
 
 [MIT License](LICENCE)
