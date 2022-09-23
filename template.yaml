@@ -12,6 +12,7 @@ Parameters:
     Type: String
     Default: dev
     AllowedValues:
+      - local
       - dev
       - build
       - staging
@@ -29,6 +30,7 @@ Parameters:
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
+  IsLocal: !Equals [!Ref Environment, "local"]
 
 Globals:
   Function:
@@ -103,10 +105,10 @@ Resources:
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
+          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
         SubnetIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
+          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
+          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
   FilterFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -169,10 +171,10 @@ Resources:
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
+          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
         SubnetIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
+          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
+          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
   CleanFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -245,10 +247,10 @@ Resources:
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
+          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
         SubnetIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
+          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
+          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
   StorageFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
