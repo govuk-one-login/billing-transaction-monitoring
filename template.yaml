@@ -125,7 +125,7 @@ Resources:
                 - sqs:DeleteMessage
                 - sqs:GetQueueAttributes
                 - sqs:ReceiveMessage
-              Resource: *
+              Resource: !GetAtt FilterQueue.Arn
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
