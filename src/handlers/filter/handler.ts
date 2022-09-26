@@ -30,7 +30,7 @@ export const handler = async (event: SQSEvent) => {
     .map(async record => {
       console.log('Got record');
       try {
-        await doWork(record);
+        await sendRecord(record);
       } catch (e) {
         response.batchItemFailures.push({itemIdentifier: record.messageId});
       }
@@ -40,8 +40,8 @@ export const handler = async (event: SQSEvent) => {
   return response;
 }
 
-async function doWork(record: SQSRecord) {
-  console.log('sending msg ' + JSON.stringify(record));
+async function sendRecord(record: SQSRecord) {
+  console.log('sending record ' + JSON.stringify(record));
 
   const params = {
     MessageBody: JSON.stringify(record),
