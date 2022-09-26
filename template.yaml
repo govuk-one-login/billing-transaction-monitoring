@@ -158,15 +158,6 @@ Resources:
         deadLetterTargetArn: !GetAtt FilterDeadLetterQueue.Arn
         maxReceiveCount: 1
       QueueName: filter-queue
-      Statement:
-        - Effect: "Allow"
-          Principal:
-            AWS: "111122223333"
-          Action:
-            - "sqs:DeleteMessage"
-            - "sqs:ReceiveMessage"
-          Resource:
-            - "arn:aws:sqs:us-east-2:123456789012:MyQueue"
 
 # Cleaning
   CleanDeadLetterQueue:
