@@ -1,17 +1,15 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const AWS = require("aws-sdk");
 
 AWS.config.update({
   region: "eu-west-2",
-  accessKeyId: process.env["AWS_ACCESS_KEY_ID"],
-  secretAccessKey: process.env["AWS_SECRET_ACCESS_KEY"],
 });
+
 const sns = new AWS.SNS();
-const snsTopicARN = process.env["SNSTOPICARN"];
+const snsTopicARN = process.env["SNS_TOPIC_ARN"];
 const TABLE_NAME = process.env["TABLENAME"];
 const sqs = new AWS.SQS();
 
-describe.skip("E2E tests", () => {
+describe("E2E tests", () => {
   test("Publish sns message and expect message to reach dynamoDB ", async () => {
     const params = {
       Message: "Hi",
@@ -49,11 +47,13 @@ function delay(ms: number) {
 describe("E2E tests", () => {
   test("publish invalid message and check message is in DLQ", async () => {
     const params = {
-      Message: "Testing DLQ",
+      Message: "Testing message 2",
       TopicArn: snsTopicARN,
     };
-    await sns.publish(params).promise();
-    await delay(60000);
+    const res=await sns.publish(params).promise().catch();
+    console.log(res);
+   
+     await delay(60000); // wait for the message to appear in queue
     const result = await pollFromSQS();
     if (result && result.Messages && result.Messages.length > 0) {
       const body = JSON.parse(result.Messages[0].Body);
