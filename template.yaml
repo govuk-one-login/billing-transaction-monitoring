@@ -59,7 +59,25 @@ Resources:
         - Protocol: sqs
           Endpoint: !GetAtt FilterQueue.Arn
 
-#Filtering
+  TestTxMASNSToFilterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "TestSnsToFilterQueuePolicy"
+            Effect: Allow
+            Principal:
+              Service: "sns.amazonaws.com"
+            Resource: !GetAtt FilterQueue.Arn
+            Action: SQS:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref TestTxMASNS
+      Queues:
+        - Ref: FilterQueue
+
+  #Filtering
   FilterDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -109,7 +127,7 @@ Resources:
         SubnetIds:
           - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
           - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
-          
+
   FilterFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -191,7 +209,7 @@ Resources:
         SubnetIds:
           - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
           - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
-          
+
   CleanFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -283,7 +301,7 @@ Resources:
         SubnetIds:
           - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
           - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
-          
+
   StorageFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
