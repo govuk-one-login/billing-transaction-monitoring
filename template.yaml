@@ -12,6 +12,7 @@ Parameters:
     Type: String
     Default: dev
     AllowedValues:
+      - local
       - dev
       - build
       - staging
@@ -29,6 +30,7 @@ Parameters:
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
+  IsLocal: !Equals [!Ref Environment, "local"]
 
 Globals:
   Function:
@@ -43,16 +45,144 @@ Globals:
 
 Resources:
 
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+# This is for testing only - in production we will use another SNS queue
+  TestTxMASNS:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      DisplayName: "Test TxMA SNS topic"
+      TopicName: "TestTxMATopic"
+      Subscription:
+        - Protocol: sqs
+          Endpoint: !GetAtt FilterQueue.Arn
+
+  TestTxMASNSToFilterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "TestSnsToFilterQueuePolicy"
+            Effect: Allow
+            Principal:
+              Service: "sns.amazonaws.com"
+            Resource: !GetAtt FilterQueue.Arn
+            Action: SQS:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref TestTxMASNS
+      Queues:
+        - Ref: FilterQueue
+
+  #Filtering
+  FilterDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      QueueName: filter-dead-letter-queue
+
+  FilterDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt FilterDeadLetterQueue.QueueName
+      EvaluationPeriods: 1
+      MetricName: NumberOfMessagesReceived
+      Namespace: AWS/SQS
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
+
   FilterFunction:
     Type: AWS::Serverless::Function
     Properties:
+      DeadLetterQueue:
+        TargetArn: !GetAtt FilterFunctionDeadLetterQueue.Arn
+        Type: SQS
+      Events:
+        FilterEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt FilterQueue.Arn
       Handler: filter/handler.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Sid: Logs
+              Effect: Allow
+              Action:
+                - logs:*
+              Resource: arn:aws:logs:*:*:*
+      ReservedConcurrentExecutions: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
+        SubnetIds:
+          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
+          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
+  FilterFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref FilterFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
+
+  FilterFunctionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      QueueName: filter-function-dead-letter-queue
+
+  FilterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt FilterDeadLetterQueue.Arn
+        maxReceiveCount: 1
+      QueueName: filter-queue
+
+# Cleaning
   CleanDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: clean-dead-letter-queue
+
+  CleanDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt CleanDeadLetterQueue.QueueName
+      EvaluationPeriods: 1
+      MetricName: NumberOfMessagesReceived
+      Namespace: AWS/SQS
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
   CleanFunction:
     Type: AWS::Serverless::Function
@@ -77,10 +207,26 @@ Resources:
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
+          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
         SubnetIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
+          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
+          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
+
+  CleanFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref CleanFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
   CleanFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -114,12 +260,43 @@ Resources:
               Service: lambda.amazonaws.com
             Action: kms:Decrypt
             Resource: '*'
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              Service: sqs.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+            Resource: '*'
 
   StorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      KmsMasterKeyId: !GetAtt CleanDeadLetterQueueKmsKey.Arn
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: storage-dead-letter-queue
+
+  StorageDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt StorageDeadLetterQueue.QueueName
+      EvaluationPeriods: 1
+      MetricName: NumberOfMessagesReceived
+      Namespace: AWS/SQS
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
   StorageFunction:
     Type: AWS::Serverless::Function
@@ -137,10 +314,26 @@ Resources:
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId'
+          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
         SubnetIds:
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA'
-          - Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB'
+          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
+          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
+
+  StorageFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref StorageFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
   StorageFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -158,4 +351,20 @@ Resources:
         maxReceiveCount: 1
 
   StorageTable:
-    Type: AWS::Serverless::SimpleTable
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: EventId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: EventId
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        KMSMasterKeyId: !GetAtt KmsKey.Arn
+        SSEEnabled: true
+        SSEType: KMS
