@@ -158,6 +158,15 @@ Resources:
         deadLetterTargetArn: !GetAtt FilterDeadLetterQueue.Arn
         maxReceiveCount: 1
       QueueName: filter-queue
+      Statement:
+        - Effect: "Allow"
+          Principal:
+            AWS: "111122223333"
+          Action:
+            - "sqs:DeleteMessage"
+            - "sqs:ReceiveMessage"
+          Resource:
+            - "arn:aws:sqs:us-east-2:123456789012:MyQueue"
 
 # Cleaning
   CleanDeadLetterQueue:
@@ -257,6 +266,21 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: kms:Decrypt
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              Service: sqs.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
             Resource: '*'
 
   StorageDeadLetterQueue:
