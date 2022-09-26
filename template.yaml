@@ -262,7 +262,10 @@ Resources:
           - Effect: Allow
             Principal:
               Service: lambda.amazonaws.com
-            Action: kms:Decrypt
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
             Resource: '*'
           - Effect: Allow
             Principal:
@@ -276,6 +279,7 @@ Resources:
             Principal:
               Service: sqs.amazonaws.com
             Action:
+              - kms:Encrypt
               - kms:Decrypt
               - kms:GenerateDataKey*
             Resource: '*'
