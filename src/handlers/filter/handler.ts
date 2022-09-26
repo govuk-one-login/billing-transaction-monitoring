@@ -1,6 +1,4 @@
-
-
-import { APIGatewayEvent, APIGatewayProxyResult, APIGatewayProxyCallback, Context, SQSEvent, SQSRecord } from 'aws-lambda';
+import {SQSEvent, SQSRecord} from 'aws-lambda';
 import AWS from 'aws-sdk';
 
 
@@ -19,7 +17,7 @@ const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
 type Response = { batchItemFailures: { itemIdentifier: string }[] };
 
 
-export const handler = async (event: SQSEvent) /* Promise<APIGatewayProxyResult> */ => {
+export const handler = async (event: SQSEvent) => {
 
   const response: Response = { batchItemFailures: [] };
 
@@ -45,23 +43,21 @@ export const handler = async (event: SQSEvent) /* Promise<APIGatewayProxyResult>
 async function doWork(record: SQSRecord) {
     console.log('sending msg ' + JSON.stringify(record));
 
-    var params = {
-      MessageBody: JSON.stringify(record),
-      QueueUrl: 'STRING_VALUE', // TODO how to wire this in?
-    }
+  const params = {
+    MessageBody: JSON.stringify(record),
+    QueueUrl: 'STRING_VALUE', // TODO how to wire this in?
+  };
 
-    var promise = new Promise((resolve, reject) => {
-        sqs.sendMessage(params, function(err: any, data: any) {
-              if (err) {
-                  console.log(err, err.stack); // an error occurred
-                  reject();
-              } else {
-                  console.log(data);           // successful response
-                  resolve('success');
-              }
-            });
+  return new Promise((resolve, reject) => {
+      sqs.sendMessage(params, function (err: any, data: any) {
+        if (err) {
+          console.log(err, err.stack); // an error occurred
+          reject();
+        } else {
+          console.log(data);           // successful response
+          resolve('success');
+        }
+      });
     });
-
-    return promise;
 }
 
