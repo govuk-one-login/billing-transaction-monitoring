@@ -126,6 +126,12 @@ Resources:
                 - sqs:GetQueueAttributes
                 - sqs:ReceiveMessage
               Resource: !GetAtt FilterQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
