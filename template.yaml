@@ -120,6 +120,12 @@ Resources:
               Action:
                 - logs:*
               Resource: arn:aws:logs:*:*:*
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: *
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
