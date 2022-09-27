@@ -2,7 +2,10 @@
     "compilerOptions": {
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "types": [
+            "node","jest"
+            ]
 
     }
     
