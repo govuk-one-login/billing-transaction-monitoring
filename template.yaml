@@ -139,12 +139,6 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
-            - Sid: Logs
-              Effect: Allow
-              Action:
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-              Resource: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/FilterFunction:*
             - Effect: Allow
               Action:
                 - sqs:DeleteMessage
@@ -234,12 +228,6 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
-            - Sid: Logs
-              Effect: Allow
-              Action:
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-              Resource: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/CleanFunction:*
             - Effect: Allow
               Action:
                 - sqs:DeleteMessage
@@ -329,12 +317,6 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
-          - Sid: Logs
-            Effect: Allow
-            Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/StorageFunction:*
           - Effect: Allow
             Action:
               - sqs:DeleteMessage
