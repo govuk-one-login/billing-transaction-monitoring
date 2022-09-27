@@ -77,7 +77,31 @@ Resources:
       Queues:
         - Ref: FilterQueue
 
-  #Filtering
+    KmsKey:
+      Type: AWS::KMS::Key
+      Properties:
+        EnableKeyRotation: true
+        KeyPolicy:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+              Action: kms:*
+              Resource: '*'
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+                  - sns.amazonaws.com
+                  - sqs.amazonaws.com
+              Action:
+                - kms:Encrypt
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+              Resource: '*'
+
+# Filtering
   FilterDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -118,8 +142,9 @@ Resources:
             - Sid: Logs
               Effect: Allow
               Action:
-                - logs:*
-              Resource: arn:aws:logs:*:*:*
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/FilterFunction:*
             - Effect: Allow
               Action:
                 - sqs:DeleteMessage
@@ -131,7 +156,7 @@ Resources:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
-              Resource: '*'
+              Resource: !GetAtt KmsKey.Arn
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
@@ -212,8 +237,21 @@ Resources:
             - Sid: Logs
               Effect: Allow
               Action:
-                - logs:*
-              Resource: arn:aws:logs:*:*:*
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/CleanFunction:*
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt CleanQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
@@ -253,43 +291,7 @@ Resources:
         maxReceiveCount: 1
       QueueName: clean-queue
 
-  KmsKey:
-    Type: AWS::KMS::Key
-    Properties:
-      EnableKeyRotation: true
-      KeyPolicy:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action: kms:*
-            Resource: '*'
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action:
-              - kms:Decrypt
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-            Resource: '*'
-          - Effect: Allow
-            Principal:
-              Service: sns.amazonaws.com
-            Action:
-              - kms:Decrypt
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-            Resource: '*'
-          - Effect: Allow
-            Principal:
-              Service: sqs.amazonaws.com
-            Action:
-              - kms:Encrypt
-              - kms:Decrypt
-              - kms:GenerateDataKey*
-            Resource: '*'
-
+# Storage
   StorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -324,7 +326,27 @@ Resources:
           Properties:
             Queue: !GetAtt StorageQueue.Arn
       Handler: src/handlers/storage.save
-      Policies: AWSLambdaBasicExecutionRole
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+          - Sid: Logs
+            Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/StorageFunction:*
+          - Effect: Allow
+            Action:
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:ReceiveMessage
+            Resource: !GetAtt StorageQueue.Arn
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
