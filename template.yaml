@@ -77,29 +77,29 @@ Resources:
       Queues:
         - Ref: FilterQueue
 
-    KmsKey:
-      Type: AWS::KMS::Key
-      Properties:
-        EnableKeyRotation: true
-        KeyPolicy:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Principal:
-                AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-              Action: kms:*
-              Resource: '*'
-            - Effect: Allow
-              Principal:
-                Service:
-                  - lambda.amazonaws.com
-                  - sns.amazonaws.com
-                  - sqs.amazonaws.com
-              Action:
-                - kms:Encrypt
-                - kms:Decrypt
-                - kms:GenerateDataKey*
-              Resource: '*'
+  KmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - sns.amazonaws.com
+                - sqs.amazonaws.com
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+            Resource: '*'
 
 # Filtering
   FilterDeadLetterQueue:
