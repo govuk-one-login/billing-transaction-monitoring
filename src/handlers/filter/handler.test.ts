@@ -19,7 +19,6 @@ describe('Filter handler tests', () => {
   const OLD_ENV = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
     process.env = { ...OLD_ENV };
     mockSendMessage.mockClear();
     process.env.OUTPUT_QUEUE_URL = 'output-queue-url';

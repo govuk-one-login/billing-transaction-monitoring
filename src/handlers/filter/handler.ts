@@ -44,7 +44,9 @@ async function sendRecord(record: SQSRecord) {
   console.log('sending record ' + JSON.stringify(record));
 
   if (!process.env.OUTPUT_QUEUE_URL) {
-    throw new Error("Output queue URL not set.")
+    const message = "Output queue URL not set.";
+    console.error(message);
+    throw new Error(message);
   }
 
   const params = {
