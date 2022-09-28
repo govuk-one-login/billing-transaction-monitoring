@@ -1,5 +1,5 @@
 const mockSendMessage = jest.fn((params, callback) => {
-  callback()
+  callback();
 });
 
 import {handler} from './handler'
@@ -16,9 +16,18 @@ jest.mock('aws-sdk', () => {
 
 describe('Filter handler tests', () => {
 
+  const OLD_ENV = process.env;
+
   beforeEach(() => {
+    jest.resetModules();
+    process.env = { ...OLD_ENV };
     mockSendMessage.mockClear();
+    process.env.OUTPUT_QUEUE_URL = 'output-queue-url';
   })
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
 
 
   test('Filter handler with empty event batch', async () => {
@@ -33,14 +42,27 @@ describe('Filter handler tests', () => {
 
   test('Filter handler with some valid events and some ignored', async () => {
 
-    const validEvent1 = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT');
-    const validEvent2 = createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT');
-    const ignoredEvent = createEventRecordWithName('SOME_IGNORED_EVENT_NAME');
-    const event = createEvent([validEvent1, validEvent2, ignoredEvent]);
+    const validRecord1 = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT');
+    const validRecord2 = createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT');
+    const ignoredRecord = createEventRecordWithName('SOME_IGNORED_EVENT_NAME');
+    const event = createEvent([validRecord1, validRecord2, ignoredRecord]);
 
     await handler(event);
 
     expect(mockSendMessage).toHaveBeenCalledTimes(2);
+  });
+
+
+  test('SQS output queue not defined', async () => {
+
+    process.env.OUTPUT_QUEUE_URL = undefined;
+
+    const validRecord = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT');
+
+    const event = createEvent([validRecord]);
+
+    const result = await handler(event);
+    expect(result.batchItemFailures.length).toEqual(1);
   });
 
 

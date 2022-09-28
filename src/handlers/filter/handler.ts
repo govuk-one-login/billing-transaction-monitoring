@@ -43,15 +43,19 @@ export const handler = async (event: SQSEvent) => {
 async function sendRecord(record: SQSRecord) {
   console.log('sending record ' + JSON.stringify(record));
 
+  if (!process.env.OUTPUT_QUEUE_URL) {
+    throw new Error("Output queue URL not set.")
+  }
+
   const params = {
     MessageBody: JSON.stringify(record),
-    QueueUrl: 'STRING_VALUE', // TODO how to wire this in?
+    QueueUrl: process.env.OUTPUT_QUEUE_URL
   };
 
   return new Promise((resolve, reject) => {
     sqs.sendMessage(params, function (err: any, data: any) {
       if (err) {
-        console.log(err, err.stack); // an error occurred
+        console.error(err, err.stack); // an error occurred
         reject();
       } else {
         console.log(data);           // successful response
