@@ -79,7 +79,31 @@ Resources:
       Queues:
         - Ref: FilterQueue
 
-  #Filtering
+  KmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - sns.amazonaws.com
+                - sqs.amazonaws.com
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+            Resource: '*'
+
+# Filtering
   FilterDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -120,11 +144,18 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
-            - Sid: Logs
-              Effect: Allow
+            - Effect: Allow
               Action:
-                - logs:*
-              Resource: arn:aws:logs:*:*:*
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt FilterQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
@@ -202,11 +233,18 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
-            - Sid: Logs
-              Effect: Allow
+            - Effect: Allow
               Action:
-                - logs:*
-              Resource: arn:aws:logs:*:*:*
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt CleanQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
@@ -246,39 +284,7 @@ Resources:
         maxReceiveCount: 1
       QueueName: clean-queue
 
-  KmsKey:
-    Type: AWS::KMS::Key
-    Properties:
-      EnableKeyRotation: true
-      KeyPolicy:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action: kms:*
-            Resource: '*'
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: kms:Decrypt
-            Resource: '*'
-          - Effect: Allow
-            Principal:
-              Service: sns.amazonaws.com
-            Action:
-              - kms:Decrypt
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-            Resource: '*'
-          - Effect: Allow
-            Principal:
-              Service: sqs.amazonaws.com
-            Action:
-              - kms:Decrypt
-              - kms:GenerateDataKey*
-            Resource: '*'
-
+# Storage
   StorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -313,7 +319,21 @@ Resources:
           Properties:
             Queue: !GetAtt StorageQueue.Arn
       Handler: src/handlers/storage.save
-      Policies: AWSLambdaBasicExecutionRole
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:ReceiveMessage
+            Resource: !GetAtt StorageQueue.Arn
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
