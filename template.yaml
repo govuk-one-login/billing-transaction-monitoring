@@ -139,7 +139,7 @@ Resources:
             Queue: !GetAtt FilterQueue.Arn
       Environment:
         Variables:
-          OUTPUT_QUEUE_URL: "TODO"
+          OUTPUT_QUEUE_URL: !Ref CleanQueue
       Handler: src/handlers/filter/handler.handler
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -320,7 +320,7 @@ Resources:
             Queue: !GetAtt StorageQueue.Arn
       Environment:
         Variables:
-          STORAGE_TABLE: "TODO"
+          STORAGE_TABLE: !Ref StorageTable
       Handler: src/handlers/storage.save
       Policies:
         - AWSLambdaBasicExecutionRole
