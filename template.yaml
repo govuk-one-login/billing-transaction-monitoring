@@ -41,8 +41,10 @@ Globals:
       !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
     Runtime: nodejs16.x
     Timeout: 30
+    CodeUri: dist/
 
 Resources:
+
   AlarmTopic:
     Type: AWS::SNS::Topic
     Properties:
@@ -135,7 +137,10 @@ Resources:
           Type: SQS
           Properties:
             Queue: !GetAtt FilterQueue.Arn
-      Handler: src/handlers/filter.filter
+      Environment:
+        Variables:
+          OUTPUT_QUEUE_URL: "TODO"
+      Handler: src/handlers/filter/handler.handler
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
