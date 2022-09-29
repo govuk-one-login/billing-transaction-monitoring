@@ -137,9 +137,6 @@ Resources:
           Type: SQS
           Properties:
             Queue: !GetAtt FilterQueue.Arn
-      Environment:
-        Variables:
-          OUTPUT_QUEUE_URL: "TODO"
       Handler: src/handlers/filter/handler.handler
       Policies:
         - AWSLambdaBasicExecutionRole
