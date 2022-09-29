@@ -137,6 +137,10 @@ Resources:
           Type: SQS
           Properties:
             Queue: !GetAtt FilterQueue.Arn
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          OUTPUT_QUEUE_URL: !Ref CleanQueue
       Handler: src/handlers/filter/handler.handler
       Policies:
         - AWSLambdaBasicExecutionRole
