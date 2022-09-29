@@ -57,9 +57,14 @@ Resources:
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       DisplayName: "Test TxMA SNS topic"
       TopicName: "TestTxMATopic"
-      Subscription:
-        - Protocol: sqs
-          Endpoint: !GetAtt FilterQueue.Arn
+
+  TestTxMASNSToFilterQueueSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref TestTxMASNS
+      Endpoint: !GetAtt FilterQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: true
 
   TestTxMASNSToFilterQueuePolicy:
     Type: AWS::SQS::QueuePolicy
@@ -141,7 +146,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           OUTPUT_QUEUE_URL: !Ref CleanQueue
-      Handler: src/handlers/filter/handler.handler
+      Handler: filter.handler
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -230,7 +235,7 @@ Resources:
           Type: SQS
           Properties:
             Queue: !GetAtt CleanQueue.Arn
-      Handler: src/handlers/clean.clean
+      Handler: filter.handler # This should be the clean handler once it exists
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -323,7 +328,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_TABLE: !Ref StorageTable
-      Handler: src/handlers/storage.save
+      Handler: store.handler
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
