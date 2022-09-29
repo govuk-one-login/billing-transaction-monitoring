@@ -41,14 +41,16 @@ describe('Filter handler tests', () => {
 
   test('Filter handler with some valid events and some ignored', async () => {
 
-    const validRecord1 = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT');
-    const validRecord2 = createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT');
-    const ignoredRecord = createEventRecordWithName('SOME_IGNORED_EVENT_NAME');
+    const validRecord1 = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT', 1);
+    const validRecord2 = createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT', 2);
+    const ignoredRecord = createEventRecordWithName('SOME_IGNORED_EVENT_NAME', 3);
     const event = createEvent([validRecord1, validRecord2, ignoredRecord]);
 
     await handler(event);
 
     expect(mockSendMessage).toHaveBeenCalledTimes(2);
+    expect(mockSendMessage).toHaveBeenNthCalledWith(1, {MessageBody: JSON.stringify(validRecord1), QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(mockSendMessage).toHaveBeenNthCalledWith(2,{MessageBody: JSON.stringify(validRecord2), QueueUrl: 'output-queue-url' }, expect.any(Function));
   });
 
 
@@ -56,12 +58,33 @@ describe('Filter handler tests', () => {
 
     process.env.OUTPUT_QUEUE_URL = undefined;
 
-    const validRecord = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT');
+    const validRecord = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT', 1);
 
     const event = createEvent([validRecord]);
 
     const result = await handler(event);
     expect(result.batchItemFailures.length).toEqual(1);
+    expect(result.batchItemFailures[0].itemIdentifier).toEqual(1);
+  });
+
+
+  test('Failing send message', async () => {
+    const validRecord = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT',1);
+    const invalidRecord = createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT', 2);
+
+    const event = createEvent([validRecord, invalidRecord]);
+
+    mockSendMessage
+        .mockImplementationOnce((params, callback) => callback())
+        .mockImplementationOnce((params, callback) => callback('error'));
+
+    const result = await handler(event);
+
+    expect(mockSendMessage).toHaveBeenCalledTimes(2);
+    expect(mockSendMessage).toHaveBeenNthCalledWith(1, {MessageBody: JSON.stringify(validRecord), QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(mockSendMessage).toHaveBeenNthCalledWith(2,{MessageBody: JSON.stringify(invalidRecord), QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(result.batchItemFailures.length).toEqual(1);
+    expect(result.batchItemFailures[0].itemIdentifier).toEqual(2);
   });
 
 
@@ -71,12 +94,13 @@ describe('Filter handler tests', () => {
     };
   }
 
-  function createEventRecordWithName(name: String): SQSRecord {
+  function createEventRecordWithName(name: String, messageId: Number): SQSRecord {
     return {
       body: JSON.stringify({
         event_name: name,
         timestamp: Date.now(),
-        component_id: 'KBV'
+        component_id: 'KBV',
+        messageId,
       })
     } as any;
   }

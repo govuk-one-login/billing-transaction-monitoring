@@ -32,7 +32,8 @@ export const handler = async (event: SQSEvent) => {
       try {
         await sendRecord(record);
       } catch (e) {
-        response.batchItemFailures.push({itemIdentifier: record.messageId});
+        const body = JSON.parse(record.body);
+        response.batchItemFailures.push({itemIdentifier: body.messageId});
       }
     });
 

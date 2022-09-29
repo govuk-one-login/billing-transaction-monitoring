@@ -5,7 +5,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default {
   entry: {
-    filter: './src/handlers/filter/handler.ts'
+    filter: './src/handlers/filter/handler.ts',
+    store: './src/handlers/store/handler.ts',
   },
   mode: process.env.NODE_ENV === 'dev' ? 'development' : 'production',
   module: {
