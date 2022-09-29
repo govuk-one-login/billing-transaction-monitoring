@@ -3,7 +3,7 @@ const mockPut = jest.fn((params, callback) => {
 });
 
 import {handler} from './handler'
-import {SQSRecord} from 'aws-lambda'
+import {SQSHelper} from '../../../test-helpers/SQS'
 
 jest.mock('aws-sdk', () => {
   return {
@@ -28,7 +28,7 @@ afterAll(() => {
 });
 
 test('Store handler with empty event batch', async () => {
-  const event = createEvent([]);
+  const event = SQSHelper.createEvent([]);
 
   await handler(event);
 
@@ -36,9 +36,9 @@ test('Store handler with empty event batch', async () => {
 });
 
 test('Store handler with some valid events', async () => {
-  const validRecord1 = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT', 1);
-  const validRecord2 = createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT', 2);
-  const event = createEvent([validRecord1, validRecord2]);
+  const validRecord1 = SQSHelper.createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT', 1);
+  const validRecord2 = SQSHelper.createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT', 2);
+  const event = SQSHelper.createEvent([validRecord1, validRecord2]);
 
   await handler(event);
 
@@ -50,9 +50,9 @@ test('Store handler with some valid events', async () => {
 test('Table name not defined', async () => {
   process.env.STORAGE_TABLE = undefined;
 
-  const validRecord = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT', 1);
+  const validRecord = SQSHelper.createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT', 1);
 
-  const event = createEvent([validRecord]);
+  const event = SQSHelper.createEvent([validRecord]);
 
   const result = await handler(event);
 
@@ -61,10 +61,10 @@ test('Table name not defined', async () => {
 });
 
 test('Failing puts to DynamoDB', async () => {
-  const validRecord = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT',1);
-  const invalidRecord = createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT', 2);
+  const validRecord = SQSHelper.createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT',1);
+  const invalidRecord = SQSHelper.createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT', 2);
 
-  const event = createEvent([validRecord, invalidRecord]);
+  const event = SQSHelper.createEvent([validRecord, invalidRecord]);
 
   mockPut
       .mockImplementationOnce((params, callback) => callback())
@@ -78,19 +78,3 @@ test('Failing puts to DynamoDB', async () => {
   expect(result.batchItemFailures.length).toEqual(1);
   expect(result.batchItemFailures[0].itemIdentifier).toEqual(2);
 });
-
-function createEvent(records: Array<SQSRecord>) {
-  return {
-    Records: records
-  };
-}
-
-function createEventRecordWithName(name: String, messageId: Number): SQSRecord {
-  return {
-    body: JSON.stringify({
-      event_name: name,
-      timestamp: Date.now(),
-      messageId,
-    })
-  } as any;
-}
