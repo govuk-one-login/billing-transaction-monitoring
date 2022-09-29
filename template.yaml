@@ -139,7 +139,8 @@ Resources:
             Queue: !GetAtt FilterQueue.Arn
       Environment:
         Variables:
-          OUTPUT_QUEUE_URL: "TODO"
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          OUTPUT_QUEUE_URL: !Ref CleanQueue
       Handler: src/handlers/filter/handler.handler
       Policies:
         - AWSLambdaBasicExecutionRole
