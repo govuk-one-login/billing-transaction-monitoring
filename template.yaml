@@ -139,6 +139,7 @@ Resources:
             Queue: !GetAtt FilterQueue.Arn
       Environment:
         Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           OUTPUT_QUEUE_URL: !Ref CleanQueue
       Handler: src/handlers/filter/handler.handler
       Policies:
@@ -320,6 +321,7 @@ Resources:
             Queue: !GetAtt StorageQueue.Arn
       Environment:
         Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_TABLE: !Ref StorageTable
       Handler: src/handlers/storage.save
       Policies:
