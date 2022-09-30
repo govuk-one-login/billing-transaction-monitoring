@@ -43,8 +43,8 @@ test('Store handler with some valid events', async () => {
   await handler(event);
 
   expect(mockPut).toHaveBeenCalledTimes(2);
-  expect(mockPut).toHaveBeenNthCalledWith(1, {Item: validRecord1, TableName: 'store-table' }, expect.any(Function));
-  expect(mockPut).toHaveBeenNthCalledWith(2,{Item: validRecord2, TableName: 'store-table' }, expect.any(Function));
+  expect(mockPut).toHaveBeenNthCalledWith(1, {Item: JSON.parse(validRecord1.body), TableName: 'store-table' }, expect.any(Function));
+  expect(mockPut).toHaveBeenNthCalledWith(2,{Item: JSON.parse(validRecord2.body), TableName: 'store-table' }, expect.any(Function));
 });
 
 test('Table name not defined', async () => {
@@ -73,8 +73,8 @@ test('Failing puts to DynamoDB', async () => {
   const result = await handler(event);
 
   expect(mockPut).toHaveBeenCalledTimes(2);
-  expect(mockPut).toHaveBeenNthCalledWith(1, {Item: validRecord, TableName: 'store-table' }, expect.any(Function));
-  expect(mockPut).toHaveBeenNthCalledWith(2,{Item: invalidRecord, TableName: 'store-table' }, expect.any(Function));
+  expect(mockPut).toHaveBeenNthCalledWith(1, {Item: JSON.parse(validRecord.body), TableName: 'store-table' }, expect.any(Function));
+  expect(mockPut).toHaveBeenNthCalledWith(2,{Item: JSON.parse(invalidRecord.body), TableName: 'store-table' }, expect.any(Function));
   expect(result.batchItemFailures.length).toEqual(1);
   expect(result.batchItemFailures[0].itemIdentifier).toEqual(2);
 });

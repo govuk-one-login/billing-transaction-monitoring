@@ -50,7 +50,7 @@ async function sendRecord(record: SQSRecord) {
   }
 
   const params = {
-    MessageBody: JSON.stringify(record),
+    MessageBody: record.body,
     QueueUrl: process.env.OUTPUT_QUEUE_URL
   };
 

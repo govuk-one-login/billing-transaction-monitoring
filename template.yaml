@@ -57,9 +57,14 @@ Resources:
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       DisplayName: "Test TxMA SNS topic"
       TopicName: "TestTxMATopic"
-      Subscription:
-        - Protocol: sqs
-          Endpoint: !GetAtt FilterQueue.Arn
+
+  TestTxMASNSToFilterQueueSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref TestTxMASNS
+      Endpoint: !GetAtt FilterQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: true
 
   TestTxMASNSToFilterQueuePolicy:
     Type: AWS::SQS::QueuePolicy
@@ -140,8 +145,8 @@ Resources:
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-          OUTPUT_QUEUE_URL: !Ref CleanQueue
-      Handler: src/handlers/filter/handler.handler
+          OUTPUT_QUEUE_URL: !Ref StorageQueue
+      Handler: filter.handler
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -230,7 +235,7 @@ Resources:
           Type: SQS
           Properties:
             Queue: !GetAtt CleanQueue.Arn
-      Handler: src/handlers/clean.clean
+      Handler: filter.handler # This should be the clean handler once it exists
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -286,6 +291,34 @@ Resources:
       QueueName: clean-queue
 
 # Storage
+  StorageTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: EventId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: EventId
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        KMSMasterKeyId: !GetAtt KmsKey.Arn
+        SSEEnabled: true
+        SSEType: KMS
+
+  StorageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      QueueName: storage-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
+        maxReceiveCount: 1
+
   StorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -323,7 +356,8 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_TABLE: !Ref StorageTable
-      Handler: src/handlers/storage.save
+          STORAGE_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+      Handler: store.handler
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -373,31 +407,3 @@ Resources:
     Properties:
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: storage-function-dead-letter-queue
-
-  StorageQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      KmsMasterKeyId: !GetAtt KmsKey.Arn
-      QueueName: storage-queue
-      RedrivePolicy:
-        deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
-        maxReceiveCount: 1
-
-  StorageTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: EventId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: EventId
-          KeyType: HASH
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      SSESpecification:
-        KMSMasterKeyId: !GetAtt KmsKey.Arn
-        SSEEnabled: true
-        SSEType: KMS
