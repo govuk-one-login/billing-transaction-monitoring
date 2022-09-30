@@ -65,6 +65,11 @@ Publish a message on the SNS topic
 aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_name":"IPV_PASSPORT_CRI_REQUEST_SENT"}'
 ```
 
+Read from DynamoDB
+```sh
+aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name di-btm-StorageTable-e11f02af 
+```
+
 ## Licence
 
 [MIT License](LICENCE)

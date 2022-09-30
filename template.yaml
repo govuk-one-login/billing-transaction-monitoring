@@ -145,7 +145,7 @@ Resources:
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-          OUTPUT_QUEUE_URL: !Ref CleanQueue
+          OUTPUT_QUEUE_URL: !Ref StorageQueue
       Handler: filter.handler
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -291,6 +291,34 @@ Resources:
       QueueName: clean-queue
 
 # Storage
+  StorageTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: EventId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: EventId
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        KMSMasterKeyId: !GetAtt KmsKey.Arn
+        SSEEnabled: true
+        SSEType: KMS
+
+  StorageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      QueueName: storage-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
+        maxReceiveCount: 1
+
   StorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -328,6 +356,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_TABLE: !Ref StorageTable
+          STORAGE_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
       Handler: store.handler
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -378,31 +407,3 @@ Resources:
     Properties:
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       QueueName: storage-function-dead-letter-queue
-
-  StorageQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      KmsMasterKeyId: !GetAtt KmsKey.Arn
-      QueueName: storage-queue
-      RedrivePolicy:
-        deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
-        maxReceiveCount: 1
-
-  StorageTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: EventId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: EventId
-          KeyType: HASH
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      SSESpecification:
-        KMSMasterKeyId: !GetAtt KmsKey.Arn
-        SSEEnabled: true
-        SSEType: KMS
