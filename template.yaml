@@ -373,7 +373,7 @@ Resources:
               - kms:GenerateDataKey*
               - kms:Encrypt
             Resource: !GetAtt KmsKey.Arn
-          - Effect: All
+          - Effect: Allow
             Action:
               - dynamodb:PutItem
               - dynamodb:UpdateItem
