@@ -84,6 +84,23 @@ Resources:
       Queues:
         - Ref: FilterQueue
 
+  FilterFunctionToStorageQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "FilterFunctionToStorageQueuePolicy"
+            Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Resource: !GetAtt StorageQueue.Arn
+            Action: SQS:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref FilterFunction
+      Queues:
+        - Ref: StorageQueue
   # Security group for Lambdas
   LambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
