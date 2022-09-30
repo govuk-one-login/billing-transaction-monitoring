@@ -49,8 +49,8 @@ describe('Filter handler tests', () => {
     await handler(event);
 
     expect(mockSendMessage).toHaveBeenCalledTimes(2);
-    expect(mockSendMessage).toHaveBeenNthCalledWith(1, {MessageBody: JSON.stringify(validRecord1), QueueUrl: 'output-queue-url' }, expect.any(Function));
-    expect(mockSendMessage).toHaveBeenNthCalledWith(2,{MessageBody: JSON.stringify(validRecord2), QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(mockSendMessage).toHaveBeenNthCalledWith(1, {MessageBody: validRecord1.body, QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(mockSendMessage).toHaveBeenNthCalledWith(2,{MessageBody: validRecord2.body, QueueUrl: 'output-queue-url' }, expect.any(Function));
   });
 
 
@@ -81,8 +81,8 @@ describe('Filter handler tests', () => {
     const result = await handler(event);
 
     expect(mockSendMessage).toHaveBeenCalledTimes(2);
-    expect(mockSendMessage).toHaveBeenNthCalledWith(1, {MessageBody: JSON.stringify(validRecord), QueueUrl: 'output-queue-url' }, expect.any(Function));
-    expect(mockSendMessage).toHaveBeenNthCalledWith(2,{MessageBody: JSON.stringify(invalidRecord), QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(mockSendMessage).toHaveBeenNthCalledWith(1, {MessageBody: validRecord.body, QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(mockSendMessage).toHaveBeenNthCalledWith(2,{MessageBody: invalidRecord.body, QueueUrl: 'output-queue-url' }, expect.any(Function));
     expect(result.batchItemFailures.length).toEqual(1);
     expect(result.batchItemFailures[0].itemIdentifier).toEqual(2);
   });

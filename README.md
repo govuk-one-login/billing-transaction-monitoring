@@ -42,17 +42,12 @@ gds aws di-btm-dev -s
 before this to gain the correct privileges and will need to be on the VPN.
 
 ```sh
-localstack start -d
-```
-
-or to debug
-
-```sh
-DEBUG=1 localstack start
+docker run --rm -it -p 4566:4566 -p 4571:4571 -e LOCALSTACK_DEBUG=1 localstack/localstack
 ```
 
 ### Bringing up the stack
 ```sh
+npm run build
 samlocal build
 samlocal deploy --resolve-s3 --config-env local
 ```
@@ -67,7 +62,12 @@ aws --endpoint-url=http://localhost:4566 sns list-topics
 
 Publish a message on the SNS topic
 ```sh
-aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message 'Test Message!'
+aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_name":"IPV_PASSPORT_CRI_REQUEST_SENT"}'
+```
+
+Read from DynamoDB
+```sh
+aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name di-btm-StorageTable-e11f02af 
 ```
 
 ## Licence
