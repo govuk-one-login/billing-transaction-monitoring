@@ -17,6 +17,10 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+      - name: Run tests
+        run: npm test
+      - name: Build lambdas
+        run: npm run build
       - name: SAM setup
         uses: aws-actions/setup-sam@v2
       - name: Assume AWS role
