@@ -158,6 +158,10 @@ Resources:
               Resource: !GetAtt FilterQueue.Arn
             - Effect: Allow
               Action:
+                - sqs:SendMessage
+              Resource: !GetAtt StorageQueue.Arn
+            - Effect: Allow
+              Action:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
@@ -245,6 +249,10 @@ Resources:
                 - sqs:GetQueueAttributes
                 - sqs:ReceiveMessage
               Resource: !GetAtt CleanQueue.Arn
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !GetAtt StorageQueue.Arn
             - Effect: Allow
               Action:
                 - kms:Decrypt
