@@ -84,6 +84,39 @@ Resources:
       Queues:
         - Ref: FilterQueue
 
+    # Security group for Lambdas
+    LambdaSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: "Security group for Lambda that allows outbound HTTPS traffic"
+        GroupName: !Join
+          - "-"
+          - - !Ref AWS::StackName
+            - "LambdaSecurityGroup"
+            - Fn::Select:
+                - 4
+                - Fn::Split:
+                    - "-"
+                    - Fn::Select:
+                        - 2
+                        - Fn::Split:
+                            - "/"
+                            - Ref: AWS::StackId
+        VpcId:
+          Fn::ImportValue:
+            !Sub "${VpcStackName}-VpcId"
+        SecurityGroupEgress:
+          - Description: "Outbound HTTPS"
+            CidrIp: "0.0.0.0/0"
+            FromPort: 443
+            ToPort: 443
+            IpProtocol: "tcp"
+        Tags:
+          - Key: "Name"
+            Value: !Sub "${AWS::StackName}-LambdaSecurityGroup"
+          - Key: "Service"
+            Value: "di-billing-transaction-monitoring"
+
   KmsKey:
     Type: AWS::KMS::Key
     Properties:
@@ -169,7 +202,7 @@ Resources:
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
-          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
+          - !If [IsLocal, 'vpn-SecurityGroupId', !Ref LambdaSecurityGroup]
         SubnetIds:
           - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
           - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
