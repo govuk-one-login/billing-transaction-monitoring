@@ -319,6 +319,10 @@ Resources:
           Type: SQS
           Properties:
             Queue: !GetAtt StorageQueue.Arn
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          STORAGE_TABLE: !Ref StorageTable
       Handler: src/handlers/storage.save
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -335,6 +339,11 @@ Resources:
               - kms:GenerateDataKey*
               - kms:Encrypt
             Resource: !GetAtt KmsKey.Arn
+          - Effect: All
+            Action:
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+            Resource: !GetAtt StorageTable.Arn
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:

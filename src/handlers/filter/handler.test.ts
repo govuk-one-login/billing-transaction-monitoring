@@ -3,7 +3,7 @@ const mockSendMessage = jest.fn((params, callback) => {
 });
 
 import {handler} from './handler'
-import {SQSRecord} from 'aws-lambda'
+import {SQSHelper} from '../../../test-helpers/SQS'
 
 jest.mock('aws-sdk', () => {
   return {
@@ -31,7 +31,7 @@ describe('Filter handler tests', () => {
 
   test('Filter handler with empty event batch', async () => {
 
-    const event = createEvent([]);
+    const event = SQSHelper.createEvent([]);
 
     await handler(event);
 
@@ -41,14 +41,16 @@ describe('Filter handler tests', () => {
 
   test('Filter handler with some valid events and some ignored', async () => {
 
-    const validRecord1 = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT');
-    const validRecord2 = createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT');
-    const ignoredRecord = createEventRecordWithName('SOME_IGNORED_EVENT_NAME');
-    const event = createEvent([validRecord1, validRecord2, ignoredRecord]);
+    const validRecord1 = SQSHelper.createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT', 1);
+    const validRecord2 = SQSHelper.createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT', 2);
+    const ignoredRecord = SQSHelper.createEventRecordWithName('SOME_IGNORED_EVENT_NAME', 3);
+    const event = SQSHelper.createEvent([validRecord1, validRecord2, ignoredRecord]);
 
     await handler(event);
 
     expect(mockSendMessage).toHaveBeenCalledTimes(2);
+    expect(mockSendMessage).toHaveBeenNthCalledWith(1, {MessageBody: JSON.stringify(validRecord1), QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(mockSendMessage).toHaveBeenNthCalledWith(2,{MessageBody: JSON.stringify(validRecord2), QueueUrl: 'output-queue-url' }, expect.any(Function));
   });
 
 
@@ -56,28 +58,32 @@ describe('Filter handler tests', () => {
 
     process.env.OUTPUT_QUEUE_URL = undefined;
 
-    const validRecord = createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT');
+    const validRecord = SQSHelper.createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT', 1);
 
-    const event = createEvent([validRecord]);
+    const event = SQSHelper.createEvent([validRecord]);
 
     const result = await handler(event);
     expect(result.batchItemFailures.length).toEqual(1);
+    expect(result.batchItemFailures[0].itemIdentifier).toEqual(1);
   });
 
 
-  function createEvent(records: Array<SQSRecord>) {
-    return {
-      Records: records
-    };
-  }
+  test('Failing send message', async () => {
+    const validRecord = SQSHelper.createEventRecordWithName('IPV_PASSPORT_CRI_REQUEST_SENT',1);
+    const invalidRecord = SQSHelper.createEventRecordWithName('IPV_ADDRESS_CRI_REQUEST_SENT', 2);
 
-  function createEventRecordWithName(name: String): SQSRecord {
-    return {
-      body: JSON.stringify({
-        event_name: name,
-        timestamp: Date.now(),
-        component_id: 'KBV'
-      })
-    } as any;
-  }
+    const event = SQSHelper.createEvent([validRecord, invalidRecord]);
+
+    mockSendMessage
+        .mockImplementationOnce((params, callback) => callback())
+        .mockImplementationOnce((params, callback) => callback('error'));
+
+    const result = await handler(event);
+
+    expect(mockSendMessage).toHaveBeenCalledTimes(2);
+    expect(mockSendMessage).toHaveBeenNthCalledWith(1, {MessageBody: JSON.stringify(validRecord), QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(mockSendMessage).toHaveBeenNthCalledWith(2,{MessageBody: JSON.stringify(invalidRecord), QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(result.batchItemFailures.length).toEqual(1);
+    expect(result.batchItemFailures[0].itemIdentifier).toEqual(2);
+  });
 });
