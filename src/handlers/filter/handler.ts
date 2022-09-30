@@ -1,17 +1,7 @@
-import {SQSEvent, SQSRecord} from 'aws-lambda';
+import {SQSEvent} from 'aws-lambda';
 import AWS from 'aws-sdk';
-
-
-let VALID_EVENT_NAMES = new Set<string>([
-  'IPV_PASSPORT_CRI_REQUEST_SENT',
-  'IPV_PASSPORT_CRI_RESPONSE_RECEIVED',
-  'IPV_FRAUD_CRI_REQUEST_SENT',
-  'IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED',
-  'IPV_ADDRESS_CRI_REQUEST_SENT',
-  'IPV_ADDRESS_CRI_END',
-  'IPV_KBV_CRI_REQUEST_SENT',
-  'IPV_KBV_CRI_THIRD_PARTY_REQUEST_ENDED'
-]);
+import {VALID_EVENT_NAMES} from '../../shared/constants';
+import {sendRecord} from '../../shared/utils';
 
 const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 type Response = { batchItemFailures: { itemIdentifier: string }[] };
@@ -30,7 +20,17 @@ export const handler = async (event: SQSEvent) => {
     .map(async record => {
       console.log('Got record');
       try {
-        await sendRecord(record);
+        if (!process.env.OUTPUT_QUEUE_URL) {
+          const message = "Output queue URL not set.";
+          console.error(message);
+          throw new Error(message);
+        }
+
+        await sendRecord({
+          queueUrl: process.env.OUTPUT_QUEUE_URL,
+          record,
+          sqs,
+        });
       } catch (e) {
         response.batchItemFailures.push({itemIdentifier: record.messageId});
       }
@@ -39,31 +39,3 @@ export const handler = async (event: SQSEvent) => {
   await Promise.all(promises);
   return response;
 }
-
-async function sendRecord(record: SQSRecord) {
-  console.log('sending record ' + JSON.stringify(record));
-
-  if (!process.env.OUTPUT_QUEUE_URL) {
-    const message = "Output queue URL not set.";
-    console.error(message);
-    throw new Error(message);
-  }
-
-  const params = {
-    MessageBody: record.body,
-    QueueUrl: process.env.OUTPUT_QUEUE_URL
-  };
-
-  return new Promise((resolve, reject) => {
-    sqs.sendMessage(params, function (err: any, data: any) {
-      if (err) {
-        console.error(err, err.stack); // an error occurred
-        reject();
-      } else {
-        console.log(data);           // successful response
-        resolve('success');
-      }
-    });
-  });
-}
-
