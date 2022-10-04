@@ -1,24 +1,23 @@
-import { dynamoDBClient } from './clients/dynamoDbClient'
-import { payload,snsParam, publishSNS} from './helpers/snsHelper';
-import { getFilteredEventFromLatestLogStream } from './helpers/cloudWatchHelper'
-import {PublishResponse } from "@aws-sdk/client-sns";
-import { ScanCommand } from "@aws-sdk/client-dynamodb";
+import { payload, snsParam, publishSNS } from "./helpers/snsHelper";
+import { getFilteredEventFromLatestLogStream } from "./helpers/cloudWatchHelper";
+import { PublishResponse } from "@aws-sdk/client-sns";
+import { scanDB } from "./helpers/dynamoDBHelper";
 
-const TABLE_NAME = process.env["TABLENAME"];
+let snsResponse: PublishResponse;
+
 //below E2E tests is marked as skipped as still development in progress
 describe.skip("E2E tests", () => {
+  beforeAll(async () => {
+    snsResponse = await publishSNS(snsParam);
+    expect(snsResponse).toHaveProperty("MessageId");
+  });
   test("Publish sns message and expect message to reach dynamoDB ", async () => {
-    const response = await publishSNS(snsParam);
-    const dynamoParams = {
-      TableName: TABLE_NAME,
-    };
-    const data = await dynamoDBClient.send(new ScanCommand(dynamoParams));
+    const data = await scanDB();
     expect(JSON.stringify(data.Items)).toContain(snsParam.Message);
   });
 });
 
 describe("Publish SNS event and validate lambda functions triggered", () => {
-  let snsResponse: PublishResponse;
   beforeAll(async () => {
     snsResponse = await publishSNS(snsParam);
   });
@@ -27,6 +26,6 @@ describe("Publish SNS event and validate lambda functions triggered", () => {
     expect(snsResponse).toHaveProperty("MessageId");
     const logs = await getFilteredEventFromLatestLogStream();
     expect(JSON.stringify(logs)).not.toContain("ERROR");
-    expect(JSON.stringify(logs)).toContain(payload.eventId.toString())
-   });
+    expect(JSON.stringify(logs)).toContain(payload.eventId.toString());
+  });
 });
