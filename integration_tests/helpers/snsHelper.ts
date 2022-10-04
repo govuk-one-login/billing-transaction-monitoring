@@ -1,7 +1,7 @@
 import { snsClient } from "../clients/snsClient";
 import { PublishCommand, PublishInput } from "@aws-sdk/client-sns";
 
-const eventId = new Date().getTime();
+const eventId = new Date().getTime(); //current timestamp to generate unique eventId each time
 const snsTopicARN = process.env["SNS_TOPIC_ARN"];
 
 const payload = {
@@ -10,7 +10,7 @@ const payload = {
 };
 
 const snsParam = {
-  Message: JSON.stringify(payload), //added timestamp to generate unique message each time
+  Message: JSON.stringify(payload),
   TopicArn: snsTopicARN,
 };
 
