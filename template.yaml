@@ -197,7 +197,7 @@ Resources:
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-          OUTPUT_QUEUE_URL: !Ref StorageQueue
+          OUTPUT_QUEUE_URL: !Ref CleanQueue
       Handler: filter.handler
       Policies:
         - AWSLambdaBasicExecutionRole

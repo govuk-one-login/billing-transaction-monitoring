@@ -9,6 +9,7 @@ export type RecordSenderArgument = {
 
 export async function sendRecord({ queueUrl, record, sqs }: RecordSenderArgument) {
   console.log("sending record " + JSON.stringify(record));
+  console.log("queueurl " + JSON.stringify(queueUrl));
 
   const params = {
     MessageBody: JSON.stringify(record),
