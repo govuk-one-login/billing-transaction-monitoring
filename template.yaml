@@ -183,6 +183,7 @@ Resources:
       Threshold: 0
 
   FilterFunction:
+    # checkov:skip=CKV_AWS_117: Test only
     Type: AWS::Serverless::Function
     Properties:
       DeadLetterQueue:
@@ -218,12 +219,6 @@ Resources:
                 - kms:Encrypt
               Resource: !GetAtt KmsKey.Arn
       ReservedConcurrentExecutions: 10
-      VpcConfig:
-        SecurityGroupIds:
-          - !If [IsLocal, 'vpn-SecurityGroupId', !Ref LambdaSecurityGroup]
-        SubnetIds:
-          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
-          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
   FilterFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
