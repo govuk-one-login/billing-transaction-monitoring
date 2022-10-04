@@ -8,17 +8,13 @@ Monitors user identity verification events for billing purposes
 - [Node.js](https://nodejs.org/en/) version 16 - Recommended way to install is via [NVM](https://github.com/nvm-sh/nvm)
 - [Docker](https://docs.docker.com/get-docker/) - Required to run SAM locally
 
-## Run
-
-```sh
-sam build
-sam local invoke CleanFunction --no-event  # TODO: add filtered transaction event (Jira: BTM-62)
-sam local invoke StorageFunction --no-event  # TODO: add filtered & cleaned transaction event (Jira: BTM-63)
-```
-
 ## Check before commit
 ```sh
 checkov -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies
+```
+N.B. You may get Python errors due to conflicting dependencies with SAM CLI. If you do, run this and try again:
+```sh
+pip3 install checkov
 ```
 
 ## LocalStack
@@ -31,7 +27,7 @@ The entire stack can be brought up locally using localstack.
 ### To install
 ```sh
 python3 -m pip install localstack
-pip install aws-sam-cli-local
+pip3 install aws-sam-cli-local
 ```
 
 ### Start localstack
@@ -50,6 +46,10 @@ docker run --rm -it -p 4566:4566 -p 4571:4571 -e LOCALSTACK_DEBUG=1 localstack/l
 npm run build
 samlocal build
 samlocal deploy --resolve-s3 --config-env local
+```
+N.B. You may get Python errors due to conflicting dependencies with Checkov. If you do, run this and try again:
+```sh
+pip3 install aws-sam-cli
 ```
 
 ### Interrogating the stack

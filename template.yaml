@@ -284,12 +284,17 @@ Resources:
       DeadLetterQueue:
         TargetArn: !GetAtt CleanFunctionDeadLetterQueue.Arn
         Type: SQS
+      Environment:
+        Variables:
+          AWS_ENV: !Ref Environment
+          OUTPUT_QUEUE_URL: !Ref StorageQueue
       Events:
         CleanEvent:
           Type: SQS
           Properties:
             Queue: !GetAtt CleanQueue.Arn
-      Handler: filter.handler # This should be the clean handler once it exists
+      Handler: clean.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -309,6 +314,10 @@ Resources:
                 - kms:GenerateDataKey*
                 - kms:Encrypt
               Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !GetAtt StorageQueue.Arn
       ReservedConcurrentExecutions: 10
       VpcConfig:
         SecurityGroupIds:
