@@ -4,6 +4,7 @@ import {
   LogStream,
   FilterLogEventsCommandInput,
   FilterLogEventsCommandOutput,
+  FilteredLogEvent,
   FilterLogEventsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
 
@@ -42,14 +43,18 @@ async function getFilteredEventFromLatestLogStream() {
   const params: FilterLogEventsCommandInput = {
     logGroupName: process.env["LATEST_LOG_GROUP_NAME"],
     logStreamNamePrefix: latestLogStreamName,
-    filterPattern: '{$.body="*"}',
+    filterPattern: "INFO sending record",
     startTime: eventId,
   };
-
+  console.log("Filtered parameters:", params);
   const response: FilterLogEventsCommandOutput =
     await cloudWatchLogsClient.send(new FilterLogEventsCommand(params));
   console.log("FilteredCloudWatchLog:", response);
-  return response.events?.filter((data) => data.message?.includes("eventId"));
+  const events: FilteredLogEvent[] = response.events ?? [];
+  if (events.length > 0) {
+    return events;
+  }
+  console.error("Filetered events empty", events);
 }
 
 export { getFilteredEventFromLatestLogStream };
