@@ -22,10 +22,6 @@ Parameters:
     Description: ARN of permissions boundary for new roles
     Type: String
     Default: none
-  VpcStackName:
-    Description: Stack name for VPC in which to run
-    Type: String
-    Default: vpc
 
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
@@ -84,57 +80,6 @@ Resources:
       Queues:
         - Ref: FilterQueue
 
-  FilterFunctionToCleanQueuePolicy:
-    Type: AWS::SQS::QueuePolicy
-    Properties:
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Sid: "FilterFunctionToCleanQueuePolicy"
-            Effect: Allow
-            Principal:
-              Service: "lambda.amazonaws.com"
-            Resource: !GetAtt CleanQueue.Arn
-            Action: SQS:SendMessage
-            Condition:
-              ArnEquals:
-                aws:SourceArn: !Ref FilterFunction
-      Queues:
-        - Ref: CleanQueue
-
-  # Security group for Lambdas
-  LambdaSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: "Security group for Lambda that allows outbound HTTPS traffic"
-      GroupName: !Join
-        - "-"
-        - - !Ref AWS::StackName
-          - "LambdaSecurityGroup"
-          - Fn::Select:
-              - 4
-              - Fn::Split:
-                  - "-"
-                  - Fn::Select:
-                      - 2
-                      - Fn::Split:
-                          - "/"
-                          - Ref: AWS::StackId
-      VpcId:
-        Fn::ImportValue:
-          !Sub "${VpcStackName}-VpcId"
-      SecurityGroupEgress:
-        - Description: "Outbound HTTPS"
-          CidrIp: "0.0.0.0/0"
-          FromPort: 443
-          ToPort: 443
-          IpProtocol: "tcp"
-      Tags:
-        - Key: "Name"
-          Value: !Sub "${AWS::StackName}-LambdaSecurityGroup"
-        - Key: "Service"
-          Value: "di-billing-transaction-monitoring"
-
   KmsKey:
     Type: AWS::KMS::Key
     Properties:
@@ -183,7 +128,7 @@ Resources:
       Threshold: 0
 
   FilterFunction:
-    # checkov:skip=CKV_AWS_117: Test only
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
       DeadLetterQueue:
@@ -275,6 +220,7 @@ Resources:
       Threshold: 0
 
   CleanFunction:
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
       DeadLetterQueue:
@@ -310,17 +256,7 @@ Resources:
                 - kms:GenerateDataKey*
                 - kms:Encrypt
               Resource: !GetAtt KmsKey.Arn
-            - Effect: Allow
-              Action:
-                - sqs:SendMessage
-              Resource: !GetAtt StorageQueue.Arn
       ReservedConcurrentExecutions: 10
-      VpcConfig:
-        SecurityGroupIds:
-          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
-        SubnetIds:
-          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
-          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
   CleanFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -405,6 +341,7 @@ Resources:
       Threshold: 0
 
   StorageFunction:
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
       DeadLetterQueue:
@@ -442,12 +379,6 @@ Resources:
               - dynamodb:UpdateItem
             Resource: !GetAtt StorageTable.Arn
       ReservedConcurrentExecutions: 10
-      VpcConfig:
-        SecurityGroupIds:
-          - !If [IsLocal, 'vpn-SecurityGroupId', Fn::ImportValue: !Sub '${VpcStackName}-AWSServicesEndpointSecurityGroupId']
-        SubnetIds:
-          - !If [IsLocal, 'vpn-SubnetA', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdA']
-          - !If [IsLocal, 'vpn-SubnetB', Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnetIdB']
 
   StorageFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
