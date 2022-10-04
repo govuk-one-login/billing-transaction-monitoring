@@ -1,18 +1,13 @@
-const mockSendMessage = jest.fn((params, callback) => {
-  callback();
-});
-
+import { SQS } from "aws-sdk";
 import {handler} from './handler'
 import {SQSHelper} from '../../../test-helpers/SQS'
+import {sendRecord} from '../../shared/utils'
 
-jest.mock('aws-sdk', () => {
-  return {
-    SQS: jest.fn(() => ({
-      sendMessage: mockSendMessage
-    }))
-  };
-});
+jest.mock("aws-sdk");
+const MockedSQS = SQS as jest.MockedClass<typeof SQS>;
 
+jest.mock('../../shared/utils');
+const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>
 
 describe('Filter handler tests', () => {
 
@@ -20,7 +15,7 @@ describe('Filter handler tests', () => {
 
   beforeEach(() => {
     process.env = { ...OLD_ENV };
-    mockSendMessage.mockClear();
+    mockedSendRecord.mockClear();
     process.env.OUTPUT_QUEUE_URL = 'output-queue-url';
   })
 
@@ -35,7 +30,7 @@ describe('Filter handler tests', () => {
 
     await handler(event);
 
-    expect(mockSendMessage).not.toHaveBeenCalled();
+    expect(mockedSendRecord).not.toHaveBeenCalled();
   });
 
 
@@ -48,9 +43,9 @@ describe('Filter handler tests', () => {
 
     await handler(event);
 
-    expect(mockSendMessage).toHaveBeenCalledTimes(2);
-    expect(mockSendMessage).toHaveBeenNthCalledWith(1, {MessageBody: validRecord1.body, QueueUrl: 'output-queue-url' }, expect.any(Function));
-    expect(mockSendMessage).toHaveBeenNthCalledWith(2,{MessageBody: validRecord2.body, QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(mockedSendRecord).toHaveBeenCalledTimes(2);
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(1, {queueUrl: 'output-queue-url', record: validRecord1, sqs: MockedSQS.mock.instances[0] });
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(2,{queueUrl: 'output-queue-url', record: validRecord2, sqs: MockedSQS.mock.instances[0] });
   });
 
 
@@ -74,15 +69,17 @@ describe('Filter handler tests', () => {
 
     const event = SQSHelper.createEvent([validRecord, invalidRecord]);
 
-    mockSendMessage
-        .mockImplementationOnce((params, callback) => callback())
-        .mockImplementationOnce((params, callback) => callback('error'));
+    mockedSendRecord
+        .mockImplementationOnce(async () => {})
+        .mockImplementationOnce(async () => {
+          throw new Error('error');
+        });
 
     const result = await handler(event);
 
-    expect(mockSendMessage).toHaveBeenCalledTimes(2);
-    expect(mockSendMessage).toHaveBeenNthCalledWith(1, {MessageBody: validRecord.body, QueueUrl: 'output-queue-url' }, expect.any(Function));
-    expect(mockSendMessage).toHaveBeenNthCalledWith(2,{MessageBody: invalidRecord.body, QueueUrl: 'output-queue-url' }, expect.any(Function));
+    expect(mockedSendRecord).toHaveBeenCalledTimes(2);
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(1, {queueUrl: 'output-queue-url', record: validRecord, sqs: MockedSQS.mock.instances[0] });
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(2,{queueUrl: 'output-queue-url', record: invalidRecord, sqs: MockedSQS.mock.instances[0] });
     expect(result.batchItemFailures.length).toEqual(1);
     expect(result.batchItemFailures[0].itemIdentifier).toEqual(2);
   });
