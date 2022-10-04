@@ -84,23 +84,24 @@ Resources:
       Queues:
         - Ref: FilterQueue
 
-  FilterFunctionToStorageQueuePolicy:
+  FilterFunctionToCleanQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Sid: "FilterFunctionToStorageQueuePolicy"
+          - Sid: "FilterFunctionToCleanQueuePolicy"
             Effect: Allow
             Principal:
               Service: "lambda.amazonaws.com"
-            Resource: !GetAtt StorageQueue.Arn
+            Resource: !GetAtt CleanQueue.Arn
             Action: SQS:SendMessage
             Condition:
               ArnEquals:
                 aws:SourceArn: !Ref FilterFunction
       Queues:
-        - Ref: StorageQueue
+        - Ref: CleanQueue
+
   # Security group for Lambdas
   LambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -209,7 +210,7 @@ Resources:
             - Effect: Allow
               Action:
                 - sqs:SendMessage
-              Resource: !GetAtt StorageQueue.Arn
+              Resource: !GetAtt CleanQueue.Arn
             - Effect: Allow
               Action:
                 - kms:Decrypt
