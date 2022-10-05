@@ -14,9 +14,9 @@ import { eventId } from "../helpers/snsHelper";
 
 import delay from "delay";
 
-async function getCloudWatchLatestLogStreams(logGroup: string) {
+async function getCloudWatchLatestLogStreams(log_groupName: string) {
   const params = {
-    logGroupName: logGroup,
+    logGroupName: log_groupName,
     orderBy: "LastEventTime",
     descending: true,
     limit: 1,
@@ -29,8 +29,8 @@ async function getCloudWatchLatestLogStreams(logGroup: string) {
   return latestLogStearmResponse;
 }
 
-async function getCloudWatchLatestLogStreamName(logGroup: string) {
-  const logStream: LogStream[] = await getCloudWatchLatestLogStreams(logGroup);
+async function getCloudWatchLatestLogStreamName(log_groupName: string) {
+  const logStream: LogStream[] = await getCloudWatchLatestLogStreams(log_groupName);
   if (logStream.length > 0) {
     const result = logStream[0].logStreamName as string;
     return result;
@@ -39,11 +39,11 @@ async function getCloudWatchLatestLogStreamName(logGroup: string) {
   }
 }
 
-async function getFilteredEventFromLatestLogStream(logGroup: string) {
-  const latestLogStreamName = await getCloudWatchLatestLogStreamName(logGroup);
+async function getFilteredEventFromLatestLogStream(log_groupName: string) {
+  const latestLogStreamName = await getCloudWatchLatestLogStreamName(log_groupName);
   console.log("Latest Log StreamName:", latestLogStreamName);
   const params: FilterLogEventsCommandInput = {
-    logGroupName: logGroup,
+    logGroupName: log_groupName,
     logStreamNamePrefix: latestLogStreamName,
     startTime: eventId,
   };
