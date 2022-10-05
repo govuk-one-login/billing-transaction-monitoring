@@ -34,6 +34,8 @@ async function getCloudWatchLatestLogStreamName() {
   if (logStream.length > 0) {
     const result = logStream[0].logStreamName as string;
     return result;
+  } else {
+    throw Error("No log streams found");
   }
 }
 
@@ -53,8 +55,9 @@ async function getFilteredEventFromLatestLogStream() {
   const events: FilteredLogEvent[] = response.events ?? [];
   if (events.length > 0) {
     return events;
+  } else {
+    throw Error("Filtered events empty");
   }
-  console.error("Filetered events empty", events);
 }
 
 export { getFilteredEventFromLatestLogStream };
