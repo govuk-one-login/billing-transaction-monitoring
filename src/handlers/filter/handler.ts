@@ -14,11 +14,11 @@ export const handler = async (event: SQSEvent) => {
   const promises = event.Records
     .filter(record => {
       const body = JSON.parse(record.body);
-      console.log("body " + body.event_name);
+      console.log(body.event_name);
       return body && body.event_name && VALID_EVENT_NAMES.has(body.event_name);
     })
     .map(async record => {
-      console.log('Got record');
+      console.log('record ' + record);
       try {
         if (!process.env.OUTPUT_QUEUE_URL) {
           const message = "Output queue URL not set.";
