@@ -75,6 +75,19 @@ Read from DynamoDB
 aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name di-btm-StorageTable-41771683 
 ```
 
+### Running the integration tests
+set the following variables in ~/.bash_profile file 
+[SNS_TOPIC_ARN]
+[LATEST_LOG_GROUP_NAME]
+
+Then Run the below commands from terminal
+```
+source ~/.bash_profile
+npm run test:integration
+
+````
+
+
 ## Licence
 
 [MIT License](LICENCE)
