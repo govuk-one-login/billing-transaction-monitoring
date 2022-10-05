@@ -39,7 +39,7 @@ export const handler = async (event: SQSEvent) => {
 
 async function cleanRecord(record: SQSRecord) {
   const bodyObject = JSON.parse(record.body);
-
+  console.log(bodyObject);
   if (
     typeof bodyObject?.component_id !== "string" ||
     !VALID_EVENT_NAMES.has(bodyObject?.event_name) ||
