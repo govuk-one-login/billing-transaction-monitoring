@@ -6,6 +6,11 @@ import {
   FilterLogEventsCommandOutput,
   FilteredLogEvent,
   FilterLogEventsCommand,
+  GetLogGroupFieldsCommandOutput,
+  GetLogGroupFieldsCommand,
+  DescribeLogGroupsCommandOutput,
+  DescribeLogGroupsCommand,
+  LogGroup,
 } from "@aws-sdk/client-cloudwatch-logs";
 
 import { cloudWatchLogsClient } from "../clients/cloudWatchLogsClient";
@@ -14,9 +19,27 @@ import { eventId } from "../helpers/snsHelper";
 
 import delay from "delay";
 
-async function getCloudWatchLatestLogStreams(log_groupName: string) {
+async function getLogGroupsList() {
+  const params = {};
+  const response: DescribeLogGroupsCommandOutput =
+    await cloudWatchLogsClient.send(new DescribeLogGroupsCommand(params));
+  const logGroups: LogGroup[] = response.logGroups ?? [];
+  return logGroups;
+}
+
+async function getLogGroupName(logName: string) {
+  const groupNameList = await getLogGroupsList();
+  const groupName: LogGroup = groupNameList.find((data) =>
+    data.logGroupName?.match(logName)
+  ) as LogGroup;
+  const name = groupName.logGroupName?.valueOf();
+  console.log("**Log GroupName**",name)
+  return name;
+}
+
+async function getCloudWatchLatestLogStreams(logName: string) {
   const params = {
-    logGroupName: log_groupName,
+    logGroupName: await getLogGroupName(logName),
     orderBy: "LastEventTime",
     descending: true,
     limit: 1,
@@ -29,8 +52,8 @@ async function getCloudWatchLatestLogStreams(log_groupName: string) {
   return latestLogStearmResponse;
 }
 
-async function getCloudWatchLatestLogStreamName(log_groupName: string) {
-  const logStream: LogStream[] = await getCloudWatchLatestLogStreams(log_groupName);
+async function getCloudWatchLatestLogStreamName(logName: string) {
+  const logStream: LogStream[] = await getCloudWatchLatestLogStreams(logName);
   if (logStream.length > 0) {
     const result = logStream[0].logStreamName as string;
     return result;
@@ -39,11 +62,11 @@ async function getCloudWatchLatestLogStreamName(log_groupName: string) {
   }
 }
 
-async function getFilteredEventFromLatestLogStream(log_groupName: string) {
-  const latestLogStreamName = await getCloudWatchLatestLogStreamName(log_groupName);
+async function getFilteredEventFromLatestLogStream(logName: string) {
+  const latestLogStreamName = await getCloudWatchLatestLogStreamName(logName);
   console.log("Latest Log StreamName:", latestLogStreamName);
   const params: FilterLogEventsCommandInput = {
-    logGroupName: log_groupName,
+    logGroupName: await getLogGroupName(logName),
     logStreamNamePrefix: latestLogStreamName,
     startTime: eventId,
   };
@@ -59,4 +82,4 @@ async function getFilteredEventFromLatestLogStream(log_groupName: string) {
   }
 }
 
-export { getFilteredEventFromLatestLogStream };
+export { getFilteredEventFromLatestLogStream, getLogGroupName };
