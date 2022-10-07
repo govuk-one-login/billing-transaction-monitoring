@@ -78,7 +78,10 @@ aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name di-btm-Stora
 ### Running the integration tests
 set the following variables in ~/.bash_profile file 
 [SNS_TOPIC_ARN]
-[LATEST_LOG_GROUP_NAME]
+[FILTER_FUNCTION_LOG_GROUP_NAME]
+[CLEAN_FUNCTION_LOG_GROUP_NAME]
+[STORE_FUNCTION_LOG_GROUP_NAME]
+[TABLENAME]
 
 Then Run the below commands from terminal
 ```

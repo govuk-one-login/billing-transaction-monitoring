@@ -1,10 +1,9 @@
 import { dynamoDBClient } from "../clients/dynamoDbClient";
 import { ScanCommand, ScanInput } from "@aws-sdk/client-dynamodb";
-
-const TABLE_NAME = process.env["TABLENAME"];
+import { dynamoDbTable } from "../setup/testEnvVar";
 
 const dynamoParams: ScanInput = {
-  TableName: TABLE_NAME,
+  TableName: dynamoDbTable,
 };
 
 async function scanDB() {
