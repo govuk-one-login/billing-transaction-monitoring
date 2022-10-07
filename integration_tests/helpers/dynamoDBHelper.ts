@@ -1,6 +1,6 @@
 import { dynamoDBClient } from "../clients/dynamoDbClient";
 import { ScanCommand, ScanInput } from "@aws-sdk/client-dynamodb";
-import { dynamoDbTable } from "../setup/testEnvVar";
+import { dynamoDbTable } from "../setup/testConstants";
 
 const dynamoParams: ScanInput = {
   TableName: dynamoDbTable,
