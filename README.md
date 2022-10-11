@@ -62,7 +62,7 @@ aws --endpoint-url=http://localhost:4566 sns list-topics
 
 Publish a message on the SNS topic
 ```sh
-aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_name":"EVENT_1", "EventId": "1234", "component_id": "TEST_COMP", "timestamp": 1342433}'
+aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_name":"EVENT_1", "event_id": "1234", "component_id": "TEST_COMP", "timestamp": 1342433}'
 ```
 
 List the tables in DynamoDB
@@ -72,7 +72,7 @@ aws --endpoint-url=http://localhost:4566 dynamodb list-tables
 
 Read from DynamoDB
 ```sh
-aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name di-btm-StorageTable-41771683 
+aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name di-btm-StorageTable-174d2ccf 
 ```
 
 ### Running the integration tests

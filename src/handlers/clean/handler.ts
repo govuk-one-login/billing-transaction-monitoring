@@ -37,7 +37,6 @@ export const handler = async (event: SQSEvent) => {
 
 async function cleanRecord(record: SQSRecord) {
   const bodyObject = JSON.parse(record.body);
-  console.log("body " + record.body);
   if (
     typeof bodyObject?.component_id !== "string" ||
     !VALID_EVENT_NAMES.has(bodyObject?.event_name) ||
@@ -91,16 +90,5 @@ async function cleanRecord(record: SQSRecord) {
         : undefined,
   };
 
-  await sendRecord(
-    process.env.AWS_ENV === "local"
-        ? process.env.OUTPUT_QUEUE_URL.replace(
-            /^http\:\/\/localhost\:/,
-            `http://${process.env.LOCALSTACK_HOSTNAME}:`
-          )
-        : process.env.OUTPUT_QUEUE_URL,
-    {
-      ...record,
-      body: JSON.stringify(cleanedBodyObject),
-    }
-  );
+  await sendRecord(process.env.OUTPUT_QUEUE_URL, JSON.stringify(cleanedBodyObject));
 }
