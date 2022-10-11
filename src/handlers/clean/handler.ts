@@ -1,5 +1,4 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
-import AWS from "aws-sdk";
 import { VALID_EVENT_NAMES } from "../../shared/constants";
 import { ValidEventName } from "../../shared/types";
 import { sendRecord } from "../../shared/utils";
@@ -19,7 +18,6 @@ type CleanedEventBodyObject = {
   };
 };
 
-const sqs = new AWS.SQS({ apiVersion: "2012-11-05" });
 type Response = { batchItemFailures: { itemIdentifier: string }[] };
 
 export const handler = async (event: SQSEvent) => {
@@ -39,7 +37,7 @@ export const handler = async (event: SQSEvent) => {
 
 async function cleanRecord(record: SQSRecord) {
   const bodyObject = JSON.parse(record.body);
-  console.log("body " + bodyObject);
+  console.log("body " + record.body);
   if (
     typeof bodyObject?.component_id !== "string" ||
     !VALID_EVENT_NAMES.has(bodyObject?.event_name) ||
@@ -93,18 +91,16 @@ async function cleanRecord(record: SQSRecord) {
         : undefined,
   };
 
-  await sendRecord({
-    queueUrl:
-      process.env.AWS_ENV === "local"
+  await sendRecord(
+    process.env.AWS_ENV === "local"
         ? process.env.OUTPUT_QUEUE_URL.replace(
             /^http\:\/\/localhost\:/,
             `http://${process.env.LOCALSTACK_HOSTNAME}:`
           )
         : process.env.OUTPUT_QUEUE_URL,
-    record: {
+    {
       ...record,
       body: JSON.stringify(cleanedBodyObject),
-    },
-    sqs,
-  });
+    }
+  );
 }

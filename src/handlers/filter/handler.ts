@@ -1,11 +1,8 @@
 import {SQSEvent} from 'aws-lambda';
-import AWS from 'aws-sdk';
 import {VALID_EVENT_NAMES} from '../../shared/constants';
 import {sendRecord} from '../../shared/utils';
 
-const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 type Response = { batchItemFailures: { itemIdentifier: string }[] };
-
 
 export const handler = async (event: SQSEvent) => {
 
@@ -26,11 +23,7 @@ export const handler = async (event: SQSEvent) => {
           throw new Error(message);
         }
 
-        await sendRecord({
-          queueUrl: process.env.OUTPUT_QUEUE_URL,
-          record,
-          sqs,
-        });
+        await sendRecord(process.env.OUTPUT_QUEUE_URL, record);
       } catch (e) {
         response.batchItemFailures.push({itemIdentifier: record.messageId});
       }

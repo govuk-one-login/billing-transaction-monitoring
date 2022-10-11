@@ -1,23 +1,17 @@
-import { SQSRecord } from "aws-lambda";
-import { SQS } from "aws-sdk";
-import { sendRecord, RecordSenderArgument } from "./sqs";
+import {mockClient} from "aws-sdk-client-mock";
+import {SendMessageCommand, SQSClient} from "@aws-sdk/client-sqs";
+import {sendRecord} from "./sqs";
+import {SQSRecord} from "aws-lambda";
+
+const sqsMock = mockClient(SQSClient);
 
 describe("Record sender tests", () => {
   const oldConsoleLog = console.log;
-  let givenArgument: RecordSenderArgument;
-  let mockedSendMessage: jest.Mock<unknown>;
+  const queueUrl = "given queue URL";
+  const record = "given record" as unknown as SQSRecord;
 
   beforeEach(() => {
     console.log = jest.fn();
-    mockedSendMessage = jest.fn();
-
-    givenArgument = {
-      queueUrl: "given queue URL",
-      record: "given record" as unknown as SQSRecord,
-      sqs: {
-        sendMessage: mockedSendMessage,
-      } as unknown as SQS,
-    };
   });
 
   afterAll(() => {
@@ -25,40 +19,23 @@ describe("Record sender tests", () => {
   });
 
   test("Record sender with callback error", async () => {
-    const resultPromise = sendRecord(givenArgument);
+    sqsMock.on(SendMessageCommand).rejects('An error');
 
-    expect(mockedSendMessage).toHaveBeenCalledTimes(1);
-
-    const resultSendMessageArguments = mockedSendMessage.mock.calls[0];
-    expect(resultSendMessageArguments).toHaveLength(2);
-
-    expect(resultSendMessageArguments[0]).toEqual({
-      MessageBody: JSON.stringify(givenArgument.record),
-      QueueUrl: givenArgument.queueUrl,
+    await expect(sendRecord(queueUrl, record)).rejects.toMatchObject({message: 'An error'});
+    expect(sqsMock.calls()[0].firstArg.input).toEqual({
+      MessageBody: JSON.stringify(record),
+      QueueUrl: queueUrl,
     });
-
-    const resultCallback = resultSendMessageArguments[1];
-    resultCallback("some error");
-    let resultPromiseFailed = false;
-    try {
-      await resultPromise;
-    } catch (e) {
-      resultPromiseFailed = true;
-    }
-    expect(resultPromiseFailed).toBe(true);
   });
 
   test("Record sender without callback error", async () => {
-    const resultPromise = sendRecord(givenArgument);
+    sqsMock.on(SendMessageCommand).resolves({});
 
-    expect(mockedSendMessage).toHaveBeenCalledTimes(1);
+    await sendRecord(queueUrl, record);
 
-    const resultSendMessageArguments = mockedSendMessage.mock.calls[0];
-    expect(resultSendMessageArguments).toHaveLength(2);
-
-    const resultCallback = resultSendMessageArguments[1];
-    resultCallback();
-    const result = await resultPromise;
-    expect(result).toBe("success");
+    expect(sqsMock.calls()[0].firstArg.input).toEqual({
+      MessageBody: JSON.stringify(record),
+      QueueUrl: queueUrl,
+    });
   });
 });
