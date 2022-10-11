@@ -40,8 +40,8 @@ describe('Filter handler tests', () => {
     await handler(event);
 
     expect(mockedSendRecord).toHaveBeenCalledTimes(2);
-    expect(mockedSendRecord).toHaveBeenNthCalledWith(1, 'output-queue-url', validRecord1);
-    expect(mockedSendRecord).toHaveBeenNthCalledWith(2,'output-queue-url', validRecord2);
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(1, 'output-queue-url', validRecord1.body);
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(2,'output-queue-url', validRecord2.body);
   });
 
 
@@ -74,8 +74,8 @@ describe('Filter handler tests', () => {
     const result = await handler(event);
 
     expect(mockedSendRecord).toHaveBeenCalledTimes(2);
-    expect(mockedSendRecord).toHaveBeenNthCalledWith(1, 'output-queue-url', validRecord);
-    expect(mockedSendRecord).toHaveBeenNthCalledWith(2,'output-queue-url', invalidRecord);
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(1, 'output-queue-url', validRecord.body);
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(2,'output-queue-url', invalidRecord.body);
     expect(result.batchItemFailures.length).toEqual(1);
     expect(result.batchItemFailures[0].itemIdentifier).toEqual(2);
   });

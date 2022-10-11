@@ -23,7 +23,7 @@ export const handler = async (event: SQSEvent) => {
           throw new Error(message);
         }
 
-        await sendRecord(process.env.OUTPUT_QUEUE_URL, record);
+        await sendRecord(process.env.OUTPUT_QUEUE_URL, record.body);
       } catch (e) {
         response.batchItemFailures.push({itemIdentifier: record.messageId});
       }

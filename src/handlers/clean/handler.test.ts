@@ -102,7 +102,7 @@ test("Clean handler with minimal valid event record", async () => {
     });
     expect(result.batchItemFailures).toHaveLength(0);
     expect(mockedSendRecord).toHaveBeenCalledTimes(1);
-    expect(mockedSendRecord).toHaveBeenCalledWith(process.env.OUTPUT_QUEUE_URL, record);
+    expect(mockedSendRecord).toHaveBeenCalledWith(process.env.OUTPUT_QUEUE_URL, recordBody);
 });
 
 test("Clean handler with valid event record that has unwanted field", async () => {
@@ -122,7 +122,7 @@ test("Clean handler with valid event record that has unwanted field", async () =
     });
     expect(result.batchItemFailures).toHaveLength(0);
     expect(mockedSendRecord).toHaveBeenCalledTimes(1);
-    expect(mockedSendRecord).toHaveBeenCalledWith(process.env.OUTPUT_QUEUE_URL, createRecord(JSON.stringify(validRecordBodyObject)));
+    expect(mockedSendRecord).toHaveBeenCalledWith(process.env.OUTPUT_QUEUE_URL, JSON.stringify(validRecordBodyObject));
 });
 
 test("Clean handler with valid event record that has invalid optional values", async () => {
@@ -150,7 +150,7 @@ test("Clean handler with valid event record that has invalid optional values", a
     expect(mockedSendRecord).toHaveBeenCalledTimes(1);
     expect(mockedSendRecord).toHaveBeenCalledTimes(1);
     expect(mockedSendRecord).toHaveBeenCalledWith(process.env.OUTPUT_QUEUE_URL,
-        createRecord(JSON.stringify({...validRecordBodyObject, user: {}})));
+        JSON.stringify({...validRecordBodyObject, user: {}}));
 });
 
 test("Clean handler with valid event record that has valid optional values", async () => {
@@ -181,7 +181,7 @@ test("Clean handler with valid event record that has valid optional values", asy
     expect(mockedSendRecord).toHaveBeenCalledTimes(1);
     const resultSendRecordArguments = mockedSendRecord.mock.calls[0];
     expect(resultSendRecordArguments).toHaveLength(2);
-    const resultRecordBodyObject = JSON.parse(resultSendRecordArguments[1].body);
+    const resultRecordBodyObject = JSON.parse(resultSendRecordArguments[1]);
     expect(resultRecordBodyObject).toEqual(recordBodyObject);
     expect(resultSendRecordArguments[0]).toBe(process.env.OUTPUT_QUEUE_URL);
   });
@@ -204,21 +204,6 @@ test("SQS output queue not defined", async () => {
         itemIdentifier: messageId,
     });
     expect(mockedSendRecord).not.toHaveBeenCalled();
-});
-
-test("Clean handler with valid event record in local environment", async () => {
-    process.env.AWS_ENV = "local";
-    process.env.LOCALSTACK_HOSTNAME = "localstack_hostname";
-    process.env.OUTPUT_QUEUE_URL = "http://localhost:123/localhost-queue";
-
-    const recordBody = JSON.stringify(validRecordBodyObject);
-    const record = createRecord(recordBody);
-    const event = SQSHelper.createEvent([record]);
-
-    await handler(event);
-
-    expect(mockedSendRecord).toHaveBeenCalledTimes(1);
-    expect(mockedSendRecord).toHaveBeenCalledWith("http://localstack_hostname:123/localhost-queue", expect.any(Object));
 });
 
 function createRecord(body: String, messageId?: string): SQSRecord {
