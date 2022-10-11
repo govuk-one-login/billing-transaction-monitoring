@@ -1,7 +1,7 @@
 import {SQSEvent, SQSRecord} from 'aws-lambda';
 import AWS from 'aws-sdk';
 
-const ddb = new AWS.DynamoDB.DocumentClient({endpoint: process.env.STORAGE_ENDPOINT});
+const ddb = new AWS.DynamoDB.DocumentClient({endpoint: process.env.SQS_ENDPOINT});
 type Response = { batchItemFailures: { itemIdentifier: string }[] };
 
 export const handler = async (event: SQSEvent) => {

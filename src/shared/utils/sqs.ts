@@ -1,30 +1,21 @@
 import { SQSRecord } from "aws-lambda";
-import { SQS } from "aws-sdk";
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
-export type RecordSenderArgument = {
-  queueUrl: string;
-  record: SQSRecord;
-  sqs: SQS;
-};
+const sqs = new SQSClient({region: 'eu-west-2', endpoint: process.env.SQS_ENDPOINT});
 
-export async function sendRecord({ queueUrl, record, sqs }: RecordSenderArgument) {
+export async function sendRecord(queueUrl: string, record: SQSRecord) {
   console.log("sending record " + JSON.stringify(record));
   console.log("queueurl " + JSON.stringify(queueUrl));
 
-  const params = {
+  const params = new SendMessageCommand({
     MessageBody: JSON.stringify(record),
     QueueUrl: queueUrl,
-  };
+  });
 
-  return new Promise((resolve, reject) => {
-    sqs.sendMessage(params, function (err: any, data: any) {
-      if (err) {
-        console.log(err, err.stack); // an error occurred
-        reject();
-      } else {
-        console.log(data); // successful response
-        resolve("success");
-      }
-    });
+  return sqs.send(params).then((data) => {
+    console.log(data);
+  }).catch(err => {
+    console.log(err, err.stack);
+    throw(err);
   });
 }
