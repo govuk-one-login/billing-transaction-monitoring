@@ -1,10 +1,6 @@
-import { SQS } from "aws-sdk";
 import {handler} from './handler'
 import {SQSHelper} from '../../../test-helpers/SQS'
 import {sendRecord} from '../../shared/utils'
-
-jest.mock("aws-sdk");
-const MockedSQS = SQS as jest.MockedClass<typeof SQS>;
 
 jest.mock('../../shared/utils');
 const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>
@@ -44,8 +40,8 @@ describe('Filter handler tests', () => {
     await handler(event);
 
     expect(mockedSendRecord).toHaveBeenCalledTimes(2);
-    expect(mockedSendRecord).toHaveBeenNthCalledWith(1, {queueUrl: 'output-queue-url', record: validRecord1, sqs: MockedSQS.mock.instances[0] });
-    expect(mockedSendRecord).toHaveBeenNthCalledWith(2,{queueUrl: 'output-queue-url', record: validRecord2, sqs: MockedSQS.mock.instances[0] });
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(1, 'output-queue-url', validRecord1);
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(2,'output-queue-url', validRecord2);
   });
 
 
@@ -78,8 +74,8 @@ describe('Filter handler tests', () => {
     const result = await handler(event);
 
     expect(mockedSendRecord).toHaveBeenCalledTimes(2);
-    expect(mockedSendRecord).toHaveBeenNthCalledWith(1, {queueUrl: 'output-queue-url', record: validRecord, sqs: MockedSQS.mock.instances[0] });
-    expect(mockedSendRecord).toHaveBeenNthCalledWith(2,{queueUrl: 'output-queue-url', record: invalidRecord, sqs: MockedSQS.mock.instances[0] });
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(1, 'output-queue-url', validRecord);
+    expect(mockedSendRecord).toHaveBeenNthCalledWith(2,'output-queue-url', invalidRecord);
     expect(result.batchItemFailures.length).toEqual(1);
     expect(result.batchItemFailures[0].itemIdentifier).toEqual(2);
   });
