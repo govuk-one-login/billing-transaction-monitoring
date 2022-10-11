@@ -1,7 +1,6 @@
 import {SQSEvent, SQSRecord} from 'aws-lambda';
-import AWS from 'aws-sdk';
+import {put} from '../../shared/utils';
 
-const ddb = new AWS.DynamoDB.DocumentClient({endpoint: process.env.SQS_ENDPOINT});
 type Response = { batchItemFailures: { itemIdentifier: string }[] };
 
 export const handler = async (event: SQSEvent) => {
@@ -29,21 +28,6 @@ async function storeRecord(record: SQSRecord) {
     throw new Error(message);
   }
 
-  const params = {
-    TableName: process.env.STORAGE_TABLE,
-    Item: JSON.parse(record.body),
-  };
-
-  return new Promise((resolve, reject) => {
-    ddb.put(params, (err: any, data: any) => {
-      if (err) {
-        console.error(err, err.stack);
-        reject();
-      } else {
-        console.log(data);
-        resolve('success');
-      }
-    });
-  });
+  return put(process.env.STORAGE_TABLE, JSON.parse(record.body));
 }
 

@@ -143,7 +143,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           OUTPUT_QUEUE_URL: !Ref CleanQueue
-          SQS_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
       Handler: filter.handler
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -231,7 +231,7 @@ Resources:
         Variables:
           AWS_ENV: !Ref Environment
           OUTPUT_QUEUE_URL: !Ref StorageQueue
-          SQS_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
       Events:
         CleanEvent:
           Type: SQS
@@ -296,10 +296,10 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: EventId
+        - AttributeName: event_id
           AttributeType: S
       KeySchema:
-        - AttributeName: EventId
+        - AttributeName: event_id
           KeyType: HASH
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
@@ -358,7 +358,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_TABLE: !Ref StorageTable
-          SQS_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
       Handler: store.handler
       Policies:
         - AWSLambdaBasicExecutionRole

@@ -1,19 +1,9 @@
-const mockPut = jest.fn((params, callback) => {
-  callback();
-});
-
 import {handler} from './handler'
 import {SQSHelper} from '../../../test-helpers/SQS'
+import {put} from "../../shared/utils";
 
-jest.mock('aws-sdk', () => {
-  return {
-    DynamoDB: {
-      DocumentClient: jest.fn(() => ({
-        put: mockPut
-      }))
-    }
-  };
-});
+jest.mock("../../shared/utils");
+const mockPut = put as jest.MockedFunction<typeof put>;
 
 const OLD_ENV = process.env;
 
@@ -43,8 +33,8 @@ test('Store handler with some valid events', async () => {
   await handler(event);
 
   expect(mockPut).toHaveBeenCalledTimes(2);
-  expect(mockPut).toHaveBeenNthCalledWith(1, {Item: JSON.parse(validRecord1.body), TableName: 'store-table' }, expect.any(Function));
-  expect(mockPut).toHaveBeenNthCalledWith(2,{Item: JSON.parse(validRecord2.body), TableName: 'store-table' }, expect.any(Function));
+  expect(mockPut).toHaveBeenNthCalledWith(1, 'store-table', JSON.parse(validRecord1.body));
+  expect(mockPut).toHaveBeenNthCalledWith(2, 'store-table', JSON.parse(validRecord2.body));
 });
 
 test('Table name not defined', async () => {
@@ -66,15 +56,13 @@ test('Failing puts to DynamoDB', async () => {
 
   const event = SQSHelper.createEvent([validRecord, invalidRecord]);
 
-  mockPut
-      .mockImplementationOnce((params, callback) => callback())
-      .mockImplementationOnce((params, callback) => callback('error'));
+  mockPut.mockResolvedValueOnce().mockRejectedValueOnce("An error");
 
   const result = await handler(event);
 
   expect(mockPut).toHaveBeenCalledTimes(2);
-  expect(mockPut).toHaveBeenNthCalledWith(1, {Item: JSON.parse(validRecord.body), TableName: 'store-table' }, expect.any(Function));
-  expect(mockPut).toHaveBeenNthCalledWith(2,{Item: JSON.parse(invalidRecord.body), TableName: 'store-table' }, expect.any(Function));
+  expect(mockPut).toHaveBeenNthCalledWith(1, 'store-table', JSON.parse(validRecord.body));
+  expect(mockPut).toHaveBeenNthCalledWith(2, 'store-table', JSON.parse(invalidRecord.body));
   expect(result.batchItemFailures.length).toEqual(1);
   expect(result.batchItemFailures[0].itemIdentifier).toEqual(2);
 });
