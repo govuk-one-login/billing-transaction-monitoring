@@ -1,0 +1,32 @@
+TestTxMASNS:
+  Type: "AWS::SNS::Topic"
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+    DisplayName: "Test TxMA SNS topic"
+    TopicName: "TestTxMATopic"
+
+TestTxMASNSToFilterQueueSubscription:
+  Type: AWS::SNS::Subscription
+  Properties:
+    TopicArn: !Ref TestTxMASNS
+    Endpoint: !GetAtt FilterQueue.Arn
+    Protocol: sqs
+    RawMessageDelivery: true
+
+TestTxMASNSToFilterQueuePolicy:
+  Type: AWS::SQS::QueuePolicy
+  Properties:
+    PolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Sid: "TestSnsToFilterQueuePolicy"
+          Effect: Allow
+          Principal:
+            Service: "sns.amazonaws.com"
+          Resource: !GetAtt FilterQueue.Arn
+          Action: SQS:SendMessage
+          Condition:
+            ArnEquals:
+              aws:SourceArn: !Ref TestTxMASNS
+    Queues:
+      - Ref: FilterQueue
