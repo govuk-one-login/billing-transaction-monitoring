@@ -15,7 +15,7 @@ describe("E2E tests", () => {
     expect(snsResponse).toHaveProperty("MessageId");
   });
   test("Publish sns message and expect message to reach dynamoDB ", async () => {
-    await delay(2000);
+    await delay(5000);
     const data = await scanDB();
     expect(JSON.stringify(data.Items)).toContain(
       JSON.stringify(payload.event_id)
