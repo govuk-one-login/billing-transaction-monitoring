@@ -5,9 +5,11 @@ import {
 } from "./helpers/cloudWatchHelper";
 import { PublishResponse } from "@aws-sdk/client-sns";
 import { scanDB } from "./helpers/dynamoDBHelper";
-import delay from "delay";
+import { ScanCommandOutput } from "@aws-sdk/client-dynamodb";
 
 let snsResponse: PublishResponse;
+let result: ScanCommandOutput;
+let isEventIdExists: boolean;
 
 describe("E2E tests", () => {
   beforeAll(async () => {
@@ -15,11 +17,20 @@ describe("E2E tests", () => {
     expect(snsResponse).toHaveProperty("MessageId");
   });
   test("Publish sns message and expect message to reach dynamoDB ", async () => {
-    await delay(5000);
-    const data = await scanDB();
-    expect(JSON.stringify(data.Items)).toContain(
-      JSON.stringify(payload.event_id)
-    );
+    let checkFlag = false;
+    while (!checkFlag) {
+      result = await scanDB();
+      isEventIdExists = JSON.stringify(result.Items).includes(
+        payload.event_id.toString()
+      );
+      if (isEventIdExists) {
+        expect(JSON.stringify(result.Items)).toContain(payload.event_id);
+      }
+      setTimeout(() => {
+        checkFlag = true;
+      }, 5000);
+    }
+    expect(isEventIdExists).toBe(true);
   });
 });
 
