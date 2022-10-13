@@ -1,20 +1,12 @@
 import { snsClient } from "../clients/snsClient";
 import { PublishCommand, PublishInput, ListTopicsResponse,Topic,ListTopicsCommand} from "@aws-sdk/client-sns";
+import    { snsValidEventPayload} from "../payloads/snsEventPayloads"
 
 
-const eventId = new Date().getTime(); //current timestamp to generate unique eventId each time
-
-console.log("EVENT_ID:", eventId);
 
 let snsTopicArn: string;
 let snsParams: PublishInput
 
-const payload = {
-  event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
-  event_id: eventId.toString(),
-  component_id: "TEST_COMP",
-  timestamp: new Date().getTime()
-};
 
 async function getListOfTopics() {
   const result: ListTopicsResponse = await snsClient.send(new ListTopicsCommand({}));
@@ -35,22 +27,22 @@ async function getListOfTopics() {
   }
 }
 
-async function snsParameters() {
+async function snsParameters(snsValidEventPayload: any) {
   snsTopicArn = await getTopicArn()
-   const snsParams = {
-    Message: JSON.stringify(payload),
+   let snsParams = {
+    Message: JSON.stringify(snsValidEventPayload),
     TopicArn: snsTopicArn
   }
   return snsParams
 } 
 
 
-async function publishSNS(snsParams: PublishInput) {
-  snsParams = await snsParameters()
+async function publishSNS(snsValidEventPayload:any) {
+  snsParams = await snsParameters(snsValidEventPayload)
     console.log("SNS PARAMETERS:", snsParams);
     const result = await snsClient.send(new PublishCommand(snsParams));
     console.log("***SNS event sent successfully****", result);
     return result;
   }
 
-export { eventId, payload, publishSNS,snsParams };
+export { publishSNS,snsParams };
