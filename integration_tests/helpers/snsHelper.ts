@@ -11,7 +11,9 @@ let snsParams: PublishInput
 
 const payload = {
   event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
-  eventId: eventId,
+  event_id: eventId.toString(),
+  component_id: "TEST_COMP",
+  timestamp: new Date().getTime()
 };
 
 async function getListOfTopics() {
