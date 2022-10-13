@@ -184,7 +184,34 @@ test("Clean handler with valid event record that has valid optional values", asy
     const resultRecordBodyObject = JSON.parse(resultSendRecordArguments[1]);
     expect(resultRecordBodyObject).toEqual(recordBodyObject);
     expect(resultSendRecordArguments[0]).toBe(process.env.OUTPUT_QUEUE_URL);
-  });
+});
+
+test("Clean handler with valid event record that has extensions but no iss", async () => {
+    const recordBodyObject = {
+        ...validRecordBodyObject,
+        extensions: {
+          // no iss field here
+        }
+    };
+    const recordBody = JSON.stringify(recordBodyObject);
+    const record = createRecord(recordBody);
+    const event = SQSHelper.createEvent([record]);
+
+    expect(mockedSendRecord).not.toHaveBeenCalled();
+
+    const result = await handler(event);
+
+    expect(result).toEqual({
+        batchItemFailures: expect.any(Array),
+    });
+    expect(result.batchItemFailures).toHaveLength(0);
+    expect(mockedSendRecord).toHaveBeenCalledTimes(1);
+    const resultSendRecordArguments = mockedSendRecord.mock.calls[0];
+    expect(resultSendRecordArguments).toHaveLength(2);
+    const resultRecordBodyObject = JSON.parse(resultSendRecordArguments[1]);
+    expect(resultRecordBodyObject).toEqual(recordBodyObject);
+    expect(resultSendRecordArguments[0]).toBe(process.env.OUTPUT_QUEUE_URL);
+});
 
 test("SQS output queue not defined", async () => {
     process.env.OUTPUT_QUEUE_URL = undefined;
