@@ -1,21 +1,10 @@
 import { payload, snsParams, publishSNS } from "./helpers/snsHelper";
-import {getFilteredEventFromLatestLogStream} from "./helpers/cloudWatchHelper";
+import { getFilteredEventFromLatestLogStream } from "./helpers/cloudWatchHelper";
 import { PublishResponse } from "@aws-sdk/client-sns";
 import { scanDB } from "./helpers/dynamoDBHelper";
+import { waitForTrue } from "./helpers/commonHelpers";
 
 let snsResponse: PublishResponse;
-
-function waitForTrue(predicate: Function, delayMS: number, timeoutMS: number){
-  let intervalHandle: any;
-  return new Promise((resultGenerated) => {
-    const complete = (result: boolean) => {
-      clearInterval(intervalHandle);
-      resultGenerated(result);
-    }
-    intervalHandle = setInterval(() => predicate() && complete(true), delayMS);
-    setTimeout(() => complete(false), timeoutMS);
-  });
-}
 
 describe("E2E tests", () => {
   beforeAll(async () => {
@@ -26,9 +15,8 @@ describe("E2E tests", () => {
   test("Publish sns message and expect message to reach dynamoDB ", async () => {
     const checkEventId = async () => {
       const result = await scanDB();
-      return JSON.stringify(result.Items).includes(payload.event_id.toString());
-    }
-
+      return JSON.stringify(result.Items).includes(payload.event_id);
+    };
     const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
     expect(eventIdExists).toBeTruthy();
   });
