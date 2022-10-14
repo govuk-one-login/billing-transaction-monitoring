@@ -24,7 +24,7 @@ const getTopicArn = async () => {
     const result: Topic = topics.find((d) =>
       d.TopicArn?.match("TestTxMATopic")
     ) as Topic;
-    console.log(result);
+    console.log(result.TopicArn);
     const arn: string = result.TopicArn?.valueOf() as string;
     return (snsTopicArn = arn);
   } else {

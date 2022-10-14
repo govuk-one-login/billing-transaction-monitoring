@@ -71,8 +71,7 @@ async function getFilteredEventFromLatestLogStream(logName: string) {
   console.log("Filtered parameters:", params);
   const response: FilterLogEventsCommandOutput =
     await cloudWatchLogsClient.send(new FilterLogEventsCommand(params));
-  console.log("FilteredCloudWatchLog:", response);
-  const events: FilteredLogEvent[] = response.events ?? [];
+    const events: FilteredLogEvent[] = response.events ?? [];
   if (events.length > 0) {
     return events;
   } else {
