@@ -194,7 +194,7 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
     );
     expect(JSON.stringify(logs)).not.toContain("ERROR");
     expect(JSON.stringify(logs)).not.toContain(
-      snsValidEventPayload.event_id.toString()
+      snsInvalidEventNamePayload.event_id.toString()
     );
   });
 
@@ -206,7 +206,7 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
     );
     expect(JSON.stringify(logs)).not.toContain("ERROR");
     expect(JSON.stringify(logs)).not.toContain(
-      snsValidEventPayload.event_id.toString()
+      snsInvalidTimeStampPayload.event_id.toString()
     );
   });
 
@@ -218,7 +218,7 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
     );
     expect(JSON.stringify(logs)).not.toContain("ERROR");
     expect(JSON.stringify(logs)).not.toContain(
-      snsValidEventPayload.event_id.toString()
+      snsEventInvalidCompId.event_id.toString()
     );
   });
 
@@ -229,8 +229,8 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
       "di-btm-CleanFunction"
     );
     expect(JSON.stringify(logs)).not.toContain("ERROR");
-    expect(JSON.stringify(logs)).not.toContain(
-      snsValidEventPayload.event_id.toString()
+    expect(JSON.stringify(logs)).toContain(
+      snsEventWithAdditionalFieldsPayload.event_id.toString()
     );
   });
 
@@ -242,7 +242,7 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
     );
     expect(JSON.stringify(logs)).not.toContain("ERROR");
     expect(JSON.stringify(logs)).not.toContain(
-      snsValidEventPayload.event_id.toString()
+      snsMissingEventNamePayload.event_id.toString()
     );
   });
 
@@ -254,7 +254,7 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
     );
     expect(JSON.stringify(logs)).not.toContain("ERROR");
     expect(JSON.stringify(logs)).not.toContain(
-      snsValidEventPayload.event_id.toString()
+      snsEventMissingCompIdPayload.event_id.toString()
     );
   });
 
@@ -266,7 +266,7 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
     );
     expect(JSON.stringify(logs)).not.toContain("ERROR");
     expect(JSON.stringify(logs)).not.toContain(
-      snsValidEventPayload.event_id.toString()
+      snsEventMissingTimestampPayload.event_id.toString()
     );
   });
 
@@ -277,8 +277,5 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
       "di-btm-CleanFunction"
     );
     expect(JSON.stringify(logs)).not.toContain("ERROR");
-    expect(JSON.stringify(logs)).not.toContain(
-      snsValidEventPayload.event_id.toString()
-    );
   });
 });
