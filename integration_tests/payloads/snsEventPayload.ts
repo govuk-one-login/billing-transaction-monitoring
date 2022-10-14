@@ -25,6 +25,13 @@ const snsValidEventPayload = {
     timestamp: new Date().getTime()
   };
 
+  const snsInvalidTimeStampPayload = {
+    event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
+    event_id: generateRandomNumber(),
+    component_id: "TEST_COMP",
+    timestamp: "somestring"
+  };
+
   const snsMissingEventNamePayload = {
     event_id: generateRandomNumber(),
     component_id: "TEST_COMP",
@@ -43,6 +50,12 @@ const snsValidEventPayload = {
     timestamp: new Date().getTime()
   };
 
+  const snsMissingEventIdPayload = {
+    event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
+    component_id: "TEST_COMP",
+    timestamp: new Date().getTime()
+  };
+
   const snsEventInvalidCompId = {
     event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
     event_id: generateRandomNumber(),
@@ -50,6 +63,6 @@ const snsValidEventPayload = {
     timestamp: new Date().getTime()
   };
 
-  export { snsValidEventPayload,snsInvalidEventNamePayload, 
-    snsEventMissingCompIdPayload,snsEventInvalidCompId,
+  export { snsValidEventPayload,snsInvalidEventNamePayload, snsMissingEventIdPayload,
+    snsEventMissingCompIdPayload,snsEventInvalidCompId,snsInvalidTimeStampPayload,
     snsEventMissingTimestampPayload,snsEventWithAdditionalFieldsPayload,snsMissingEventNamePayload}

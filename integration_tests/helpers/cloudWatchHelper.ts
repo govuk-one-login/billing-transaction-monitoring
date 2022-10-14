@@ -6,8 +6,6 @@ import {
   FilterLogEventsCommandOutput,
   FilteredLogEvent,
   FilterLogEventsCommand,
-  GetLogGroupFieldsCommandOutput,
-  GetLogGroupFieldsCommand,
   DescribeLogGroupsCommandOutput,
   DescribeLogGroupsCommand,
   LogGroup,
@@ -15,7 +13,7 @@ import {
 
 import { cloudWatchLogsClient } from "../clients/cloudWatchLogsClient";
 
-import { eventId } from "../helpers/snsHelper";
+import { testStartTime } from "../tests";
 
 import delay from "delay";
 
@@ -33,7 +31,7 @@ async function getLogGroupName(logName: string) {
     data.logGroupName?.match(logName)
   ) as LogGroup;
   const name = groupName.logGroupName?.valueOf();
-  console.log("**Log GroupName**",name)
+  console.log("**Log GroupName**", name);
   return name;
 }
 
@@ -68,7 +66,7 @@ async function getFilteredEventFromLatestLogStream(logName: string) {
   const params: FilterLogEventsCommandInput = {
     logGroupName: await getLogGroupName(logName),
     logStreamNamePrefix: latestLogStreamName,
-    startTime: eventId,
+    startTime: testStartTime,
   };
   console.log("Filtered parameters:", params);
   const response: FilterLogEventsCommandOutput =
