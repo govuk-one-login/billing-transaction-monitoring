@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for infrastructure to monitor user identity verification events for billing purposes
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  CodeSigningConfigArn:
+    Description: ARN of Code Signing Config from deployment pipeline
+    Type: String
+    Default: none
+  Environment:
+    Description: Environment type
+    Type: String
+    Default: dev
+    AllowedValues:
+      - local
+      - dev
+      - build
+      - staging
+      - integration
+      - production
+  PermissionsBoundary:
+    Description: ARN of permissions boundary for new roles
+    Type: String
+    Default: none
+
+Conditions:
+  UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
+  UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
+  IsLocal: !Equals [!Ref Environment, "local"]
+
+Globals:
+  Function:
+    CodeSigningConfigArn:
+      !If [UseCodeSigning, !Ref CodeSigningConfigArn, !Ref AWS::NoValue]
+    KmsKeyArn: !GetAtt KmsKey.Arn
+    PermissionsBoundary:
+      !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
+    Runtime: nodejs16.x
+    Timeout: 30
+    CodeUri: dist/
+
+Resources:
+  Fn::Merge:
+    - Fn::Include:
+        type: json
+        location: ./cloudformation/global.yaml
+
+    - Fn::Include:
+        type: json
+        location: ./cloudformation/test-only.yaml
+
+    - Fn::Include:
+        type: json
+        location: ./cloudformation/filtering.yaml
+
+    - Fn::Include:
+        type: json
+        location: ./cloudformation/cleaning.yaml
+
+    - Fn::Include:
+        type: json
+        location: ./cloudformation/storage.yaml
