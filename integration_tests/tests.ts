@@ -133,7 +133,7 @@ describe("E2E tests", () => {
     expect(eventIdExists).toBeFalsy();
   });
 
-  test.only("Publish sns event which has unwanted field and expect event stored in the dynamoDB", async () => {
+  test("Publish sns event which has unwanted field and expect event stored in the dynamoDB", async () => {
     snsResponse = await publishSNS(snsEventWithAdditionalFieldsPayload);
     expect(snsResponse).toHaveProperty("MessageId");
     const checkEventId = async () => {
