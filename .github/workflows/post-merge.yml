@@ -31,6 +31,8 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.GH_ACTIONS_ROLE_ARN }}
+      - name: Merge template files into template.yaml
+        run: cfn-include template-source.yaml -y > template.yaml
       - name: SAM validate
         run: sam validate
       - name: Check for potential CloudFormation security issues
