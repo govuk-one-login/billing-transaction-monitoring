@@ -41,8 +41,8 @@ async function snsParameters(snsValidEventPayload: any) {
   return snsParams;
 }
 
-async function publishSNS(snsValidEventPayload: any) {
-  snsParams = await snsParameters(snsValidEventPayload);
+async function publishSNS(payload: any) {
+  snsParams = await snsParameters(payload);
   console.log("SNS PARAMETERS:", snsParams);
   const result = await snsClient.send(new PublishCommand(snsParams));
   console.log("***SNS event sent successfully****", result);
