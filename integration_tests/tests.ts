@@ -133,7 +133,7 @@ describe("E2E tests", () => {
     expect(eventIdExists).toBeFalsy();
   });
 
-  test("Publish sns event which has unwanted field and expect event not stored in the dynamoDB", async () => {
+  test("Publish sns event which has unwanted field and expect event stored in the dynamoDB", async () => {
     snsResponse = await publishSNS(snsEventWithAdditionalFieldsPayload);
     expect(snsResponse).toHaveProperty("MessageId");
     const checkEventId = async () => {
@@ -144,7 +144,7 @@ describe("E2E tests", () => {
     };
     const eventIdExists = await waitForTrue(checkEventId, 1000, 3000);
     console.log(eventIdExists);
-    expect(eventIdExists).toBeFalsy();
+    expect(eventIdExists).toBeTruthy();
   });
 });
 
@@ -168,7 +168,6 @@ describe("Publish SNS event and validate lambda functions triggered", () => {
     const logs = await getFilteredEventFromLatestLogStream(
       "di-btm-CleanFunction"
     );
-    expect(JSON.stringify(logs)).not.toContain("ERROR");
     expect(JSON.stringify(logs)).toContain(
       snsValidEventPayload.event_id.toString()
     );
@@ -204,7 +203,6 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
     const logs = await getFilteredEventFromLatestLogStream(
       "di-btm-CleanFunction"
     );
-    expect(JSON.stringify(logs)).not.toContain("ERROR");
     expect(JSON.stringify(logs)).not.toContain(
       snsInvalidTimeStampPayload.event_id.toString()
     );
@@ -216,8 +214,7 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
     const logs = await getFilteredEventFromLatestLogStream(
       "di-btm-CleanFunction"
     );
-    expect(JSON.stringify(logs)).not.toContain("ERROR");
-    expect(JSON.stringify(logs)).not.toContain(
+   expect(JSON.stringify(logs)).not.toContain(
       snsEventInvalidCompId.event_id.toString()
     );
   });
@@ -252,7 +249,6 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
     const logs = await getFilteredEventFromLatestLogStream(
       "di-btm-CleanFunction"
     );
-    expect(JSON.stringify(logs)).not.toContain("ERROR");
     expect(JSON.stringify(logs)).not.toContain(
       snsEventMissingCompIdPayload.event_id.toString()
     );
@@ -264,18 +260,9 @@ describe("Publish invalid SNS event and validate errors raised in cloud watch lo
     const logs = await getFilteredEventFromLatestLogStream(
       "di-btm-CleanFunction"
     );
-    expect(JSON.stringify(logs)).not.toContain("ERROR");
     expect(JSON.stringify(logs)).not.toContain(
       snsEventMissingTimestampPayload.event_id.toString()
     );
   });
 
-  test("publish sns event missing event id and validate no errors in clean function cloudwatch logs", async () => {
-    snsResponse = await publishSNS(snsMissingEventIdPayload);
-    expect(snsResponse).toHaveProperty("MessageId");
-    const logs = await getFilteredEventFromLatestLogStream(
-      "di-btm-CleanFunction"
-    );
-    expect(JSON.stringify(logs)).not.toContain("ERROR");
-  });
 });
