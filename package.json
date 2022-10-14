@@ -42,7 +42,8 @@
         "test": "jest",
         "test:integration": "jest --c jest.integration.config.ts",
         "build": "webpack",
-        "lint": "eslint . --fix"
+        "lint": "eslint . --fix",
+        "build-template": "npx cfn-include template-source.yaml -y > template.yaml"
     },
     "lint-staged": {
         "*": "prettier --write",

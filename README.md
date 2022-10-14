@@ -45,7 +45,7 @@ docker run --rm -it -p 4566:4566 -p 4571:4571 -e LOCALSTACK_DEBUG=1 localstack/l
 ### Bringing up the stack
 ```sh
 npm run build
-cfn-include template-source.yaml -y > template.yaml
+npm run build-template
 samlocal build
 samlocal deploy --resolve-s3 --config-env local
 ```
