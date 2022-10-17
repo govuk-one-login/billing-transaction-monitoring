@@ -1,5 +1,4 @@
-import yaml from 'yaml';
-const { Composer, Parser, visit, parseDocument } = yaml;
+import { Composer, Parser, visit, parseDocument } from 'yaml';
 import { readFileSync, writeFileSync } from 'fs';
 
 const sourceFile = readFileSync('./template-source.yaml', 'utf8');
