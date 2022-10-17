@@ -1,4 +1,4 @@
-import { snsParams, publishSNS } from "./helpers/snsHelper";
+import {  publishSNS } from "./helpers/snsHelper";
 import { getFilteredEventFromLatestLogStream } from "./helpers/cloudWatchHelper";
 import { PublishResponse } from "@aws-sdk/client-sns";
 import { scanDB } from "./helpers/dynamoDBHelper";
