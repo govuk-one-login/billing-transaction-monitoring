@@ -10,7 +10,7 @@ Monitors user identity verification events for billing purposes
 
 ## Check before commit
 ```sh
-cfn-include template-source.yaml -y > template.yaml
+npm run build-template
 checkov -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies
 ```
 N.B. You may get Python errors due to conflicting dependencies with SAM CLI. If you do, run this and try again:
