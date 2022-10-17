@@ -8,7 +8,7 @@ let composer = new Composer();
 let [document] = composer.compose(parser.parse(sourceFile));
 
 let visitor = (key, node, path) => {
-  if (node.tag && node.tag === '!YAMLInclude') {
+  if (node.tag === '!YAMLInclude') {
     const files = node.value.split(',');
     let fullContents;
     files.forEach(fileName => {
