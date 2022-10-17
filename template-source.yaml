@@ -40,23 +40,9 @@ Globals:
     CodeUri: dist/
 
 Resources:
-  Fn::Merge:
-    - Fn::Include:
-        type: json
-        location: ./cloudformation/global.yaml
-
-    - Fn::Include:
-        type: json
-        location: ./cloudformation/test-only.yaml
-
-    - Fn::Include:
-        type: json
-        location: ./cloudformation/filtering.yaml
-
-    - Fn::Include:
-        type: json
-        location: ./cloudformation/cleaning.yaml
-
-    - Fn::Include:
-        type: json
-        location: ./cloudformation/storage.yaml
+  !YAMLInclude
+    ./cloudformation/global.yaml,
+    ./cloudformation/test-only.yaml,
+    ./cloudformation/filtering.yaml,
+    ./cloudformation/cleaning.yaml,
+    ./cloudformation/storage.yaml
