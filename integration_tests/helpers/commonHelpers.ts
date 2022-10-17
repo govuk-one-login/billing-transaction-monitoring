@@ -1,4 +1,4 @@
-function waitForTrue(predicate: Function, delayMS: number, timeoutMS: number) {
+async function waitForTrue(predicate: Function, delayMS: number, timeoutMS: number) {
   let intervalHandle: any;
   return new Promise((resultGenerated) => {
     const complete = (result: boolean) => {
