@@ -1,3 +1,7 @@
+/**
+ * This script pulls together the different parts of the template.yaml SAM file.
+ */
+
 import { Composer, Parser, visit, parseDocument } from 'yaml';
 import { readFileSync, writeFileSync } from 'fs';
 
@@ -7,7 +11,7 @@ let parser = new Parser();
 let composer = new Composer();
 let [document] = composer.compose(parser.parse(sourceFile));
 
-let visitor = (key, node, path) => {
+let visitor = (key, node) => {
   if (node.tag === '!YAMLInclude') {
     const files = node.value.split(',');
     let fullContents;
