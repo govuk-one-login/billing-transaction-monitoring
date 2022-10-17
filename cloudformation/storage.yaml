@@ -1,21 +1,17 @@
-StorageTable:
-  Type: AWS::DynamoDB::Table
+StorageBucket:
+  Type: 'AWS::S3::Bucket'
   Properties:
-    AttributeDefinitions:
-      - AttributeName: event_id
-        AttributeType: S
-    KeySchema:
-      - AttributeName: event_id
-        KeyType: HASH
-    PointInTimeRecoverySpecification:
-      PointInTimeRecoveryEnabled: true
-    ProvisionedThroughput:
-      ReadCapacityUnits: 5
-      WriteCapacityUnits: 5
-    SSESpecification:
-      KMSMasterKeyId: !GetAtt KmsKey.Arn
-      SSEEnabled: true
-      SSEType: KMS
+    AccessControl: Private
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
 
 StorageQueue:
   Type: AWS::SQS::Queue
@@ -63,8 +59,8 @@ StorageFunction:
     Environment:
       Variables:
         # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-        STORAGE_TABLE: !Ref StorageTable
-        LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+        STORAGE_BUCKET: !Ref StorageBucket
+        LOCAL_ENDPOINT: !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
     Handler: store.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -83,9 +79,14 @@ StorageFunction:
             Resource: !GetAtt KmsKey.Arn
           - Effect: Allow
             Action:
-              - dynamodb:PutItem
-              - dynamodb:UpdateItem
-            Resource: !GetAtt StorageTable.Arn
+              - s3:ListBucket
+              - s3:GetObject
+              - s3:PutObject
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - !GetAtt StorageBucket.Arn
+                    - "/*"
     ReservedConcurrentExecutions: 10
 
 StorageFunctionAlarm:

@@ -64,17 +64,17 @@ aws --endpoint-url=http://localhost:4566 sns list-topics
 
 Publish a message on the SNS topic
 ```sh
-aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_name":"IPV_PASSPORT_CRI_REQUEST_SENT", "event_id": "1234", "component_id": "TEST_COMP", "timestamp": 1342433}'
+aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_name":"IPV_PASSPORT_CRI_REQUEST_SENT", "event_id": "1234", "component_id": "TEST_COMP", "timestamp": 1666006241000}'
 ```
 
-List the tables in DynamoDB
+List the buckets in S3
 ```sh
-aws --endpoint-url=http://localhost:4566 dynamodb list-tables
+aws --endpoint-url=http://localhost:4566 s3api list-buckets
 ```
 
-Read from DynamoDB
+Read from s3
 ```sh
-aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name di-btm-StorageTable-174d2ccf 
+aws --endpoint-url=http://localhost:4566 s3api list-objects --bucket di-btm-storagebucket-fc161d3a 
 ```
 
 ### Running the integration tests

@@ -12,6 +12,7 @@ export class SQSHelper {
             body: JSON.stringify({
                 event_name: name,
                 timestamp: Date.now(),
+                event_id: Math.floor(Math.random() * 100000)
             }),
             messageId,
         } as any;
