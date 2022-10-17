@@ -78,9 +78,17 @@ aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name di-btm-Stora
 ```
 
 ### Running the integration tests
+To run the tests against aws environment
 ````
 npm i
 npm run test:integration
+
+````
+
+To run the tests against local environment
+````
+npm i
+npm run test:integration-local
 
 ````
 ## Licence
