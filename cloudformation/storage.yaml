@@ -12,6 +12,39 @@ StorageBucket:
         - ServerSideEncryptionByDefault:
             SSEAlgorithm: aws:kms
             KMSMasterKeyID: !GetAtt KmsKey.Arn
+    VersioningConfiguration:
+      Status: Enabled
+    LoggingConfiguration:
+      DestinationBucketName: !Ref AccessLogBucket
+      LogFilePrefix: storage-bucket-log
+    Policies:
+      - Statement:
+        - Effect: Allow
+          Action:
+            - s3:PutObjectAcl
+            - s3:PutObject
+          Resource:
+            - Fn::Join:
+                - ""
+                - - !GetAtt AccessLogBucket.Arn
+                  - "/*"
+
+AccessLogBucket:
+  # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
+  # checkov:skip=CKV_AWS_21: No need to version the access log bucket
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: LogDeliveryWrite
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
 
 StorageQueue:
   Type: AWS::SQS::Queue
