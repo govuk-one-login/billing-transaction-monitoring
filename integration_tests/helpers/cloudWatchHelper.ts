@@ -13,7 +13,7 @@ import {
 
 import { cloudWatchLogsClient } from "../clients/cloudWatchLogsClient";
 
-import { testStartTime } from "../tests";
+import { testStartTime } from "../tests/sns-lambda-tests";
 
 import delay from "delay";
 
