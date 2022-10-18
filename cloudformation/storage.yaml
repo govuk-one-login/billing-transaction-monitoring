@@ -31,9 +31,10 @@ StorageBucket:
 
 AccessLogBucket:
   # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
-  # checkov:skip=CKV_AWS_21: No need to version the access log bucket
   Type: 'AWS::S3::Bucket'
   Properties:
+    VersioningConfiguration:
+      Status: Enabled
     AccessControl: LogDeliveryWrite
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
