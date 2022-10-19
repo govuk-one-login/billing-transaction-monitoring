@@ -17,25 +17,6 @@ StorageBucket:
     LoggingConfiguration:
       DestinationBucketName: !Ref AccessLogBucket
       LogFilePrefix: storage-bucket-log
-    PolicyDocument:
-      - Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-              - logging.s3.amazonaws.com
-          Action:
-            - s3:PutObjectAcl
-            - s3:PutObject
-          Resource:
-            - Fn::Join:
-                - ""
-                - - !GetAtt AccessLogBucket.Arn
-                  - "/*"
-          Condition:
-            ArnLike:
-              aws:SourceArn: !Ref StorageBucket
-            StringEquals: {
-              aws:SourceAccount: !Sub ${AWS::AccountId}
 
 AccessLogBucket:
   # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
@@ -54,6 +35,27 @@ AccessLogBucket:
         - ServerSideEncryptionByDefault:
             SSEAlgorithm: aws:kms
             KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+StorageBucketAccessLogsBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref AccessLogBucket
+    PolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Sid: "EnableS3Logging"
+          Effect: "Allow"
+          Resource:
+            - !Sub "${AccessLogBucket.Arn}/*"
+          Principal:
+            Service: "logging.s3.amazonaws.com"
+          Action:
+            - "s3:PutObject"
+          Condition:
+            StringEquals:
+              aws:SourceAccount: !Sub "${AWS::AccountId}"
+            Bool:
+              aws:SecureTransport: true
 
 StorageQueue:
   Type: AWS::SQS::Queue
