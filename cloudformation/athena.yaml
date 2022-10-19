@@ -1,0 +1,27 @@
+TransactionDB:
+  Type: AWS::Glue::Database
+  Properties:
+    CatalogId: !Ref AWS::AccountId
+    DatabaseInput:
+      Location:
+        Fn::Sub: s3://${StorageBucket}
+
+TransactionTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Ref AWS::AccountId
+    DatabaseName: !GetAttr TransactionDB.Name
+    TableInput:
+      TableType: EXTERNAL_TABLE
+      Parameters:
+        projection.enabled: true
+        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/event-name=${event-name}/year=${year}/month=${month}/day=${day}/' ] ]
+        PartitionKeys:
+          - Name: event-name
+            Type: string
+          - Name: year
+            Type: integer
+          - Name: month
+            Type: integer
+          - Name: day
+            Type: integer
