@@ -45,4 +45,5 @@ Resources:
     ./cloudformation/test-only.yaml,
     ./cloudformation/filtering.yaml,
     ./cloudformation/cleaning.yaml,
-    ./cloudformation/storage.yaml
+    ./cloudformation/storage.yaml,
+    ./cloudformation/athena.yaml
