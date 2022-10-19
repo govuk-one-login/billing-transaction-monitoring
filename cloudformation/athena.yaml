@@ -1,0 +1,102 @@
+TransactionDB:
+  Type: AWS::Glue::Database
+  Properties:
+    CatalogId: !Ref AWS::AccountId
+    DatabaseInput:
+      Name: btm-transactions
+
+TransactionTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Ref AWS::AccountId
+    DatabaseName: !Ref TransactionDB
+    TableInput:
+      Name: btm-transactions
+      TableType: EXTERNAL_TABLE
+      Parameters:
+        has_encrypted_data: "true"
+        projection.enabled: "true"
+        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/event-name=${event-name}/year=${year}/month=${month}/day=${day}/' ] ]
+      PartitionKeys:
+        - Name: event-name
+          Type: string
+        - Name: year
+          Type: integer
+        - Name: month
+          Type: integer
+        - Name: day
+          Type: integer
+      StorageDescriptor:
+        Columns:
+          - { Name: "event_id", Type: string }
+          - { Name: "client_id", Type: string }
+          - { Name: "timestamp", Type: bigint }
+          - { Name: "timestamp_formatted", Type: string }
+          - { Name: "event_name", Type: string }
+          - { Name: "component_id", Type: string }
+          - { Name: "user", Type: string }
+          - { Name: "platform", Type: string }
+          - { Name: "restricted", Type: string }
+          - { Name: "extensions", Type: string }
+        Compressed: true
+        InputFormat: "org.apache.hadoop.mapred.TextInputFormat"
+        Location: !Join [ '', [ 's3://', !Ref StorageBucket, '/' ] ]
+        StoredAsSubDirectories: false
+        OutputFormat: "org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat"
+
+AthenaTransactionWorkgroup:
+  Type: AWS::Athena::WorkGroup
+  Properties:
+    Name: BTMAthenaWorkgroup
+    WorkGroupConfiguration:
+      EnforceWorkGroupConfiguration: true
+      PublishCloudWatchMetricsEnabled: false
+      ResultConfiguration:
+        EncryptionConfiguration:
+          EncryptionOption: "SSE_S3"
+        OutputLocation:
+          !Join
+          - ''
+          - - 's3://'
+            - !Ref AthenaQueryResultsBucket
+            - '/'
+
+AthenaQueryResultsBucket:
+  Type: AWS::S3::Bucket
+  Properties:
+    VersioningConfiguration:
+      Status: "Enabled"
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    LoggingConfiguration:
+      DestinationBucketName: !Ref AthenaAccessLogBucket
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 7
+          Status: Enabled
+
+AthenaAccessLogBucket:
+  # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    VersioningConfiguration:
+      Status: Enabled
+    AccessControl: LogDeliveryWrite
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn

@@ -29,7 +29,6 @@ CleanFunction:
       Type: SQS
     Environment:
       Variables:
-        AWS_ENV: !Ref Environment
         OUTPUT_QUEUE_URL: !Ref StorageQueue
         LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
     Events:
