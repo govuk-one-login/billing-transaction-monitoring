@@ -53,13 +53,9 @@ AthenaTransactionWorkgroup:
       PublishCloudWatchMetricsEnabled: false
       ResultConfiguration:
         EncryptionConfiguration:
-          EncryptionOption: "SSE_S3"
-        OutputLocation:
-          !Join
-          - ''
-          - - 's3://'
-            - !Ref AthenaQueryResultsBucket
-            - '/'
+          EncryptionOption: "SSE_KMS"
+          KmsKey: !GetAtt KmsKey.Arn
+        OutputLocation: !Join [ '', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
 
 AthenaQueryResultsBucket:
   Type: AWS::S3::Bucket
