@@ -30,7 +30,7 @@ async function storeRecord(record: SQSRecord) {
   }
 
   const date = new Date(bodyObject.timestamp);
-  const key = `event-name=${bodyObject.event_name}/year=${date.getUTCFullYear()}/month=${date.getUTCMonth() + 1}/day=${date.getUTCDate()}/event-id=${bodyObject.event_id}`;
+  const key = `event_name=${bodyObject.event_name}/year=${date.getUTCFullYear()}/month=${date.getUTCMonth() + 1}/day=${date.getUTCDate()}/event_id=${bodyObject.event_id}`;
 
   return putS3(process.env.STORAGE_BUCKET, key, JSON.parse(record.body));
 }

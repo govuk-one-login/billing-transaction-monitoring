@@ -16,9 +16,9 @@ TransactionTable:
       Parameters:
         has_encrypted_data: "true"
         projection.enabled: "true"
-        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/event-name=${event-name}/year=${year}/month=${month}/day=${day}/' ] ]
+        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/event_name=${event_name}/year=${year}/month=${month}/day=${day}/' ] ]
       PartitionKeys:
-        - Name: event-name
+        - Name: event_name
           Type: string
         - Name: year
           Type: integer
@@ -53,13 +53,9 @@ AthenaTransactionWorkgroup:
       PublishCloudWatchMetricsEnabled: false
       ResultConfiguration:
         EncryptionConfiguration:
-          EncryptionOption: "SSE_S3"
-        OutputLocation:
-          !Join
-          - ''
-          - - 's3://'
-            - !Ref AthenaQueryResultsBucket
-            - '/'
+          EncryptionOption: "SSE_KMS"
+          KmsKey: !GetAtt KmsKey.Arn
+        OutputLocation: !Join [ '', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
 
 AthenaQueryResultsBucket:
   Type: AWS::S3::Bucket
