@@ -43,6 +43,9 @@ TransactionTable:
         Location: !Join [ '', [ 's3://', !Ref StorageBucket, '/' ] ]
         StoredAsSubDirectories: false
         OutputFormat: "org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat"
+        SerdeInfo:
+          Parameters: { "ignore.malformed.json": true,"serialiazation.format": 1,"field.delim": "" }
+          SerializationLibrary: "org.openx.data.jsonserde.JsonSerDe"
 
 AthenaTransactionWorkgroup:
   Type: AWS::Athena::WorkGroup
