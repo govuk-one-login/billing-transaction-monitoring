@@ -21,11 +21,11 @@ TransactionTable:
         - Name: event_name
           Type: string
         - Name: year
-          Type: integer
+          Type: int
         - Name: month
-          Type: integer
+          Type: int
         - Name: day
-          Type: integer
+          Type: int
       StorageDescriptor:
         Columns:
           - { Name: "event_id", Type: string }
