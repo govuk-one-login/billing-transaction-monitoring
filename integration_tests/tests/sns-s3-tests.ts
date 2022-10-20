@@ -141,7 +141,7 @@ describe(
         console.log(snsEventMisisingEventIdValue.event_id);
         console.log(JSON.stringify(result.Contents?.map((x) => x.Key)));
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
-          "event-id=null"
+          "event_id=null"
         );
       };
       const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
@@ -156,7 +156,7 @@ describe(
         const result = await getS3ItemsList();
         console.log(JSON.stringify(result.Contents?.map((x) => x.Key)));
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
-          "event-id=undefined"
+          "event_id=undefined"
         );
       };
       const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
