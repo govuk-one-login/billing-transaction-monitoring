@@ -36,7 +36,7 @@ async function storeRecord(record: SQSRecord) {
   }
 
   const date = new Date(bodyObject.timestamp);
-  const key = `${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${date.getUTCDate()}/${date.getUTCHours()}/${bodyObject.event_id}.json`;
+  const key = `${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${date.getUTCDate()}/${bodyObject.event_id}.json`;
 
   return Promise.all([
       putDDB(process.env.STORAGE_TABLE, bodyObject),
