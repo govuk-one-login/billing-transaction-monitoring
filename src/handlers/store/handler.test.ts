@@ -40,12 +40,12 @@ test('Store handler with some valid events calls s3', async () => {
 
   const recordBody1 = JSON.parse(validRecord1.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
-  const expectedKey1 = `event_name=${recordBody1.event_name}/year=${expectedDate1.getUTCFullYear()}/month=${expectedDate1.getUTCMonth() + 1}/day=${expectedDate1.getUTCDate()}/event_id=${recordBody1.event_id}`;
+  const expectedKey1 = `${expectedDate1.getUTCFullYear()}/${expectedDate1.getUTCMonth() + 1}/${expectedDate1.getUTCDate()}/${expectedDate1.getUTCHours()}/${recordBody1.event_id}.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(1, 'store', expectedKey1,JSON.parse(validRecord1.body));
 
   const recordBody2 = JSON.parse(validRecord2.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
-  const expectedKey2 = `event_name=${recordBody2.event_name}/year=${expectedDate2.getUTCFullYear()}/month=${expectedDate2.getUTCMonth() + 1}/day=${expectedDate2.getUTCDate()}/event_id=${recordBody2.event_id}`;
+  const expectedKey2 = `${expectedDate2.getUTCFullYear()}/${expectedDate2.getUTCMonth() + 1}/${expectedDate2.getUTCDate()}/${expectedDate2.getUTCHours()}/${recordBody2.event_id}.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(2, 'store', expectedKey2, JSON.parse(validRecord2.body));
 });
 
@@ -101,12 +101,12 @@ test('Failing puts to S3', async () => {
 
   const recordBody1 = JSON.parse(validRecord.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
-  const expectedKey1 = `event_name=${recordBody1.event_name}/year=${expectedDate1.getUTCFullYear()}/month=${expectedDate1.getUTCMonth() + 1}/day=${expectedDate1.getUTCDate()}/event_id=${recordBody1.event_id}`;
+  const expectedKey1 = `${expectedDate1.getUTCFullYear()}/${expectedDate1.getUTCMonth() + 1}/${expectedDate1.getUTCDate()}/${expectedDate1.getUTCHours()}/${recordBody1.event_id}.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(1, 'store', expectedKey1, JSON.parse(validRecord.body));
 
   const recordBody2 = JSON.parse(invalidRecord.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
-  const expectedKey2 = `event_name=${recordBody2.event_name}/year=${expectedDate2.getUTCFullYear()}/month=${expectedDate2.getUTCMonth() + 1}/day=${expectedDate2.getUTCDate()}/event_id=${recordBody2.event_id}`;
+  const expectedKey2 = `${expectedDate2.getUTCFullYear()}/${expectedDate2.getUTCMonth() + 1}/${expectedDate2.getUTCDate()}/${expectedDate2.getUTCHours()}/${recordBody2.event_id}.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(2, 'store', expectedKey2, JSON.parse(invalidRecord.body));
 
   expect(result.batchItemFailures.length).toEqual(1);
