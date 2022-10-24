@@ -17,10 +17,10 @@ TransactionTable:
         has_encrypted_data: "true"
         projection.enabled: "true"
         projection.datetime.type: date
-        projection.datetime.range: '2022/01/01/00,NOW'
-        projection.datetime.format: 'yyyy/MM/dd/HH'
+        projection.datetime.range: '2022/01/01,NOW'
+        projection.datetime.format: 'yyyy/MM/dd'
         projection.datetime.interval: 1
-        projection.datetime.interval.unit: HOURS
+        projection.datetime.interval.unit: DAYS
         storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/${datetime}/' ] ]
       PartitionKeys:
         - { Name: "datetime", Type: string }
