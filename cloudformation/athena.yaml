@@ -16,24 +16,14 @@ TransactionTable:
       Parameters:
         has_encrypted_data: "true"
         projection.enabled: "true"
-        projection.event_name.type: enum
-        projection.event_name.values: "EVENT_1,EVENT_2,EVENT_3,EVENT_4,EVENT_5,EVENT_6,EVENT_7,EVENT_8"
-        projection.day.type: integer
-        projection.day.range: 1,31
-        projection.month.type: integer
-        projection.month.range: 1,12
-        projection.year.type: integer
-        projection.year.range: 1970,2570
-        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/event_name=${event_name}/year=${year}/month=${month}/day=${day}/' ] ]
+        projection.datetime.type: date
+        projection.datetime.range: '2022/01/01/00,NOW'
+        projection.datetime.format: 'yyyy/MM/dd/HH'
+        projection.datetime.interval: 1
+        projection.datetime.interval.unit: HOURS
+        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/${datetime}/' ] ]
       PartitionKeys:
-        - Name: event_name
-          Type: string
-        - Name: year
-          Type: int
-        - Name: month
-          Type: int
-        - Name: day
-          Type: int
+        - { Name: "datetime", Type: string }
       StorageDescriptor:
         Columns:
           - { Name: "event_id", Type: string }
