@@ -1,5 +1,5 @@
 
-import { BatchGetNamedQueryCommand,BatchGetNamedQueryCommandOutput,ListDataCatalogsCommand,GetDatabaseCommand,ListDatabasesCommand } from "@aws-sdk/client-athena";
+import { StartQueryExecutionCommand,ListDataCatalogsCommand,GetDatabaseCommand,ListDatabasesCommand } from "@aws-sdk/client-athena";
   
 import { athenaClient } from "../clients/athenaClient";
 
@@ -28,4 +28,20 @@ import { athenaClient } from "../clients/athenaClient";
     const response = await athenaClient.send(new GetDatabaseCommand(params));
    return response
    }
+
+   async function startQueryExecutionCommand() {
+    const params ={
+      QueryString: `SELECT * FROM "btm-transactions"`,
+      QueryExecutionContext: {
+        Catalog: "AWSDataCatalog",
+        Database: "btm-transactions",
+      },
+  }
+  const response = await athenaClient.send(new StartQueryExecutionCommand(params));
+  console.log(response)
+ return response
+   }
+
+   export {startQueryExecutionCommand}
+
  
