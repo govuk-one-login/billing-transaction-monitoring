@@ -1,0 +1,94 @@
+NewInvoicesBucket:
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
+    VersioningConfiguration:
+      Status: Enabled
+    LoggingConfiguration:
+      DestinationBucketName: !Ref NewInvoicesAccessLogBucket
+      LogFilePrefix: new-invoices-access-log
+    NotificationConfiguration:
+      QueueConfigurations:
+        - Event: s3:ObjectCreated:*
+          Queue: !Ref InvoiceProcessingQueue
+
+NewInvoicesAccessLogBucket:
+  # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    VersioningConfiguration:
+      Status: Enabled
+    AccessControl: LogDeliveryWrite
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+NewInvoicesAccessLogBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref NewInvoicesAccessLogBucket
+    PolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Sid: "EnableS3Logging"
+          Effect: "Allow"
+          Resource:
+            - !Sub "${NewInvoicesAccessLogBucket.Arn}/*"
+          Principal:
+            Service: "logging.s3.amazonaws.com"
+          Action:
+            - "s3:PutObject"
+          Condition:
+            StringEquals:
+              aws:SourceAccount: !Sub "${AWS::AccountId}"
+            Bool:
+              aws:SecureTransport: true
+
+InvoiceProcessingQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+    QueueName: invoice-processing-queue
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt InvoiceProcessingDeadLetterQueue.Arn
+      maxReceiveCount: 1
+
+InvoiceProcessingDeadLetterQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+    QueueName: invoice-processing-dead-letter-queue
+
+InvoiceProcessingDeadLetterQueueAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmActions:
+      - !Ref AlarmTopic
+    ComparisonOperator: GreaterThanThreshold
+    Dimensions:
+      - Name: QueueName
+        Value: !GetAtt InvoiceProcessingDeadLetterQueue.QueueName
+    EvaluationPeriods: 1
+    MetricName: NumberOfMessagesReceived
+    Namespace: AWS/SQS
+    Period: 1800
+    Statistic: Sum
+    Threshold: 0
+

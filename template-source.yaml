@@ -46,4 +46,5 @@ Resources:
     ./cloudformation/filtering.yaml,
     ./cloudformation/cleaning.yaml,
     ./cloudformation/storage.yaml,
-    ./cloudformation/athena.yaml
+    ./cloudformation/athena.yaml,
+    ./cloudformation/invoicing/external-processing.yaml
