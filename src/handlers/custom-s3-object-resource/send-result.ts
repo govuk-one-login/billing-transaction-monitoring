@@ -6,20 +6,20 @@ import {
 import https from "https";
 import url from "url";
 
-type Arguments = {
+interface Arguments {
   context: Context;
   event: CloudFormationCustomResourceEvent;
   reason: string;
   status: CloudFormationCustomResourceResponse["Status"];
-};
+}
 
-export const sendResult = ({
+export const sendResult = async ({
   context,
   event,
   reason,
   status,
 }: Arguments): Promise<void> =>
-  new Promise((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     const result: CloudFormationCustomResourceResponse = {
       LogicalResourceId: event.LogicalResourceId,
       PhysicalResourceId: context.logStreamName,
@@ -31,7 +31,7 @@ export const sendResult = ({
 
     const body = JSON.stringify(result);
 
-    const { hostname, path } = url.parse(event.ResponseURL);
+    const { hostname, pathname } = new url.URL(event.ResponseURL);
 
     const options = {
       headers: {
@@ -39,7 +39,7 @@ export const sendResult = ({
       },
       hostname,
       method: "PUT",
-      path,
+      path: pathname,
       port: 443,
     };
 

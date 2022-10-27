@@ -5,7 +5,7 @@ import { sendResult } from "./send-result";
 export const handler = async (
   event: CloudFormationCustomResourceEvent,
   context: Context
-) => {
+): Promise<void> => {
   try {
     const { RequestType: requestType, ResourceProperties: resourceProperties } =
       event;
@@ -25,7 +25,10 @@ export const handler = async (
         throw new Error(`\`S3Object.${key}\` not a string`);
     }
 
-    const { Bucket: bucket, Key: key } = s3Object;
+    const { Bucket: bucket, Key: key } = s3Object as {
+      Bucket: string;
+      Key: string;
+    };
 
     if (requestType === "Delete") await deleteS3(bucket, key);
     else {
@@ -39,7 +42,7 @@ export const handler = async (
       await putS3(bucket, key, item);
     }
 
-    return sendResult({
+    return await sendResult({
       context,
       event,
       reason: `${key} ${requestType.toLowerCase()}d in ${bucket}`,
@@ -48,7 +51,7 @@ export const handler = async (
   } catch (error) {
     console.error("Handler error:", error);
 
-    return sendResult({
+    return await sendResult({
       context,
       event,
       reason: `See CloudWatch log stream: ${context.logStreamName}`,
