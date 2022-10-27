@@ -43,4 +43,4 @@ UkVatConfigS3Object:
     S3Object:
       Bucket: !Ref ConfigBucket
       Key: uk-vat.json
-      Item: [{ "rate": 0.2, "start": "2011-01-04" }]
+      Item: !YAMLInclude ./cloudformation/uk-vat.json
