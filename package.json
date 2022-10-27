@@ -9,6 +9,7 @@
         "@aws-sdk/client-s3": "^3.188.0",
         "@aws-sdk/client-sns": "^3.188.0",
         "@aws-sdk/client-sqs": "^3.188.0",
+        "@aws-sdk/client-athena": "^3.188.0",
         "@aws-sdk/lib-dynamodb": "^3.188.0",
         "@babel/preset-env": "^7.19.1",
         "@babel/preset-react": "^7.18.6",
