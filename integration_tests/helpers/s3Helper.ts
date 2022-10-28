@@ -14,10 +14,10 @@ async function getBucketList() {
   return response.Buckets ?? [];
 }
 
-async function getBucketName() {
+async function getBucketName(s3bucketName: any) {
   const bucketList = await getBucketList();
   const bucketName = bucketList.find((item) =>
-    item.Name?.match("di-btm-storagebucket")
+    item.Name?.match(s3bucketName)
   );
   if (bucketName != null) {
     return bucketName.Name?.valueOf() as string;
@@ -26,9 +26,9 @@ async function getBucketName() {
   }
 }
 
-async function getS3ItemsList() {
+async function getS3ItemsList(bucketName: any) {
   const bucketParams = {
-    Bucket: await getBucketName(),
+    Bucket: await getBucketName(bucketName),
   };
   const data = await s3Client.send(new ListObjectsCommand(bucketParams));
   return data;
