@@ -3,7 +3,7 @@ import { VALID_EVENT_NAMES } from "../../shared/constants";
 import { ValidEventName } from "../../shared/types";
 import { sendRecord } from "../../shared/utils";
 
-type CleanedEventBodyObject = {
+interface CleanedEventBodyObject {
   client_id?: string;
   component_id: string;
   event_id?: string;
@@ -16,11 +16,13 @@ type CleanedEventBodyObject = {
   user?: {
     transaction_id?: string;
   };
-};
+}
 
-type Response = { batchItemFailures: { itemIdentifier: string }[] };
+interface Response {
+  batchItemFailures: Array<{ itemIdentifier: string }>;
+}
 
-export const handler = async (event: SQSEvent) => {
+export const handler = async (event: SQSEvent): Promise<Response> => {
   const response: Response = { batchItemFailures: [] };
 
   const promises = event.Records.map(async (record) => {
@@ -35,7 +37,7 @@ export const handler = async (event: SQSEvent) => {
   return response;
 };
 
-async function cleanRecord(record: SQSRecord) {
+async function cleanRecord(record: SQSRecord): Promise<void> {
   const bodyObject = JSON.parse(record.body);
   if (
     typeof bodyObject?.component_id !== "string" ||
@@ -47,28 +49,31 @@ async function cleanRecord(record: SQSRecord) {
     throw new Error(message);
   }
 
-  if (!process.env.OUTPUT_QUEUE_URL) {
+  if (
+    process.env.OUTPUT_QUEUE_URL === undefined ||
+    process.env.OUTPUT_QUEUE_URL.length === 0
+  ) {
     const message = "Output queue URL not set.";
     console.error(message);
     throw new Error(message);
   }
 
   const {
-    client_id,
-    component_id,
-    event_id,
-    event_name,
+    client_id: clientId,
+    component_id: componentId,
+    event_id: eventId,
+    event_name: eventName,
     extensions,
     timestamp,
-    timestamp_formatted,
+    timestamp_formatted: timestampFormatted,
     user,
   } = bodyObject;
 
   const cleanedBodyObject: CleanedEventBodyObject = {
-    client_id: typeof client_id === "string" ? client_id : undefined,
-    component_id,
-    event_id: typeof event_id == "string" ? event_id : undefined,
-    event_name,
+    client_id: typeof clientId === "string" ? clientId : undefined,
+    component_id: componentId,
+    event_id: typeof eventId === "string" ? eventId : undefined,
+    event_name: eventName,
     extensions:
       typeof extensions === "object"
         ? {
@@ -78,7 +83,7 @@ async function cleanRecord(record: SQSRecord) {
         : undefined,
     timestamp,
     timestamp_formatted:
-      typeof timestamp_formatted === "string" ? timestamp_formatted : undefined,
+      typeof timestampFormatted === "string" ? timestampFormatted : undefined,
     user:
       typeof user === "object"
         ? {
@@ -90,5 +95,8 @@ async function cleanRecord(record: SQSRecord) {
         : undefined,
   };
 
-  await sendRecord(process.env.OUTPUT_QUEUE_URL, JSON.stringify(cleanedBodyObject));
+  await sendRecord(
+    process.env.OUTPUT_QUEUE_URL,
+    JSON.stringify(cleanedBodyObject)
+  );
 }

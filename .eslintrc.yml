@@ -1,0 +1,7 @@
+extends:
+  - standard-with-typescript
+  - prettier
+overrides:
+  - files: "*.ts"
+    parserOptions:
+      project: ./tsconfig.json
