@@ -4,8 +4,8 @@
   "version": "0.0.1",
   "type": "module",
   "devDependencies": {
-        "@aws-sdk/client-athena": "^3.188.0",
-        "@aws-sdk/client-cloudwatch-logs": "^3.188.0",
+    "@aws-sdk/client-athena": "^3.188.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.188.0",
     "@aws-sdk/client-dynamodb": "^3.188.0",
     "@aws-sdk/client-s3": "^3.188.0",
     "@aws-sdk/client-sns": "^3.188.0",
