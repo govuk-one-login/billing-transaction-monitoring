@@ -31,7 +31,7 @@ export const sendResult = async ({
 
     const body = JSON.stringify(result);
 
-    const { hostname, pathname } = new url.URL(event.ResponseURL);
+    const { hostname, pathname, search } = new url.URL(event.ResponseURL);
 
     const options = {
       headers: {
@@ -39,7 +39,7 @@ export const sendResult = async ({
       },
       hostname,
       method: "PUT",
-      path: pathname,
+      path: `${pathname}${search}`,
       port: 443,
     };
 
