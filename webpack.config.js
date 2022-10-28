@@ -8,6 +8,7 @@ export default {
     clean: './src/handlers/clean/handler.ts',
     filter: './src/handlers/filter/handler.ts',
     store: './src/handlers/store/handler.ts',
+    invoices: './src/handlers/invoices/handler.ts',
   },
   externals: 'aws-sdk',
   mode: process.env.NODE_ENV === 'dev' ? 'development' : 'production',

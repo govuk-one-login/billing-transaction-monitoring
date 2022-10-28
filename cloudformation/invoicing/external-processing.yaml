@@ -92,3 +92,55 @@ InvoiceProcessingDeadLetterQueueAlarm:
     Statistic: Sum
     Threshold: 0
 
+ProcessInvoiceFunction:
+  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+  Type: AWS::Serverless::Function
+  Properties:
+    DeadLetterQueue:
+      TargetArn: !GetAtt ProcessInvoiceFunctionDeadLetterQueue.Arn
+      Type: SQS
+    Events:
+      ProcessInvoiceEvent:
+        Type: SQS
+        Properties:
+          Queue: !GetAtt InvoiceProcessingQueue.Arn
+    Handler: invoices.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+        - Effect: Allow
+          Action:
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+            - sqs:ReceiveMessage
+          Resource: !GetAtt InvoiceProcessingQueue.Arn
+        - Effect: Allow
+          Action:
+            - kms:Decrypt
+            - kms:GenerateDataKey*
+            - kms:Encrypt
+          Resource: !GetAtt KmsKey.Arn
+    ReservedConcurrentExecutions: 10
+
+ProcessInvoiceFunctionAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmActions:
+      - !Ref AlarmTopic
+    ComparisonOperator: GreaterThanThreshold
+    Dimensions:
+      - Name: FunctionName
+        Value: !Ref ProcessInvoiceFunction
+    EvaluationPeriods: 1
+    MetricName: Errors
+    Namespace: AWS/Lambda
+    Period: 1800
+    Statistic: Sum
+    Threshold: 0
+
+ProcessInvoiceFunctionDeadLetterQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+    QueueName: process-invoice-function-dead-letter-queue
+
