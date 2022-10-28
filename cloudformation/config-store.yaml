@@ -1,0 +1,46 @@
+ConfigBucket:
+  Type: AWS::S3::Bucket
+  Properties:
+    AccessControl: Private
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
+    VersioningConfiguration:
+      Status: Enabled
+    LoggingConfiguration:
+      DestinationBucketName: !Ref ConfigBucketLogBucket
+      LogFilePrefix: config-bucket-log
+
+ConfigBucketLogBucket:
+  # checkov:skip=CKV_AWS_18: This is the config log bucket - no need for another
+  Type: AWS::S3::Bucket
+  Properties:
+    VersioningConfiguration:
+      Status: Enabled
+    AccessControl: LogDeliveryWrite
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+UkVatConfigS3Object:
+  Type: Custom::S3Object
+  Properties:
+    ServiceToken: !GetAtt CustomS3ObjectResourceFunction.Arn
+    S3Object:
+      Bucket: !Ref ConfigBucket
+      Key: uk-vat.json
+      Item: !YAMLInclude ./cloudformation/uk-vat.json
