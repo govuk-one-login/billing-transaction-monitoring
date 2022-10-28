@@ -45,7 +45,7 @@ docker run --rm -it -p 4566:4566 -p 4571:4571 -e LOCALSTACK_DEBUG=1 localstack/l
 ### Bringing up the stack
 ```sh
 npm run build
-npm run build-template
+npm run build-template NO_LOCAL
 samlocal build
 samlocal deploy --resolve-s3 --config-env local
 ```
@@ -89,8 +89,21 @@ To run the tests against local environment
 ````
 npm i
 npm run test:integration-local
-
 ````
+
+## ISSUES
+### PIP
+Sometimes on OSX you'll get errors like `ImportError: cannot import name 'NotRequired' from 'typing_extensions'` when running
+checkov/sam/samlocal
+This happens due to library version mis-matches. One solution is to reinstall the program you're trying to run e.g.
+
+```
+pip3 install aws-sam-cli
+pip3 install aws-sam-cli-local
+pip3 install checkov
+```
+This is a pain as it happens regularly so a better solution would be useful.
+
 ## Licence
 
 [MIT License](LICENCE)
