@@ -52,6 +52,7 @@ samlocal deploy --resolve-s3 --config-env local
 N.B. You may get Python errors due to conflicting dependencies with Checkov. If you do, run this and try again:
 ```sh
 pip3 install aws-sam-cli
+pip3 install aws-sam-cli-local
 ```
 
 ### Interrogating the stack
@@ -90,19 +91,6 @@ To run the tests against local environment
 npm i
 npm run test:integration-local
 ````
-
-## ISSUES
-### PIP
-Sometimes on OSX you'll get errors like `ImportError: cannot import name 'NotRequired' from 'typing_extensions'` when running
-checkov/sam/samlocal
-This happens due to library version mis-matches. One solution is to reinstall the program you're trying to run e.g.
-
-```
-pip3 install aws-sam-cli
-pip3 install aws-sam-cli-local
-pip3 install checkov
-```
-This is a pain as it happens regularly so a better solution would be useful.
 
 ## Licence
 
