@@ -14,7 +14,7 @@ describe("\nPublish valid sns message and excute athena query\n", () => {
   beforeAll(async () => {
     snsResponse = await publishSNS(snsValidEventPayload);
     const checkEventId = async () => {
-      const result = await getS3ItemsList();
+      const result = await getS3ItemsList("di-btm-storagebucket");
       return JSON.stringify(result.Contents?.map((data) => data.Key)).includes(
         snsValidEventPayload.event_id
       );
