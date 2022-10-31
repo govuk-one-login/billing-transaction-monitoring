@@ -15,7 +15,7 @@ async function getBucketList() {
   return response.Buckets ?? [];
 }
 
-async function getBucketName(s3bucketName: any) {
+async function getBucketName(s3bucketName: string) {
   const bucketList = await getBucketList();
   const bucketName = bucketList.find((item) => item.Name?.match(s3bucketName));
   if (bucketName != null) {
@@ -25,7 +25,7 @@ async function getBucketName(s3bucketName: any) {
   }
 }
 
-async function getS3ItemsList(bucketNameMatchString: any) {
+async function getS3ItemsList(bucketNameMatchString: string) {
   const bucketParams = {
     Bucket: await getBucketName(bucketNameMatchString),
   };
@@ -33,7 +33,7 @@ async function getS3ItemsList(bucketNameMatchString: any) {
   return data;
 }
 
-async function getS3Object(bucketNameMatchString: any, key: any) {
+async function getS3Object(bucketNameMatchString: string, key: string) {
   const bucketParams = {
     Bucket: await getBucketName(bucketNameMatchString),
     Key: key,
