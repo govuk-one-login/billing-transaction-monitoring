@@ -4,6 +4,7 @@ import {
   ListBucketsCommand,
   ListObjectsCommand,
   ListObjectsCommandInput,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
 
 async function getBucketList() {
@@ -16,9 +17,7 @@ async function getBucketList() {
 
 async function getBucketName(s3bucketName: any) {
   const bucketList = await getBucketList();
-  const bucketName = bucketList.find((item) =>
-    item.Name?.match(s3bucketName)
-  );
+  const bucketName = bucketList.find((item) => item.Name?.match(s3bucketName));
   if (bucketName != null) {
     return bucketName.Name?.valueOf() as string;
   } else {
@@ -26,12 +25,23 @@ async function getBucketName(s3bucketName: any) {
   }
 }
 
-async function getS3ItemsList(bucketName: any) {
+async function getS3ItemsList(bucketNameMatchString: any) {
   const bucketParams = {
-    Bucket: await getBucketName(bucketName),
+    Bucket: await getBucketName(bucketNameMatchString),
   };
   const data = await s3Client.send(new ListObjectsCommand(bucketParams));
   return data;
 }
 
-export { getS3ItemsList };
+async function getS3Object(bucketNameMatchString: any, key: any) {
+  const bucketParams = {
+    Bucket: await getBucketName(bucketNameMatchString),
+    Key: key,
+  };
+  const getObjectResult = await s3Client.send(
+    new GetObjectCommand(bucketParams)
+  );
+  return getObjectResult.Body?.transformToString();
+}
+
+export { getS3ItemsList, getS3Object };
