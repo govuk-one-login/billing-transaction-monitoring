@@ -22,7 +22,10 @@ export const sendResult = async ({
   await new Promise((resolve, reject) => {
     const result: CloudFormationCustomResourceResponse = {
       LogicalResourceId: event.LogicalResourceId,
-      PhysicalResourceId: context.logStreamName,
+      PhysicalResourceId:
+        event.RequestType === "Create"
+          ? context.logStreamName
+          : event.PhysicalResourceId,
       Reason: reason,
       RequestId: event.RequestId,
       StackId: event.StackId,

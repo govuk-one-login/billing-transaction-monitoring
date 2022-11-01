@@ -21,7 +21,7 @@ beforeEach(() => {
 
   givenContext = {
     logStreamName: "some context log stream name",
-  } as Context;
+  } as any;
 
   validEvent = {
     RequestType: "some request type",
@@ -29,12 +29,10 @@ beforeEach(() => {
       S3Object: {
         Bucket: "some S3 bucket",
         Key: "some file name",
-        Item: {
-          someItemKey: "some item value",
-        },
+        Item: '{ "someItemKey": "someItemValue" }',
       },
     },
-  } as unknown as CloudFormationCustomResourceEvent;
+  } as any;
 });
 
 afterAll(() => {
@@ -42,10 +40,10 @@ afterAll(() => {
 });
 
 test("Custom S3 object resource handler with no `S3Object`", async () => {
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     ResourceProperties: {},
-  } as unknown as CloudFormationCustomResourceEvent;
+  } as any;
 
   await handler(givenEvent, givenContext);
 
@@ -61,12 +59,12 @@ test("Custom S3 object resource handler with no `S3Object`", async () => {
 });
 
 test("Custom S3 object resource handler with `S3Object` not object", async () => {
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     ResourceProperties: {
       S3Object: "some string",
     },
-  } as unknown as CloudFormationCustomResourceEvent;
+  } as any;
 
   await handler(givenEvent, givenContext);
 
@@ -99,7 +97,7 @@ test("Custom S3 object resource handler with no `S3Object.Bucket`", async () => 
 });
 
 test("Custom S3 object resource handler with `S3Object.Bucket` not string", async () => {
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     ResourceProperties: {
       ...validEvent.ResourceProperties,
@@ -124,7 +122,7 @@ test("Custom S3 object resource handler with `S3Object.Bucket` not string", asyn
 });
 
 test("Custom S3 object resource handler with no `S3Object.Key`", async () => {
-  const givenEvent = validEvent;
+  const givenEvent: CloudFormationCustomResourceEvent = validEvent;
   delete givenEvent.ResourceProperties.S3Object.Key;
 
   await handler(givenEvent, givenContext);
@@ -141,7 +139,7 @@ test("Custom S3 object resource handler with no `S3Object.Key`", async () => {
 });
 
 test("Custom S3 object resource handler with `S3Object.Key` not string", async () => {
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     ResourceProperties: {
       ...validEvent.ResourceProperties,
@@ -166,10 +164,10 @@ test("Custom S3 object resource handler with `S3Object.Key` not string", async (
 });
 
 test('Custom S3 object resource handler with request type "Delete"', async () => {
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Delete",
-  } as CloudFormationCustomResourceEvent;
+  } as any;
 
   await handler(givenEvent, givenContext);
 
@@ -186,10 +184,10 @@ test('Custom S3 object resource handler with request type "Delete"', async () =>
 test("Custom S3 object resource handler with deletion failure", async () => {
   mockedDeleteS3.mockRejectedValue(undefined);
 
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Delete",
-  } as CloudFormationCustomResourceEvent;
+  } as any;
 
   await handler(givenEvent, givenContext);
 
@@ -203,10 +201,10 @@ test("Custom S3 object resource handler with deletion failure", async () => {
 });
 
 test("Custom S3 object resource handler with deletion success", async () => {
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Delete",
-  } as CloudFormationCustomResourceEvent;
+  } as any;
 
   await handler(givenEvent, givenContext);
 
@@ -220,10 +218,10 @@ test("Custom S3 object resource handler with deletion success", async () => {
 });
 
 test('Custom S3 object resource handler with request type "Create" and no `S3Object.Item`', async () => {
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Create",
-  } as CloudFormationCustomResourceEvent;
+  } as any;
   delete givenEvent.ResourceProperties.S3Object.Item;
 
   await handler(givenEvent, givenContext);
@@ -239,8 +237,36 @@ test('Custom S3 object resource handler with request type "Create" and no `S3Obj
   expect(mockedPutS3).not.toHaveBeenCalled();
 });
 
-test('Custom S3 object resource handler with request type "Create" and `S3Object.Item` not object', async () => {
-  const givenEvent = {
+test('Custom S3 object resource handler with request type "Create" and `S3Object.Item` not string', async () => {
+  const givenEvent: CloudFormationCustomResourceEvent = {
+    ...validEvent,
+    RequestType: "Create",
+    ResourceProperties: {
+      ...validEvent.ResourceProperties,
+      S3Object: {
+        ...validEvent.ResourceProperties.S3Object,
+        Item: {
+          someKey: "some value",
+        },
+      },
+    },
+  } as any;
+
+  await handler(givenEvent, givenContext);
+
+  expect(mockedSendResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendResult).toHaveBeenCalledWith({
+    context: givenContext,
+    event: givenEvent,
+    reason: expect.stringContaining(givenContext.logStreamName),
+    status: "FAILED",
+  });
+  expect(mockedDeleteS3).not.toHaveBeenCalled();
+  expect(mockedPutS3).not.toHaveBeenCalled();
+});
+
+test('Custom S3 object resource handler with request type "Create" and `S3Object.Item` not JSON', async () => {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Create",
     ResourceProperties: {
@@ -250,7 +276,33 @@ test('Custom S3 object resource handler with request type "Create" and `S3Object
         Item: "some string",
       },
     },
-  } as CloudFormationCustomResourceEvent;
+  } as any;
+
+  await handler(givenEvent, givenContext);
+
+  expect(mockedSendResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendResult).toHaveBeenCalledWith({
+    context: givenContext,
+    event: givenEvent,
+    reason: expect.stringContaining(givenContext.logStreamName),
+    status: "FAILED",
+  });
+  expect(mockedDeleteS3).not.toHaveBeenCalled();
+  expect(mockedPutS3).not.toHaveBeenCalled();
+});
+
+test('Custom S3 object resource handler with request type "Create" and `S3Object.Item` JSON not object', async () => {
+  const givenEvent: CloudFormationCustomResourceEvent = {
+    ...validEvent,
+    RequestType: "Create",
+    ResourceProperties: {
+      ...validEvent.ResourceProperties,
+      S3Object: {
+        ...validEvent.ResourceProperties.S3Object,
+        Item: '"some JSON serialised string"',
+      },
+    },
+  } as any;
 
   await handler(givenEvent, givenContext);
 
@@ -268,10 +320,10 @@ test('Custom S3 object resource handler with request type "Create" and `S3Object
 test("Custom S3 object resource handler with creation failure", async () => {
   mockedPutS3.mockRejectedValue(undefined);
 
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Create",
-  } as CloudFormationCustomResourceEvent;
+  } as any;
 
   await handler(givenEvent, givenContext);
 
@@ -285,10 +337,10 @@ test("Custom S3 object resource handler with creation failure", async () => {
 });
 
 test("Custom S3 object resource handler with creation success", async () => {
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Create",
-  } as CloudFormationCustomResourceEvent;
+  } as any;
 
   await handler(givenEvent, givenContext);
 
@@ -302,10 +354,10 @@ test("Custom S3 object resource handler with creation success", async () => {
 });
 
 test('Custom S3 object resource handler with request type "Update" and no `S3Object.Item`', async () => {
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Update",
-  } as CloudFormationCustomResourceEvent;
+  } as any;
   delete givenEvent.ResourceProperties.S3Object.Item;
 
   await handler(givenEvent, givenContext);
@@ -321,8 +373,36 @@ test('Custom S3 object resource handler with request type "Update" and no `S3Obj
   expect(mockedPutS3).not.toHaveBeenCalled();
 });
 
-test('Custom S3 object resource handler with request type "Update" and `S3Object.Item` not object', async () => {
-  const givenEvent = {
+test('Custom S3 object resource handler with request type "Update" and `S3Object.Item` not string', async () => {
+  const givenEvent: CloudFormationCustomResourceEvent = {
+    ...validEvent,
+    RequestType: "Update",
+    ResourceProperties: {
+      ...validEvent.ResourceProperties,
+      S3Object: {
+        ...validEvent.ResourceProperties.S3Object,
+        Item: {
+          someKey: "some value",
+        },
+      },
+    },
+  } as any;
+
+  await handler(givenEvent, givenContext);
+
+  expect(mockedSendResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendResult).toHaveBeenCalledWith({
+    context: givenContext,
+    event: givenEvent,
+    reason: expect.stringContaining(givenContext.logStreamName),
+    status: "FAILED",
+  });
+  expect(mockedDeleteS3).not.toHaveBeenCalled();
+  expect(mockedPutS3).not.toHaveBeenCalled();
+});
+
+test('Custom S3 object resource handler with request type "Update" and `S3Object.Item` not JSON', async () => {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Update",
     ResourceProperties: {
@@ -332,7 +412,33 @@ test('Custom S3 object resource handler with request type "Update" and `S3Object
         Item: "some string",
       },
     },
-  } as CloudFormationCustomResourceEvent;
+  } as any;
+
+  await handler(givenEvent, givenContext);
+
+  expect(mockedSendResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendResult).toHaveBeenCalledWith({
+    context: givenContext,
+    event: givenEvent,
+    reason: expect.stringContaining(givenContext.logStreamName),
+    status: "FAILED",
+  });
+  expect(mockedDeleteS3).not.toHaveBeenCalled();
+  expect(mockedPutS3).not.toHaveBeenCalled();
+});
+
+test('Custom S3 object resource handler with request type "Update" and `S3Object.Item` JSON not object', async () => {
+  const givenEvent: CloudFormationCustomResourceEvent = {
+    ...validEvent,
+    RequestType: "Update",
+    ResourceProperties: {
+      ...validEvent.ResourceProperties,
+      S3Object: {
+        ...validEvent.ResourceProperties.S3Object,
+        Item: '"some JSON serialised string"',
+      },
+    },
+  } as any;
 
   await handler(givenEvent, givenContext);
 
@@ -350,10 +456,10 @@ test('Custom S3 object resource handler with request type "Update" and `S3Object
 test("Custom S3 object resource handler with update failure", async () => {
   mockedPutS3.mockRejectedValue(undefined);
 
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Update",
-  } as CloudFormationCustomResourceEvent;
+  } as any;
 
   await handler(givenEvent, givenContext);
 
@@ -367,10 +473,10 @@ test("Custom S3 object resource handler with update failure", async () => {
 });
 
 test("Custom S3 object resource handler with update success", async () => {
-  const givenEvent = {
+  const givenEvent: CloudFormationCustomResourceEvent = {
     ...validEvent,
     RequestType: "Update",
-  } as CloudFormationCustomResourceEvent;
+  } as any;
 
   await handler(givenEvent, givenContext);
 

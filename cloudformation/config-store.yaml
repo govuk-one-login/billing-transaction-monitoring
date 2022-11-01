@@ -43,4 +43,4 @@ UkVatConfigS3Object:
     S3Object:
       Bucket: !Ref ConfigBucket
       Key: uk-vat.json
-      Item: !YAMLInclude ./cloudformation/uk-vat.json
+      Item: !JSONTextInclude ./cloudformation/uk-vat.json
