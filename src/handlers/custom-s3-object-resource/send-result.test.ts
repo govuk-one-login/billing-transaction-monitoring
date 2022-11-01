@@ -1,6 +1,8 @@
 import {
+  CloudFormationCustomResourceDeleteEvent,
   CloudFormationCustomResourceEvent,
   CloudFormationCustomResourceResponse,
+  CloudFormationCustomResourceUpdateEvent,
   Context,
 } from "aws-lambda";
 import { ClientRequest, IncomingMessage } from "http";
@@ -63,7 +65,67 @@ afterAll(() => {
   console.error = oldConsoleError;
 });
 
-test("Result sender with request error", async () => {
+test("Result sender with creation event", async () => {
+  givenEvent.RequestType = "Create";
+
+  const resultPromise = sendResult({
+    context: givenContext,
+    event: givenEvent,
+    reason: givenReason,
+    status: givenStatus,
+  });
+
+  const expectedBodyObject = {
+    LogicalResourceId: givenEvent.LogicalResourceId,
+    PhysicalResourceId: givenContext.logStreamName,
+    Reason: givenReason,
+    RequestId: givenEvent.RequestId,
+    StackId: givenEvent.StackId,
+    Status: givenStatus,
+  };
+  const expectedBody = JSON.stringify(expectedBodyObject);
+  const expectedOptions = {
+    headers: {
+      "content-length": expectedBody.length,
+    },
+    hostname: "given.host.name",
+    method: "PUT",
+    path: "/given/path",
+    port: 443,
+  };
+
+  expect(mockedRequestFunction).toHaveBeenCalledTimes(1);
+  expect(mockedRequestFunction).toHaveBeenCalledWith(
+    expectedOptions,
+    expect.any(Function)
+  );
+
+  expect(mockedRequestOn).toHaveBeenCalledTimes(1);
+  expect(mockedRequestOn).toHaveBeenCalledWith("error", expect.any(Function));
+  expect(mockedRequestWrite).toHaveBeenCalledTimes(1);
+  expect(mockedRequestWrite).toHaveBeenCalledWith(expectedBody);
+  expect(mockedRequestEnd).toHaveBeenCalledTimes(1);
+
+  const resultRequestCallback = mockedRequestFunction.mock
+    .calls[0][1] as Function;
+  resultRequestCallback(mockedResponseObject);
+
+  expect(mockedResponseOn).toHaveBeenCalledTimes(2);
+  expect(mockedResponseOn).toHaveBeenCalledWith("error", expect.any(Function));
+  expect(mockedResponseOn).toHaveBeenCalledWith("end", expect.any(Function));
+
+  const resultResponseEndCall = mockedResponseOn.mock.calls.find(
+    ([event]) => event === "end"
+  );
+  const resultResponseEndCallback = resultResponseEndCall[1];
+  resultResponseEndCallback();
+
+  await resultPromise;
+});
+
+test("Result sender with update event", async () => {
+  givenEvent.RequestType = "Update";
+
   const resultPromise = sendResult({
     context: givenContext,
     event: givenEvent,
@@ -74,7 +136,8 @@ test("Result sender with request error", async () => {
   expect(mockedRequestFunction).toHaveBeenCalledTimes(1);
   const expectedBodyObject = {
     LogicalResourceId: givenEvent.LogicalResourceId,
-    PhysicalResourceId: givenContext.logStreamName,
+    PhysicalResourceId: (givenEvent as CloudFormationCustomResourceUpdateEvent)
+      .PhysicalResourceId,
     Reason: givenReason,
     RequestId: givenEvent.RequestId,
     StackId: givenEvent.StackId,
@@ -94,11 +157,83 @@ test("Result sender with request error", async () => {
     expectedOptions,
     expect.any(Function)
   );
-  expect(mockedRequestOn).toHaveBeenCalledTimes(1);
-  expect(mockedRequestOn).toHaveBeenCalledWith("error", expect.any(Function));
   expect(mockedRequestWrite).toHaveBeenCalledTimes(1);
   expect(mockedRequestWrite).toHaveBeenCalledWith(expectedBody);
-  expect(mockedRequestEnd).toHaveBeenCalledTimes(1);
+
+  const resultRequestCallback = mockedRequestFunction.mock
+    .calls[0][1] as Function;
+  resultRequestCallback(mockedResponseObject);
+
+  expect(mockedResponseOn).toHaveBeenCalledWith("end", expect.any(Function));
+
+  const resultResponseEndCall = mockedResponseOn.mock.calls.find(
+    ([event]) => event === "end"
+  );
+  const resultResponseEndCallback = resultResponseEndCall[1];
+  resultResponseEndCallback();
+
+  await resultPromise;
+});
+
+test("Result sender with deletion event", async () => {
+  givenEvent.RequestType = "Delete";
+
+  const resultPromise = sendResult({
+    context: givenContext,
+    event: givenEvent,
+    reason: givenReason,
+    status: givenStatus,
+  });
+
+  expect(mockedRequestFunction).toHaveBeenCalledTimes(1);
+  const expectedBodyObject = {
+    LogicalResourceId: givenEvent.LogicalResourceId,
+    PhysicalResourceId: (givenEvent as CloudFormationCustomResourceDeleteEvent)
+      .PhysicalResourceId,
+    Reason: givenReason,
+    RequestId: givenEvent.RequestId,
+    StackId: givenEvent.StackId,
+    Status: givenStatus,
+  };
+  const expectedBody = JSON.stringify(expectedBodyObject);
+  const expectedOptions = {
+    headers: {
+      "content-length": expectedBody.length,
+    },
+    hostname: "given.host.name",
+    method: "PUT",
+    path: "/given/path",
+    port: 443,
+  };
+  expect(mockedRequestFunction).toHaveBeenCalledWith(
+    expectedOptions,
+    expect.any(Function)
+  );
+  expect(mockedRequestWrite).toHaveBeenCalledTimes(1);
+  expect(mockedRequestWrite).toHaveBeenCalledWith(expectedBody);
+
+  const resultRequestCallback = mockedRequestFunction.mock
+    .calls[0][1] as Function;
+  resultRequestCallback(mockedResponseObject);
+
+  expect(mockedResponseOn).toHaveBeenCalledWith("end", expect.any(Function));
+
+  const resultResponseEndCall = mockedResponseOn.mock.calls.find(
+    ([event]) => event === "end"
+  );
+  const resultResponseEndCallback = resultResponseEndCall[1];
+  resultResponseEndCallback();
+
+  await resultPromise;
+});
+
+test("Result sender with request error", async () => {
+  const resultPromise = sendResult({
+    context: givenContext,
+    event: givenEvent,
+    reason: givenReason,
+    status: givenStatus,
+  });
 
   const resultRequestCallback = mockedRequestFunction.mock
     .calls[0][1] as Function;
