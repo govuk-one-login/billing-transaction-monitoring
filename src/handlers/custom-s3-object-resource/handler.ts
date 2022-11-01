@@ -34,10 +34,20 @@ export const handler = async (
     else {
       if (!("Item" in s3Object)) throw new Error("`S3Object.Item` not found");
 
-      const { Item: item } = s3Object;
+      const { Item: itemText } = s3Object;
+
+      if (typeof itemText !== "string")
+        throw new Error("`S3Object.Item` not a string");
+
+      let item;
+      try {
+        item = JSON.parse(itemText);
+      } catch {
+        throw new Error("`S3Object.Item` not JSON");
+      }
 
       if (typeof item !== "object")
-        throw new Error("`S3Object.Item` not an object");
+        throw new Error("`S3Object.Item` JSON not object");
 
       await putS3(bucket, key, item);
     }
