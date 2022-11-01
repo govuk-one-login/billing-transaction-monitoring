@@ -47,7 +47,7 @@
   "scripts": {
     "test": "jest",
     "test:integration": "jest --c jest.integration.config.ts",
-    "test:integration-local": "jest  --setupFiles=./Integration_tests/setEnvVars.ts --c jest.integration.config.ts",
+    "test:integration-local": "jest  --setupFiles=./Integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --c jest.integration.config.ts",
     "build": "webpack",
     "lint": "eslint . --fix",
     "build-template": "node ./src/tools/yaml-import.js"
