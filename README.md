@@ -52,7 +52,6 @@ samlocal deploy --resolve-s3 --config-env local
 N.B. You may get Python errors due to conflicting dependencies with Checkov. If you do, run this and try again:
 ```sh
 pip3 install aws-sam-cli
-pip3 install aws-sam-cli-local
 ```
 
 ### Interrogating the stack
