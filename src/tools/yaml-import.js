@@ -25,13 +25,13 @@ const visitor = (key, node) => {
       }
     });
 
-    if (node.tag === "!JSONTextInclude") {
-      const file = readFileSync(`./${node.value.trim()}`, "utf8");
-      const yamlObject = new Scalar(file);
-      return yamlObject;
-    }
-
     return fullContents;
+  }
+
+  if (node.tag === "!JSONTextInclude") {
+    const file = readFileSync(`./${node.value.trim()}`, "utf8");
+    const yamlObject = new Scalar(file);
+    return yamlObject;
   }
 };
 visit(document, visitor);
