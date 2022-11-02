@@ -45,7 +45,7 @@ docker run --rm -it -p 4566:4566 -p 4571:4571 -e LOCALSTACK_DEBUG=1 localstack/l
 ### Bringing up the stack
 ```sh
 npm run build
-npm run build-template
+npm run build-template NO_LOCAL
 samlocal build
 samlocal deploy --resolve-s3 --config-env local
 ```
@@ -89,8 +89,8 @@ To run the tests against local environment
 ````
 npm i
 npm run test:integration-local
-
 ````
+
 ## Licence
 
 [MIT License](LICENCE)
