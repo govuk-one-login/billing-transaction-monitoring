@@ -91,6 +91,16 @@ npm i
 npm run test:integration-local
 ````
 
+To view the allure report after running the integration test
+````
+npm run allure:report
+````
+
+To clean the allure results and allure reports folder 
+````
+npm run beforeIntTest
+````
+
 ## Licence
 
 [MIT License](LICENCE)
