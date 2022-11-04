@@ -48,11 +48,10 @@
   },
   "scripts": {
     "test": "jest", 
-    "clean:allure_folders":"rm -R -f allure-report/* && rm -R -f allure-results/*",
+    "clean:allure_folders":"rm -R -f allure-reports/* && rm -R -f allure-results/*",
     "beforeIntTest": "npm run clean:allure_folders",
     "test:integration": "jest --c jest.integration.config.ts",
     "test:integration-local": "jest  --setupFiles=./Integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --c jest.integration.config.ts",
-    "allure:report": "allure generate allure-results --clean -o allure-report && allure open allure-report",
     "build": "webpack",
     "lint": "eslint . --fix",
     "build-template": "node ./src/tools/yaml-import.js"

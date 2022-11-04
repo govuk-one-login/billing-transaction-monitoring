@@ -91,9 +91,12 @@ npm i
 npm run test:integration-local
 ````
 
-To view the allure report after running the integration test
+To generate  emailable allure report after running the integration test
 ````
-npm run allure:report
+ docker run --name allure -p 5050:5050  \
+                 -v ${PWD}/allure-results:/app/allure-results \
+                 -v ${PWD}/allure-reports:/app/default-report \
+                 frankescobar/allure-docker-service
 ````
 
 To clean the allure results and allure reports folder 
