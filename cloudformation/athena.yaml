@@ -21,7 +21,7 @@ TransactionTable:
         projection.datetime.format: 'yyyy-MM-dd'
         projection.datetime.interval: 1
         projection.datetime.interval.unit: DAYS
-        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/${datetime}/' ] ]
+        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions/${datetime}/' ] ]
       PartitionKeys:
         - { Name: "datetime", Type: date }
       StorageDescriptor:
