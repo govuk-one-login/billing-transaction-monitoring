@@ -91,6 +91,19 @@ npm i
 npm run test:integration-local
 ````
 
+To generate  emailable allure report after running the integration test
+````
+ docker run --name allure -p 5050:5050  \
+                 -v ${PWD}/allure-results:/app/allure-results \
+                 -v ${PWD}/allure-reports:/app/default-reports \
+                 frankescobar/allure-docker-service
+````
+
+To clean the allure results and allure reports folder 
+````
+npm run beforeIntTest
+````
+
 ## Licence
 
 [MIT License](LICENCE)
