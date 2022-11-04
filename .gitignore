@@ -6,3 +6,6 @@ dist
 coverage
 template.yaml
 reports
+allure-results
+allure-reports
+
