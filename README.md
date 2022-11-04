@@ -95,7 +95,7 @@ To generate  emailable allure report after running the integration test
 ````
  docker run --name allure -p 5050:5050  \
                  -v ${PWD}/allure-results:/app/allure-results \
-                 -v ${PWD}/allure-reports:/app/default-report \
+                 -v ${PWD}/allure-reports:/app/default-reports \
                  frankescobar/allure-docker-service
 ````
 
