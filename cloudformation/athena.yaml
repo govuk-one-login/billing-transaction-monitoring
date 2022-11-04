@@ -11,7 +11,7 @@ TransactionTable:
     CatalogId: !Ref AWS::AccountId
     DatabaseName: !Ref TransactionDB
     TableInput:
-      Name: btm-transactions
+      Name: btm_transactions
       TableType: EXTERNAL_TABLE
       Parameters:
         has_encrypted_data: "true"
@@ -21,7 +21,7 @@ TransactionTable:
         projection.datetime.format: 'yyyy-MM-dd'
         projection.datetime.interval: 1
         projection.datetime.interval.unit: DAYS
-        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/${datetime}/' ] ]
+        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions/${datetime}/' ] ]
       PartitionKeys:
         - { Name: "datetime", Type: date }
       StorageDescriptor:

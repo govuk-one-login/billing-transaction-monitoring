@@ -35,7 +35,7 @@ async function startQueryExecutionCommand(eventId: any) {
     QueryExecutionContext: {
       Database: await getDatabaseName(),
     },
-    QueryString: `SELECT * FROM \"btm-transactions\" where event_id='${eventId.toString()}'`,
+    QueryString: `SELECT * FROM \"btm_transactions\" where event_id='${eventId.toString()}'`,
     WorkGroup: await getWorkGroupName(),
   };
   const response = await athenaClient.send(
