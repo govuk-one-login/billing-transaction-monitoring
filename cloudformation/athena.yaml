@@ -11,7 +11,7 @@ TransactionTable:
     CatalogId: !Ref AWS::AccountId
     DatabaseName: !Ref TransactionDB
     TableInput:
-      Name: btm-transactions
+      Name: btm_transactions
       TableType: EXTERNAL_TABLE
       Parameters:
         has_encrypted_data: "true"
