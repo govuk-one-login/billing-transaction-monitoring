@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: CloudFormation template for infrastructure to monitor user identity verification events for billing purposes
 Transform: AWS::Serverless-2016-10-31
 
@@ -39,13 +39,12 @@ Globals:
     Timeout: 30
     CodeUri: dist/
 
-Resources:
-  !YAMLInclude
-    ./cloudformation/global.yaml,
-    ./cloudformation/test-only.yaml,
-    ./cloudformation/filtering.yaml,
-    ./cloudformation/cleaning.yaml,
-    ./cloudformation/storage.yaml,
-    ./cloudformation/athena.yaml#NO_LOCAL,
-    ./cloudformation/config-store.yaml,
-    ./cloudformation/custom-s3-object-resource.yaml#NO_LOCAL
+Resources: !YAMLInclude ./cloudformation/global.yaml,
+  ./cloudformation/test-only.yaml,
+  ./cloudformation/filtering.yaml,
+  ./cloudformation/cleaning.yaml,
+  ./cloudformation/storage.yaml,
+  ./cloudformation/athena.yaml#NO_LOCAL,
+  ./cloudformation/config-store.yaml,
+  ./cloudformation/custom-s3-object-resource.yaml#NO_LOCAL,
+  ./cloudformation/raw-pdf-store.yaml

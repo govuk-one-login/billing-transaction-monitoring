@@ -1,0 +1,45 @@
+RawPdfBucket:
+  Type: AWS::S3::Bucket
+  Properties:
+    AccessControl: Private
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
+    VersioningConfiguration:
+      Status: Enabled
+    LoggingConfiguration: # *********************** Do we need logging? Is it only ever going to be the Extraction Lambda that will access this bucket?
+      DestinationBucketName: !Ref RawPdfLogBucket # https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-access-logging.html
+      LogFilePrefix: raw-pdf-bucket-log
+
+RawPdfLogBucket: # ******************************** See above, is this needed?
+  # checkov:skip=CKV_AWS_18: This is the config log bucket - no need for another  ***** what does this mean?
+  Type: AWS::S3::Bucket
+  Properties:
+    VersioningConfiguration:
+      Status: Enabled
+    AccessControl: LogDeliveryWrite
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+Outputs: # Outputs section declares output values that you can import into other stacks, return in response (to describe stack calls), or view on the AWS CloudFormation console.
+  RawPdfBucketName:
+    Description: Name of the raw pdf bucket
+    Value: !Ref RawPdfBucket
+  RawPdfLogBucketName:
+    Description: Name of the raw pdf log bucket
+    Value: !Ref RawPdfLogBucket
