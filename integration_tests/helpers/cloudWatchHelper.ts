@@ -32,7 +32,7 @@ async function getLogGroupName(logName: string) {
 
 let events: FilteredLogEvent[];
 
-async function getFilteredEventFromLatestLogStream(
+async function checkEventExistsInLogs(
   logName: string,
   eventid: string
 ) {
@@ -41,7 +41,7 @@ async function getFilteredEventFromLatestLogStream(
     startTime: testStartTime,
   };
 
-  const checkLogEventExists = async () => {
+  const checkEventExists = async () => {
     const response: FilterLogEventsCommandOutput =
       await cloudWatchLogsClient.send(new FilterLogEventsCommand(params));
     events = response.events ?? [];
@@ -49,8 +49,8 @@ async function getFilteredEventFromLatestLogStream(
       eventid
     );
   };
-  const eventIdExists = await waitForTrue(checkLogEventExists, 3000, 15000);
+  const eventIdExists = await waitForTrue(checkEventExists, 3000, 15000);
   return eventIdExists;
 }
 
-export { getFilteredEventFromLatestLogStream, getLogGroupName };
+export { checkEventExistsInLogs, getLogGroupName };
