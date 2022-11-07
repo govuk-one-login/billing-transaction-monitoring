@@ -4,6 +4,7 @@ CleanDeadLetterQueue:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
     QueueName: clean-dead-letter-queue
 
+# Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
 CleanDeadLetterQueueAlarm:
   Type: AWS::CloudWatch::Alarm
   Properties:
@@ -30,7 +31,7 @@ CleanFunction:
     Environment:
       Variables:
         OUTPUT_QUEUE_URL: !Ref StorageQueue
-        LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+        LOCAL_ENDPOINT: !If [IsLocal, "http://localhost:4566", ""]
     Events:
       CleanEvent:
         Type: SQS
@@ -80,6 +81,23 @@ CleanFunctionDeadLetterQueue:
   Properties:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
     QueueName: clean-function-dead-letter-queue
+
+# Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
+CleanFunctionDeadLetterQueueAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmActions:
+      - !Ref AlarmTopic
+    ComparisonOperator: GreaterThanThreshold
+    Dimensions:
+      - Name: QueueName
+        Value: !GetAtt CleanFunctionDeadLetterQueue.QueueName
+    EvaluationPeriods: 1
+    MetricName: NumberOfMessagesReceived
+    Namespace: AWS/SQS
+    Period: 1800
+    Statistic: Sum
+    Threshold: 0
 
 CleanQueue:
   Type: AWS::SQS::Queue
