@@ -8,6 +8,8 @@ Monitors user identity verification events for billing purposes
 - [Node.js](https://nodejs.org/en/) version 16 - Recommended way to install is via [NVM](https://github.com/nvm-sh/nvm)
 - [Docker](https://docs.docker.com/get-docker/) - Required to run SAM locally
 
+If you are new to the Billing & Transaction Monitoring team, please also read [our New Starters guide](https://govukverify.atlassian.net/l/cp/XMirz7JE)
+
 ## Check before commit
 ```sh
 npm run build-template

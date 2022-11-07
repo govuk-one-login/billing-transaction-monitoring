@@ -4,6 +4,7 @@ FilterDeadLetterQueue:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
     QueueName: filter-dead-letter-queue
 
+# Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
 FilterDeadLetterQueueAlarm:
   Type: AWS::CloudWatch::Alarm
   Properties:
@@ -36,7 +37,7 @@ FilterFunction:
       Variables:
         # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
         OUTPUT_QUEUE_URL: !Ref CleanQueue
-        LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+        LOCAL_ENDPOINT: !If [IsLocal, "http://localhost:4566", ""]
     Handler: filter.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -80,6 +81,23 @@ FilterFunctionDeadLetterQueue:
   Properties:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
     QueueName: filter-function-dead-letter-queue
+
+# Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
+FilterFunctionDeadLetterQueueAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmActions:
+      - !Ref AlarmTopic
+    ComparisonOperator: GreaterThanThreshold
+    Dimensions:
+      - Name: QueueName
+        Value: !GetAtt FilterFunctionDeadLetterQueue.QueueName
+    EvaluationPeriods: 1
+    MetricName: NumberOfMessagesReceived
+    Namespace: AWS/SQS
+    Period: 1800
+    Statistic: Sum
+    Threshold: 0
 
 FilterQueue:
   Type: AWS::SQS::Queue
