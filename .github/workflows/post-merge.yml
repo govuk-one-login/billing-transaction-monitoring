@@ -43,7 +43,7 @@ jobs:
           quiet: true
           soft_fail: false
       - name: SAM build & test
-        run: sam build
+        run: sam build --parameter-overrides ParameterKey=AlertSlackChannelId,ParameterValue=${{ secrets.ALERT_SLACK_CHANNEL_ID_DEV }} ParameterKey=AlertSlackWorkspaceId,ParameterValue=${{ secrets.ALERT_SLACK_WORKSPACE_ID }}
       - name: SAM deploy
         uses: alphagov/di-devplatform-upload-action@v3
         with:

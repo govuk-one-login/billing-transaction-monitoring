@@ -1,5 +1,5 @@
 StorageBucket:
-  Type: 'AWS::S3::Bucket'
+  Type: "AWS::S3::Bucket"
   Properties:
     AccessControl: Private
     PublicAccessBlockConfiguration:
@@ -39,7 +39,7 @@ StorageTable:
 
 AccessLogBucket:
   # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
-  Type: 'AWS::S3::Bucket'
+  Type: "AWS::S3::Bucket"
   Properties:
     VersioningConfiguration:
       Status: Enabled
@@ -91,6 +91,7 @@ StorageDeadLetterQueue:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
     QueueName: storage-dead-letter-queue
 
+# Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
 StorageDeadLetterQueueAlarm:
   Type: AWS::CloudWatch::Alarm
   Properties:
@@ -124,7 +125,8 @@ StorageFunction:
         # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
         STORAGE_TABLE: !Ref StorageTable
         STORAGE_BUCKET: !Ref StorageBucket
-        LOCAL_ENDPOINT: !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
+        LOCAL_ENDPOINT:
+          !If [IsLocal, "http://s3.localhost.localstack.cloud:4566", ""]
     Handler: store.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -179,3 +181,20 @@ StorageFunctionDeadLetterQueue:
   Properties:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
     QueueName: storage-function-dead-letter-queue
+
+# Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
+StorageFunctionDeadLetterQueueAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmActions:
+      - !Ref AlarmTopic
+    ComparisonOperator: GreaterThanThreshold
+    Dimensions:
+      - Name: QueueName
+        Value: !GetAtt StorageFunctionDeadLetterQueue.QueueName
+    EvaluationPeriods: 1
+    MetricName: NumberOfMessagesReceived
+    Namespace: AWS/SQS
+    Period: 1800
+    Statistic: Sum
+    Threshold: 0
