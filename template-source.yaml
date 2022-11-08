@@ -56,3 +56,4 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/config-store.yaml#NO_LOCAL,
   ./cloudformation/custom-s3-object-resource.yaml#NO_LOCAL,
   ./cloudformation/alerting.yaml#NO_LOCAL
+  ./cloudformation/raw-invoice-pdf-store.yaml
