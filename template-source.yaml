@@ -6,11 +6,11 @@ Parameters:
   AlertSlackChannelId:
     Description: Slack channel ID for alerts to support engineers
     Type: String
-    Default: dummy-alert-slack-channel-id
+    Default: NOCHANNEL
   AlertSlackWorkspaceId:
     Description: Slack workspace ID for above channel
     Type: String
-    Default: dummy-alert-slack-workspace-id
+    Default: FAKESLACK
   CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
