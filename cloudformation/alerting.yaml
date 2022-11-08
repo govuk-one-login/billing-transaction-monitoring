@@ -1,0 +1,19 @@
+SlackAlertChatbot:
+  Type: AWS::Chatbot::SlackChannelConfiguration
+  Properties:
+    ConfigurationName: # di-btm-slack-alert-chatbot-<unique ID>
+      !Join [
+        "-",
+        [
+          "di-btm-slack-alert-chatbot",
+          !Select [
+            4,
+            !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId]]],
+          ],
+        ],
+      ]
+    IamRoleArn: CloudWatchReadOnlyAccess
+    SlackChannelId: !Ref AlertSlackChannelId
+    SlackWorkspaceId: !Ref AlertSlackWorkspaceId
+    SnsTopicArns:
+      - !Ref AlarmTopic

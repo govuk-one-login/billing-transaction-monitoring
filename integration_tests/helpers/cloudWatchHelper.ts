@@ -1,7 +1,4 @@
 import {
-  DescribeLogStreamsCommand,
-  DescribeLogStreamsCommandOutput,
-  LogStream,
   FilterLogEventsCommandInput,
   FilterLogEventsCommandOutput,
   FilteredLogEvent,
@@ -12,10 +9,8 @@ import {
 } from "@aws-sdk/client-cloudwatch-logs";
 
 import { cloudWatchLogsClient } from "../clients/cloudWatchLogsClient";
-
 import { testStartTime } from "../tests/sns-lambda-tests";
-
-import delay from "delay";
+import { waitForTrue } from "../helpers/commonHelpers";
 
 async function getLogGroupsList() {
   const params = {};
@@ -35,48 +30,19 @@ async function getLogGroupName(logName: string) {
   return name;
 }
 
-async function getCloudWatchLatestLogStreams(logName: string) {
-  const params = {
-    logGroupName: await getLogGroupName(logName),
-    orderBy: "LastEventTime",
-    descending: true,
-    limit: 1,
-  };
-  await delay(10000); //time delay
-  console.log("WAITED 10s FOR THE LOG TO POPULATE IN CLOUDWATCH");
-  const response: DescribeLogStreamsCommandOutput =
-    await cloudWatchLogsClient.send(new DescribeLogStreamsCommand(params));
-  const latestLogStearmResponse: LogStream[] = response.logStreams ?? [];
-  return latestLogStearmResponse;
-}
-
-async function getCloudWatchLatestLogStreamName(logName: string) {
-  const logStream: LogStream[] = await getCloudWatchLatestLogStreams(logName);
-  if (logStream.length > 0) {
-    const result = logStream[0].logStreamName as string;
-    return result;
-  } else {
-    throw Error("No log streams found");
-  }
-}
-
-async function getFilteredEventFromLatestLogStream(logName: string) {
-  const latestLogStreamName = await getCloudWatchLatestLogStreamName(logName);
-  console.log("Latest Log StreamName:", latestLogStreamName);
+async function checkEventExistsInLogs(logName: string, eventid: string) {
   const params: FilterLogEventsCommandInput = {
     logGroupName: await getLogGroupName(logName),
-    logStreamNamePrefix: latestLogStreamName,
     startTime: testStartTime,
   };
-  console.log("Filtered parameters:", params);
-  const response: FilterLogEventsCommandOutput =
-    await cloudWatchLogsClient.send(new FilterLogEventsCommand(params));
-    const events: FilteredLogEvent[] = response.events ?? [];
-  if (events.length > 0) {
-    return events;
-  } else {
-    throw Error("Filtered events empty");
-  }
+
+  const checkEventExists = async () => {
+    const response: FilterLogEventsCommandOutput =
+      await cloudWatchLogsClient.send(new FilterLogEventsCommand(params));
+    return response.events?.some((x) => x.message?.includes(eventid));
+  };
+  const eventIdExists = await waitForTrue(checkEventExists, 3000, 15000);
+  return eventIdExists;
 }
 
-export { getFilteredEventFromLatestLogStream, getLogGroupName };
+export { checkEventExistsInLogs, getLogGroupName };

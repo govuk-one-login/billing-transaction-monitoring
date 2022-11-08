@@ -3,6 +3,14 @@ Description: CloudFormation template for infrastructure to monitor user identity
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
+  AlertSlackChannelId:
+    Description: Slack channel ID for alerts to support engineers
+    Type: String
+    Default: dummy-alert-slack-channel-id
+  AlertSlackWorkspaceId:
+    Description: Slack workspace ID for above channel
+    Type: String
+    Default: dummy-alert-slack-workspace-id
   CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
@@ -45,6 +53,7 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/cleaning.yaml,
   ./cloudformation/storage.yaml,
   ./cloudformation/athena.yaml#NO_LOCAL,
-  ./cloudformation/config-store.yaml,
+  ./cloudformation/config-store.yaml#NO_LOCAL,
   ./cloudformation/custom-s3-object-resource.yaml#NO_LOCAL,
+  ./cloudformation/alerting.yaml#NO_LOCAL
   ./cloudformation/raw-invoice-pdf-store.yaml
