@@ -19,7 +19,7 @@ RawInvoicePdfBucket:
       LogFilePrefix: raw-invoice-pdf-bucket-log
 
 RawInvoicePdfLogBucket:
-  # checkov:skip=CKV_AWS_18: This is the config log bucket - no need for another  ***** what does this mean?
+  # checkov:skip=CKV_AWS_18: This is the raw invoice pdf log bucket - no need for another
   Type: AWS::S3::Bucket
   Properties:
     VersioningConfiguration:
@@ -35,11 +35,3 @@ RawInvoicePdfLogBucket:
         - ServerSideEncryptionByDefault:
             SSEAlgorithm: aws:kms
             KMSMasterKeyID: !GetAtt KmsKey.Arn
-
-Outputs: # Outputs section declares output values that you can import into other stacks, return in response (to describe stack calls), or view on the AWS CloudFormation console.
-  RawInvoicePdfBucketName:
-    Description: Name of the raw pdf bucket
-    Value: !Ref RawInvoicePdfBucket
-  RawInvoicePdfLogBucketName:
-    Description: Name of the raw pdf log bucket
-    Value: !Ref RawInvoicePdfLogBucket
