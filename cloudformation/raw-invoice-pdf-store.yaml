@@ -1,4 +1,4 @@
-RawPdfBucket:
+RawInvoicePdfBucket:
   Type: AWS::S3::Bucket
   Properties:
     AccessControl: Private
@@ -14,11 +14,11 @@ RawPdfBucket:
             KMSMasterKeyID: !GetAtt KmsKey.Arn
     VersioningConfiguration:
       Status: Enabled
-    LoggingConfiguration: # *********************** Do we need logging? Is it only ever going to be the Extraction Lambda that will access this bucket?
-      DestinationBucketName: !Ref RawPdfLogBucket # https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-access-logging.html
-      LogFilePrefix: raw-pdf-bucket-log
+    LoggingConfiguration:
+      DestinationBucketName: !Ref RawInvoicePdfLogBucket
+      LogFilePrefix: raw-invoice-pdf-bucket-log
 
-RawPdfLogBucket: # ******************************** See above, is this needed?
+RawInvoicePdfLogBucket:
   # checkov:skip=CKV_AWS_18: This is the config log bucket - no need for another  ***** what does this mean?
   Type: AWS::S3::Bucket
   Properties:
@@ -37,9 +37,9 @@ RawPdfLogBucket: # ******************************** See above, is this needed?
             KMSMasterKeyID: !GetAtt KmsKey.Arn
 
 Outputs: # Outputs section declares output values that you can import into other stacks, return in response (to describe stack calls), or view on the AWS CloudFormation console.
-  RawPdfBucketName:
+  RawInvoicePdfBucketName:
     Description: Name of the raw pdf bucket
-    Value: !Ref RawPdfBucket
-  RawPdfLogBucketName:
+    Value: !Ref RawInvoicePdfBucket
+  RawInvoicePdfLogBucketName:
     Description: Name of the raw pdf log bucket
-    Value: !Ref RawPdfLogBucket
+    Value: !Ref RawInvoicePdfLogBucket
