@@ -12,7 +12,7 @@ SlackAlertChatbot:
           ],
         ],
       ]
-    IamRoleArn: CloudWatchReadOnlyAccess
+    IamRoleArn: arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess
     SlackChannelId: !Ref AlertSlackChannelId
     SlackWorkspaceId: !Ref AlertSlackWorkspaceId
     SnsTopicArns:
