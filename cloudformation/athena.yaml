@@ -97,3 +97,19 @@ AthenaAccessLogBucket:
         - ServerSideEncryptionByDefault:
             SSEAlgorithm: aws:kms
             KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+TransactionsCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Configuration: String
+    CrawlerSecurityConfiguration: String
+    DatabaseName: !Ref TransactionDB
+    Description: Crawls the daily buckets of transaction data
+    Name: transactions-crawler
+    Role: AWSGlueServiceRole
+    SchemaChangePolicy:
+      DeleteBehavior: LOG
+      UpdateBehavior: UPDATE_IN_DATABASE
+    Targets:
+      S3Targets:
+        Path: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions' ] ]
