@@ -6,11 +6,11 @@ Parameters:
   AlertSlackChannelId:
     Description: Slack channel ID for alerts to support engineers
     Type: String
-    Default: dummy-alert-slack-channel-id
+    Default: none
   AlertSlackWorkspaceId:
     Description: Slack workspace ID for above channel
     Type: String
-    Default: dummy-alert-slack-workspace-id
+    Default: none
   CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
@@ -32,6 +32,11 @@ Parameters:
     Default: none
 
 Conditions:
+  UseAlertSlackChatbot:
+    !And [
+      !Not [!Equals [!Ref AlertSlackChannelId, none]],
+      !Not [!Equals [!Ref AlertSlackWorkspaceId, none]],
+    ]
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
   IsLocal: !Equals [!Ref Environment, "local"]

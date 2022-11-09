@@ -1,4 +1,5 @@
 SlackAlertChatbot:
+  Condition: UseAlertSlackChatbot
   Type: AWS::Chatbot::SlackChannelConfiguration
   Properties:
     ConfigurationName: # di-btm-slack-alert-chatbot-<unique ID>
@@ -12,8 +13,22 @@ SlackAlertChatbot:
           ],
         ],
       ]
-    IamRoleArn: CloudWatchReadOnlyAccess
+    IamRoleArn: !GetAtt SlackAlertChatbotRole.Arn
     SlackChannelId: !Ref AlertSlackChannelId
     SlackWorkspaceId: !Ref AlertSlackWorkspaceId
     SnsTopicArns:
       - !Ref AlarmTopic
+
+SlackAlertChatbotRole:
+  Condition: UseAlertSlackChatbot
+  Type: AWS::IAM::Role
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Action: sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service: chatbot.amazonaws.com
+    ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess
