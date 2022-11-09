@@ -8,7 +8,7 @@ s3_prefix = "di-btm"
 region = "eu-west-2"
 capabilities = "CAPABILITY_IAM"
 image_repositories = []
-parameter_overrides = "CodeSigningConfigArn=\"none\" Environment=\"dev\" PermissionsBoundary=\"none\" VpcStackName=\"vpc\""
+parameter_overrides = "CodeSigningConfigArn=\"none\" Environment=\"dev\" PermissionsBoundary=\"none\" VpcStackName=\"vpc\"" # !AddParameters <-- This tells samconfig-add-parameters.js to add parameters here (example: GitHub Actions secrets)
 
 [local.deploy.parameters]
 stack_name = "di-btm"

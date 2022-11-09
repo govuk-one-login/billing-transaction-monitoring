@@ -46,14 +46,8 @@ docker run --rm -it -p 4566:4566 -p 4571:4571 -e LOCALSTACK_DEBUG=1 localstack/l
 
 ### Bringing up the stack
 ```sh
-npm run build
-npm run build-template NO_LOCAL
-samlocal build
+npm run build:local
 samlocal deploy --resolve-s3 --config-env local
-```
-N.B. You may get Python errors due to conflicting dependencies with Checkov. If you do, run this and try again:
-```sh
-pip3 install aws-sam-cli
 ```
 
 ### Interrogating the stack

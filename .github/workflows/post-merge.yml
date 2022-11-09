@@ -33,6 +33,8 @@ jobs:
           role-to-assume: ${{ secrets.GH_ACTIONS_ROLE_ARN }}
       - name: Merge template files into template.yaml
         run: npm run build-template
+      - name: Make SAM config file
+        run: npm run build-samconfig AlertSlackWorkspaceId=${{ secrets.ALERT_SLACK_WORKSPACE_ID }},AlertSlackChannelId=${{ secrets.ALERT_SLACK_CHANNEL_ID }}
       - name: SAM validate
         run: sam validate
       - name: Check for potential CloudFormation security issues
