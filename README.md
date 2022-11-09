@@ -106,6 +106,12 @@ To clean the allure results and allure reports folder
 npm run beforeIntTest
 ````
 
+## Deploy
+
+To deploy to the `dev` environment (also called `build`), commit to the `main` branch
+
+After deploying to an environment for the first time, if you want to receive alerts about errors, manually update the CloudFormation stack in the Amazon Web Services console with the parameters for the Slack workspace and channel IDs (nine-character codes found in the URL for the Slack channel)
+
 ## Licence
 
 [MIT License](LICENCE)
