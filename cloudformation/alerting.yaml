@@ -1,4 +1,5 @@
 SlackAlertChatbot:
+  Condition: UseAlertSlackChatbot
   Type: AWS::Chatbot::SlackChannelConfiguration
   Properties:
     ConfigurationName: # di-btm-slack-alert-chatbot-<unique ID>
@@ -19,6 +20,7 @@ SlackAlertChatbot:
       - !Ref AlarmTopic
 
 SlackAlertChatbotRole:
+  Condition: UseAlertSlackChatbot
   Type: AWS::IAM::Role
   Properties:
     AssumeRolePolicyDocument:

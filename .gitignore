@@ -4,7 +4,6 @@ node_modules
 .idea
 dist
 coverage
-samconfig.toml
 template.yaml
 reports
 allure-results

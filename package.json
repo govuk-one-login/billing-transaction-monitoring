@@ -53,9 +53,7 @@
     "test:integration": "jest --c jest.integration.config.ts",
     "test:integration-local": "jest  --setupFiles=./Integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --c jest.integration.config.ts",
     "build": "webpack",
-    "build:local": "webpack && npm run build-template NO_LOCAL && npm run build-samconfig && pip3 install aws-sam-cli && samlocal build",
     "lint": "eslint . --fix",
-    "build-samconfig": "node ./src/tools/samconfig-add-parameters.js",
     "build-template": "node ./src/tools/yaml-import.js"
   },
   "lint-staged": {
