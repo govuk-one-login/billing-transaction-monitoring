@@ -3,7 +3,7 @@ name: Post-Merge Deploy
 on:
   push:
     branches:
-      - main
+      - btm-184-fix
 
 env:
   AWS_REGION: eu-west-2
