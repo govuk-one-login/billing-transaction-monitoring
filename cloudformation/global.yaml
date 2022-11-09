@@ -8,16 +8,17 @@ KmsKey:
   Properties:
     EnableKeyRotation: true
     KeyPolicy:
-      Version: '2012-10-17'
+      Version: "2012-10-17"
       Statement:
         - Effect: Allow
           Principal:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
           Action: kms:*
-          Resource: '*'
+          Resource: "*"
         - Effect: Allow
           Principal:
             Service:
+              - cloudwatch.amazonaws.com
               - lambda.amazonaws.com
               - sns.amazonaws.com
               - sqs.amazonaws.com
@@ -25,4 +26,4 @@ KmsKey:
             - kms:Encrypt
             - kms:Decrypt
             - kms:GenerateDataKey*
-          Resource: '*'
+          Resource: "*"
