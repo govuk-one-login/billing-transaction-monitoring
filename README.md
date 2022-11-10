@@ -110,7 +110,7 @@ npm run beforeIntTest
 
 To deploy to the `dev` environment (also called `build`), commit to the `main` branch
 
-After deploying to an environment for the first time, if you want to receive alerts about errors, manually create a CloudFormation stack in the Amazon Web Services console with `alert-chatbot-template.yaml` and the parameters for the Slack workspace and channel IDs (nine-character codes found in the URL for the Slack channel) as well as the Amazon Resource Name for Simple Notification Service output by the `di-btm` stack
+After deploying to an environment for the first time, if you want to receive alerts about errors, manually create a CloudFormation stack in the Amazon Web Services console with `alert-chatbot-template.yaml` and the parameters for the Slack workspace and channel IDs (eleven- and nine-character codes found in the URL for the Slack channel) as well as the Amazon Resource Name for Simple Notification Service output by the `di-btm` stack
 
 ## Licence
 
