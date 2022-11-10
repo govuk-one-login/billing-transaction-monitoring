@@ -1,4 +1,4 @@
-BTMDataBucket:
+RawInvoicePdfBucket:
   Type: AWS::S3::Bucket
   Properties:
     AccessControl: Private
@@ -15,11 +15,11 @@ BTMDataBucket:
     VersioningConfiguration:
       Status: Enabled
     LoggingConfiguration:
-      DestinationBucketName: !Ref BTMDataLogBucket
-      LogFilePrefix: btm-data-bucket-log
+      DestinationBucketName: !Ref RawInvoicePdfLogBucket
+      LogFilePrefix: raw-invoice-pdf-bucket-log
 
-BTMDataLogBucket:
-  # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
+RawInvoicePdfLogBucket:
+  # checkov:skip=CKV_AWS_18: This is the raw invoice pdf log bucket - no need for another
   Type: AWS::S3::Bucket
   Properties:
     VersioningConfiguration:
