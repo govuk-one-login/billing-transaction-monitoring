@@ -1,0 +1,37 @@
+ValidatedInvoiceDataBucket:
+  Type: AWS::S3::Bucket
+  Properties:
+    AccessControl: Private
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
+    VersioningConfiguration:
+      Status: Enabled
+    LoggingConfiguration:
+      DestinationBucketName: !Ref ValidatedInvoiceDataLogBucket
+      LogFilePrefix: validated-invoice-data-bucket-log
+
+ValidatedInvoiceDataLogBucket:
+  # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
+  Type: AWS::S3::Bucket
+  Properties:
+    VersioningConfiguration:
+      Status: Enabled
+    AccessControl: LogDeliveryWrite
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: !GetAtt KmsKey.Arn
