@@ -19,7 +19,7 @@ ValidatedInvoiceDataBucket:
       LogFilePrefix: validated-invoice-data-bucket-log
 
 ValidatedInvoiceDataLogBucket:
-  # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
+  # checkov:skip=CKV_AWS_18: This is the log bucket for the validated invoice data - no need for another
   Type: AWS::S3::Bucket
   Properties:
     VersioningConfiguration:
