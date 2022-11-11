@@ -3,7 +3,7 @@ TransactionDB:
   Properties:
     CatalogId: !Ref AWS::AccountId
     DatabaseInput:
-      Name: btm-transactions
+      Name: btm-transactions-crawler-test
 
 TransactionTable:
   Type: AWS::Glue::Table
@@ -17,11 +17,19 @@ TransactionTable:
         has_encrypted_data: "true"
         projection.enabled: "true"
         projection.datetime.type: date
-        projection.datetime.range: '2022-01-01,NOW'
-        projection.datetime.format: 'yyyy-MM-dd'
+        projection.datetime.range: "2022-01-01,NOW"
+        projection.datetime.format: "yyyy-MM-dd"
         projection.datetime.interval: 1
         projection.datetime.interval.unit: DAYS
-        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions/${datetime}/' ] ]
+        storage.location.template:
+          !Join [
+            "",
+            [
+              "s3://",
+              "di-btm-storagebucket-mhnazvovowiy",
+              "/btm_transactions/${datetime}/",
+            ],
+          ]
       PartitionKeys:
         - { Name: "datetime", Type: date }
       StorageDescriptor:
@@ -38,11 +46,17 @@ TransactionTable:
           - { Name: "extensions", Type: string }
         Compressed: true
         InputFormat: "org.apache.hadoop.mapred.TextInputFormat"
-        Location: !Join [ '', [ 's3://', !Ref StorageBucket, '/' ] ]
+        Location:
+          !Join ["", ["s3://", "di-btm-storagebucket-mhnazvovowiy", "/"]]
         StoredAsSubDirectories: false
         OutputFormat: "org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat"
         SerdeInfo:
-          Parameters: { "ignore.malformed.json": true,"serialiazation.format": 1,"field.delim": "" }
+          Parameters:
+            {
+              "ignore.malformed.json": true,
+              "serialiazation.format": 1,
+              "field.delim": "",
+            }
           SerializationLibrary: "org.openx.data.jsonserde.JsonSerDe"
 
 AthenaTransactionWorkgroup:
@@ -56,7 +70,8 @@ AthenaTransactionWorkgroup:
         EncryptionConfiguration:
           EncryptionOption: "SSE_KMS"
           KmsKey: !GetAtt KmsKey.Arn
-        OutputLocation: !Join [ '', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
+        OutputLocation:
+          !Join ["", ["s3://", !Ref AthenaQueryResultsBucket, "/"]]
 
 AthenaQueryResultsBucket:
   Type: AWS::S3::Bucket
@@ -82,7 +97,7 @@ AthenaQueryResultsBucket:
 
 AthenaAccessLogBucket:
   # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
-  Type: 'AWS::S3::Bucket'
+  Type: "AWS::S3::Bucket"
   Properties:
     VersioningConfiguration:
       Status: Enabled
@@ -98,6 +113,28 @@ AthenaAccessLogBucket:
             SSEAlgorithm: aws:kms
             KMSMasterKeyID: !GetAtt KmsKey.Arn
 
+GlueCrawlerRole:
+  Type: AWS::IAM::Role
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: "Allow"
+          Principal:
+            Service:
+              - "glue.amazonaws.com"
+          Action:
+            - "sts:AssumeRole"
+    Path: "/"
+    Policies:
+      - PolicyName: "root"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action: "*"
+              Resource: "*"
+
 TransactionsCrawler:
   Type: AWS::Glue::Crawler
   Properties:
@@ -106,10 +143,18 @@ TransactionsCrawler:
     DatabaseName: !Ref TransactionDB
     Description: Crawls the daily buckets of transaction data
     Name: transactions-crawler
-    Role: AWSGlueServiceRole
+    Role: !GetAtt GlueCrawlerRole.Arn
     SchemaChangePolicy:
       DeleteBehavior: LOG
       UpdateBehavior: UPDATE_IN_DATABASE
     Targets:
       S3Targets:
-        Path: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions' ] ]
+        - Path:
+            !Join [
+              "",
+              [
+                "s3://",
+                "di-btm-storagebucket-mhnazvovowiy",
+                "/btm_transactions",
+              ],
+            ]
