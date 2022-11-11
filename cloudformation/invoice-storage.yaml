@@ -1,3 +1,8 @@
+InvoiceStorageQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
 InvoiceStorageTopic:
   Type: AWS::SNS::Topic
   Properties:
