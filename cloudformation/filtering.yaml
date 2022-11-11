@@ -15,7 +15,7 @@ FilterDeadLetterQueueAlarm:
       - Name: QueueName
         Value: !GetAtt FilterDeadLetterQueue.QueueName
     EvaluationPeriods: 1
-    MetricName: NumberOfMessagesReceived
+    MetricName: NumberOfMessagesSent
     Namespace: AWS/SQS
     Period: 1800
     Statistic: Sum
@@ -93,7 +93,7 @@ FilterFunctionDeadLetterQueueAlarm:
       - Name: QueueName
         Value: !GetAtt FilterFunctionDeadLetterQueue.QueueName
     EvaluationPeriods: 1
-    MetricName: NumberOfMessagesReceived
+    MetricName: NumberOfMessagesSent
     Namespace: AWS/SQS
     Period: 1800
     Statistic: Sum
