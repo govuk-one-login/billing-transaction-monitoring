@@ -1,4 +1,44 @@
-ExtractionQueue:
+ExtractFunction:
+  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+  Type: AWS::Serverless::Function
+  Properties:
+    DeadLetterQueue:
+      TargetArn: !GetAtt ExtractFunctionDeadLetterQueue.Arn
+      Type: SQS
+    Environment:
+      Variables:
+        EXTRACTION_HANDLER_RETURN_VALUE: null
+        EXTRACTION_HANDLER_THROW_ERROR: false
+    Events:
+      ExtractEvent:
+        Type: SQS
+        Properties:
+          Queue: !GetAtt ExtractQueue.Arn
+    Handler: extract.handler
+    KmsKeyArn: !GetAtt KmsKey.Arn
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:ReceiveMessage
+            Resource: !GetAtt ExtractQueue.Arn
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
+    ReservedConcurrentExecutions: 10
+
+ExtractFunctionDeadLetterQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+ExtractQueue:
   Type: AWS::SQS::Queue
   Properties:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
