@@ -42,3 +42,11 @@ ExtractQueue:
   Type: AWS::SQS::Queue
   Properties:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt ExtractQueueDeadLetterQueue.Arn
+      maxReceiveCount: 1
+
+ExtractQueueDeadLetterQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
