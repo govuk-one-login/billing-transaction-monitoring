@@ -36,6 +36,8 @@ CleanFunction:
       CleanEvent:
         Type: SQS
         Properties:
+          FunctionResponseTypes:
+            - ReportBatchItemFailures
           Queue: !GetAtt CleanQueue.Arn
     Handler: clean.handler
     KmsKeyArn: !GetAtt KmsKey.Arn

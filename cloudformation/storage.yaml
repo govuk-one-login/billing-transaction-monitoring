@@ -119,6 +119,8 @@ StorageFunction:
       StorageEvent:
         Type: SQS
         Properties:
+          FunctionResponseTypes:
+            - ReportBatchItemFailures
           Queue: !GetAtt StorageQueue.Arn
     Environment:
       Variables:
