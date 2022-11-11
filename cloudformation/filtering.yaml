@@ -32,6 +32,8 @@ FilterFunction:
       FilterEvent:
         Type: SQS
         Properties:
+          FunctionResponseTypes:
+            - ReportBatchItemFailures
           Queue: !GetAtt FilterQueue.Arn
     Environment:
       Variables:
