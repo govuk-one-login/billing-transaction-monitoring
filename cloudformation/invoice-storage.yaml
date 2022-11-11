@@ -1,0 +1,4 @@
+InvoiceStorageTopic:
+  Type: AWS::SNS::Topic
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
