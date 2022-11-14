@@ -5,6 +5,7 @@ import {
   ListObjectsCommand,
   ListObjectsCommandInput,
   GetObjectCommand,
+  PutObjectCommand,
 } from "@aws-sdk/client-s3";
 
 async function getBucketList() {
@@ -44,4 +45,18 @@ async function getS3Object(bucketNameMatchString: string, key: string) {
   return getObjectResult.Body?.transformToString();
 }
 
-export { getS3ItemsList, getS3Object };
+async function putObjectToS3(
+  bucketNameMatchString: string,
+  key: string,
+  path: string
+) {
+  const bucketParams = {
+    Bucket: await getBucketName(bucketNameMatchString),
+    Key: key,
+    Body: path,
+  };
+  const response = await s3Client.send(new PutObjectCommand(bucketParams));
+  return response;
+}
+
+export { getS3ItemsList, getS3Object, putObjectToS3 };
