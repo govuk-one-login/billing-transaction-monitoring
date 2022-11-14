@@ -7,7 +7,7 @@ ExtractFunction:
       Type: SQS
     Environment:
       Variables:
-        EXTRACTION_HANDLER_RETURN_VALUE: null
+        EXTRACTION_HANDLER_RETURN_VALUE: done
         EXTRACTION_HANDLER_THROW_ERROR: false
     Events:
       ExtractEvent:
