@@ -20,7 +20,7 @@ RawInvoicePdfBucket:
     NotificationConfiguration:
       QueueConfigurations:
         - Event: s3:ObjectCreated:*
-          Queue: !Ref ExtractQueue
+          Queue: !GetAtt ExtractQueue.Arn
 
 RawInvoicePdfLogBucket:
   # checkov:skip=CKV_AWS_18: This is the raw invoice pdf log bucket - no need for another
