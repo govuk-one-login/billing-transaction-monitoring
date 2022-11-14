@@ -7,8 +7,10 @@ ExtractFunction:
       Type: SQS
     Environment:
       Variables:
-        EXTRACTION_HANDLER_RETURN_VALUE: done
-        EXTRACTION_HANDLER_THROW_ERROR: false
+        # EXTRACTION_HANDLER_RETURN_VALUE: done
+        # EXTRACTION_HANDLER_THROW_ERROR: false
+        SNS_TOPIC: !Ref AmazonTextractSNSTopic # This topic name will come from BTM-202
+    Role: !GetAtt TextractRole.Arn # See below
     Events:
       ExtractEvent:
         Type: SQS
@@ -50,3 +52,32 @@ ExtractQueueDeadLetterQueue:
   Type: AWS::SQS::Queue
   Properties:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+TextractRole:
+  Type: AWS::IAM::Role
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: "Allow"
+          Principal:
+            Service:
+              - "textract.amazonaws.com"
+              - "lambda.amazonaws.com"
+          Action:
+            - "sts:AssumeRole"
+    ManagedPolicyArns:
+      - "arn:aws:iam::aws:policy/AWSLambdaExecute"
+    Policies:
+      - PolicyName: "TextractRoleAccess"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "sns:*"
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - "textract:*"
+              Resource: "*"
