@@ -3,7 +3,7 @@ import {
   ListBucketsCommandOutput,
   ListBucketsCommand,
   ListObjectsCommand,
-  ListObjectsCommandInput,
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
@@ -59,4 +59,13 @@ async function putObjectToS3(
   return response;
 }
 
-export { getS3ItemsList, getS3Object, putObjectToS3 };
+async function deleteObjectInS3(bucketNameMatchString: string, key: string) {
+  const bucketParams = {
+    Bucket: await getBucketName(bucketNameMatchString),
+    Key: key,
+  };
+  const response = await s3Client.send(new DeleteObjectCommand(bucketParams));
+  return response;
+}
+
+export { getS3ItemsList, getS3Object, putObjectToS3, deleteObjectInS3 };
