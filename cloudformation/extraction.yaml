@@ -50,3 +50,20 @@ ExtractQueueDeadLetterQueue:
   Type: AWS::SQS::Queue
   Properties:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+ExtractQueuePolicy:
+  Type: AWS::SQS::QueuePolicy
+  Properties:
+    PolicyDocument:
+      Statement:
+        - Action: SQS:SendMessage
+          Condition:
+            ArnLike:
+              aws:SourceArn: arn:aws:s3:::*
+            StringEquals:
+              aws:SourceAccount: !Ref AWS::AccountId
+          Effect: Allow
+          Principal: "*"
+          Resource: "*"
+    Queues:
+      - !Ref ExtractQueue
