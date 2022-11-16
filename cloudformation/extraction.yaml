@@ -11,7 +11,6 @@ ExtractFunction:
         # EXTRACTION_HANDLER_THROW_ERROR: false
         TEXT_EXTRACT_ROLE: !GetAtt TextractRole.Arn # Is this needed?
         SNS_TOPIC: !Ref AmazonTextractSNSTopic # This topic name will come from BTM-202
-    Role: !GetAtt TextractRole.Arn # See below
     Events:
       ExtractEvent:
         Type: SQS

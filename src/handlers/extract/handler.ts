@@ -1,28 +1,20 @@
 import {
   TextractClient,
   StartExpenseAnalysisCommand,
-  Textract,
+  StartExpenseAnalysisResponse,
 } from "@aws-sdk/client-textract";
 import { S3Event, SQSEvent } from "aws-lambda";
 
-interface Response {
-  JobId: "string";
-}
-
-// Event should be SQSEvent? How to extract bucket name/filename?
-
-export const handler = async (event: S3Event): Promise<Response> => {
+export const handler = async (
+  event: SQSEvent
+): Promise<StartExpenseAnalysisResponse> => {
   // Set up
   const textract = new TextractClient({});
 
-  // Get Bucket and filename from the event
-  const bucket = event.Records[0].s3.bucket.name;
-  const fileName = event.Records[0].s3.object.key;
-
-  // Throw error if filename isn't defined
-  if (!fileName) {
-    throw new Error("ERROR - no filename found in S3 event");
-  }
+  // Get Bucket and filename from the event.
+  const s3Event = JSON.parse(event.Records[0].body) as S3Event;
+  const bucket = s3Event.Records[0].s3.bucket.name;
+  const fileName = s3Event.Records[0].s3.object.key;
 
   // Logs fileName
   console.log("File Name: " + fileName);
@@ -42,13 +34,7 @@ export const handler = async (event: S3Event): Promise<Response> => {
   };
 
   // Invoke textract function
-  try {
-    const response = await textract.send(
-      new StartExpenseAnalysisCommand(params)
-    );
-
-    return { JobId: response.JobId };
-  } catch (err) {
-    console.log(err);
-  }
+  const response = await textract.send(new StartExpenseAnalysisCommand(params));
+  console.log("JobId :", response.JobId);
+  return { JobId: response.JobId };
 };
