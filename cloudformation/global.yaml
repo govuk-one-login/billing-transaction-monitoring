@@ -20,6 +20,7 @@ KmsKey:
             Service:
               - cloudwatch.amazonaws.com
               - lambda.amazonaws.com
+              - s3.amazonaws.com
               - sns.amazonaws.com
               - sqs.amazonaws.com
           Action:
