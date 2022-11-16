@@ -13,7 +13,7 @@ describe("\n Upload file to s3 bucket and validate extract lambda executed succe
     console.log("deleted the file from s3")
   });
 
-  test("should extraction function triggered upon uploading file to s3 raw invoice pdf bucket", async () => {
+  test("extract lambda function should be executed without errors upon uploading the file to s3 raw invoice pdf bucket", async () => {
     const file = "../payloads/sample.pdf";
     const filename = path.join(__dirname, file);
     const fileStream: any = fs.createReadStream(filename);
