@@ -1,3 +1,8 @@
+AmazonTextractRawInvoiceDataTopic:
+  Type: AWS::SNS::Topic
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
 RawInvoiceTextractDataBucket:
   Type: AWS::S3::Bucket
   Properties:
@@ -35,3 +40,41 @@ RawInvoiceTextractDataLogBucket:
         - ServerSideEncryptionByDefault:
             SSEAlgorithm: aws:kms
             KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+RawInvoiceTextractDataQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+RawInvoiceTextractDataStorageFunction:
+  # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
+  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+  Type: AWS::Serverless::Function
+  Properties:
+    Environment:
+      Variables:
+        RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_RETURN_VALUE: done
+        RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_THROW_ERROR: false
+    Events:
+      RawInvoiceTextractDataEvent:
+        Type: SQS
+        Properties:
+          Queue: !GetAtt RawInvoiceTextractDataQueue.Arn
+    Handler: storeRawInvoiceTextractData.handler
+    KmsKeyArn: !GetAtt KmsKey.Arn
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:ReceiveMessage
+            Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
+    ReservedConcurrentExecutions: 10
