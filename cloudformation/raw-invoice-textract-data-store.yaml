@@ -50,6 +50,9 @@ RawInvoiceTextractDataQueue:
   Type: AWS::SQS::Queue
   Properties:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
+      maxReceiveCount: 1
 
 RawInvoiceTextractDataStorageFunction:
   # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
