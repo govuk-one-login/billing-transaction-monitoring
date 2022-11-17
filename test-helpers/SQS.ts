@@ -16,3 +16,8 @@ export const createEventRecordWithName = (
     }),
     messageId: String(messageId),
   } as any);
+
+export const createEventRecordWithS3data = (body: String): SQSRecord =>
+  ({
+    body,
+  } as any);

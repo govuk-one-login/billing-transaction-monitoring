@@ -8,7 +8,7 @@ ExtractFunction:
     Environment:
       Variables:
         TEXT_EXTRACT_ROLE: !GetAtt TextractRole.Arn # This is needed for the params for the textract call
-        SNS_TOPIC: !Ref AmazonTextractSNSTopic # This topic name will come from BTM-202
+        SNS_TOPIC: !Ref AmazonTextractRawInvoiceDataTopic # This topic name will come from BTM-202
     Events:
       ExtractEvent:
         Type: SQS
