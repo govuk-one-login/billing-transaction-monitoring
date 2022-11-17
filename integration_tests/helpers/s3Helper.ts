@@ -3,9 +3,11 @@ import {
   ListBucketsCommandOutput,
   ListBucketsCommand,
   ListObjectsCommand,
-  ListObjectsCommandInput,
+  DeleteObjectCommand,
   GetObjectCommand,
+  PutObjectCommand,
 } from "@aws-sdk/client-s3";
+import { ReadStream } from "fs";
 
 async function getBucketList() {
   const params = {};
@@ -44,4 +46,27 @@ async function getS3Object(bucketNameMatchString: string, key: string) {
   return getObjectResult.Body?.transformToString();
 }
 
-export { getS3ItemsList, getS3Object };
+async function putObjectToS3(
+  bucketNameMatchString: string,
+  key: string,
+  body: ReadStream
+) {
+  const bucketParams = {
+    Bucket: await getBucketName(bucketNameMatchString),
+    Key: key,
+    Body: body,
+  };
+  const response = await s3Client.send(new PutObjectCommand(bucketParams));
+  return response;
+}
+
+async function deleteObjectInS3(bucketNameMatchString: string, key: string) {
+  const bucketParams = {
+    Bucket: await getBucketName(bucketNameMatchString),
+    Key: key,
+  };
+  const response = await s3Client.send(new DeleteObjectCommand(bucketParams));
+  return response;
+}
+
+export { getS3ItemsList, getS3Object, putObjectToS3, deleteObjectInS3 };
