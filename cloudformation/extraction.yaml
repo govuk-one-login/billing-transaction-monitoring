@@ -7,9 +7,7 @@ ExtractFunction:
       Type: SQS
     Environment:
       Variables:
-        # EXTRACTION_HANDLER_RETURN_VALUE: done
-        # EXTRACTION_HANDLER_THROW_ERROR: false
-        TEXT_EXTRACT_ROLE: !GetAtt TextractRole.Arn # Is this needed?
+        TEXT_EXTRACT_ROLE: !GetAtt TextractRole.Arn # This is needed for the params for the textract call
         SNS_TOPIC: !Ref AmazonTextractSNSTopic # This topic name will come from BTM-202
     Events:
       ExtractEvent:
@@ -29,16 +27,24 @@ ExtractFunction:
             Resource: !GetAtt ExtractQueue.Arn
           - Effect: Allow
             Action:
+              - "sns:*"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - "textract:*"
+            Resource: "*"
+          - Effect: Allow
+            Action:
               - kms:Decrypt
               - kms:GenerateDataKey*
               - kms:Encrypt
             Resource: !GetAtt KmsKey.Arn
     ReservedConcurrentExecutions: 10
 
-ExtractFunctionDeadLetterQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
+# ExtractFunctionDeadLetterQueue: Shall I delete this? Did we find that only SQS should have the DLQ.
+#   Type: AWS::SQS::Queue
+#   Properties:
+#     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 ExtractQueue:
   Type: AWS::SQS::Queue
