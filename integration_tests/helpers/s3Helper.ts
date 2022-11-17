@@ -7,6 +7,7 @@ import {
   GetObjectCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
+import { ReadStream } from "fs";
 
 async function getBucketList() {
   const params = {};
@@ -48,12 +49,12 @@ async function getS3Object(bucketNameMatchString: string, key: string) {
 async function putObjectToS3(
   bucketNameMatchString: string,
   key: string,
-  path: string
+  body: ReadStream
 ) {
   const bucketParams = {
     Bucket: await getBucketName(bucketNameMatchString),
     Key: key,
-    Body: path,
+    Body: body,
   };
   const response = await s3Client.send(new PutObjectCommand(bucketParams));
   return response;
