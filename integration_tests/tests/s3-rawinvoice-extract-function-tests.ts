@@ -27,7 +27,8 @@ describe("\n Upload file to s3 bucket and validate extract lambda executed succe
     console.log("successfully uploaded the file to s3");
     const givenStringExistsInLogs = await checkGivenStringExistsInLogs(
       "di-btm-ExtractFunction-",
-      "ERROR", testStartTime
+      "ERROR",
+      testStartTime
     );
     expect(givenStringExistsInLogs).toBeFalsy();
   });
