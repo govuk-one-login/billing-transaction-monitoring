@@ -1,6 +1,4 @@
-export const handler = async (event?: unknown): Promise<string | undefined> => {
-  console.log("event:", event);
-
+export const handler = async (): Promise<string | undefined> => {
   if (
     String(process.env.EXTRACTION_HANDLER_THROW_ERROR).toLowerCase() === "true"
   ) {
