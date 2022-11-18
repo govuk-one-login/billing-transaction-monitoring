@@ -29,7 +29,7 @@ afterAll(() => {
   console.log = oldConsoleLog;
 });
 
-test("Store handler with empty event batch", async () => {
+test("Store Transactions handler with empty event batch", async () => {
   const event = createEvent([]);
 
   await handler(event);
@@ -38,7 +38,7 @@ test("Store handler with empty event batch", async () => {
   expect(mockPutDDB).not.toHaveBeenCalled();
 });
 
-test("Store handler with some valid events calls s3", async () => {
+test("Store Transactions handler with some valid events calls s3", async () => {
   const validRecord1 = createEventRecordWithName(
     "EVENT_1",
     1
@@ -78,7 +78,7 @@ test("Store handler with some valid events calls s3", async () => {
   );
 });
 
-test("Store handler with some valid events calls ddb", async () => {
+test("Store Transactions handler with some valid events calls ddb", async () => {
   const validRecord1 = createEventRecordWithName(
     "EVENT_1",
     1

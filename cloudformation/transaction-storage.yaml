@@ -137,7 +137,7 @@ StorageFunction:
         STORAGE_BUCKET: !Ref StorageBucket
         LOCAL_ENDPOINT:
           !If [IsLocal, "http://s3.localhost.localstack.cloud:4566", ""]
-    Handler: store.handler
+    Handler: storeTransactions.handler
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
