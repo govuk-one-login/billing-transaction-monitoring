@@ -3,6 +3,8 @@ import { checkGivenStringExistsInLogs } from "../helpers/cloudWatchHelper";
 import path from "path";
 import fs from "fs";
 
+const testStartTime = new Date().getTime();
+
 describe("\n Upload file to s3 bucket and validate extract lambda executed successfully \n", () => {
   const bucketNameMatchString = "di-btm-rawinvoicepdfbucket";
   const key = "payloads/sample.pdf";
@@ -25,7 +27,8 @@ describe("\n Upload file to s3 bucket and validate extract lambda executed succe
     console.log("successfully uploaded the file to s3");
     const givenStringExistsInLogs = await checkGivenStringExistsInLogs(
       "di-btm-ExtractFunction-",
-      "ERROR"
+      "ERROR",
+      testStartTime
     );
     expect(givenStringExistsInLogs).toBeFalsy();
   });
