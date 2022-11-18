@@ -1,5 +1,6 @@
 ExtractFunction:
   # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda
   Type: AWS::Serverless::Function
   Properties:
     DeadLetterQueue:
@@ -40,11 +41,6 @@ ExtractFunction:
               - kms:Encrypt
             Resource: !GetAtt KmsKey.Arn
     ReservedConcurrentExecutions: 10
-
-# ExtractFunctionDeadLetterQueue: Shall I delete this? Did we find that only SQS should have the DLQ.
-#   Type: AWS::SQS::Queue
-#   Properties:
-#     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 ExtractQueue:
   Type: AWS::SQS::Queue

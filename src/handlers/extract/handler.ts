@@ -1,42 +1,54 @@
 import * as AWS from "aws-sdk";
-import {
-  TextractClient,
-  StartExpenseAnalysisCommand,
-  StartExpenseAnalysisResponse,
-} from "@aws-sdk/client-textract";
-import { S3EventRecord, SQSEvent } from "aws-lambda";
+import { S3Event } from "aws-lambda";
 
 export const handler = async (
-  event: SQSEvent
-): Promise<StartExpenseAnalysisResponse> => {
+  event: S3Event
+): Promise<AWS.Textract.StartExpenseAnalysisResponse[]> => {
   // Set up
-  const textract = new TextractClient({ region: "eu-west-2" });
-
+  const textract = new AWS.Textract({ region: "eu-west-2" });
+  console.log("Event", event);
+  const response: AWS.Textract.StartExpenseAnalysisResponse[] = [];
   // Get Bucket and filename from the event.
-  const s3Event = JSON.parse(event.Records[0].body) as S3EventRecord;
+  const promises = event.Records.map(async (record) => {
+    console.log(`Record ${JSON.stringify(record)}`);
+    const bucket = record.s3.bucket.name;
+    const fileName = record.s3.object.key;
+    console.log("File Name: " + fileName);
 
-  const bucket = s3Event.s3.bucket.name;
-  const fileName = s3Event.s3.object.key;
+    try {
+      if (process.env.TEXT_EXTRACT_ROLE === undefined) {
+        const textractMessage = "Textract role not set.";
+        console.error(textractMessage);
+        throw new Error(textractMessage);
+      }
+      if (process.env.SNS_TOPIC === undefined) {
+        const snsMessage = "SNS Topic not set.";
+        console.error(snsMessage);
+        throw new Error(snsMessage);
+      }
 
-  // Logs fileName
-  console.log("File Name: " + fileName);
+      // Define params for Textract API call
+      const params: AWS.Textract.StartExpenseAnalysisRequest = {
+        DocumentLocation: {
+          S3Object: {
+            Bucket: bucket,
+            Name: fileName,
+          },
+        },
+        NotificationChannel: {
+          RoleArn: process.env.TEXT_EXTRACT_ROLE,
+          SNSTopicArn: process.env.SNS_TOPIC,
+        },
+      };
+      console.log("Params for textract call", params);
 
-  // Define params for Textract API call
-  const params: AWS.Textract.StartExpenseAnalysisRequest = {
-    DocumentLocation: {
-      S3Object: {
-        Bucket: bucket,
-        Name: fileName,
-      },
-    },
-    NotificationChannel: {
-      RoleArn: process.env.TEXT_EXTRACT_ROLE!,
-      SNSTopicArn: process.env.SNS_TOPIC!,
-    },
-  };
-  console.log("*** params", params);
-  // Invoke textract function
-  const response = await textract.send(new StartExpenseAnalysisCommand(params));
-  console.log("JobId :", response.JobId);
-  return { JobId: response.JobId };
+      // Invoke textract function
+      response.push(await textract.startExpenseAnalysis(params).promise());
+    } catch (err) {
+      throw new Error("Textract API Call failure");
+    }
+  });
+
+  await Promise.all(promises);
+  return response;
 };

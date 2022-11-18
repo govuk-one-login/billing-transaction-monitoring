@@ -59,8 +59,5 @@
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
     "*.{js,json,ts,yaml,yml}": "prettier --write"
-  },
-  "dependencies": {
-    "@aws-sdk/client-textract": "^3.209.0"
   }
 }
