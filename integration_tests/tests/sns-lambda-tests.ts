@@ -14,7 +14,7 @@ import {
 
 let snsResponse: PublishResponse;
 
-export const testStartTime = new Date().getTime();
+ const testStartTime= new Date().getTime();
 
 describe(
   "\n Happy path tests \n" +
@@ -27,21 +27,21 @@ describe(
     test("Filter function cloud watch logs should contain eventid", async () => {
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-FilterFunction",snsValidEventPayload.event_id
+        "di-btm-FilterFunction",snsValidEventPayload.event_id,testStartTime
       );
       expect(eventIdExists).toBeTruthy();
     });
 
     test("Clean function cloud watch logs should contain eventid", async () => {
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",snsValidEventPayload.event_id
+        "di-btm-CleanFunction",snsValidEventPayload.event_id, testStartTime
       );
       expect(eventIdExists).toBeTruthy();
     });
 
     test("Store Transactions function cloud watch logs should contain eventid", async () => {
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-StorageFunction",snsValidEventPayload.event_id
+        "di-btm-StorageFunction",snsValidEventPayload.event_id, testStartTime
       );
       expect(eventIdExists).toBeTruthy();
     });
@@ -50,7 +50,7 @@ describe(
       snsResponse = await publishSNS(snsEventWithAdditionalFieldsPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",snsEventWithAdditionalFieldsPayload.event_id
+        "di-btm-CleanFunction",snsEventWithAdditionalFieldsPayload.event_id,testStartTime
       );
       expect(eventIdExists).toBeTruthy();
     });
@@ -65,7 +65,7 @@ describe(
       snsResponse = await publishSNS(snsInvalidEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-FilterFunction",snsInvalidEventNamePayload.event_id
+        "di-btm-FilterFunction",snsInvalidEventNamePayload.event_id,testStartTime
       );
       expect(eventIdExists).toBeFalsy();
     });
@@ -74,7 +74,7 @@ describe(
       snsResponse = await publishSNS(snsInvalidTimeStampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",snsInvalidTimeStampPayload.event_id
+        "di-btm-CleanFunction",snsInvalidTimeStampPayload.event_id,testStartTime
       );
       expect(eventIdExists).toBeFalsy();
     });
@@ -83,7 +83,7 @@ describe(
       snsResponse = await publishSNS(snsEventInvalidCompId);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",snsEventInvalidCompId.event_id
+        "di-btm-CleanFunction",snsEventInvalidCompId.event_id,testStartTime
       );
       expect(eventIdExists).toBeFalsy();
     });
@@ -92,7 +92,7 @@ describe(
       snsResponse = await publishSNS(snsMissingEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-FilterFunction",snsMissingEventNamePayload.event_id
+        "di-btm-FilterFunction",snsMissingEventNamePayload.event_id,testStartTime
       );
       expect(eventIdExists).toBeFalsy();
     });
@@ -101,7 +101,7 @@ describe(
       snsResponse = await publishSNS(snsEventMissingCompIdPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",snsEventMissingCompIdPayload.event_id
+        "di-btm-CleanFunction",snsEventMissingCompIdPayload.event_id, testStartTime
       );
       expect(eventIdExists).toBeFalsy();
     });
@@ -110,7 +110,7 @@ describe(
       snsResponse = await publishSNS(snsEventMissingTimestampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",snsEventMissingTimestampPayload.event_id
+        "di-btm-CleanFunction",snsEventMissingTimestampPayload.event_id, testStartTime
       );
       expect(eventIdExists).toBeFalsy();
     });
