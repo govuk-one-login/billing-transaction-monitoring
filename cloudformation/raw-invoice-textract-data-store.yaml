@@ -3,6 +3,13 @@ AmazonTextractRawInvoiceDataTopic:
   Properties:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
+AmazonTextractRawInvoiceDataTopicSubscription:
+  Type: AWS::SNS::Subscription
+  Properties:
+    Endpoint: !GetAtt RawInvoiceTextractDataQueue.Arn
+    Protocol: sqs
+    TopicArn: !GetAtt AmazonTextractRawInvoiceDataTopic.Arn
+
 RawInvoiceTextractDataBucket:
   Type: AWS::S3::Bucket
   Properties:
@@ -53,6 +60,21 @@ RawInvoiceTextractDataQueue:
     RedrivePolicy:
       deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
       maxReceiveCount: 1
+
+RawInvoiceTextractDataQueuePolicy:
+  Type: AWS::SQS::QueuePolicy
+  Properties:
+    PolicyDocument:
+      Statement:
+        - Action: SQS:SendMessage
+          Condition:
+            ArnEquals:
+              aws:SourceArn: !GetAtt AmazonTextractRawInvoiceDataTopic.Arn
+          Effect: Allow
+          Principal: "*"
+          Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
+    Queues:
+      - !Ref RawInvoiceTextractDataQueue
 
 RawInvoiceTextractDataStorageFunction:
   # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
