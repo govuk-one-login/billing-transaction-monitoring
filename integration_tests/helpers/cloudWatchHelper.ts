@@ -9,7 +9,6 @@ import {
 } from "@aws-sdk/client-cloudwatch-logs";
 
 import { cloudWatchLogsClient } from "../clients/cloudWatchLogsClient";
-import { testStartTime } from "../tests/sns-lambda-tests";
 import { waitForTrue } from "../helpers/commonHelpers";
 
 async function getLogGroupsList() {
@@ -30,7 +29,7 @@ async function getLogGroupName(logName: string) {
   return name;
 }
 
-async function checkGivenStringExistsInLogs(logName: string, expectedString: string) {
+async function checkGivenStringExistsInLogs(logName: string, expectedString: string,testStartTime: number) {
   const params: FilterLogEventsCommandInput = {
     logGroupName: await getLogGroupName(logName),
     startTime: testStartTime,
