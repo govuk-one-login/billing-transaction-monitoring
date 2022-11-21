@@ -59,19 +59,19 @@ TransactionTable:
             }
           SerializationLibrary: "org.openx.data.jsonserde.JsonSerDe"
 
-AthenaTransactionWorkgroup:
-  Type: AWS::Athena::WorkGroup
-  Properties:
-    Name: BTMAthenaWorkgroup
-    WorkGroupConfiguration:
-      EnforceWorkGroupConfiguration: true
-      PublishCloudWatchMetricsEnabled: false
-      ResultConfiguration:
-        EncryptionConfiguration:
-          EncryptionOption: "SSE_KMS"
-          KmsKey: !GetAtt KmsKey.Arn
-        OutputLocation:
-          !Join ["", ["s3://", !Ref AthenaQueryResultsBucket, "/"]]
+#AthenaTransactionWorkgroup:
+#  Type: AWS::Athena::WorkGroup
+#  Properties:
+#    Name: BTMAthenaWorkgroup
+#    WorkGroupConfiguration:
+#      EnforceWorkGroupConfiguration: true
+#      PublishCloudWatchMetricsEnabled: false
+#      ResultConfiguration:
+#        EncryptionConfiguration:
+#          EncryptionOption: "SSE_KMS"
+#          KmsKey: !GetAtt KmsKey.Arn
+#        OutputLocation:
+#          !Join ["", ["s3://", !Ref AthenaQueryResultsBucket, "/"]]
 
 AthenaQueryResultsBucket:
   Type: AWS::S3::Bucket
@@ -129,12 +129,37 @@ CalculationDataCrawlerRole:
       - "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
     Path: "/"
 
+TransactionsCrawlerSecurityConfiguration:
+  Type: AWS::Glue::SecurityConfiguration
+  Properties:
+    EncryptionConfiguration:
+      CloudWatchEncryption:
+        CloudWatchEncryptionMode: SSE-KMS
+        KmsKeyArn: !GetAtt KmsKey.Arn
+      JobBookmarksEncryption:
+        JobBookmarksEncryptionMode: CSE-KMS
+        KmsKeyArn: !GetAtt KmsKey.Arn
+      S3Encryptions:
+        - S3EncryptionMode: SSE-KMS
+          KmsKeyArn: !GetAtt KmsKey.Arn
+    Name: transactions-crawler-security-config
+
+#      JobBookmarksEncryption:
+#        JobBookmarksEncryptionMode: CSE-KMS #any value but 'DISABLED'
+#      S3Encryptions:
+#        S3EncryptionMode: SSE-KMS #any value but 'DISABLED'
+#
+#      - ServerSideEncryptionByDefault:
+#          SSEAlgorithm: aws:kms
+#          KMSMasterKeyID: !GetAtt KmsKey.Arn
+
 TransactionsCrawler:
   Type: AWS::Glue::Crawler
   Properties:
+    CrawlerSecurityConfiguration: !Ref TransactionsCrawlerSecurityConfiguration
     DatabaseName: !Ref TransactionDB
     Description: Crawls the daily buckets of transaction data
-    Name: transactions-crawler
+    Name: glue-transactions-crawler
     Role: !GetAtt CalculationDataCrawlerRole.Arn
     SchemaChangePolicy:
       DeleteBehavior: LOG
