@@ -1,3 +1,15 @@
+AmazonTextractRawInvoiceDataTopic:
+  Type: AWS::SNS::Topic
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+AmazonTextractRawInvoiceDataTopicSubscription:
+  Type: AWS::SNS::Subscription
+  Properties:
+    Endpoint: !GetAtt RawInvoiceTextractDataQueue.Arn
+    Protocol: sqs
+    TopicArn: !Ref AmazonTextractRawInvoiceDataTopic
+
 RawInvoiceTextractDataBucket:
   Type: AWS::S3::Bucket
   Properties:
@@ -18,6 +30,11 @@ RawInvoiceTextractDataBucket:
       DestinationBucketName: !Ref RawInvoiceTextractDataLogBucket
       LogFilePrefix: raw-invoice-textract-data-bucket-log
 
+RawInvoiceTextractDataDeadLetterQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
 RawInvoiceTextractDataLogBucket:
   # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
   Type: AWS::S3::Bucket
@@ -35,3 +52,59 @@ RawInvoiceTextractDataLogBucket:
         - ServerSideEncryptionByDefault:
             SSEAlgorithm: aws:kms
             KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+RawInvoiceTextractDataQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
+      maxReceiveCount: 1
+
+RawInvoiceTextractDataQueuePolicy:
+  Type: AWS::SQS::QueuePolicy
+  Properties:
+    PolicyDocument:
+      Statement:
+        - Action: SQS:SendMessage
+          Condition:
+            ArnEquals:
+              aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
+          Effect: Allow
+          Principal: "*"
+          Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
+    Queues:
+      - !Ref RawInvoiceTextractDataQueue
+
+RawInvoiceTextractDataStorageFunction:
+  # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
+  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+  Type: AWS::Serverless::Function
+  Properties:
+    Environment:
+      Variables:
+        RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_RETURN_VALUE: done
+        RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_THROW_ERROR: false
+    Events:
+      RawInvoiceTextractDataEvent:
+        Type: SQS
+        Properties:
+          Queue: !GetAtt RawInvoiceTextractDataQueue.Arn
+    Handler: storeRawInvoiceTextractData.handler
+    KmsKeyArn: !GetAtt KmsKey.Arn
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:ReceiveMessage
+            Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
+    ReservedConcurrentExecutions: 10
