@@ -1,5 +1,5 @@
 import * as AWS from "aws-sdk";
-import { S3EventRecord, SQSEvent } from "aws-lambda";
+import { S3Event, SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
 
 interface StartExpenseAnalysisResponse extends Response {
@@ -9,7 +9,6 @@ export const handler = async (
   event: SQSEvent
 ): Promise<StartExpenseAnalysisResponse> => {
   // Set Up
-  console.log("Event: ", event);
   const textExtractRole = process.env.TEXT_EXTRACT_ROLE;
   const snsTopic = process.env.SNS_TOPIC;
 
@@ -30,10 +29,10 @@ export const handler = async (
 
   // Get Bucket and filename from the event.
   const promises = event.Records.map(async (record) => {
-    const bodyObject = JSON.parse(record.body) as S3EventRecord;
+    const bodyObject = JSON.parse(record.body) as S3Event;
     console.log("S3 Record: ", bodyObject);
-    const bucket = bodyObject.s3.bucket.name;
-    const fileName = bodyObject.s3.object.key;
+    const bucket = bodyObject.Records[0].s3.bucket.name;
+    const fileName = bodyObject.Records[0].s3.object.key;
 
     // Define params for Textract API call
     const params: AWS.Textract.StartExpenseAnalysisRequest = {
@@ -58,6 +57,8 @@ export const handler = async (
         throw new Error("Textract error");
       }
       response.JobId?.push({ JobId: textractResponse.JobId });
+      console.log("Filename: ", fileName);
+      console.log("Job ID: ", textractResponse.JobId);
     } catch (e) {
       console.log(e);
       response.batchItemFailures.push({ itemIdentifier: record.messageId });

@@ -23,7 +23,7 @@ export const createEventRecordWithName = (
     messageId: String(messageId),
   } as any);
 
-export const createEventRecordWithBody = (
+export const createEventRecordWithS3Body = (
   bucketName: String,
   fileName: String,
   messageId?: string

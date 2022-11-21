@@ -1,7 +1,7 @@
 import * as AWS from "aws-sdk";
 import {
   createEvent,
-  createEventRecordWithBody,
+  createEventRecordWithS3Body,
 } from "../../../test-helpers/SQS";
 import { handler } from "./handler";
 
@@ -15,8 +15,12 @@ describe("Extract handler test", () => {
   let mockStartExpenseAnalysis: jest.Mock;
 
   const validEvent = createEvent([
-    createEventRecordWithBody("di-btm-anybucket", "onepdf.pdf", "message ID 1"),
-    createEventRecordWithBody(
+    createEventRecordWithS3Body(
+      "di-btm-anybucket",
+      "onepdf.pdf",
+      "message ID 1"
+    ),
+    createEventRecordWithS3Body(
       "di-btm-anybucket",
       "secondpdf.pdf",
       "message ID 2"
@@ -75,9 +79,12 @@ describe("Extract handler test", () => {
         SNSTopicArn: process.env.SNS_TOPIC,
       },
     });
-    expect(response.JobId[0].JobId).toEqual("Some job ID");
-    expect(response.JobId[1].JobId).toEqual("Another job ID");
-    expect(response.JobId?.length).toBe(2);
+    expect(response.JobId).toEqual([
+      { JobId: "Some job ID" },
+      { JobId: "Another job ID" },
+    ]);
+    expect(response.JobId).toHaveLength(2);
+    expect(response.batchItemFailures).toHaveLength(0);
   });
 
   test("Extract handler with valid event record that doesnt have a textract role throws an error", async () => {
@@ -96,5 +103,31 @@ describe("Extract handler test", () => {
     } catch (e: any) {
       expect(e.message).toEqual("SNS Topic not set.");
     }
+  });
+
+  test("Extract handler with empty event does not call textract", async () => {
+    const event = createEvent([]);
+    await handler(event);
+    expect(mockStartExpenseAnalysis).not.toHaveBeenCalled();
+  });
+
+  test("Extract handler with an undefined JobId throws error", async () => {
+    mockStartExpenseAnalysis
+      .mockReturnValue({
+        promise: jest.fn().mockResolvedValue({ JobId: undefined }),
+      })
+      .mockReturnValueOnce({
+        promise: jest.fn().mockResolvedValue({ JobId: "Some job ID" }),
+      });
+
+    const response = await handler(validEvent);
+
+    expect(mockStartExpenseAnalysis).toHaveBeenCalledTimes(2);
+    expect(response.JobId).toHaveLength(1);
+    expect(response.JobId).toEqual([{ JobId: "Some job ID" }]);
+    expect(response.batchItemFailures).toHaveLength(1);
+    expect(response.batchItemFailures[0].itemIdentifier).toEqual(
+      "message ID 2"
+    );
   });
 });
