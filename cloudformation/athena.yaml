@@ -113,7 +113,7 @@ AthenaAccessLogBucket:
             SSEAlgorithm: aws:kms
             KMSMasterKeyID: !GetAtt KmsKey.Arn
 
-GlueCrawlerRole:
+CalculationDataCrawlerRole:
   Type: AWS::IAM::Role
   Properties:
     AssumeRolePolicyDocument:
@@ -125,25 +125,17 @@ GlueCrawlerRole:
               - "glue.amazonaws.com"
           Action:
             - "sts:AssumeRole"
+    ManagedPolicyArns:
+      - "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
     Path: "/"
-    Policies:
-      - PolicyName: "root"
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action: "*"
-              Resource: "*"
 
 TransactionsCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Configuration: String
-    CrawlerSecurityConfiguration: String
     DatabaseName: !Ref TransactionDB
     Description: Crawls the daily buckets of transaction data
     Name: transactions-crawler
-    Role: !GetAtt GlueCrawlerRole.Arn
+    Role: !GetAtt CalculationDataCrawlerRole.Arn
     SchemaChangePolicy:
       DeleteBehavior: LOG
       UpdateBehavior: UPDATE_IN_DATABASE
