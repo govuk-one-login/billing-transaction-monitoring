@@ -59,20 +59,6 @@ TransactionTable:
             }
           SerializationLibrary: "org.openx.data.jsonserde.JsonSerDe"
 
-#AthenaTransactionWorkgroup:
-#  Type: AWS::Athena::WorkGroup
-#  Properties:
-#    Name: BTMAthenaWorkgroup
-#    WorkGroupConfiguration:
-#      EnforceWorkGroupConfiguration: true
-#      PublishCloudWatchMetricsEnabled: false
-#      ResultConfiguration:
-#        EncryptionConfiguration:
-#          EncryptionOption: "SSE_KMS"
-#          KmsKey: !GetAtt KmsKey.Arn
-#        OutputLocation:
-#          !Join ["", ["s3://", !Ref AthenaQueryResultsBucket, "/"]]
-
 AthenaQueryResultsBucket:
   Type: AWS::S3::Bucket
   Properties:
@@ -143,15 +129,6 @@ TransactionsCrawlerSecurityConfiguration:
         - S3EncryptionMode: SSE-KMS
           KmsKeyArn: !GetAtt KmsKey.Arn
     Name: transactions-crawler-security-config
-
-#      JobBookmarksEncryption:
-#        JobBookmarksEncryptionMode: CSE-KMS #any value but 'DISABLED'
-#      S3Encryptions:
-#        S3EncryptionMode: SSE-KMS #any value but 'DISABLED'
-#
-#      - ServerSideEncryptionByDefault:
-#          SSEAlgorithm: aws:kms
-#          KMSMasterKeyID: !GetAtt KmsKey.Arn
 
 TransactionsCrawler:
   Type: AWS::Glue::Crawler
