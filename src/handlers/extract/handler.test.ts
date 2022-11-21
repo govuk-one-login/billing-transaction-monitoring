@@ -11,6 +11,29 @@ describe("Extract handler test", () => {
 
   let mockStartExpenseAnalysis: jest.Mock;
 
+  const validEvent = createEvent([
+    {
+      s3: {
+        bucket: {
+          name: "di-btm-anybucket",
+        },
+        object: {
+          key: "onepdf.pdf",
+        },
+      },
+    },
+    {
+      s3: {
+        bucket: {
+          name: "di-btm-anybucket",
+        },
+        object: {
+          key: "secondpdf.pdf",
+        },
+      },
+    },
+  ] as any);
+
   beforeEach(() => {
     process.env = { ...OLD_ENV };
     process.env.TEXT_EXTRACT_ROLE = "Text extract role";
@@ -28,29 +51,6 @@ describe("Extract handler test", () => {
   });
 
   test("Extract handler with valid event record that has S3 data returns a JobId", async () => {
-    const event = createEvent([
-      {
-        s3: {
-          bucket: {
-            name: "di-btm-anybucket",
-          },
-          object: {
-            key: "onepdf.pdf",
-          },
-        },
-      },
-      {
-        s3: {
-          bucket: {
-            name: "di-btm-anybucket",
-          },
-          object: {
-            key: "secondpdf.pdf",
-          },
-        },
-      },
-    ] as any);
-
     mockStartExpenseAnalysis
       .mockReturnValue({
         promise: jest.fn().mockResolvedValue({ JobId: "Another job ID" }),
@@ -59,7 +59,7 @@ describe("Extract handler test", () => {
         promise: jest.fn().mockResolvedValue({ JobId: "Some job ID" }),
       });
 
-    const response = await handler(event);
+    const response = await handler(validEvent);
 
     expect(mockStartExpenseAnalysis).toHaveBeenCalledTimes(2);
     expect(mockStartExpenseAnalysis).toHaveBeenCalledWith({
@@ -91,13 +91,21 @@ describe("Extract handler test", () => {
     expect(response.length).toBe(2);
   });
 
-  test(
-    "Extract handler with valid event record that doesnt have a textract role throws an error"
-  );
-  test(
-    "Extract handler with valid event record that doesnt have an sns topic throws an error"
-  );
-  test(
-    "Extract handler with valid event record, textract role and sns topic and textract fails throws an error"
-  );
+  test("Extract handler with valid event record that doesnt have a textract role throws an error", async () => {
+    process.env.TEXT_EXTRACT_ROLE = undefined;
+    try {
+      await handler(validEvent);
+    } catch (e: any) {
+      expect(e.message).toEqual("Textract role not set.");
+    }
+  });
+
+  test("Extract handler with valid event record that doesnt have an sns topic throws an error", async () => {
+    process.env.SNS_TOPIC = undefined;
+    try {
+      await handler(validEvent);
+    } catch (e: any) {
+      expect(e.message).toEqual("SNS Topic not set.");
+    }
+  });
 });
