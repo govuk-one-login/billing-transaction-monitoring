@@ -18,7 +18,7 @@ Resources:
   RawInvoiceTextractDataBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, raw-invoice-textract-data ] ]
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data ] ]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -40,6 +40,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-queue ] ]
+      
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
@@ -70,7 +71,7 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, raw-invoice-textract-data-logs ] ]
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-logs ] ]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite

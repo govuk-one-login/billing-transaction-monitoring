@@ -6,7 +6,7 @@ Resources:
     Properties:
       CatalogId: !Ref AWS::AccountId
       DatabaseInput:
-        Name: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, transactions ] ]
+        Name: !Join [ '-', [!Ref Prefix, !Ref Environment, transactions ] ]
 
   TransactionTable:
     Type: AWS::Glue::Table
@@ -51,7 +51,7 @@ Resources:
   AthenaTransactionWorkgroup:
     Type: AWS::Athena::WorkGroup
     Properties:
-      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, athena-workgroup ] ]
+      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, athena-workgroup ] ]
       WorkGroupConfiguration:
         EnforceWorkGroupConfiguration: true
         PublishCloudWatchMetricsEnabled: false
@@ -64,7 +64,7 @@ Resources:
   AthenaQueryResultsBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, athena-query-results ] ]
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, athena-query-results ] ]
       VersioningConfiguration:
         Status: "Enabled"
       BucketEncryption:
@@ -88,7 +88,7 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, athena-query-results-logs ] ]
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, athena-query-results-logs ] ]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite

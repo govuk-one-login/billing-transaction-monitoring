@@ -7,36 +7,12 @@ import {
   ListTopicsCommand,
 } from "@aws-sdk/client-sns";
 
-let snsTopicArn: string;
 let snsParams: PublishInput;
 
-async function getListOfTopics() {
-  const result: ListTopicsResponse = await snsClient.send(
-    new ListTopicsCommand({})
-  );
-  const topics: Topic[] = result.Topics ?? [];
-  return topics;
-}
-
-const getTopicArn = async () => {
-  const topics: Topic[] = await getListOfTopics();
-  if (topics.length > 0) {
-    const result: Topic = topics.find((d) =>
-      d.TopicArn?.match("TestTxMATopic")
-    ) as Topic;
-    console.log(result.TopicArn);
-    const arn: string = result.TopicArn?.valueOf() as string;
-    return (snsTopicArn = arn);
-  } else {
-    throw Error("No topics found");
-  }
-};
-
 async function snsParameters(snsValidEventPayload: any) {
-  snsTopicArn = await getTopicArn();
   let snsParams = {
     Message: JSON.stringify(snsValidEventPayload),
-    TopicArn: snsTopicArn,
+    TopicArn: `arn:aws:sns:eu-west-2:582874090139:${process.env.ENV_PREFIX}-test-TxMA-topic`,
   };
   return snsParams;
 }

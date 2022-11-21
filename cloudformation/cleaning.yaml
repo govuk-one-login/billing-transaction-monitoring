@@ -5,14 +5,14 @@ Resources:
   CleanDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, clean-dlq] ]
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, clean-dlq] ]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   # Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
   CleanDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, clean-dlq-alarm ] ]
+      AlarmName: !Join [ '-', [!Ref Prefix, !Ref Environment, clean-dlq-alarm ] ]
       AlarmActions:
         - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
@@ -39,7 +39,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, clean-function] ]
+      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, clean-function] ]
       Environment:
         Variables:
           OUTPUT_QUEUE_URL: !Ref StorageQueue
@@ -77,7 +77,7 @@ Resources:
   CleanFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, clean-function-alarm] ]
+      AlarmName: !Join [ '-', [!Ref Prefix, !Ref Environment, clean-function-alarm] ]
       AlarmActions:
         - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
@@ -94,7 +94,7 @@ Resources:
   CleanQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, clean-queue] ]
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, clean-queue] ]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt CleanDeadLetterQueue.Arn

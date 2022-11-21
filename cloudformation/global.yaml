@@ -4,7 +4,7 @@ Resources:
   AlarmTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, alarms] ]
+      TopicName: !Join [ '-', [!Ref Prefix, !Ref Environment, alarms] ]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   KmsKey:
@@ -36,6 +36,6 @@ Resources:
   KmsKeyAlias:
     Type: AWS::KMS::Alias
     Properties:
-      AliasName: !Join [ '-', ['alias/key', !Ref Prefix, !Ref Environment, !Ref SubEnv, general] ]
+      AliasName: !Join [ '-', ['alias/key', !Ref Prefix, !Ref Environment, general] ]
       TargetKeyId: !Ref KmsKey
 

@@ -3,27 +3,17 @@ Description: CloudFormation template for infrastructure to monitor user identity
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
-  CodeSigningConfigArn:
-    Description: ARN of Code Signing Config from deployment pipeline
+  Prefix:
     Type: String
-    Default: none
+    Default: di-btm
   Environment:
     Description: Environment type
     Type: String
     Default: dev
-    AllowedValues:
-      - local
-      - dev
-      - build
-      - staging
-      - integration
-      - production
-  SubEnv:
+  CodeSigningConfigArn:
+    Description: ARN of Code Signing Config from deployment pipeline
     Type: String
-    Default: ''
-  Prefix:
-    Type: String
-    Default: di-btm
+    Default: none
   PermissionsBoundary:
     Description: ARN of permissions boundary for new roles
     Type: String

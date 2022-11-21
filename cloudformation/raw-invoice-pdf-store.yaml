@@ -4,7 +4,7 @@ Resources:
   RawInvoicePdfBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, raw-invoice-pdf ] ]
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-pdf ] ]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -30,7 +30,7 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the raw invoice pdf log bucket - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, raw-invoice-pdf-logs ] ]
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-pdf-logs ] ]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite

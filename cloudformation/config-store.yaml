@@ -4,7 +4,7 @@ Resources:
   ConfigBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, config-bucket ] ]
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, config-bucket ] ]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -26,7 +26,7 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the config log bucket - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, config-bucket-logs ] ]
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, config-bucket-logs ] ]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite

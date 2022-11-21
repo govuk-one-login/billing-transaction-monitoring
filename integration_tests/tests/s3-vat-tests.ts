@@ -3,8 +3,7 @@ import { default as expectedVat } from "../../cloudformation/uk-vat.json";
 
 describe("\n Verify VAT details exists in S3 config bucket\n", () => {
   test("S3 config bucket should contain VAT details matches with expected vat config file ", async () => {
-    const bucketNameMatchString = "di-btm-configbucket-";
-    const response = await getS3Object(bucketNameMatchString, "uk-vat.json");
+    const response = await getS3Object(`${process.env.ENV_PREFIX}-config-bucket`, "uk-vat.json");
     expect(response).toEqual(JSON.stringify(expectedVat))
   });
 });

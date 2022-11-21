@@ -7,7 +7,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, extract-function ] ]
+      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, extract-function ] ]
       Environment:
         Variables:
           EXTRACTION_HANDLER_RETURN_VALUE: done
@@ -39,7 +39,7 @@ Resources:
   ExtractQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, extract-queue ] ]
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, extract-queue ] ]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt ExtractQueueDeadLetterQueue.Arn
@@ -48,7 +48,7 @@ Resources:
   ExtractQueueDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, extract-dlq ] ]
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, extract-dlq ] ]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   ExtractQueuePolicy:

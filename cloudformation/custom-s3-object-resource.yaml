@@ -6,7 +6,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, custom-s3-object-resource-function ] ]
+      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, custom-s3-object-resource-function ] ]
       DeadLetterQueue:
         TargetArn: !GetAtt CustomS3ObjectResourceFunctionDeadLetterQueue.Arn
         Type: SQS
@@ -27,5 +27,5 @@ Resources:
   CustomS3ObjectResourceFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, custom-s3-object-resource-function-dlq ] ]
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, custom-s3-object-resource-function-dlq ] ]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
