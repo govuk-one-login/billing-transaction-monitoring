@@ -60,6 +60,23 @@ async function storeData(record: SQSRecord, bucketName: string): Promise<void> {
 
     statusMessage = response.StatusMessage;
 
+    if (response.Warnings !== undefined)
+      for (const responseWarning of response.Warnings)
+        if (responseWarning !== undefined) {
+          const { ErrorCode: code, Pages: pageNumbers } = responseWarning;
+
+          let warningMessage = "Warning";
+
+          if (code !== undefined)
+            warningMessage = `${warningMessage} code ${code}`;
+
+          if (pageNumbers !== undefined) {
+            const pagesText = pageNumbers.map(String).join(", ");
+            warningMessage = `${warningMessage} for pages ${pagesText}`;
+          }
+
+          console.warn(warningMessage);
+        }
     // TODO: get Textract data
   } while (paginationToken !== undefined);
 
