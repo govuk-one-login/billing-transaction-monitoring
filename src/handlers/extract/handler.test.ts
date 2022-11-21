@@ -2,15 +2,18 @@ import { handler } from "./handler";
 
 const OLD_ENV = process.env;
 const oldConsoleError = console.error;
+const oldConsoleLog = console.log;
 
 beforeEach(() => {
   process.env = { ...OLD_ENV };
   console.error = jest.fn();
+  console.log = jest.fn();
 });
 
 afterAll(() => {
   process.env = OLD_ENV;
   console.error = oldConsoleError;
+  console.log = oldConsoleLog;
 });
 
 test("Extract handler with EXTRACTION_HANDLER_THROW_ERROR set to true", async () => {
