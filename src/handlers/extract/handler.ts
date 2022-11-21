@@ -4,6 +4,17 @@ import { S3Event } from "aws-lambda";
 export const handler = async (
   event: S3Event
 ): Promise<AWS.Textract.StartExpenseAnalysisResponse[]> => {
+  const textExtractRole = process.env.TEXT_EXTRACT_ROLE;
+  const snsTopic = process.env.SNS_TOPIC;
+
+  if (textExtractRole === undefined || textExtractRole === "") {
+    const textractMessage = "Textract role not set.";
+    throw new Error(textractMessage);
+  }
+  if (snsTopic === undefined || snsTopic === "") {
+    const snsMessage = "SNS Topic not set.";
+    throw new Error(snsMessage);
+  }
   // Set up
   const textract = new AWS.Textract({ region: "eu-west-2" });
   const response: AWS.Textract.StartExpenseAnalysisResponse[] = [];
@@ -15,15 +26,6 @@ export const handler = async (
     const fileName = record.s3.object.key;
     console.log("File Name: " + fileName);
 
-    if (process.env.TEXT_EXTRACT_ROLE === undefined) {
-      const textractMessage = "Textract role not set.";
-      throw new Error(textractMessage);
-    }
-    if (process.env.SNS_TOPIC === undefined) {
-      const snsMessage = "SNS Topic not set.";
-      throw new Error(snsMessage);
-    }
-
     // Define params for Textract API call
     const params: AWS.Textract.StartExpenseAnalysisRequest = {
       DocumentLocation: {
@@ -33,8 +35,8 @@ export const handler = async (
         },
       },
       NotificationChannel: {
-        RoleArn: process.env.TEXT_EXTRACT_ROLE,
-        SNSTopicArn: process.env.SNS_TOPIC,
+        RoleArn: textExtractRole,
+        SNSTopicArn: snsTopic,
       },
     };
 

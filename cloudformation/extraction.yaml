@@ -28,11 +28,7 @@ ExtractFunction:
             Resource: !GetAtt ExtractQueue.Arn
           - Effect: Allow
             Action:
-              - "sns:*"
-            Resource: "*"
-          - Effect: Allow
-            Action:
-              - "textract:*"
+              - "textract:*" # To-Do What are the available textract actions and resources? Tighten this once working.
             Resource: "*"
           - Effect: Allow
             Action:
@@ -65,24 +61,17 @@ TextractRole:
           Principal:
             Service:
               - "textract.amazonaws.com"
-              - "lambda.amazonaws.com"
           Action:
             - "sts:AssumeRole"
-    ManagedPolicyArns:
-      - "arn:aws:iam::aws:policy/AWSLambdaExecute"
     Policies:
       - PolicyName: "TextractRoleAccess"
         PolicyDocument:
           Version: "2012-10-17"
-          Statement:
+          Statement: # To-Do Check if S3 access is needed.
             - Effect: Allow
               Action:
-                - "sns:*"
-              Resource: "*"
-            - Effect: Allow
-              Action:
-                - "textract:*"
-              Resource: "*"
+                - "sns:Publish"
+              Resource: !Ref AmazonTextractRawInvoiceDataTopic
 
 ExtractQueuePolicy:
   Type: AWS::SQS::QueuePolicy
