@@ -11,3 +11,8 @@ export type ValidEventName =
 export interface Response {
   batchItemFailures: Array<{ itemIdentifier: string }>;
 }
+
+export type ValidTextractStatusMessage =
+  | "FAILED"
+  | "PARTIAL_SUCCESS"
+  | "SUCCEEDED";

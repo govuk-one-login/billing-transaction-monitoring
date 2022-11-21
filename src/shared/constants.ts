@@ -1,4 +1,4 @@
-import { ValidEventName } from "./types";
+import { ValidEventName, ValidTextractStatusMessage } from "./types";
 
 export const VALID_EVENT_NAMES = new Set<ValidEventName>([
   "IPV_PASSPORT_CRI_REQUEST_SENT",
@@ -10,3 +10,10 @@ export const VALID_EVENT_NAMES = new Set<ValidEventName>([
   "IPV_KBV_CRI_REQUEST_SENT",
   "IPV_KBV_CRI_THIRD_PARTY_REQUEST_ENDED",
 ]);
+
+export const VALID_TEXTRACT_STATUS_MESSAGES =
+  new Set<ValidTextractStatusMessage>([
+    "FAILED",
+    "PARTIAL_SUCCESS",
+    "SUCCEEDED",
+  ]);
