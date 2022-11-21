@@ -1,5 +1,5 @@
 import { publishSNS } from "../helpers/snsHelper";
-import { checkEventExistsInLogs } from "../helpers/cloudWatchHelper";
+import { checkGivenStringExistsInLogs } from "../helpers/cloudWatchHelper";
 import { PublishResponse } from "@aws-sdk/client-sns";
 import {
   snsValidEventPayload,
@@ -14,11 +14,11 @@ import {
 
 let snsResponse: PublishResponse;
 
-export const testStartTime = new Date().getTime();
+const testStartTime = new Date().getTime();
 
 describe(
   "\n Happy path tests \n" +
-    "\n publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store contains eventId\n",
+    "\n publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId\n",
   () => {
     beforeAll(async () => {
       snsResponse = await publishSNS(snsValidEventPayload);
@@ -26,33 +26,41 @@ describe(
 
     test("Filter function cloud watch logs should contain eventid", async () => {
       expect(snsResponse).toHaveProperty("MessageId");
-      const eventIdExists = await checkEventExistsInLogs(
-        "di-btm-FilterFunction",snsValidEventPayload.event_id
+      const eventIdExists = await checkGivenStringExistsInLogs(
+        "di-btm-FilterFunction",
+        snsValidEventPayload.event_id,
+        testStartTime
       );
-     expect(eventIdExists).toBeTruthy()
+      expect(eventIdExists).toBeTruthy();
     });
 
     test("Clean function cloud watch logs should contain eventid", async () => {
-      const eventIdExists = await checkEventExistsInLogs(
-        "di-btm-CleanFunction",snsValidEventPayload.event_id
+      const eventIdExists = await checkGivenStringExistsInLogs(
+        "di-btm-CleanFunction",
+        snsValidEventPayload.event_id,
+        testStartTime
       );
-      expect(eventIdExists).toBeTruthy()
+      expect(eventIdExists).toBeTruthy();
     });
 
-    test("Store function cloud watch logs should contain eventid", async () => {
-      const eventIdExists = await checkEventExistsInLogs(
-        "di-btm-StorageFunction",snsValidEventPayload.event_id
+    test("Store Transactions function cloud watch logs should contain eventid", async () => {
+      const eventIdExists = await checkGivenStringExistsInLogs(
+        "di-btm-StorageFunction",
+        snsValidEventPayload.event_id,
+        testStartTime
       );
-      expect(eventIdExists).toBeTruthy()
+      expect(eventIdExists).toBeTruthy();
     });
 
     test("Clean function cloud watch logs should contain event id for SNS message with some additional field in the payload", async () => {
       snsResponse = await publishSNS(snsEventWithAdditionalFieldsPayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const eventIdExists = await checkEventExistsInLogs(
-        "di-btm-CleanFunction",snsEventWithAdditionalFieldsPayload.event_id
+      const eventIdExists = await checkGivenStringExistsInLogs(
+        "di-btm-CleanFunction",
+        snsEventWithAdditionalFieldsPayload.event_id,
+        testStartTime
       );
-      expect(eventIdExists).toBeTruthy()
+      expect(eventIdExists).toBeTruthy();
     });
   }
 );
@@ -64,59 +72,67 @@ describe(
     test("Filter function cloud watch logs should not contain eventid for sns message with invalid event name", async () => {
       snsResponse = await publishSNS(snsInvalidEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const eventIdExists = await checkEventExistsInLogs(
-        "di-btm-FilterFunction",snsInvalidEventNamePayload.event_id
+      const eventIdExists = await checkGivenStringExistsInLogs(
+        "di-btm-FilterFunction",
+        snsInvalidEventNamePayload.event_id,
+        testStartTime
       );
-      expect(eventIdExists).toBeFalsy()
+      expect(eventIdExists).toBeFalsy();
     });
 
     test("Clean function cloud watch logs should not contain eventid for SNS message with invalid Timestamp in the payload", async () => {
       snsResponse = await publishSNS(snsInvalidTimeStampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const eventIdExists = await checkEventExistsInLogs(
-        "di-btm-CleanFunction",snsInvalidTimeStampPayload.event_id
+      const eventIdExists = await checkGivenStringExistsInLogs(
+        "di-btm-CleanFunction",
+        snsInvalidTimeStampPayload.event_id,
+        testStartTime
       );
-      expect(eventIdExists).toBeFalsy()
+      expect(eventIdExists).toBeFalsy();
     });
 
     test("Clean function cloud watch logs should not contain eventid for SNS  message with invalid ComponentId in the payload", async () => {
       snsResponse = await publishSNS(snsEventInvalidCompId);
       expect(snsResponse).toHaveProperty("MessageId");
-      const eventIdExists = await checkEventExistsInLogs(
-        "di-btm-CleanFunction",snsEventInvalidCompId.event_id
+      const eventIdExists = await checkGivenStringExistsInLogs(
+        "di-btm-CleanFunction",
+        snsEventInvalidCompId.event_id,
+        testStartTime
       );
-      expect(eventIdExists).toBeFalsy()
+      expect(eventIdExists).toBeFalsy();
     });
 
     test("Filter function cloud watch logs should not contain event id for SNS message with missing EventName in the payload", async () => {
       snsResponse = await publishSNS(snsMissingEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const eventIdExists = await checkEventExistsInLogs(
-        "di-btm-FilterFunction",snsMissingEventNamePayload.event_id
+      const eventIdExists = await checkGivenStringExistsInLogs(
+        "di-btm-FilterFunction",
+        snsMissingEventNamePayload.event_id,
+        testStartTime
       );
-      expect(eventIdExists).toBeFalsy()
+      expect(eventIdExists).toBeFalsy();
     });
 
     test("Clean function cloud watch logs should not contain event id for SNS message with missing ComponentId in the payload", async () => {
       snsResponse = await publishSNS(snsEventMissingCompIdPayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const eventIdExists = await checkEventExistsInLogs(
-        "di-btm-CleanFunction",snsEventMissingCompIdPayload.event_id
+      const eventIdExists = await checkGivenStringExistsInLogs(
+        "di-btm-CleanFunction",
+        snsEventMissingCompIdPayload.event_id,
+        testStartTime
       );
-      expect(eventIdExists).toBeFalsy()
-   
+      expect(eventIdExists).toBeFalsy();
     });
 
     test("Clean function cloud watch logs should not contain event id for SNS message with missing Timestamp in the payload", async () => {
       snsResponse = await publishSNS(snsEventMissingTimestampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const eventIdExists = await checkEventExistsInLogs(
-        "di-btm-CleanFunction",snsEventMissingTimestampPayload.event_id
+      const eventIdExists = await checkGivenStringExistsInLogs(
+        "di-btm-CleanFunction",
+        snsEventMissingTimestampPayload.event_id,
+        testStartTime
       );
-      expect(eventIdExists).toBeFalsy()
-      
+      expect(eventIdExists).toBeFalsy();
     });
   }
 );
-
-

@@ -1,4 +1,4 @@
-RawInvoicePdfBucket:
+TestInvoicePdfBucket:
   Type: AWS::S3::Bucket
   Properties:
     AccessControl: Private
@@ -15,15 +15,11 @@ RawInvoicePdfBucket:
     VersioningConfiguration:
       Status: Enabled
     LoggingConfiguration:
-      DestinationBucketName: !Ref RawInvoicePdfLogBucket
-      LogFilePrefix: raw-invoice-pdf-bucket-log
-    NotificationConfiguration:
-      QueueConfigurations:
-        - Event: s3:ObjectCreated:*
-          Queue: !GetAtt ExtractQueue.Arn
+      DestinationBucketName: !Ref TestInvoicePdfLogBucket
+      LogFilePrefix: test-invoice-pdf-bucket-log
 
-RawInvoicePdfLogBucket:
-  # checkov:skip=CKV_AWS_18: This is the raw invoice pdf log bucket - no need for another
+TestInvoicePdfLogBucket:
+  # checkov:skip=CKV_AWS_18: This is the test invoice pdf log bucket - no need for another
   Type: AWS::S3::Bucket
   Properties:
     VersioningConfiguration:

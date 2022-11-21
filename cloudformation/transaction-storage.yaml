@@ -98,14 +98,22 @@ StorageDeadLetterQueueAlarm:
     AlarmActions:
       - !Ref AlarmTopic
     ComparisonOperator: GreaterThanThreshold
-    Dimensions:
-      - Name: QueueName
-        Value: !GetAtt StorageDeadLetterQueue.QueueName
     EvaluationPeriods: 1
-    MetricName: NumberOfMessagesReceived
-    Namespace: AWS/SQS
-    Period: 1800
-    Statistic: Sum
+    Metrics:
+      - Id: messages
+        MetricStat:
+          Metric:
+            Dimensions:
+              - Name: QueueName
+                Value: !GetAtt StorageDeadLetterQueue.QueueName
+            MetricName: ApproximateNumberOfMessagesVisible
+            Namespace: AWS/SQS
+          Period: 1800
+          Stat: Sum
+        ReturnData: false
+      - Id: messagesRate
+        Expression: RATE(messages)
+        ReturnData: true
     Threshold: 0
 
 StorageFunction:
@@ -119,6 +127,8 @@ StorageFunction:
       StorageEvent:
         Type: SQS
         Properties:
+          FunctionResponseTypes:
+            - ReportBatchItemFailures
           Queue: !GetAtt StorageQueue.Arn
     Environment:
       Variables:
@@ -127,7 +137,7 @@ StorageFunction:
         STORAGE_BUCKET: !Ref StorageBucket
         LOCAL_ENDPOINT:
           !If [IsLocal, "http://s3.localhost.localstack.cloud:4566", ""]
-    Handler: store.handler
+    Handler: storeTransactions.handler
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
@@ -189,12 +199,20 @@ StorageFunctionDeadLetterQueueAlarm:
     AlarmActions:
       - !Ref AlarmTopic
     ComparisonOperator: GreaterThanThreshold
-    Dimensions:
-      - Name: QueueName
-        Value: !GetAtt StorageFunctionDeadLetterQueue.QueueName
     EvaluationPeriods: 1
-    MetricName: NumberOfMessagesReceived
-    Namespace: AWS/SQS
-    Period: 1800
-    Statistic: Sum
+    Metrics:
+      - Id: messages
+        MetricStat:
+          Metric:
+            Dimensions:
+              - Name: QueueName
+                Value: !GetAtt StorageFunctionDeadLetterQueue.QueueName
+            MetricName: ApproximateNumberOfMessagesVisible
+            Namespace: AWS/SQS
+          Period: 1800
+          Stat: Sum
+        ReturnData: false
+      - Id: messagesRate
+        Expression: RATE(messages)
+        ReturnData: true
     Threshold: 0

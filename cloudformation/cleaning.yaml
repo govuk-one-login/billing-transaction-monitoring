@@ -11,14 +11,22 @@ CleanDeadLetterQueueAlarm:
     AlarmActions:
       - !Ref AlarmTopic
     ComparisonOperator: GreaterThanThreshold
-    Dimensions:
-      - Name: QueueName
-        Value: !GetAtt CleanDeadLetterQueue.QueueName
     EvaluationPeriods: 1
-    MetricName: NumberOfMessagesReceived
-    Namespace: AWS/SQS
-    Period: 1800
-    Statistic: Sum
+    Metrics:
+      - Id: messages
+        MetricStat:
+          Metric:
+            Dimensions:
+              - Name: QueueName
+                Value: !GetAtt CleanDeadLetterQueue.QueueName
+            MetricName: ApproximateNumberOfMessagesVisible
+            Namespace: AWS/SQS
+          Period: 1800
+          Stat: Sum
+        ReturnData: false
+      - Id: messagesRate
+        Expression: RATE(messages)
+        ReturnData: true
     Threshold: 0
 
 CleanFunction:
@@ -36,6 +44,8 @@ CleanFunction:
       CleanEvent:
         Type: SQS
         Properties:
+          FunctionResponseTypes:
+            - ReportBatchItemFailures
           Queue: !GetAtt CleanQueue.Arn
     Handler: clean.handler
     KmsKeyArn: !GetAtt KmsKey.Arn
@@ -89,14 +99,22 @@ CleanFunctionDeadLetterQueueAlarm:
     AlarmActions:
       - !Ref AlarmTopic
     ComparisonOperator: GreaterThanThreshold
-    Dimensions:
-      - Name: QueueName
-        Value: !GetAtt CleanFunctionDeadLetterQueue.QueueName
     EvaluationPeriods: 1
-    MetricName: NumberOfMessagesReceived
-    Namespace: AWS/SQS
-    Period: 1800
-    Statistic: Sum
+    Metrics:
+      - Id: messages
+        MetricStat:
+          Metric:
+            Dimensions:
+              - Name: QueueName
+                Value: !GetAtt CleanFunctionDeadLetterQueue.QueueName
+            MetricName: ApproximateNumberOfMessagesVisible
+            Namespace: AWS/SQS
+          Period: 1800
+          Stat: Sum
+        ReturnData: false
+      - Id: messagesRate
+        Expression: RATE(messages)
+        ReturnData: true
     Threshold: 0
 
 CleanQueue:

@@ -8,8 +8,11 @@ export default {
     clean: "./src/handlers/clean/handler.ts",
     customS3ObjectResource:
       "./src/handlers/custom-s3-object-resource/handler.ts",
+    extract: "./src/handlers/extract/handler.ts",
     filter: "./src/handlers/filter/handler.ts",
-    store: "./src/handlers/store/handler.ts",
+    storeRawInvoiceTextractData:
+      "./src/handlers/store-raw-invoice-textract-data/handler.ts",
+    storeTransactions: "./src/handlers/store-transactions/handler.ts",
   },
   externals: "aws-sdk",
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",

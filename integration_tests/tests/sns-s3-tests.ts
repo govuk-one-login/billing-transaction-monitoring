@@ -139,7 +139,6 @@ describe(
       const checkEventId = async () => {
         const result = await getS3ItemsList("di-btm-storagebucket-");
         console.log(snsEventMisisingEventIdValue.event_id);
-        console.log(JSON.stringify(result.Contents?.map((x) => x.Key)));
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           "event_id=null"
         );
