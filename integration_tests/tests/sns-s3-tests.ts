@@ -14,9 +14,12 @@ import {
   snsMissingEventIdPayload,
   snsEventMisisingEventIdValue,
 } from "../payloads/snsEventPayload";
+import {resourcePrefix} from "../helpers/envHelper";
 
 let snsResponse: PublishResponse;
-const storageBucket: string = `${process.env.ENV_PREFIX}-storage`;
+const storageBucket: string = `${resourcePrefix()}-storage`;
+
+console.log(storageBucket);
 
 describe(
   "\n Happy path tests\n" +

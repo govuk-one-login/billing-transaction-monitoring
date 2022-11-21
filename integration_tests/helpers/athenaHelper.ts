@@ -5,14 +5,17 @@ import {
 } from "@aws-sdk/client-athena";
 import { waitForTrue } from "./commonHelpers";
 import { athenaClient } from "../clients/athenaClient";
+import {resourcePrefix} from "./envHelper";
+
+const prefix = resourcePrefix();
 
 async function startQueryExecutionCommand(eventId: string): Promise<string> {
   const params = {
     QueryExecutionContext: {
-      Database: `${process.env.ENV_PREFIX}-transactions`,
+      Database: `${prefix}-transactions`,
     },
     QueryString: `SELECT * FROM \"btm_transactions\" where event_id='${eventId.toString()}'`,
-    WorkGroup: `${process.env.ENV_PREFIX}-athena-workgroup`,
+    WorkGroup: `${prefix}-athena-workgroup`,
   };
   const response = await athenaClient.send(
     new StartQueryExecutionCommand(params)

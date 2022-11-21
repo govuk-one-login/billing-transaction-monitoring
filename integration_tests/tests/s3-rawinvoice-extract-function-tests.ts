@@ -2,11 +2,13 @@ import { putObjectToS3, deleteObjectInS3 } from "../helpers/s3Helper";
 import { checkGivenStringExistsInLogs } from "../helpers/cloudWatchHelper";
 import path from "path";
 import fs from "fs";
+import {resourcePrefix} from "../helpers/envHelper";
 
 const testStartTime = new Date().getTime();
+const prefix = resourcePrefix();
 
 describe("\n Upload file to s3 bucket and validate extract lambda executed successfully \n", () => {
-  const bucketName = `${process.env.ENV_PREFIX}-raw-invoice-pdf`;
+  const bucketName = `${prefix}-raw-invoice-pdf`;
   const key = "payloads/sample.pdf";
 
   afterAll(async () => {
@@ -22,7 +24,7 @@ describe("\n Upload file to s3 bucket and validate extract lambda executed succe
     expect(response.$metadata.httpStatusCode).toEqual(200);
     console.log("successfully uploaded the file to s3");
     const givenStringExistsInLogs = await checkGivenStringExistsInLogs(
-      `${process.env.ENV_PREFIX}-extract-function`,
+      `${prefix}-extract-function`,
       "ERROR",
       testStartTime
     );

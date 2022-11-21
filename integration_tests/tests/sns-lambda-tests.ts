@@ -11,12 +11,13 @@ import {
   snsEventWithAdditionalFieldsPayload,
   snsMissingEventNamePayload,
 } from "../payloads/snsEventPayload";
+import {resourcePrefix} from "../helpers/envHelper";
 
 let snsResponse: PublishResponse;
 
 const testStartTime = new Date().getTime();
 
-const logNamePrefix = process.env.ENV_PREFIX;
+const logNamePrefix = resourcePrefix();
 
 describe(
   "\n Happy path tests \n" +

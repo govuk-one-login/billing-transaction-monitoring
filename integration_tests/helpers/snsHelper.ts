@@ -6,13 +6,14 @@ import {
   Topic,
   ListTopicsCommand,
 } from "@aws-sdk/client-sns";
+import {resourcePrefix} from "./envHelper";
 
 let snsParams: PublishInput;
 
 async function snsParameters(snsValidEventPayload: any) {
   let snsParams = {
     Message: JSON.stringify(snsValidEventPayload),
-    TopicArn: `arn:aws:sns:eu-west-2:582874090139:${process.env.ENV_PREFIX}-test-TxMA-topic`,
+    TopicArn: `arn:aws:sns:eu-west-2:582874090139:${resourcePrefix()}-test-TxMA-topic`,
   };
   return snsParams;
 }
