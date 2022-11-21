@@ -8,7 +8,7 @@ AmazonTextractRawInvoiceDataTopicSubscription:
   Properties:
     Endpoint: !GetAtt RawInvoiceTextractDataQueue.Arn
     Protocol: sqs
-    TopicArn: !GetAtt AmazonTextractRawInvoiceDataTopic.Arn
+    TopicArn: !Ref AmazonTextractRawInvoiceDataTopic
 
 RawInvoiceTextractDataBucket:
   Type: AWS::S3::Bucket
@@ -69,7 +69,7 @@ RawInvoiceTextractDataQueuePolicy:
         - Action: SQS:SendMessage
           Condition:
             ArnEquals:
-              aws:SourceArn: !GetAtt AmazonTextractRawInvoiceDataTopic.Arn
+              aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
           Effect: Allow
           Principal: "*"
           Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
