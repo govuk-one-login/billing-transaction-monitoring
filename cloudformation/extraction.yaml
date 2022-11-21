@@ -1,69 +1,69 @@
-ExtractFunction:
-  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-  Type: AWS::Serverless::Function
-  Properties:
-    DeadLetterQueue:
-      TargetArn: !GetAtt ExtractFunctionDeadLetterQueue.Arn
-      Type: SQS
-    Environment:
-      Variables:
-        EXTRACTION_HANDLER_RETURN_VALUE: done
-        EXTRACTION_HANDLER_THROW_ERROR: false
-    Events:
-      ExtractEvent:
-        Type: SQS
-        Properties:
-          Queue: !GetAtt ExtractQueue.Arn
-    Handler: extract.handler
-    KmsKeyArn: !GetAtt KmsKey.Arn
-    Policies:
-      - AWSLambdaBasicExecutionRole
-      - Statement:
-          - Effect: Allow
-            Action:
-              - sqs:DeleteMessage
-              - sqs:GetQueueAttributes
-              - sqs:ReceiveMessage
-            Resource: !GetAtt ExtractQueue.Arn
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-            Resource: !GetAtt KmsKey.Arn
-    ReservedConcurrentExecutions: 10
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 
-ExtractFunctionDeadLetterQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
+Resources:
+  ExtractFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, extract-function ] ]
+      Environment:
+        Variables:
+          EXTRACTION_HANDLER_RETURN_VALUE: done
+          EXTRACTION_HANDLER_THROW_ERROR: false
+      Events:
+        ExtractEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt ExtractQueue.Arn
+      Handler: extract.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt ExtractQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+      ReservedConcurrentExecutions: 10
 
-ExtractQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
-    RedrivePolicy:
-      deadLetterTargetArn: !GetAtt ExtractQueueDeadLetterQueue.Arn
-      maxReceiveCount: 1
+  ExtractQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, extract-queue ] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ExtractQueueDeadLetterQueue.Arn
+        maxReceiveCount: 1
 
-ExtractQueueDeadLetterQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
+  ExtractQueueDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, extract-dlq ] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-ExtractQueuePolicy:
-  Type: AWS::SQS::QueuePolicy
-  Properties:
-    PolicyDocument:
-      Statement:
-        - Action: SQS:SendMessage
-          Condition:
-            ArnLike:
-              aws:SourceArn: arn:aws:s3:::*
-            StringEquals:
-              aws:SourceAccount: !Ref AWS::AccountId
-          Effect: Allow
-          Principal: "*"
-          Resource: "*"
-    Queues:
-      - !Ref ExtractQueue
+  ExtractQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnLike:
+                aws:SourceArn: arn:aws:s3:::*
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+            Effect: Allow
+            Principal: "*"
+            Resource: "*"
+      Queues:
+        - !Ref ExtractQueue

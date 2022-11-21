@@ -1,127 +1,101 @@
-CleanDeadLetterQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
-    QueueName: clean-dead-letter-queue
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 
-# Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
-CleanDeadLetterQueueAlarm:
-  Type: AWS::CloudWatch::Alarm
-  Properties:
-    AlarmActions:
-      - !Ref AlarmTopic
-    ComparisonOperator: GreaterThanThreshold
-    EvaluationPeriods: 1
-    Metrics:
-      - Id: messages
-        MetricStat:
-          Metric:
-            Dimensions:
-              - Name: QueueName
-                Value: !GetAtt CleanDeadLetterQueue.QueueName
-            MetricName: ApproximateNumberOfMessagesVisible
-            Namespace: AWS/SQS
-          Period: 1800
-          Stat: Sum
-        ReturnData: false
-      - Id: messagesRate
-        Expression: RATE(messages)
-        ReturnData: true
-    Threshold: 0
+Resources:
+  CleanDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, clean-dlq] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-CleanFunction:
-  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-  Type: AWS::Serverless::Function
-  Properties:
-    DeadLetterQueue:
-      TargetArn: !GetAtt CleanFunctionDeadLetterQueue.Arn
-      Type: SQS
-    Environment:
-      Variables:
-        OUTPUT_QUEUE_URL: !Ref StorageQueue
-        LOCAL_ENDPOINT: !If [IsLocal, "http://localhost:4566", ""]
-    Events:
-      CleanEvent:
-        Type: SQS
-        Properties:
-          FunctionResponseTypes:
-            - ReportBatchItemFailures
-          Queue: !GetAtt CleanQueue.Arn
-    Handler: clean.handler
-    KmsKeyArn: !GetAtt KmsKey.Arn
-    Policies:
-      - AWSLambdaBasicExecutionRole
-      - Statement:
-          - Effect: Allow
-            Action:
-              - sqs:DeleteMessage
-              - sqs:GetQueueAttributes
-              - sqs:ReceiveMessage
-            Resource: !GetAtt CleanQueue.Arn
-          - Effect: Allow
-            Action:
-              - sqs:SendMessage
-            Resource: !GetAtt StorageQueue.Arn
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-            Resource: !GetAtt KmsKey.Arn
-    ReservedConcurrentExecutions: 10
+  # Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
+  CleanDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, clean-dlq-alarm ] ]
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      Metrics:
+        - Id: messages
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !GetAtt CleanDeadLetterQueue.QueueName
+              MetricName: ApproximateNumberOfMessagesVisible
+              Namespace: AWS/SQS
+            Period: 1800
+            Stat: Sum
+          ReturnData: false
+        - Id: messagesRate
+          Expression: RATE(messages)
+          ReturnData: true
+      Threshold: 0
 
-CleanFunctionAlarm:
-  Type: AWS::CloudWatch::Alarm
-  Properties:
-    AlarmActions:
-      - !Ref AlarmTopic
-    ComparisonOperator: GreaterThanThreshold
-    Dimensions:
-      - Name: FunctionName
-        Value: !Ref CleanFunction
-    EvaluationPeriods: 1
-    MetricName: Errors
-    Namespace: AWS/Lambda
-    Period: 1800
-    Statistic: Sum
-    Threshold: 0
+  CleanFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, clean-function] ]
+      Environment:
+        Variables:
+          OUTPUT_QUEUE_URL: !Ref StorageQueue
+          LOCAL_ENDPOINT: !If [IsLocal, "http://localhost:4566", ""]
+      Events:
+        CleanEvent:
+          Type: SQS
+          Properties:
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+            Queue: !GetAtt CleanQueue.Arn
+      Handler: clean.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt CleanQueue.Arn
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !GetAtt StorageQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+      ReservedConcurrentExecutions: 10
 
-CleanFunctionDeadLetterQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
-    QueueName: clean-function-dead-letter-queue
+  CleanFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, clean-function-alarm] ]
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref CleanFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
 
-# Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
-CleanFunctionDeadLetterQueueAlarm:
-  Type: AWS::CloudWatch::Alarm
-  Properties:
-    AlarmActions:
-      - !Ref AlarmTopic
-    ComparisonOperator: GreaterThanThreshold
-    EvaluationPeriods: 1
-    Metrics:
-      - Id: messages
-        MetricStat:
-          Metric:
-            Dimensions:
-              - Name: QueueName
-                Value: !GetAtt CleanFunctionDeadLetterQueue.QueueName
-            MetricName: ApproximateNumberOfMessagesVisible
-            Namespace: AWS/SQS
-          Period: 1800
-          Stat: Sum
-        ReturnData: false
-      - Id: messagesRate
-        Expression: RATE(messages)
-        ReturnData: true
-    Threshold: 0
-
-CleanQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
-    RedrivePolicy:
-      deadLetterTargetArn: !GetAtt CleanDeadLetterQueue.Arn
-      maxReceiveCount: 1
-    QueueName: clean-queue
+  CleanQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, clean-queue] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt CleanDeadLetterQueue.Arn
+        maxReceiveCount: 1

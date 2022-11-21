@@ -1,30 +1,41 @@
-AlarmTopic:
-  Type: AWS::SNS::Topic
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
+AWSTemplateFormatVersion: '2010-09-09'
 
-KmsKey:
-  Type: AWS::KMS::Key
-  Properties:
-    EnableKeyRotation: true
-    KeyPolicy:
-      Version: "2012-10-17"
-      Statement:
-        - Effect: Allow
-          Principal:
-            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-          Action: kms:*
-          Resource: "*"
-        - Effect: Allow
-          Principal:
-            Service:
-              - cloudwatch.amazonaws.com
-              - lambda.amazonaws.com
-              - s3.amazonaws.com
-              - sns.amazonaws.com
-              - sqs.amazonaws.com
-          Action:
-            - kms:Encrypt
-            - kms:Decrypt
-            - kms:GenerateDataKey*
-          Resource: "*"
+Resources:
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, alarms] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  KmsKey:
+      Type: AWS::KMS::Key
+      Properties:
+        EnableKeyRotation: true
+        KeyPolicy:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+              Action: kms:*
+              Resource: "*"
+            - Effect: Allow
+              Principal:
+                Service:
+                  - cloudwatch.amazonaws.com
+                  - lambda.amazonaws.com
+                  - s3.amazonaws.com
+                  - sns.amazonaws.com
+                  - sqs.amazonaws.com
+              Action:
+                - kms:Encrypt
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+              Resource: "*"
+
+  KmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Join [ '-', ['alias/key', !Ref Prefix, !Ref Environment, !Ref SubEnv, general] ]
+      TargetKeyId: !Ref KmsKey
+

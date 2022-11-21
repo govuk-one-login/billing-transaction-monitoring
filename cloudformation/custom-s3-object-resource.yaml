@@ -1,26 +1,31 @@
-CustomS3ObjectResourceFunction:
-  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-  Type: AWS::Serverless::Function
-  Properties:
-    DeadLetterQueue:
-      TargetArn: !GetAtt CustomS3ObjectResourceFunctionDeadLetterQueue.Arn
-      Type: SQS
-    Handler: customS3ObjectResource.handler
-    KmsKeyArn: !GetAtt KmsKey.Arn
-    Policies:
-      - AWSLambdaBasicExecutionRole
-      - AmazonS3FullAccess
-      - Statement:
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-            Resource: !GetAtt KmsKey.Arn
-    ReservedConcurrentExecutions: 10
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 
-CustomS3ObjectResourceFunctionDeadLetterQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
-    QueueName: custom-s3-object-resource-function-dead-letter-queue
+Resources:
+  CustomS3ObjectResourceFunction:
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, custom-s3-object-resource-function ] ]
+      DeadLetterQueue:
+        TargetArn: !GetAtt CustomS3ObjectResourceFunctionDeadLetterQueue.Arn
+        Type: SQS
+      Handler: customS3ObjectResource.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonS3FullAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+      ReservedConcurrentExecutions: 10
+
+  CustomS3ObjectResourceFunctionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, custom-s3-object-resource-function-dlq ] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn

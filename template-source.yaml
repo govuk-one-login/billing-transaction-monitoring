@@ -18,6 +18,12 @@ Parameters:
       - staging
       - integration
       - production
+  SubEnv:
+    Type: String
+    Default: ''
+  Prefix:
+    Type: String
+    Default: di-btm
   PermissionsBoundary:
     Description: ARN of permissions boundary for new roles
     Type: String

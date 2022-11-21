@@ -1,218 +1,190 @@
-StorageBucket:
-  Type: "AWS::S3::Bucket"
-  Properties:
-    AccessControl: Private
-    PublicAccessBlockConfiguration:
-      BlockPublicAcls: true
-      BlockPublicPolicy: true
-      IgnorePublicAcls: true
-      RestrictPublicBuckets: true
-    BucketEncryption:
-      ServerSideEncryptionConfiguration:
-        - ServerSideEncryptionByDefault:
-            SSEAlgorithm: aws:kms
-            KMSMasterKeyID: !GetAtt KmsKey.Arn
-    VersioningConfiguration:
-      Status: Enabled
-    LoggingConfiguration:
-      DestinationBucketName: !Ref AccessLogBucket
-      LogFilePrefix: storage-bucket-log
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 
-StorageTable:
-  Type: AWS::DynamoDB::Table
-  Properties:
-    AttributeDefinitions:
-      - AttributeName: event_id
-        AttributeType: S
-    KeySchema:
-      - AttributeName: event_id
-        KeyType: HASH
-    PointInTimeRecoverySpecification:
-      PointInTimeRecoveryEnabled: true
-    ProvisionedThroughput:
-      ReadCapacityUnits: 5
-      WriteCapacityUnits: 5
-    SSESpecification:
-      KMSMasterKeyId: !GetAtt KmsKey.Arn
-      SSEEnabled: true
-      SSEType: KMS
+Resources:
+  StorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, storage ] ]
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref StorageBucketAccessLogsBucket
+        LogFilePrefix: storage-bucket-log
 
-AccessLogBucket:
-  # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
-  Type: "AWS::S3::Bucket"
-  Properties:
-    VersioningConfiguration:
-      Status: Enabled
-    AccessControl: LogDeliveryWrite
-    PublicAccessBlockConfiguration:
-      BlockPublicAcls: true
-      BlockPublicPolicy: true
-      IgnorePublicAcls: true
-      RestrictPublicBuckets: true
-    BucketEncryption:
-      ServerSideEncryptionConfiguration:
-        - ServerSideEncryptionByDefault:
-            SSEAlgorithm: aws:kms
-            KMSMasterKeyID: !GetAtt KmsKey.Arn
+  StorageTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, storage-table ] ]
+      AttributeDefinitions:
+        - AttributeName: event_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: event_id
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        KMSMasterKeyId: !GetAtt KmsKey.Arn
+        SSEEnabled: true
+        SSEType: KMS
 
-StorageBucketAccessLogsBucketPolicy:
-  Type: AWS::S3::BucketPolicy
-  Properties:
-    Bucket: !Ref AccessLogBucket
-    PolicyDocument:
-      Version: "2012-10-17"
-      Statement:
-        - Sid: "EnableS3Logging"
-          Effect: "Allow"
-          Resource:
-            - !Sub "${AccessLogBucket.Arn}/*"
-          Principal:
-            Service: "logging.s3.amazonaws.com"
-          Action:
-            - "s3:PutObject"
-          Condition:
-            StringEquals:
-              aws:SourceAccount: !Sub "${AWS::AccountId}"
-            Bool:
-              aws:SecureTransport: true
+  StorageBucketAccessLogsBucket:
+    # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, storage-logs ] ]
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: LogDeliveryWrite
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
 
-StorageQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
-    QueueName: storage-queue
-    RedrivePolicy:
-      deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
-      maxReceiveCount: 1
+  StorageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, storage-queue ] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
+        maxReceiveCount: 1
 
-StorageDeadLetterQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
-    QueueName: storage-dead-letter-queue
+  StorageDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, storage-dlq ] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-# Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
-StorageDeadLetterQueueAlarm:
-  Type: AWS::CloudWatch::Alarm
-  Properties:
-    AlarmActions:
-      - !Ref AlarmTopic
-    ComparisonOperator: GreaterThanThreshold
-    EvaluationPeriods: 1
-    Metrics:
-      - Id: messages
-        MetricStat:
-          Metric:
-            Dimensions:
-              - Name: QueueName
-                Value: !GetAtt StorageDeadLetterQueue.QueueName
-            MetricName: ApproximateNumberOfMessagesVisible
-            Namespace: AWS/SQS
-          Period: 1800
-          Stat: Sum
-        ReturnData: false
-      - Id: messagesRate
-        Expression: RATE(messages)
-        ReturnData: true
-    Threshold: 0
+  # Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
+  StorageDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, storage-dlq-alarm ] ]
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      Metrics:
+        - Id: messages
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !GetAtt StorageDeadLetterQueue.QueueName
+              MetricName: ApproximateNumberOfMessagesVisible
+              Namespace: AWS/SQS
+            Period: 1800
+            Stat: Sum
+          ReturnData: false
+        - Id: messagesRate
+          Expression: RATE(messages)
+          ReturnData: true
+      Threshold: 0
 
-StorageFunction:
-  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-  Type: AWS::Serverless::Function
-  Properties:
-    DeadLetterQueue:
-      TargetArn: !GetAtt StorageFunctionDeadLetterQueue.Arn
-      Type: SQS
-    Events:
-      StorageEvent:
-        Type: SQS
-        Properties:
-          FunctionResponseTypes:
-            - ReportBatchItemFailures
-          Queue: !GetAtt StorageQueue.Arn
-    Environment:
-      Variables:
-        # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-        STORAGE_TABLE: !Ref StorageTable
-        STORAGE_BUCKET: !Ref StorageBucket
-        LOCAL_ENDPOINT:
-          !If [IsLocal, "http://s3.localhost.localstack.cloud:4566", ""]
-    Handler: storeTransactions.handler
-    Policies:
-      - AWSLambdaBasicExecutionRole
-      - Statement:
-          - Effect: Allow
-            Action:
-              - sqs:DeleteMessage
-              - sqs:GetQueueAttributes
-              - sqs:ReceiveMessage
-            Resource: !GetAtt StorageQueue.Arn
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-            Resource: !GetAtt KmsKey.Arn
-          - Effect: Allow
-            Action:
-              - dynamodb:PutItem
-              - dynamodb:UpdateItem
-            Resource: !GetAtt StorageTable.Arn
-          - Effect: Allow
-            Action:
-              - s3:ListBucket
-              - s3:GetObject
-              - s3:PutObject
+  StorageBucketAccessLogsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StorageBucketAccessLogsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: EnableS3Logging
+            Effect: Allow
             Resource:
-              - Fn::Join:
-                  - ""
-                  - - !GetAtt StorageBucket.Arn
-                    - "/*"
-    ReservedConcurrentExecutions: 10
+              - !Join ['', [!GetAtt StorageBucketAccessLogsBucket.Arn, '/*' ] ]
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Action:
+              - s3:PutObject
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+              Bool:
+                aws:SecureTransport: true
 
-StorageFunctionAlarm:
-  Type: AWS::CloudWatch::Alarm
-  Properties:
-    AlarmActions:
-      - !Ref AlarmTopic
-    ComparisonOperator: GreaterThanThreshold
-    Dimensions:
-      - Name: FunctionName
-        Value: !Ref StorageFunction
-    EvaluationPeriods: 1
-    MetricName: Errors
-    Namespace: AWS/Lambda
-    Period: 1800
-    Statistic: Sum
-    Threshold: 0
 
-StorageFunctionDeadLetterQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
-    QueueName: storage-function-dead-letter-queue
+  StorageFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        StorageEvent:
+          Type: SQS
+          Properties:
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+            Queue: !GetAtt StorageQueue.Arn
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          STORAGE_TABLE: !Ref StorageTable
+          STORAGE_BUCKET: !Ref StorageBucket
+          LOCAL_ENDPOINT:
+            !If [IsLocal, "http://s3.localhost.localstack.cloud:4566", ""]
+      Handler: storeTransactions.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt StorageQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+              Resource: !GetAtt StorageTable.Arn
+            - Effect: Allow
+              Action:
+                - s3:ListBucket
+                - s3:GetObject
+                - s3:PutObject
+      ReservedConcurrentExecutions: 10
 
-# Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
-StorageFunctionDeadLetterQueueAlarm:
-  Type: AWS::CloudWatch::Alarm
-  Properties:
-    AlarmActions:
-      - !Ref AlarmTopic
-    ComparisonOperator: GreaterThanThreshold
-    EvaluationPeriods: 1
-    Metrics:
-      - Id: messages
-        MetricStat:
-          Metric:
-            Dimensions:
-              - Name: QueueName
-                Value: !GetAtt StorageFunctionDeadLetterQueue.QueueName
-            MetricName: ApproximateNumberOfMessagesVisible
-            Namespace: AWS/SQS
-          Period: 1800
-          Stat: Sum
-        ReturnData: false
-      - Id: messagesRate
-        Expression: RATE(messages)
-        ReturnData: true
-    Threshold: 0
+  StorageFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, storage-function-alarm ] ]
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref StorageFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0

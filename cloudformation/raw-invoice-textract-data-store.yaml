@@ -1,110 +1,119 @@
-AmazonTextractRawInvoiceDataTopic:
-  Type: AWS::SNS::Topic
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 
-AmazonTextractRawInvoiceDataTopicSubscription:
-  Type: AWS::SNS::Subscription
-  Properties:
-    Endpoint: !GetAtt RawInvoiceTextractDataQueue.Arn
-    Protocol: sqs
-    TopicArn: !Ref AmazonTextractRawInvoiceDataTopic
+Resources:
+  AmazonTextractRawInvoiceDataTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Join [ '-', [!Ref Prefix, !Ref Environment, amazon-textract-raw-invoice-data-topic ] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-RawInvoiceTextractDataBucket:
-  Type: AWS::S3::Bucket
-  Properties:
-    AccessControl: Private
-    PublicAccessBlockConfiguration:
-      BlockPublicAcls: true
-      BlockPublicPolicy: true
-      IgnorePublicAcls: true
-      RestrictPublicBuckets: true
-    BucketEncryption:
-      ServerSideEncryptionConfiguration:
-        - ServerSideEncryptionByDefault:
-            SSEAlgorithm: aws:kms
-            KMSMasterKeyID: !GetAtt KmsKey.Arn
-    VersioningConfiguration:
-      Status: Enabled
-    LoggingConfiguration:
-      DestinationBucketName: !Ref RawInvoiceTextractDataLogBucket
-      LogFilePrefix: raw-invoice-textract-data-bucket-log
+  AmazonTextractRawInvoiceDataTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt RawInvoiceTextractDataQueue.Arn
+      Protocol: sqs
+      TopicArn: !Ref AmazonTextractRawInvoiceDataTopic
 
-RawInvoiceTextractDataDeadLetterQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
+  RawInvoiceTextractDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, raw-invoice-textract-data ] ]
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref RawInvoiceTextractDataLogBucket
+        LogFilePrefix: raw-invoice-textract-data-bucket-log
 
-RawInvoiceTextractDataLogBucket:
-  # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
-  Type: AWS::S3::Bucket
-  Properties:
-    VersioningConfiguration:
-      Status: Enabled
-    AccessControl: LogDeliveryWrite
-    PublicAccessBlockConfiguration:
-      BlockPublicAcls: true
-      BlockPublicPolicy: true
-      IgnorePublicAcls: true
-      RestrictPublicBuckets: true
-    BucketEncryption:
-      ServerSideEncryptionConfiguration:
-        - ServerSideEncryptionByDefault:
-            SSEAlgorithm: aws:kms
-            KMSMasterKeyID: !GetAtt KmsKey.Arn
+  RawInvoiceTextractDataQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-queue ] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
+        maxReceiveCount: 1
 
-RawInvoiceTextractDataQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
-    RedrivePolicy:
-      deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
-      maxReceiveCount: 1
+  RawInvoiceTextractDataDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-dlq ] ]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-RawInvoiceTextractDataQueuePolicy:
-  Type: AWS::SQS::QueuePolicy
-  Properties:
-    PolicyDocument:
-      Statement:
-        - Action: SQS:SendMessage
-          Condition:
-            ArnEquals:
-              aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
-          Effect: Allow
-          Principal: "*"
-          Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
-    Queues:
-      - !Ref RawInvoiceTextractDataQueue
-
-RawInvoiceTextractDataStorageFunction:
-  # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
-  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-  Type: AWS::Serverless::Function
-  Properties:
-    Environment:
-      Variables:
-        RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_RETURN_VALUE: done
-        RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_THROW_ERROR: false
-    Events:
-      RawInvoiceTextractDataEvent:
-        Type: SQS
-        Properties:
-          Queue: !GetAtt RawInvoiceTextractDataQueue.Arn
-    Handler: storeRawInvoiceTextractData.handler
-    KmsKeyArn: !GetAtt KmsKey.Arn
-    Policies:
-      - AWSLambdaBasicExecutionRole
-      - Statement:
-          - Effect: Allow
-            Action:
-              - sqs:DeleteMessage
-              - sqs:GetQueueAttributes
-              - sqs:ReceiveMessage
+  RawInvoiceTextractDataQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
+            Effect: Allow
+            Principal: "*"
             Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-            Resource: !GetAtt KmsKey.Arn
-    ReservedConcurrentExecutions: 10
+      Queues:
+        - !Ref RawInvoiceTextractDataQueue
+
+  RawInvoiceTextractDataLogBucket:
+    # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, !Ref SubEnv, raw-invoice-textract-data-logs ] ]
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: LogDeliveryWrite
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+  RawInvoiceTextractDataStorageFunction:
+    # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_RETURN_VALUE: done
+          RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_THROW_ERROR: false
+      Events:
+        RawInvoiceTextractDataEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt RawInvoiceTextractDataQueue.Arn
+      Handler: storeRawInvoiceTextractData.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+      ReservedConcurrentExecutions: 10
