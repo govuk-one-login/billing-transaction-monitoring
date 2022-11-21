@@ -1,9 +1,15 @@
 import * as AWS from "aws-sdk";
-import { S3Event } from "aws-lambda";
+import { S3EventRecord, SQSEvent } from "aws-lambda";
+import { Response } from "../../shared/types";
 
+interface StartExpenseAnalysisResponse extends Response {
+  JobId?: Array<{ JobId: string }>;
+}
 export const handler = async (
-  event: S3Event
-): Promise<AWS.Textract.StartExpenseAnalysisResponse[]> => {
+  event: SQSEvent
+): Promise<StartExpenseAnalysisResponse> => {
+  // Set Up
+  console.log("Event: ", event);
   const textExtractRole = process.env.TEXT_EXTRACT_ROLE;
   const snsTopic = process.env.SNS_TOPIC;
 
@@ -15,16 +21,19 @@ export const handler = async (
     const snsMessage = "SNS Topic not set.";
     throw new Error(snsMessage);
   }
-  // Set up
+
   const textract = new AWS.Textract({ region: "eu-west-2" });
-  const response: AWS.Textract.StartExpenseAnalysisResponse[] = [];
+  const response: StartExpenseAnalysisResponse = {
+    JobId: [],
+    batchItemFailures: [],
+  };
 
   // Get Bucket and filename from the event.
   const promises = event.Records.map(async (record) => {
-    console.log(`Record ${JSON.stringify(record)}`);
-    const bucket = record.s3.bucket.name;
-    const fileName = record.s3.object.key;
-    console.log("File Name: " + fileName);
+    const bodyObject = JSON.parse(record.body) as S3EventRecord;
+    console.log("S3 Record: ", bodyObject);
+    const bucket = bodyObject.s3.bucket.name;
+    const fileName = bodyObject.s3.object.key;
 
     // Define params for Textract API call
     const params: AWS.Textract.StartExpenseAnalysisRequest = {
@@ -41,7 +50,18 @@ export const handler = async (
     };
 
     // Invoke textract function
-    response.push(await textract.startExpenseAnalysis(params).promise());
+    try {
+      const textractResponse = await textract
+        .startExpenseAnalysis(params)
+        .promise();
+      if (textractResponse.JobId === undefined) {
+        throw new Error("Textract error");
+      }
+      response.JobId?.push({ JobId: textractResponse.JobId });
+    } catch (e) {
+      console.log(e);
+      response.batchItemFailures.push({ itemIdentifier: record.messageId });
+    }
   });
 
   await Promise.all(promises);

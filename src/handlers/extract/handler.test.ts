@@ -1,5 +1,8 @@
 import * as AWS from "aws-sdk";
-import { createEvent } from "../../../test-helpers/S3";
+import {
+  createEvent,
+  createEventRecordWithBody,
+} from "../../../test-helpers/SQS";
 import { handler } from "./handler";
 
 jest.mock("aws-sdk");
@@ -12,27 +15,13 @@ describe("Extract handler test", () => {
   let mockStartExpenseAnalysis: jest.Mock;
 
   const validEvent = createEvent([
-    {
-      s3: {
-        bucket: {
-          name: "di-btm-anybucket",
-        },
-        object: {
-          key: "onepdf.pdf",
-        },
-      },
-    },
-    {
-      s3: {
-        bucket: {
-          name: "di-btm-anybucket",
-        },
-        object: {
-          key: "secondpdf.pdf",
-        },
-      },
-    },
-  ] as any);
+    createEventRecordWithBody("di-btm-anybucket", "onepdf.pdf", "message ID 1"),
+    createEventRecordWithBody(
+      "di-btm-anybucket",
+      "secondpdf.pdf",
+      "message ID 2"
+    ),
+  ]);
 
   beforeEach(() => {
     process.env = { ...OLD_ENV };
@@ -86,9 +75,9 @@ describe("Extract handler test", () => {
         SNSTopicArn: process.env.SNS_TOPIC,
       },
     });
-    expect(response[0].JobId).toEqual("Some job ID");
-    expect(response[1].JobId).toEqual("Another job ID");
-    expect(response.length).toBe(2);
+    expect(response.JobId[0].JobId).toEqual("Some job ID");
+    expect(response.JobId[1].JobId).toEqual("Another job ID");
+    expect(response.JobId?.length).toBe(2);
   });
 
   test("Extract handler with valid event record that doesnt have a textract role throws an error", async () => {

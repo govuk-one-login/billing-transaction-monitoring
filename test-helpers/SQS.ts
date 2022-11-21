@@ -22,3 +22,26 @@ export const createEventRecordWithName = (
     }),
     messageId: String(messageId),
   } as any);
+
+export const createEventRecordWithBody = (
+  bucketName: String,
+  fileName: String,
+  messageId?: string
+): SQSRecord =>
+  ({
+    body: JSON.stringify({
+      Records: [
+        {
+          s3: {
+            bucket: {
+              name: bucketName,
+            },
+            object: {
+              key: fileName,
+            },
+          },
+        },
+      ],
+    }),
+    messageId: String(messageId),
+  } as any);
