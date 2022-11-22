@@ -3,7 +3,7 @@ TransactionDB:
   Properties:
     CatalogId: !Ref AWS::AccountId
     DatabaseInput:
-      Name: btm-transactions-crawler-test
+      Name: btm-transactions-db
 
 TransactionTable:
   Type: AWS::Glue::Table
@@ -136,7 +136,7 @@ TransactionsCrawler:
     CrawlerSecurityConfiguration: !Ref TransactionsCrawlerSecurityConfiguration
     DatabaseName: !Ref TransactionDB
     Description: Crawls the daily buckets of transaction data
-    Name: glue-transactions-crawler
+    Name: btm-transactions-crawler
     Role: !GetAtt CalculationDataCrawlerRole.Arn
     SchemaChangePolicy:
       DeleteBehavior: LOG
