@@ -146,4 +146,5 @@ Resources:
         DeleteBehavior: LOG
         UpdateBehavior: UPDATE_IN_DATABASE
       Targets:
-        S3Targets: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions' ] ]
+        S3Targets:
+          - Path: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions' ] ]
