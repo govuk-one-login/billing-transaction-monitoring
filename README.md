@@ -119,7 +119,7 @@ Then run:
 ```
 export ENV_NAME=dev-od-ph-purpose
 ```
-Replace `ph` with your initials and replace `something` with a very short purpose of the env like `testing`.
+Replace `ph` with your initials and replace `purpose` with a very short purpose of the env like `testing`.
 
 Then run:
 ```
