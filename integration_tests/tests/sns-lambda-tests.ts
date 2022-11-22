@@ -11,10 +11,13 @@ import {
   snsEventWithAdditionalFieldsPayload,
   snsMissingEventNamePayload,
 } from "../payloads/snsEventPayload";
+import {resourcePrefix} from "../helpers/envHelper";
 
 let snsResponse: PublishResponse;
 
 const testStartTime = new Date().getTime();
+
+const logNamePrefix = resourcePrefix();
 
 describe(
   "\n Happy path tests \n" +
@@ -27,7 +30,7 @@ describe(
     test("Filter function cloud watch logs should contain eventid", async () => {
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-FilterFunction",
+        logNamePrefix + "-filter-function",
         snsValidEventPayload.event_id,
         testStartTime
       );
@@ -36,7 +39,7 @@ describe(
 
     test("Clean function cloud watch logs should contain eventid", async () => {
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",
+        logNamePrefix + "-clean-function",
         snsValidEventPayload.event_id,
         testStartTime
       );
@@ -45,7 +48,7 @@ describe(
 
     test("Store Transactions function cloud watch logs should contain eventid", async () => {
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-StorageFunction",
+  logNamePrefix + "-storage-function",
         snsValidEventPayload.event_id,
         testStartTime
       );
@@ -56,7 +59,7 @@ describe(
       snsResponse = await publishSNS(snsEventWithAdditionalFieldsPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",
+  logNamePrefix + "-clean-function",
         snsEventWithAdditionalFieldsPayload.event_id,
         testStartTime
       );
@@ -73,7 +76,7 @@ describe(
       snsResponse = await publishSNS(snsInvalidEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-FilterFunction",
+  logNamePrefix + "-filter-function",
         snsInvalidEventNamePayload.event_id,
         testStartTime
       );
@@ -84,7 +87,7 @@ describe(
       snsResponse = await publishSNS(snsInvalidTimeStampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",
+  logNamePrefix + "-clean-function",
         snsInvalidTimeStampPayload.event_id,
         testStartTime
       );
@@ -95,7 +98,7 @@ describe(
       snsResponse = await publishSNS(snsEventInvalidCompId);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",
+  logNamePrefix + "-clean-function",
         snsEventInvalidCompId.event_id,
         testStartTime
       );
@@ -106,7 +109,7 @@ describe(
       snsResponse = await publishSNS(snsMissingEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-FilterFunction",
+  logNamePrefix + "-filter-function",
         snsMissingEventNamePayload.event_id,
         testStartTime
       );
@@ -117,7 +120,7 @@ describe(
       snsResponse = await publishSNS(snsEventMissingCompIdPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",
+  logNamePrefix + "-clean-function",
         snsEventMissingCompIdPayload.event_id,
         testStartTime
       );
@@ -128,7 +131,7 @@ describe(
       snsResponse = await publishSNS(snsEventMissingTimestampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkGivenStringExistsInLogs(
-        "di-btm-CleanFunction",
+  logNamePrefix + "-clean-function",
         snsEventMissingTimestampPayload.event_id,
         testStartTime
       );
