@@ -27,7 +27,7 @@ jobs:
       - name: SAM setup
         uses: aws-actions/setup-sam@v2
       - name: Merge template files into template.yaml
-        run: npm run build-template
+        run: npm run build:template
       - name: Check for potential CloudFormation security issues
         uses: bridgecrewio/checkov-action@master
         with:
