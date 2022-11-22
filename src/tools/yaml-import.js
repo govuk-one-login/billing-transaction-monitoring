@@ -26,11 +26,11 @@ const visitor = (key, node) => {
       const [fileName, skipFlag] = fileNameWithFlag.split('#');
       if(!globalSkipFlags.includes(skipFlag)) {
         const file = readFileSync(`./${fileName.trim()}`, "utf8");
-        const contents = parseDocument(file).contents;
+        const resources = parseDocument(file).contents.get('Resources', true);
         if (!fullContents) {
-          fullContents = contents;
+          fullContents = resources;
         } else {
-          fullContents.items.push(...contents.items);
+          fullContents.items.push(...resources.items);
         }
       }
     });

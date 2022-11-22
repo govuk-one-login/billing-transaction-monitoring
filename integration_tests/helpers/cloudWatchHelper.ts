@@ -1,33 +1,11 @@
 import {
   FilterLogEventsCommandInput,
   FilterLogEventsCommandOutput,
-  FilteredLogEvent,
   FilterLogEventsCommand,
-  DescribeLogGroupsCommandOutput,
-  DescribeLogGroupsCommand,
-  LogGroup,
 } from "@aws-sdk/client-cloudwatch-logs";
 
 import { cloudWatchLogsClient } from "../clients/cloudWatchLogsClient";
-import { waitForTrue } from "../helpers/commonHelpers";
-
-async function getLogGroupsList() {
-  const params = {};
-  const response: DescribeLogGroupsCommandOutput =
-    await cloudWatchLogsClient.send(new DescribeLogGroupsCommand(params));
-  const logGroups: LogGroup[] = response.logGroups ?? [];
-  return logGroups;
-}
-
-async function getLogGroupName(logName: string) {
-  const groupNameList = await getLogGroupsList();
-  const groupName: LogGroup = groupNameList.find((data) =>
-    data.logGroupName?.match(logName)
-  ) as LogGroup;
-  const name = groupName.logGroupName?.valueOf();
-  console.log("**Log GroupName**", name);
-  return name;
-}
+import {waitForTrue} from "./commonHelpers";
 
 async function checkGivenStringExistsInLogs(
   logName: string,
@@ -35,7 +13,7 @@ async function checkGivenStringExistsInLogs(
   testStartTime: number
 ) {
   const params: FilterLogEventsCommandInput = {
-    logGroupName: await getLogGroupName(logName),
+    logGroupName: '/aws/lambda/' + logName,
     startTime: testStartTime,
   };
 
@@ -52,4 +30,4 @@ async function checkGivenStringExistsInLogs(
   return expectedStringExists;
 }
 
-export { checkGivenStringExistsInLogs, getLogGroupName };
+export { checkGivenStringExistsInLogs };

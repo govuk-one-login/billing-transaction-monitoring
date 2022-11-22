@@ -12,7 +12,7 @@ If you are new to the Billing & Transaction Monitoring team, please also read [o
 
 ## Check before commit
 ```sh
-npm run build-template
+npm run build:template
 checkov -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies
 ```
 N.B. You may get Python errors due to conflicting dependencies with SAM CLI. If you do, run this and try again:
@@ -47,7 +47,7 @@ docker run --rm -it -p 4566:4566 -p 4571:4571 -e LOCALSTACK_DEBUG=1 localstack/l
 ### Bringing up the stack
 ```sh
 npm run build
-npm run build-template NO_LOCAL
+npm run build:template NO_LOCAL
 samlocal build
 samlocal deploy --resolve-s3 --config-env local
 ```
@@ -90,7 +90,7 @@ npm run test:integration
 To run the tests against local environment
 ````
 npm i
-npm run test:integration-local
+npm run test:integration:local
 ````
 
 To generate  emailable allure report after running the integration test
@@ -108,7 +108,26 @@ npm run beforeIntTest
 
 ## Deploy
 
-To deploy to the `dev` environment (also called `build`), commit to the `main` branch
+To deploy to the `dev` environment on the main stack `di-btm`, commit to the `main` branch, this will also deploy into
+the `build` environment in the build account.
+
+To deploy to your own on-demand stack:
+
+Log in to the `dev` account using your method of choice (`gds-cli`, AWS profiles, etc.).
+Then run:
+
+```
+export ENV_NAME=dev-od-ph-purpose
+```
+Replace `ph` with your initials and replace `purpose` with a very short purpose of the env like `testing`.
+
+Then run:
+```
+npm run sam:build
+npm run sam:deploy
+```
+
+`npm run test:integration` should automatically run against your own env as long as the env-variable `ENV_NAME` is properly set and exported.
 
 After deploying to an environment for the first time, if you want to receive alerts about errors, manually create a CloudFormation stack in the Amazon Web Services console with `alert-chatbot-template.yaml` and the parameters for the Slack workspace and channel IDs (eleven- and nine-character codes found in the URL for the Slack channel) as well as the Amazon Resource Name for Simple Notification Service output by the `di-btm` stack
 
