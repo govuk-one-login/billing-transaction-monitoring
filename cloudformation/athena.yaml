@@ -21,15 +21,7 @@ TransactionTable:
         projection.datetime.format: "yyyy-MM-dd"
         projection.datetime.interval: 1
         projection.datetime.interval.unit: DAYS
-        storage.location.template:
-          !Join [
-            "",
-            [
-              "s3://",
-              "di-btm-storagebucket-mhnazvovowiy",
-              "/btm_transactions/${datetime}/",
-            ],
-          ]
+        storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions/${datetime}/' ] ]
       PartitionKeys:
         - { Name: "datetime", Type: date }
       StorageDescriptor:
@@ -46,8 +38,7 @@ TransactionTable:
           - { Name: "extensions", Type: string }
         Compressed: true
         InputFormat: "org.apache.hadoop.mapred.TextInputFormat"
-        Location:
-          !Join ["", ["s3://", "di-btm-storagebucket-mhnazvovowiy", "/"]]
+        Location: !Join [ '', [ 's3://', !Ref StorageBucket, '/' ] ]
         StoredAsSubDirectories: false
         OutputFormat: "org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat"
         SerdeInfo:
@@ -142,13 +133,4 @@ TransactionsCrawler:
       DeleteBehavior: LOG
       UpdateBehavior: UPDATE_IN_DATABASE
     Targets:
-      S3Targets:
-        - Path:
-            !Join [
-              "",
-              [
-                "s3://",
-                "di-btm-storagebucket-mhnazvovowiy",
-                "/btm_transactions",
-              ],
-            ]
+      S3Targets: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions' ] ]
