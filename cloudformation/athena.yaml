@@ -118,6 +118,15 @@ Resources:
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
       Path: "/"
+      Policies:
+        - PolicyName: ResourceTypePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:AssociateKmsKey"
+                Resource: "*"
 
   TransactionsCrawlerSecurityConfiguration:
     Type: AWS::Glue::SecurityConfiguration
