@@ -3,13 +3,10 @@ ExtractFunction:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda
   Type: AWS::Serverless::Function
   Properties:
-    DeadLetterQueue:
-      TargetArn: !GetAtt ExtractFunctionDeadLetterQueue.Arn
-      Type: SQS
     Environment:
       Variables:
-        TEXT_EXTRACT_ROLE: !GetAtt TextractRole.Arn # This is needed for the params for the textract call
-        SNS_TOPIC: !Ref AmazonTextractRawInvoiceDataTopic
+        TEXTRACT_ROLE: !GetAtt TextractRole.Arn
+        TEXTRACT_SNS_TOPIC: !Ref AmazonTextractRawInvoiceDataTopic
     Events:
       ExtractEvent:
         Type: SQS
@@ -30,7 +27,7 @@ ExtractFunction:
             Resource: !GetAtt ExtractQueue.Arn
           - Effect: Allow
             Action:
-              - "textract:*" # To-Do What are the available textract actions and resources? Tighten this once working.
+              - "textract:StartExpenseAnalysis" # WEDNESDAY https://docs.aws.amazon.com/textract/latest/dg/security_iam_id-based-policy-examples.html
             Resource: "*"
           - Effect: Allow
             Action:
@@ -72,8 +69,18 @@ TextractRole:
           Statement: # To-Do Check if S3 access is needed.
             - Effect: Allow
               Action:
+                - "s3:GetObject*"
+              Resource: !GetAtt RawInvoicePdfBucket.Arn
+              Condition:
+                StringEquals:
+                  aws:SourceAccount: !Ref AWS::AccountId
+            - Effect: Allow
+              Action:
                 - "sns:Publish"
               Resource: !Ref AmazonTextractRawInvoiceDataTopic
+              Condition:
+                StringEquals:
+                  aws:SourceAccount: !Ref AWS::AccountId
 
 ExtractQueuePolicy:
   Type: AWS::SQS::QueuePolicy
