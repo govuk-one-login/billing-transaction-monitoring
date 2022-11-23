@@ -1,3 +1,4 @@
+import { SQSEvent } from "aws-lambda";
 import * as AWS from "aws-sdk";
 import {
   createEvent,
@@ -31,7 +32,9 @@ describe("Extract handler test", () => {
     process.env = { ...OLD_ENV };
     process.env.TEXTRACT_ROLE = "Text extract role";
     process.env.TEXTRACT_SNS_TOPIC = "Textract Raw Invoice Data Topic";
-    mockStartExpenseAnalysis = jest.fn();
+    mockStartExpenseAnalysis = jest.fn(() => ({
+      promise: jest.fn().mockResolvedValue({ JobId: "Another job ID" }),
+    }));
     MockTextract.mockReturnValue({
       startExpenseAnalysis: mockStartExpenseAnalysis,
     } as any);
@@ -44,13 +47,9 @@ describe("Extract handler test", () => {
   });
 
   test("Extract handler with valid event record calls textract function startExpenseAnalysis", async () => {
-    mockStartExpenseAnalysis
-      .mockReturnValue({
-        promise: jest.fn().mockResolvedValue({ JobId: "Another job ID" }),
-      })
-      .mockReturnValueOnce({
-        promise: jest.fn().mockResolvedValue({ JobId: "Some job ID" }),
-      });
+    mockStartExpenseAnalysis.mockReturnValueOnce({
+      promise: jest.fn().mockResolvedValue({ JobId: "Some job ID" }),
+    });
 
     const response = await handler(validEvent);
 
@@ -122,5 +121,151 @@ describe("Extract handler test", () => {
     expect(response.batchItemFailures[0].itemIdentifier).toEqual(
       "message ID 2"
     );
+  });
+
+  test("Extract handler with event record that does not have a JSON serialisable body", async () => {
+    const givenEvent = {
+      Records: [
+        {
+          body: "{",
+          messageId: "given message ID",
+        },
+      ],
+    };
+
+    const result = await handler(givenEvent as SQSEvent);
+
+    expect(result).toEqual({
+      batchItemFailures: [{ itemIdentifier: "given message ID" }],
+    });
+  });
+
+  test("Extract handler with event record that has body that does not serialises to object", async () => {
+    const givenEvent = {
+      Records: [
+        {
+          body: "1234",
+          messageId: "given message ID",
+        },
+      ],
+    };
+
+    const result = await handler(givenEvent as SQSEvent);
+
+    expect(result).toEqual({
+      batchItemFailures: [{ itemIdentifier: "given message ID" }],
+    });
+  });
+
+  test("Extract handler with event record that has invalid S3 event in body", async () => {
+    const givenEvent = {
+      Records: [
+        {
+          body: JSON.stringify({
+            Records: [
+              {
+                s3: {
+                  bucket: {
+                    name: "some bucket name",
+                  },
+                  object: {
+                    key: 123412, // Invalid key because it is not a string
+                  },
+                },
+              },
+            ],
+          }),
+          messageId: "given message ID",
+        },
+      ],
+    };
+
+    const result = await handler(givenEvent as SQSEvent);
+
+    expect(result).toEqual({
+      batchItemFailures: [{ itemIdentifier: "given message ID" }],
+    });
+  });
+
+  test("Extract handler with event record that has valid S3 event in body with no records", async () => {
+    const givenEvent = {
+      Records: [
+        {
+          body: JSON.stringify({
+            Records: [],
+          }),
+        },
+      ],
+    };
+
+    const result = await handler(givenEvent as SQSEvent);
+
+    expect(mockStartExpenseAnalysis).not.toHaveBeenCalled();
+    expect(result).toEqual({ batchItemFailures: [] });
+  });
+
+  test("Extract handler with single event record that has valid S3 event in body with multiple records", async () => {
+    const givenBucketName = "some bucket name";
+    const givenObjectKey1 = "some object key";
+    const givenObjectKey2 = "some other object key";
+    const givenEvent = {
+      Records: [
+        {
+          body: JSON.stringify({
+            Records: [
+              {
+                s3: {
+                  bucket: {
+                    name: givenBucketName,
+                  },
+                  object: {
+                    key: givenObjectKey1,
+                  },
+                },
+              },
+              {
+                s3: {
+                  bucket: {
+                    name: givenBucketName,
+                  },
+                  object: {
+                    key: givenObjectKey2,
+                  },
+                },
+              },
+            ],
+          }),
+        },
+      ],
+    };
+
+    const result = await handler(givenEvent as SQSEvent);
+
+    expect(result).toEqual({ batchItemFailures: [] });
+    expect(mockStartExpenseAnalysis).toHaveBeenCalledTimes(2);
+    expect(mockStartExpenseAnalysis).toHaveBeenCalledWith({
+      DocumentLocation: {
+        S3Object: {
+          Bucket: givenBucketName,
+          Name: givenObjectKey1,
+        },
+      },
+      NotificationChannel: {
+        RoleArn: process.env.TEXTRACT_ROLE,
+        SNSTopicArn: process.env.TEXTRACT_SNS_TOPIC,
+      },
+    });
+    expect(mockStartExpenseAnalysis).toHaveBeenCalledWith({
+      DocumentLocation: {
+        S3Object: {
+          Bucket: givenBucketName,
+          Name: givenObjectKey2,
+        },
+      },
+      NotificationChannel: {
+        RoleArn: process.env.TEXTRACT_ROLE,
+        SNSTopicArn: process.env.TEXTRACT_SNS_TOPIC,
+      },
+    });
   });
 });

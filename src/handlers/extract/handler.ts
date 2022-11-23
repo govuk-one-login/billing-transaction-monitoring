@@ -26,35 +26,44 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
   // Get Bucket and filename from the event.
   const promises = event.Records.map(async (record) => {
-    const bodyObject = JSON.parse(record.body) as S3Event;
-    console.log("S3 Record: ", bodyObject);
-    const bucket = bodyObject.Records[0].s3.bucket.name;
-    const fileName = bodyObject.Records[0].s3.object.key;
-
-    // Define params for Textract API call
-    const params: AWS.Textract.StartExpenseAnalysisRequest = {
-      DocumentLocation: {
-        S3Object: {
-          Bucket: bucket,
-          Name: fileName,
-        },
-      },
-      NotificationChannel: {
-        RoleArn: textExtractRole,
-        SNSTopicArn: snsTopic,
-      },
-    };
-
     // Invoke textract function
     try {
-      const textractResponse = await textract
-        .startExpenseAnalysis(params)
-        .promise();
-      if (textractResponse.JobId === undefined) {
-        throw new Error("Textract error");
+      console.log("Event body:", record.body);
+      const bodyObject = JSON.parse(record.body);
+
+      if (typeof bodyObject !== "object")
+        throw new Error("Event record body not an object.");
+
+      if (!isS3Event(bodyObject))
+        throw new Error("Event record body not valid S3 event.");
+
+      for (const record of bodyObject.Records) {
+        const bucket = record.s3.bucket.name;
+        const fileName = record.s3.object.key;
+
+        // Define params for Textract API call
+        const params: AWS.Textract.StartExpenseAnalysisRequest = {
+          DocumentLocation: {
+            S3Object: {
+              Bucket: bucket,
+              Name: fileName,
+            },
+          },
+          NotificationChannel: {
+            RoleArn: textExtractRole,
+            SNSTopicArn: snsTopic,
+          },
+        };
+
+        const textractResponse = await textract
+          .startExpenseAnalysis(params)
+          .promise();
+        if (textractResponse.JobId === undefined) {
+          throw new Error("Textract error");
+        }
+        console.log("Filename:", fileName);
+        console.log("Job ID:", textractResponse.JobId);
       }
-      console.log("Filename:", fileName);
-      console.log("Job ID:", textractResponse.JobId);
     } catch (e) {
       console.log(e);
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
@@ -64,3 +73,11 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   await Promise.all(promises);
   return response;
 };
+
+const isS3Event = (object: any): object is S3Event =>
+  Array.isArray(object.Records) &&
+  object.Records.every(
+    (record: any) =>
+      typeof record?.s3?.bucket?.name === "string" &&
+      typeof record?.s3?.object?.key === "string"
+  );
