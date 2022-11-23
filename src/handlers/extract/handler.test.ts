@@ -43,7 +43,7 @@ describe("Extract handler test", () => {
     console.log = oldConsoleLog;
   });
 
-  test("Extract handler with valid event record that has S3 data returns a JobId", async () => {
+  test("Extract handler with valid event record calls textract function startExpenseAnalysis", async () => {
     mockStartExpenseAnalysis
       .mockReturnValue({
         promise: jest.fn().mockResolvedValue({ JobId: "Another job ID" }),
@@ -79,11 +79,6 @@ describe("Extract handler test", () => {
         SNSTopicArn: process.env.SNS_TOPIC,
       },
     });
-    expect(response.JobId).toEqual([
-      { JobId: "Some job ID" },
-      { JobId: "Another job ID" },
-    ]);
-    expect(response.JobId).toHaveLength(2);
     expect(response.batchItemFailures).toHaveLength(0);
   });
 
@@ -123,8 +118,6 @@ describe("Extract handler test", () => {
     const response = await handler(validEvent);
 
     expect(mockStartExpenseAnalysis).toHaveBeenCalledTimes(2);
-    expect(response.JobId).toHaveLength(1);
-    expect(response.JobId).toEqual([{ JobId: "Some job ID" }]);
     expect(response.batchItemFailures).toHaveLength(1);
     expect(response.batchItemFailures[0].itemIdentifier).toEqual(
       "message ID 2"

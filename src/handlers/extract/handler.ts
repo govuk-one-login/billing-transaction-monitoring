@@ -2,12 +2,7 @@ import * as AWS from "aws-sdk";
 import { S3Event, SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
 
-interface StartExpenseAnalysisResponse extends Response {
-  JobId?: Array<{ JobId: string }>;
-}
-export const handler = async (
-  event: SQSEvent
-): Promise<StartExpenseAnalysisResponse> => {
+export const handler = async (event: SQSEvent): Promise<Response> => {
   // Set Up
   const textExtractRole = process.env.TEXT_EXTRACT_ROLE;
   const snsTopic = process.env.SNS_TOPIC;
@@ -22,8 +17,7 @@ export const handler = async (
   }
 
   const textract = new AWS.Textract({ region: "eu-west-2" });
-  const response: StartExpenseAnalysisResponse = {
-    JobId: [],
+  const response: Response = {
     batchItemFailures: [],
   };
 
@@ -56,9 +50,8 @@ export const handler = async (
       if (textractResponse.JobId === undefined) {
         throw new Error("Textract error");
       }
-      response.JobId?.push({ JobId: textractResponse.JobId });
-      console.log("Filename: ", fileName);
-      console.log("Job ID: ", textractResponse.JobId);
+      console.log("Filename:", fileName);
+      console.log("Job ID:", textractResponse.JobId);
     } catch (e) {
       console.log(e);
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
