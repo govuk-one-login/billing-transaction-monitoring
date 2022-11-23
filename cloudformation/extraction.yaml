@@ -1,8 +1,14 @@
-ExtractFunction:
-  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda
-  Type: AWS::Serverless::Function
-  Properties:
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  ExtractFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        !Join ["-", [!Ref Prefix, !Ref Environment, extract-function]]
     Environment:
       Variables:
         TEXTRACT_ROLE: !GetAtt TextractRole.Arn
@@ -27,7 +33,7 @@ ExtractFunction:
             Resource: !GetAtt ExtractQueue.Arn
           - Effect: Allow
             Action:
-              - "textract:StartExpenseAnalysis" # WEDNESDAY https://docs.aws.amazon.com/textract/latest/dg/security_iam_id-based-policy-examples.html
+              - "textract:StartExpenseAnalysis" # https://docs.aws.amazon.com/textract/latest/dg/security_iam_id-based-policy-examples.html
             Resource: "*"
           - Effect: Allow
             Action:
@@ -37,64 +43,66 @@ ExtractFunction:
             Resource: !GetAtt KmsKey.Arn
     ReservedConcurrentExecutions: 10
 
-ExtractQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
-    RedrivePolicy:
-      deadLetterTargetArn: !GetAtt ExtractQueueDeadLetterQueue.Arn
-      maxReceiveCount: 1
+  ExtractQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join ["-", [!Ref Prefix, !Ref Environment, extract-queue]]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ExtractQueueDeadLetterQueue.Arn
+        maxReceiveCount: 1
 
-ExtractQueueDeadLetterQueue:
-  Type: AWS::SQS::Queue
-  Properties:
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
+  ExtractQueueDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join ["-", [!Ref Prefix, !Ref Environment, extract-dlq]]
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-TextractRole:
-  Type: AWS::IAM::Role
-  Properties:
-    AssumeRolePolicyDocument:
-      Version: "2012-10-17"
-      Statement:
-        - Effect: "Allow"
-          Principal:
-            Service:
-              - "textract.amazonaws.com"
-          Action:
-            - "sts:AssumeRole"
-    Policies:
-      - PolicyName: "TextractRoleAccess"
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement: # To-Do Check if S3 access is needed.
-            - Effect: Allow
-              Action:
-                - "s3:GetObject*"
-              Resource: !GetAtt RawInvoicePdfBucket.Arn
-              Condition:
-                StringEquals:
-                  aws:SourceAccount: !Ref AWS::AccountId
-            - Effect: Allow
-              Action:
-                - "sns:Publish"
-              Resource: !Ref AmazonTextractRawInvoiceDataTopic
-              Condition:
-                StringEquals:
-                  aws:SourceAccount: !Ref AWS::AccountId
+  TextractRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "textract.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "TextractRoleAccess"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement: # To-Do Check if S3 access is needed.
+              - Effect: Allow
+                Action:
+                  - "s3:GetObject*"
+                Resource: !GetAtt RawInvoicePdfBucket.Arn
+                Condition:
+                  StringEquals:
+                    aws:SourceAccount: !Ref AWS::AccountId
+              - Effect: Allow
+                Action:
+                  - "sns:Publish"
+                Resource: !Ref AmazonTextractRawInvoiceDataTopic
+                Condition:
+                  StringEquals:
+                    aws:SourceAccount: !Ref AWS::AccountId
 
-ExtractQueuePolicy:
-  Type: AWS::SQS::QueuePolicy
-  Properties:
-    PolicyDocument:
-      Statement:
-        - Action: SQS:SendMessage
-          Condition:
-            ArnLike:
-              aws:SourceArn: arn:aws:s3:::*
-            StringEquals:
-              aws:SourceAccount: !Ref AWS::AccountId
-          Effect: Allow
-          Principal: "*"
-          Resource: "*"
-    Queues:
-      - !Ref ExtractQueue
+  ExtractQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnLike:
+                aws:SourceArn: arn:aws:s3:::*
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+            Effect: Allow
+            Principal: "*"
+            Resource: "*"
+      Queues:
+        - !Ref ExtractQueue

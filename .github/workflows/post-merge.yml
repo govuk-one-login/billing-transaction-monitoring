@@ -26,15 +26,8 @@ jobs:
         run: npm run build
       - name: SAM setup
         uses: aws-actions/setup-sam@v2
-      - name: Assume AWS role
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.GH_ACTIONS_ROLE_ARN }}
       - name: Merge template files into template.yaml
-        run: npm run build-template
-      - name: SAM validate
-        run: sam validate
+        run: npm run build:template
       - name: Check for potential CloudFormation security issues
         uses: bridgecrewio/checkov-action@master
         with:
@@ -44,9 +37,29 @@ jobs:
           soft_fail: false
       - name: SAM build & test
         run: sam build
+      - name: Assume AWS role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_ROLE_ARN }}
+      - name: SAM validate
+        run: sam validate
       - name: SAM deploy
         uses: alphagov/di-devplatform-upload-action@v3
         with:
-          artifact-bucket-name: ${{ secrets.ARTIFACT_BUCKET_NAME }}
-          signing-profile-name: ${{ secrets.SIGNING_PROFILE_NAME }}
+          artifact-bucket-name: ${{ secrets.DEV_ARTIFACT_BUCKET_NAME }}
+          signing-profile-name: ${{ secrets.DEV_SIGNING_PROFILE_NAME }}
+          working-directory: .
+      - name: Assume AWS role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.BUILD_GH_ACTIONS_ROLE_ARN }}
+      - name: SAM validate
+        run: sam validate
+      - name: SAM deploy
+        uses: alphagov/di-devplatform-upload-action@v3
+        with:
+          artifact-bucket-name: ${{ secrets.BUILD_ARTIFACT_BUCKET_NAME }}
+          signing-profile-name: ${{ secrets.BUILD_SIGNING_PROFILE_NAME }}
           working-directory: .
