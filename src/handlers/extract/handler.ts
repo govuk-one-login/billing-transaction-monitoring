@@ -3,9 +3,12 @@ import { S3Event, SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
+  // For Debugging
+  console.log("Incoming SQS Event", event);
+  //
   // Set Up
-  const textExtractRole = process.env.TEXT_EXTRACT_ROLE;
-  const snsTopic = process.env.SNS_TOPIC;
+  const textExtractRole = process.env.TEXTRACT_ROLE;
+  const snsTopic = process.env.TEXTRACT_SNS_TOPIC;
 
   if (textExtractRole === undefined || textExtractRole === "") {
     const textractMessage = "Textract role not set.";

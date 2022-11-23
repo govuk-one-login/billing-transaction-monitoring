@@ -29,8 +29,8 @@ describe("Extract handler test", () => {
 
   beforeEach(() => {
     process.env = { ...OLD_ENV };
-    process.env.TEXT_EXTRACT_ROLE = "Text extract role";
-    process.env.SNS_TOPIC = "Textract Raw Invoice Data Topic";
+    process.env.TEXTRACT_ROLE = "Text extract role";
+    process.env.TEXTRACT_SNS_TOPIC = "Textract Raw Invoice Data Topic";
     mockStartExpenseAnalysis = jest.fn();
     MockTextract.mockReturnValue({
       startExpenseAnalysis: mockStartExpenseAnalysis,
@@ -63,8 +63,8 @@ describe("Extract handler test", () => {
         },
       },
       NotificationChannel: {
-        RoleArn: process.env.TEXT_EXTRACT_ROLE,
-        SNSTopicArn: process.env.SNS_TOPIC,
+        RoleArn: process.env.TEXTRACT_ROLE,
+        SNSTopicArn: process.env.TEXTRACT_SNS_TOPIC,
       },
     });
     expect(mockStartExpenseAnalysis).toHaveBeenCalledWith({
@@ -75,15 +75,15 @@ describe("Extract handler test", () => {
         },
       },
       NotificationChannel: {
-        RoleArn: process.env.TEXT_EXTRACT_ROLE,
-        SNSTopicArn: process.env.SNS_TOPIC,
+        RoleArn: process.env.TEXTRACT_ROLE,
+        SNSTopicArn: process.env.TEXTRACT_SNS_TOPIC,
       },
     });
     expect(response.batchItemFailures).toHaveLength(0);
   });
 
   test("Extract handler with valid event record that doesnt have a textract role throws an error", async () => {
-    process.env.TEXT_EXTRACT_ROLE = undefined;
+    process.env.TEXTRACT_ROLE = undefined;
     try {
       await handler(validEvent);
     } catch (e: any) {
@@ -92,7 +92,7 @@ describe("Extract handler test", () => {
   });
 
   test("Extract handler with valid event record that doesnt have an sns topic throws an error", async () => {
-    process.env.SNS_TOPIC = undefined;
+    process.env.TEXTRACT_SNS_TOPIC = undefined;
     try {
       await handler(validEvent);
     } catch (e: any) {
