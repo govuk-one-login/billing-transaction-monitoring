@@ -3,15 +3,20 @@ import {
   getQueryResults,
   startQueryExecutionCommand,
 } from "../helpers/athenaHelper";
+import { startCrawler } from "../helpers/glueHelper";
 import { getS3ItemsList } from "../helpers/s3Helper";
 import { waitForTrue } from "../helpers/commonHelpers";
 import { snsValidEventPayload } from "../payloads/snsEventPayload";
-import {resourcePrefix} from "../helpers/envHelper";
+import { resourcePrefix } from "../helpers/envHelper";
 
 const prefix = resourcePrefix();
 
 describe("\nPublish valid sns message and execute athena query\n", () => {
   beforeAll(async () => {
+    const checkCrawlerStarted = await startCrawler();
+    if(checkCrawlerStarted==true) {
+    console.log("Crawler started successfully");
+    }
     await publishSNS(snsValidEventPayload);
     const checkEventId = async () => {
       const result = await getS3ItemsList(`${prefix}-storage`);
@@ -24,7 +29,9 @@ describe("\nPublish valid sns message and execute athena query\n", () => {
   });
 
   test("should contain eventId in the generated query results", async () => {
-    const queryId = await startQueryExecutionCommand(snsValidEventPayload.event_id);
+    const queryId = await startQueryExecutionCommand(
+      snsValidEventPayload.event_id
+    );
     const queryResult = await getQueryResults(queryId);
     expect(queryResult).toContain(snsValidEventPayload.event_id);
   });

@@ -5,6 +5,7 @@
   "type": "module",
   "devDependencies": {
     "@aws-sdk/client-athena": "^3.188.0",
+    "@aws-sdk/client-glue": "^3.216.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.188.0",
     "@aws-sdk/client-dynamodb": "^3.188.0",
     "@aws-sdk/client-s3": "^3.204.0",
