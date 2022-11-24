@@ -1,41 +1,116 @@
+import { SQSEvent, SQSRecord } from "aws-lambda";
 import { handler } from "./handler";
+import { storeExpenseDocuments } from "./store-expense-documents";
 
-const OLD_ENV = process.env;
-const oldConsoleError = console.error;
-const oldConsoleLog = console.log;
+jest.mock("./store-expense-documents");
+const mockedStoreExpenseDocuments = storeExpenseDocuments as jest.MockedFn<
+  typeof storeExpenseDocuments
+>;
 
-beforeEach(() => {
-  process.env = { ...OLD_ENV };
-  console.error = jest.fn();
-  console.log = jest.fn();
-});
+describe("Store Raw Invoice Textract Data handler tests", () => {
+  const OLD_ENV = process.env;
+  let givenEvent: SQSEvent;
 
-afterAll(() => {
-  process.env = OLD_ENV;
-  console.error = oldConsoleError;
-  console.log = oldConsoleLog;
-});
+  beforeEach(() => {
+    jest.resetAllMocks();
 
-test("Store Raw Invoice Textract Data handler with RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_THROW_ERROR set to true", async () => {
-  process.env.RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_THROW_ERROR = "true";
+    process.env = {
+      ...OLD_ENV,
+      PDF_BUCKET: "given PDF bucket",
+      TEXTRACT_BUCKET: "given Textract bucket",
+    };
 
-  let resultError;
-  try {
-    await handler();
-  } catch (error) {
-    resultError = error;
-  }
+    givenEvent = { Records: [] };
+  });
 
-  expect(resultError).toBeInstanceOf(Error);
-});
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
 
-test("Store Raw Invoice Textract Data handler with RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_RETURN_VALUE", async () => {
-  process.env.RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_RETURN_VALUE =
-    "given raw invoice Textract data storage handler return value environment variable";
+  test("Store Raw Invoice Textract Data handler with no PDF bucket set", async () => {
+    delete process.env.PDF_BUCKET;
 
-  const result = await handler();
+    let resultError;
+    try {
+      await handler(givenEvent);
+    } catch (error) {
+      resultError = error;
+    }
 
-  expect(result).toBe(
-    "given raw invoice Textract data storage handler return value environment variable"
-  );
+    expect(resultError).toBeInstanceOf(Error);
+  });
+
+  test("Store Raw Invoice Textract Data handler with no Textract bucket set", async () => {
+    delete process.env.TEXTRACT_BUCKET;
+
+    let resultError;
+    try {
+      await handler(givenEvent);
+    } catch (error) {
+      resultError = error;
+    }
+
+    expect(resultError).toBeInstanceOf(Error);
+  });
+
+  test("Store Raw Invoice Textract Data handler with two failing records", async () => {
+    mockedStoreExpenseDocuments.mockRejectedValue(undefined);
+
+    const givenRecord1 = {
+      messageId: "given record 1 message ID",
+    } as unknown as SQSRecord;
+    const givenRecord2 = {
+      messageId: "given record 2 message ID",
+    } as unknown as SQSRecord;
+    givenEvent.Records.push(givenRecord1, givenRecord2);
+
+    const result = await handler(givenEvent);
+
+    expect(mockedStoreExpenseDocuments).toHaveBeenCalledTimes(2);
+    expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
+      givenRecord1,
+      process.env.PDF_BUCKET,
+      process.env.TEXTRACT_BUCKET
+    );
+    expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
+      givenRecord2,
+      process.env.PDF_BUCKET,
+      process.env.TEXTRACT_BUCKET
+    );
+    expect(result).toEqual({
+      batchItemFailures: [
+        { itemIdentifier: "given record 1 message ID" },
+        { itemIdentifier: "given record 2 message ID" },
+      ],
+    });
+  });
+
+  test("Store Raw Invoice Textract Data handler with one failing and one passing record", async () => {
+    mockedStoreExpenseDocuments.mockRejectedValueOnce(undefined);
+
+    const givenRecord1 = {
+      messageId: "given record 1 message ID",
+    } as unknown as SQSRecord;
+    const givenRecord2 = {
+      messageId: "given record 2 message ID",
+    } as unknown as SQSRecord;
+    givenEvent.Records.push(givenRecord1, givenRecord2);
+
+    const result = await handler(givenEvent);
+
+    expect(mockedStoreExpenseDocuments).toHaveBeenCalledTimes(2);
+    expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
+      givenRecord1,
+      process.env.PDF_BUCKET,
+      process.env.TEXTRACT_BUCKET
+    );
+    expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
+      givenRecord2,
+      process.env.PDF_BUCKET,
+      process.env.TEXTRACT_BUCKET
+    );
+    expect(result).toEqual({
+      batchItemFailures: [{ itemIdentifier: "given record 1 message ID" }],
+    });
+  });
 });
