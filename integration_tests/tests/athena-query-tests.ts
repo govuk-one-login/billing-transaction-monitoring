@@ -12,10 +12,11 @@ import { resourcePrefix } from "../helpers/envHelper";
 const prefix = resourcePrefix();
 
 describe("\nPublish valid sns message and execute athena query\n", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     const checkCrawlerStarted = await startCrawler();
     if(checkCrawlerStarted==true) {
     console.log("Crawler started successfully");
+    //To do - add get crawler to check the crawler status
     }
     await publishSNS(snsValidEventPayload);
     const checkEventId = async () => {
