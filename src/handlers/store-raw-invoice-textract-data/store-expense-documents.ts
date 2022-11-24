@@ -8,6 +8,10 @@ export async function storeExpenseDocuments(
   textractBucket: string
 ): Promise<void> {
   const bodyObject = JSON.parse(record.body);
+
+  if (typeof bodyObject !== "object")
+    throw new Error("Record body not object.");
+
   const { JobId: jobId } = bodyObject;
 
   if (typeof jobId !== "string") throw new Error("No valid job ID in record.");
