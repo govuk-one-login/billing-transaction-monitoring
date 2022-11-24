@@ -71,7 +71,7 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-logs ] ]
+      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-data ] ]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite

@@ -164,7 +164,7 @@ Resources:
       CrawlerSecurityConfiguration: !Ref CrawlerSecurityConfiguration
       DatabaseName: !Ref TransactionDB
       Description: Crawls the rate table data
-      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, btm-rate-tables-crawler
+      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, btm-rate-tables-crawler ] ]
       Role: !GetAtt CalculationDataCrawlerRole.Arn
       SchemaChangePolicy:
         DeleteBehavior: LOG
