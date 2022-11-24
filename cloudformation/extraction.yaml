@@ -42,7 +42,7 @@ Resources:
               Resource: !GetAtt KmsKey.Arn
             - Effect: Allow
               Action: s3:GetObject
-              Resource: !GetAtt RawInvoicePdfBucket.Arn
+              Resource: !Join ["/", [!GetAtt RawInvoicePdfBucket.Arn, "*"]]
       ReservedConcurrentExecutions: 10
 
   ExtractQueue:
