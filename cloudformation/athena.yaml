@@ -126,9 +126,9 @@ Resources:
               - Effect: Allow
                 Action:
                   - "logs:AssociateKmsKey"
-                Resource: "*"
+                Resource: !GetAtt KmsKey.Arn
 
-  TransactionsCrawlerSecurityConfiguration:
+  CrawlerSecurityConfiguration:
     Type: AWS::Glue::SecurityConfiguration
     Properties:
       EncryptionConfiguration:
@@ -141,15 +141,15 @@ Resources:
         S3Encryptions:
           - S3EncryptionMode: SSE-KMS
             KmsKeyArn: !GetAtt KmsKey.Arn
-      Name: transactions-crawler-security-config
+      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, crawler-security-config ] ]
 
   TransactionsCrawler:
     Type: AWS::Glue::Crawler
     Properties:
-      CrawlerSecurityConfiguration: !Ref TransactionsCrawlerSecurityConfiguration
+      CrawlerSecurityConfiguration: !Ref CrawlerSecurityConfiguration
       DatabaseName: !Ref TransactionDB
       Description: Crawls the daily buckets of transaction data
-      Name: btm-transactions-crawler
+      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, btm-transactions-crawler ] ]
       Role: !GetAtt CalculationDataCrawlerRole.Arn
       SchemaChangePolicy:
         DeleteBehavior: LOG

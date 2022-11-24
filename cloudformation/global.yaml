@@ -27,7 +27,7 @@ Resources:
                   - s3.amazonaws.com
                   - sns.amazonaws.com
                   - sqs.amazonaws.com
-                  - logs.eu-west-2.amazonaws.com
+                  - logs.amazonaws.com
               Action:
                 - kms:Encrypt
                 - kms:Decrypt
