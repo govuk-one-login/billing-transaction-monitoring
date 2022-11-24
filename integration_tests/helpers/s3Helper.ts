@@ -54,13 +54,13 @@ async function deleteObjectInS3(bucketName: string, key: string) {
 
 async function copyObject(
   destinationBucketName: string,
-  sourceBucketName: string,
-  objectName: string
+  sourceKey: string,
+  destinationKey: string
 ) {
   const bucketParams = {
     Bucket: destinationBucketName,
-    CopySource: sourceBucketName,
-    Key: objectName,
+    CopySource: sourceKey,
+    Key: destinationKey,
   };
 
   console.log(bucketParams);
@@ -81,7 +81,6 @@ async function checkIfFileExists(bucketName: string, key: string) {
     return exists;
   } catch (err) {
     if (err instanceof Error) console.log(err.name);
-
     return false;
   }
 }
