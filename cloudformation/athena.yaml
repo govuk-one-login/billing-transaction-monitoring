@@ -157,3 +157,18 @@ Resources:
       Targets:
         S3Targets:
           - Path: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions' ] ]
+
+  RateTableCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      CrawlerSecurityConfiguration: !Ref CrawlerSecurityConfiguration
+      DatabaseName: !Ref TransactionDB
+      Description: Crawls the rate table data
+      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, btm-rate-tables-crawler
+      Role: !GetAtt CalculationDataCrawlerRole.Arn
+      SchemaChangePolicy:
+        DeleteBehavior: LOG
+        UpdateBehavior: UPDATE_IN_DATABASE
+      Targets:
+        S3Targets:
+          - Path: !Join [ '', [ 's3://', !Ref StorageBucket, '/rate_tables' ] ]
