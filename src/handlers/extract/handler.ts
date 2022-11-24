@@ -3,9 +3,6 @@ import { S3Event, SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
-  // For Debugging
-  console.log("Incoming SQS Event", event);
-  //
   // Set Up
   const textExtractRole = process.env.TEXTRACT_ROLE;
   const snsTopic = process.env.TEXTRACT_SNS_TOPIC;
@@ -24,13 +21,11 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     batchItemFailures: [],
   };
 
-  // Get Bucket and filename from the event.
   const promises = event.Records.map(async (record) => {
-    // Invoke textract function
     try {
       console.log("Event body:", record.body);
       const bodyObject = JSON.parse(record.body);
-
+      // Get Bucket and filename from the event.
       if (typeof bodyObject !== "object")
         throw new Error("Event record body not an object.");
 
@@ -54,7 +49,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
             SNSTopicArn: snsTopic,
           },
         };
-
+        // Invoke textract function
         const textractResponse = await textract
           .startExpenseAnalysis(params)
           .promise();

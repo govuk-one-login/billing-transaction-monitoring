@@ -76,7 +76,7 @@ Resources:
         - PolicyName: "TextractRoleAccess"
           PolicyDocument:
             Version: "2012-10-17"
-            Statement: # To-Do Check if S3 access is needed.
+            Statement:
               - Effect: Allow
                 Action:
                   - "s3:GetObject*"
