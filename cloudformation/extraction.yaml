@@ -72,6 +72,9 @@ Resources:
                 - "textract.amazonaws.com"
             Action:
               - "sts:AssumeRole"
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
       Policies:
         - PolicyName: "TextractRoleAccess"
           PolicyDocument:
@@ -81,16 +84,14 @@ Resources:
                 Action:
                   - "s3:GetObject*"
                 Resource: !GetAtt RawInvoicePdfBucket.Arn
-                Condition:
-                  StringEquals:
-                    aws:SourceAccount: !Ref AWS::AccountId
               - Effect: Allow
                 Action:
                   - "sns:Publish"
                 Resource: !Ref AmazonTextractRawInvoiceDataTopic
-                Condition:
-                  StringEquals:
-                    aws:SourceAccount: !Ref AWS::AccountId
+              - Effect: Allow
+                Action:
+                  - kms:*
+                Resource: !GetAtt KmsKey.Arn
 
   ExtractQueuePolicy:
     Type: AWS::SQS::QueuePolicy
