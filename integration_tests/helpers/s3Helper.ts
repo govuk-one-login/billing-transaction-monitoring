@@ -7,9 +7,10 @@ import {
 } from "@aws-sdk/client-s3";
 import { ReadStream } from "fs";
 
-async function getS3ItemsList(bucketName: string) {
+async function getS3ItemsList(bucketName: string, bucketPrefix: string) {
   const bucketParams = {
     Bucket: bucketName,
+    Prefix: bucketPrefix
   };
   const data = await s3Client.send(new ListObjectsCommand(bucketParams));
   return data;

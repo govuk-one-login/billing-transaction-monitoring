@@ -14,10 +14,11 @@ import {
   snsMissingEventIdPayload,
   snsEventMisisingEventIdValue,
 } from "../payloads/snsEventPayload";
-import {resourcePrefix} from "../helpers/envHelper";
+import { resourcePrefix } from "../helpers/envHelper";
 
 let snsResponse: PublishResponse;
 const storageBucket: string = `${resourcePrefix()}-storage`;
+const storage_s3_bucketPrefix = "btm_transactions";
 
 console.log(storageBucket);
 
@@ -29,7 +30,11 @@ describe(
       snsResponse = await publishSNS(snsValidEventPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
-        const result = await getS3ItemsList(storageBucket);
+        const result = await getS3ItemsList(
+          storageBucket,
+          storage_s3_bucketPrefix
+        );
+        console.log(result);
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           snsValidEventPayload.event_id
         );
@@ -43,7 +48,7 @@ describe(
       snsResponse = await publishSNS(snsEventWithAdditionalFieldsPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
-        const result = await getS3ItemsList(storageBucket);
+        const result = await getS3ItemsList(storageBucket, storage_s3_bucketPrefix);
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           snsEventWithAdditionalFieldsPayload.event_id
         );
@@ -63,7 +68,10 @@ describe(
       snsResponse = await publishSNS(snsInvalidEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
-        const result = await getS3ItemsList(storageBucket);
+        const result = await getS3ItemsList(
+          storageBucket,
+          storage_s3_bucketPrefix
+        );
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           snsInvalidEventNamePayload.event_id
         );
@@ -76,7 +84,10 @@ describe(
       snsResponse = await publishSNS(snsEventInvalidCompId);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
-        const result = await getS3ItemsList(storageBucket);
+        const result = await getS3ItemsList(
+          storageBucket,
+          storage_s3_bucketPrefix
+        );
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           snsEventInvalidCompId.event_id
         );
@@ -89,7 +100,10 @@ describe(
       snsResponse = await publishSNS(snsInvalidTimeStampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
-        const result = await getS3ItemsList(storageBucket);
+        const result = await getS3ItemsList(
+          storageBucket,
+          storage_s3_bucketPrefix
+        );
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           snsInvalidTimeStampPayload.event_id
         );
@@ -102,7 +116,10 @@ describe(
       snsResponse = await publishSNS(snsEventMissingTimestampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
-        const result = await getS3ItemsList(storageBucket);
+        const result = await getS3ItemsList(
+          storageBucket,
+          storage_s3_bucketPrefix
+        );
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           snsEventMissingTimestampPayload.event_id
         );
@@ -115,7 +132,10 @@ describe(
       snsResponse = await publishSNS(snsEventMissingCompIdPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
-        const result = await getS3ItemsList(storageBucket);
+        const result = await getS3ItemsList(
+          storageBucket,
+          storage_s3_bucketPrefix
+        );
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           snsEventMissingCompIdPayload.event_id
         );
@@ -128,7 +148,10 @@ describe(
       snsResponse = await publishSNS(snsMissingEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
-        const result = await getS3ItemsList(storageBucket);
+        const result = await getS3ItemsList(
+          storageBucket,
+          storage_s3_bucketPrefix
+        );
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           snsMissingEventNamePayload.event_id
         );
@@ -141,7 +164,10 @@ describe(
       snsResponse = await publishSNS(snsEventMisisingEventIdValue);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
-        const result = await getS3ItemsList(storageBucket);
+        const result = await getS3ItemsList(
+          storageBucket,
+          storage_s3_bucketPrefix
+        );
         console.log(snsEventMisisingEventIdValue.event_id);
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           "event_id=null"
@@ -156,7 +182,10 @@ describe(
       snsResponse = await publishSNS(snsMissingEventIdPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
-        const result = await getS3ItemsList(storageBucket);
+        const result = await getS3ItemsList(
+          storageBucket,
+          storage_s3_bucketPrefix
+        );
         console.log(JSON.stringify(result.Contents?.map((x) => x.Key)));
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           "event_id=undefined"
