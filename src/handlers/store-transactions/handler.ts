@@ -1,5 +1,5 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
-import { putS3, putDDB } from "../../shared/utils";
+import { putS3 } from "../../shared/utils";
 
 interface Response {
   batchItemFailures: Array<{ itemIdentifier: string }>;
@@ -40,22 +40,10 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     throw new Error(message);
   }
 
-  if (
-    process.env.STORAGE_TABLE === undefined ||
-    process.env.STORAGE_TABLE.length === 0
-  ) {
-    const message = "Storage table name not set.";
-    console.error(message);
-    throw new Error(message);
-  }
-
   const date = new Date(timestamp);
   const key = `${date.getUTCFullYear()}-${
     date.getUTCMonth() + 1
   }-${date.getUTCDate()}/${eventId}.json`;
 
-  await Promise.all([
-    putDDB(process.env.STORAGE_TABLE, bodyObject),
-    putS3(process.env.STORAGE_BUCKET, key, bodyObject),
-  ]);
+  await Promise.all([putS3(process.env.STORAGE_BUCKET, key, bodyObject)]);
 }
