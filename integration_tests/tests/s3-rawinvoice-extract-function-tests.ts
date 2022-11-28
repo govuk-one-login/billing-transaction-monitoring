@@ -11,7 +11,8 @@ const prefix = resourcePrefix();
 
 describe("\n Upload file to s3 bucket and validate extract lambda executed successfully \n", () => {
   const bucketName = `${prefix}-raw-invoice-pdf`;
-  const key = "IP_Invoice.pdf";
+  const uniqueString = Math.random().toString(36).substring(2,7)
+  const key =  `raw-Invoice-${uniqueString}.pdf`
 
   afterAll(async () => {
     await deleteObjectInS3(bucketName, key);
