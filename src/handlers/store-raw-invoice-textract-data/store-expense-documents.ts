@@ -12,15 +12,25 @@ export async function storeExpenseDocuments(
   if (typeof bodyObject !== "object")
     throw new Error("Record body not object.");
 
-  const { JobId: jobId } = bodyObject;
+  const { DocumentLocation: documentLocation, JobId: jobId } = bodyObject;
+
+  if (typeof documentLocation !== "object")
+    throw new Error("No valid document location in record.");
 
   if (typeof jobId !== "string") throw new Error("No valid job ID in record.");
+
+  const { S3Bucket: bucket, S3ObjectName: fileName } = documentLocation;
+
+  if (typeof bucket !== "string" || bucket.length < 1)
+    throw new Error("No valid S3 bucket in record document location.");
+
+  if (typeof fileName !== "string" || fileName.length < 1)
+    throw new Error("No valid S3 object name in record document location.");
 
   const { documents, status } = await fetchExpenseDocuments(jobId);
 
   await putS3(textractBucket, `${jobId}.json`, documents);
 
-  const pdfFileName = "some-file-name.pdf"; // TODO: get real file name somehow
   const folderName = status === "SUCCEEDED" ? "successful" : "failed";
-  await moveS3(pdfBucket, pdfFileName, `${folderName}/${pdfFileName}`);
+  await moveS3(pdfBucket, fileName, `${folderName}/${fileName}`);
 }
