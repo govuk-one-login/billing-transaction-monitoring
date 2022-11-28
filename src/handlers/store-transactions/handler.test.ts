@@ -3,11 +3,10 @@ import {
   createEvent,
   createEventRecordWithName,
 } from "../../../test-helpers/SQS";
-import { putS3, putDDB } from "../../shared/utils";
+import { putS3 } from "../../shared/utils";
 
 jest.mock("../../shared/utils");
 const mockPutS3 = putS3 as jest.MockedFunction<typeof putS3>;
-const mockPutDDB = putDDB as jest.MockedFunction<typeof putDDB>;
 
 const OLD_ENV = process.env;
 const oldConsoleError = console.error;
@@ -18,9 +17,7 @@ beforeEach(() => {
   console.error = jest.fn();
   console.log = jest.fn();
   mockPutS3.mockClear();
-  mockPutDDB.mockClear();
   process.env.STORAGE_BUCKET = "store";
-  process.env.STORAGE_TABLE = "store_ddb";
 });
 
 afterAll(() => {
@@ -35,7 +32,6 @@ test("Store Transactions handler with empty event batch", async () => {
   await handler(event);
 
   expect(mockPutS3).not.toHaveBeenCalled();
-  expect(mockPutDDB).not.toHaveBeenCalled();
 });
 
 test("Store Transactions handler with some valid events calls s3", async () => {
@@ -78,50 +74,8 @@ test("Store Transactions handler with some valid events calls s3", async () => {
   );
 });
 
-test("Store Transactions handler with some valid events calls ddb", async () => {
-  const validRecord1 = createEventRecordWithName(
-    "EVENT_1",
-    1
-  );
-  const validRecord2 = createEventRecordWithName(
-    "EVENT_5",
-    2
-  );
-  const event = createEvent([validRecord1, validRecord2]);
-
-  await handler(event);
-
-  expect(mockPutDDB).toHaveBeenCalledTimes(2);
-  expect(mockPutDDB).toHaveBeenNthCalledWith(
-    1,
-    "store_ddb",
-    JSON.parse(validRecord1.body)
-  );
-  expect(mockPutDDB).toHaveBeenNthCalledWith(
-    2,
-    "store_ddb",
-    JSON.parse(validRecord2.body)
-  );
-});
-
 test("Bucket name not defined", async () => {
   process.env.STORAGE_BUCKET = undefined;
-
-  const validRecord = createEventRecordWithName(
-    "EVENT_1",
-    1
-  );
-
-  const event = createEvent([validRecord]);
-
-  const result = await handler(event);
-
-  expect(result.batchItemFailures.length).toEqual(1);
-  expect(result.batchItemFailures[0].itemIdentifier).toEqual("1");
-});
-
-test("Table name not defined", async () => {
-  process.env.STORAGE_TABLE = undefined;
 
   const validRecord = createEventRecordWithName(
     "EVENT_1",

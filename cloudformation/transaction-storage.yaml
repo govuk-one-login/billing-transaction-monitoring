@@ -1,11 +1,11 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
   StorageBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, storage ] ]
+      BucketName: !Join ["-", [!Ref Prefix, !Ref Environment, storage]]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -23,31 +23,11 @@ Resources:
         DestinationBucketName: !Ref StorageBucketAccessLogsBucket
         LogFilePrefix: storage-bucket-log
 
-  StorageTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: !Join [ '-', [!Ref Prefix, !Ref Environment, storage-table ] ]
-      AttributeDefinitions:
-        - AttributeName: event_id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: event_id
-          KeyType: HASH
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      SSESpecification:
-        KMSMasterKeyId: !GetAtt KmsKey.Arn
-        SSEEnabled: true
-        SSEType: KMS
-
   StorageBucketAccessLogsBucket:
     # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, storage-logs ] ]
+      BucketName: !Join ["-", [!Ref Prefix, !Ref Environment, storage-logs]]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite
@@ -65,7 +45,7 @@ Resources:
   StorageQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, storage-queue ] ]
+      QueueName: !Join ["-", [!Ref Prefix, !Ref Environment, storage-queue]]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
@@ -74,14 +54,14 @@ Resources:
   StorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, storage-dlq ] ]
+      QueueName: !Join ["-", [!Ref Prefix, !Ref Environment, storage-dlq]]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   # Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
   StorageDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Join [ '-', [!Ref Prefix, !Ref Environment, storage-dlq-alarm ] ]
+      AlarmName: !Join ["-", [!Ref Prefix, !Ref Environment, storage-dlq-alarm]]
       AlarmActions:
         - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
@@ -108,12 +88,12 @@ Resources:
     Properties:
       Bucket: !Ref StorageBucketAccessLogsBucket
       PolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Sid: EnableS3Logging
             Effect: Allow
             Resource:
-              - !Join [ '/', [ !GetAtt StorageBucketAccessLogsBucket.Arn, '*' ] ]
+              - !Join ["/", [!GetAtt StorageBucketAccessLogsBucket.Arn, "*"]]
             Principal:
               Service: logging.s3.amazonaws.com
             Action:
@@ -129,7 +109,8 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, storage-function ] ]
+      FunctionName:
+        !Join ["-", [!Ref Prefix, !Ref Environment, storage-function]]
       Events:
         StorageEvent:
           Type: SQS
@@ -140,7 +121,6 @@ Resources:
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-          STORAGE_TABLE: !Ref StorageTable
           STORAGE_BUCKET: !Ref StorageBucket
           LOCAL_ENDPOINT:
             !If [IsLocal, "http://s3.localhost.localstack.cloud:4566", ""]
@@ -162,22 +142,18 @@ Resources:
               Resource: !GetAtt KmsKey.Arn
             - Effect: Allow
               Action:
-                - dynamodb:PutItem
-                - dynamodb:UpdateItem
-              Resource: !GetAtt StorageTable.Arn
-            - Effect: Allow
-              Action:
                 - s3:ListBucket
                 - s3:GetObject
                 - s3:PutObject
               Resource:
-                - !Join ['/', [ !GetAtt StorageBucket.Arn, '*' ] ]
+                - !Join ["/", [!GetAtt StorageBucket.Arn, "*"]]
       ReservedConcurrentExecutions: 10
 
   StorageFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Join [ '-', [!Ref Prefix, !Ref Environment, storage-function-alarm ] ]
+      AlarmName:
+        !Join ["-", [!Ref Prefix, !Ref Environment, storage-function-alarm]]
       AlarmActions:
         - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
