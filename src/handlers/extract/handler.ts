@@ -8,12 +8,10 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   const snsTopic = process.env.TEXTRACT_SNS_TOPIC;
 
   if (textExtractRole === undefined || textExtractRole === "") {
-    const textractMessage = "Textract role not set.";
-    throw new Error(textractMessage);
+    throw new Error("Textract role not set.");
   }
   if (snsTopic === undefined || snsTopic === "") {
-    const snsMessage = "SNS Topic not set.";
-    throw new Error(snsMessage);
+    throw new Error("SNS Topic not set.");
   }
 
   const textract = new AWS.Textract({ region: "eu-west-2" });

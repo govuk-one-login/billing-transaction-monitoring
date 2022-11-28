@@ -146,7 +146,7 @@ describe("Extract handler test", () => {
     });
   });
 
-  test("Extract handler with event record that has body that does not serialises to object", async () => {
+  test("Extract handler with event record that has body that does not serialise to object", async () => {
     const givenEvent = {
       Records: [
         {
