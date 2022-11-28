@@ -17,6 +17,7 @@ describe("Expense documents storer", () => {
   let givenJobId: string;
   let givenPdfBucket: string;
   let givenRecord: SQSRecord;
+  let givenRecordBody: any;
   let givenTextractBucket: string;
 
   beforeEach(() => {
@@ -33,10 +34,15 @@ describe("Expense documents storer", () => {
 
     givenPdfBucket = "given PDF bucket";
 
+    givenRecordBody = {
+      JobId: givenJobId,
+      DocumentLocation: {
+        S3Bucket: "given bucket",
+        S3ObjectName: "given file name",
+      },
+    };
     givenRecord = {
-      body: JSON.stringify({
-        JobId: givenJobId,
-      }),
+      body: JSON.stringify(givenRecordBody),
     } as any;
 
     givenTextractBucket = "given Textract bucket";
@@ -83,7 +89,85 @@ describe("Expense documents storer", () => {
   });
 
   test("Expense documents storer with record body without valid job ID", async () => {
-    givenRecord.body = JSON.stringify({ JobId: 1234 });
+    givenRecord.body = JSON.stringify({
+      ...givenRecordBody,
+      JobId: 1234,
+    });
+
+    let resultError;
+    try {
+      await storeExpenseDocuments(
+        givenRecord,
+        givenPdfBucket,
+        givenTextractBucket
+      );
+    } catch (error) {
+      resultError = error;
+    }
+
+    expect(resultError).toBeInstanceOf(Error);
+    expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
+    expect(mockedPutS3).not.toHaveBeenCalled();
+    expect(mockedMoveS3).not.toHaveBeenCalled();
+  });
+
+  test("Expense documents storer with record body without valid document location", async () => {
+    givenRecord.body = JSON.stringify({
+      ...givenRecordBody,
+      DocumentLocation: "given invalid document location",
+    });
+
+    let resultError;
+    try {
+      await storeExpenseDocuments(
+        givenRecord,
+        givenPdfBucket,
+        givenTextractBucket
+      );
+    } catch (error) {
+      resultError = error;
+    }
+
+    expect(resultError).toBeInstanceOf(Error);
+    expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
+    expect(mockedPutS3).not.toHaveBeenCalled();
+    expect(mockedMoveS3).not.toHaveBeenCalled();
+  });
+
+  test("Expense documents storer with record body without valid bucket", async () => {
+    givenRecord.body = JSON.stringify({
+      ...givenRecordBody,
+      DocumentLocation: {
+        ...givenRecordBody.DocumentLocation,
+        S3Bucket: 1234,
+      },
+    });
+
+    let resultError;
+    try {
+      await storeExpenseDocuments(
+        givenRecord,
+        givenPdfBucket,
+        givenTextractBucket
+      );
+    } catch (error) {
+      resultError = error;
+    }
+
+    expect(resultError).toBeInstanceOf(Error);
+    expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
+    expect(mockedPutS3).not.toHaveBeenCalled();
+    expect(mockedMoveS3).not.toHaveBeenCalled();
+  });
+
+  test("Expense documents storer with record body without valid file name", async () => {
+    givenRecord.body = JSON.stringify({
+      ...givenRecordBody,
+      DocumentLocation: {
+        ...givenRecordBody.DocumentLocation,
+        S3ObjectName: "",
+      },
+    });
 
     let resultError;
     try {
@@ -149,8 +233,8 @@ describe("Expense documents storer", () => {
     expect(mockedMoveS3).toHaveBeenCalledTimes(1);
     expect(mockedMoveS3).toHaveBeenCalledWith(
       givenPdfBucket,
-      "some-file-name.pdf", // TODO: update this when changed
-      "failed/some-file-name.pdf"
+      givenRecordBody.DocumentLocation.S3ObjectName,
+      `failed/${givenRecordBody.DocumentLocation.S3ObjectName as string}`
     );
   });
 
@@ -169,8 +253,8 @@ describe("Expense documents storer", () => {
     expect(mockedMoveS3).toHaveBeenCalledTimes(1);
     expect(mockedMoveS3).toHaveBeenCalledWith(
       givenPdfBucket,
-      "some-file-name.pdf", // TODO: update this when changed
-      "successful/some-file-name.pdf"
+      givenRecordBody.DocumentLocation.S3ObjectName,
+      `successful/${givenRecordBody.DocumentLocation.S3ObjectName as string}`
     );
   });
 
