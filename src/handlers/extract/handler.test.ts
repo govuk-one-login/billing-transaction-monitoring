@@ -83,20 +83,26 @@ describe("Extract handler test", () => {
 
   test("Extract handler with valid event record that doesnt have a textract role throws an error", async () => {
     process.env.TEXTRACT_ROLE = undefined;
+    let resultError;
     try {
       await handler(validEvent);
     } catch (e: any) {
-      expect(e.message).toEqual("Textract role not set.");
+      resultError = e;
     }
+    expect(resultError).toBeInstanceOf(Error);
+    expect(resultError.message).toEqual("Textract role not set.");
   });
 
   test("Extract handler with valid event record that doesnt have an sns topic throws an error", async () => {
     process.env.TEXTRACT_SNS_TOPIC = undefined;
+    let resultError;
     try {
       await handler(validEvent);
     } catch (e: any) {
-      expect(e.message).toEqual("SNS Topic not set.");
+      resultError = e;
     }
+    expect(resultError).toBeInstanceOf(Error);
+    expect(resultError.message).toEqual("SNS Topic not set.");
   });
 
   test("Extract handler with empty event does not call textract", async () => {
