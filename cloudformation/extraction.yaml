@@ -87,7 +87,9 @@ Resources:
                 Resource: !Ref AmazonTextractRawInvoiceDataTopic
               - Effect: Allow
                 Action:
-                  - kms:*
+                  - kms:Decrypt
+                  - kms:GenerateDataKey*
+                  - kms:Encrypt
                 Resource: !GetAtt KmsKey.Arn
 
   ExtractQueuePolicy:
