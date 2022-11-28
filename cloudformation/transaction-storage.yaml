@@ -82,7 +82,7 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_TABLE: !Ref StorageTable
           STORAGE_BUCKET: !Ref StorageBucket
-          TRANSACTIONS_FOLDER: !Join ['/', [ !GetAtt StorageBucket.Arn, 'btm_transactions' ] ]
+          TRANSACTIONS_FOLDER: 'btm_transactions'
           LOCAL_ENDPOINT:
             !If [IsLocal, "http://s3.localhost.localstack.cloud:4566", ""]
       Handler: storeTransactions.handler
