@@ -56,6 +56,6 @@ async function storeRecord(record: SQSRecord): Promise<void> {
 
   await Promise.all([
     putDDB(process.env.STORAGE_TABLE, bodyObject),
-    putS3(process.env.STORAGE_BUCKET, "btm_transactions/" + key, bodyObject),
+    putS3(process.env.STORAGE_BUCKET, process.env.TRANSACTIONS_FOLDER + '/' + key, bodyObject),
   ]);
 }
