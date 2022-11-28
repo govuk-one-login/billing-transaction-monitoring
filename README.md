@@ -131,6 +131,16 @@ npm run sam:deploy
 
 After deploying to an environment for the first time, if you want to receive alerts about errors, manually create a CloudFormation stack in the Amazon Web Services console with `alert-chatbot-template.yaml` and the parameters for the Slack workspace and channel IDs (eleven- and nine-character codes found in the URL for the Slack channel) as well as the Amazon Resource Name for Simple Notification Service output by the `di-btm` stack
 
+## Destroying your on-demand stack
+
+To destroy your stack, make sure `ENV_NAME` is set as explained above and run:
+
+```
+npm run sam:teardown
+```
+
+The might be some manual interaction needed, the script will tell you what to do.
+
 ## Licence
 
 [MIT License](LICENCE)
