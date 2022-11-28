@@ -20,6 +20,7 @@ beforeEach(() => {
   mockPutS3.mockClear();
   mockPutDDB.mockClear();
   process.env.STORAGE_BUCKET = "store";
+  process.env.TRANSACTIONS_FOLDER = "btm_transactions";
   process.env.STORAGE_TABLE = "store_ddb";
 });
 
@@ -55,7 +56,7 @@ test("Store Transactions handler with some valid events calls s3", async () => {
 
   const recordBody1 = JSON.parse(validRecord1.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
-  const expectedKey1 = `${expectedDate1.getUTCFullYear()}-${
+  const expectedKey1 = `btm_transactions/${expectedDate1.getUTCFullYear()}-${
     expectedDate1.getUTCMonth() + 1
   }-${expectedDate1.getUTCDate()}/${recordBody1.event_id as string}.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -67,7 +68,7 @@ test("Store Transactions handler with some valid events calls s3", async () => {
 
   const recordBody2 = JSON.parse(validRecord2.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
-  const expectedKey2 = `${expectedDate2.getUTCFullYear()}-${
+  const expectedKey2 = `btm_transactions/${expectedDate2.getUTCFullYear()}-${
     expectedDate2.getUTCMonth() + 1
   }-${expectedDate2.getUTCDate()}/${recordBody2.event_id as string}.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -120,6 +121,22 @@ test("Bucket name not defined", async () => {
   expect(result.batchItemFailures[0].itemIdentifier).toEqual("1");
 });
 
+test("Transactions bucket name not defined", async () => {
+  process.env.TRANSACTIONS_FOLDER = undefined;
+
+  const validRecord = createEventRecordWithName(
+    "IPV_PASSPORT_CRI_REQUEST_SENT",
+    1
+  );
+
+  const event = createEvent([validRecord]);
+
+  const result = await handler(event);
+
+  expect(result.batchItemFailures.length).toEqual(1);
+  expect(result.batchItemFailures[0].itemIdentifier).toEqual("1");
+});
+
 test("Table name not defined", async () => {
   process.env.STORAGE_TABLE = undefined;
 
@@ -156,7 +173,7 @@ test("Failing puts to S3", async () => {
 
   const recordBody1 = JSON.parse(validRecord.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
-  const expectedKey1 = `${expectedDate1.getUTCFullYear()}-${
+  const expectedKey1 = `btm_transactions/${expectedDate1.getUTCFullYear()}-${
     expectedDate1.getUTCMonth() + 1
   }-${expectedDate1.getUTCDate()}/${recordBody1.event_id as string}.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -168,7 +185,7 @@ test("Failing puts to S3", async () => {
 
   const recordBody2 = JSON.parse(invalidRecord.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
-  const expectedKey2 = `${expectedDate2.getUTCFullYear()}-${
+  const expectedKey2 = `btm_transactions/${expectedDate2.getUTCFullYear()}-${
     expectedDate2.getUTCMonth() + 1
   }-${expectedDate2.getUTCDate()}/${recordBody2.event_id as string}.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(

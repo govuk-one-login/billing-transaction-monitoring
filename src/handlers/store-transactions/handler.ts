@@ -41,6 +41,15 @@ async function storeRecord(record: SQSRecord): Promise<void> {
   }
 
   if (
+    process.env.TRANSACTIONS_FOLDER === undefined ||
+    process.env.TRANSACTIONS_FOLDER.length === 0
+  ) {
+    const message = "Transactions folder name not set.";
+    console.error(message);
+    throw new Error(message);
+  }
+
+  if (
     process.env.STORAGE_TABLE === undefined ||
     process.env.STORAGE_TABLE.length === 0
   ) {
