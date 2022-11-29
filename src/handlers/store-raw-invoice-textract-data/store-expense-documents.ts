@@ -7,7 +7,12 @@ export async function storeExpenseDocuments(
   pdfBucket: string,
   textractBucket: string
 ): Promise<void> {
-  const bodyObject = JSON.parse(record.body);
+  let bodyObject;
+  try {
+    bodyObject = JSON.parse(record.body);
+  } catch {
+    throw new Error("Record body not valid JSON.");
+  }
 
   if (typeof bodyObject !== "object")
     throw new Error("Record body not object.");
@@ -17,7 +22,8 @@ export async function storeExpenseDocuments(
   if (typeof documentLocation !== "object")
     throw new Error("No valid document location in record.");
 
-  if (typeof jobId !== "string") throw new Error("No valid job ID in record.");
+  if (typeof jobId !== "string" || jobId.length < 1)
+    throw new Error("No valid job ID in record.");
 
   const { S3Bucket: bucket, S3ObjectName: fileName } = documentLocation;
 
