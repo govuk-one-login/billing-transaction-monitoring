@@ -115,11 +115,7 @@ Resources:
       FunctionName:
         !Join [
           "-",
-          [
-            !Ref Prefix,
-            !Ref Environment,
-            raw-invoice-textract-data-storage-function,
-          ],
+          [!Ref Prefix, !Ref Environment, raw-textract-storage-function],
         ]
       Environment:
         Variables:
