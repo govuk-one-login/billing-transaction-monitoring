@@ -18,6 +18,7 @@ export const handler = async (event: SQSEvent): Promise<BatchItemResponse> => {
     try {
       await storeExpenseDocuments(record, pdfBucket, textractBucket);
     } catch (e) {
+      console.error(e);
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
     }
   });
