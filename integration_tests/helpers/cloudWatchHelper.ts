@@ -25,7 +25,7 @@ async function checkGivenStringExistsInLogs(
   const expectedStringExists = await waitForTrue(
     checkGivenStringExists,
     3000,
-    15000
+    25000
   );
   return expectedStringExists;
 }

@@ -1,5 +1,4 @@
-import { SQSRecord } from "aws-lambda";
-import { createEvent } from "../../../test-helpers/SQS";
+import { createEvent, createRecord } from "../../../test-helpers/SQS";
 import { VALID_EVENT_NAMES } from "../../shared/constants";
 import { sendRecord } from "../../shared/utils";
 import { handler } from "./handler";
@@ -240,10 +239,3 @@ test("SQS output queue not defined", async () => {
   });
   expect(mockedSendRecord).not.toHaveBeenCalled();
 });
-
-function createRecord(body: String, messageId?: string): SQSRecord {
-  return {
-    body,
-    messageId,
-  } as any;
-}
