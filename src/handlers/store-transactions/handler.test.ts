@@ -3,11 +3,10 @@ import {
   createEvent,
   createEventRecordWithName,
 } from "../../../test-helpers/SQS";
-import { putS3, putDDB } from "../../shared/utils";
+import { putS3 } from "../../shared/utils";
 
 jest.mock("../../shared/utils");
 const mockPutS3 = putS3 as jest.MockedFunction<typeof putS3>;
-const mockPutDDB = putDDB as jest.MockedFunction<typeof putDDB>;
 
 const OLD_ENV = process.env;
 const oldConsoleError = console.error;
@@ -18,7 +17,6 @@ beforeEach(() => {
   console.error = jest.fn();
   console.log = jest.fn();
   mockPutS3.mockClear();
-  mockPutDDB.mockClear();
   process.env.STORAGE_BUCKET = "store";
   process.env.TRANSACTIONS_FOLDER = "btm_transactions";
   process.env.STORAGE_TABLE = "store_ddb";
@@ -36,7 +34,6 @@ test("Store Transactions handler with empty event batch", async () => {
   await handler(event);
 
   expect(mockPutS3).not.toHaveBeenCalled();
-  expect(mockPutDDB).not.toHaveBeenCalled();
 });
 
 test("Store Transactions handler with some valid events calls s3", async () => {
@@ -79,32 +76,6 @@ test("Store Transactions handler with some valid events calls s3", async () => {
   );
 });
 
-test("Store Transactions handler with some valid events calls ddb", async () => {
-  const validRecord1 = createEventRecordWithName(
-    "IPV_PASSPORT_CRI_REQUEST_SENT",
-    1
-  );
-  const validRecord2 = createEventRecordWithName(
-    "IPV_ADDRESS_CRI_REQUEST_SENT",
-    2
-  );
-  const event = createEvent([validRecord1, validRecord2]);
-
-  await handler(event);
-
-  expect(mockPutDDB).toHaveBeenCalledTimes(2);
-  expect(mockPutDDB).toHaveBeenNthCalledWith(
-    1,
-    "store_ddb",
-    JSON.parse(validRecord1.body)
-  );
-  expect(mockPutDDB).toHaveBeenNthCalledWith(
-    2,
-    "store_ddb",
-    JSON.parse(validRecord2.body)
-  );
-});
-
 test("Bucket name not defined", async () => {
   process.env.STORAGE_BUCKET = undefined;
 
@@ -121,7 +92,7 @@ test("Bucket name not defined", async () => {
   expect(result.batchItemFailures[0].itemIdentifier).toEqual("1");
 });
 
-test("Transactions bucket name not defined", async () => {
+test("Transactions folder name not defined", async () => {
   process.env.TRANSACTIONS_FOLDER = undefined;
 
   const validRecord = createEventRecordWithName(

@@ -1,5 +1,5 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
-import { putS3, putDDB } from "../../shared/utils";
+import { putS3 } from "../../shared/utils";
 
 interface Response {
   batchItemFailures: Array<{ itemIdentifier: string }>;
@@ -63,8 +63,5 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     date.getUTCMonth() + 1
   }-${date.getUTCDate()}/${eventId}.json`;
 
-  await Promise.all([
-    putDDB(process.env.STORAGE_TABLE, bodyObject),
-    putS3(process.env.STORAGE_BUCKET, process.env.TRANSACTIONS_FOLDER + '/' + key, bodyObject),
-  ]);
+  await putS3(process.env.STORAGE_BUCKET, key, bodyObject);
 }
