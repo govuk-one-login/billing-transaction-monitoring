@@ -1,7 +1,7 @@
 import {
   deleteObjectInS3,
   copyObject,
-  checkIfFileExists,
+  checkIfFileExists
 } from "../helpers/s3Helper";
 import { checkGivenStringExistsInLogs } from "../helpers/cloudWatchHelper";
 import { resourcePrefix } from "../helpers/envHelper";
@@ -19,10 +19,10 @@ describe("\n Upload file to raw s3 bucket and validate the filename in textract 
     console.log("deleted the file from s3");
   });
 
-  test("textractData lambda logs should contain uploaded raw invoice filename", async () => {
+  test("textractData lambda log should contain uploaded raw invoice filename", async () => {
     await copyObject(
       `${prefix}-raw-invoice-pdf`,
-      `${prefix}-test-invoice-pdf/IP_Invoice.pdf`,
+      `${prefix}-test-invoice-pdf/Invoice.pdf`,
       destinationBucketKey
     );
     const fileExistsInRawS3 = await checkIfFileExists(
@@ -33,7 +33,7 @@ describe("\n Upload file to raw s3 bucket and validate the filename in textract 
 
     const fileNameExistsInTextractLambdaLogs =
       await checkGivenStringExistsInLogs(
-        `${prefix}-RawInvoiceTextractDataStorage`,
+        `${prefix}-raw-textract-storage-function`,
         destinationBucketKey,
         testStartTime
       );

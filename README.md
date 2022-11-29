@@ -129,6 +129,10 @@ npm run sam:deploy
 
 `npm run test:integration` should automatically run against your own env as long as the env-variable `ENV_NAME` is properly set and exported.
 
+To run the texract function integration test
+
+The test invoice file needs to be manually uploaded into test S3 bucket (ENV_NAME-test-invoice-pdf) with name Invoice.pdf
+
 After deploying to an environment for the first time, if you want to receive alerts about errors, manually create a CloudFormation stack in the Amazon Web Services console with `alert-chatbot-template.yaml` and the parameters for the Slack workspace and channel IDs (eleven- and nine-character codes found in the URL for the Slack channel) as well as the Amazon Resource Name for Simple Notification Service output by the `di-btm` stack
 
 ## Licence
