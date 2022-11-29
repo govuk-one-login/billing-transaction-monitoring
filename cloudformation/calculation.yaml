@@ -23,26 +23,6 @@ Resources:
         DestinationBucketName: !Ref StorageBucketAccessLogsBucket
         LogFilePrefix: storage-bucket-log
 
-  StorageTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: !Join [ '-', [!Ref Prefix, !Ref Environment, storage-table ] ]
-      AttributeDefinitions:
-        - AttributeName: event_id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: event_id
-          KeyType: HASH
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      SSESpecification:
-        KMSMasterKeyId: !GetAtt KmsKey.Arn
-        SSEEnabled: true
-        SSEType: KMS
-
   StorageBucketAccessLogsBucket:
     # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
     Type: AWS::S3::Bucket
