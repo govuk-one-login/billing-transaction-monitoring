@@ -63,5 +63,5 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     date.getUTCMonth() + 1
   }-${date.getUTCDate()}/${eventId}.json`;
 
-  await putS3(process.env.STORAGE_BUCKET, key, bodyObject);
+  await putS3(process.env.STORAGE_BUCKET, process.env.TRANSACTIONS_FOLDER + '/' + key, bodyObject);
 }
