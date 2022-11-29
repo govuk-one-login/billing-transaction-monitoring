@@ -9,40 +9,34 @@ import { resourcePrefix } from "../helpers/envHelper";
 const testStartTime = new Date().getTime();
 const prefix = resourcePrefix();
 
-describe("\n Upload file to s3 bucket and validate extract lambda executed successfully \n", () => {
+describe("\n Upload file to raw s3 bucket and validate the filename in textract data lambda logs \n", () => {
   const bucketName = `${prefix}-raw-invoice-pdf`;
-  const uniqueString = Math.random().toString(36).substring(2,7)
-  const key =  `raw-Invoice-${uniqueString}.pdf`
+  const uniqueString = Math.random().toString(36).substring(2, 7);
+  const destinationBucketKey = `raw-Invoice-${uniqueString}.pdf`;
 
   afterAll(async () => {
-    await deleteObjectInS3(bucketName, key);
+    await deleteObjectInS3(bucketName, destinationBucketKey);
     console.log("deleted the file from s3");
   });
 
-  test("extract lambda function should be executed and contains JobId upon uploading the file to s3 raw invoice pdf bucket", async () => {
+  test("textractData lambda logs should contain uploaded raw invoice filename", async () => {
     await copyObject(
       `${prefix}-raw-invoice-pdf`,
       `${prefix}-test-invoice-pdf/IP_Invoice.pdf`,
-      key
+      destinationBucketKey
     );
     const fileExistsInRawS3 = await checkIfFileExists(
       `${prefix}-raw-invoice-pdf`,
-      key
+      destinationBucketKey
     );
     expect(fileExistsInRawS3).toBeTruthy();
 
-    const fileNameExistsInLogs = await checkGivenStringExistsInLogs(
-      `${prefix}-extract-function`,
-      key,
-      testStartTime
-    );
-    expect(fileNameExistsInLogs).toBeTruthy();
-
-    const jobIdExistsInLogs = await checkGivenStringExistsInLogs(
-      `${prefix}-extract-function`,
-      "Job ID",
-      testStartTime
-    );
-    expect(jobIdExistsInLogs).toBeTruthy();
+    const fileNameExistsInTextractLambdaLogs =
+      await checkGivenStringExistsInLogs(
+        `${prefix}-RawInvoiceTextractDataStorage`,
+        destinationBucketKey,
+        testStartTime
+      );
+    expect(fileNameExistsInTextractLambdaLogs).toBeTruthy();
   });
 });
