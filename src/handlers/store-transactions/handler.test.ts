@@ -19,7 +19,6 @@ beforeEach(() => {
   mockPutS3.mockClear();
   process.env.STORAGE_BUCKET = "store";
   process.env.TRANSACTIONS_FOLDER = "btm_transactions";
-  process.env.STORAGE_TABLE = "store_ddb";
 });
 
 afterAll(() => {
@@ -94,22 +93,6 @@ test("Bucket name not defined", async () => {
 
 test("Transactions folder name not defined", async () => {
   process.env.TRANSACTIONS_FOLDER = undefined;
-
-  const validRecord = createEventRecordWithName(
-    "IPV_PASSPORT_CRI_REQUEST_SENT",
-    1
-  );
-
-  const event = createEvent([validRecord]);
-
-  const result = await handler(event);
-
-  expect(result.batchItemFailures.length).toEqual(1);
-  expect(result.batchItemFailures[0].itemIdentifier).toEqual("1");
-});
-
-test("Table name not defined", async () => {
-  process.env.STORAGE_TABLE = undefined;
 
   const validRecord = createEventRecordWithName(
     "IPV_PASSPORT_CRI_REQUEST_SENT",

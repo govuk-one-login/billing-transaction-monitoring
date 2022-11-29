@@ -48,16 +48,7 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     console.error(message);
     throw new Error(message);
   }
-
-  if (
-    process.env.STORAGE_TABLE === undefined ||
-    process.env.STORAGE_TABLE.length === 0
-  ) {
-    const message = "Storage table name not set.";
-    console.error(message);
-    throw new Error(message);
-  }
-
+  
   const date = new Date(timestamp);
   const key = `${date.getUTCFullYear()}-${
     date.getUTCMonth() + 1
