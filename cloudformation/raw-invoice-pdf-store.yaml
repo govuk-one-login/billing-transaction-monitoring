@@ -1,10 +1,10 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
   RawInvoicePdfBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-pdf ] ]
+      BucketName: !Join ["-", [!Ref Prefix, !Ref Environment, raw-invoice-pdf]]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -24,13 +24,19 @@ Resources:
       NotificationConfiguration:
         QueueConfigurations:
           - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: ".pdf"
             Queue: !GetAtt ExtractQueue.Arn
 
   RawInvoicePdfLogBucket:
     # checkov:skip=CKV_AWS_18: This is the raw invoice pdf log bucket - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-pdf-logs ] ]
+      BucketName:
+        !Join ["-", [!Ref Prefix, !Ref Environment, raw-invoice-pdf-logs]]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite

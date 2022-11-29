@@ -7,3 +7,7 @@ export type ValidEventName =
   | "EVENT_8"
   | "EVENT_1"
   | "EVENT_2";
+
+export interface Response {
+  batchItemFailures: Array<{ itemIdentifier: string }>;
+}

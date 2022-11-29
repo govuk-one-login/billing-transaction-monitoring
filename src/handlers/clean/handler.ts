@@ -1,6 +1,6 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { VALID_EVENT_NAMES } from "../../shared/constants";
-import { ValidEventName } from "../../shared/types";
+import { Response, ValidEventName } from "../../shared/types";
 import { sendRecord } from "../../shared/utils";
 
 interface CleanedEventBodyObject {
@@ -16,10 +16,6 @@ interface CleanedEventBodyObject {
   user?: {
     transaction_id?: string;
   };
-}
-
-interface Response {
-  batchItemFailures: Array<{ itemIdentifier: string }>;
 }
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
