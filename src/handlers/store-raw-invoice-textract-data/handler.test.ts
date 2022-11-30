@@ -19,8 +19,7 @@ describe("Store Raw Invoice Textract Data handler tests", () => {
 
     process.env = {
       ...OLD_ENV,
-      PDF_BUCKET: "given PDF bucket",
-      TEXTRACT_BUCKET: "given Textract bucket",
+      DESTINATION_BUCKET: "given destination bucket",
     };
 
     givenEvent = { Records: [] };
@@ -31,21 +30,8 @@ describe("Store Raw Invoice Textract Data handler tests", () => {
     console.error = oldConsoleError;
   });
 
-  test("Store Raw Invoice Textract Data handler with no PDF bucket set", async () => {
-    delete process.env.PDF_BUCKET;
-
-    let resultError;
-    try {
-      await handler(givenEvent);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
-  });
-
-  test("Store Raw Invoice Textract Data handler with no Textract bucket set", async () => {
-    delete process.env.TEXTRACT_BUCKET;
+  test("Store Raw Invoice Textract Data handler with no destination bucket set", async () => {
+    delete process.env.DESTINATION_BUCKET;
 
     let resultError;
     try {
@@ -73,13 +59,11 @@ describe("Store Raw Invoice Textract Data handler tests", () => {
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledTimes(2);
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
       givenRecord1,
-      process.env.PDF_BUCKET,
-      process.env.TEXTRACT_BUCKET
+      process.env.DESTINATION_BUCKET
     );
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
       givenRecord2,
-      process.env.PDF_BUCKET,
-      process.env.TEXTRACT_BUCKET
+      process.env.DESTINATION_BUCKET
     );
     expect(result).toEqual({
       batchItemFailures: [
@@ -105,13 +89,11 @@ describe("Store Raw Invoice Textract Data handler tests", () => {
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledTimes(2);
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
       givenRecord1,
-      process.env.PDF_BUCKET,
-      process.env.TEXTRACT_BUCKET
+      process.env.DESTINATION_BUCKET
     );
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
       givenRecord2,
-      process.env.PDF_BUCKET,
-      process.env.TEXTRACT_BUCKET
+      process.env.DESTINATION_BUCKET
     );
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given record 1 message ID" }],

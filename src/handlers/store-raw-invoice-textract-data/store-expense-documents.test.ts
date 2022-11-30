@@ -15,10 +15,9 @@ describe("Expense documents storer", () => {
   let mockedDocuments: Textract.ExpenseDocument[];
   let mockedStatus;
   let givenJobId: string;
-  let givenPdfBucket: string;
   let givenRecord: SQSRecord;
   let givenRecordBody: any;
-  let givenTextractBucket: string;
+  let givenDestinationBucket: string;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -32,20 +31,18 @@ describe("Expense documents storer", () => {
 
     givenJobId = "given job ID";
 
-    givenPdfBucket = "given PDF bucket";
-
     givenRecordBody = {
       JobId: givenJobId,
       DocumentLocation: {
-        S3Bucket: "given bucket",
-        S3ObjectName: "given file name",
+        S3Bucket: "given source bucket",
+        S3ObjectName: "given source file name",
       },
     };
     givenRecord = {
       body: JSON.stringify(givenRecordBody),
     } as any;
 
-    givenTextractBucket = "given Textract bucket";
+    givenDestinationBucket = "given destination bucket";
   });
 
   test("Expense documents storer with record body not JSON serialisable", async () => {
@@ -53,11 +50,7 @@ describe("Expense documents storer", () => {
 
     let resultError;
     try {
-      await storeExpenseDocuments(
-        givenRecord,
-        givenPdfBucket,
-        givenTextractBucket
-      );
+      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
     } catch (error) {
       resultError = error;
     }
@@ -73,11 +66,7 @@ describe("Expense documents storer", () => {
 
     let resultError;
     try {
-      await storeExpenseDocuments(
-        givenRecord,
-        givenPdfBucket,
-        givenTextractBucket
-      );
+      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
     } catch (error) {
       resultError = error;
     }
@@ -96,11 +85,7 @@ describe("Expense documents storer", () => {
 
     let resultError;
     try {
-      await storeExpenseDocuments(
-        givenRecord,
-        givenPdfBucket,
-        givenTextractBucket
-      );
+      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
     } catch (error) {
       resultError = error;
     }
@@ -119,11 +104,7 @@ describe("Expense documents storer", () => {
 
     let resultError;
     try {
-      await storeExpenseDocuments(
-        givenRecord,
-        givenPdfBucket,
-        givenTextractBucket
-      );
+      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
     } catch (error) {
       resultError = error;
     }
@@ -145,11 +126,7 @@ describe("Expense documents storer", () => {
 
     let resultError;
     try {
-      await storeExpenseDocuments(
-        givenRecord,
-        givenPdfBucket,
-        givenTextractBucket
-      );
+      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
     } catch (error) {
       resultError = error;
     }
@@ -171,11 +148,7 @@ describe("Expense documents storer", () => {
 
     let resultError;
     try {
-      await storeExpenseDocuments(
-        givenRecord,
-        givenPdfBucket,
-        givenTextractBucket
-      );
+      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
     } catch (error) {
       resultError = error;
     }
@@ -196,11 +169,7 @@ describe("Expense documents storer", () => {
 
     let resultError;
     try {
-      await storeExpenseDocuments(
-        givenRecord,
-        givenPdfBucket,
-        givenTextractBucket
-      );
+      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
     } catch (error) {
       resultError = error;
     }
@@ -218,21 +187,17 @@ describe("Expense documents storer", () => {
       status: "FAILED",
     });
 
-    await storeExpenseDocuments(
-      givenRecord,
-      givenPdfBucket,
-      givenTextractBucket
-    );
+    await storeExpenseDocuments(givenRecord, givenDestinationBucket);
 
     expect(mockedPutS3).toHaveBeenCalledTimes(1);
     expect(mockedPutS3).toHaveBeenCalledWith(
-      givenTextractBucket,
+      givenDestinationBucket,
       `${givenJobId}.json`,
       mockedDocuments
     );
     expect(mockedMoveS3).toHaveBeenCalledTimes(1);
     expect(mockedMoveS3).toHaveBeenCalledWith(
-      givenPdfBucket,
+      givenRecordBody.DocumentLocation.S3Bucket,
       givenRecordBody.DocumentLocation.S3ObjectName,
       `failed/${givenRecordBody.DocumentLocation.S3ObjectName as string}`
     );
@@ -244,15 +209,11 @@ describe("Expense documents storer", () => {
       status: "SUCCEEDED",
     });
 
-    await storeExpenseDocuments(
-      givenRecord,
-      givenPdfBucket,
-      givenTextractBucket
-    );
+    await storeExpenseDocuments(givenRecord, givenDestinationBucket);
 
     expect(mockedMoveS3).toHaveBeenCalledTimes(1);
     expect(mockedMoveS3).toHaveBeenCalledWith(
-      givenPdfBucket,
+      givenRecordBody.DocumentLocation.S3Bucket,
       givenRecordBody.DocumentLocation.S3ObjectName,
       `successful/${givenRecordBody.DocumentLocation.S3ObjectName as string}`
     );
@@ -264,11 +225,7 @@ describe("Expense documents storer", () => {
 
     let resultError;
     try {
-      await storeExpenseDocuments(
-        givenRecord,
-        givenPdfBucket,
-        givenTextractBucket
-      );
+      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
     } catch (error) {
       resultError = error;
     }
@@ -276,7 +233,7 @@ describe("Expense documents storer", () => {
     expect(resultError).toBe(mockedPutS3Error);
     expect(mockedPutS3).toHaveBeenCalledTimes(1);
     expect(mockedPutS3).toHaveBeenCalledWith(
-      givenTextractBucket,
+      givenDestinationBucket,
       `${givenJobId}.json`,
       mockedDocuments
     );
@@ -289,11 +246,7 @@ describe("Expense documents storer", () => {
 
     let resultError;
     try {
-      await storeExpenseDocuments(
-        givenRecord,
-        givenPdfBucket,
-        givenTextractBucket
-      );
+      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
     } catch (error) {
       resultError = error;
     }
