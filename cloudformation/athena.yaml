@@ -106,6 +106,13 @@ Resources:
   CalculationDataCrawlerRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Join ["-", [!Ref Prefix, !Ref Environment, calc-role]]
+      PermissionsBoundary:
+        !If [
+          UsePermissionsBoundary,
+          !Ref PermissionsBoundary,
+          !Ref AWS::NoValue
+        ]
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -126,7 +133,8 @@ Resources:
               - Effect: Allow
                 Action:
                   - "logs:AssociateKmsKey"
-                Resource: !GetAtt KmsKey.Arn
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws-glue/crawlers-role/${Prefix}-${Environment}-calc-role-${Prefix}-${Environment}-crawler-security-config:log-stream
 
   CrawlerSecurityConfiguration:
     Type: AWS::Glue::SecurityConfiguration
