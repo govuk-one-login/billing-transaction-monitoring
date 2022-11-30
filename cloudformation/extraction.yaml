@@ -63,6 +63,13 @@ Resources:
   TextractRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Join ["-", [!Ref Prefix, !Ref Environment, textract-role]]
+      PermissionsBoundary:
+        !If [
+          UsePermissionsBoundary,
+          !Ref PermissionsBoundary,
+          !Ref AWS::NoValue,
+        ]
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
