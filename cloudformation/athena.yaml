@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
   TransactionDB:
@@ -6,7 +6,7 @@ Resources:
     Properties:
       CatalogId: !Ref AWS::AccountId
       DatabaseInput:
-        Name: !Join [ '-', [!Ref Prefix, !Ref Environment, transactions ] ]
+        Name: !Join ["-", [!Ref Prefix, !Ref Environment, transactions]]
 
   TransactionTable:
     Type: AWS::Glue::Table
@@ -20,11 +20,15 @@ Resources:
           has_encrypted_data: "true"
           projection.enabled: "true"
           projection.datetime.type: date
-          projection.datetime.range: '2022-01-01,NOW'
-          projection.datetime.format: 'yyyy-MM-dd'
+          projection.datetime.range: "2022-01-01,NOW"
+          projection.datetime.format: "yyyy-MM-dd"
           projection.datetime.interval: 1
           projection.datetime.interval.unit: DAYS
-          storage.location.template: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions/${datetime}/' ] ]
+          storage.location.template:
+            !Join [
+              "",
+              ["s3://", !Ref StorageBucket, "/btm_transactions/${datetime}/"],
+            ]
         PartitionKeys:
           - { Name: "datetime", Type: date }
         StorageDescriptor:
@@ -41,17 +45,22 @@ Resources:
             - { Name: "extensions", Type: string }
           Compressed: true
           InputFormat: "org.apache.hadoop.mapred.TextInputFormat"
-          Location: !Join [ '', [ 's3://', !Ref StorageBucket, '/' ] ]
+          Location: !Join ["", ["s3://", !Ref StorageBucket, "/"]]
           StoredAsSubDirectories: false
           OutputFormat: "org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat"
           SerdeInfo:
-            Parameters: { "ignore.malformed.json": true,"serialiazation.format": 1,"field.delim": "" }
+            Parameters:
+              {
+                "ignore.malformed.json": true,
+                "serialiazation.format": 1,
+                "field.delim": "",
+              }
             SerializationLibrary: "org.openx.data.jsonserde.JsonSerDe"
 
   AthenaTransactionWorkgroup:
     Type: AWS::Athena::WorkGroup
     Properties:
-      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, athena-workgroup ] ]
+      Name: !Join ["-", [!Ref Prefix, !Ref Environment, athena-workgroup]]
       WorkGroupConfiguration:
         EnforceWorkGroupConfiguration: true
         PublishCloudWatchMetricsEnabled: false
@@ -59,12 +68,14 @@ Resources:
           EncryptionConfiguration:
             EncryptionOption: "SSE_KMS"
             KmsKey: !GetAtt KmsKey.Arn
-          OutputLocation: !Join [ '', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
+          OutputLocation:
+            !Join ["", ["s3://", !Ref AthenaQueryResultsBucket, "/"]]
 
   AthenaQueryResultsBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, athena-query-results ] ]
+      BucketName:
+        !Join ["-", [!Ref Prefix, !Ref Environment, athena-query-results]]
       VersioningConfiguration:
         Status: "Enabled"
       BucketEncryption:
@@ -88,7 +99,8 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, athena-query-results-logs ] ]
+      BucketName:
+        !Join ["-", [!Ref Prefix, !Ref Environment, athena-query-results-logs]]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite
@@ -106,6 +118,13 @@ Resources:
   CalculationDataCrawlerRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Sub ${AWS::StackName}-${Environment}-calc-role
+      PermissionsBoundary:
+        !If [
+          UsePermissionsBoundary,
+          !Ref PermissionsBoundary,
+          !Ref AWS::NoValue,
+        ]
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -121,7 +140,7 @@ Resources:
       Policies:
         - PolicyName: ResourceTypePolicy
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
@@ -141,7 +160,8 @@ Resources:
         S3Encryptions:
           - S3EncryptionMode: SSE-KMS
             KmsKeyArn: !GetAtt KmsKey.Arn
-      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, crawler-security-config ] ]
+      Name:
+        !Join ["-", [!Ref Prefix, !Ref Environment, crawler-security-config]]
 
   TransactionsCrawler:
     Type: AWS::Glue::Crawler
@@ -149,11 +169,12 @@ Resources:
       CrawlerSecurityConfiguration: !Ref CrawlerSecurityConfiguration
       DatabaseName: !Ref TransactionDB
       Description: Crawls the daily buckets of transaction data
-      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, btm-transactions-crawler ] ]
+      Name:
+        !Join ["-", [!Ref Prefix, !Ref Environment, btm-transactions-crawler]]
       Role: !GetAtt CalculationDataCrawlerRole.Arn
       SchemaChangePolicy:
         DeleteBehavior: LOG
         UpdateBehavior: UPDATE_IN_DATABASE
       Targets:
         S3Targets:
-          - Path: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions' ] ]
+          - Path: !Join ["", ["s3://", !Ref StorageBucket, "/btm_transactions"]]
