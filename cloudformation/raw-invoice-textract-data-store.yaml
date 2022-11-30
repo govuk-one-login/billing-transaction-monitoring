@@ -119,8 +119,7 @@ Resources:
         ]
       Environment:
         Variables:
-          RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_RETURN_VALUE: done
-          RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_THROW_ERROR: false
+          DESTINATION_BUCKET: !Ref RawInvoiceTextractDataBucket
       Events:
         RawInvoiceTextractDataEvent:
           Type: SQS
