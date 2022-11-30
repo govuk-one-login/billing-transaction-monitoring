@@ -9,10 +9,13 @@ const mockedStoreExpenseDocuments = storeExpenseDocuments as jest.MockedFn<
 
 describe("Store Raw Invoice Textract Data handler tests", () => {
   const OLD_ENV = process.env;
+  const oldConsoleError = console.error;
   let givenEvent: SQSEvent;
 
   beforeEach(() => {
     jest.resetAllMocks();
+
+    console.error = jest.fn();
 
     process.env = {
       ...OLD_ENV,
@@ -25,6 +28,7 @@ describe("Store Raw Invoice Textract Data handler tests", () => {
 
   afterAll(() => {
     process.env = OLD_ENV;
+    console.error = oldConsoleError;
   });
 
   test("Store Raw Invoice Textract Data handler with no PDF bucket set", async () => {
