@@ -102,3 +102,58 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+  CalculationDataCrawlerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "glue.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+      Path: "/"
+      Policies:
+        - PolicyName: ResourceTypePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:AssociateKmsKey"
+                Resource: !GetAtt KmsKey.Arn
+
+  CrawlerSecurityConfiguration:
+    Type: AWS::Glue::SecurityConfiguration
+    Properties:
+      EncryptionConfiguration:
+        CloudWatchEncryption:
+          CloudWatchEncryptionMode: SSE-KMS
+          KmsKeyArn: !GetAtt KmsKey.Arn
+        JobBookmarksEncryption:
+          JobBookmarksEncryptionMode: CSE-KMS
+          KmsKeyArn: !GetAtt KmsKey.Arn
+        S3Encryptions:
+          - S3EncryptionMode: SSE-KMS
+            KmsKeyArn: !GetAtt KmsKey.Arn
+      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, crawler-security-config ] ]
+
+  TransactionsCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      CrawlerSecurityConfiguration: !Ref CrawlerSecurityConfiguration
+      DatabaseName: !Ref TransactionDB
+      Description: Crawls the daily buckets of transaction data
+      Name: !Join [ '-', [!Ref Prefix, !Ref Environment, btm-transactions-crawler ] ]
+      Role: !GetAtt CalculationDataCrawlerRole.Arn
+      SchemaChangePolicy:
+        DeleteBehavior: LOG
+        UpdateBehavior: UPDATE_IN_DATABASE
+      Targets:
+        S3Targets:
+          - Path: !Join [ '', [ 's3://', !Ref StorageBucket, '/btm_transactions' ] ]

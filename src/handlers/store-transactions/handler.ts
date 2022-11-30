@@ -37,10 +37,19 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     throw new Error(message);
   }
 
+  if (
+    process.env.TRANSACTIONS_FOLDER === undefined ||
+    process.env.TRANSACTIONS_FOLDER.length === 0
+  ) {
+    const message = "Transactions folder name not set.";
+    console.error(message);
+    throw new Error(message);
+  }
+  
   const date = new Date(timestamp);
   const key = `${date.getUTCFullYear()}-${
     date.getUTCMonth() + 1
   }-${date.getUTCDate()}/${eventId}.json`;
 
-  await putS3(process.env.STORAGE_BUCKET, key, bodyObject);
+  await putS3(process.env.STORAGE_BUCKET, process.env.TRANSACTIONS_FOLDER + '/' + key, bodyObject);
 }

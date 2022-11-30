@@ -1,4 +1,4 @@
-import { getS3ItemsList } from "../helpers/s3Helper";
+import { getS3ItemsList, getS3Object } from "../helpers/s3Helper";
 import {resourcePrefix} from "../helpers/envHelper";
 
 const prefix = resourcePrefix();

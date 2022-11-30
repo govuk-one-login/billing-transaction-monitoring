@@ -36,11 +36,12 @@ Globals:
     CodeUri: dist/
 
 Resources: !YAMLInclude ./cloudformation/global.yaml,
+  ./cloudformation/athena.yaml#NO_LOCAL,
   ./cloudformation/test-only.yaml,
   ./cloudformation/filtering.yaml,
   ./cloudformation/cleaning.yaml,
+  ./cloudformation/calculation.yaml,
   ./cloudformation/transaction-storage.yaml,
-  ./cloudformation/athena.yaml#NO_LOCAL,
   ./cloudformation/config-store.yaml#NO_LOCAL,
   ./cloudformation/custom-s3-object-resource.yaml#NO_LOCAL,
   ./cloudformation/raw-invoice-textract-data-store.yaml,

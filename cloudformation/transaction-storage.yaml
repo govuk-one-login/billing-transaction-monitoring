@@ -2,46 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  StorageBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Join ["-", [!Ref Prefix, !Ref Environment, storage]]
-      AccessControl: Private
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
-      VersioningConfiguration:
-        Status: Enabled
-      LoggingConfiguration:
-        DestinationBucketName: !Ref StorageBucketAccessLogsBucket
-        LogFilePrefix: storage-bucket-log
-
-  StorageBucketAccessLogsBucket:
-    # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Join ["-", [!Ref Prefix, !Ref Environment, storage-logs]]
-      VersioningConfiguration:
-        Status: Enabled
-      AccessControl: LogDeliveryWrite
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
-
   StorageQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -122,6 +82,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_BUCKET: !Ref StorageBucket
+          TRANSACTIONS_FOLDER: 'btm_transactions'
           LOCAL_ENDPOINT:
             !If [IsLocal, "http://s3.localhost.localstack.cloud:4566", ""]
       Handler: storeTransactions.handler
