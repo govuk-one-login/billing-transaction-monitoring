@@ -6,15 +6,19 @@ import {
 import { getS3ItemsList } from "../helpers/s3Helper";
 import { waitForTrue } from "../helpers/commonHelpers";
 import { snsValidEventPayload } from "../payloads/snsEventPayload";
-import {resourcePrefix} from "../helpers/envHelper";
+import { resourcePrefix } from "../helpers/envHelper";
 
 const prefix = resourcePrefix();
+const storage_s3_bucketPrefix = "btm_transactions";
 
 describe("\nPublish valid sns message and execute athena query\n", () => {
   beforeAll(async () => {
     await publishSNS(snsValidEventPayload);
     const checkEventId = async () => {
-      const result = await getS3ItemsList(`${prefix}-storage`);
+      const result = await getS3ItemsList(
+        `${prefix}-storage`,
+        storage_s3_bucketPrefix
+      );
       return JSON.stringify(result.Contents?.map((data) => data.Key)).includes(
         snsValidEventPayload.event_id
       );
