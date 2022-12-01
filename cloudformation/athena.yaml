@@ -118,12 +118,12 @@ Resources:
   CalculationDataCrawlerRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${AWS::StackName}-${Environment}-calc-role
+      RoleName: !Join ["-", [!Ref Prefix, !Ref Environment, calc-role]]
       PermissionsBoundary:
         !If [
           UsePermissionsBoundary,
           !Ref PermissionsBoundary,
-          !Ref AWS::NoValue,
+          !Ref AWS::NoValue
         ]
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -144,8 +144,23 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - "logs:AssociateKmsKey"
+                  - kms:Decrypt
+                  - kms:GenerateDataKey*
+                  - kms:Encrypt
                 Resource: !GetAtt KmsKey.Arn
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
+                  - !Join ["/", [!GetAtt ConfigBucket.Arn, "*"]]
+                  - !Join ["/", [!GetAtt StorageBucket.Arn, "*"]]
+              - Effect: Allow
+                Action:
+                  - logs:AssociateKmsKey
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws-glue/crawlers-role/${Prefix}-${Environment}-calc-role-${Prefix}-${Environment}-crawler-security-config:*
 
   CrawlerSecurityConfiguration:
     Type: AWS::Glue::SecurityConfiguration
