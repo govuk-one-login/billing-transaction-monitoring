@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-  TransactionDB:
+  CalculationsDB:
     Type: AWS::Glue::Database
     Properties:
       CatalogId: !Ref AWS::AccountId
@@ -12,7 +12,7 @@ Resources:
     Type: AWS::Glue::Table
     Properties:
       CatalogId: !Ref AWS::AccountId
-      DatabaseName: !Ref TransactionDB
+      DatabaseName: !Ref CalculationsDB
       TableInput:
         Name: btm_transactions
         TableType: EXTERNAL_TABLE
@@ -130,7 +130,6 @@ Resources:
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
-              # checkov:skip=CKV_AWS_111: TODO temporary test of using * for resources
               - Effect: Allow
                 Action:
                   - kms:Decrypt
@@ -147,8 +146,9 @@ Resources:
                   - !Join ["/", [!GetAtt StorageBucket.Arn, "*"]]
               - Effect: Allow
                 Action:
-                  - logs:*
-                Resource: "*"
+                  - logs:AssociateKmsKey
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws-glue/crawlers-role/${Prefix}-${Environment}-calc-role-${Prefix}-${Environment}-crawler-security-config:*
 
   CrawlerSecurityConfiguration:
     Type: AWS::Glue::SecurityConfiguration
@@ -169,7 +169,7 @@ Resources:
     Type: AWS::Glue::Crawler
     Properties:
       CrawlerSecurityConfiguration: !Ref CrawlerSecurityConfiguration
-      DatabaseName: !Ref TransactionDB
+      DatabaseName: !Ref CalculationsDB
       Description: Crawls the daily buckets of transaction data
       Name: !Join [ '-', [!Ref Prefix, !Ref Environment, btm-transactions-crawler ] ]
       Role: !GetAtt CalculationDataCrawlerRole.Arn
@@ -184,7 +184,7 @@ Resources:
     Type: AWS::Glue::Crawler
     Properties:
       CrawlerSecurityConfiguration: !Ref CrawlerSecurityConfiguration
-      DatabaseName: !Ref TransactionDB
+      DatabaseName: !Ref CalculationsDB
       Description: Crawls the rate table data
       Name: !Join [ '-', [!Ref Prefix, !Ref Environment, btm-rate-tables-crawler ] ]
       Role: !GetAtt CalculationDataCrawlerRole.Arn
@@ -193,4 +193,4 @@ Resources:
         UpdateBehavior: UPDATE_IN_DATABASE
       Targets:
         S3Targets:
-          - Path: !Join [ '', [ 's3://', !Ref StorageBucket, '/rate_tables' ] ]
+          - Path: !Join [ '', [ 's3://', !Ref ConfigBucket, '/rate_tables' ] ]
