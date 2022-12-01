@@ -1,9 +1,6 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
+import { Response } from "../../shared/types";
 import { putS3 } from "../../shared/utils";
-
-interface Response {
-  batchItemFailures: Array<{ itemIdentifier: string }>;
-}
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   const response: Response = { batchItemFailures: [] };

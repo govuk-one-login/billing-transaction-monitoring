@@ -1,11 +1,19 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
   AmazonTextractRawInvoiceDataTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: !Join [ '-', [!Ref Prefix, !Ref Environment, amazon-textract-raw-invoice-data-topic ] ]
+      TopicName:
+        !Join [
+          "-",
+          [
+            !Ref Prefix,
+            !Ref Environment,
+            amazon-textract-raw-invoice-data-topic,
+          ],
+        ]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   AmazonTextractRawInvoiceDataTopicSubscription:
@@ -18,7 +26,8 @@ Resources:
   RawInvoiceTextractDataBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data ] ]
+      BucketName:
+        !Join ["-", [!Ref Prefix, !Ref Environment, raw-invoice-textract-data]]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -39,8 +48,12 @@ Resources:
   RawInvoiceTextractDataQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-queue ] ]
-      
+      QueueName:
+        !Join [
+          "-",
+          [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-queue],
+        ]
+
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
@@ -49,7 +62,11 @@ Resources:
   RawInvoiceTextractDataDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-dlq ] ]
+      QueueName:
+        !Join [
+          "-",
+          [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-dlq],
+        ]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   RawInvoiceTextractDataQueuePolicy:
@@ -71,7 +88,11 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, raw-invoice-data ] ]
+      BucketName:
+        !Join [
+          "-",
+          [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-logs],
+        ]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite
@@ -91,6 +112,11 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName:
+        !Join [
+          "-",
+          [!Ref Prefix, !Ref Environment, raw-textract-storage-function],
+        ]
       Environment:
         Variables:
           RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_RETURN_VALUE: done

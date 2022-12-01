@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
@@ -7,20 +7,22 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Join [ '-', [!Ref Prefix, !Ref Environment, extract-function ] ]
+      FunctionName:
+        !Join ["-", [!Ref Prefix, !Ref Environment, extract-function]]
       Environment:
         Variables:
-          EXTRACTION_HANDLER_RETURN_VALUE: done
-          EXTRACTION_HANDLER_THROW_ERROR: false
+          TEXTRACT_ROLE: !GetAtt TextractRole.Arn
+          TEXTRACT_SNS_TOPIC: !Ref AmazonTextractRawInvoiceDataTopic
       Events:
         ExtractEvent:
           Type: SQS
           Properties:
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
             Queue: !GetAtt ExtractQueue.Arn
       Handler: extract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
-        - AWSLambdaBasicExecutionRole
         - Statement:
             - Effect: Allow
               Action:
@@ -30,16 +32,23 @@ Resources:
               Resource: !GetAtt ExtractQueue.Arn
             - Effect: Allow
               Action:
+                - "textract:StartExpenseAnalysis" # https://docs.aws.amazon.com/textract/latest/dg/security_iam_id-based-policy-examples.html
+              Resource: "*"
+            - Effect: Allow
+              Action:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
               Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Join ["/", [!GetAtt RawInvoicePdfBucket.Arn, "*"]]
       ReservedConcurrentExecutions: 10
 
   ExtractQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, extract-queue ] ]
+      QueueName: !Join ["-", [!Ref Prefix, !Ref Environment, extract-queue]]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt ExtractQueueDeadLetterQueue.Arn
@@ -48,8 +57,47 @@ Resources:
   ExtractQueueDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Prefix, !Ref Environment, extract-dlq ] ]
+      QueueName: !Join ["-", [!Ref Prefix, !Ref Environment, extract-dlq]]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  TextractRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ["-", [!Ref Prefix, !Ref Environment, textract-role]]
+      PermissionsBoundary:
+        !If [
+          UsePermissionsBoundary,
+          !Ref PermissionsBoundary,
+          !Ref AWS::NoValue,
+        ]
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "textract.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "TextractRoleAccess"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:GetObject*"
+                Resource: !GetAtt RawInvoicePdfBucket.Arn
+              - Effect: Allow
+                Action:
+                  - "sns:Publish"
+                Resource: !Ref AmazonTextractRawInvoiceDataTopic
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:GenerateDataKey*
+                  - kms:Encrypt
+                Resource: !GetAtt KmsKey.Arn
 
   ExtractQueuePolicy:
     Type: AWS::SQS::QueuePolicy
