@@ -9,7 +9,6 @@ Resources:
     Properties:
       FunctionName:
         !Join ["-", [!Ref Prefix, !Ref Environment, extract-function]]
-      PermissionsBoundary: !Ref AWS::NoValue
       Environment:
         Variables:
           TEXTRACT_ROLE: !GetAtt TextractRole.Arn
