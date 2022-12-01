@@ -130,11 +130,25 @@ Resources:
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
+              # checkov:skip=CKV_AWS_111: TODO temporary test of using * for resources
               - Effect: Allow
                 Action:
-                  - "logs:AssociateKmsKey"
+                  - kms:Decrypt
+                  - kms:GenerateDataKey*
+                  - kms:Encrypt
+                Resource: !GetAtt KmsKey.Arn
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                  - s3:PutObject
                 Resource:
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws-glue/crawlers-role/${Prefix}-${Environment}-calc-role-${Prefix}-${Environment}-crawler-security-config:log-stream
+                  - !Join ["/", [!GetAtt ConfigBucket.Arn, "*"]]
+                  - !Join ["/", [!GetAtt StorageBucket.Arn, "*"]]
+              - Effect: Allow
+                Action:
+                  - logs:*
+                Resource: "*"
 
   CrawlerSecurityConfiguration:
     Type: AWS::Glue::SecurityConfiguration
