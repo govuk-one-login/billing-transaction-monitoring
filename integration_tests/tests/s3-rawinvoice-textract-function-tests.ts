@@ -1,7 +1,7 @@
 import {
   deleteObjectInS3,
   copyObject,
-  checkIfFileExists
+  checkIfFileExists,
 } from "../helpers/s3Helper";
 import { checkGivenStringExistsInLogs } from "../helpers/cloudWatchHelper";
 import { resourcePrefix } from "../helpers/envHelper";
@@ -38,5 +38,24 @@ describe("\n Upload file to raw s3 bucket and validate the filename in textract 
         testStartTime
       );
     expect(fileNameExistsInTextractLambdaLogs).toBeTruthy();
+  });
+
+  test.todo("Upload file to raw s3 bucket and validate raw invoice textract data stored in s3", async () => {
+    await copyObject(
+      `${prefix}-raw-invoice-pdf`,
+      `${prefix}-test-invoice-pdf/Invoice.pdf`,
+      destinationBucketKey
+    );
+    const fileExistsInRawS3 = await checkIfFileExists(
+      `${prefix}-raw-invoice-pdf`,
+      destinationBucketKey
+    );
+    expect(fileExistsInRawS3).toBeTruthy();
+
+    const fileExistsInRawTextractDataS3 = await checkIfFileExists(
+      `${prefix}-raw-invoice-textract-data`,
+      destinationBucketKey
+    );
+    expect(fileExistsInRawTextractDataS3).toBeTruthy();
   });
 });
