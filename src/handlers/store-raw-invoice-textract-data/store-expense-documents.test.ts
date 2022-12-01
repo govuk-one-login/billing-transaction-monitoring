@@ -1,86 +1,71 @@
 import { SQSRecord } from "aws-lambda";
 import { Textract } from "aws-sdk";
-import { moveS3, putS3 } from "../../shared/utils";
+import {
+  RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE,
+  RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS,
+} from "../../shared/constants";
 import { fetchExpenseDocuments } from "./fetch-expense-documents";
+import { getQueuedExpenseAnalysisNotificationData } from "./get-queued-expense-analysis-notification-data";
+import { handleTextractFailure } from "./handle-textract-failure";
+import { handleTextractSuccess } from "./handle-textract-success";
 import { storeExpenseDocuments } from "./store-expense-documents";
-
-jest.mock("../../shared/utils");
-const mockedMoveS3 = moveS3 as jest.Mock;
-const mockedPutS3 = putS3 as jest.Mock;
 
 jest.mock("./fetch-expense-documents");
 const mockedFetchExpenseDocuments = fetchExpenseDocuments as jest.Mock;
 
+jest.mock("./get-queued-expense-analysis-notification-data");
+const mockedGetQueuedExpenseAnalysisNotificationData =
+  getQueuedExpenseAnalysisNotificationData as jest.Mock;
+
+jest.mock("./handle-textract-failure");
+const mockedHandleTextractFailure = handleTextractFailure as jest.Mock;
+
+jest.mock("./handle-textract-success");
+const mockedHandleTextractSuccess = handleTextractSuccess as jest.Mock;
+
 describe("Expense documents storer", () => {
+  const oldConsoleError = console.error;
   let mockedDocuments: Textract.ExpenseDocument[];
-  let mockedStatus;
-  let givenJobId: string;
-  let givenRecord: SQSRecord;
-  let givenRecordBody: any;
+  let mockedExpenseAnalysisNotificationData: any;
+  let mockedJobId: string;
+  let mockedSourceBucket: string;
+  let mockedSourceFileName: string;
   let givenDestinationBucket: string;
+  let givenRecord: SQSRecord;
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    mockedDocuments = "mocked documents" as any;
-    mockedStatus = "SUCCEEDED";
-    mockedFetchExpenseDocuments.mockReturnValue({
-      documents: mockedDocuments,
-      status: mockedStatus,
-    });
+    console.error = jest.fn();
 
-    givenJobId = "given job ID";
-
-    givenRecordBody = {
-      JobId: givenJobId,
-      DocumentLocation: {
-        S3Bucket: "given source bucket",
-        S3ObjectName: "given source file name",
-      },
+    mockedJobId = "mocked job ID";
+    mockedSourceBucket = "mocked source bucket";
+    mockedSourceFileName = "mocked source file name";
+    mockedExpenseAnalysisNotificationData = {
+      jobId: mockedJobId,
+      sourceBucket: mockedSourceBucket,
+      sourceFileName: mockedSourceFileName,
+      status: "SUCCEEDED",
     };
-    givenRecord = {
-      body: JSON.stringify(givenRecordBody),
-    } as any;
+    mockedGetQueuedExpenseAnalysisNotificationData.mockReturnValue(
+      mockedExpenseAnalysisNotificationData
+    );
+
+    mockedDocuments = "mocked documents" as any;
+    mockedFetchExpenseDocuments.mockResolvedValue(mockedDocuments);
 
     givenDestinationBucket = "given destination bucket";
+    givenRecord = "given record" as any;
   });
 
-  test("Expense documents storer with record body not JSON serialisable", async () => {
-    givenRecord.body = "{";
-
-    let resultError;
-    try {
-      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
-    expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
-    expect(mockedPutS3).not.toHaveBeenCalled();
-    expect(mockedMoveS3).not.toHaveBeenCalled();
+  afterAll(() => {
+    console.error = oldConsoleError;
   });
 
-  test("Expense documents storer with record body not object", async () => {
-    givenRecord.body = '"some string"';
-
-    let resultError;
-    try {
-      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
-    expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
-    expect(mockedPutS3).not.toHaveBeenCalled();
-    expect(mockedMoveS3).not.toHaveBeenCalled();
-  });
-
-  test("Expense documents storer with record body without valid job ID", async () => {
-    givenRecord.body = JSON.stringify({
-      ...givenRecordBody,
-      JobId: 1234,
+  test("Expense documents storer with invalid record", async () => {
+    const mockedError = new Error("mocked error");
+    mockedGetQueuedExpenseAnalysisNotificationData.mockImplementation(() => {
+      throw mockedError;
     });
 
     let resultError;
@@ -90,138 +75,73 @@ describe("Expense documents storer", () => {
       resultError = error;
     }
 
-    expect(resultError).toBeInstanceOf(Error);
+    expect(resultError).toBe(mockedError);
+    expect(
+      mockedGetQueuedExpenseAnalysisNotificationData
+    ).toHaveBeenCalledTimes(1);
+    expect(mockedGetQueuedExpenseAnalysisNotificationData).toHaveBeenCalledWith(
+      givenRecord
+    );
     expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
-    expect(mockedPutS3).not.toHaveBeenCalled();
-    expect(mockedMoveS3).not.toHaveBeenCalled();
+    expect(mockedHandleTextractFailure).not.toHaveBeenCalled();
+    expect(mockedHandleTextractSuccess).not.toHaveBeenCalled();
   });
 
-  test("Expense documents storer with record body without valid document location", async () => {
-    givenRecord.body = JSON.stringify({
-      ...givenRecordBody,
-      DocumentLocation: "given invalid document location",
-    });
+  test("Expense documents storer with source file in failure folder", async () => {
+    mockedSourceFileName = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE}/${mockedSourceFileName}`;
+    mockedExpenseAnalysisNotificationData.sourceFileName = mockedSourceFileName;
 
-    let resultError;
-    try {
-      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
-    } catch (error) {
-      resultError = error;
-    }
+    await storeExpenseDocuments(givenRecord, givenDestinationBucket);
 
-    expect(resultError).toBeInstanceOf(Error);
     expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
-    expect(mockedPutS3).not.toHaveBeenCalled();
-    expect(mockedMoveS3).not.toHaveBeenCalled();
+    expect(mockedHandleTextractFailure).not.toHaveBeenCalled();
+    expect(mockedHandleTextractSuccess).not.toHaveBeenCalled();
   });
 
-  test("Expense documents storer with record body without valid bucket", async () => {
-    givenRecord.body = JSON.stringify({
-      ...givenRecordBody,
-      DocumentLocation: {
-        ...givenRecordBody.DocumentLocation,
-        S3Bucket: 1234,
-      },
-    });
+  test("Expense documents storer with source file in success folder", async () => {
+    mockedSourceFileName = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${mockedSourceFileName}`;
+    mockedExpenseAnalysisNotificationData.sourceFileName = mockedSourceFileName;
 
-    let resultError;
-    try {
-      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
-    } catch (error) {
-      resultError = error;
-    }
+    await storeExpenseDocuments(givenRecord, givenDestinationBucket);
 
-    expect(resultError).toBeInstanceOf(Error);
     expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
-    expect(mockedPutS3).not.toHaveBeenCalled();
-    expect(mockedMoveS3).not.toHaveBeenCalled();
+    expect(mockedHandleTextractFailure).not.toHaveBeenCalled();
+    expect(mockedHandleTextractSuccess).not.toHaveBeenCalled();
   });
 
-  test("Expense documents storer with record body without valid file name", async () => {
-    givenRecord.body = JSON.stringify({
-      ...givenRecordBody,
-      DocumentLocation: {
-        ...givenRecordBody.DocumentLocation,
-        S3ObjectName: "",
-      },
-    });
+  test("Expense documents storer with unsuccessful status", async () => {
+    mockedExpenseAnalysisNotificationData.status = "mocked unsuccessful status";
 
-    let resultError;
-    try {
-      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
-    } catch (error) {
-      resultError = error;
-    }
+    await storeExpenseDocuments(givenRecord, givenDestinationBucket);
 
-    expect(resultError).toBeInstanceOf(Error);
+    expect(mockedHandleTextractFailure).toHaveBeenCalledTimes(1);
+    expect(mockedHandleTextractFailure).toHaveBeenCalledWith(
+      mockedSourceBucket,
+      mockedSourceFileName
+    );
     expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
-    expect(mockedPutS3).not.toHaveBeenCalled();
-    expect(mockedMoveS3).not.toHaveBeenCalled();
+    expect(mockedHandleTextractSuccess).not.toHaveBeenCalled();
   });
 
   test("Expense documents storer with document fetch error", async () => {
-    const mockedFetchExpenseDocumentsError = new Error(
-      "mocked fetchExpenseDocuments error"
-    );
-    mockedFetchExpenseDocuments.mockRejectedValue(
-      mockedFetchExpenseDocumentsError
-    );
+    mockedFetchExpenseDocuments.mockRejectedValue(undefined);
 
-    let resultError;
-    try {
-      await storeExpenseDocuments(givenRecord, givenDestinationBucket);
-    } catch (error) {
-      resultError = error;
-    }
+    await storeExpenseDocuments(givenRecord, givenDestinationBucket);
 
-    expect(resultError).toBe(mockedFetchExpenseDocumentsError);
     expect(mockedFetchExpenseDocuments).toHaveBeenCalledTimes(1);
-    expect(mockedFetchExpenseDocuments).toHaveBeenCalledWith(givenJobId);
-    expect(mockedPutS3).not.toHaveBeenCalled();
-    expect(mockedMoveS3).not.toHaveBeenCalled();
+    expect(mockedFetchExpenseDocuments).toHaveBeenCalledWith(mockedJobId);
+    expect(mockedHandleTextractFailure).toHaveBeenCalledTimes(1);
+    expect(mockedHandleTextractFailure).toHaveBeenCalledWith(
+      mockedSourceBucket,
+      mockedSourceFileName
+    );
+    expect(mockedHandleTextractSuccess).not.toHaveBeenCalled();
   });
 
-  test("Expense documents storer with document extraction failure", async () => {
-    mockedFetchExpenseDocuments.mockReturnValue({
-      documents: mockedDocuments,
-      status: "FAILED",
-    });
-
-    await storeExpenseDocuments(givenRecord, givenDestinationBucket);
-
-    expect(mockedPutS3).toHaveBeenCalledTimes(1);
-    expect(mockedPutS3).toHaveBeenCalledWith(
-      givenDestinationBucket,
-      `${givenJobId}.json`,
-      mockedDocuments
-    );
-    expect(mockedMoveS3).toHaveBeenCalledTimes(1);
-    expect(mockedMoveS3).toHaveBeenCalledWith(
-      givenRecordBody.DocumentLocation.S3Bucket,
-      givenRecordBody.DocumentLocation.S3ObjectName,
-      `failed/${givenRecordBody.DocumentLocation.S3ObjectName as string}`
-    );
-  });
-
-  test("Expense documents storer with document extraction success", async () => {
-    mockedFetchExpenseDocuments.mockReturnValue({
-      documents: mockedDocuments,
-      status: "SUCCEEDED",
-    });
-
-    await storeExpenseDocuments(givenRecord, givenDestinationBucket);
-
-    expect(mockedMoveS3).toHaveBeenCalledTimes(1);
-    expect(mockedMoveS3).toHaveBeenCalledWith(
-      givenRecordBody.DocumentLocation.S3Bucket,
-      givenRecordBody.DocumentLocation.S3ObjectName,
-      `successful/${givenRecordBody.DocumentLocation.S3ObjectName as string}`
-    );
-  });
-
-  test("Expense documents storer with S3 put error", async () => {
-    const mockedPutS3Error = new Error("mocked putS3 error");
-    mockedPutS3.mockRejectedValue(mockedPutS3Error);
+  test("Expense documents storer with document fetch and failure handler errors", async () => {
+    mockedFetchExpenseDocuments.mockRejectedValue(undefined);
+    const mockedError = new Error("mocked error");
+    mockedHandleTextractFailure.mockRejectedValue(mockedError);
 
     let resultError;
     try {
@@ -230,19 +150,13 @@ describe("Expense documents storer", () => {
       resultError = error;
     }
 
-    expect(resultError).toBe(mockedPutS3Error);
-    expect(mockedPutS3).toHaveBeenCalledTimes(1);
-    expect(mockedPutS3).toHaveBeenCalledWith(
-      givenDestinationBucket,
-      `${givenJobId}.json`,
-      mockedDocuments
-    );
-    expect(mockedMoveS3).not.toHaveBeenCalled();
+    expect(resultError).toBe(mockedError);
+    expect(mockedHandleTextractSuccess).not.toHaveBeenCalled();
   });
 
-  test("Expense documents storer with S3 move error", async () => {
-    const mockedMoveS3Error = new Error("mocked moveS3 error");
-    mockedMoveS3.mockRejectedValue(mockedMoveS3Error);
+  test("Expense documents storer with success handler error", async () => {
+    const mockedError = new Error("mocked error");
+    mockedHandleTextractSuccess.mockRejectedValue(mockedError);
 
     let resultError;
     try {
@@ -251,6 +165,20 @@ describe("Expense documents storer", () => {
       resultError = error;
     }
 
-    expect(resultError).toBe(mockedMoveS3Error);
+    expect(resultError).toBe(mockedError);
+    expect(mockedHandleTextractFailure).not.toHaveBeenCalled();
+    expect(mockedHandleTextractSuccess).toHaveBeenCalledTimes(1);
+    expect(mockedHandleTextractSuccess).toHaveBeenCalledWith(
+      mockedSourceBucket,
+      mockedSourceFileName,
+      givenDestinationBucket,
+      `${mockedJobId}.json`,
+      mockedDocuments
+    );
+  });
+
+  test("Expense documents storer with no error", async () => {
+    await storeExpenseDocuments(givenRecord, givenDestinationBucket);
+    expect(mockedHandleTextractFailure).not.toHaveBeenCalled();
   });
 });

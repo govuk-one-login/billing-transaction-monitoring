@@ -1,17 +1,9 @@
 import { Textract } from "aws-sdk";
-import { ValidTextractStatusMessage } from "../../shared/types";
 import { fetchExpenseDocuments } from "./fetch-expense-documents";
-import { isValidTextractStatus } from "./is-valid-textract-status";
 import { logTextractWarnings } from "./log-textract-warnings";
 
 jest.mock("aws-sdk");
 const MockedTextract = Textract as jest.MockedClass<typeof Textract>;
-
-jest.mock("./is-valid-textract-status");
-const mockedIsValidTextractStatus =
-  isValidTextractStatus as unknown as jest.MockedFn<
-    typeof isValidTextractStatus
-  >;
 
 jest.mock("./log-textract-warnings");
 const mockedLogTextractWarnings = logTextractWarnings as jest.MockedFn<
@@ -21,17 +13,17 @@ const mockedLogTextractWarnings = logTextractWarnings as jest.MockedFn<
 describe("Expense documents fetcher", () => {
   let mockedGetExpenseAnalysis: jest.Mock;
   let mockedGetExpenseAnalysisPromise: jest.Mock;
-  let mockedStatus: ValidTextractStatusMessage;
+  let mockedResponse: Textract.GetExpenseAnalysisResponse;
   let givenJobId: string;
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    mockedStatus = "some status" as ValidTextractStatusMessage;
+    mockedResponse = { JobStatus: "SUCCEEDED" };
 
-    mockedGetExpenseAnalysisPromise = jest.fn().mockResolvedValue({
-      StatusMessage: mockedStatus,
-    });
+    mockedGetExpenseAnalysisPromise = jest
+      .fn()
+      .mockResolvedValue(mockedResponse);
 
     mockedGetExpenseAnalysis = jest.fn(() => ({
       promise: mockedGetExpenseAnalysisPromise,
@@ -41,13 +33,11 @@ describe("Expense documents fetcher", () => {
       getExpenseAnalysis: mockedGetExpenseAnalysis,
     } as any);
 
-    mockedIsValidTextractStatus.mockReturnValue(true);
-
     givenJobId = "given job ID";
   });
 
   test("Expense documents fetcher with request failure", async () => {
-    const mockedError = "some error";
+    const mockedError = "mocked error";
     mockedGetExpenseAnalysisPromise.mockRejectedValueOnce(mockedError);
 
     let resultError;
@@ -66,66 +56,9 @@ describe("Expense documents fetcher", () => {
     expect(resultError).toBe(mockedError);
   });
 
-  test("Expense documents fetcher with invalid response status", async () => {
-    mockedIsValidTextractStatus.mockReturnValue(false);
-
-    let resultError;
-    try {
-      await fetchExpenseDocuments(givenJobId);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(mockedIsValidTextractStatus).toHaveBeenCalledTimes(1);
-    expect(resultError).toBeInstanceOf(Error);
-  });
-
-  test("Expense documents fetcher with response pagination token", async () => {
-    const mockedPaginationToken = "some pagination token";
-    mockedGetExpenseAnalysisPromise.mockResolvedValueOnce({
-      NextToken: mockedPaginationToken,
-      StatusMessage: mockedStatus,
-    });
-
-    await fetchExpenseDocuments(givenJobId);
-
-    expect(mockedGetExpenseAnalysis).toHaveBeenCalledTimes(2);
-    expect(mockedGetExpenseAnalysisPromise).toHaveBeenCalledTimes(2);
-    expect(mockedGetExpenseAnalysis).toHaveBeenCalledWith({
-      JobId: givenJobId,
-      NextToken: undefined,
-    });
-    expect(mockedGetExpenseAnalysis).toHaveBeenLastCalledWith({
-      JobId: givenJobId,
-      NextToken: mockedPaginationToken,
-    });
-    expect(mockedLogTextractWarnings).not.toHaveBeenCalled();
-  });
-
-  test("Expense documents fetcher with multiple responses and inconsistent statuses", async () => {
-    mockedGetExpenseAnalysisPromise.mockResolvedValueOnce({
-      NextToken: "some pagination token",
-      StatusMessage: "some inconsistent status",
-    });
-
-    let resultError;
-    try {
-      await fetchExpenseDocuments(givenJobId);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
-    expect(mockedGetExpenseAnalysis).toHaveBeenCalledTimes(2);
-    expect(mockedGetExpenseAnalysisPromise).toHaveBeenCalledTimes(2);
-  });
-
   test("Expense documents fetcher with response warnings", async () => {
-    const mockedWarnings = "some warnings";
-    mockedGetExpenseAnalysisPromise.mockResolvedValueOnce({
-      StatusMessage: mockedStatus,
-      Warnings: mockedWarnings,
-    });
+    const mockedWarnings = "mocked warnings" as unknown as Textract.Warnings;
+    mockedResponse.Warnings = mockedWarnings;
 
     await fetchExpenseDocuments(givenJobId);
 
@@ -133,19 +66,77 @@ describe("Expense documents fetcher", () => {
     expect(mockedLogTextractWarnings).toHaveBeenCalledWith(mockedWarnings);
   });
 
-  test("Expense documents fetcher with response documents", async () => {
-    const mockedDocument1 = "some document";
-    const mockedDocument2 = "some other document";
-    mockedGetExpenseAnalysisPromise.mockResolvedValueOnce({
-      StatusMessage: mockedStatus,
-      ExpenseDocuments: [mockedDocument1, mockedDocument2],
-    });
+  test("Expense documents fetcher with error message", async () => {
+    mockedResponse.StatusMessage = "mocked error message";
+
+    let resultError;
+    try {
+      await fetchExpenseDocuments(givenJobId);
+    } catch (error) {
+      resultError = error;
+    }
+
+    expect(resultError).toBeInstanceOf(Error);
+  });
+
+  test("Expense documents fetcher without success status", async () => {
+    mockedResponse.JobStatus = "mocked unsuccessful status";
+
+    let resultError;
+    try {
+      await fetchExpenseDocuments(givenJobId);
+    } catch (error) {
+      resultError = error;
+    }
+
+    expect(resultError).toBeInstanceOf(Error);
+  });
+
+  test("Expense documents fetcher with response with one page of documents", async () => {
+    const mockedDocument1 = "mocked document";
+    const mockedDocument2 = "mocked other document";
+    mockedResponse.ExpenseDocuments = [
+      mockedDocument1,
+      mockedDocument2,
+    ] as unknown as Textract.ExpenseDocument[];
 
     const result = await fetchExpenseDocuments(givenJobId);
 
-    expect(result).toEqual({
-      documents: [mockedDocument1, mockedDocument2],
-      status: mockedStatus,
+    expect(result).toEqual([mockedDocument1, mockedDocument2]);
+    expect(mockedGetExpenseAnalysis).toHaveBeenCalledTimes(1);
+    expect(mockedGetExpenseAnalysis).toHaveBeenCalledWith({
+      JobId: givenJobId,
+      NextToken: undefined,
+    });
+  });
+
+  test("Expense documents fetcher with response with two pages of documents", async () => {
+    const mockedDocument1 = "mocked document";
+    const mockedDocument2 = "mocked other document";
+    const mockedDocument3 = "mocked other other document";
+    const mockedPaginationToken = "mocked pagination token";
+    mockedGetExpenseAnalysisPromise
+      .mockResolvedValue({
+        ...mockedResponse,
+        ExpenseDocuments: [mockedDocument3],
+      })
+      .mockResolvedValueOnce({
+        ...mockedResponse,
+        ExpenseDocuments: [mockedDocument1, mockedDocument2],
+        NextToken: mockedPaginationToken,
+      });
+
+    const result = await fetchExpenseDocuments(givenJobId);
+
+    expect(result).toEqual([mockedDocument1, mockedDocument2, mockedDocument3]);
+    expect(mockedGetExpenseAnalysis).toHaveBeenCalledTimes(2);
+    expect(mockedGetExpenseAnalysis).toHaveBeenCalledWith({
+      JobId: givenJobId,
+      NextToken: undefined,
+    });
+    expect(mockedGetExpenseAnalysis).toHaveBeenLastCalledWith({
+      JobId: givenJobId,
+      NextToken: mockedPaginationToken,
     });
   });
 });
