@@ -88,17 +88,11 @@ Resources:
             - { Name: "start", Type: timestamp }
           Compressed: true
           InputFormat: "org.apache.hadoop.mapred.TextInputFormat"
-          Location: !Join ["", ["s3://", !Ref ConfigBucket, "/"]]
+          Location: !Join ["", ["s3://", !Ref ConfigBucket, "/rate_tables/"]]
           StoredAsSubDirectories: false
           OutputFormat: "org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat"
           SerdeInfo:
-            Parameters:
-              {
-                "ignore.malformed.json": true,
-                "serialization.format": 1,
-                "field.delim": "",
-              }
-            SerializationLibrary: "org.openx.data.jsonserde.JsonSerDe"
+            SerializationLibrary: "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe"
 
   AthenaTransactionWorkgroup:
     Type: AWS::Athena::WorkGroup
