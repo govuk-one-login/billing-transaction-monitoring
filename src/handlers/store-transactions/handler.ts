@@ -45,11 +45,17 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     console.error(message);
     throw new Error(message);
   }
-  
-  const date = new Date(timestamp);
-  const key = `${date.getUTCFullYear()}-${
-    date.getUTCMonth() + 1
-  }-${date.getUTCDate()}/${eventId}.json`;
 
-  await putS3(process.env.STORAGE_BUCKET, process.env.TRANSACTIONS_FOLDER + '/' + key, bodyObject);
+  const date = new Date(timestamp);
+  const year = date.getUTCFullYear();
+  const month = ("0" + String(date.getUTCMonth() + 1)).slice(-2);
+  const day = ("0" + String(date.getUTCDate())).slice(-2);
+
+  const key = `${year}-${month}-${day}/${eventId}.json`;
+
+  await putS3(
+    process.env.STORAGE_BUCKET,
+    process.env.TRANSACTIONS_FOLDER + "/" + key,
+    bodyObject
+  );
 }
