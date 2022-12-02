@@ -3,7 +3,7 @@ import {
   createEvent,
   createEventRecordWithName,
 } from "../../../test-helpers/SQS";
-import { putS3 } from "../../shared/utils";
+import { formatDate, putS3 } from "../../shared/utils";
 
 jest.mock("../../shared/utils");
 const mockPutS3 = putS3 as jest.MockedFunction<typeof putS3>;
@@ -26,13 +26,6 @@ afterAll(() => {
   console.error = oldConsoleError;
   console.log = oldConsoleLog;
 });
-
-function formatDate(date: Date): string {
-  const year = date.getUTCFullYear();
-  const month = ("0" + String(date.getUTCMonth() + 1)).slice(-2);
-  const day = ("0" + String(date.getUTCDate())).slice(-2);
-  return `${year}-${month}-${day}`;
-}
 
 test("Store Transactions handler with empty event batch", async () => {
   const event = createEvent([]);
