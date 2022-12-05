@@ -15,6 +15,7 @@ export async function storeExpenseDocuments(
   const { jobId, sourceBucket, sourceFileName, status } =
     getQueuedExpenseAnalysisNotificationData(record);
 
+  // Do not reprocess documents moved to the failure or success folders.
   const [sourceFolder] = sourceFileName.split("/");
   if (
     sourceFolder === RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE ||
