@@ -81,7 +81,7 @@ Resources:
         StorageDescriptor:
           Columns:
             - { Name: "supplier_client_id", Type: string }
-            - { Name: "supplier_transaction_type_id", Type: string }
+            - { Name: "transaction_type_id", Type: string }
             - { Name: "volume_min", Type: int }
             - { Name: "volume_max", Type: int }
             - { Name: "transaction_price", Type: float }
