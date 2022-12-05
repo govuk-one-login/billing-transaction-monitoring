@@ -42,7 +42,7 @@ async function getQueryResults(queryId: string): Promise<string> {
     return result?.State?.match("SUCCEEDED");
   };
   const queryStatusSuccess = await waitForTrue(checkState, 5000, 10000);
-  if (queryStatusSuccess == true) {
+  if (queryStatusSuccess === true) {
     const params = {
       QueryExecutionId: queryId,
     };
