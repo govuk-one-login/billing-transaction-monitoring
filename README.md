@@ -133,7 +133,9 @@ To run the texract function integration test
 
 The test invoice file needs to be manually uploaded into test S3 bucket (ENV_NAME-test-invoice-pdf) with name Invoice.pdf
 
-After deploying to an environment for the first time, if you want to receive alerts about errors, manually create a CloudFormation stack in the Amazon Web Services console with `alert-chatbot-template.yaml` and the parameters for the Slack workspace and channel IDs (eleven- and nine-character codes found in the URL for the Slack channel) as well as the Amazon Resource Name for Simple Notification Service output by the `di-btm` stack
+When deploying to the production environment for the first time or updating real expected supplier transaction prices, the price file needs to be manually uploaded into config S3 bucket di-btm-production-config-bucket in the prices folder with name prices.csv
+
+After deploying to any environment for the first time, if you want to receive alerts about errors, manually create a CloudFormation stack in the Amazon Web Services console with `alert-chatbot-template.yaml` and the parameters for the Slack workspace and channel IDs (eleven- and nine-character codes found in the URL for the Slack channel) as well as the Amazon Resource Name for Simple Notification Service output by the `di-btm` stack
 
 ## Destroying your on-demand stack
 

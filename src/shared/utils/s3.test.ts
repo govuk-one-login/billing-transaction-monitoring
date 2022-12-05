@@ -4,7 +4,7 @@ import {
   PutObjectCommand,
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
-import { deleteS3, putS3 } from "./s3";
+import { deleteS3, putS3, putTextS3 } from "./s3";
 
 let s3Mock: ReturnType<typeof mockClient>;
 
@@ -30,6 +30,35 @@ test("Put object with callback error", async () => {
   });
   expect(s3Mock.calls()[0].firstArg.input).toEqual({
     Body: JSON.stringify(record),
+    Key: key,
+    Bucket: bucket,
+  });
+});
+
+test("Put text without callback error", async () => {
+  s3Mock.on(PutObjectCommand).resolves({});
+
+  const givenText = "given text";
+
+  await putTextS3(bucket, key, givenText);
+
+  expect(s3Mock.calls()[0].firstArg.input).toEqual({
+    Body: givenText,
+    Key: key,
+    Bucket: bucket,
+  });
+});
+
+test("Put text with callback error", async () => {
+  s3Mock.on(PutObjectCommand).rejects("An error");
+
+  const givenText = "given text";
+
+  await expect(putTextS3(bucket, key, givenText)).rejects.toMatchObject({
+    message: "An error",
+  });
+  expect(s3Mock.calls()[0].firstArg.input).toEqual({
+    Body: givenText,
     Key: key,
     Bucket: bucket,
   });
