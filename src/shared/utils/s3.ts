@@ -9,27 +9,42 @@ const s3 = new S3Client({
   endpoint: process.env.LOCAL_ENDPOINT,
 });
 
-export async function deleteS3(bucket: string, key: string) {
-  let deleteCommand = new DeleteObjectCommand({
+export async function deleteS3(bucket: string, key: string): Promise<void> {
+  const deleteCommand = new DeleteObjectCommand({
     Bucket: bucket,
     Key: key,
   });
 
-  return send(deleteCommand);
+  await send(deleteCommand);
 }
 
-export async function putS3(bucket: string, key: string, item: Object) {
-  let putCommand = new PutObjectCommand({
+export async function putS3(
+  bucket: string,
+  key: string,
+  item: Object
+): Promise<void> {
+  const body = JSON.stringify(item);
+  await putTextS3(bucket, key, body);
+}
+
+export async function putTextS3(
+  bucket: string,
+  key: string,
+  body: string
+): Promise<void> {
+  const putCommand = new PutObjectCommand({
     Bucket: bucket,
     Key: key,
-    Body: JSON.stringify(item),
+    Body: body,
   });
 
-  return send(putCommand);
+  await send(putCommand);
 }
 
-const send = async (command: DeleteObjectCommand | PutObjectCommand) =>
-  s3
+const send = async (
+  command: DeleteObjectCommand | PutObjectCommand
+): Promise<void> =>
+  await s3
     .send(command)
     .then((data) => {
       console.log(data);

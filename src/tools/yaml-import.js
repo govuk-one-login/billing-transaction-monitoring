@@ -10,7 +10,7 @@
 import { Composer, Parser, Scalar, visit, parseDocument } from "yaml";
 import { readFileSync, writeFileSync } from "fs";
 
-const globalSkipFlags = process.argv[2] || '';
+const globalSkipFlags = process.argv[2] || "";
 
 const sourceFile = readFileSync("./template-source.yaml", "utf8");
 const parser = new Parser();
@@ -22,11 +22,11 @@ const visitor = (key, node) => {
   if (node.tag === "!YAMLInclude") {
     const files = node.value.split(",");
     let fullContents;
-    files.forEach(fileNameWithFlag => {
-      const [fileName, skipFlag] = fileNameWithFlag.split('#');
-      if(!globalSkipFlags.includes(skipFlag)) {
+    files.forEach((fileNameWithFlag) => {
+      const [fileName, skipFlag] = fileNameWithFlag.split("#");
+      if (!globalSkipFlags.includes(skipFlag)) {
         const file = readFileSync(`./${fileName.trim()}`, "utf8");
-        const resources = parseDocument(file).contents.get('Resources', true);
+        const resources = parseDocument(file).contents.get("Resources", true);
         if (!fullContents) {
           fullContents = resources;
         } else {
@@ -38,7 +38,7 @@ const visitor = (key, node) => {
     return fullContents;
   }
 
-  if (node.tag === "!JSONTextInclude") {
+  if (node.tag === "!TextInclude") {
     const file = readFileSync(`./${node.value.trim()}`, "utf8");
     const yamlObject = new Scalar(file);
     return yamlObject;
