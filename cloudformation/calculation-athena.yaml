@@ -78,7 +78,6 @@ Resources:
               "",
               ["s3://", !Ref ConfigBucket, "/rate_tables/prices.csv"],
             ]
-          skip.header.line.count: 1
         StorageDescriptor:
           Columns:
             - { Name: "supplier_client_id", Type: string }
@@ -95,6 +94,7 @@ Resources:
           SerdeInfo:
             Parameters:
               field.delim: ','
+              skip.header.line.count: 1
             SerializationLibrary: "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe"
 
   AthenaTransactionWorkgroup:
@@ -154,98 +154,3 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt KmsKey.Arn
-
-  CalculationDataCrawlerRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Join ["-", [!Ref Prefix, !Ref Environment, calc-role]]
-      PermissionsBoundary:
-        !If [
-          UsePermissionsBoundary,
-          !Ref PermissionsBoundary,
-          !Ref AWS::NoValue
-        ]
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service:
-                - "glue.amazonaws.com"
-            Action:
-              - "sts:AssumeRole"
-      ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
-      Path: "/"
-      Policies:
-        - PolicyName: ResourceTypePolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - kms:Decrypt
-                  - kms:GenerateDataKey*
-                  - kms:Encrypt
-                Resource: !GetAtt KmsKey.Arn
-              - Effect: Allow
-                Action:
-                  - s3:ListBucket
-                  - s3:GetObject
-                  - s3:PutObject
-                Resource:
-                  - !Join ["/", [!GetAtt ConfigBucket.Arn, "*"]]
-                  - !Join ["/", [!GetAtt StorageBucket.Arn, "*"]]
-              - Effect: Allow
-                Action:
-                  - logs:AssociateKmsKey
-                Resource:
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws-glue/crawlers-role/${Prefix}-${Environment}-calc-role-${Prefix}-${Environment}-crawler-security-config:*
-
-  CrawlerSecurityConfiguration:
-    Type: AWS::Glue::SecurityConfiguration
-    Properties:
-      EncryptionConfiguration:
-        CloudWatchEncryption:
-          CloudWatchEncryptionMode: SSE-KMS
-          KmsKeyArn: !GetAtt KmsKey.Arn
-        JobBookmarksEncryption:
-          JobBookmarksEncryptionMode: CSE-KMS
-          KmsKeyArn: !GetAtt KmsKey.Arn
-        S3Encryptions:
-          - S3EncryptionMode: SSE-KMS
-            KmsKeyArn: !GetAtt KmsKey.Arn
-      Name:
-        !Join ["-", [!Ref Prefix, !Ref Environment, crawler-security-config ] ]
-
-  TransactionsCrawler:
-    Type: AWS::Glue::Crawler
-    Properties:
-      CrawlerSecurityConfiguration: !Ref CrawlerSecurityConfiguration
-      DatabaseName: !Ref CalculationsDB
-      Description: Crawls the daily buckets of transaction data
-      Name:
-        !Join ["-", [!Ref Prefix, !Ref Environment, btm-transactions-crawler ] ]
-      Role: !GetAtt CalculationDataCrawlerRole.Arn
-      SchemaChangePolicy:
-        DeleteBehavior: LOG
-        UpdateBehavior: UPDATE_IN_DATABASE
-      Targets:
-        S3Targets:
-          - Path: !Join ["", ["s3://", !Ref StorageBucket, "/btm_transactions" ] ]
-
-  RateTableCrawler:
-    Type: AWS::Glue::Crawler
-    Properties:
-      CrawlerSecurityConfiguration: !Ref CrawlerSecurityConfiguration
-      DatabaseName: !Ref CalculationsDB
-      Description: Crawls the rate table data
-      Name:
-        !Join ["-", [!Ref Prefix, !Ref Environment, btm-rate-tables-crawler ] ]
-      Role: !GetAtt CalculationDataCrawlerRole.Arn
-      SchemaChangePolicy:
-        DeleteBehavior: LOG
-        UpdateBehavior: UPDATE_IN_DATABASE
-      Targets:
-        S3Targets:
-          - Path: !Join ["", ["s3://", !Ref ConfigBucket, "/rate_tables" ] ]
