@@ -40,8 +40,6 @@ Resources:
             - { Name: timestamp_formatted, Type: string }
             - { Name: component_id, Type: string }
             - { Name: user, Type: string }
-            - { Name: platform, Type: string }
-            - { Name: restricted, Type: string }
             - { Name: extensions, Type: string }
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
@@ -53,7 +51,7 @@ Resources:
               {
                 ignore.malformed.json: true,
                 serialization.format: 1,
-                field.delim: ','
+                field.delim: ""
               }
             SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
 
