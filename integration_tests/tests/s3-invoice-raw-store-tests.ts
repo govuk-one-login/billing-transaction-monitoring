@@ -46,10 +46,7 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
         );
         console.log("Filtered contents:", s3ContentsFilteredByTestStartTime);
         if (s3ContentsFilteredByTestStartTime.length === 1) {
-          const key = s3ContentsFilteredByTestStartTime
-            .map((x) => x.Key!)
-            .toString();
-
+          const key = String(s3ContentsFilteredByTestStartTime[0].Key);
           const fileContents = await getS3Object(
             `${prefix}-raw-invoice-textract-data`,
             key
@@ -82,9 +79,6 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
       20000
     );
     expect(originalFileExistsInSuccessfulFolder).toBeTruthy();
-  });
-
-  afterEach(async () => {
     await deleteObjectInS3(
       rawinvoiceBucketName,
       "successful/" + rawinvoiceBucketKey
@@ -123,9 +117,6 @@ describe("\n Unappy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket
       20000
     );
     expect(originalFileExistsInFailedFolder).toBeTruthy();
-  });
-
-  afterEach(async () => {
     await deleteObjectInS3(
       rawinvoiceBucketName,
       "failed/" + rawinvoiceBucketKey
