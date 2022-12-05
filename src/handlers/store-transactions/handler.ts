@@ -1,6 +1,6 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { putS3 } from "../../shared/utils";
+import { formatDate, putS3 } from "../../shared/utils";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   const response: Response = { batchItemFailures: [] };
@@ -45,11 +45,15 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     console.error(message);
     throw new Error(message);
   }
-  
-  const date = new Date(timestamp);
-  const key = `${date.getUTCFullYear()}-${
-    date.getUTCMonth() + 1
-  }-${date.getUTCDate()}/${eventId}.json`;
 
-  await putS3(process.env.STORAGE_BUCKET, process.env.TRANSACTIONS_FOLDER + '/' + key, bodyObject);
+  const date = new Date(timestamp);
+  const formattedDate = formatDate(date);
+
+  const key = `${formattedDate}/${eventId}.json`;
+
+  await putS3(
+    process.env.STORAGE_BUCKET,
+    process.env.TRANSACTIONS_FOLDER + "/" + key,
+    bodyObject
+  );
 }
