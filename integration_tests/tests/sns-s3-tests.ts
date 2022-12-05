@@ -34,7 +34,7 @@ describe(
         if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
           return JSON.stringify(
-            result.Contents?.map((data) => data.Key)
+            result.Contents.map((data) => data.Key)
           ).includes(snsValidEventPayload.event_id);
         } else {
           console.log("Storage bucket contents empty");
@@ -52,7 +52,7 @@ describe(
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
         if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
+          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
             snsEventWithAdditionalFieldsPayload.event_id
           );
         } else {
@@ -79,7 +79,7 @@ describe(
 
         if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
+          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
             snsInvalidEventNamePayload.event_id
           );
         } else {
@@ -99,7 +99,7 @@ describe(
         if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
 
-          return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
+          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
             snsEventInvalidCompId.event_id
           );
         } else {
@@ -118,7 +118,7 @@ describe(
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
         if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
+          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
             snsInvalidTimeStampPayload.event_id
           );
         } else {
@@ -137,7 +137,7 @@ describe(
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
         if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
+          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
             snsEventMissingTimestampPayload.event_id
           );
         } else {
@@ -157,7 +157,7 @@ describe(
         if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
 
-          return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
+          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
             snsEventMissingCompIdPayload.event_id
           );
         } else {
@@ -176,7 +176,7 @@ describe(
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
         if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
+          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
             snsMissingEventNamePayload.event_id
           );
         } else {
@@ -196,7 +196,7 @@ describe(
         if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
 
-          return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
+          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
             "event_id=null"
           );
         } else {
@@ -215,7 +215,7 @@ describe(
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
         if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty")
-        return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
+        return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
           "event_id=undefined"
         );
       } else {
