@@ -8,16 +8,12 @@ test("Date is formatted to yyyy-mm-dd with a month that is single digits", async
 
 test("Date is formatted to yyyy-mm-dd with a date that is single digits", async () => {
   const date: Date = new Date("2022-10-01");
-  console.log(date);
   const formattedDate = formatDate(date);
-  console.log(formattedDate);
   expect(formattedDate).toEqual("2022-10-01");
 });
 
 test("Date is formatted to yyyy-mm-dd with a date and month that is not single digits", async () => {
   const date: Date = new Date("2022-12-25");
-  console.log(date);
   const formattedDate = formatDate(date);
-  console.log(formattedDate);
   expect(formattedDate).toEqual("2022-12-25");
 });
