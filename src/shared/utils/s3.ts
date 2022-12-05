@@ -50,10 +50,19 @@ export async function putS3(
   key: string,
   item: Object
 ): Promise<void> {
+  const body = JSON.stringify(item);
+  await putTextS3(bucket, key, body);
+}
+
+export async function putTextS3(
+  bucket: string,
+  key: string,
+  body: string
+): Promise<void> {
   const putCommand = new PutObjectCommand({
     Bucket: bucket,
     Key: key,
-    Body: JSON.stringify(item),
+    Body: body,
   });
 
   await send(putCommand);
