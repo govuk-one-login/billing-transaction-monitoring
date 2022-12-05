@@ -1,10 +1,10 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
   ConfigBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ["-", [!Ref Prefix, !Ref Environment, config-bucket]]
+      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, config-bucket]]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -27,7 +27,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName:
-        !Join ["-", [!Ref Prefix, !Ref Environment, config-bucket-logs]]
+        !Join ['-', [!Ref Prefix, !Ref Environment, config-bucket-logs]]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite
