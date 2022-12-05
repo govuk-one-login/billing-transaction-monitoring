@@ -31,7 +31,7 @@ describe(
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents != undefined) {
+        if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
           return JSON.stringify(
             result.Contents?.map((data) => data.Key)
@@ -50,7 +50,7 @@ describe(
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents != undefined) {
+        if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
           return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
             snsEventWithAdditionalFieldsPayload.event_id
@@ -77,7 +77,7 @@ describe(
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
 
-        if (result.Contents != undefined) {
+        if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
           return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
             snsInvalidEventNamePayload.event_id
@@ -96,7 +96,7 @@ describe(
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents != undefined) {
+        if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
 
           return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
@@ -116,7 +116,7 @@ describe(
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents != undefined) {
+        if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
           return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
             snsInvalidTimeStampPayload.event_id
@@ -135,7 +135,7 @@ describe(
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents != undefined) {
+        if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
           return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
             snsEventMissingTimestampPayload.event_id
@@ -154,7 +154,7 @@ describe(
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents != undefined) {
+        if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
 
           return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
@@ -174,7 +174,7 @@ describe(
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents != undefined) {
+        if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
           return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
             snsMissingEventNamePayload.event_id
@@ -193,7 +193,7 @@ describe(
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents != undefined) {
+        if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty");
 
           return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
@@ -213,7 +213,7 @@ describe(
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents != undefined) {
+        if (result.Contents !== undefined) {
           console.log("Storage bucket contents not empty")
         return JSON.stringify(result.Contents?.map((x) => x.Key)).includes(
           "event_id=undefined"

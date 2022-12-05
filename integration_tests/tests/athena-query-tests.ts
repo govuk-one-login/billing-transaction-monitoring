@@ -9,18 +9,15 @@ import { snsValidEventPayload } from "../payloads/snsEventPayload";
 import { resourcePrefix } from "../helpers/envHelper";
 
 const prefix = resourcePrefix();
-const storage_s3_bucketPrefix = "btm_transactions";
+const objectsPrefix = "btm_transactions";
 
 describe("\nPublish valid sns message and execute athena query\n", () => {
   beforeAll(async () => {
     await publishSNS(snsValidEventPayload);
     const checkEventId = async () => {
-      const result = await getS3ItemsList(
-        `${prefix}-storage`,
-        storage_s3_bucketPrefix
-      );
-      if (result.Contents != undefined) {
-        console.log("Storage bucket contents not empty")
+      const result = await getS3ItemsList(`${prefix}-storage`, objectsPrefix);
+      if (result.Contents !== undefined) {
+        console.log("Storage bucket contents not empty");
         return JSON.stringify(
           result.Contents?.map((data) => data.Key)
         ).includes(snsValidEventPayload.event_id);
@@ -29,7 +26,6 @@ describe("\nPublish valid sns message and execute athena query\n", () => {
         return false;
       }
     };
-
     const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
     expect(eventIdExists).toBeTruthy();
   });
