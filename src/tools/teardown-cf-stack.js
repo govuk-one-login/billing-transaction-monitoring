@@ -16,10 +16,12 @@ import {
   DeleteStackCommand,
   DescribeStackResourcesCommand
 } from "@aws-sdk/client-cloudformation";
+import { AthenaClient, DeleteWorkGroupCommand } from "@aws-sdk/client-athena";
 
 const awsConfig = { region: 'eu-west-2' };
 const s3Client = new S3Client(awsConfig);
 const cfClient = new CloudFormationClient(awsConfig);
+const athenaClient = new AthenaClient(awsConfig);
 
 const stackSuffix = process.env.ENV_NAME;
 
@@ -109,23 +111,58 @@ const destroyStack = async (stackName) => {
     if (result.Error) {
       if (result.Error.toString().includes(`Stack with id ${stackName} does not exist`)) {
         console.log(`Stack ${stackName} successfully destroyed.`);
+        process.exit(0);
       } else {
         console.log(result.Error.toString());
+        process.exit(-1);
       }
-      break;
     }
     const numberDeleted = result.StackResources.filter(r => r.ResourceStatus === 'DELETE_COMPLETE').length
     const numberLeft = result.StackResources.length - numberDeleted
     const resourcesFailed = result.StackResources.filter(r => r.ResourceStatus === 'DELETE_FAILED')
     console.log(`Resources: total: ${result.StackResources.length}  deleted: ${numberDeleted}  remaining: ${numberLeft}  failed: ${resourcesFailed.length}`);
     if (resourcesFailed.length === numberLeft) {
-      console.log('Please remove the following resources manually (you can ignore the S3-Objects) and rerun this command:');
-      console.log(resourcesFailed.map(r => [r.LogicalResourceId, r.PhysicalResourceId, r.ResourceStatus]));
-      break;
+      console.log(`First run completed, could not delete ${resourcesFailed.length} resource(s).`);
+      return resourcesFailed;
     }
   }
 }
 
+const deleteAthenaWorkgroup = async (workgroup) => {
+  const result = await athenaClient.send(new DeleteWorkGroupCommand({RecursiveDeleteOption: true, WorkGroup: workgroup.PhysicalResourceId})).catch(err => {return { Error: err }});
+  // console.log('deleteWorkGroup: ', result);
+  if (result.Error) {
+    console.log(`Deleting the Athena workgroup ${workgroup.PhysicalResourceId} failed. Please delete manually.`)
+    console.log(result.Error.toString());
+    return workgroup;
+  }
+  return null;
+}
+
+const tryToDelete = async (resource) => {
+  if(resource.ResourceType === 'Custom::S3Object') {
+    console.log(`S3-Object ${resource.LogicalResourceId} should already be gone...`);
+    return null;
+  }
+  if(resource.ResourceType === 'AWS::Athena::WorkGroup') {
+    console.log(`Trying to remove Athena workgroup ${resource.PhysicalResourceId}...`);
+    return await deleteAthenaWorkgroup(resource);
+  }
+  return resource;
+}
+
 await deleteAllBucketsInStack(stackName);
 
-await destroyStack(stackName);
+const resourcesFailed = await destroyStack(stackName);
+
+let resourcesRemainingAfterRemediation = (await Promise.all(resourcesFailed.map(r => tryToDelete(r)))).filter(x => !!x);
+
+if(resourcesRemainingAfterRemediation.length === 0) {
+  console.log("Retrying to delete stack...")
+  resourcesRemainingAfterRemediation = await destroyStack(stackName);
+}
+
+if(resourcesRemainingAfterRemediation.length > 0) {
+  console.log('Please remove the following resources manually and rerun this command:');
+  console.log(resourcesRemainingAfterRemediation.map(r => [r.LogicalResourceId, r.PhysicalResourceId, r.ResourceStatus]));
+}
