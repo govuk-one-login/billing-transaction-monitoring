@@ -19,16 +19,25 @@ describe("\nPublish valid sns message and execute athena query\n", () => {
         `${prefix}-storage`,
         storage_s3_bucketPrefix
       );
-      return JSON.stringify(result.Contents?.map((data) => data.Key)).includes(
-        snsValidEventPayload.event_id
-      );
+      if (result.Contents != undefined) {
+        console.log("Storage bucket contents not empty")
+        return JSON.stringify(
+          result.Contents?.map((data) => data.Key)
+        ).includes(snsValidEventPayload.event_id);
+      } else {
+        console.log("Storage bucket contents empty");
+        return false;
+      }
     };
+
     const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
     expect(eventIdExists).toBeTruthy();
   });
 
   test("should contain eventId in the generated query results", async () => {
-    const queryId = await startQueryExecutionCommand(snsValidEventPayload.event_id);
+    const queryId = await startQueryExecutionCommand(
+      snsValidEventPayload.event_id
+    );
     const queryResult = await getQueryResults(queryId);
     expect(queryResult).toContain(snsValidEventPayload.event_id);
   });
