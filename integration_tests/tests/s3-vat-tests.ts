@@ -1,4 +1,4 @@
-import { getS3ItemsList, getS3Object } from "../helpers/s3Helper";
+import { getS3Object } from "../helpers/s3Helper";
 import { default as expectedVat } from "../../cloudformation/uk-vat.json";
 import {resourcePrefix} from "../helpers/envHelper";
 
