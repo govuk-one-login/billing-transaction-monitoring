@@ -1,11 +1,11 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
   StorageQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join ["-", [!Ref Prefix, !Ref Environment, storage-queue]]
+      QueueName: !Join ['-', [!Ref Prefix, !Ref Environment, storage-queue]]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
@@ -14,14 +14,14 @@ Resources:
   StorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join ["-", [!Ref Prefix, !Ref Environment, storage-dlq]]
+      QueueName: !Join ['-', [!Ref Prefix, !Ref Environment, storage-dlq]]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   # Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
   StorageDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Join ["-", [!Ref Prefix, !Ref Environment, storage-dlq-alarm]]
+      AlarmName: !Join ['-', [!Ref Prefix, !Ref Environment, storage-dlq-alarm]]
       AlarmActions:
         - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
@@ -43,34 +43,13 @@ Resources:
           ReturnData: true
       Threshold: 0
 
-  StorageBucketAccessLogsBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref StorageBucketAccessLogsBucket
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Sid: EnableS3Logging
-            Effect: Allow
-            Resource:
-              - !Join ["/", [!GetAtt StorageBucketAccessLogsBucket.Arn, "*"]]
-            Principal:
-              Service: logging.s3.amazonaws.com
-            Action:
-              - s3:PutObject
-            Condition:
-              StringEquals:
-                aws:SourceAccount: !Ref AWS::AccountId
-              Bool:
-                aws:SecureTransport: true
-
   StorageFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
       FunctionName:
-        !Join ["-", [!Ref Prefix, !Ref Environment, storage-function]]
+        !Join ['-', [!Ref Prefix, !Ref Environment, storage-function]]
       Events:
         StorageEvent:
           Type: SQS
@@ -84,7 +63,7 @@ Resources:
           STORAGE_BUCKET: !Ref StorageBucket
           TRANSACTIONS_FOLDER: 'btm_transactions'
           LOCAL_ENDPOINT:
-            !If [IsLocal, "http://s3.localhost.localstack.cloud:4566", ""]
+            !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
       Handler: storeTransactions.handler
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -107,14 +86,14 @@ Resources:
                 - s3:GetObject
                 - s3:PutObject
               Resource:
-                - !Join ["/", [!GetAtt StorageBucket.Arn, "*"]]
+                - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
       ReservedConcurrentExecutions: 10
 
   StorageFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName:
-        !Join ["-", [!Ref Prefix, !Ref Environment, storage-function-alarm]]
+        !Join ['-', [!Ref Prefix, !Ref Environment, storage-function-alarm]]
       AlarmActions:
         - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
