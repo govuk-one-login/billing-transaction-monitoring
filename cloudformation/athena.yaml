@@ -39,8 +39,8 @@ Resources:
             - { Name: 'timestamp', Type: timestamp }
             - { Name: 'timestamp_formatted', Type: string }
             - { Name: 'component_id', Type: string }
-            - { Name: 'user', Type: string }
-            - { Name: 'extensions', Type: string }
+            - { Name: 'user_transaction_id', Type: string }
+            - { Name: 'extensions_iss', Type: string }
           Compressed: true
           InputFormat: 'org.apache.hadoop.mapred.TextInputFormat'
           Location: !Join ['', ['s3://', !Ref StorageBucket, '/']]
