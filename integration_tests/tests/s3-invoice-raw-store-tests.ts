@@ -89,7 +89,7 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
 
 describe("\n Unappy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket test\n", () => {
   const uniqueString = Math.random().toString(36).substring(2, 7);
-  const rawinvoiceBucketKey = `raw-Invoice-${uniqueString}-invalidFile-.pdf`;
+  const rawinvoiceBucketKey = `raw-Invoice-${uniqueString}-invalidFile.pdf`;
 
   test("raw-invoice-textract-data bucket should not contain textract data file for uploaded invalid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to failed folder in s3 raw-invoice-pdf bucket ", async () => {
     const file = "../payloads/invalidFiletoTestTextractFailure.pdf";
