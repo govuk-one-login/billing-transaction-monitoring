@@ -2,6 +2,7 @@ import {
   StartQueryExecutionCommand,
   GetQueryExecutionCommand,
   GetQueryResultsCommand,
+  GetQueryResultsCommandOutput,
 } from "@aws-sdk/client-athena";
 import { waitForTrue } from "./commonHelpers";
 import { athenaClient } from "../clients/athenaClient";
@@ -25,6 +26,23 @@ async function startQueryExecutionCommand(eventId: string): Promise<string> {
   return queryId;
 }
 
+
+async function startQuery() {
+  const params = {
+    QueryExecutionContext: {
+      Database: `${prefix}-calculations`,
+    },
+    QueryString: `SELECT * FROM \"btm_rate_tables\"`,
+    WorkGroup: `${prefix}-athena-workgroup`,
+  };
+  const response = await athenaClient.send(
+    new StartQueryExecutionCommand(params)
+  );
+  const queryId = response.QueryExecutionId || "queryId not found";
+  console.log("QueryExecutionId:", queryId);
+  return queryId;
+}
+
 async function getQueryExecutionStatus(queryId: string) {
   const params = {
     QueryExecutionId: queryId,
@@ -36,22 +54,24 @@ async function getQueryExecutionStatus(queryId: string) {
   return response.QueryExecution?.Status;
 }
 
-async function getQueryResults(queryId: string): Promise<string> {
+async function getQueryResults(queryId: string) {
   const checkState = async () => {
     const result = await getQueryExecutionStatus(queryId);
     return result?.State?.match("SUCCEEDED");
   };
   const queryStatusSuccess = await waitForTrue(checkState, 5000, 10000);
-  if (queryStatusSuccess == true) {
+  if (queryStatusSuccess === true) {
     const params = {
       QueryExecutionId: queryId,
     };
     const response = await athenaClient.send(
       new GetQueryResultsCommand(params)
     );
-    return JSON.stringify(response.ResultSet?.Rows);
-  }
-  return "Query not successful"
+
+    
+return response
+  
+}
 }
 
-export { getQueryResults, startQueryExecutionCommand };
+export { getQueryResults, startQueryExecutionCommand, startQuery };

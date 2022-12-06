@@ -1,7 +1,7 @@
 import { publishSNS } from "../helpers/snsHelper";
 import {
   getQueryResults,
-  startQueryExecutionCommand,
+  startQueryExecutionCommand,startQuery
 } from "../helpers/athenaHelper";
 import { getS3ItemsList } from "../helpers/s3Helper";
 import { waitForTrue } from "../helpers/commonHelpers";
