@@ -48,7 +48,7 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/raw-invoice-textract-data-store.yaml,
   ./cloudformation/raw-invoice-pdf-store.yaml,
   ./cloudformation/test-invoice-pdf-store.yaml,
-  ./cloudformation/validated-invoice-data-store.yaml,
+  ./cloudformation/standardised-invoice-storage.yaml,
   ./cloudformation/extraction.yaml
 
 Outputs:
