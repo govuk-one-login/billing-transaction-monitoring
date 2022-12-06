@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
   TransactionDB:
@@ -6,7 +6,7 @@ Resources:
     Properties:
       CatalogId: !Ref AWS::AccountId
       DatabaseInput:
-        Name: !Join ["-", [!Ref Prefix, !Ref Environment, transactions]]
+        Name: !Join ['-', [!Ref Prefix, !Ref Environment, transactions]]
 
   TransactionTable:
     Type: AWS::Glue::Table
@@ -17,65 +17,65 @@ Resources:
         Name: btm_transactions
         TableType: EXTERNAL_TABLE
         Parameters:
-          has_encrypted_data: "true"
-          projection.enabled: "true"
+          has_encrypted_data: 'true'
+          projection.enabled: 'true'
           projection.datetime.type: date
-          projection.datetime.range: "2022-01-01,NOW"
-          projection.datetime.format: "yyyy-MM-dd"
+          projection.datetime.range: '2022-01-01,NOW'
+          projection.datetime.format: 'yyyy-MM-dd'
           projection.datetime.interval: 1
           projection.datetime.interval.unit: DAYS
           storage.location.template:
             !Join [
-              "",
-              ["s3://", !Ref StorageBucket, "/btm_transactions/${datetime}/"],
+              '',
+              ['s3://', !Ref StorageBucket, '/btm_transactions/${datetime}/'],
             ]
         PartitionKeys:
-          - { Name: "datetime", Type: date }
+          - { Name: 'datetime', Type: date }
         StorageDescriptor:
           Columns:
-            - { Name: "event_id", Type: string }
-            - { Name: "event_name", Type: string }
-            - { Name: "client_id", Type: string }
-            - { Name: "timestamp", Type: timestamp }
-            - { Name: "timestamp_formatted", Type: string }
-            - { Name: "component_id", Type: string }
-            - { Name: "user", Type: string }
-            - { Name: "extensions", Type: string }
+            - { Name: 'event_id', Type: string }
+            - { Name: 'event_name', Type: string }
+            - { Name: 'client_id', Type: string }
+            - { Name: 'timestamp', Type: timestamp }
+            - { Name: 'timestamp_formatted', Type: string }
+            - { Name: 'component_id', Type: string }
+            - { Name: 'user', Type: string }
+            - { Name: 'extensions', Type: string }
           Compressed: true
-          InputFormat: "org.apache.hadoop.mapred.TextInputFormat"
-          Location: !Join ["", ["s3://", !Ref StorageBucket, "/"]]
+          InputFormat: 'org.apache.hadoop.mapred.TextInputFormat'
+          Location: !Join ['', ['s3://', !Ref StorageBucket, '/']]
           StoredAsSubDirectories: false
-          OutputFormat: "org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat"
+          OutputFormat: 'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'
           SerdeInfo:
             Parameters:
               {
-                "ignore.malformed.json": true,
-                "serialiazation.format": 1,
-                "field.delim": "",
+                'ignore.malformed.json': true,
+                'serialiazation.format': 1,
+                'field.delim': '',
               }
-            SerializationLibrary: "org.openx.data.jsonserde.JsonSerDe"
+            SerializationLibrary: 'org.openx.data.jsonserde.JsonSerDe'
 
   AthenaTransactionWorkgroup:
     Type: AWS::Athena::WorkGroup
     Properties:
-      Name: !Join ["-", [!Ref Prefix, !Ref Environment, athena-workgroup]]
+      Name: !Join ['-', [!Ref Prefix, !Ref Environment, athena-workgroup]]
       WorkGroupConfiguration:
         EnforceWorkGroupConfiguration: true
         PublishCloudWatchMetricsEnabled: false
         ResultConfiguration:
           EncryptionConfiguration:
-            EncryptionOption: "SSE_KMS"
+            EncryptionOption: 'SSE_KMS'
             KmsKey: !GetAtt KmsKey.Arn
           OutputLocation:
-            !Join ["", ["s3://", !Ref AthenaQueryResultsBucket, "/"]]
+            !Join ['', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
 
   AthenaQueryResultsBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName:
-        !Join ["-", [!Ref Prefix, !Ref Environment, athena-query-results]]
+        !Join ['-', [!Ref Prefix, !Ref Environment, athena-query-results]]
       VersioningConfiguration:
-        Status: "Enabled"
+        Status: 'Enabled'
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -98,7 +98,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName:
-        !Join ["-", [!Ref Prefix, !Ref Environment, athena-query-results-logs]]
+        !Join ['-', [!Ref Prefix, !Ref Environment, athena-query-results-logs]]
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite
@@ -116,7 +116,7 @@ Resources:
   CalculationDataCrawlerRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ["-", [!Ref Prefix, !Ref Environment, calc-role]]
+      RoleName: !Join ['-', [!Ref Prefix, !Ref Environment, calc-role]]
       PermissionsBoundary:
         !If [
           UsePermissionsBoundary,
@@ -124,21 +124,21 @@ Resources:
           !Ref AWS::NoValue,
         ]
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
-          - Effect: "Allow"
+          - Effect: 'Allow'
             Principal:
               Service:
-                - "glue.amazonaws.com"
+                - 'glue.amazonaws.com'
             Action:
-              - "sts:AssumeRole"
+              - 'sts:AssumeRole'
       ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
-      Path: "/"
+        - 'arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole'
+      Path: '/'
       Policies:
         - PolicyName: ResourceTypePolicy
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
@@ -152,8 +152,8 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                 Resource:
-                  - !Join ["/", [!GetAtt ConfigBucket.Arn, "*"]]
-                  - !Join ["/", [!GetAtt StorageBucket.Arn, "*"]]
+                  - !Join ['/', [!GetAtt ConfigBucket.Arn, '*']]
+                  - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
               - Effect: Allow
                 Action:
                   - logs:AssociateKmsKey
@@ -174,7 +174,7 @@ Resources:
           - S3EncryptionMode: SSE-KMS
             KmsKeyArn: !GetAtt KmsKey.Arn
       Name:
-        !Join ["-", [!Ref Prefix, !Ref Environment, crawler-security-config]]
+        !Join ['-', [!Ref Prefix, !Ref Environment, crawler-security-config]]
 
   TransactionsCrawler:
     Type: AWS::Glue::Crawler
@@ -183,11 +183,11 @@ Resources:
       DatabaseName: !Ref TransactionDB
       Description: Crawls the daily buckets of transaction data
       Name:
-        !Join ["-", [!Ref Prefix, !Ref Environment, btm-transactions-crawler]]
+        !Join ['-', [!Ref Prefix, !Ref Environment, btm-transactions-crawler]]
       Role: !GetAtt CalculationDataCrawlerRole.Arn
       SchemaChangePolicy:
         DeleteBehavior: LOG
         UpdateBehavior: UPDATE_IN_DATABASE
       Targets:
         S3Targets:
-          - Path: !Join ["", ["s3://", !Ref StorageBucket, "/btm_transactions"]]
+          - Path: !Join ['', ['s3://', !Ref StorageBucket, '/btm_transactions']]

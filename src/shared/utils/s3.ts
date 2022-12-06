@@ -2,7 +2,11 @@ import {
   DeleteObjectCommand,
   S3Client,
   PutObjectCommand,
+  CopyObjectCommand,
+  ServiceInputTypes,
+  ServiceOutputTypes,
 } from "@aws-sdk/client-s3";
+import type { Command, SmithyConfiguration } from "@aws-sdk/smithy-client";
 
 const s3 = new S3Client({
   region: "eu-west-2",
@@ -17,6 +21,29 @@ export async function deleteS3(bucket: string, key: string): Promise<void> {
 
   await send(deleteCommand);
 }
+
+export async function moveS3(
+  sourceBucket: string,
+  sourceKey: string,
+  destinationBucket: string,
+  destinationKey: string
+): Promise<void> {
+  const copyCommand = new CopyObjectCommand({
+    Bucket: destinationBucket,
+    CopySource: `${sourceBucket}/${sourceKey}`,
+    Key: destinationKey,
+  });
+
+  await send(copyCommand);
+
+  await deleteS3(sourceBucket, sourceKey);
+}
+
+export const moveToFolderS3 = async (
+  bucket: string,
+  key: string,
+  folder: string
+): Promise<void> => await moveS3(bucket, key, bucket, `${folder}/${key}`);
 
 export async function putS3(
   bucket: string,
@@ -41,8 +68,8 @@ export async function putTextS3(
   await send(putCommand);
 }
 
-const send = async (
-  command: DeleteObjectCommand | PutObjectCommand
+const send = async <T extends ServiceInputTypes, U extends ServiceOutputTypes>(
+  command: Command<T, U, SmithyConfiguration<{}>>
 ): Promise<void> =>
   await s3
     .send(command)
