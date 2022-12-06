@@ -66,7 +66,12 @@ aws --endpoint-url=http://localhost:4566 sns list-topics
 
 Publish a message on the SNS topic
 ```sh
-aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_name":"IPV_PASSPORT_CRI_REQUEST_SENT", "event_id": "1234", "component_id": "TEST_COMP", "timestamp": 1666006241000}'
+aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message \
+  '{"event_name":"IPV_PASSPORT_CRI_REQUEST_SENT", \
+    "event_id": "XXXXXXXX", \
+    "component_id": "TEST_COMP", \
+    "client_id": "client1", \
+    "timestamp": 1666006241000}'
 ```
 
 List the buckets in S3

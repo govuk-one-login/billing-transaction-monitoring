@@ -152,3 +152,28 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+  TransactionsView:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref CalculationsDB
+      TableInput:
+        Name: transaction_counts
+        TableType: VIRTUAL_VIEW
+        Parameters:
+          presto_view: true
+        ViewOriginalText: "/* Presto View: ewogICJjYXRhbG9nIjogImF3c2RhdGFjYXRhbG9nIiwKICAic2NoZW1hIjogImRpLWJ0bS1kZXYtb2QtbXMtdHJhbnN2aWV3LWNhbGN1bGF0aW9ucyIsCiAgImNvbHVtbnMiOiBbCiAgICB7Im5hbWUiOiAiZXZlbnRfbmFtZSIsICJ0eXBlIjogInN0cmluZyJ9LAogICAgeyJuYW1lIjogImNsaWVudF9pZCIsICJ0eXBlIjogInN0cmluZyJ9LAogICAgeyJuYW1lIjogIm1vbnRoIiwgInR5cGUiOiAiYmlnaW50In0sCiAgICB7Im5hbWUiOiAieWVhciIsICJ0eXBlIjogImJpZ2ludCJ9LAogICAgeyJuYW1lIjogImNvdW50IiwgInR5cGUiOiAiYmlnaW50In0KICBdLAogICJvcmlnaW5hbFNxbCI6ICJTRUxFQ1QgY2xpZW50X2lkLCBldmVudF9uYW1lLCBtb250aCwgeWVhciwgY291bnQoKikgYXMgY291bnQgZnJvbShTRUxFQ1QgY2xpZW50X2lkLCBldmVudF9uYW1lLCBleHRyYWN0KG1vbnRoIGZyb20gZGF0ZXRpbWUpIGFzIG1vbnRoLCBleHRyYWN0KHllYXIgZnJvbSBkYXRldGltZSkgYXMgeWVhciAgICBGUk9NIFwiQXdzRGF0YUNhdGFsb2dcIi5cImRpLWJ0bS1kZXYtb2QtbXMtcnRjcmF3bC1jYWxjdWxhdGlvbnNcIi5cImJ0bV90cmFuc2FjdGlvbnNcIilHUk9VUCBCWSBjbGllbnRfaWQsIGV2ZW50X25hbWUsIG1vbnRoLCB5ZWFyIgp9 */"
+        StorageDescriptor:
+          Columns:
+            - { Name: event_name, Type: string }
+            - { Name: client_id, Type: string }
+            - { Name: month, Type: bigint }
+            - { Name: year, Type: bigint }
+            - { Name: count, Type: bigint }
+          Compressed: true
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Join ["", ["s3://", !Ref StorageBucket, "/"]]
+          StoredAsSubDirectories: false
+          OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+
