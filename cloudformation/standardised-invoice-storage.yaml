@@ -53,7 +53,7 @@ Resources:
             FunctionResponseTypes:
               - ReportBatchItemFailures
             Queue: !GetAtt StandardisedInvoiceStorageQueue.Arn
-      Handler: storeStandardisedInvoice.handler
+      Handler: storeStandardisedInvoices.handler
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
