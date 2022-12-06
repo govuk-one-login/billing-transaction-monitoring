@@ -10,6 +10,20 @@ Monitors user identity verification events for billing purposes
 
 If you are new to the Billing & Transaction Monitoring team, please also read [our New Starters guide](https://govukverify.atlassian.net/l/cp/XMirz7JE)
 
+## Do this once
+Install and use the correct node version (using .nvmrc):
+```sh
+nvm install
+```
+Install packages from lock file:
+```sh
+npm ci
+```
+Install husky hooks:
+```sh
+npm run husky:install
+```
+
 ## Check before commit
 ```sh
 npm run build:template

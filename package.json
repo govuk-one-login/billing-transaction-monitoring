@@ -46,6 +46,7 @@
     "yaml": "^2.1.3"
   },
   "scripts": {
+    "husky:install": "husky install",
     "test": "jest",
     "clean:allureFolders": "rm -R -f allure-reports/* && rm -R -f allure-results/*",
     "beforeIntTest": "npm run clean:allureFolders",
