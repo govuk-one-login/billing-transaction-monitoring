@@ -1,7 +1,7 @@
 import { publishSNS } from "../helpers/snsHelper";
 import {
   getQueryResults,
-  startQueryExecutionCommand,startQuery
+  startQueryExecutionCommand
 } from "../helpers/athenaHelper";
 import { getS3ItemsList } from "../helpers/s3Helper";
 import { waitForTrue } from "../helpers/commonHelpers";
@@ -28,17 +28,21 @@ describe("\nPublish valid sns message and execute athena query\n", () => {
   });
 
   test("should contain eventId in the generated query results", async () => {
-    const queryId = await startQueryExecutionCommand(snsValidEventPayload.event_id);
+    const databaseName=`${prefix}-transactions`
+    const queryString=`SELECT * FROM \"btm_transactions\" where event_id='${snsValidEventPayload.event_id}'`
+    const queryId = await startQueryExecutionCommand(databaseName,queryString);
     const queryResult = await getQueryResults(queryId);
-    expect(queryResult).toContain(snsValidEventPayload.event_id);
+    expect(JSON.stringify(queryResult?.ResultSet?.Rows)).toContain(snsValidEventPayload.event_id);
   });
 });
 
 describe("\nPublish invalid sns message and execute athena query\n", () => {
   test("should not contain eventId in the generated query results", async () => {
+    const databaseName=`${prefix}-transactions`
     const invalidEventId = "12345";
-    const queryId = await startQueryExecutionCommand(invalidEventId);
+    const queryString=`SELECT * FROM \"btm_transactions\" where event_id='${invalidEventId}'`
+    const queryId = await startQueryExecutionCommand(databaseName,queryString);
     const queryResult = await getQueryResults(queryId);
-    expect(queryResult).not.toContain(invalidEventId);
+    expect(JSON.stringify(queryResult?.ResultSet?.Rows)).not.toContain(invalidEventId);
   });
 });

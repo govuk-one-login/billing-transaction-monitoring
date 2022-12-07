@@ -6,33 +6,19 @@ import {
 } from "@aws-sdk/client-athena";
 import { waitForTrue } from "./commonHelpers";
 import { athenaClient } from "../clients/athenaClient";
-import {resourcePrefix} from "./envHelper";
+import { resourcePrefix } from "./envHelper";
 
 const prefix = resourcePrefix();
 
-async function startQueryExecutionCommand(eventId: string): Promise<string> {
+async function startQueryExecutionCommand(
+  databaseName: string,
+  queryString: string
+): Promise<string> {
   const params = {
     QueryExecutionContext: {
-      Database: `${prefix}-transactions`,
+      Database: databaseName,
     },
-    QueryString: `SELECT * FROM \"btm_transactions\" where event_id='${eventId.toString()}'`,
-    WorkGroup: `${prefix}-athena-workgroup`,
-  };
-  const response = await athenaClient.send(
-    new StartQueryExecutionCommand(params)
-  );
-  const queryId = response.QueryExecutionId || "queryId not found";
-  console.log("QueryExecutionId:", queryId);
-  return queryId;
-}
-
-
-async function startQuery() {
-  const params = {
-    QueryExecutionContext: {
-      Database: `${prefix}-calculations`,
-    },
-    QueryString: `SELECT * FROM \"btm_rate_tables\"`,
+    QueryString: queryString,
     WorkGroup: `${prefix}-athena-workgroup`,
   };
   const response = await athenaClient.send(
@@ -67,11 +53,30 @@ async function getQueryResults(queryId: string) {
     const response = await athenaClient.send(
       new GetQueryResultsCommand(params)
     );
-
-    
-return response
-  
-}
+    return response;
+  }
 }
 
-export { getQueryResults, startQueryExecutionCommand, startQuery };
+async function formattedQueryResults(queryId: string) {
+  const queryResults = await getQueryResults(queryId);
+  const columns = queryResults?.ResultSet?.Rows![0].Data;
+  const rows = queryResults?.ResultSet?.Rows!.slice(
+    1,
+    queryResults?.ResultSet?.Rows!.length
+  ).map((d) => d.Data);
+  const formattedData = rows!.map((row) => {
+    const object: { [key: string]: string } = {};
+    row!.forEach(function (item, index) {
+      const fieldName = columns![index].VarCharValue;
+      if (fieldName !== undefined) {
+        object[fieldName] = row![index].VarCharValue!;
+        console.log(object);
+        return object;
+      }
+    });
+    return object;
+  });
+  return formattedData;
+}
+
+export { getQueryResults, startQueryExecutionCommand, formattedQueryResults };
