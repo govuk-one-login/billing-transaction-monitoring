@@ -191,3 +191,60 @@ Resources:
       Targets:
         S3Targets:
           - Path: !Join ['', ['s3://', !Ref StorageBucket, '/btm_transactions']]
+
+  InvoiceDB:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: !Sub ${Prefix}-${Environment}-invoices
+
+  InvoiceLineItemsTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref InvoiceDB
+      TableInput:
+        Name: btm_invoices_standardised
+        TableType: EXTERNAL_TABLE
+        Parameters:
+          has_encrypted_data: 'true'
+        StorageDescriptor:
+          Columns:
+            - Name: invoice_receipt_id
+              Type: string
+            - Name: vendor_name
+              Type: string
+            - Name: total
+              Type: decimal(10,2)
+            - Name: invoice_receipt_date
+              Type: date
+            - Name: subtotal
+              Type: decimal(10,2)
+            - Name: due_date
+              Type: date
+            - Name: tax
+              Type: decimal(10,2)
+            - Name: tax_payer_id
+              Type: string
+            - Name: item_id
+              Type: int
+            - Name: item_description
+              Type: string
+            - Name: unit_price
+              Type: decimal(10,2)
+            - Name: quantity
+              Type: int
+            - Name: price
+              Type: decimal(10,2)
+          Compressed: 'true'
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Sub s3://${StandardisedInvoiceDataBucket}/btm_invoices_standardised/
+          StoredAsSubDirectories: false
+          OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          SerdeInfo:
+            Parameters:
+              field.delim: ''
+              ignore.malformed.json: true
+              serialiazation.format: 1
+            SerializationLibrary: org.openx.data.jsonserde.JsonSerDe

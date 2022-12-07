@@ -49,7 +49,8 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/raw-invoice-pdf-store.yaml,
   ./cloudformation/test-invoice-pdf-store.yaml,
   ./cloudformation/validated-invoice-data-store.yaml,
-  ./cloudformation/extraction.yaml
+  ./cloudformation/extraction.yaml,
+  ./cloudformation/standardised-invoice-data-store.yaml
 
 Outputs:
   SnsAlarmTopicArn:
