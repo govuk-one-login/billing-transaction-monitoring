@@ -16,7 +16,7 @@ describe("\n Execute athena query to retrieve rate details\n", () => {
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const queryResult = await formattedQueryResults(queryId);
     console.log("queryResult", queryResult);
-    const csvFilePath = "../../cloudformation/prices1.csv";
+    const csvFilePath = "../../cloudformation/prices.csv";
     const filename = path.join(__dirname, csvFilePath);
     const fileContent = fs.readFileSync(filename, { encoding: "utf-8" });
     const csvRows = CSV.parse(fileContent, { output: "objects" });
