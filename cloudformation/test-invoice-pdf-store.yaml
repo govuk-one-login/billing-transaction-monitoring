@@ -4,7 +4,7 @@ Resources:
   TestInvoicePdfBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, test-invoice-pdf ] ]
+      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, test-invoice-pdf]]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -19,24 +19,5 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
-        DestinationBucketName: !Ref TestInvoicePdfLogBucket
-        LogFilePrefix: test-invoice-pdf-bucket-log
-
-  TestInvoicePdfLogBucket:
-    # checkov:skip=CKV_AWS_18: This is the test invoice pdf log bucket - no need for another
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, test-invoice-pdf-logs ] ]
-      VersioningConfiguration:
-        Status: Enabled
-      AccessControl: LogDeliveryWrite
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: test-invoice-pdf-bucket/log

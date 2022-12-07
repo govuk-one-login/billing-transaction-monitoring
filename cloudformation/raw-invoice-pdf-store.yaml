@@ -1,10 +1,10 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
   RawInvoicePdfBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ["-", [!Ref Prefix, !Ref Environment, raw-invoice-pdf]]
+      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, raw-invoice-pdf]]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -19,8 +19,8 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
-        DestinationBucketName: !Ref RawInvoicePdfLogBucket
-        LogFilePrefix: raw-invoice-pdf-bucket-log
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: raw-invoice-pdf-bucket/log
       NotificationConfiguration:
         QueueConfigurations:
           - Event: s3:ObjectCreated:*
@@ -28,25 +28,5 @@ Resources:
               S3Key:
                 Rules:
                   - Name: suffix
-                    Value: ".pdf"
+                    Value: '.pdf'
             Queue: !GetAtt ExtractQueue.Arn
-
-  RawInvoicePdfLogBucket:
-    # checkov:skip=CKV_AWS_18: This is the raw invoice pdf log bucket - no need for another
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName:
-        !Join ["-", [!Ref Prefix, !Ref Environment, raw-invoice-pdf-logs]]
-      VersioningConfiguration:
-        Status: Enabled
-      AccessControl: LogDeliveryWrite
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn

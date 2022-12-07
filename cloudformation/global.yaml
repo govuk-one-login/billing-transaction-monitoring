@@ -4,39 +4,79 @@ Resources:
   AlarmTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: !Join [ '-', [!Ref Prefix, !Ref Environment, alarms] ]
+      TopicName: !Join ['-', [!Ref Prefix, !Ref Environment, alarms]]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   KmsKey:
-      Type: AWS::KMS::Key
-      Properties:
-        EnableKeyRotation: true
-        KeyPolicy:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Principal:
-                AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-              Action: kms:*
-              Resource: "*"
-            - Effect: Allow
-              Principal:
-                Service:
-                  - cloudwatch.amazonaws.com
-                  - lambda.amazonaws.com
-                  - s3.amazonaws.com
-                  - sns.amazonaws.com
-                  - sqs.amazonaws.com
-                  - logs.amazonaws.com
-              Action:
-                - kms:Encrypt
-                - kms:Decrypt
-                - kms:GenerateDataKey*
-              Resource: "*"
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              Service:
+                - cloudwatch.amazonaws.com
+                - lambda.amazonaws.com
+                - s3.amazonaws.com
+                - sns.amazonaws.com
+                - sqs.amazonaws.com
+                - logs.amazonaws.com
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+            Resource: '*'
 
   KmsKeyAlias:
     Type: AWS::KMS::Alias
     Properties:
-      AliasName: !Join [ '-', ['alias/key', !Ref Prefix, !Ref Environment, general] ]
+      AliasName:
+        !Join ['-', ['alias/key', !Ref Prefix, !Ref Environment, general]]
       TargetKeyId: !Ref KmsKey
 
+  GlobalLogBucket:
+    # checkov:skip=CKV_AWS_18: This is the log bucket for all other buckets - no need for a log bucket of the log bucket
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, s3-logs]]
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: LogDeliveryWrite
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+
+  GlobalAccessLogsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref GlobalLogBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: EnableS3Logging
+            Effect: Allow
+            Resource:
+              - !Join ['/', [!GetAtt GlobalLogBucket.Arn, '*']]
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Action:
+              - s3:PutObject
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+              Bool:
+                aws:SecureTransport: true
