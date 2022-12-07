@@ -28,7 +28,6 @@ describe("\n Execute athena query to retrieve rate details\n", () => {
       ),
       (key, value) => (value === null || value === "" ? undefined : value)
     );
-    console.log(csvFormattedData);
     expect(csvFormattedData).toEqual(queryJsonObj);
   });
 });
