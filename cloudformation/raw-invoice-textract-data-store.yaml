@@ -119,6 +119,7 @@ Resources:
       Environment:
         Variables:
           DESTINATION_BUCKET: !Ref RawInvoiceTextractDataBucket
+          OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
       Events:
         RawInvoiceTextractDataEvent:
           Type: SQS
