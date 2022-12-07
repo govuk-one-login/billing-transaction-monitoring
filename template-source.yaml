@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template for infrastructure to monitor user identity verification events for billing purposes
 Transform: AWS::Serverless-2016-10-31
 
@@ -22,7 +22,8 @@ Parameters:
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
-  IsLocal: !Equals [!Ref Environment, "local"]
+  IsLocal: !Equals [!Ref Environment, 'local']
+  IsNotProduction: !Not [!Equals [!Ref Environment, production]]
 
 Globals:
   Function:

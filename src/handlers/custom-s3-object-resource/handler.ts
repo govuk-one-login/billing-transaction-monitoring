@@ -1,5 +1,5 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
-import { deleteS3, putS3 } from "../../shared/utils";
+import { deleteS3, putTextS3 } from "../../shared/utils";
 import { sendResult } from "./send-result";
 
 export const handler = async (
@@ -32,24 +32,14 @@ export const handler = async (
 
     if (requestType === "Delete") await deleteS3(bucket, key);
     else {
-      if (!("Item" in s3Object)) throw new Error("`S3Object.Item` not found");
+      if (!("Body" in s3Object)) throw new Error("`S3Object.Body` not found");
 
-      const { Item: itemText } = s3Object;
+      const { Body: body } = s3Object;
 
-      if (typeof itemText !== "string")
-        throw new Error("`S3Object.Item` not a string");
+      if (typeof body !== "string")
+        throw new Error("`S3Object.Body` not a string");
 
-      let item;
-      try {
-        item = JSON.parse(itemText);
-      } catch {
-        throw new Error("`S3Object.Item` not JSON");
-      }
-
-      if (typeof item !== "object")
-        throw new Error("`S3Object.Item` JSON not object");
-
-      await putS3(bucket, key, item);
+      await putTextS3(bucket, key, body);
     }
 
     return await sendResult({
