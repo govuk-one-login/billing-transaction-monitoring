@@ -1,6 +1,6 @@
 {
   "catalog": "awsdatacatalog",
-  "schema": "$ENV-calculations",
+  "schema": "$STACK-calculations",
   "columns": [
     { "name": "event_name", "type": "varchar" },
     { "name": "client_id", "type": "varchar" },
@@ -8,5 +8,5 @@
     { "name": "year", "type": "bigint" },
     { "name": "count", "type": "bigint" }
   ],
-  "originalSql": "SELECT client_id, event_name, month, year, count(*) as count from(SELECT client_id, event_name, extract(month from datetime) as month, extract(year from datetime) as year FROM \"AwsDataCatalog\".\"$ENV-calculations\".\"btm_transactions\") GROUP BY client_id, event_name, month, year"
+  "originalSql": "SELECT client_id, event_name, month, year, count(*) as count from(SELECT client_id, event_name, extract(month from datetime) as month, extract(year from datetime) as year FROM \"AwsDataCatalog\".\"$STACK-calculations\".\"btm_transactions\") GROUP BY client_id, event_name, month, year"
 }

@@ -45,9 +45,12 @@ const visitor = (key, node) => {
   }
 
   if (node.tag === "!AthenaViewInclude") {
-    const file = readFileSync(`./${node.value.trim()}`, "utf8");
-    const base64 = Buffer.from(file).toString("base64");
-    const encoded = "/* Presto View: " + base64 + " */";
+    const prefix = document.contents.get("Parameters", false).get("Prefix", false).get("Default", false);
+    const stackName = prefix + "-" + process.env.ENV_NAME;
+    const template = readFileSync(`./${node.value.trim()}`, "utf8");
+    const prestoViewJson = template.replaceAll('$STACK', stackName);
+    const encodedJson = Buffer.from(prestoViewJson).toString("base64");
+    const encoded = "/* Presto View: " + encodedJson + " */";
     const yamlObject = new Scalar(encoded);
     return yamlObject;
   }
