@@ -1,12 +1,12 @@
 {
   "catalog": "awsdatacatalog",
-  "schema": "di-btm-dev-od-ms-transview-calculations",
+  "schema": "$ENV-calculations",
   "columns": [
-    {"name": "event_name", "type": "varchar"},
-    {"name": "client_id", "type": "varchar"},
-    {"name": "month", "type": "bigint"},
-    {"name": "year", "type": "bigint"},
-    {"name": "count", "type": "bigint"}
+    { "name": "event_name", "type": "varchar" },
+    { "name": "client_id", "type": "varchar" },
+    { "name": "month", "type": "bigint" },
+    { "name": "year", "type": "bigint" },
+    { "name": "count", "type": "bigint" }
   ],
-  "originalSql": "SELECT client_id, event_name, month, year, count(*) as count from(SELECT client_id, event_name, extract(month from datetime) as month, extract(year from datetime) as year FROM \"AwsDataCatalog\".\"di-btm-dev-od-ms-rtcrawl-calculations\".\"btm_transactions\") GROUP BY client_id, event_name, month, year"
+  "originalSql": "SELECT client_id, event_name, month, year, count(*) as count from(SELECT client_id, event_name, extract(month from datetime) as month, extract(year from datetime) as year FROM \"AwsDataCatalog\".\"$ENV-calculations\".\"btm_transactions\") GROUP BY client_id, event_name, month, year"
 }

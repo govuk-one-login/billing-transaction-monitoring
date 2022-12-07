@@ -160,7 +160,7 @@ Resources:
         TableType: VIRTUAL_VIEW
         Parameters:
           presto_view: true
-        ViewOriginalText: '/* Presto View: ewogICJjYXRhbG9nIjogImF3c2RhdGFjYXRhbG9nIiwKICAic2NoZW1hIjogImRpLWJ0bS1kZXYtb2QtbXMtdHJhbnN2aWV3LWNhbGN1bGF0aW9ucyIsCiAgImNvbHVtbnMiOiBbCiAgICB7Im5hbWUiOiAiZXZlbnRfbmFtZSIsICJ0eXBlIjogInZhcmNoYXIifSwKICAgIHsibmFtZSI6ICJjbGllbnRfaWQiLCAidHlwZSI6ICJ2YXJjaGFyIn0sCiAgICB7Im5hbWUiOiAibW9udGgiLCAidHlwZSI6ICJiaWdpbnQifSwKICAgIHsibmFtZSI6ICJ5ZWFyIiwgInR5cGUiOiAiYmlnaW50In0sCiAgICB7Im5hbWUiOiAiY291bnQiLCAidHlwZSI6ICJiaWdpbnQifQogIF0sCiAgIm9yaWdpbmFsU3FsIjogIlNFTEVDVCBjbGllbnRfaWQsIGV2ZW50X25hbWUsIG1vbnRoLCB5ZWFyLCBjb3VudCgqKSBhcyBjb3VudCBmcm9tKFNFTEVDVCBjbGllbnRfaWQsIGV2ZW50X25hbWUsIGV4dHJhY3QobW9udGggZnJvbSBkYXRldGltZSkgYXMgbW9udGgsIGV4dHJhY3QoeWVhciBmcm9tIGRhdGV0aW1lKSBhcyB5ZWFyIEZST00gXCJBd3NEYXRhQ2F0YWxvZ1wiLlwiZGktYnRtLWRldi1vZC1tcy1ydGNyYXdsLWNhbGN1bGF0aW9uc1wiLlwiYnRtX3RyYW5zYWN0aW9uc1wiKSBHUk9VUCBCWSBjbGllbnRfaWQsIGV2ZW50X25hbWUsIG1vbnRoLCB5ZWFyIgp9 */'
+        ViewOriginalText: !AthenaViewInclude ./cloudformation/views/transactions-view.json
         StorageDescriptor:
           SerdeInfo:
             SerializationLibrary: org.openx.data.jsonserde.JsonSerDe

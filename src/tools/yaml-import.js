@@ -43,6 +43,14 @@ const visitor = (key, node) => {
     const yamlObject = new Scalar(file);
     return yamlObject;
   }
+
+  if (node.tag === "!AthenaViewInclude") {
+    const file = readFileSync(`./${node.value.trim()}`, "utf8");
+    const base64 = Buffer.from(file).toString("base64");
+    const encoded = "/* Presto View: " + base64 + " */";
+    const yamlObject = new Scalar(encoded);
+    return yamlObject;
+  }
 };
 visit(document, visitor);
 
