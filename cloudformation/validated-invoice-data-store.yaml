@@ -4,7 +4,8 @@ Resources:
   ValidatedInvoiceDataBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, validated-invoice-data ] ]
+      BucketName:
+        !Join ['-', [!Ref Prefix, !Ref Environment, validated-invoice-data]]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -19,24 +20,5 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
-        DestinationBucketName: !Ref ValidatedInvoiceDataLogBucket
-        LogFilePrefix: validated-invoice-data-bucket-log
-
-  ValidatedInvoiceDataLogBucket:
-    # checkov:skip=CKV_AWS_18: This is the log bucket for the validated invoice data - no need for another
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Join [ '-', [!Ref Prefix, !Ref Environment, validated-invoice-data-logs ] ]
-      VersioningConfiguration:
-        Status: Enabled
-      AccessControl: LogDeliveryWrite
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: validated-invoice-data-bucket/log

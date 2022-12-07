@@ -19,28 +19,8 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
-        DestinationBucketName: !Ref ConfigBucketLogBucket
-        LogFilePrefix: config-bucket-log
-
-  ConfigBucketLogBucket:
-    # checkov:skip=CKV_AWS_18: This is the config log bucket - no need for another
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName:
-        !Join ['-', [!Ref Prefix, !Ref Environment, config-bucket-logs]]
-      VersioningConfiguration:
-        Status: Enabled
-      AccessControl: LogDeliveryWrite
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: config-bucket/log
 
   # Prices are confidential, so use fake data outside of the production environment
   FakePricesS3Object:
