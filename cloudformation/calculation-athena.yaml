@@ -162,5 +162,11 @@ Resources:
           presto_view: true
         ViewOriginalText: !AthenaViewInclude ./cloudformation/views/transactions-view.json
         StorageDescriptor:
+          Columns:
+            - { Name: event_name, Type: varchar(100) }
+            - { Name: client_id, Type: varchar(100) }
+            - { Name: month, Type: bigint }
+            - { Name: year, Type: bigint }
+            - { Name: count, Type: bigint }
           SerdeInfo:
             SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
