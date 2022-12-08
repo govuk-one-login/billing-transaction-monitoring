@@ -7,7 +7,7 @@ import {
 } from "aws-lambda";
 import { ClientRequest, IncomingMessage } from "http";
 import { request } from "https";
-import { sendResult } from "./send-result";
+import { sendResult } from "../../handlers/custom-s3-object-resource/send-result";
 
 jest.mock("https");
 const mockedRequestFunction = request as jest.MockedFunction<typeof request>;

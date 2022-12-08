@@ -248,3 +248,20 @@ Resources:
               ignore.malformed.json: true
               serialiazation.format: 1
             SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+  InvoiceCalculatedSubtotalView:
+    Type: Custom::AthenaView
+    Properties:
+      View:
+        - Database: !Ref InvoiceDB
+        - Name: !Sub ${Prefix}-${Environment}-invoice-calculated-subtotal-view
+        - Query: |
+            SELECT
+              YEAR(invoice_receipt_date) AS year_received,
+              MONTH(invoice_receipt_date) AS month_received,
+              vendor_name,
+              invoice_receipt_id,
+              SUM(quantity * unit_price) AS calculated_subtotal
+            FROM btm_invoices_standardised
+            GROUP BY invoice_receipt_id, vendor_name, invoice_receipt_date
+        - QueryResultBucket: !Sub s3://${StandardisedInvoiceDataBucket}/query_results

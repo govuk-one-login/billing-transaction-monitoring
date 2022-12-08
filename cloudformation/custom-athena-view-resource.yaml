@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  CustomAthenaViewResourceFunction:
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${Prefix}-${Environment}-custom-athena-view-resource-function
+      DeadLetterQueue:
+        TargetArn: !GetAtt CustomAthenaViewResourceFunctionDeadLetterQueue.Arn
+        Type: SQS
+      Handler: customAthenaViewResource.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - glue:CreateTable
+                - glue:DeleteTable
+                - glue:UpdateTable
+              Resource: arn:aws:glue:::*
+        - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+      ReservedConcurrentExecutions: 10
+
+  CustomAthenaViewResourceFunctionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${Prefix}-${Environment}-custom-athena-view-resource-function-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn

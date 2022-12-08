@@ -6,6 +6,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default {
   entry: {
     clean: "./src/handlers/clean/handler.ts",
+    customAthenaViewResource:
+      "./src/handlers/custom-athena-view-resource/handler.ts",
     customS3ObjectResource:
       "./src/handlers/custom-s3-object-resource/handler.ts",
     extract: "./src/handlers/extract/handler.ts",
