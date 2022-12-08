@@ -1,13 +1,10 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
-import { deleteS3, putTextS3 } from "../../shared/utils";
+import { deleteS3, putTextS3, sendResult } from "../../shared/utils";
 import { handler } from "./handler";
-import { sendResult } from "./send-result";
 
 jest.mock("../../shared/utils");
 const mockedDeleteS3 = deleteS3 as jest.MockedFunction<typeof deleteS3>;
 const mockedPutTextS3 = putTextS3 as jest.MockedFunction<typeof putTextS3>;
-
-jest.mock("./send-result");
 const mockedSendResult = sendResult as jest.MockedFunction<typeof sendResult>;
 
 let givenContext: Context;

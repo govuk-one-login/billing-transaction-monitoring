@@ -1,14 +1,12 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
 import { Athena } from "aws-sdk";
-import { createOrReplaceView } from "./create-view";
-import { deleteView } from "./delete-view";
-import { sendResult } from "./send-result";
+import { sendResult } from "../../shared/utils";
 
 interface AthenaViewResourceProperty {
   Database: string;
   Name: string;
   Query: string;
-  QueryResultBucket: string;
+  Workgroup: string;
 }
 
 export const handler = async (
@@ -27,7 +25,7 @@ export const handler = async (
     if (typeof view !== "object")
       throw new Error("Property `View` not an object");
 
-    for (const key of ["Database", "Name", "Query", "QueryResultBucket"]) {
+    for (const key of ["Database", "Name", "Query", "Workgroup"]) {
       if (!(key in view)) throw new Error(`\`View.${key}\` not found`);
 
       if (typeof view[key] !== "string")
@@ -38,32 +36,34 @@ export const handler = async (
       Database: database,
       Name: name,
       Query: query,
-      QueryResultBucket: queryResultBucket,
+      Workgroup: workgroup,
     } = view as AthenaViewResourceProperty;
 
     const athena = new Athena({ region: "eu-west-2" });
 
     const baseParams = {
-      ResultConfiguration: {
-        OutputLocation: queryResultBucket,
-      },
       QueryExecutionContext: {
         Database: database,
       },
+      WorkGroup: workgroup,
     };
 
     if (requestType === "Delete")
-      await athena.startQueryExecution({
-        ...baseParams,
-        QueryString: `DROP VIEW IF EXISTS "${name}"`,
-      });
+      await athena
+        .startQueryExecution({
+          ...baseParams,
+          QueryString: `DROP VIEW IF EXISTS "${name}"`,
+        })
+        .promise();
     else
-      await athena.startQueryExecution({
-        ...baseParams,
-        QueryString: `CREATE OR REPLACE VIEW "${name}" AS (${query})`,
-      });
+      await athena
+        .startQueryExecution({
+          ...baseParams,
+          QueryString: `CREATE OR REPLACE VIEW "${name}" AS (${query})`,
+        })
+        .promise();
 
-    return await sendResult({
+    await sendResult({
       context,
       event,
       reason: `${query} ${requestType.toLowerCase()}d in ${database}`,
@@ -72,7 +72,7 @@ export const handler = async (
   } catch (error) {
     console.error("Handler error:", error);
 
-    return await sendResult({
+    await sendResult({
       context,
       event,
       reason: `See CloudWatch log stream: ${context.logStreamName}`,

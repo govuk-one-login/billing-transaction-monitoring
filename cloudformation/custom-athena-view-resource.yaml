@@ -16,18 +16,33 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - Statement:
             - Effect: Allow
+              Action: athena:StartQueryExecution
+              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaWorkgroup}
+            - Effect: Allow
               Action:
+                - glue:GetTable
                 - glue:CreateTable
                 - glue:DeleteTable
                 - glue:UpdateTable
-              Resource: arn:aws:glue:::*
-        - Statement:
+              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
             - Effect: Allow
               Action:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
               Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - s3:AbortMultipartUpload
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+                - s3:PutObject
+              Resource:
+                - !GetAtt AthenaQueryResultsBucket.Arn
+                - !Sub ${AthenaQueryResultsBucket.Arn}/*
       ReservedConcurrentExecutions: 10
 
   CustomAthenaViewResourceFunctionDeadLetterQueue:

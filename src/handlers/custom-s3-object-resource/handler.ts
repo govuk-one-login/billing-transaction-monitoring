@@ -1,6 +1,5 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
-import { deleteS3, putTextS3 } from "../../shared/utils";
-import { sendResult } from "./send-result";
+import { deleteS3, putTextS3, sendResult } from "../../shared/utils";
 
 export const handler = async (
   event: CloudFormationCustomResourceEvent,

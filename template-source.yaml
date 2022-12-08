@@ -50,7 +50,8 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/test-invoice-pdf-store.yaml,
   ./cloudformation/validated-invoice-data-store.yaml,
   ./cloudformation/extraction.yaml,
-  ./cloudformation/standardised-invoice-data-store.yaml
+  ./cloudformation/standardised-invoice-data-store.yaml,
+  ./cloudformation/custom-athena-view-resource.yaml#NO_LOCAL
 
 Outputs:
   SnsAlarmTopicArn:
