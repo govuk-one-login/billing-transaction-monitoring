@@ -32,7 +32,7 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
       `${prefix}-standardised-invoice-storage-function`,
       "ERROR",
       testStartTime
-    ); // checks for ERROR string in standardised invoice storage function cludwatch logs
+    ); // checks for ERROR string in standardised invoice storage function cloudwatch logs
 
     expect(givenStringExistsInLogs).toBeFalsy();
 
