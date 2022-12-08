@@ -13,7 +13,7 @@ const prefix = resourcePrefix();
 const rawinvoiceBucketName = `${prefix}-raw-invoice-pdf`;
 
 describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => {
-  test.only("standardised-invoice-storage-function should be executed without errors upon uploading the file to s3 raw invoice pdf bucket", async () => {
+  test("standardised-invoice-storage-function should be executed without errors upon uploading the file to s3 raw invoice pdf bucket", async () => {
     const uniqueString = Math.random().toString(36).substring(2, 7);
     const rawinvoiceBucketKey = `raw-Invoice-${uniqueString}-validFile.pdf`;
     await copyObject(
