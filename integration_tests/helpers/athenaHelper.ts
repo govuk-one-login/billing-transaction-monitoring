@@ -2,7 +2,6 @@ import {
   StartQueryExecutionCommand,
   GetQueryExecutionCommand,
   GetQueryResultsCommand,
-  GetQueryResultsCommandOutput,
 } from "@aws-sdk/client-athena";
 import { waitForTrue } from "./commonHelpers";
 import { athenaClient } from "../clients/athenaClient";
@@ -59,17 +58,17 @@ async function getQueryResults(queryId: string) {
 
 async function formattedQueryResults(queryId: string) {
   const queryResults = await getQueryResults(queryId);
-  const columns = queryResults?.ResultSet?.Rows![0].Data;
-  const rows = queryResults?.ResultSet?.Rows!.slice(
-    1,
-    queryResults?.ResultSet?.Rows!.length
-  ).map((d) => d.Data);
-  const formattedData = rows!.map((row) => {
+  if (queryResults?.ResultSet?.Rows?.[0]?.Data === undefined)
+    throw new Error("Invalid query results");
+  const columns = queryResults.ResultSet.Rows[0].Data;
+  const rows = queryResults.ResultSet.Rows.slice(1).map((d) => d.Data);
+  const formattedData = rows.map((row) => {
     const object: { [key: string]: string } = {};
-    row!.forEach(function (item, index) {
-      const fieldName = columns![index].VarCharValue;
-      if (fieldName !== undefined) {
-        object[fieldName] = row![index].VarCharValue!;
+    row?.forEach(function (_, index) {
+      const fieldName = columns[index].VarCharValue;
+      const fieldValue = row[index].VarCharValue;
+      if (fieldName !== undefined && fieldValue !== undefined) {
+        object[fieldName] = fieldValue;
         console.log(object);
         return object;
       }
