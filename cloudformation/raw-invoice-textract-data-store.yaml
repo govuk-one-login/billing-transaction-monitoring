@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
@@ -7,7 +7,7 @@ Resources:
     Properties:
       TopicName:
         !Join [
-          "-",
+          '-',
           [
             !Ref Prefix,
             !Ref Environment,
@@ -27,7 +27,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName:
-        !Join ["-", [!Ref Prefix, !Ref Environment, raw-invoice-textract-data]]
+        !Join ['-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data]]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -42,15 +42,15 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
-        DestinationBucketName: !Ref RawInvoiceTextractDataLogBucket
-        LogFilePrefix: raw-invoice-textract-data-bucket-log
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: raw-invoice-textract-data-bucket/log
 
   RawInvoiceTextractDataQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName:
         !Join [
-          "-",
+          '-',
           [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-queue],
         ]
 
@@ -64,7 +64,7 @@ Resources:
     Properties:
       QueueName:
         !Join [
-          "-",
+          '-',
           [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-dlq],
         ]
       KmsMasterKeyId: !GetAtt KmsKey.Arn
@@ -79,33 +79,10 @@ Resources:
               ArnEquals:
                 aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
             Effect: Allow
-            Principal: "*"
+            Principal: '*'
             Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
       Queues:
         - !Ref RawInvoiceTextractDataQueue
-
-  RawInvoiceTextractDataLogBucket:
-    # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName:
-        !Join [
-          "-",
-          [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-logs],
-        ]
-      VersioningConfiguration:
-        Status: Enabled
-      AccessControl: LogDeliveryWrite
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
 
   RawInvoiceTextractDataStorageFunction:
     # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
@@ -114,13 +91,12 @@ Resources:
     Properties:
       FunctionName:
         !Join [
-          "-",
+          '-',
           [!Ref Prefix, !Ref Environment, raw-textract-storage-function],
         ]
       Environment:
         Variables:
-          RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_RETURN_VALUE: done
-          RAW_INVOICE_TEXTRACT_DATA_STORAGE_HANDLER_THROW_ERROR: false
+          DESTINATION_BUCKET: !Ref RawInvoiceTextractDataBucket
       Events:
         RawInvoiceTextractDataEvent:
           Type: SQS
@@ -143,4 +119,22 @@ Resources:
                 - kms:GenerateDataKey*
                 - kms:Encrypt
               Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - 'textract:GetExpenseAnalysis'
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - 's3:DeleteObject'
+                - 's3:GetObject'
+                - 's3:ListBucket'
+                - 's3:PutObject'
+              Resource:
+                - !GetAtt RawInvoicePdfBucket.Arn
+                - !Join ['/', [!GetAtt RawInvoicePdfBucket.Arn, '*']]
+            - Effect: Allow
+              Action:
+                - 's3:PutObject'
+              Resource:
+                !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
       ReservedConcurrentExecutions: 10

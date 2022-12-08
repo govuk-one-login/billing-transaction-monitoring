@@ -1,0 +1,7 @@
+overrides:
+  - files:
+      - '*.yaml'
+      - '*.yml'
+      - .prettierrc
+    options:
+      singleQuote: true
