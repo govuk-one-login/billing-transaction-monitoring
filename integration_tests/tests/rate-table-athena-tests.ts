@@ -18,7 +18,7 @@ describe("\n Execute athena query to retrieve rate details\n", () => {
       .replace(/\s00:00:00.000/g, "")
       .replace(/"(\d+)(?:(\.\d*?[1-9]+)0*|\.0*)"/g, '"$1$2"'); // regex removes trailing zeros after decimal places eg 1.00 to 1
     const queryJsonObj = JSON.parse(queryResultToString);
-    const csvFilePath = "../../cloudformation/prices.csv";
+    const csvFilePath = "../../cloudformation/fake-prices.csv";
     const file = path.join(__dirname, csvFilePath);
     const csvData = await csvjson().fromFile(file);
     const csvFormattedData = JSON.parse(
