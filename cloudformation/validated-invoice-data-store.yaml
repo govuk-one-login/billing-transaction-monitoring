@@ -1,11 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  StorageBucket:
+  ValidatedInvoiceDataBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, storage]]
+      BucketName:
+        !Join ['-', [!Ref Prefix, !Ref Environment, validated-invoice-data]]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -21,4 +21,4 @@ Resources:
         Status: Enabled
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: storage-bucket/log
+        LogFilePrefix: validated-invoice-data-bucket/log

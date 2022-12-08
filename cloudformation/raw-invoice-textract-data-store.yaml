@@ -42,8 +42,8 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
-        DestinationBucketName: !Ref RawInvoiceTextractDataLogBucket
-        LogFilePrefix: raw-invoice-textract-data-bucket-log
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: raw-invoice-textract-data-bucket/log
 
   RawInvoiceTextractDataQueue:
     Type: AWS::SQS::Queue
@@ -82,29 +82,6 @@ Resources:
             Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
       Queues:
         - !Ref RawInvoiceTextractDataQueue
-
-  RawInvoiceTextractDataLogBucket:
-    # checkov:skip=CKV_AWS_18: This is the log bucket for BTM Data (semi structured store) - no need for another
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName:
-        !Join [
-          '-',
-          [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-logs],
-        ]
-      VersioningConfiguration:
-        Status: Enabled
-      AccessControl: LogDeliveryWrite
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
 
   RawInvoiceTextractDataStorageFunction:
     # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
