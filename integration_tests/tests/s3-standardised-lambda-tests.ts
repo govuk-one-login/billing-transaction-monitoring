@@ -10,20 +10,20 @@ import { waitForTrue } from "../helpers/commonHelpers";
 
 const testStartTime = new Date().getTime();
 const prefix = resourcePrefix();
-const rawinvoiceBucketName = `${prefix}-raw-invoice-pdf`;
+const rawInvoiceBucketName = `${prefix}-raw-invoice-pdf`;
 
 describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => {
   test("standardised-invoice-storage-function should be executed without errors upon uploading the file to s3 raw invoice pdf bucket", async () => {
     const uniqueString = Math.random().toString(36).substring(2, 7);
-    const rawinvoiceBucketKey = `raw-Invoice-${uniqueString}-validFile.pdf`;
+    const rawInvoiceBucketKey = `raw-Invoice-${uniqueString}-validFile.pdf`;
     await copyObject(
-      rawinvoiceBucketName,
+      rawInvoiceBucketName,
       `${prefix}-test-invoice-pdf/Invoice.pdf`,
-      rawinvoiceBucketKey
+      rawInvoiceBucketKey
     );
     const checkRawPdfFileExists = await checkIfFileExists(
-      rawinvoiceBucketName,
-      rawinvoiceBucketKey
+      rawInvoiceBucketName,
+      rawInvoiceBucketKey
     );
     expect(checkRawPdfFileExists).toBeTruthy();
     console.log("file exists in raw invoice pdf bucket");
@@ -36,23 +36,20 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
 
     expect(givenStringExistsInLogs).toBeFalsy();
 
-    const isFileMovedToSuccessfulFolder = async () => {
-      const result = await getS3ItemsList(rawinvoiceBucketName, "successful");
-      return result.Contents?.filter((t) =>
-        t.Key?.includes(rawinvoiceBucketKey)
-      );
+    const deleteFileAfterTest = async () => {
+      const result = await getS3ItemsList(rawInvoiceBucketName, "successful");
+      if (
+        result.Contents?.filter((t) => t.Key?.includes(rawInvoiceBucketKey))
+      ) {
+        await deleteObjectInS3(
+          rawInvoiceBucketName,
+          "successful/" + rawInvoiceBucketKey
+        );
+        console.log("deleted the file from s3");
+        return true;
+      }
     };
-
-    const originalFileExistsInSuccessfulFolder = await waitForTrue(
-      isFileMovedToSuccessfulFolder,
-      1000,
-      20000
-    );
-    expect(originalFileExistsInSuccessfulFolder).toBeTruthy();
-    await deleteObjectInS3(
-      rawinvoiceBucketName,
-      "successful/" + rawinvoiceBucketKey
-    );
-    console.log("deleted the file from s3");
+    const fileDeleted = await waitForTrue(deleteFileAfterTest, 1000, 5000);
+    expect(fileDeleted).toBeTruthy();
   });
 });
