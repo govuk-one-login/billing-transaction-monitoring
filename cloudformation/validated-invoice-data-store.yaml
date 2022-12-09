@@ -4,8 +4,7 @@ Resources:
   ValidatedInvoiceDataBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName:
-        !Join ['-', [!Ref Prefix, !Ref Environment, validated-invoice-data]]
+      BucketName: !Sub ${AWS::StackName}-validated-invoice-data
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true

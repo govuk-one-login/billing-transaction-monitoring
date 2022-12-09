@@ -4,7 +4,7 @@ Resources:
   TestTxMASNS:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: !Join [ '-', [!Ref Prefix, !Ref Environment, test-TxMA-topic ] ]
+      TopicName: !Sub ${AWS::StackName}-test-TxMA-topic
       DisplayName: Test TxMA SNS topic
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 

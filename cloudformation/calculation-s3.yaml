@@ -5,7 +5,7 @@ Resources:
   StorageBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, storage]]
+      BucketName: !Sub ${AWS::StackName}-storage
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
