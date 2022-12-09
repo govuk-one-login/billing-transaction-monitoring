@@ -9,6 +9,9 @@ interface AthenaViewResourceProperty {
   Workgroup: string;
 }
 
+const QUERY_EXECUTION_RETRIEVAL_INTERVAL_MS = 1000;
+const QUERY_EXECUTION_RETRIEVAL_MAX_ATTEMPTS = 10;
+
 export const handler = async (
   event: CloudFormationCustomResourceEvent,
   context: Context
@@ -35,40 +38,77 @@ export const handler = async (
     const {
       Database: database,
       Name: name,
-      Query: query,
+      Query: dataQuery,
       Workgroup: workgroup,
     } = view as AthenaViewResourceProperty;
 
     const athena = new Athena({ region: "eu-west-2" });
 
-    const baseParams = {
-      QueryExecutionContext: {
-        Database: database,
-      },
-      WorkGroup: workgroup,
-    };
+    const { QueryExecutionId: queryExecutionId } = await athena
+      .startQueryExecution({
+        QueryExecutionContext: {
+          Database: database,
+        },
+        QueryString:
+          requestType === "Delete"
+            ? `DROP VIEW IF EXISTS "${name}"`
+            : `CREATE OR REPLACE VIEW "${name}" AS (${dataQuery})`,
+        WorkGroup: workgroup,
+      })
+      .promise();
 
-    if (requestType === "Delete")
-      await athena
-        .startQueryExecution({
-          ...baseParams,
-          QueryString: `DROP VIEW IF EXISTS "${name}"`,
-        })
-        .promise();
-    else
-      await athena
-        .startQueryExecution({
-          ...baseParams,
-          QueryString: `CREATE OR REPLACE VIEW "${name}" AS (${query})`,
-        })
+    if (queryExecutionId === undefined)
+      throw new Error("Failed to start query execution and get ID.");
+
+    let queryExecutionRetrievalAttempts = 0;
+    while (
+      queryExecutionRetrievalAttempts < QUERY_EXECUTION_RETRIEVAL_MAX_ATTEMPTS
+    ) {
+      const { QueryExecution: queryExecution } = await athena
+        .getQueryExecution({ QueryExecutionId: queryExecutionId })
         .promise();
 
-    await sendResult({
-      context,
-      event,
-      reason: `${query} ${requestType.toLowerCase()}d in ${database}`,
-      status: "SUCCESS",
-    });
+      queryExecutionRetrievalAttempts += 1;
+
+      const queryExecutionState = queryExecution?.Status?.State;
+
+      if (queryExecutionState === undefined)
+        throw new Error("Failed to get query execution state.");
+      if (queryExecutionState === "SUCCEEDED") {
+        await sendResult({
+          context,
+          event,
+          reason: `${name} ${requestType.toLowerCase()}d in ${database}`,
+          status: "SUCCESS",
+        });
+        return;
+      } else if (queryExecutionState === "FAILED") {
+        const baseErrorMessage = "Query execution failed";
+
+        const athenaErrorMessage =
+          queryExecution?.Status?.AthenaError?.ErrorMessage;
+
+        const errorMessage =
+          athenaErrorMessage === undefined
+            ? `${baseErrorMessage}.`
+            : `${baseErrorMessage}: ${athenaErrorMessage}`;
+
+        throw new Error(errorMessage);
+      } else if (queryExecutionState === "CANCELLED")
+        throw new Error("Query execution cancelled.");
+      else if (!["QUEUED", "RUNNING"].includes(queryExecutionState))
+        throw new Error(
+          `Unrecognised query execution state: ${queryExecutionState}`
+        );
+
+      await new Promise((resolve) =>
+        setTimeout(resolve, QUERY_EXECUTION_RETRIEVAL_INTERVAL_MS)
+      );
+    }
+
+    throw new Error(
+      `Failed to get successful query execution after ${QUERY_EXECUTION_RETRIEVAL_MAX_ATTEMPTS} attempts.`
+    );
   } catch (error) {
     console.error("Handler error:", error);
 
