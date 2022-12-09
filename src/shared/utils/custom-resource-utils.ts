@@ -13,7 +13,7 @@ interface ResultArguments {
   status: CloudFormationCustomResourceResponse["Status"];
 }
 
-export const sendResult = async ({
+export const sendCustomResourceResult = async ({
   context,
   event,
   reason,

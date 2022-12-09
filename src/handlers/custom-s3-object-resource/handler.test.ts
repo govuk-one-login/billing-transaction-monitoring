@@ -1,11 +1,18 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
-import { deleteS3, putTextS3, sendResult } from "../../shared/utils";
+import {
+  deleteS3,
+  putTextS3,
+  sendCustomResourceResult,
+} from "../../shared/utils";
 import { handler } from "./handler";
 
 jest.mock("../../shared/utils");
 const mockedDeleteS3 = deleteS3 as jest.MockedFunction<typeof deleteS3>;
 const mockedPutTextS3 = putTextS3 as jest.MockedFunction<typeof putTextS3>;
-const mockedSendResult = sendResult as jest.MockedFunction<typeof sendResult>;
+const mockedSendCustomResourceResult =
+  sendCustomResourceResult as jest.MockedFunction<
+    typeof sendCustomResourceResult
+  >;
 
 let givenContext: Context;
 const oldConsoleError = console.error;
@@ -44,8 +51,8 @@ test("Custom S3 object resource handler with no `S3Object`", async () => {
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -65,8 +72,8 @@ test("Custom S3 object resource handler with `S3Object` not object", async () =>
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -82,8 +89,8 @@ test("Custom S3 object resource handler with no `S3Object.Bucket`", async () => 
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -107,8 +114,8 @@ test("Custom S3 object resource handler with `S3Object.Bucket` not string", asyn
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -124,8 +131,8 @@ test("Custom S3 object resource handler with no `S3Object.Key`", async () => {
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -149,8 +156,8 @@ test("Custom S3 object resource handler with `S3Object.Key` not string", async (
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -188,8 +195,8 @@ test("Custom S3 object resource handler with deletion failure", async () => {
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -205,8 +212,8 @@ test("Custom S3 object resource handler with deletion success", async () => {
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining("deleted"),
@@ -223,8 +230,8 @@ test('Custom S3 object resource handler with request type "Create" and no `S3Obj
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -251,8 +258,8 @@ test('Custom S3 object resource handler with request type "Create" and `S3Object
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -272,8 +279,8 @@ test("Custom S3 object resource handler with creation failure", async () => {
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -289,8 +296,8 @@ test("Custom S3 object resource handler with creation success", async () => {
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining("created"),
@@ -307,8 +314,8 @@ test('Custom S3 object resource handler with request type "Update" and no `S3Obj
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -335,8 +342,8 @@ test('Custom S3 object resource handler with request type "Update" and `S3Object
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -356,8 +363,8 @@ test("Custom S3 object resource handler with update failure", async () => {
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining(givenContext.logStreamName),
@@ -373,8 +380,8 @@ test("Custom S3 object resource handler with update success", async () => {
 
   await handler(givenEvent, givenContext);
 
-  expect(mockedSendResult).toHaveBeenCalledTimes(1);
-  expect(mockedSendResult).toHaveBeenCalledWith({
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+  expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
     context: givenContext,
     event: givenEvent,
     reason: expect.stringContaining("updated"),

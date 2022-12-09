@@ -1,6 +1,6 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
 import { Athena } from "aws-sdk";
-import { sendResult } from "../../shared/utils";
+import { sendCustomResourceResult } from "../../shared/utils";
 
 interface AthenaViewResourceProperty {
   Database: string;
@@ -75,7 +75,7 @@ export const handler = async (
       if (queryExecutionState === undefined)
         throw new Error("Failed to get query execution state.");
       if (queryExecutionState === "SUCCEEDED") {
-        await sendResult({
+        await sendCustomResourceResult({
           context,
           event,
           reason: `${name} ${requestType.toLowerCase()}d in ${database}`,
@@ -112,7 +112,7 @@ export const handler = async (
   } catch (error) {
     console.error("Handler error:", error);
 
-    await sendResult({
+    await sendCustomResourceResult({
       context,
       event,
       reason: `See CloudWatch log stream: ${context.logStreamName}`,

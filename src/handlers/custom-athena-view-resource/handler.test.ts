@@ -1,19 +1,23 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
 import { Athena } from "aws-sdk";
-import { sendResult } from "../../shared/utils";
+import { sendCustomResourceResult } from "../../shared/utils";
 import { handler } from "./handler";
 
 jest.mock("aws-sdk");
 const MockedAthena = Athena as jest.MockedClass<typeof Athena>;
 
 jest.mock("../../shared/utils");
-const mockedSendResult = sendResult as jest.MockedFunction<typeof sendResult>;
+const mockedSendCustomResourceResult =
+  sendCustomResourceResult as jest.MockedFunction<
+    typeof sendCustomResourceResult
+  >;
 
 describe("Custom Athena view resource handler", () => {
   let mockedAthenaGetQueryExecution: jest.Mock;
   let mockedAthenaGetQueryExecutionPromise: jest.Mock;
   let mockedAthenaStartQueryExecution: jest.Mock;
   let mockedAthenaStartQueryExecutionPromise: jest.Mock;
+  let mockedConsoleError: jest.Mock;
   let givenContext: Context;
   const oldConsoleError = console.error;
   const oldSetTimeout = setTimeout;
@@ -22,8 +26,10 @@ describe("Custom Athena view resource handler", () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    console.error = jest.fn();
     global.setTimeout = ((callback: Function) => callback()) as any;
+
+    mockedConsoleError = jest.fn();
+    console.error = mockedConsoleError;
 
     mockedAthenaGetQueryExecutionPromise = jest.fn(() => ({
       QueryExecution: {
@@ -80,8 +86,8 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -102,8 +108,8 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -120,8 +126,8 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -146,8 +152,8 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -164,8 +170,8 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -190,8 +196,8 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -208,8 +214,8 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -234,8 +240,8 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -252,8 +258,8 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -281,8 +287,8 @@ describe("Custom Athena view resource handler", () => {
     expect(Athena).not.toHaveBeenCalled();
     expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
     expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -309,8 +315,8 @@ describe("Custom Athena view resource handler", () => {
       WorkGroup: givenEvent.ResourceProperties.View.Workgroup,
     });
     expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining("created"),
@@ -339,7 +345,7 @@ describe("Custom Athena view resource handler", () => {
       WorkGroup: givenEvent.ResourceProperties.View.Workgroup,
     });
     expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining("deleted"),
@@ -366,7 +372,7 @@ describe("Custom Athena view resource handler", () => {
       WorkGroup: givenEvent.ResourceProperties.View.Workgroup,
     });
     expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining("updated"),
@@ -381,8 +387,25 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
+      context: givenContext,
+      event: givenEvent,
+      reason: expect.stringContaining(givenContext.logStreamName),
+      status: "FAILED",
+    });
+    expect(mockedAthenaGetQueryExecution).not.toHaveBeenCalled();
+  });
+
+  test("Custom Athena view resource handler with query execution start result without ID", async () => {
+    mockedAthenaStartQueryExecutionPromise.mockResolvedValue({});
+
+    const givenEvent = validEvent;
+
+    await handler(givenEvent, givenContext);
+
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -400,8 +423,8 @@ describe("Custom Athena view resource handler", () => {
 
     expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
     expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -420,8 +443,8 @@ describe("Custom Athena view resource handler", () => {
 
     expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
     expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -444,8 +467,40 @@ describe("Custom Athena view resource handler", () => {
 
     expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
     expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
+      context: givenContext,
+      event: givenEvent,
+      reason: expect.stringContaining(givenContext.logStreamName),
+      status: "FAILED",
+    });
+  });
+
+  test("Custom Athena view resource handler with query execution with failure state and error message", async () => {
+    const mockedErrorMessage = "mocked error message";
+    mockedAthenaGetQueryExecutionPromise.mockResolvedValue({
+      QueryExecution: {
+        Status: {
+          AthenaError: {
+            ErrorMessage: mockedErrorMessage,
+          },
+          State: "FAILED",
+        },
+      },
+    });
+
+    const givenEvent = validEvent;
+
+    await handler(givenEvent, givenContext);
+
+    expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
+    expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
+    expect(mockedConsoleError).toHaveBeenCalledTimes(1);
+    expect(String(mockedConsoleError.mock.calls[0][1])).toEqual(
+      expect.stringContaining(mockedErrorMessage)
+    );
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -468,8 +523,8 @@ describe("Custom Athena view resource handler", () => {
 
     expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
     expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -492,8 +547,8 @@ describe("Custom Athena view resource handler", () => {
 
     expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
     expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -516,8 +571,8 @@ describe("Custom Athena view resource handler", () => {
 
     expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(10);
     expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(10);
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
@@ -540,8 +595,8 @@ describe("Custom Athena view resource handler", () => {
 
     expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(10);
     expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(10);
-    expect(mockedSendResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendResult).toHaveBeenCalledWith({
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
+    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining(givenContext.logStreamName),
