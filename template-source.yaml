@@ -37,11 +37,9 @@ Globals:
     CodeUri: dist/
 
 Resources: !YAMLInclude ./cloudformation/global.yaml,
-  ./cloudformation/athena.yaml#NO_LOCAL,
   ./cloudformation/test-only.yaml,
   ./cloudformation/filtering.yaml,
   ./cloudformation/cleaning.yaml,
-  ./cloudformation/calculation.yaml,
   ./cloudformation/transaction-storage.yaml,
   ./cloudformation/config-store.yaml#NO_LOCAL,
   ./cloudformation/custom-s3-object-resource.yaml#NO_LOCAL,
@@ -49,7 +47,9 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/raw-invoice-pdf-store.yaml,
   ./cloudformation/test-invoice-pdf-store.yaml,
   ./cloudformation/validated-invoice-data-store.yaml,
-  ./cloudformation/extraction.yaml
+  ./cloudformation/extraction.yaml,
+  ./cloudformation/calculation-s3.yaml,
+  ./cloudformation/calculation-athena.yaml#NO_LOCAL
 
 Outputs:
   SnsAlarmTopicArn:
