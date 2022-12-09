@@ -11,7 +11,7 @@ export async function sendRecord(queueUrl: string, messageBody: string) {
     QueueUrl: queueUrl,
   });
 
-  return sqs.send(params).then((data) => {
+  return await sqs.send(params).then((data) => {
     console.log(data);
   }).catch(err => {
     console.log(err, err.stack);

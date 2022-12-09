@@ -32,36 +32,38 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
     expect(checkRawPdfFileExists).toBeTruthy();
     console.log("file exists in raw invoice pdf bucket");
 
-    const checkTextractDataFileContainsStringFromOriginalPdf = async () => {
-      const result = await getS3ItemsList(
-        `${prefix}-raw-invoice-textract-data`
-      );
-      if (result.Contents != undefined) {
-        const startTime = testStartTime.toISOString();
-        const formattedTestStartTime = new Date(startTime);
-        console.log(formattedTestStartTime);
-
-        const s3ContentsFilteredByTestStartTime = result.Contents?.filter(
-          (item) => item.LastModified! >= formattedTestStartTime
+    const checkTextractDataFileContainsStringFromOriginalPdf =
+      async (): Promise<boolean | undefined> => {
+        const result = await getS3ItemsList(
+          `${prefix}-raw-invoice-textract-data`
         );
-        console.log("Filtered contents:", s3ContentsFilteredByTestStartTime);
-        if (s3ContentsFilteredByTestStartTime.length === 1) {
-          const key = String(s3ContentsFilteredByTestStartTime[0].Key);
-          const fileContents = await getS3Object(
-            `${prefix}-raw-invoice-textract-data`,
-            key
-          );
+        if (result.Contents != undefined) {
+          const startTime = testStartTime.toISOString();
+          const formattedTestStartTime = new Date(startTime);
+          console.log(formattedTestStartTime);
 
-          if (fileContents?.includes("INV-22-460901"))  // checks unique string from the file
-           return true;
-        } else {
-          return false;
+          const s3ContentsFilteredByTestStartTime = result.Contents?.filter(
+            (item) => item.LastModified! >= formattedTestStartTime
+          );
+          console.log("Filtered contents:", s3ContentsFilteredByTestStartTime);
+          if (s3ContentsFilteredByTestStartTime.length === 1) {
+            const key = String(s3ContentsFilteredByTestStartTime[0].Key);
+            const fileContents = await getS3Object(
+              `${prefix}-raw-invoice-textract-data`,
+              key
+            );
+
+            if (fileContents?.includes("INV-22-460901"))
+              // checks unique string from the file
+              return true;
+          } else {
+            return false;
+          }
         }
-      }
-    };
+      };
 
     const textractFilteredObject = await waitForTrue(
-        checkTextractDataFileContainsStringFromOriginalPdf,
+      checkTextractDataFileContainsStringFromOriginalPdf,
       1000,
       20000
     );

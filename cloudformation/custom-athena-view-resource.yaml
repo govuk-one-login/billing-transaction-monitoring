@@ -17,7 +17,7 @@ Resources:
         - Statement:
             - Effect: Allow
               Action: athena:StartQueryExecution
-              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaWorkgroup}
+              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/*
             - Effect: Allow
               Action:
                 - glue:GetTable

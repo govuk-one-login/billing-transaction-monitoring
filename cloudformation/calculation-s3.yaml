@@ -1,10 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  TestInvoicePdfBucket:
+  StorageBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, test-invoice-pdf]]
+      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, storage]]
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -20,4 +21,4 @@ Resources:
         Status: Enabled
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: test-invoice-pdf-bucket/log
+        LogFilePrefix: storage-bucket/log

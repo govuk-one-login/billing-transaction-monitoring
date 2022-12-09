@@ -7,19 +7,29 @@ import {
   CopyObjectCommand,
   HeadObjectCommand,
   HeadObjectCommandOutput,
+  ListObjectsCommandOutput,
+  PutObjectCommandOutput,
+  DeleteObjectCommandOutput,
+  CopyObjectCommandOutput,
 } from "@aws-sdk/client-s3";
 import { ReadStream } from "fs";
 
-async function getS3ItemsList(bucketName: string, prefix?: string) {
+async function getS3ItemsList(
+  bucketName: string,
+  prefix?: string
+): Promise<ListObjectsCommandOutput> {
   const bucketParams = {
     Bucket: bucketName,
-    Prefix: prefix
+    Prefix: prefix,
   };
   const data = await s3Client.send(new ListObjectsCommand(bucketParams));
   return data;
 }
 
-async function getS3Object(bucketName: string, key: string) {
+async function getS3Object(
+  bucketName: string,
+  key: string
+): Promise<string | undefined> {
   const bucketParams = {
     Bucket: bucketName,
     Key: key,
@@ -27,14 +37,14 @@ async function getS3Object(bucketName: string, key: string) {
   const getObjectResult = await s3Client.send(
     new GetObjectCommand(bucketParams)
   );
-  return getObjectResult.Body?.transformToString();
+  return await getObjectResult.Body?.transformToString();
 }
 
 async function putObjectToS3(
   bucketName: string,
   key: string,
   body: ReadStream
-) {
+): Promise<PutObjectCommandOutput> {
   const bucketParams = {
     Bucket: bucketName,
     Key: key,
@@ -44,7 +54,10 @@ async function putObjectToS3(
   return response;
 }
 
-async function deleteObjectInS3(bucketName: string, key: string) {
+async function deleteObjectInS3(
+  bucketName: string,
+  key: string
+): Promise<DeleteObjectCommandOutput> {
   const bucketParams = {
     Bucket: bucketName,
     Key: key,
@@ -57,7 +70,7 @@ async function copyObject(
   destinationBucketName: string,
   sourceKey: string,
   destinationKey: string
-) {
+): Promise<CopyObjectCommandOutput> {
   const bucketParams = {
     Bucket: destinationBucketName,
     CopySource: sourceKey,
@@ -69,7 +82,10 @@ async function copyObject(
   return response;
 }
 
-async function checkIfFileExists(bucketName: string, key: string) {
+async function checkIfFileExists(
+  bucketName: string,
+  key: string
+): Promise<boolean> {
   const bucketParams = {
     Bucket: bucketName,
     Key: key,

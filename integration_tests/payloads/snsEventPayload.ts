@@ -1,4 +1,4 @@
-const generateRandomNumber = () => {
+const generateRandomNumber = (): string => {
   return Math.floor(Math.random() * 10000000).toString();
 };
 

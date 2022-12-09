@@ -14,13 +14,13 @@ const objectsPrefix = "btm_transactions";
 describe("\nPublish valid sns message and execute athena query\n", () => {
   beforeAll(async () => {
     await publishSNS(snsValidEventPayload);
-    const checkEventId = async () => {
+    const checkEventId = async (): Promise<boolean> => {
       const result = await getS3ItemsList(`${prefix}-storage`, objectsPrefix);
       if (result.Contents !== undefined) {
         console.log("Storage bucket contents not empty");
-        return JSON.stringify(
-          result.Contents.map((data) => data.Key)
-        ).includes(snsValidEventPayload.event_id);
+        return JSON.stringify(result.Contents.map((data) => data.Key)).includes(
+          snsValidEventPayload.event_id
+        );
       } else {
         console.log("Storage bucket contents empty");
         return false;
@@ -31,19 +31,25 @@ describe("\nPublish valid sns message and execute athena query\n", () => {
   });
 
   test("should contain eventId in the generated query results", async () => {
-    const queryId = await startQueryExecutionCommand(
+    const databaseName = `${prefix}-transactions`;
+    const queryString = `SELECT * FROM "btm_transactions" where event_id='${snsValidEventPayload.event_id}'`;
+    const queryId = await startQueryExecutionCommand(databaseName, queryString);
+    const queryResult = await getQueryResults(queryId);
+    expect(JSON.stringify(queryResult?.ResultSet?.Rows)).toContain(
       snsValidEventPayload.event_id
     );
-    const queryResult = await getQueryResults(queryId);
-    expect(queryResult).toContain(snsValidEventPayload.event_id);
   });
 });
 
 describe("\nPublish invalid sns message and execute athena query\n", () => {
   test("should not contain eventId in the generated query results", async () => {
+    const databaseName = `${prefix}-transactions`;
     const invalidEventId = "12345";
-    const queryId = await startQueryExecutionCommand(invalidEventId);
+    const queryString = `SELECT * FROM "btm_transactions" where event_id='${invalidEventId}'`;
+    const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const queryResult = await getQueryResults(queryId);
-    expect(queryResult).not.toContain(invalidEventId);
+    expect(JSON.stringify(queryResult?.ResultSet?.Rows)).not.toContain(
+      invalidEventId
+    );
   });
 });
