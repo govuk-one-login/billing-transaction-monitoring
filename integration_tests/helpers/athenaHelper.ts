@@ -5,16 +5,19 @@ import {
 } from "@aws-sdk/client-athena";
 import { waitForTrue } from "./commonHelpers";
 import { athenaClient } from "../clients/athenaClient";
-import {resourcePrefix} from "./envHelper";
+import { resourcePrefix } from "./envHelper";
 
 const prefix = resourcePrefix();
 
-async function startQueryExecutionCommand(eventId: string): Promise<string> {
+async function startQueryExecutionCommand(
+  databaseName: string,
+  queryString: string
+): Promise<string> {
   const params = {
     QueryExecutionContext: {
-      Database: `${prefix}-transactions`,
+      Database: databaseName,
     },
-    QueryString: `SELECT * FROM \"btm_transactions\" where event_id='${eventId.toString()}'`,
+    QueryString: queryString,
     WorkGroup: `${prefix}-athena-workgroup`,
   };
   const response = await athenaClient.send(
@@ -36,7 +39,7 @@ async function getQueryExecutionStatus(queryId: string) {
   return response.QueryExecution?.Status;
 }
 
-async function getQueryResults(queryId: string): Promise<string> {
+async function getQueryResults(queryId: string) {
   const checkState = async () => {
     const result = await getQueryExecutionStatus(queryId);
     return result?.State?.match("SUCCEEDED");
@@ -49,9 +52,30 @@ async function getQueryResults(queryId: string): Promise<string> {
     const response = await athenaClient.send(
       new GetQueryResultsCommand(params)
     );
-    return JSON.stringify(response.ResultSet?.Rows);
+    return response;
   }
-  return "Query not successful"
 }
 
-export { getQueryResults, startQueryExecutionCommand };
+async function formattedQueryResults(queryId: string) {
+  const queryResults = await getQueryResults(queryId);
+  if (queryResults?.ResultSet?.Rows?.[0]?.Data === undefined)
+    throw new Error("Invalid query results");
+  const columns = queryResults.ResultSet.Rows[0].Data;
+  const rows = queryResults.ResultSet.Rows.slice(1).map((d) => d.Data);
+  const formattedData = rows.map((row) => {
+    const object: { [key: string]: string } = {};
+    row?.forEach(function (_, index) {
+      const fieldName = columns[index].VarCharValue;
+      const fieldValue = row[index].VarCharValue;
+      if (fieldName !== undefined && fieldValue !== undefined) {
+        object[fieldName] = fieldValue;
+        console.log(object);
+        return object;
+      }
+    });
+    return object;
+  });
+  return formattedData;
+}
+
+export { getQueryResults, startQueryExecutionCommand, formattedQueryResults };
