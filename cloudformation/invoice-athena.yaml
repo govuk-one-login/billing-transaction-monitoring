@@ -41,7 +41,7 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the invoice access log bucket - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${AWS::StackName}-athena-query-results-logs
+      BucketName: !Sub ${AWS::StackName}-athena-invoice-query-results-logs
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite
@@ -63,7 +63,7 @@ Resources:
       DatabaseInput:
         Name: !Sub ${AWS::StackName}-invoices
 
-  InvoiceLineItemsTable:
+  InvoiceLineItemTable:
     Type: AWS::Glue::Table
     Properties:
       CatalogId: !Ref AWS::AccountId
@@ -113,13 +113,13 @@ Resources:
               serialiazation.format: 1
             SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
 
-  InvoiceLineItemsView:
+  InvoiceLineItemView:
     Type: Custom::AthenaView
     Properties:
       ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
       View:
         Database: !Ref InvoiceDB
-        Name: !Sub ${AWS::StackName}-invoice-line-items-view
+        Name: !Sub ${AWS::StackName}-invoice-line-item-view
         Query: |
           SELECT
             YEAR(invoice_receipt_date) AS year_received,
