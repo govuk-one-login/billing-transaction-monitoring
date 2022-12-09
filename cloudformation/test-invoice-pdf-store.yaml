@@ -4,7 +4,7 @@ Resources:
   TestInvoicePdfBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, test-invoice-pdf]]
+      BucketName: !Sub ${AWS::StackName}-test-invoice-pdf
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true

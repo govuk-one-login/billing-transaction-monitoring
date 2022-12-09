@@ -4,7 +4,7 @@ Resources:
   ConfigBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, config-bucket]]
+      BucketName: !Sub ${AWS::StackName}-config-bucket
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true

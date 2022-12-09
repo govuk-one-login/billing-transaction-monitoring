@@ -5,7 +5,7 @@ Resources:
   StorageQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join ['-', [!Ref Prefix, !Ref Environment, storage-queue]]
+      QueueName: !Sub ${AWS::StackName}-storage-queue
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt StorageDeadLetterQueue.Arn
@@ -14,14 +14,14 @@ Resources:
   StorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join ['-', [!Ref Prefix, !Ref Environment, storage-dlq]]
+      QueueName: !Sub ${AWS::StackName}-storage-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   # Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
   StorageDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Join ['-', [!Ref Prefix, !Ref Environment, storage-dlq-alarm]]
+      AlarmName: !Sub ${AWS::StackName}-storage-dlq-alarm
       AlarmActions:
         - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
@@ -48,8 +48,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName:
-        !Join ['-', [!Ref Prefix, !Ref Environment, storage-function]]
+      FunctionName: !Sub ${AWS::StackName}-storage-function
       Events:
         StorageEvent:
           Type: SQS
@@ -92,8 +91,7 @@ Resources:
   StorageFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName:
-        !Join ['-', [!Ref Prefix, !Ref Environment, storage-function-alarm]]
+      AlarmName: !Sub ${AWS::StackName}-storage-function-alarm
       AlarmActions:
         - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
