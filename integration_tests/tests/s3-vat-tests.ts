@@ -5,6 +5,6 @@ import {resourcePrefix} from "../helpers/envHelper";
 describe("\n Verify VAT details exists in S3 config bucket\n", () => {
   test("S3 config bucket should contain VAT details matches with expected vat config file ", async () => {
     const response = await getS3Object(`${resourcePrefix()}-config-bucket`, "uk-vat.json");
-    expect(response).toEqual(JSON.stringify(expectedVat))
+    expect(response?.replace(/\s/g,"")).toEqual(JSON.stringify(expectedVat))
   });
 });
