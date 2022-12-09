@@ -21,12 +21,12 @@ Resources:
                 - athena:StartQueryExecution
               Resource:
                 - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaInvoiceWorkgroup}
-                # - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaTransactionWorkgroup}
+                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaTransactionWorkgroup}
             - Effect: Allow
               Action:
-                - glue:GetTable
                 - glue:CreateTable
                 - glue:DeleteTable
+                - glue:GetTable
                 - glue:UpdateTable
               Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
             - Effect: Allow
@@ -47,8 +47,8 @@ Resources:
               Resource:
                 - !GetAtt AthenaInvoiceQueryResultsBucket.Arn
                 - !Sub ${AthenaInvoiceQueryResultsBucket.Arn}/*
-                # - !GetAtt AthenaQueryResultsBucket.Arn
-                # - !Sub ${AthenaQueryResultsBucket.Arn}/*
+                - !GetAtt AthenaQueryResultsBucket.Arn
+                - !Sub ${AthenaQueryResultsBucket.Arn}/*
       ReservedConcurrentExecutions: 10
 
   CustomAthenaViewResourceFunctionDeadLetterQueue:
