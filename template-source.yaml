@@ -22,7 +22,7 @@ Parameters:
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
-  IsLocal: !Equals [!Ref Environment, 'local']
+  IsLocal: !Equals [!Ref Environment, local]
   IsNotProduction: !Not [!Equals [!Ref Environment, production]]
 
 Globals:

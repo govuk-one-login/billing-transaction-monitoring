@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
   CalculationsDB:
@@ -6,7 +6,7 @@ Resources:
     Properties:
       CatalogId: !Ref AWS::AccountId
       DatabaseInput:
-        Name: !Join ["-", [!Ref Prefix, !Ref Environment, calculations]]
+        Name: !Sub ${AWS::StackName}-calculations
 
   TransactionTable:
     Type: AWS::Glue::Table
@@ -26,8 +26,8 @@ Resources:
           projection.datetime.interval.unit: DAYS
           storage.location.template:
             !Join [
-              "",
-              ["s3://", !Ref StorageBucket, "/btm_transactions/${datetime}/"],
+              '',
+              ['s3://', !Ref StorageBucket, '/btm_transactions/${datetime}/'],
             ]
         PartitionKeys:
           - { Name: datetime, Type: date }
@@ -43,7 +43,7 @@ Resources:
             - { Name: extensions, Type: string }
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Join ["", ["s3://", !Ref StorageBucket, "/"]]
+          Location: !Join ['', ['s3://', !Ref StorageBucket, '/']]
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
@@ -51,7 +51,7 @@ Resources:
               {
                 ignore.malformed.json: true,
                 serialization.format: 1,
-                field.delim: ""
+                field.delim: '',
               }
             SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
 
@@ -72,10 +72,7 @@ Resources:
           projection.datetime.interval: 1
           projection.datetime.interval.unit: DAYS
           storage.location.template:
-            !Join [
-              "",
-              ["s3://", !Ref ConfigBucket, "/rate_tables/prices.csv"],
-            ]
+            !Join ['', ['s3://', !Ref ConfigBucket, '/rate_tables/prices.csv']]
         StorageDescriptor:
           Columns:
             - { Name: supplier_client_id, Type: string }
@@ -86,7 +83,7 @@ Resources:
             - { Name: start, Type: timestamp }
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Join ["", ["s3://", !Ref ConfigBucket, "/rate_tables/"]]
+          Location: !Join ['', ['s3://', !Ref ConfigBucket, '/rate_tables/']]
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
@@ -99,24 +96,23 @@ Resources:
   AthenaTransactionWorkgroup:
     Type: AWS::Athena::WorkGroup
     Properties:
-      Name: !Join ["-", [!Ref Prefix, !Ref Environment, athena-workgroup]]
+      Name: !Sub ${AWS::StackName}-athena-workgroup
       WorkGroupConfiguration:
         EnforceWorkGroupConfiguration: true
         PublishCloudWatchMetricsEnabled: false
         ResultConfiguration:
           EncryptionConfiguration:
-            EncryptionOption: "SSE_KMS"
+            EncryptionOption: 'SSE_KMS'
             KmsKey: !GetAtt KmsKey.Arn
           OutputLocation:
-            !Join ["", ["s3://", !Ref AthenaQueryResultsBucket, "/"]]
+            !Join ['', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
 
   AthenaQueryResultsBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName:
-        !Join ["-", [!Ref Prefix, !Ref Environment, athena-query-results]]
+      BucketName: !Sub ${AWS::StackName}-athena-query-results
       VersioningConfiguration:
-        Status: "Enabled"
+        Status: 'Enabled'
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -138,8 +134,7 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName:
-        !Join ["-", [!Ref Prefix, !Ref Environment, athena-query-results-logs]]
+      BucketName: !Sub ${AWS::StackName}-athena-query-results-logs
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite
