@@ -229,9 +229,6 @@ if (stackSuffix == null || stackSuffix === "") {
     "Please set the environment variable ENV_NAME to specify the stack to delete."
   );
   process.exit(-1);
-} else if (stackSuffix.slice(0, 4) !== "dev-") {
-  console.log("This script can only be used to delete dev-* stacks.");
-  process.exit(-1);
 }
 
 const stackName = `di-btm-${stackSuffix}`;

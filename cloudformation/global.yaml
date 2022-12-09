@@ -4,7 +4,7 @@ Resources:
   AlarmTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: !Join ['-', [!Ref Prefix, !Ref Environment, alarms]]
+      TopicName: !Sub ${AWS::StackName}-alarms
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   KmsKey:
@@ -37,15 +37,14 @@ Resources:
   KmsKeyAlias:
     Type: AWS::KMS::Alias
     Properties:
-      AliasName:
-        !Join ['-', ['alias/key', !Ref Prefix, !Ref Environment, general]]
+      AliasName: !Sub alias/key-${AWS::StackName}-general
       TargetKeyId: !Ref KmsKey
 
   GlobalLogBucket:
     # checkov:skip=CKV_AWS_18: This is the log bucket for all other buckets - no need for a log bucket of the log bucket
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, s3-logs]]
+      BucketName: !Sub ${AWS::StackName}-s3-logs
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite

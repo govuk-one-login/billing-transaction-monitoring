@@ -4,7 +4,7 @@ Resources:
   RawInvoicePdfBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ['-', [!Ref Prefix, !Ref Environment, raw-invoice-pdf]]
+      BucketName: !Sub ${AWS::StackName}-raw-invoice-pdf
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
