@@ -4,7 +4,7 @@ Resources:
   StandardisedInvoiceDataBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${Prefix}-${Environment}-standardised-invoice-data
+      BucketName: !Sub ${AWS::StackName}-standardised-invoice-data
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -26,7 +26,7 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the standardised invoice data log bucket - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${Prefix}-${Environment}-standardised-invoice-data-logs
+      BucketName: !Sub ${AWS::StackName}-standardised-invoice-data-logs
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite

@@ -4,7 +4,7 @@ Resources:
   AthenaInvoiceWorkgroup:
     Type: AWS::Athena::WorkGroup
     Properties:
-      Name: !Sub ${Prefix}-${Environment}-athena-invoice-workgroup
+      Name: !Sub ${AWS::StackName}-athena-invoice-workgroup
       WorkGroupConfiguration:
         EnforceWorkGroupConfiguration: true
         PublishCloudWatchMetricsEnabled: false
@@ -17,7 +17,7 @@ Resources:
   AthenaInvoiceQueryResultsBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${Prefix}-${Environment}-athena-invoice-query-results
+      BucketName: !Sub ${AWS::StackName}-athena-invoice-query-results
       VersioningConfiguration:
         Status: Enabled
       BucketEncryption:
@@ -41,7 +41,7 @@ Resources:
     # checkov:skip=CKV_AWS_18: This is the invoice access log bucket - no need for another
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${Prefix}-${Environment}-athena-query-results-logs
+      BucketName: !Sub ${AWS::StackName}-athena-query-results-logs
       VersioningConfiguration:
         Status: Enabled
       AccessControl: LogDeliveryWrite
@@ -61,7 +61,7 @@ Resources:
     Properties:
       CatalogId: !Ref AWS::AccountId
       DatabaseInput:
-        Name: !Sub ${Prefix}-${Environment}-invoices
+        Name: !Sub ${AWS::StackName}-invoices
 
   InvoiceLineItemsTable:
     Type: AWS::Glue::Table
@@ -119,7 +119,7 @@ Resources:
       ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
       View:
         Database: !Ref InvoiceDB
-        Name: !Sub ${Prefix}-${Environment}-invoice-line-items-view
+        Name: !Sub ${AWS::StackName}-invoice-line-items-view
         Query: |
           SELECT
             YEAR(invoice_receipt_date) AS year_received,

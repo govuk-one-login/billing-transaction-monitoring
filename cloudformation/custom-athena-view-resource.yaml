@@ -6,7 +6,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${Prefix}-${Environment}-custom-athena-view-resource-function
+      FunctionName: !Sub ${AWS::StackName}-custom-athena-view-resource-function
       DeadLetterQueue:
         TargetArn: !GetAtt CustomAthenaViewResourceFunctionDeadLetterQueue.Arn
         Type: SQS
@@ -16,8 +16,12 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - Statement:
             - Effect: Allow
-              Action: athena:StartQueryExecution
-              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/*
+              Action:
+                - athena:GetQueryExecution
+                - athena:StartQueryExecution
+              Resource:
+                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaInvoiceWorkgroup}
+                # - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaTransactionWorkgroup}
             - Effect: Allow
               Action:
                 - glue:GetTable
@@ -41,12 +45,14 @@ Resources:
                 - s3:ListMultipartUploadParts
                 - s3:PutObject
               Resource:
-                - !GetAtt AthenaQueryResultsBucket.Arn
-                - !Sub ${AthenaQueryResultsBucket.Arn}/*
+                - !GetAtt AthenaInvoiceQueryResultsBucket.Arn
+                - !Sub ${AthenaInvoiceQueryResultsBucket.Arn}/*
+                # - !GetAtt AthenaQueryResultsBucket.Arn
+                # - !Sub ${AthenaQueryResultsBucket.Arn}/*
       ReservedConcurrentExecutions: 10
 
   CustomAthenaViewResourceFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Sub ${Prefix}-${Environment}-custom-athena-view-resource-function-dlq
+      QueueName: !Sub ${AWS::StackName}-custom-athena-view-resource-function-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
