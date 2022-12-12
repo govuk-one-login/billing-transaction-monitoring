@@ -79,7 +79,6 @@ async function formattedQueryResults(queryId: string): Promise<StringObject[]> {
       const fieldValue = row[index].VarCharValue;
       if (fieldName !== undefined && fieldValue !== undefined) {
         object[fieldName] = fieldValue;
-        console.log(object);
         return object;
       }
     });
