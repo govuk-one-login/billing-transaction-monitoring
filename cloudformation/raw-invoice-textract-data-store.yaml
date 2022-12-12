@@ -35,6 +35,15 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
         LogFilePrefix: raw-invoice-textract-data-bucket/log
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.json'
+            Queue: !GetAtt StandardisedInvoiceStorageQueue.Arn
 
   RawInvoiceTextractDataQueue:
     Type: AWS::SQS::Queue

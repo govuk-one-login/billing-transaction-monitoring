@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  StandardisedInvoiceStorageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-standardised-invoice-storage-queue
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt StandardisedInvoiceStorageDeadLetterQueue.Arn
+        maxReceiveCount: 1
+
+  StandardisedInvoiceStorageQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnLike:
+                aws:SourceArn: arn:aws:s3:::*
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+            Effect: Allow
+            Principal: '*'
+            Resource: '*'
+      Queues:
+        - !Ref StandardisedInvoiceStorageQueue
+
+  StandardisedInvoiceStorageDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-standardised-invoice-storage-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  StandardisedInvoiceStorageFunction:
+    # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-standardised-invoice-storage-function
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          STORAGE_BUCKET: !Ref StorageBucket
+          INVOICES_FOLDER: 'btm_invoices'
+          LOCAL_ENDPOINT:
+            !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
+      Events:
+        InvoiceStorageEvent:
+          Type: SQS
+          Properties:
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+            Queue: !GetAtt StandardisedInvoiceStorageQueue.Arn
+      Handler: storeStandardisedInvoices.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt StandardisedInvoiceStorageQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - 's3:GetObject'
+                - 's3:ListBucket'
+                - 's3:PutObject'
+              Resource:
+                - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
+      ReservedConcurrentExecutions: 10

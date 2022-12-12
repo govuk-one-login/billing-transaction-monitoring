@@ -13,6 +13,8 @@ export default {
     storeRawInvoiceTextractData:
       "./src/handlers/store-raw-invoice-textract-data/handler.ts",
     storeTransactions: "./src/handlers/store-transactions/handler.ts",
+    storeStandardisedInvoices:
+      "./src/handlers/store-standardised-invoices/handler.ts",
   },
   externals: "aws-sdk",
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
