@@ -31,30 +31,12 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
       LoggingConfiguration:
-        DestinationBucketName: !Ref AthenaInvoiceAccessLogBucket
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: athena-invoice-query-results-bucket/log
       LifecycleConfiguration:
         Rules:
           - ExpirationInDays: 7
             Status: Enabled
-
-  AthenaInvoiceAccessLogBucket:
-    # checkov:skip=CKV_AWS_18: This is the invoice access log bucket - no need for another
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub ${AWS::StackName}-athena-invoice-query-results-logs
-      VersioningConfiguration:
-        Status: Enabled
-      AccessControl: LogDeliveryWrite
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
 
   InvoiceDB:
     Type: AWS::Glue::Database
