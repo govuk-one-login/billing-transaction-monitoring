@@ -102,10 +102,6 @@ Resources:
               Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
             - Effect: Allow
               Action:
-                - sqs:SendMessage
-              Resource: !GetAtt StandardisedInvoiceStorageQueue.Arn
-            - Effect: Allow
-              Action:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
