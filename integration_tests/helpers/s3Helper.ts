@@ -102,6 +102,26 @@ async function checkIfFileExists(
   }
 }
 
+async function getAllObjectsFromS3(bucketName: string, prefix: string) {
+  const content = [];
+  const response = await getS3ItemsList(bucketName, prefix);
+  if (response.Contents === undefined) {
+    throw new Error("Invalid results");
+  } else {
+    for (let currentValue of response.Contents) {
+      console.log(currentValue);
+      if (currentValue.Size! > 0) {
+        const res = await getS3Object(bucketName, currentValue.Key!);
+        if (res !== undefined) {
+          content.push(res);
+        }
+      }
+    }
+  }
+
+  return content;
+}
+
 export {
   getS3ItemsList,
   getS3Object,
@@ -109,4 +129,5 @@ export {
   deleteObjectInS3,
   copyObject,
   checkIfFileExists,
+  getAllObjectsFromS3,
 };
