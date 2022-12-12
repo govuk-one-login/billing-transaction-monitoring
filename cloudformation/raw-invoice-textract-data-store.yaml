@@ -5,15 +5,7 @@ Resources:
   AmazonTextractRawInvoiceDataTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName:
-        !Join [
-          '-',
-          [
-            !Ref Prefix,
-            !Ref Environment,
-            amazon-textract-raw-invoice-data-topic,
-          ],
-        ]
+      TopicName: !Sub ${AWS::StackName}-amazon-textract-raw-invoice-data-topic
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   AmazonTextractRawInvoiceDataTopicSubscription:
@@ -26,8 +18,7 @@ Resources:
   RawInvoiceTextractDataBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName:
-        !Join ['-', [!Ref Prefix, !Ref Environment, raw-invoice-textract-data]]
+      BucketName: !Sub ${AWS::StackName}-raw-invoice-textract-data
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -57,11 +48,7 @@ Resources:
   RawInvoiceTextractDataQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName:
-        !Join [
-          '-',
-          [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-queue],
-        ]
+      QueueName: !Sub ${AWS::StackName}-raw-invoice-textract-data-queue
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
@@ -70,11 +57,7 @@ Resources:
   RawInvoiceTextractDataDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName:
-        !Join [
-          '-',
-          [!Ref Prefix, !Ref Environment, raw-invoice-textract-data-dlq],
-        ]
+      QueueName: !Sub ${AWS::StackName}-raw-invoice-textract-data-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   RawInvoiceTextractDataQueuePolicy:
@@ -97,11 +80,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName:
-        !Join [
-          '-',
-          [!Ref Prefix, !Ref Environment, raw-textract-storage-function],
-        ]
+      FunctionName: !Sub ${AWS::StackName}-raw-textract-storage-function
       Environment:
         Variables:
           DESTINATION_BUCKET: !Ref RawInvoiceTextractDataBucket

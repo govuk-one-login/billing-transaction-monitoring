@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
@@ -7,8 +7,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName:
-        !Join ["-", [!Ref Prefix, !Ref Environment, extract-function]]
+      FunctionName: !Sub ${AWS::StackName}-extract-function
       Environment:
         Variables:
           TEXTRACT_ROLE: !GetAtt TextractRole.Arn
@@ -32,8 +31,8 @@ Resources:
               Resource: !GetAtt ExtractQueue.Arn
             - Effect: Allow
               Action:
-                - "textract:StartExpenseAnalysis" # https://docs.aws.amazon.com/textract/latest/dg/security_iam_id-based-policy-examples.html
-              Resource: "*"
+                - 'textract:StartExpenseAnalysis' # https://docs.aws.amazon.com/textract/latest/dg/security_iam_id-based-policy-examples.html
+              Resource: '*'
             - Effect: Allow
               Action:
                 - kms:Decrypt
@@ -42,13 +41,13 @@ Resources:
               Resource: !GetAtt KmsKey.Arn
             - Effect: Allow
               Action: s3:GetObject
-              Resource: !Join ["/", [!GetAtt RawInvoicePdfBucket.Arn, "*"]]
+              Resource: !Join ['/', [!GetAtt RawInvoicePdfBucket.Arn, '*']]
       ReservedConcurrentExecutions: 10
 
   ExtractQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join ["-", [!Ref Prefix, !Ref Environment, extract-queue]]
+      QueueName: !Sub ${AWS::StackName}-extract-queue
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt ExtractQueueDeadLetterQueue.Arn
@@ -57,13 +56,13 @@ Resources:
   ExtractQueueDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join ["-", [!Ref Prefix, !Ref Environment, extract-dlq]]
+      QueueName: !Sub ${AWS::StackName}-extract-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   TextractRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ["-", [!Ref Prefix, !Ref Environment, textract-role]]
+      RoleName: !Sub ${AWS::StackName}-textract-role
       PermissionsBoundary:
         !If [
           UsePermissionsBoundary,
@@ -71,26 +70,26 @@ Resources:
           !Ref AWS::NoValue,
         ]
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
-          - Effect: "Allow"
+          - Effect: 'Allow'
             Principal:
               Service:
-                - "textract.amazonaws.com"
+                - 'textract.amazonaws.com'
             Action:
-              - "sts:AssumeRole"
+              - 'sts:AssumeRole'
       Policies:
-        - PolicyName: "TextractRoleAccess"
+        - PolicyName: 'TextractRoleAccess'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "s3:GetObject*"
+                  - 's3:GetObject*'
                 Resource: !GetAtt RawInvoicePdfBucket.Arn
               - Effect: Allow
                 Action:
-                  - "sns:Publish"
+                  - 'sns:Publish'
                 Resource: !Ref AmazonTextractRawInvoiceDataTopic
               - Effect: Allow
                 Action:
@@ -111,7 +110,7 @@ Resources:
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
             Effect: Allow
-            Principal: "*"
-            Resource: "*"
+            Principal: '*'
+            Resource: '*'
       Queues:
         - !Ref ExtractQueue
