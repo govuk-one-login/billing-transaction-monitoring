@@ -24,11 +24,7 @@ Resources:
           projection.datetime.format: yyyy-MM-dd
           projection.datetime.interval: 1
           projection.datetime.interval.unit: DAYS
-          storage.location.template:
-            !Join [
-              '',
-              ['s3://', !Ref StorageBucket, '/btm_transactions/${datetime}/'],
-            ]
+          storage.location.template: !Sub s3://${StorageBucket}/btm_transactions/${!datetime}/
         PartitionKeys:
           - { Name: datetime, Type: date }
         StorageDescriptor:
@@ -39,20 +35,18 @@ Resources:
             - { Name: timestamp, Type: timestamp }
             - { Name: timestamp_formatted, Type: string }
             - { Name: component_id, Type: string }
-            - { Name: user, Type: string }
-            - { Name: extensions, Type: string }
+            - { Name: user_transaction_id, Type: string }
+            - { Name: extensions_iss, Type: string }
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Join ['', ['s3://', !Ref StorageBucket, '/']]
+          Location: !Sub s3://${StorageBucket}/
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
             Parameters:
-              {
-                ignore.malformed.json: true,
-                serialization.format: 1,
-                field.delim: '',
-              }
+              ignore.malformed.json: true
+              serialization.format: 1
+              field.delim: ''
             SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
 
   RateTableTable:
@@ -71,8 +65,7 @@ Resources:
           projection.datetime.format: yyyy-MM-dd
           projection.datetime.interval: 1
           projection.datetime.interval.unit: DAYS
-          storage.location.template:
-            !Join ['', ['s3://', !Ref ConfigBucket, '/rate_tables/prices.csv']]
+          storage.location.template: !Sub s3://${ConfigBucket}/rate_tables/prices.csv
         StorageDescriptor:
           Columns:
             - { Name: supplier_client_id, Type: string }
@@ -83,7 +76,7 @@ Resources:
             - { Name: start, Type: timestamp }
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Join ['', ['s3://', !Ref ConfigBucket, '/rate_tables/']]
+          Location: !Sub s3://${ConfigBucket}/rate_tables/
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
@@ -96,7 +89,7 @@ Resources:
   AthenaTransactionWorkgroup:
     Type: AWS::Athena::WorkGroup
     Properties:
-      Name: !Sub ${AWS::StackName}-athena-workgroup
+      Name: !Sub ${AWS::StackName}-athena-transaction-workgroup
       WorkGroupConfiguration:
         EnforceWorkGroupConfiguration: true
         PublishCloudWatchMetricsEnabled: false
@@ -104,13 +97,12 @@ Resources:
           EncryptionConfiguration:
             EncryptionOption: 'SSE_KMS'
             KmsKey: !GetAtt KmsKey.Arn
-          OutputLocation:
-            !Join ['', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
+          OutputLocation: !Sub s3://${AthenaTransactionQueryResultsBucket}/
 
-  AthenaQueryResultsBucket:
+  AthenaTransactionQueryResultsBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${AWS::StackName}-athena-query-results
+      BucketName: !Sub ${AWS::StackName}-athena-transaction-query-results
       VersioningConfiguration:
         Status: 'Enabled'
       BucketEncryption:
@@ -124,27 +116,34 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
       LoggingConfiguration:
-        DestinationBucketName: !Ref AthenaAccessLogBucket
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: athena-transaction-query-results/log
       LifecycleConfiguration:
         Rules:
           - ExpirationInDays: 7
             Status: Enabled
 
-  AthenaAccessLogBucket:
-    # checkov:skip=CKV_AWS_18: This is the access log bucket - no need for another
-    Type: AWS::S3::Bucket
+  TransactionView:
+    Type: Custom::AthenaView
     Properties:
-      BucketName: !Sub ${AWS::StackName}-athena-query-results-logs
-      VersioningConfiguration:
-        Status: Enabled
-      AccessControl: LogDeliveryWrite
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
+      ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
+      View:
+        Database: !Ref CalculationsDB
+        Name: !Sub ${AWS::StackName}-transaction-view
+        Query: |
+          SELECT
+            client_id, 
+            event_name, 
+            month, 
+            year, 
+            COUNT(*) AS count
+          FROM (
+            SELECT 
+              client_id, 
+              event_name, 
+              EXTRACT(month FROM datetime) AS month,
+              EXTRACT(year FROM datetime) AS year
+            FROM btm_transactions
+          ) 
+          GROUP BY client_id, event_name, month, year
+        Workgroup: !Ref AthenaTransactionWorkgroup

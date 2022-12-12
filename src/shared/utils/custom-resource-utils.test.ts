@@ -7,7 +7,7 @@ import {
 } from "aws-lambda";
 import { ClientRequest, IncomingMessage } from "http";
 import { request } from "https";
-import { sendResult } from "./send-result";
+import { sendCustomResourceResult } from "./custom-resource-utils";
 
 jest.mock("https");
 const mockedRequestFunction = request as jest.MockedFunction<typeof request>;
@@ -68,7 +68,7 @@ afterAll(() => {
 test("Result sender with creation event", async () => {
   givenEvent.RequestType = "Create";
 
-  const resultPromise = sendResult({
+  const resultPromise = sendCustomResourceResult({
     context: givenContext,
     event: givenEvent,
     reason: givenReason,
@@ -126,7 +126,7 @@ test("Result sender with creation event", async () => {
 test("Result sender with update event", async () => {
   givenEvent.RequestType = "Update";
 
-  const resultPromise = sendResult({
+  const resultPromise = sendCustomResourceResult({
     context: givenContext,
     event: givenEvent,
     reason: givenReason,
@@ -178,7 +178,7 @@ test("Result sender with update event", async () => {
 test("Result sender with deletion event", async () => {
   givenEvent.RequestType = "Delete";
 
-  const resultPromise = sendResult({
+  const resultPromise = sendCustomResourceResult({
     context: givenContext,
     event: givenEvent,
     reason: givenReason,
@@ -228,7 +228,7 @@ test("Result sender with deletion event", async () => {
 });
 
 test("Result sender with request error", async () => {
-  const resultPromise = sendResult({
+  const resultPromise = sendCustomResourceResult({
     context: givenContext,
     event: givenEvent,
     reason: givenReason,
@@ -257,7 +257,7 @@ test("Result sender with request error", async () => {
 });
 
 test("Result sender with response error", async () => {
-  const resultPromise = sendResult({
+  const resultPromise = sendCustomResourceResult({
     context: givenContext,
     event: givenEvent,
     reason: givenReason,
@@ -285,7 +285,7 @@ test("Result sender with response error", async () => {
 });
 
 test("Result sender with no error", async () => {
-  const resultPromise = sendResult({
+  const resultPromise = sendCustomResourceResult({
     context: givenContext,
     event: givenEvent,
     reason: givenReason,
