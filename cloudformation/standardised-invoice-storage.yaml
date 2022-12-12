@@ -5,11 +5,7 @@ Resources:
   StandardisedInvoiceStorageQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName:
-        !Join [
-          '-',
-          [!Ref Prefix, !Ref Environment, standardised-invoice-storage-queue],
-        ]
+      QueueName: !Sub ${AWS::StackName}-standardised-invoice-storage-queue
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt StandardisedInvoiceStorageDeadLetterQueue.Arn
@@ -18,11 +14,7 @@ Resources:
   StandardisedInvoiceStorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName:
-        !Join [
-          '-',
-          [!Ref Prefix, !Ref Environment, standardised-invoice-storage-dlq],
-        ]
+      QueueName: !Sub ${AWS::StackName}-standardised-invoice-storage-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
   StandardisedInvoiceStorageFunction:
@@ -30,15 +22,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName:
-        !Join [
-          '-',
-          [
-            !Ref Prefix,
-            !Ref Environment,
-            standardised-invoice-storage-function,
-          ],
-        ]
+      FunctionName: !Sub ${AWS::StackName}-standardised-invoice-storage-function,
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
