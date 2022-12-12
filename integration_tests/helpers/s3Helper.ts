@@ -109,7 +109,6 @@ async function getAllObjectsFromS3(bucketName: string, prefix: string) {
     throw new Error("Invalid results");
   } else {
     for (let currentValue of response.Contents) {
-      console.log(currentValue);
       if (currentValue.Size! > 0) {
         const res = await getS3Object(bucketName, currentValue.Key!);
         if (res !== undefined) {
