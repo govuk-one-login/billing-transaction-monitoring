@@ -11,6 +11,23 @@ Resources:
         deadLetterTargetArn: !GetAtt StandardisedInvoiceStorageDeadLetterQueue.Arn
         maxReceiveCount: 1
 
+  StandardisedInvoiceStorageQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnLike:
+                aws:SourceArn: arn:aws:s3:::*
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+            Effect: Allow
+            Principal: '*'
+            Resource: '*'
+      Queues:
+        - !Ref StandardisedInvoiceStorageQueue
+
   StandardisedInvoiceStorageDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -22,7 +39,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${AWS::StackName}-standardised-invoice-storage-function,
+      FunctionName: !Sub ${AWS::StackName}-standardised-invoice-storage-function
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
