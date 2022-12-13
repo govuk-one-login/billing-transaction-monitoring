@@ -14,8 +14,8 @@ describe("\n Invoice data buckets exists in S3\n", () => {
     expect(response).toBeTruthy();
   });
 
-  test("Validated invoice data bucket should exists in S3", async () => {
-    const response = await getS3ItemsList(`${prefix}-validated-invoice-data`);
+  test("Standardised invoice data bucket should exists in S3", async () => {
+    const response = await getS3ItemsList(`${prefix}-standardised-invoice-data`);
     expect(response).toBeTruthy();
   });
 });
