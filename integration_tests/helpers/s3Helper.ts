@@ -81,7 +81,7 @@ async function checkIfFileExists(bucketName: string, key: string) {
     const exists = data.$metadata.httpStatusCode === 200;
     return exists;
   } catch (err) {
-    if (err instanceof Error) console.log("File " + err.name + " in "+ bucketName + " bucket");
+    if (err instanceof Error) console.log(err.name);
     return false;
   }
 }

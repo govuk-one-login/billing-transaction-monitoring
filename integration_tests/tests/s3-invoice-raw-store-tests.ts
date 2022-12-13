@@ -23,7 +23,7 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
     
     const checkPdfFileExistsInTestBucket = await checkIfFileExists(
       `${prefix}-test-invoice-pdf`,
-      `${prefix}-test-invoice-pdf/Invoice.pdf`
+      `Invoice.pdf`
     );
     expect(checkPdfFileExistsInTestBucket).toBeTruthy();
     console.log("file exists in test invoice pdf bucket");
