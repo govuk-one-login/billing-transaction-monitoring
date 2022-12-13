@@ -2,8 +2,19 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
+  FilterQueue:
+    Type: AWS::SQS::Queue
+    Condition: IsLowerEnv
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-filter-queue
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt FilterDeadLetterQueue.Arn
+        maxReceiveCount: 1
+
   FilterDeadLetterQueue:
     Type: AWS::SQS::Queue
+    Condition: IsLowerEnv
     Properties:
       QueueName: !Sub ${AWS::StackName}-filter-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
@@ -11,6 +22,7 @@ Resources:
   # Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
   FilterDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsLowerEnv
     Properties:
       AlarmName: !Sub ${AWS::StackName}-filter-dlq-alarm
       AlarmActions:
@@ -46,7 +58,16 @@ Resources:
           Properties:
             FunctionResponseTypes:
               - ReportBatchItemFailures
-            Queue: !GetAtt FilterQueue.Arn
+            Queue:
+              !If [
+                IsHigherEnv,
+                !FindInMap [
+                  Environments,
+                  !Ref Environment,
+                  TransactionInputQueueArn,
+                ],
+                !GetAtt FilterQueue.Arn,
+              ]
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
@@ -61,7 +82,16 @@ Resources:
                 - sqs:DeleteMessage
                 - sqs:GetQueueAttributes
                 - sqs:ReceiveMessage
-              Resource: !GetAtt FilterQueue.Arn
+              Resource:
+                !If [
+                  IsHigherEnv,
+                  !FindInMap [
+                    Environments,
+                    !Ref Environment,
+                    TransactionInputQueueArn,
+                  ],
+                  !GetAtt FilterQueue.Arn,
+                ]
             - Effect: Allow
               Action:
                 - sqs:SendMessage
@@ -71,7 +101,17 @@ Resources:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
-              Resource: !GetAtt KmsKey.Arn
+              Resource:
+                - !GetAtt KmsKey.Arn
+                - !If [
+                    IsHigherEnv,
+                    !FindInMap [
+                      Environments,
+                      !Ref Environment,
+                      TransactionInputKMSKeyArn,
+                    ],
+                    !Ref AWS::NoValue,
+                  ]
       ReservedConcurrentExecutions: 10
 
   FilterFunctionAlarm:
@@ -90,12 +130,3 @@ Resources:
       Period: 1800
       Statistic: Sum
       Threshold: 0
-
-  FilterQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: !Sub ${AWS::StackName}-filter-queue
-      KmsMasterKeyId: !GetAtt KmsKey.Arn
-      RedrivePolicy:
-        deadLetterTargetArn: !GetAtt FilterDeadLetterQueue.Arn
-        maxReceiveCount: 1
