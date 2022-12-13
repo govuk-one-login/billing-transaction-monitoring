@@ -14,11 +14,11 @@ import { removeTrailingZerosAfterDeciRegExp } from "../helpers/commonHelpers";
 
 const prefix = resourcePrefix();
 
-describe("\nExecute athena query to retrive invoice data and validate it matches with files in standardised-invoice-data s3 bucket\n", () => {
+describe("\nExecute athena query to retrive invoice data and validate it matches with invoice files in storage s3 bucket\n", () => {
   test("retrieved invoice details should matches with invoice data in s3 bucket ", async () => {
-    const bucketName = `${resourcePrefix()}-standardised-invoice-data`;
-    const bucketKey = "btm_invoices_standardised/receipt_0000.txt";
-    const folderPrefix = "btm_invoices_standardised";
+    const bucketName = `${resourcePrefix()}-storage`;
+    const bucketKey = "btm_invoices/receipt_0000.txt";
+    const folderPrefix = "btm_invoices";
 
     //uploading file to s3 will be removed once BTM-276 implemented
     const file = "../payloads/receipt_0000.txt";
