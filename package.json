@@ -58,7 +58,7 @@
     "build:template": "node ./src/tools/yaml-import.js",
     "checkov": "checkov --quiet -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies",
     "sam:build": "npm run build && npm run build:template && npm run checkov && sam build",
-    "sam:deploy": "sam deploy --stack-name di-btm-${ENV_NAME} --parameter-overrides Environment=${ENV_NAME} --s3-prefix ${ENV_NAME}",
+    "sam:deploy": "sam deploy --stack-name di-btm-${ENV_NAME} --parameter-overrides Environment=dev --s3-prefix ${ENV_NAME}",
     "sam:teardown": "ts-node --esm src/tools/teardown-cf-stack.ts"
   },
   "lint-staged": {
