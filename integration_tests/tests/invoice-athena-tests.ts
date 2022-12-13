@@ -10,6 +10,7 @@ import {
 import { resourcePrefix } from "../helpers/envHelper";
 import path from "path";
 import fs from "fs";
+import { removeTrailingZerosAfterDeciRegExp } from "../helpers/commonHelpers";
 
 const prefix = resourcePrefix();
 
@@ -31,14 +32,15 @@ describe("\nExecute athena query to retrive invoice data and validate it matches
     const queryString = `SELECT * FROM "btm_invoices_standardised" ORDER BY invoice_receipt_id ASC, vendor_name asc;`;
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const queryResults = await formattedQueryResults(queryId);
-    const formattedQueryData = JSON.stringify(queryResults)
-      .replace(/"(\d+)(?:(\.\d*?[1-9]+)0*|\.0*)"/g, '"$1$2"') //removes trailing zeros after decimal point eg 1200.00 to 1200
-      .replace(/"/g, ""); //removes double quotes
+    const queryStr = JSON.stringify(queryResults);
+    const formattedQueryStr = removeTrailingZerosAfterDeciRegExp(
+      queryStr
+    ).replace(/"/g, ""); //removes double quotes
     const response = await getAllObjectsFromS3(bucketName, folderPrefix);
-    const formattedDataFromS3 = JSON.stringify(response)
-      .replace(/(\d+)(?:(\.\d*?[1-9])0*|\.0*)/g, '"$1$2"') //removes trailing zeros after decimal point eg 1200.0 to 1200
+    const strFromS3 = JSON.stringify(response);
+    const formattedStrFromS3 = removeTrailingZerosAfterDeciRegExp(strFromS3) //removes trailing zeros after decimal point eg 1200.0 to 1200
       .replace(/\\n|"|\\/g, "") //removes newline, backslashes
       .replace(/}{/g, "},{"); //replace string }{ to },{
-    expect(formattedDataFromS3).toEqual(formattedQueryData);
+    expect(formattedStrFromS3).toEqual(formattedQueryStr);
   });
 });
