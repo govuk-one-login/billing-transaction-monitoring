@@ -1,2 +1,0 @@
-{"invoice_receipt_id":"receipt_0000","vendor_name":"vendor_00","total":1200.0,"invoice_receipt_date":"2022-11-01","subtotal":1000.0,"due_date":"2022-12-01","tax":200.0,"tax_payer_id":"payer_0","item_id":0,"item_description":"item_type_0000","unit_price":1.0,"quantity":500,"price":500.0}
-{"invoice_receipt_id":"receipt_0001","vendor_name":"vendor_01","total":1300.0,"invoice_receipt_date":"2022-11-01","subtotal":1000.0,"due_date":"2022-12-01","tax":300.0,"tax_payer_id":"payer_0","item_id":1,"item_description":"item_type_0001","unit_price":2.0,"quantity":250,"price":500.0}

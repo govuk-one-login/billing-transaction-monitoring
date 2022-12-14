@@ -16,13 +16,13 @@ const prefix = resourcePrefix();
 
 describe("\nExecute athena query to retrive invoice data and validate it matches with invoice files in storage s3 bucket\n", () => {
   const bucketName = `${prefix}-storage`;
-  const bucketKey = "btm_invoices/receipt_0000.txt";
-  const folderPrefix = "btm_invoices";
+  const bucketKey = "btm_billing_standardised/receipt.txt";
+  const folderPrefix = "btm_billing_standardised";
   const databaseName = `${prefix}-invoices`;
 
   beforeAll(async () => {
     //uploading file to s3 will be removed once BTM-276 implemented
-    const file = "../payloads/receipt_0000.txt";
+   const file = "../payloads/receipt.txt";
     const filePath = path.join(__dirname, file);
     const fileStream = fs.createReadStream(filePath);
     await putObjectToS3(bucketName, bucketKey, fileStream);
@@ -31,7 +31,7 @@ describe("\nExecute athena query to retrive invoice data and validate it matches
   });
 
   test("retrieved invoice details should matches with invoice data in s3 bucket ", async () => {
-    const queryString = `SELECT * FROM "btm_invoices_standardised" ORDER BY invoice_receipt_id ASC, vendor_name asc;`;
+    const queryString = `SELECT * FROM "btm_billing_standardised" ORDER BY invoice_receipt_id ASC, vendor_name asc;`;
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const queryResults = await formattedQueryResults(queryId);
     const queryStr = JSON.stringify(queryResults);
@@ -47,7 +47,7 @@ describe("\nExecute athena query to retrive invoice data and validate it matches
   });
 
   test("retrieved view query results should matches with s3", async () => {
-    const queryString = `SELECT * FROM \"${prefix}-invoice-line-item-view\"`;
+    const queryString = `SELECT * FROM "btm_billing_curated"`;
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const queryResults = await formattedQueryResults(queryId);
     const strFromQuery = JSON.stringify(queryResults);
