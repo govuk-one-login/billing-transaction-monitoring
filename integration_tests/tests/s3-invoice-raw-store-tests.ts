@@ -20,6 +20,14 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
   const rawinvoiceBucketKey = `raw-Invoice-${uniqueString}-validFile.pdf`;
 
   test("raw-invoice-textract-data bucket should contain textract data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
+    
+    const checkPdfFileExistsInTestBucket = await checkIfFileExists(
+      `${prefix}-test-invoice-pdf`,
+      `Invoice.pdf`
+    );
+    expect(checkPdfFileExistsInTestBucket).toBeTruthy();
+    console.log("file exists in test invoice pdf bucket");
+    
     await copyObject(
       rawinvoiceBucketName,
       `${prefix}-test-invoice-pdf/Invoice.pdf`,
