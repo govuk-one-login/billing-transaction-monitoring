@@ -2,7 +2,6 @@ import {
   startQueryExecutionCommand,
   formattedQueryResults,
 } from "../helpers/athenaHelper";
-import fs from "fs";
 import path from "path";
 import csvjson from "csvtojson";
 import { resourcePrefix } from "../helpers/envHelper";
@@ -11,7 +10,7 @@ const prefix = resourcePrefix();
 describe("\n Execute athena query to retrieve rate details\n", () => {
   test("retrieved rate details should matches with rate csv uploaded in s3 config bucket ", async () => {
     const databaseName = `${prefix}-calculations`;
-    const queryString = `SELECT * FROM \"btm_rates_standardised\"`;
+    const queryString = `SELECT * FROM "btm_rates_standardised"`;
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const queryResult = await formattedQueryResults(queryId);
     const queryResultToString = JSON.stringify(queryResult)
