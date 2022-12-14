@@ -92,7 +92,6 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/extraction.yaml,
   ./cloudformation/calculation-s3.yaml,
   ./cloudformation/calculation-athena.yaml#NO_LOCAL,
-  ./cloudformation/standardised-invoice-data-store.yaml,
   ./cloudformation/custom-athena-view-resource.yaml#NO_LOCAL,
   ./cloudformation/invoice-athena.yaml#NO_LOCAL
 

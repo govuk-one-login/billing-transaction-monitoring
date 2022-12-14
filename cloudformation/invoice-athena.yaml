@@ -51,7 +51,7 @@ Resources:
       CatalogId: !Ref AWS::AccountId
       DatabaseName: !Ref InvoiceDB
       TableInput:
-        Name: btm_invoices_standardised
+        Name: btm_billing_standardised
         TableType: EXTERNAL_TABLE
         Parameters:
           has_encrypted_data: 'true'
@@ -77,6 +77,8 @@ Resources:
               Type: int
             - Name: item_description
               Type: string
+            - Name: service_name
+              Type: string
             - Name: unit_price
               Type: decimal(10,2)
             - Name: quantity
@@ -85,7 +87,7 @@ Resources:
               Type: decimal(10,2)
           Compressed: 'true'
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Sub s3://${StandardisedInvoiceDataBucket}/btm_invoices_standardised/
+          Location: !Sub s3://${StorageBucket}/btm_billing_standardised/
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
@@ -101,17 +103,22 @@ Resources:
       ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
       View:
         Database: !Ref InvoiceDB
-        Name: !Sub ${AWS::StackName}-invoice-line-item-view
+        Name: btm_billing_curated
         Query: |
-          SELECT
-            YEAR(invoice_receipt_date) AS year_received,
-            MONTH(invoice_receipt_date) AS month_received,
+          SELECT 
             vendor_name,
-            invoice_receipt_id,
-            quantity,
-            unit_price,
-            price AS invoiced_price,
-            SUM(quantity * unit_price) AS calculated_price
-          FROM btm_invoices_standardised
-          GROUP BY invoice_receipt_id, vendor_name, invoice_receipt_date, item_id, quantity, unit_price, price
+            service_name,
+            sum(quantity) AS quantity,
+            sum(price) AS price,
+            year,
+            month
+          FROM (
+            -- Adds year and month columns to standardised billing
+            SELECT
+              *,
+              date_format(invoice_receipt_date,'%m') AS month,
+              date_format(invoice_receipt_date,'%Y') AS year
+            FROM btm_billing_standardised
+          )
+          GROUP BY vendor_name,service_name,year,month
         Workgroup: !Ref AthenaInvoiceWorkgroup
