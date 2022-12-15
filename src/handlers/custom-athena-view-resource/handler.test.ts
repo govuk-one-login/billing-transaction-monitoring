@@ -1,10 +1,12 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
 import { Athena } from "aws-sdk";
 import { sendCustomResourceResult } from "../../shared/utils";
+import { getAthenaViewResourceData } from "./get-athena-view-resource-data";
 import { handler } from "./handler";
+import { QueryExecutionValidator } from "./query-execution-validator";
 
 jest.mock("aws-sdk");
-const MockedAthena = Athena as jest.MockedClass<typeof Athena>;
+const MockedAthenaClass = Athena as jest.MockedClass<typeof Athena>;
 
 jest.mock("../../shared/utils");
 const mockedSendCustomResourceResult =
@@ -12,12 +14,24 @@ const mockedSendCustomResourceResult =
     typeof sendCustomResourceResult
   >;
 
+jest.mock("./get-athena-view-resource-data");
+const mockedGetAthenaViewResourceData = getAthenaViewResourceData as jest.Mock;
+
+jest.mock("./query-execution-validator");
+const MockedQueryExecutionValidator =
+  QueryExecutionValidator as jest.MockedClass<typeof QueryExecutionValidator>;
+
 describe("Custom Athena view resource handler", () => {
-  let mockedAthenaGetQueryExecution: jest.Mock;
-  let mockedAthenaGetQueryExecutionPromise: jest.Mock;
+  let mockedAthena: any;
   let mockedAthenaStartQueryExecution: jest.Mock;
   let mockedAthenaStartQueryExecutionPromise: jest.Mock;
   let mockedConsoleError: jest.Mock;
+  let mockedDatabase: string;
+  let mockedName: string;
+  let mockedQuery: string;
+  let mockedQueryExecutionId: string;
+  let mockedQueryExecutionValidatorValidate: jest.Mock;
+  let mockedWorkgroup: string;
   let givenContext: Context;
   const oldConsoleError = console.error;
   const oldSetTimeout = setTimeout;
@@ -31,46 +45,41 @@ describe("Custom Athena view resource handler", () => {
     mockedConsoleError = jest.fn();
     console.error = mockedConsoleError;
 
-    mockedAthenaGetQueryExecutionPromise = jest.fn(() => ({
-      QueryExecution: {
-        Status: {
-          State: "SUCCEEDED",
-        },
-      },
-    }));
-
-    mockedAthenaGetQueryExecution = jest.fn(() => ({
-      promise: mockedAthenaGetQueryExecutionPromise,
-    }));
+    mockedQueryExecutionId = "mocked query execution ID";
 
     mockedAthenaStartQueryExecutionPromise = jest.fn(() => ({
-      QueryExecutionId: "mocked query execution ID",
+      QueryExecutionId: mockedQueryExecutionId,
     }));
 
     mockedAthenaStartQueryExecution = jest.fn(() => ({
       promise: mockedAthenaStartQueryExecutionPromise,
     }));
 
-    MockedAthena.mockReturnValue({
-      getQueryExecution: mockedAthenaGetQueryExecution,
-      startQueryExecution: mockedAthenaStartQueryExecution,
+    mockedAthena = { startQueryExecution: mockedAthenaStartQueryExecution };
+
+    MockedAthenaClass.mockReturnValue(mockedAthena);
+
+    mockedDatabase = "mocked database";
+    mockedName = "mocked name";
+    mockedQuery = "mocked query";
+    mockedWorkgroup = "mocked workgroup";
+
+    mockedGetAthenaViewResourceData.mockReturnValue({
+      database: mockedDatabase,
+      name: mockedName,
+      query: mockedQuery,
+      workgroup: mockedWorkgroup,
+    });
+
+    mockedQueryExecutionValidatorValidate = jest.fn();
+
+    MockedQueryExecutionValidator.mockReturnValue({
+      validate: mockedQueryExecutionValidatorValidate,
     } as any);
 
-    givenContext = {
-      logStreamName: "given context log stream name",
-    } as any;
+    givenContext = { logStreamName: "given context log stream name" } as any;
 
-    validEvent = {
-      RequestType: "given request type",
-      ResourceProperties: {
-        View: {
-          Database: "given view database",
-          Name: "given view name",
-          Query: "given view query",
-          Workgroup: "given view workgroup",
-        },
-      },
-    } as any;
+    validEvent = { RequestType: "given request type" } as any;
   });
 
   afterAll(() => {
@@ -78,215 +87,17 @@ describe("Custom Athena view resource handler", () => {
     global.setTimeout = oldSetTimeout;
   });
 
-  test("Custom Athena view resource handler with no `View`", async () => {
-    const givenEvent: CloudFormationCustomResourceEvent = {
-      ...validEvent,
-      ResourceProperties: {},
-    } as any;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
+  test("Custom Athena view resource handler with invalid event", async () => {
+    mockedGetAthenaViewResourceData.mockImplementation(() => {
+      throw new Error("mocked error");
     });
-    expect(Athena).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
-  });
 
-  test("Custom Athena view resource handler with `View` not object", async () => {
-    const givenEvent: CloudFormationCustomResourceEvent = {
-      ...validEvent,
-      ResourceProperties: {
-        View: "some string",
-      },
-    } as any;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-    expect(Athena).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
-  });
-
-  test("Custom Athena view resource handler with no `View.Database`", async () => {
     const givenEvent = validEvent;
-    delete givenEvent.ResourceProperties.View.Database;
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-    expect(Athena).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
-  });
-
-  test("Custom Athena view resource handler with `View.Database` not string", async () => {
-    const givenEvent: CloudFormationCustomResourceEvent = {
-      ...validEvent,
-      ResourceProperties: {
-        ...validEvent.ResourceProperties,
-        View: {
-          ...validEvent.ResourceProperties.View,
-          Database: 1234,
-        },
-      },
-    };
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-    expect(Athena).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
-  });
-
-  test("Custom Athena view resource handler with no `View.Name`", async () => {
-    const givenEvent: CloudFormationCustomResourceEvent = validEvent;
-    delete givenEvent.ResourceProperties.View.Name;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-    expect(Athena).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
-  });
-
-  test("Custom Athena view resource handler with `View.Name` not string", async () => {
-    const givenEvent: CloudFormationCustomResourceEvent = {
-      ...validEvent,
-      ResourceProperties: {
-        ...validEvent.ResourceProperties,
-        View: {
-          ...validEvent.ResourceProperties.View,
-          Name: 1234,
-        },
-      },
-    };
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-    expect(Athena).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
-  });
-
-  test("Custom Athena view resource handler with no `View.Query`", async () => {
-    const givenEvent: CloudFormationCustomResourceEvent = validEvent;
-    delete givenEvent.ResourceProperties.View.Query;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-    expect(Athena).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
-  });
-
-  test("Custom Athena view resource handler with `View.Query` not string", async () => {
-    const givenEvent: CloudFormationCustomResourceEvent = {
-      ...validEvent,
-      ResourceProperties: {
-        ...validEvent.ResourceProperties,
-        View: {
-          ...validEvent.ResourceProperties.View,
-          Query: 1234,
-        },
-      },
-    };
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-    expect(Athena).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
-  });
-
-  test("Custom Athena view resource handler with no `View.Workgroup`", async () => {
-    const givenEvent: CloudFormationCustomResourceEvent = validEvent;
-    delete givenEvent.ResourceProperties.View.Workgroup;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-    expect(Athena).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
-  });
-
-  test("Custom Athena view resource handler with `View.Workgroup` not string", async () => {
-    const givenEvent: CloudFormationCustomResourceEvent = {
-      ...validEvent,
-      ResourceProperties: {
-        ...validEvent.ResourceProperties,
-        View: {
-          ...validEvent.ResourceProperties.View,
-          Workgroup: 1234,
-        },
-      },
-    };
-
-    await handler(givenEvent, givenContext);
-
-    expect(Athena).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecution).not.toHaveBeenCalled();
-    expect(mockedAthenaStartQueryExecutionPromise).not.toHaveBeenCalled();
+    expect(mockedGetAthenaViewResourceData).toHaveBeenCalledTimes(1);
+    expect(mockedGetAthenaViewResourceData).toHaveBeenCalledWith(givenEvent);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
@@ -307,12 +118,10 @@ describe("Custom Athena view resource handler", () => {
     expect(mockedAthenaStartQueryExecution).toHaveBeenCalledTimes(1);
     expect(mockedAthenaStartQueryExecution).toHaveBeenCalledWith({
       QueryExecutionContext: {
-        Database: givenEvent.ResourceProperties.View.Database,
+        Database: mockedDatabase,
       },
-      QueryString: `CREATE OR REPLACE VIEW "${
-        givenEvent.ResourceProperties.View.Name as string
-      }" AS (${givenEvent.ResourceProperties.View.Query as string})`,
-      WorkGroup: givenEvent.ResourceProperties.View.Workgroup,
+      QueryString: `CREATE OR REPLACE VIEW "${mockedName}" AS (${mockedQuery})`,
+      WorkGroup: mockedWorkgroup,
     });
     expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
@@ -332,17 +141,15 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(MockedAthena).toHaveBeenCalledTimes(1);
-    expect(MockedAthena).toHaveBeenCalledWith({ region: "eu-west-2" });
+    expect(MockedAthenaClass).toHaveBeenCalledTimes(1);
+    expect(MockedAthenaClass).toHaveBeenCalledWith({ region: "eu-west-2" });
     expect(mockedAthenaStartQueryExecution).toHaveBeenCalledTimes(1);
     expect(mockedAthenaStartQueryExecution).toHaveBeenCalledWith({
       QueryExecutionContext: {
-        Database: givenEvent.ResourceProperties.View.Database,
+        Database: mockedDatabase,
       },
-      QueryString: `DROP VIEW IF EXISTS "${
-        givenEvent.ResourceProperties.View.Name as string
-      }"`,
-      WorkGroup: givenEvent.ResourceProperties.View.Workgroup,
+      QueryString: `DROP VIEW IF EXISTS "${mockedName}"`,
+      WorkGroup: mockedWorkgroup,
     });
     expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
@@ -364,12 +171,10 @@ describe("Custom Athena view resource handler", () => {
     expect(mockedAthenaStartQueryExecution).toHaveBeenCalledTimes(1);
     expect(mockedAthenaStartQueryExecution).toHaveBeenCalledWith({
       QueryExecutionContext: {
-        Database: givenEvent.ResourceProperties.View.Database,
+        Database: mockedDatabase,
       },
-      QueryString: `CREATE OR REPLACE VIEW "${
-        givenEvent.ResourceProperties.View.Name as string
-      }" AS (${givenEvent.ResourceProperties.View.Query as string})`,
-      WorkGroup: givenEvent.ResourceProperties.View.Workgroup,
+      QueryString: `CREATE OR REPLACE VIEW "${mockedName}" AS (${mockedQuery})`,
+      WorkGroup: mockedWorkgroup,
     });
     expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
@@ -394,7 +199,6 @@ describe("Custom Athena view resource handler", () => {
       reason: expect.stringContaining(givenContext.logStreamName),
       status: "FAILED",
     });
-    expect(mockedAthenaGetQueryExecution).not.toHaveBeenCalled();
   });
 
   test("Custom Athena view resource handler with query execution start result without ID", async () => {
@@ -411,190 +215,21 @@ describe("Custom Athena view resource handler", () => {
       reason: expect.stringContaining(givenContext.logStreamName),
       status: "FAILED",
     });
-    expect(mockedAthenaGetQueryExecution).not.toHaveBeenCalled();
   });
 
-  test("Custom Athena view resource handler with query execution retrieval error", async () => {
-    mockedAthenaGetQueryExecutionPromise.mockRejectedValue(undefined);
+  test("Custom Athena view resource handler with query execution validation error", async () => {
+    mockedQueryExecutionValidatorValidate.mockRejectedValue(undefined);
 
     const givenEvent = validEvent;
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
-    expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-  });
-
-  test("Custom Athena view resource handler with query execution without state", async () => {
-    mockedAthenaGetQueryExecutionPromise.mockResolvedValue({
-      QueryExecution: {},
-    });
-
-    const givenEvent = validEvent;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
-    expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-  });
-
-  test("Custom Athena view resource handler with query execution with failure state", async () => {
-    mockedAthenaGetQueryExecutionPromise.mockResolvedValue({
-      QueryExecution: {
-        Status: {
-          State: "FAILED",
-        },
-      },
-    });
-
-    const givenEvent = validEvent;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
-    expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-  });
-
-  test("Custom Athena view resource handler with query execution with failure state and error message", async () => {
-    const mockedErrorMessage = "mocked error message";
-    mockedAthenaGetQueryExecutionPromise.mockResolvedValue({
-      QueryExecution: {
-        Status: {
-          AthenaError: {
-            ErrorMessage: mockedErrorMessage,
-          },
-          State: "FAILED",
-        },
-      },
-    });
-
-    const givenEvent = validEvent;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
-    expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedConsoleError).toHaveBeenCalledTimes(1);
-    expect(String(mockedConsoleError.mock.calls[0][1])).toEqual(
-      expect.stringContaining(mockedErrorMessage)
+    expect(MockedQueryExecutionValidator).toHaveBeenCalledTimes(1);
+    expect(MockedQueryExecutionValidator).toHaveBeenCalledWith(mockedAthena);
+    expect(mockedQueryExecutionValidatorValidate).toHaveBeenCalledTimes(1);
+    expect(mockedQueryExecutionValidatorValidate).toHaveBeenCalledWith(
+      mockedQueryExecutionId
     );
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-  });
-
-  test("Custom Athena view resource handler with query execution with cancellation state", async () => {
-    mockedAthenaGetQueryExecutionPromise.mockResolvedValue({
-      QueryExecution: {
-        Status: {
-          State: "CANCELLED",
-        },
-      },
-    });
-
-    const givenEvent = validEvent;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
-    expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-  });
-
-  test("Custom Athena view resource handler with query execution with unrecognised state", async () => {
-    mockedAthenaGetQueryExecutionPromise.mockResolvedValue({
-      QueryExecution: {
-        Status: {
-          State: "mocked unrecognised state",
-        },
-      },
-    });
-
-    const givenEvent = validEvent;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(1);
-    expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-  });
-
-  test("Custom Athena view resource handler with query execution with running state", async () => {
-    mockedAthenaGetQueryExecutionPromise.mockResolvedValue({
-      QueryExecution: {
-        Status: {
-          State: "RUNNING",
-        },
-      },
-    });
-
-    const givenEvent = validEvent;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(10);
-    expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(10);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
-    expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
-      context: givenContext,
-      event: givenEvent,
-      reason: expect.stringContaining(givenContext.logStreamName),
-      status: "FAILED",
-    });
-  });
-
-  test("Custom Athena view resource handler with query execution with queued state", async () => {
-    mockedAthenaGetQueryExecutionPromise.mockResolvedValue({
-      QueryExecution: {
-        Status: {
-          State: "RUNNING",
-        },
-      },
-    });
-
-    const givenEvent = validEvent;
-
-    await handler(givenEvent, givenContext);
-
-    expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(10);
-    expect(mockedAthenaGetQueryExecutionPromise).toHaveBeenCalledTimes(10);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
