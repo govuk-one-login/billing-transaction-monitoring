@@ -77,7 +77,7 @@ Resources:
             - { Name: service_name, Type: string }
             - { Name: volumes_from, Type: int }
             - { Name: volumes_to, Type: int }
-            - { Name: unit_price, Type: decimal }
+            - { Name: unit_price, Type: 'decimal(12, 4)' }
             - { Name: effective_from, Type: date }
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
