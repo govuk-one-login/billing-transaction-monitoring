@@ -11,47 +11,62 @@ Monitors user identity verification events for billing purposes
 If you are new to the Billing & Transaction Monitoring team, please also read [our New Starters guide](https://govukverify.atlassian.net/l/cp/XMirz7JE)
 
 ## Do this once
+
 Install and use the correct node version (using .nvmrc):
+
 ```sh
 nvm install
 ```
+
 Install packages from lock file:
+
 ```sh
 npm ci
 ```
+
 Install husky hooks:
+
 ```sh
 npm run husky:install
 ```
 
 ## Check before commit
+
 ```sh
 npm run build:template
 checkov -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies
 ```
+
 N.B. You may get Python errors due to conflicting dependencies with SAM CLI. If you do, run this and try again:
+
 ```sh
 pip3 install checkov
 ```
 
 ## LocalStack
+
 The entire stack can be brought up locally using localstack.
 
 ### Requirements
+
 - Python
 - Docker
 
 ### To install
+
 ```sh
 python3 -m pip install localstack
 pip3 install aws-sam-cli-local
 ```
 
 ### Start localstack
+
 N.B. You may need to run
+
 ```sh
-gds aws di-btm-dev -s 
+gds aws di-btm-dev -s
 ```
+
 before this to gain the correct privileges and will need to be on the VPN.
 
 ```sh
@@ -59,66 +74,79 @@ docker run --rm -it -p 4566:4566 -p 4571:4571 -e LOCALSTACK_DEBUG=1 localstack/l
 ```
 
 ### Bringing up the stack
+
 ```sh
 npm run build
 npm run build:template NO_LOCAL
 samlocal build
 samlocal deploy --resolve-s3 --config-env local
 ```
+
 N.B. You may get Python errors due to conflicting dependencies with Checkov. If you do, run this and try again:
+
 ```sh
 pip3 install aws-sam-cli
 ```
 
 ### Interrogating the stack
+
 Any of the aws commands can now be used by adding the --endpoint-url parameter e.g.
 
 List all topics
+
 ```sh
 aws --endpoint-url=http://localhost:4566 sns list-topics
 ```
 
 Publish a message on the SNS topic
+
 ```sh
-aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_name":"EVENT_1", "event_id": "1234", "component_id": "TEST_COMP", "timestamp": 1666006241000}'
+aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_id":"67e5-4b66-a403","timestamp":1668124800000,"timestamp_formatted":"2022-11-11T09:26:18.000Z","event_name":"EVENT_7","component_id":"https://test.gov.uk","user":{"user_id":"testUser-01","ip_address":"000.000.000.000, 10.1.60.000","session_id":"4c52152e-ee0","govuk_signin_journey_id":"b85cb29c-b1e7"},"restricted":{"name":[{"nameParts":[{"type":"GivenName","value":"Melissa"},{"type":"FamilyName","value":"Pereira"}]}],"birthDate":[{"value":"1959-08-23"}],"address":[{"uprn":100120012077,"buildingNumber":"8","streetName":"HADLEY ROAD","addressLocality":"BATH","postalCode":"BA2 5AA","addressCountry":"GB","validFrom":"2014-01-01"}]},"reIngestCount":0, "client_id": "client1"}'
 ```
 
 List the buckets in S3
+
 ```sh
 aws --endpoint-url=http://localhost:4566 s3api list-buckets
 ```
 
 Read from s3
+
 ```sh
-aws --endpoint-url=http://localhost:4566 s3api list-objects --bucket di-btm-storagebucket-fc161d3a 
+aws --endpoint-url=http://localhost:4566 s3api list-objects --bucket di-btm-storagebucket-fc161d3a
 ```
 
 ### Running the integration tests
+
 To run the tests against aws environment
-````
+
+```
 npm i
 npm run test:integration
 
-````
+```
 
 To run the tests against local environment
-````
+
+```
 npm i
 npm run test:integration:local
-````
+```
 
-To generate  emailable allure report after running the integration test
-````
+To generate emailable allure report after running the integration test
+
+```
  docker run --name allure -p 5050:5050  \
                  -v ${PWD}/allure-results:/app/allure-results \
                  -v ${PWD}/allure-reports:/app/default-reports \
                  frankescobar/allure-docker-service
-````
+```
 
-To clean the allure results and allure reports folder 
-````
+To clean the allure results and allure reports folder
+
+```
 npm run beforeIntTest
-````
+```
 
 ## Deploy
 
@@ -133,9 +161,11 @@ Then run:
 ```
 export ENV_NAME=dev-od-ph-purpose
 ```
+
 Replace `ph` with your initials and replace `purpose` with a very short purpose of the env like `testing`.
 
 Then run:
+
 ```
 npm run sam:build
 npm run sam:deploy
