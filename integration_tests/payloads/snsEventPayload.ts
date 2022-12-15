@@ -7,6 +7,7 @@ const snsValidEventPayload = {
   event_id: generateRandomNumber(),
   component_id: "TEST_COMP",
   timestamp: new Date().getTime(),
+  client_id: "client1",
 };
 
 const snsEventWithAdditionalFieldsPayload = {
@@ -15,6 +16,7 @@ const snsEventWithAdditionalFieldsPayload = {
   component_id: "TEST_COMP",
   timestamp: new Date().getTime(),
   someUnwantedField: "some value",
+  client_id: "client1",
 };
 
 const snsInvalidEventNamePayload = {
@@ -22,6 +24,7 @@ const snsInvalidEventNamePayload = {
   event_id: generateRandomNumber(),
   component_id: "TEST_COMP",
   timestamp: new Date().getTime(),
+  client_id: "client1",
 };
 
 const snsInvalidTimeStampPayload = {
@@ -29,30 +32,35 @@ const snsInvalidTimeStampPayload = {
   event_id: generateRandomNumber(),
   component_id: "TEST_COMP",
   timestamp: "somestring",
+  client_id: "client1",
 };
 
 const snsMissingEventNamePayload = {
   event_id: generateRandomNumber(),
   component_id: "TEST_COMP",
   timestamp: new Date().getTime(),
+  client_id: "client1",
 };
 
 const snsEventMissingTimestampPayload = {
   event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
   event_id: generateRandomNumber(),
   component_id: "TEST_COMP",
+  client_id: "client1",
 };
 
 const snsEventMissingCompIdPayload = {
   event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
   event_id: generateRandomNumber(),
   timestamp: new Date().getTime(),
+  client_id: "client1",
 };
 
 const snsMissingEventIdPayload = {
   event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
   component_id: "TEST_COMP",
   timestamp: new Date().getTime(),
+  client_id: "client1",
 };
 
 const snsEventInvalidCompId = {
@@ -60,6 +68,7 @@ const snsEventInvalidCompId = {
   event_id: generateRandomNumber(),
   component_id: 5678,
   timestamp: new Date().getTime(),
+  client_id: "client1",
 };
 
 const snsEventMisisingEventIdValue = {
@@ -67,6 +76,7 @@ const snsEventMisisingEventIdValue = {
   event_id: null,
   component_id: 5678,
   timestamp: new Date().getTime(),
+  client_id: "client1",
 };
 
 export {
