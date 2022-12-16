@@ -2,11 +2,15 @@ const generateRandomNumber = () => {
   return Math.floor(Math.random() * 10000000).toString();
 };
 
+const validTimestamp = (): number => {
+  return new Date().getTime() / 1000;
+};
+
 const snsValidEventPayload = {
   event_name: "EVENT_1",
   event_id: generateRandomNumber(),
   component_id: "TEST_COMP",
-  timestamp: new Date().getTime(),
+  timestamp: validTimestamp(),
   client_id: "client1",
 };
 
@@ -14,7 +18,7 @@ const snsEventWithAdditionalFieldsPayload = {
   event_name: "EVENT_1",
   event_id: generateRandomNumber(),
   component_id: "TEST_COMP",
-  timestamp: new Date().getTime(),
+  timestamp: validTimestamp(),
   someUnwantedField: "some value",
   client_id: "client1",
 };
@@ -23,7 +27,7 @@ const snsInvalidEventNamePayload = {
   event_name: "TESTGGHYJKIK",
   event_id: generateRandomNumber(),
   component_id: "TEST_COMP",
-  timestamp: new Date().getTime(),
+  timestamp: validTimestamp(),
   client_id: "client1",
 };
 

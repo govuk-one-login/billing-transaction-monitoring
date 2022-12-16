@@ -77,7 +77,7 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
               typeof extensions.iss === "string" ? extensions.iss : undefined,
           }
         : undefined,
-    timestamp,
+    timestamp: timestamp * 1000,
     timestamp_formatted:
       typeof timestampFormatted === "string" ? timestampFormatted : undefined,
     user:
