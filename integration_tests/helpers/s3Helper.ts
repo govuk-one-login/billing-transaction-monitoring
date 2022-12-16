@@ -121,6 +121,18 @@ async function getAllObjectsFromS3(bucketName: string, prefix: string) {
   return content;
 }
 
+async function s3GetObjectsToArray(bucketName:string, folderPrefix:string) {
+  const s3Response = await getAllObjectsFromS3(bucketName, folderPrefix);
+  const convertS3Repsonse2Str = JSON.stringify(s3Response);
+  const formatS3Str = convertS3Repsonse2Str
+    .replace(/:[^"0-9.]*([0-9.]+)/g, ':\\"$1\\"')//converts digits to string for parsing
+    .replace(/\\n|'/g, "") //removes //n character , single quotes
+    .replace(/}{/g, "},{"); //replace comma in between }{ brackets
+    const data = JSON.parse(formatS3Str);
+    const s3Array = JSON.parse("[" + data["0"] + "]");
+  return s3Array
+}
+
 export {
   getS3ItemsList,
   getS3Object,
@@ -128,5 +140,5 @@ export {
   deleteObjectInS3,
   copyObject,
   checkIfFileExists,
-  getAllObjectsFromS3,
+  getAllObjectsFromS3,s3GetObjectsToArray
 };

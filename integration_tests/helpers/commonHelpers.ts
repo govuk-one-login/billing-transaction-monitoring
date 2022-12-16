@@ -20,8 +20,5 @@ async function waitForTrue(
   });
 }
 
-function removeTrailingZerosAfterDeciRegExp(str: string) {
-  return str.replace(/(\d+)(?:(\.\d*?[1-9]+)0*|\.0*)/g, '"$1$2"'); // removes trailing zeros after decimal point eg 1200.00 to 1200
-}
 
-export { waitForTrue, removeTrailingZerosAfterDeciRegExp };
+export { waitForTrue };

@@ -1,16 +1,16 @@
 import {
   startQueryExecutionCommand,
   formattedQueryResults,
+  queryObject,
 } from "../helpers/athenaHelper";
 import {
-  getAllObjectsFromS3,
   putObjectToS3,
   checkIfFileExists,
+  s3GetObjectsToArray,
 } from "../helpers/s3Helper";
 import { resourcePrefix } from "../helpers/envHelper";
 import path from "path";
 import fs from "fs";
-import { removeTrailingZerosAfterDeciRegExp } from "../helpers/commonHelpers";
 
 const prefix = resourcePrefix();
 
@@ -22,7 +22,7 @@ describe("\nExecute athena query to retrive invoice data and validate it matches
 
   beforeAll(async () => {
     //uploading file to s3 will be removed once BTM-276 implemented
-   const file = "../payloads/receipt.txt";
+    const file = "../payloads/receipt.txt";
     const filePath = path.join(__dirname, file);
     const fileStream = fs.createReadStream(filePath);
     await putObjectToS3(bucketName, bucketKey, fileStream);
@@ -31,34 +31,49 @@ describe("\nExecute athena query to retrive invoice data and validate it matches
   });
 
   test("retrieved invoice details should matches with invoice data in s3 bucket ", async () => {
-    const queryString = `SELECT * FROM "btm_billing_standardised" ORDER BY invoice_receipt_id ASC, vendor_name asc;`;
+    const queryString = `SELECT * FROM "btm_billing_standardised" ORDER BY service_name ASC`;
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
-    const queryResults = await formattedQueryResults(queryId);
-    const queryStr = JSON.stringify(queryResults);
-    const formattedQueryStr = removeTrailingZerosAfterDeciRegExp(
-      queryStr
-    ).replace(/"/g, ""); //removes double quotes
-    const response = await getAllObjectsFromS3(bucketName, folderPrefix);
-    const strFromS3 = JSON.stringify(response);
-    const formattedStrFromS3 = removeTrailingZerosAfterDeciRegExp(strFromS3) //removes trailing zeros after decimal point eg 1200.0 to 1200
-      .replace(/\\n|"|\\/g, "") //removes newline, backslashes
-      .replace(/}{/g, "},{"); //replace string }{ to },{
-    expect(formattedStrFromS3).toEqual(formattedQueryStr);
+    const strFromQuery = await queryObject(queryId);
+    const queryObjects = Object.keys(strFromQuery).map(
+      (val) => strFromQuery[val]
+    );
+    const s3Array = await s3GetObjectsToArray(bucketName, folderPrefix);
+    const s3Objects = Object.keys(s3Array).map((val) => strFromQuery[val]);
+    expect(s3Objects).toEqual(queryObjects);
   });
 
   test("retrieved view query results should matches with s3", async () => {
-    const queryString = `SELECT * FROM "btm_billing_curated"`;
-    const queryId = await startQueryExecutionCommand(databaseName, queryString);
-    const queryResults = await formattedQueryResults(queryId);
-    const strFromQuery = JSON.stringify(queryResults);
-    const s3Response = await getAllObjectsFromS3(bucketName, folderPrefix);
-    const strFromS3 = JSON.stringify(s3Response);
-
-    const checkStrFromQueryExistsInS3Response = async () => {
-      if (strFromQuery.includes(strFromS3)) {
-        return true;
+    const s3Array = await s3GetObjectsToArray(bucketName, folderPrefix);
+    const s3Objects = s3Array.map(
+      (element: {
+        vendor_name: string;
+        service_name: string;
+        price: number;
+      }) => {
+        return {
+          vendor_name: element.vendor_name,
+          service_name: element.service_name,
+          price: element.price,
+        };
       }
-    };
-    expect(checkStrFromQueryExistsInS3Response).toBeTruthy();
+    );
+
+    const queryString = `SELECT * FROM "btm_billing_curated" ORDER BY service_name ASC`;
+    const queryId = await startQueryExecutionCommand(databaseName, queryString);
+    const strFromQuery = await queryObject(queryId);
+    const queryObjects = strFromQuery.map(
+      (element: {
+        vendor_name: string;
+        service_name: string;
+        price: string;
+      }) => {
+        return {
+          vendor_name: element.vendor_name,
+          service_name: element.service_name,
+          price: element.price,
+        };
+      }
+    );
+    expect(s3Objects).toEqual(queryObjects);
   });
 });

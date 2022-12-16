@@ -30,7 +30,6 @@ async function startQueryExecutionCommand(
     new StartQueryExecutionCommand(params)
   );
   const queryId = response.QueryExecutionId ?? "queryId not found";
-  console.log("QueryExecutionId:", queryId);
   return queryId;
 }
 
@@ -43,7 +42,6 @@ async function getQueryExecutionStatus(
   const response = await athenaClient.send(
     new GetQueryExecutionCommand(params)
   );
-  console.log("QueryExecutionStatus:", response.QueryExecution?.Status);
   return response.QueryExecution?.Status;
 }
 
@@ -87,4 +85,11 @@ async function formattedQueryResults(queryId: string): Promise<StringObject[]> {
   return formattedData;
 }
 
-export { getQueryResults, startQueryExecutionCommand, formattedQueryResults };
+async function queryObject(queryId:string) {
+  const queryResults:StringObject[] = await formattedQueryResults(queryId);
+  const strFromQuery = JSON.stringify(queryResults);
+  const queryObj = JSON.parse(strFromQuery);
+  return queryObj
+}
+
+export { getQueryResults, startQueryExecutionCommand, formattedQueryResults,queryObject };
