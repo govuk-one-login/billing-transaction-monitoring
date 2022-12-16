@@ -97,6 +97,43 @@ Resources:
               timestamp.formats: yyyy-MM-dd
             SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
 
+  VendorServiceMappingTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref CalculationsDB
+      TableInput:
+        Name: btm_vendor_client_standardised
+        TableType: EXTERNAL_TABLE
+        Parameters:
+          has_encrypted_data: true
+          storage.location.template:
+            !Join ['', ['s3://', !Ref ConfigBucket, '/vendor_services/vendor-services.csv']]
+        StorageDescriptor:
+          Columns:
+            - Name: vendor_name
+              Type: string
+            - Name: vendor_regex
+              Type: string
+            - Name: client_id
+              Type: string
+            - Name: service_name
+              Type: string
+            - Name: service_regex
+              Type: string
+            - Name: event_name
+              Type: string
+          Compressed: true
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Join ['', ['s3://', !Ref ConfigBucket, '/vendor_services/']]
+          StoredAsSubDirectories: false
+          OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          SerdeInfo:
+            Parameters:
+              field.delim: ','
+              skip.header.line.count: 1
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+
   AthenaTransactionWorkgroup:
     Type: AWS::Athena::WorkGroup
     Properties:
