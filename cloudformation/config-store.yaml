@@ -22,7 +22,7 @@ Resources:
         DestinationBucketName: !Ref GlobalLogBucket
         LogFilePrefix: config-bucket/log
 
-  # Prices are confidential, so use fake data outside of the production environment
+  # Prices are confidential, so use fake data outside the production environment
   FakePricesS3Object:
     Condition: IsNotProduction
     Type: Custom::S3Object
@@ -32,6 +32,17 @@ Resources:
         Bucket: !Ref ConfigBucket
         Key: rate_tables/prices.csv
         Body: !TextInclude ./cloudformation/fake-prices.csv
+
+  # Client names are confidential, so use fake data outside the production environment
+  FakeMappingsS3Object:
+    Condition: IsNotProduction
+    Type: Custom::S3Object
+    Properties:
+      ServiceToken: !GetAtt CustomS3ObjectResourceFunction.Arn
+      S3Object:
+        Bucket: !Ref ConfigBucket
+        Key: vendor_services/vendor-services.csv
+        Body: !TextInclude ./cloudformation/fake-vendor-services.csv
 
   UkVatConfigS3Object:
     Type: Custom::S3Object
