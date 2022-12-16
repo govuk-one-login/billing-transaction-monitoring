@@ -103,7 +103,7 @@ Resources:
       CatalogId: !Ref AWS::AccountId
       DatabaseName: !Ref CalculationsDB
       TableInput:
-        Name: btm_vendor_client_standardised
+        Name: btm_vendor_service_standardised
         TableType: EXTERNAL_TABLE
         Parameters:
           has_encrypted_data: true
