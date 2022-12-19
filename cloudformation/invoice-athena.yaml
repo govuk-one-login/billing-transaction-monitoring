@@ -1,0 +1,124 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  AthenaInvoiceWorkgroup:
+    Type: AWS::Athena::WorkGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-athena-invoice-workgroup
+      WorkGroupConfiguration:
+        EnforceWorkGroupConfiguration: true
+        PublishCloudWatchMetricsEnabled: false
+        ResultConfiguration:
+          EncryptionConfiguration:
+            EncryptionOption: SSE_KMS
+            KmsKey: !GetAtt KmsKey.Arn
+          OutputLocation: !Sub s3://${AthenaInvoiceQueryResultsBucket}/
+
+  AthenaInvoiceQueryResultsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-athena-invoice-query-results
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: athena-invoice-query-results-bucket/log
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 7
+            Status: Enabled
+
+  InvoiceDB:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: !Sub ${AWS::StackName}-invoices
+
+  InvoiceLineItemTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref InvoiceDB
+      TableInput:
+        Name: btm_billing_standardised
+        TableType: EXTERNAL_TABLE
+        Parameters:
+          has_encrypted_data: 'true'
+        StorageDescriptor:
+          Columns:
+            - Name: invoice_receipt_id
+              Type: string
+            - Name: vendor_name
+              Type: string
+            - Name: total
+              Type: decimal(12,4)
+            - Name: invoice_receipt_date
+              Type: date
+            - Name: subtotal
+              Type: decimal(12,4)
+            - Name: due_date
+              Type: date
+            - Name: tax
+              Type: decimal(10,2)
+            - Name: tax_payer_id
+              Type: string
+            - Name: item_id
+              Type: int
+            - Name: item_description
+              Type: string
+            - Name: service_name
+              Type: string
+            - Name: unit_price
+              Type: decimal(12,4)
+            - Name: quantity
+              Type: int
+            - Name: price
+              Type: decimal(12,4)
+          Compressed: 'true'
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Sub s3://${StorageBucket}/btm_billing_standardised/
+          StoredAsSubDirectories: false
+          OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          SerdeInfo:
+            Parameters:
+              field.delim: ''
+              ignore.malformed.json: true
+              serialiazation.format: 1
+            SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+  InvoiceLineItemView:
+    Type: Custom::AthenaView
+    Properties:
+      ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
+      View:
+        Database: !Ref InvoiceDB
+        Name: btm_billing_curated
+        Query: |
+          SELECT 
+            vendor_name,
+            service_name,
+            sum(quantity) AS quantity,
+            sum(price) AS price,
+            year,
+            month
+          FROM (
+            -- Adds year and month columns to standardised billing
+            SELECT
+              *,
+              date_format(invoice_receipt_date,'%m') AS month,
+              date_format(invoice_receipt_date,'%Y') AS year
+            FROM btm_billing_standardised
+          )
+          GROUP BY vendor_name,service_name,year,month
+        Workgroup: !Ref AthenaInvoiceWorkgroup

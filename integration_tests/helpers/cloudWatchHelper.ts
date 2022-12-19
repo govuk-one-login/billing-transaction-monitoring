@@ -5,7 +5,7 @@ import {
 } from "@aws-sdk/client-cloudwatch-logs";
 
 import { cloudWatchLogsClient } from "../clients/cloudWatchLogsClient";
-import {waitForTrue} from "./commonHelpers";
+import { waitForTrue } from "./commonHelpers";
 
 async function checkGivenStringExistsInLogs(
   logName: string,
@@ -13,11 +13,11 @@ async function checkGivenStringExistsInLogs(
   testStartTime: number
 ) {
   const params: FilterLogEventsCommandInput = {
-    logGroupName: '/aws/lambda/' + logName,
+    logGroupName: "/aws/lambda/" + logName,
     startTime: testStartTime,
   };
 
-  const checkGivenStringExists = async () => {
+  const checkGivenStringExists = async (): Promise<boolean | undefined> => {
     const response: FilterLogEventsCommandOutput =
       await cloudWatchLogsClient.send(new FilterLogEventsCommand(params));
     return response.events?.some((x) => x.message?.includes(expectedString));

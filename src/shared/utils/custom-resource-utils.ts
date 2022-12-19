@@ -6,19 +6,19 @@ import {
 import https from "https";
 import url from "url";
 
-interface Arguments {
+interface ResultArguments {
   context: Context;
   event: CloudFormationCustomResourceEvent;
   reason: string;
   status: CloudFormationCustomResourceResponse["Status"];
 }
 
-export const sendResult = async ({
+export const sendCustomResourceResult = async ({
   context,
   event,
   reason,
   status,
-}: Arguments): Promise<void> =>
+}: ResultArguments): Promise<void> =>
   await new Promise((resolve, reject) => {
     const result: CloudFormationCustomResourceResponse = {
       LogicalResourceId: event.LogicalResourceId,
