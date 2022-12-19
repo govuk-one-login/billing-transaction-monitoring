@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  CustomAthenaViewResourceFunction:
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-custom-athena-view-resource-function
+      DeadLetterQueue:
+        TargetArn: !GetAtt CustomAthenaViewResourceFunctionDeadLetterQueue.Arn
+        Type: SQS
+      Handler: customAthenaViewResource.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - athena:GetQueryExecution
+                - athena:StartQueryExecution
+              Resource:
+                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaInvoiceWorkgroup}
+                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaTransactionWorkgroup}
+            - Effect: Allow
+              Action:
+                - glue:CreateTable
+                - glue:DeleteTable
+                - glue:GetTable
+                - glue:UpdateTable
+              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - s3:AbortMultipartUpload
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+                - s3:PutObject
+              Resource:
+                - !GetAtt AthenaInvoiceQueryResultsBucket.Arn
+                - !Sub ${AthenaInvoiceQueryResultsBucket.Arn}/*
+                - !GetAtt AthenaQueryResultsBucket.Arn
+                - !Sub ${AthenaQueryResultsBucket.Arn}/*
+      ReservedConcurrentExecutions: 10
+
+  CustomAthenaViewResourceFunctionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-custom-athena-view-resource-function-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn

@@ -1,6 +1,9 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
-import { deleteS3, putTextS3 } from "../../shared/utils";
-import { sendResult } from "./send-result";
+import {
+  deleteS3,
+  putTextS3,
+  sendCustomResourceResult,
+} from "../../shared/utils";
 
 export const handler = async (
   event: CloudFormationCustomResourceEvent,
@@ -42,7 +45,7 @@ export const handler = async (
       await putTextS3(bucket, key, body);
     }
 
-    return await sendResult({
+    return await sendCustomResourceResult({
       context,
       event,
       reason: `${key} ${requestType.toLowerCase()}d in ${bucket}`,
@@ -51,7 +54,7 @@ export const handler = async (
   } catch (error) {
     console.error("Handler error:", error);
 
-    return await sendResult({
+    return await sendCustomResourceResult({
       context,
       event,
       reason: `See CloudWatch log stream: ${context.logStreamName}`,

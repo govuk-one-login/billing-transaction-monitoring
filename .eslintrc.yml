@@ -1,7 +1,9 @@
 extends:
   - standard-with-typescript
   - prettier
+ignorePatterns:
+  - dist
 overrides:
-  - files: "*.ts"
+  - files: '*.ts'
     parserOptions:
       project: ./tsconfig.json
