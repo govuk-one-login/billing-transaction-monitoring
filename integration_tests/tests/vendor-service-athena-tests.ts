@@ -21,7 +21,7 @@ describe("\n Execute athena query to retrieve vendor service details\n", () => {
     const csvFormattedData = JSON.parse(
       JSON.stringify(csvData),
       (key, value) => (value === null || value === "" ? undefined : value)
-    ); // regex removes trailing zeros after decimal places eg 9.00 to 9,7.30 to 7.3
+    );
     expect(csvFormattedData).toEqual(queryJsonObj);
   });
 });
