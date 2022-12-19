@@ -101,7 +101,7 @@ aws --endpoint-url=http://localhost:4566 sns list-topics
 Publish a message on the SNS topic
 
 ```sh
-aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_id":"67e5-4b66-a403","timestamp":1668124800000,"timestamp_formatted":"2022-11-11T09:26:18.000Z","event_name":"IPV_KBV_CRI_REQUEST_SENT","component_id":"https://test.gov.uk","user":{"user_id":"testUser-01","ip_address":"000.000.000.000, 10.1.60.000","session_id":"4c52152e-ee0","govuk_signin_journey_id":"b85cb29c-b1e7"},"restricted":{"name":[{"nameParts":[{"type":"GivenName","value":"Melissa"},{"type":"FamilyName","value":"Pereira"}]}],"birthDate":[{"value":"1959-08-23"}],"address":[{"uprn":100120012077,"buildingNumber":"8","streetName":"HADLEY ROAD","addressLocality":"BATH","postalCode":"BA2 5AA","addressCountry":"GB","validFrom":"2014-01-01"}]},"reIngestCount":0, "client_id": "client1"}'
+aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_id":"67e5-4b66-a403","timestamp":1668124800,"timestamp_formatted":"2022-11-11T09:26:18.000Z","event_name":"IPV_PASSPORT_CRI_REQUEST_SENT","component_id":"https://test.gov.uk","reIngestCount":0, "client_id": "client1"}'
 ```
 
 List the buckets in S3

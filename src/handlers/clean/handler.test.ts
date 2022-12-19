@@ -9,6 +9,8 @@ const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>;
 const OLD_ENV = process.env;
 const oldConsoleError = console.error;
 let validRecordBodyObject: Object;
+let sentRecordBodyObject: Object;
+const TIMESTAMP_SECONDS = 123;
 
 beforeEach(() => {
   process.env = { ...OLD_ENV };
@@ -21,7 +23,12 @@ beforeEach(() => {
   validRecordBodyObject = {
     component_id: "some component ID",
     event_name: VALID_EVENT_NAMES.values().next().value,
-    timestamp: 123,
+    timestamp: TIMESTAMP_SECONDS,
+  };
+
+  sentRecordBodyObject = {
+    ...validRecordBodyObject,
+    timestamp: 1000 * TIMESTAMP_SECONDS
   };
 });
 
@@ -103,7 +110,7 @@ test("Clean handler with minimal valid event record", async () => {
   expect(mockedSendRecord).toHaveBeenCalledTimes(1);
   expect(mockedSendRecord).toHaveBeenCalledWith(
     process.env.OUTPUT_QUEUE_URL,
-    recordBody
+    JSON.stringify(sentRecordBodyObject)
   );
 });
 
@@ -126,7 +133,7 @@ test("Clean handler with valid event record that has unwanted field", async () =
   expect(mockedSendRecord).toHaveBeenCalledTimes(1);
   expect(mockedSendRecord).toHaveBeenCalledWith(
     process.env.OUTPUT_QUEUE_URL,
-    JSON.stringify(validRecordBodyObject)
+    JSON.stringify(sentRecordBodyObject)
   );
 });
 
@@ -156,7 +163,7 @@ test("Clean handler with valid event record that has invalid optional values", a
   expect(mockedSendRecord).toHaveBeenCalledTimes(1);
   expect(mockedSendRecord).toHaveBeenCalledWith(
     process.env.OUTPUT_QUEUE_URL,
-    JSON.stringify({ ...validRecordBodyObject, user: {} })
+    JSON.stringify({ ...sentRecordBodyObject, user: {} })
   );
 });
 
@@ -176,6 +183,10 @@ test("Clean handler with valid event record that has valid optional values", asy
   const recordBody = JSON.stringify(recordBodyObject);
   const record = createRecord(recordBody);
   const event = createEvent([record]);
+  const expectedRecordBody = {
+    ...recordBodyObject,
+    timestamp: TIMESTAMP_SECONDS * 1000
+  }
 
   expect(mockedSendRecord).not.toHaveBeenCalled();
 
@@ -189,7 +200,7 @@ test("Clean handler with valid event record that has valid optional values", asy
   const resultSendRecordArguments = mockedSendRecord.mock.calls[0];
   expect(resultSendRecordArguments).toHaveLength(2);
   const resultRecordBodyObject = JSON.parse(resultSendRecordArguments[1]);
-  expect(resultRecordBodyObject).toEqual(recordBodyObject);
+  expect(resultRecordBodyObject).toEqual(expectedRecordBody);
   expect(resultSendRecordArguments[0]).toBe(process.env.OUTPUT_QUEUE_URL);
 });
 
@@ -203,7 +214,10 @@ test("Clean handler with valid event record that has extensions but no iss", asy
   const recordBody = JSON.stringify(recordBodyObject);
   const record = createRecord(recordBody);
   const event = createEvent([record]);
-
+  const expectedRecordBody = {
+    ...recordBodyObject,
+    timestamp: TIMESTAMP_SECONDS * 1000
+  }
   expect(mockedSendRecord).not.toHaveBeenCalled();
 
   const result = await handler(event);
@@ -216,7 +230,7 @@ test("Clean handler with valid event record that has extensions but no iss", asy
   const resultSendRecordArguments = mockedSendRecord.mock.calls[0];
   expect(resultSendRecordArguments).toHaveLength(2);
   const resultRecordBodyObject = JSON.parse(resultSendRecordArguments[1]);
-  expect(resultRecordBodyObject).toEqual(recordBodyObject);
+  expect(resultRecordBodyObject).toEqual(expectedRecordBody);
   expect(resultSendRecordArguments[0]).toBe(process.env.OUTPUT_QUEUE_URL);
 });
 
