@@ -10,8 +10,7 @@ async function waitForTrue(
       resolve(result);
     };
     const callPredicateAndComplete = async (): Promise<void> => {
-      await predicate();
-      complete(true);
+      (await predicate()) && complete(true)
     };
     intervalHandle = setInterval(() => {
       void callPredicateAndComplete();
