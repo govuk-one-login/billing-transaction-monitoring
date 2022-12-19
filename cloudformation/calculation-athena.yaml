@@ -134,6 +134,50 @@ Resources:
               skip.header.line.count: 1
             SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
 
+  TransactionsCuratedView:
+    Type: Custom::AthenaView
+    Properties:
+      ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
+      View:
+        Database: !Ref InvoiceDB
+        Name: btm_transactions_curated
+        Query: |
+          -- Adds an ordinal to the standardise_transaction dataset for attribution of rates to transactions based on timestamp
+          btm_transaction_standardised_with_count AS (
+              SELECT 
+                  *,
+                  "$path"                                                               AS path,
+                  count(event_id) OVER (PARTITION BY event_name,date_trunc('month',from_unixtime(TRY_CAST(timestamp AS int),'+1')) ORDER BY date_trunc('month',from_unixtime(TRY_CAST(timestamp AS int),'+1'))) AS month_event_count
+              FROM "btm_standardised_transaction"
+          ),
+          -- Harmonizes the transaction, rates and client datasets
+          btm_transaction_harmonised AS (
+              SELECT 
+                  t.*,
+                  c.vendor_name,
+                  c.service_name,
+                  TRY_CAST(r.transaction_price AS DECIMAL(11,2))                        AS transaction_price,
+                  date_format(from_unixtime(TRY_CAST(timestamp AS int),'+1'),'%m')      AS month,
+                  date_format(from_unixtime(TRY_CAST(timestamp AS int),'+1'),'%Y')      AS year
+              FROM btm_transaction_standardised_with_count t
+              LEFT JOIN "btm_vendor_client_standardised" c ON t.event_name=c.event_name
+              LEFT JOIN "btm-rates-standardised" r ON (
+                  t.event_name=r.event_name AND
+                  (t.month_event_count BETWEEN r.volume_min AND r.volume_max) AND
+                  (TRY_CAST(from_unixtime(TRY_CAST(t.timestamp AS BIGINT)) AS DATE) BETWEEN TRY_CAST(r.start AS DATE) AND TRY_CAST(r."end" AS DATE))
+              )
+          )
+          SELECT
+              MAX(vendor_name)                                                        AS vendor_name,
+              MAX(service_name)                                                       AS service_name,
+              SUM(transaction_price)                                                  AS price,
+              COUNT(event_id)                                                         AS quantity,
+              month,
+              year
+          FROM btm_transaction_harmonised
+          GROUP BY vendor_name,service_name,year,month
+        Workgroup: !Ref AthenaInvoiceWorkgroup
+
   AthenaTransactionWorkgroup:
     Type: AWS::Athena::WorkGroup
     Properties:
