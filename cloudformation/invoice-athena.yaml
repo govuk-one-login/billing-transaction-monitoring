@@ -62,11 +62,11 @@ Resources:
             - Name: vendor_name
               Type: string
             - Name: total
-              Type: decimal(10,2)
+              Type: decimal(12,4)
             - Name: invoice_receipt_date
               Type: date
             - Name: subtotal
-              Type: decimal(10,2)
+              Type: decimal(12,4)
             - Name: due_date
               Type: date
             - Name: tax
@@ -80,11 +80,11 @@ Resources:
             - Name: service_name
               Type: string
             - Name: unit_price
-              Type: decimal(10,2)
+              Type: decimal(12,4)
             - Name: quantity
               Type: int
             - Name: price
-              Type: decimal(10,2)
+              Type: decimal(12,4)
           Compressed: 'true'
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
           Location: !Sub s3://${StorageBucket}/btm_billing_standardised/
