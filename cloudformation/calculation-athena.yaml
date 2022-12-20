@@ -167,7 +167,10 @@ Resources:
           ) 
           , btm_transactions_harmonised AS (
              SELECT
-               t.*
+               t.client_id
+             , t.event_id
+             , t.event_name
+             , t.timestamp
              , c.vendor_name
              , c.service_name
              , r.unit_price transaction_price
