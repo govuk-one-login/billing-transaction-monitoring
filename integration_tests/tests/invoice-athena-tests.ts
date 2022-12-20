@@ -34,9 +34,9 @@ describe("\nExecute athena query to retrive invoice data and validate it matches
     const queryString = `SELECT * FROM "btm_billing_standardised" ORDER BY service_name ASC`;
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const strFromQuery = await queryObject(queryId);
-    const queryObjects = Object.keys(strFromQuery)
+    const queryObjects = Object.values(strFromQuery)
     const s3Array = await s3GetObjectsToArray(bucketName, folderPrefix);
-    const s3Objects = Object.keys(s3Array);
+    const s3Objects = Object.values(s3Array);
     expect(s3Objects).toEqual(queryObjects);
   });
 
