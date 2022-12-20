@@ -33,11 +33,11 @@ describe("\nExecute athena query to retrive invoice data and validate it matches
   test("retrieved invoice details should matches with invoice data in s3 bucket ", async () => {
     const queryString = `SELECT * FROM "btm_billing_standardised" ORDER BY service_name ASC`;
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
-    const strFromQuery = await queryObject(queryId);
-    const queryObjects = Object.values(strFromQuery)
+    const queryObj = await queryObject(queryId);
+    const queryObjectsVal = Object.values(queryObj)
     const s3Array = await s3GetObjectsToArray(bucketName, folderPrefix);
-    const s3Objects = Object.values(s3Array);
-    expect(s3Objects).toEqual(queryObjects);
+    const s3ObjectsVal = Object.values(s3Array);
+    expect(s3ObjectsVal).toEqual(queryObjectsVal);
   });
 
   test("retrieved view query results should matches with s3", async () => {
