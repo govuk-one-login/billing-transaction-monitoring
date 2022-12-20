@@ -38,7 +38,7 @@ describe("\nExecute athena query to retrive invoice data and validate it matches
       (val) => strFromQuery[val]
     );
     const s3Array = await s3GetObjectsToArray(bucketName, folderPrefix);
-    const s3Objects = Object.keys(s3Array).map((val) => strFromQuery[val]);
+    const s3Objects = Object.keys(s3Array).map((val) => s3Array[val]);
     expect(s3Objects).toEqual(queryObjects);
   });
 
