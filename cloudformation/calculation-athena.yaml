@@ -177,9 +177,15 @@ Resources:
              , "date_format"(timestamp, '%m') month
              , "date_format"(timestamp, '%Y') year
              FROM
-               ((btm_transactions_standardised_with_count t
-             LEFT JOIN "btm_vendor_service_standardised" c ON (t.event_name = c.event_name) AND (t.client_id = c.client_id))
-             LEFT JOIN "standardised_rates_with_end" r ON (((t.event_name = r.service_name) AND (t.client_id = c.client_id) AND (t.month_event_count BETWEEN r.volumes_from AND r.volumes_to)) AND (t.timestamp BETWEEN TRY_CAST(r.effective_from AS date) AND TRY_CAST(r."end" AS date))))
+               btm_transactions_standardised_with_count t
+             LEFT JOIN "btm_vendor_service_standardised" c
+              ON (t.event_name = c.event_name)
+              AND (t.client_id = c.client_id)
+             LEFT JOIN "standardised_rates_with_end" r
+              ON (c.service_name = r.service_name)
+              AND (t.client_id = c.client_id)
+              AND (t.month_event_count BETWEEN r.volumes_from AND COALESCE(r.volumes_to, 999999))
+              AND (t.timestamp BETWEEN TRY_CAST(r.effective_from AS date) AND TRY_CAST(r."end" AS date))
           ) 
           SELECT
             "max"(vendor_name) vendor_name
