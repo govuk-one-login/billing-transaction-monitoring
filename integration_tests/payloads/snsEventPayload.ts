@@ -93,5 +93,5 @@ export {
   snsEventMissingTimestampPayload,
   snsEventWithAdditionalFieldsPayload,
   snsMissingEventNamePayload,
-  snsEventMisisingEventIdValue,
+  snsEventMisisingEventIdValue,generateRandomNumber
 };
