@@ -7,13 +7,14 @@ import {
   CopyObjectCommand,
   HeadObjectCommand,
   HeadObjectCommandOutput,
+  PutObjectCommandOutput,
+  PutObjectCommandInput,
 } from "@aws-sdk/client-s3";
-import { ReadStream } from "fs";
 
 async function getS3ItemsList(bucketName: string, prefix?: string) {
   const bucketParams = {
     Bucket: bucketName,
-    Prefix: prefix
+    Prefix: prefix,
   };
   const data = await s3Client.send(new ListObjectsCommand(bucketParams));
   return data;
@@ -33,8 +34,8 @@ async function getS3Object(bucketName: string, key: string) {
 async function putObjectToS3(
   bucketName: string,
   key: string,
-  body: ReadStream
-) {
+  body: PutObjectCommandInput["Body"]
+): Promise<PutObjectCommandOutput> {
   const bucketParams = {
     Bucket: bucketName,
     Key: key,

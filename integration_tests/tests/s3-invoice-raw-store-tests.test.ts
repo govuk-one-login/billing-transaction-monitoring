@@ -10,6 +10,7 @@ import path from "path";
 import fs from "fs";
 import { resourcePrefix } from "../helpers/envHelper";
 import { waitForTrue } from "../helpers/commonHelpers";
+import { orchestrator } from "../helpers/mock-data/invoice";
 
 const testStartTime = new Date();
 const prefix = resourcePrefix();
@@ -130,5 +131,11 @@ describe("\n Unappy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket
       "failed/" + rawinvoiceBucketKey
     );
     console.log("deleted the file from s3");
+  });
+});
+
+describe("TEMP::mock-maker", () => {
+  it("TEMP::mocks", async () => {
+    await orchestrator();
   });
 });
