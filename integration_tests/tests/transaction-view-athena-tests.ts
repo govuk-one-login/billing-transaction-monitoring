@@ -17,11 +17,12 @@ const databaseName = `${prefix}-calculations`;
 let details: any = [];
 
 describe("\nExecute athena query to retrive transaction data\n", () => {
-  test("price retrived from billing_curated athena view should matches with expected calculated price for 2 events", async () => {
+  test.only("price retrived from billing_curated athena view should matches with expected calculated price for 2 events", async () => {
     const expectedCalculatedPrice = 2 * 6.5; //fake_prices.csv indicates these should be charged at £6.50 each
     await generateTestEventsAndValidateEventExists(2,"IPV_PASSPORT_CRI_REQUEST_SENT","client3");
     const queryResults = await executeTransactionCuretedQuery();
-    await deletS3Event();
+    expect(expectedCalculatedPrice).toEqual(queryResults)
+   await deletS3Event();
   });
 
   test("price retrived from billing_curated athena view should matches with expected calculated price for 7 events", async () => {
@@ -38,7 +39,7 @@ describe("\nExecute athena query to retrive transaction data\n", () => {
     await deletS3Event();
   });
 
-  test.only("should retrive  empty results upon executing billing_curated athena view query when the event payload has invalid eventName", async () => {
+  test("should retrive  empty results upon executing billing_curated athena view query when the event payload has invalid eventName", async () => {
     await generateTestEventsAndValidateEventExists(1,"IPV_KBV_CRI_THIRD_PARTY_REQUEST_ENDED","client4");
     const queryResults = await executeTransactionCuretedQuery();
      expect(queryResults.length).not.toBeGreaterThan(0)
@@ -64,13 +65,13 @@ async function generateTestEventsAndValidateEventExists(numberOfTestEvents: numb
         return false;
       }
     };
-    const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
+    const eventIdExists = await waitForTrue(checkEventId, 1000, 10000);
     expect(eventIdExists).toBeTruthy();
   }
 }
 
 async function executeTransactionCuretedQuery() {
-  const curatedQueryString = `SELECT * FROM "btm_transaction_curated"`;
+  const curatedQueryString = `SELECT * FROM "btm_transactions_curated"`;
   const crated_queryId = await startQueryExecutionCommand(
     databaseName,
     curatedQueryString
@@ -78,21 +79,15 @@ async function executeTransactionCuretedQuery() {
   const curatedObjects = await queryObject(crated_queryId);
   const curatedQueryObjects = curatedObjects.map(
     (element: {
-      vendor_name: string;
-      service_name: string;
       price: number;
-      quantity: number;
-      month: string;
-      year: string;
     }) => {
       return {
-        price: element.price,
-        vendor_name: element.vendor_name,
+        price: element.price
       };
     }
   );
-  console.log(curatedQueryObjects);
-  return curatedQueryObjects;
+  console.log(curatedQueryObjects[0].price);
+  return curatedQueryObjects[0].price;
 }
 
 const deletS3Event = async () => {
