@@ -40,7 +40,7 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
     const deleteFileAfterTest = async () => {
       const result = await getS3ItemsList(bucketName, "successful");
       if (
-        result.Contents?.filter((t) => t.Key?.includes(path))
+        (result.Contents?.filter((t) => t.Key?.includes(path))) != null
       ) {
         await deleteObjectInS3(
           bucketName,

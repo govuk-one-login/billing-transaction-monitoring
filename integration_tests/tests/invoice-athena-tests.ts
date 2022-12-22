@@ -21,7 +21,7 @@ describe("\nExecute athena query to retrive invoice data and validate it matches
   const databaseName = `${prefix}-invoices`;
 
   beforeAll(async () => {
-    //uploading file to s3 will be removed once BTM-276 implemented
+    // uploading file to s3 will be removed once BTM-276 implemented
     const file = "../payloads/receipt.txt";
     const filePath = path.join(__dirname, file);
     const fileStream = fs.createReadStream(filePath);

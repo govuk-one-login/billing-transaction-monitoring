@@ -13,7 +13,6 @@ import { makeMockInvoicePDF } from "../helpers/mock-data/invoice";
 import { writeInvoiceToS3 } from "../helpers/mock-data/writers";
 import { randomInvoice } from "../helpers/mock-data/random";
 
-
 const prefix = resourcePrefix();
 const rawinvoiceBucketName = `${prefix}-raw-invoice-pdf`;
 
@@ -34,20 +33,19 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
         const result = await getS3ItemsList(
           `${prefix}-raw-invoice-textract-data`
         );
-        
-        
+
         if (result.Contents === undefined) {
           return false;
         }
 
-
         const s3ContentsFilteredByTestStartTime = result.Contents?.filter(
           (item) => {
-           return item.LastModified !== undefined &&
-           
-            item.LastModified >= testStartTime
-          
-          });
+            return (
+              item.LastModified !== undefined &&
+              item.LastModified >= testStartTime
+            );
+          }
+        );
         console.log("Filtered contents:", s3ContentsFilteredByTestStartTime);
         if (s3ContentsFilteredByTestStartTime.length === 0) {
           return false;
@@ -65,7 +63,7 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
       1000,
       21000
     );
-    console.log(textractFilteredObject)
+    console.log(textractFilteredObject);
     expect(textractFilteredObject).toBeTruthy();
 
     const isFileMovedToSuccessfulFolder = async (): Promise<boolean> => {
@@ -74,7 +72,6 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
         return false;
       }
       return result.Contents.some((t) => t.Key?.includes(path));
- 
     };
     const originalFileExistsInSuccessfulFolder = await waitForTrue(
       isFileMovedToSuccessfulFolder,
