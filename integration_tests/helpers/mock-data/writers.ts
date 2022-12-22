@@ -16,10 +16,11 @@ export const writeInvoiceToS3 = async (
   };
 };
 
+// This is just for testing the invoice creation during dev
 // eslint-disable-next-line @typescript-eslint/promise-function-async
 export const writeInvoiceToDisk = (file: ArrayBuffer): Promise<void> =>
   new Promise((resolve, reject) => {
-    writeFile("./pdf.pdf", new DataView(file), (err) => {
+    writeFile("./invoice.pdf", new DataView(file), (err) => {
       if (err !== null) return reject(err);
       resolve();
     });

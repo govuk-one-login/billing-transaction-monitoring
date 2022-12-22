@@ -1,38 +1,8 @@
 import JSPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { writeInvoiceToDisk } from "./writer";
-import placeNames from "./place-names.json";
-import streetTypes from "./street-types.json";
+import { InvoiceData } from "./types";
 
-interface LineItem {
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  vat: number;
-  subtotal: number;
-}
-
-interface Vendor {
-  name: string;
-  address: string[];
-  vatNumber: string;
-}
-
-interface Customer {
-  name: string;
-  address: string[];
-}
-
-interface InvoiceData {
-  vendor: Vendor;
-  customer: Customer;
-  date: Date;
-  dueDate: Date;
-  invoiceNumber: string;
-  lineItems: LineItem[];
-}
-
-class Invoice {
+export class Invoice {
   constructor(invoice: InvoiceData) {
     this.vendor = invoice.vendor;
     this.customer = invoice.customer;
@@ -54,103 +24,34 @@ class Invoice {
   }
 
   getTotal(): number {
-    return this.lineItems.reduce((acc, cur) => acc + cur.subtotal, 0);
+    return this.lineItems.reduce((acc, cur) => acc + cur.subtotal + cur.vat, 0);
   }
 }
 
-const randomLetter = (): string => {
-  return Math.ceil(10 + Math.random() * 25).toString(36);
-};
-
-const randomString = (length: number): string => {
-  return new Array(length)
-    .fill(null)
-    .reduce<string>((acc) => acc + randomLetter(), "");
-};
-
-const randomStreetType = (): string => {
-  return streetTypes[Math.floor(Math.random() * streetTypes.length)];
-};
-
-const randomName = (): string => {
-  return placeNames[Math.floor(Math.random() * placeNames.length)];
-};
-
-const randomPostcode = (): string => {
-  return `${randomLetter()}${randomLetter()}${Math.floor(
-    1 + Math.random() * 8
-  )} ${Math.floor(
-    1 + Math.random() * 8
-  )}${randomLetter()}${randomLetter()}`.toUpperCase();
-};
-
-const randomAddress = (): string[] => {
-  return [
-    `${Math.floor(Math.random() * 100)} ${randomName()}`,
-    `${randomName()} ${randomStreetType()}`,
-    randomName(),
-    randomPostcode(),
-  ];
-};
-
-const randomVendor = (): Vendor => {
-  return {
-    name: randomName(),
-    vatNumber: `GB${Math.floor(Math.random() * 1_000_000_000)}`,
-    address: randomAddress(),
-  };
-};
-
-const randomCustomer = (): Customer => {
-  return {
-    name: randomName(),
-    address: randomAddress(),
-  };
-};
-
-const randomLineItem = (): LineItem => {
-  const priceTier = [
-    { min: 0, max: 5, unitPrice: 6.5 },
-    { min: 6, max: 10, unitPrice: 0.25 },
-    { min: 10, unitPrice: 8.88 },
-  ][Math.floor(Math.random() * 3)]; // These match fake-prices.csv
-  const quantity =
-    priceTier.min + Math.floor(Math.random() * (priceTier.max ?? 20));
-  const subtotal = quantity * priceTier.unitPrice;
-  return {
-    description: "Verification of sentience via address checking mechanism", // should match IPV_ADDRESS_CRI_END from fake-vendor-services.csv
-    vat: 0.2 * subtotal,
-    quantity,
-    unitPrice: priceTier.unitPrice,
-    subtotal,
-  };
-};
-
-const randomLineItems = (quantity: number): LineItem[] => {
-  return new Array(quantity).fill(null).map(randomLineItem);
-};
-
-export const randomInvoice = (): Invoice => {
-  return new Invoice({
-    vendor: randomVendor(),
-    customer: randomCustomer(),
-    date: new Date(),
-    invoiceNumber: `${randomString(3)}-${Math.floor(
-      Math.random() * 1_000_000_000
-    )}`,
-    dueDate: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-    lineItems: randomLineItems(10),
-  });
-};
-
-export const makeInvoicePDF =
+export const makeMockInvoicePDF =
   <TWriteOutput>(writeOutput: (file: ArrayBuffer) => Promise<TWriteOutput>) =>
   async (invoice: Invoice): Promise<TWriteOutput> => {
     const doc = new JSPDF({
       unit: "cm",
     });
 
+    doc.setFontSize(24);
+    doc.text(`Tax Invoice`, 2, 2);
+
+    doc.setFontSize(8);
+    invoice.customer.address.forEach((line, i) => {
+      doc.text(line, 2, 3 + i / 2);
+    });
+    invoice.vendor.address.forEach((line, i) => {
+      doc.text(line, 16, 2 + i / 2);
+    });
+    doc.text(`Invoice Number:\n${invoice.invoiceNumber}`, 12, 2);
+    doc.text(`Invoice Date:\n${invoice.date.toLocaleString("en-GB")}`, 12, 3);
+    doc.text(`Due Date:\n${invoice.dueDate.toLocaleString("en-GB")}`, 12, 4);
+    doc.text(`VAT Number:\n${invoice.vendor.vatNumber}`, 12, 5);
+
     autoTable(doc, {
+      startY: 8,
       head: [["Description", "Quantity", "Unit Price", "VAT", "Amount"]],
       body: invoice.lineItems.map((lineItem) => [
         lineItem.description,
@@ -188,7 +89,3 @@ export const makeInvoicePDF =
 
     return output;
   };
-
-export const orchestrator = async (): Promise<void> => {
-  await makeInvoicePDF(writeInvoiceToDisk)(randomInvoice());
-};
