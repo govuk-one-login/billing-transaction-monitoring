@@ -108,7 +108,14 @@ Resources:
         Parameters:
           has_encrypted_data: true
           storage.location.template:
-            !Join ['', ['s3://', !Ref ConfigBucket, '/vendor_services/vendor-services.csv']]
+            !Join [
+              '',
+              [
+                's3://',
+                !Ref ConfigBucket,
+                '/vendor_services/vendor-services.csv',
+              ],
+            ]
         StorageDescriptor:
           Columns:
             - Name: vendor_name
@@ -125,7 +132,8 @@ Resources:
               Type: string
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Join ['', ['s3://', !Ref ConfigBucket, '/vendor_services/']]
+          Location:
+            !Join ['', ['s3://', !Ref ConfigBucket, '/vendor_services/']]
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
@@ -185,7 +193,7 @@ Resources:
                   ON (t.event_name = r.event_name)
                   AND (t.client_id = r.client_id)
                   AND (t.month_event_count BETWEEN r.volumes_from AND COALESCE(r.volumes_to, 999999))
-                  AND (t.timestamp BETWEEN TRY_CAST(r.effective_from AS date) AND TRY_CAST(r."end" AS date)))
+                  AND (t.timestamp BETWEEN r.effective_from AND r."end"))
           ) 
           SELECT
             "max"(vendor_name) vendor_name
