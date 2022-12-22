@@ -154,14 +154,16 @@ Resources:
             standardised_rates_with_max_date AS (
              SELECT
                *
-             , (CAST("lead"(effective_from, 1, "from_iso8601_timestamp"('2049-12-31')) OVER (PARTITION BY client_id, event_name ORDER BY client_id ASC, event_name ASC, effective_from ASC) AS date) - INTERVAL  '1' DAY) "end_max"
+             , (CAST("lead"(effective_from, 1, "from_iso8601_timestamp"('2049-12-31')) 
+                OVER (PARTITION BY client_id, event_name ORDER BY client_id ASC, event_name ASC, effective_from ASC) AS date) - INTERVAL '1' DAY) "end_max"
              FROM
                "btm_rates_standardised"
           ) 
           , standardised_rates_with_end AS (
              SELECT
                *
-             , "max"(end_max) OVER (PARTITION BY client_id, event_name, effective_from) "end"
+             , "max"(end_max) 
+                OVER (PARTITION BY client_id, event_name, effective_from) "end"
              FROM
                standardised_rates_with_max_date
           ) 
@@ -169,7 +171,9 @@ Resources:
              SELECT
                *
              , "$path" path
-             , "count"(event_id) OVER (PARTITION BY event_name, client_id, "date_trunc"('month', timestamp) ORDER BY "date_trunc"('month', timestamp) ASC) month_event_count
+             , "count"(event_id) 
+                OVER (PARTITION BY event_name, client_id, "date_trunc"('month', timestamp) 
+                ORDER BY "date_trunc"('month', timestamp) ASC) month_event_count
              FROM
                "btm_transactions_standardised"
           ) 
@@ -192,7 +196,7 @@ Resources:
                  LEFT JOIN "standardised_rates_with_end" r
                   ON (t.event_name = r.event_name)
                   AND (t.client_id = r.client_id)
-                  AND (t.month_event_count BETWEEN r.volumes_from AND COALESCE(r.volumes_to, 999999))
+                  AND (t.month_event_count BETWEEN r.volumes_from AND COALESCE(r.volumes_to, 9999999))
                   AND (t.timestamp BETWEEN r.effective_from AND r."end"))
           ) 
           SELECT
