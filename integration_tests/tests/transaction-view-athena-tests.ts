@@ -15,7 +15,7 @@ import {
 const prefix = resourcePrefix();
 const objectsPrefix = "btm_transactions";
 const databaseName = `${prefix}-calculations`;
-const details: any = [];
+const details: string[] = [];
 
 describe("\nExecute athena query to retrive transaction data\n", () => {
   test("price retrived from billing_curated athena view should matches with expected calculated price for 2 events", async () => {
@@ -75,7 +75,7 @@ async function generateTestEventsAndValidateEventExists(
     snsValidEventPayload.client_id = clientId;
     await publishSNS(snsValidEventPayload);
 
-    const checkEventId = async () => {
+    const checkEventId = async (): Promise<boolean> => {
       const result = await getS3ItemsList(`${prefix}-storage`, objectsPrefix);
       if (result.Contents !== undefined) {
         return JSON.stringify(result.Contents.map((data) => data.Key)).includes(
@@ -110,7 +110,7 @@ const deletS3Event = async (): Promise<boolean> => {
   for (let i = 0; i < details.length; i++) {
     await deleteObjectInS3(
       bucketName,
-      `btm_transactions/${date}/${details[i]}.json`
+      `btm_transactions/${date}/${details[i]}.json` 
     );
   }
   console.log("deleted the file from s3");
