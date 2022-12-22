@@ -17,44 +17,66 @@ const databaseName = `${prefix}-calculations`;
 let details: any = [];
 
 describe("\nExecute athena query to retrive transaction data\n", () => {
-  test.only("price retrived from billing_curated athena view should matches with expected calculated price for 2 events", async () => {
-    const expectedCalculatedPrice = (2 * 6.50).toPrecision(4); //fake_prices.csv indicates these should be charged at £6.50 each
-    await generateTestEventsAndValidateEventExists(2,"IPV_ADDRESS_CRI_END","client3");
+  test("price retrived from billing_curated athena view should matches with expected calculated price for 2 events", async () => {
+    const expectedCalculatedPrice = (2 * 6.5).toFixed(4); //fake_prices.csv indicates these should be charged at £6.50 each
+    await generateTestEventsAndValidateEventExists(
+      2,
+      "IPV_ADDRESS_CRI_END",
+      "client3"
+    );
     const queryResults = await getQueryResults();
-    expect(expectedCalculatedPrice).toEqual(queryResults[0].price)
-    await deletS3Event();
+    expect(expectedCalculatedPrice).toEqual(queryResults[0].price);
   });
 
   test("price retrived from billing_curated athena view should matches with expected calculated price for 7 events", async () => {
-    const expectedCalculatedPrice = (7 * 0.25).toPrecision(4); //fake_prices.csv indicates these should be charged at £0.25 each
-    await generateTestEventsAndValidateEventExists(7,"IPV_ADDRESS_CRI_END","client3");
+    const expectedCalculatedPrice = (7 * 0.25).toFixed(4); //fake_prices.csv indicates these should be charged at £0.25 each
+    await generateTestEventsAndValidateEventExists(
+      7,
+      "IPV_ADDRESS_CRI_END",
+      "client3"
+    );
     const queryResults = await getQueryResults();
-    expect(expectedCalculatedPrice).toEqual(queryResults[0].price)
-    await deletS3Event();
+    expect(expectedCalculatedPrice).toEqual(queryResults[0].price);
   });
 
   test("price retrived from billing_curated athena view should matches with expected calculated price for 14 events", async () => {
-    const expectedCalculatedPrice = (14 * 8.88).toPrecision(4); //fake_prices.csv indicates these should be charged at £8.88 each
-    await generateTestEventsAndValidateEventExists(14,"IPV_ADDRESS_CRI_END","client3");
+    const expectedCalculatedPrice = (14 * 8.88).toFixed(4); //fake_prices.csv indicates these should be charged at £8.88 each
+    await generateTestEventsAndValidateEventExists(
+      14,
+      "IPV_ADDRESS_CRI_END",
+      "client3"
+    );
     const queryResults = await getQueryResults();
-    expect(expectedCalculatedPrice).toEqual(queryResults[0].price)
-    await deletS3Event();
+    expect(expectedCalculatedPrice).toEqual(queryResults[0].price);
   });
 
   test("should retrive  empty results upon executing billing_curated athena view query when the event payload has clientId, eventName not exists in fake-vendor-services.csv", async () => {
-    await generateTestEventsAndValidateEventExists(1,"IPV_KBV_CRI_THIRD_PARTY_REQUEST_ENDED","client4");
+    await generateTestEventsAndValidateEventExists(
+      1,
+      "IPV_KBV_CRI_THIRD_PARTY_REQUEST_ENDED",
+      "client4"
+    );
     const queryResults = await getQueryResults();
-    expect(queryResults.length).not.toBeGreaterThan(0)
+    expect(queryResults.length).not.toBeGreaterThan(0);
+  });
+
+  afterEach(async () => {
+    await deletS3Event();
+    console.log("Deleted s3 events after each test");
   });
 });
 
-async function generateTestEventsAndValidateEventExists(numberOfTestEvents: number,eventName:string,clientId:string): Promise<void> {
+async function generateTestEventsAndValidateEventExists(
+  numberOfTestEvents: number,
+  eventName: string,
+  clientId: string
+): Promise<void> {
   for (let i = 0; i < numberOfTestEvents; i++) {
     snsValidEventPayload.event_name = eventName;
     snsValidEventPayload.event_id = generateRandomNumber();
     details.push(snsValidEventPayload.event_id); // storing event_ids in array to delete from s3 later on
     snsValidEventPayload.client_id = clientId;
-    await publishSNS(snsValidEventPayload); 
+    await publishSNS(snsValidEventPayload);
 
     const checkEventId = async () => {
       const result = await getS3ItemsList(`${prefix}-storage`, objectsPrefix);
@@ -80,15 +102,11 @@ async function getQueryResults() {
   );
   const results = await queryObject(crated_queryId);
   const queryResults = results.map(
-    (element: {
-      vendor_name:string
-      price: number;
-      quantity:number
-    }) => {
+    (element: { vendor_name: string; price: number; quantity: number }) => {
       return {
-        vendor_name:element.vendor_name,
-        price:element.price,
-        quantity:element.quantity
+        vendor_name: element.vendor_name,
+        price: element.price,
+        quantity: element.quantity,
       };
     }
   );
