@@ -17,25 +17,25 @@ const databaseName = `${prefix}-calculations`;
 let details: any = [];
 
 describe("\nExecute athena query to retrive transaction data\n", () => {
-  test("price retrived from billing_curated athena view should matches with expected calculated price for 2 events", async () => {
-    const expectedCalculatedPrice = (2 * 6.5).toPrecision(5); //fake_prices.csv indicates these should be charged at £6.50 each
-    await generateTestEventsAndValidateEventExists(2,"IPV_PASSPORT_CRI_REQUEST_SENT","client3");
+  test.only("price retrived from billing_curated athena view should matches with expected calculated price for 2 events", async () => {
+    const expectedCalculatedPrice = (2 * 6.50).toPrecision(4); //fake_prices.csv indicates these should be charged at £6.50 each
+    await generateTestEventsAndValidateEventExists(2,"IPV_ADDRESS_CRI_END","client3");
     const queryResults = await getQueryResults();
     expect(expectedCalculatedPrice).toEqual(queryResults[0].price)
     await deletS3Event();
   });
 
   test("price retrived from billing_curated athena view should matches with expected calculated price for 7 events", async () => {
-    const expectedCalculatedPrice = (7 * 0.25).toPrecision(5); //fake_prices.csv indicates these should be charged at £0.25 each
-    await generateTestEventsAndValidateEventExists(7,"IPV_PASSPORT_CRI_REQUEST_SENT","client3");
+    const expectedCalculatedPrice = (7 * 0.25).toPrecision(4); //fake_prices.csv indicates these should be charged at £0.25 each
+    await generateTestEventsAndValidateEventExists(7,"IPV_ADDRESS_CRI_END","client3");
     const queryResults = await getQueryResults();
     expect(expectedCalculatedPrice).toEqual(queryResults[0].price)
     await deletS3Event();
   });
 
   test("price retrived from billing_curated athena view should matches with expected calculated price for 14 events", async () => {
-    const expectedCalculatedPrice = (14 * 8.88).toPrecision(5); //fake_prices.csv indicates these should be charged at £8.88 each
-    await generateTestEventsAndValidateEventExists(14,"IPV_PASSPORT_CRI_REQUEST_SENT","client3");
+    const expectedCalculatedPrice = (14 * 8.88).toPrecision(4); //fake_prices.csv indicates these should be charged at £8.88 each
+    await generateTestEventsAndValidateEventExists(14,"IPV_ADDRESS_CRI_END","client3");
     const queryResults = await getQueryResults();
     expect(expectedCalculatedPrice).toEqual(queryResults[0].price)
     await deletS3Event();
