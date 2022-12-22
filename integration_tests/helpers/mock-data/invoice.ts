@@ -183,7 +183,7 @@ export const makeInvoicePDF =
         ],
       ],
     });
-
+    doc.text(`Invoice number: ${invoice.invoiceNumber}`, 2, 20);
     const output = await writeOutput(doc.output("arraybuffer"));
 
     return output;
