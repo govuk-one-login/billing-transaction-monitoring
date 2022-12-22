@@ -1,7 +1,11 @@
-function resourcePrefix(): string {
-  return `di-btm${
+const resourcePrefix = (): string =>
+  `di-btm${
     process.env.ENV_NAME !== undefined ? "-" + process.env.ENV_NAME : ""
   }`;
-}
 
-export { resourcePrefix };
+const configStackName = (): string =>
+  `di-btm-config-${
+    process.env.CONFIG_NAME !== undefined ? process.env.CONFIG_NAME : "dev"
+  }`;
+
+export { resourcePrefix, configStackName };

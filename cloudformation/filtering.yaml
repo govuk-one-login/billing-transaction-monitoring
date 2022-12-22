@@ -61,11 +61,7 @@ Resources:
             Queue:
               !If [
                 IsHigherEnv,
-                !FindInMap [
-                  Environments,
-                  !Ref Environment,
-                  TransactionInputQueueArn,
-                ],
+                '{{resolve:ssm:${ConfigStack}-${Environment}-transaction-input-queue-arn}}',
                 !GetAtt FilterQueue.Arn,
               ]
       Environment:
@@ -85,11 +81,7 @@ Resources:
               Resource:
                 !If [
                   IsHigherEnv,
-                  !FindInMap [
-                    Environments,
-                    !Ref Environment,
-                    TransactionInputQueueArn,
-                  ],
+                  '{{resolve:ssm:${ConfigStack}-${Environment}-transaction-input-queue-arn}}',
                   !GetAtt FilterQueue.Arn,
                 ]
             - Effect: Allow
@@ -105,11 +97,7 @@ Resources:
                 - !GetAtt KmsKey.Arn
                 - !If [
                     IsHigherEnv,
-                    !FindInMap [
-                      Environments,
-                      !Ref Environment,
-                      TransactionInputKMSKeyArn,
-                    ],
+                    '{{resolve:ssm:${ConfigStack}-${Environment}-transaction-input-kms-key-arn}}',
                     !Ref AWS::NoValue,
                   ]
       ReservedConcurrentExecutions: 10

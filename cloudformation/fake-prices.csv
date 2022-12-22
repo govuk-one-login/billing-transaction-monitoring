@@ -1,9 +1,0 @@
-client_id,service_name,volumes_from,volumes_to,unit_price,effective_from
-client1,transaction_type_1,0,,1.00,2022-01-01
-client2,transaction_type_1,0,,2.00,2022-01-01
-client2,transaction_type_2,0,,3.99,2022-01-01
-client3,transaction_type_3,0,10,4.00,2022-01-01
-client3,transaction_type_3,11,,0.50,2022-01-01
-client4,transaction_type_4,0,5,6.50,2022-01-01
-client4,transaction_type_4,6,10,0.25,2022-01-01
-client4,transaction_type_4,11,,8.88,2022-01-01

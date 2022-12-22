@@ -174,13 +174,11 @@ npm run sam:deploy
 `npm run test:integration` should automatically run against your own env as long as the env-variable `ENV_NAME` is
 properly set and exported.
 
-To run the texract function integration test
+In rare cases you might want to run the integration tests against a different config stack. You can then export the
+`CONFIG_NAME` env-variable before running the tests and it should use a config-stack with the name
+`di-btm-config-${CONFIG_NAME}` instead of the default config-stack `di-btm-config-dev`.
 
-The test invoice file needs to be manually uploaded into test S3 bucket (ENV_NAME-test-invoice-pdf) with name Invoice.pdf
-
-When deploying to the production environment for the first time or updating real expected supplier transaction prices,
-the price file needs to be manually uploaded into config S3 bucket di-btm-production-config-bucket in the prices folder
-with name prices.csv
+### Alerts in ephemeral environments
 
 After deploying to any environment for the first time, if you want to receive alerts about errors, manually create a
 CloudFormation stack in the Amazon Web Services console with `alert-chatbot-template.yaml` and the parameters for the
