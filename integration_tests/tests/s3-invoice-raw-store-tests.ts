@@ -9,12 +9,9 @@ import path from "path";
 import fs from "fs";
 import { resourcePrefix } from "../helpers/envHelper";
 import { waitForTrue } from "../helpers/commonHelpers";
-import {
-  makeInvoicePDF,
-  orchestrator,
-  randomInvoice,
-} from "../helpers/mock-data/invoice";
-import { writeInvoiceToS3 } from "../helpers/mock-data/writer";
+import { makeMockInvoicePDF } from "../helpers/mock-data/invoice";
+import { writeInvoiceToS3 } from "../helpers/mock-data/writers";
+import { randomInvoice } from "../helpers/mock-data/random";
 
 
 const prefix = resourcePrefix();
@@ -24,7 +21,7 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
   test("raw-invoice-textract-data bucket should contain textract data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
     const testStartTime = new Date();
     const invoice = randomInvoice();
-    const { bucketName, path } = await makeInvoicePDF(writeInvoiceToS3)(
+    const { bucketName, path } = await makeMockInvoicePDF(writeInvoiceToS3)(
       invoice
     );
 
@@ -128,11 +125,5 @@ describe("\n Unappy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket
       "failed/" + rawinvoiceBucketKey
     );
     console.log("deleted the file from s3");
-  });
-});
-
-describe("TEMP::mock-maker", () => {
-  it("TEMP::mocks", async () => {
-    await orchestrator();
   });
 });
