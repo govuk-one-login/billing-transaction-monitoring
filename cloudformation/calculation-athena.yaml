@@ -75,7 +75,7 @@ Resources:
           Columns:
             - Name: client_id
               Type: string
-            - Name: service_name
+            - Name: event_name
               Type: string
             - Name: volumes_from
               Type: int
@@ -146,14 +146,14 @@ Resources:
             standardised_rates_with_max_date AS (
              SELECT
                *
-             , (CAST("lead"(effective_from, 1, "from_iso8601_timestamp"('2049-12-31')) OVER (PARTITION BY client_id, service_name ORDER BY client_id ASC, service_name ASC, effective_from ASC) AS date) - INTERVAL  '1' DAY) "end_max"
+             , (CAST("lead"(effective_from, 1, "from_iso8601_timestamp"('2049-12-31')) OVER (PARTITION BY client_id, event_name ORDER BY client_id ASC, event_name ASC, effective_from ASC) AS date) - INTERVAL  '1' DAY) "end_max"
              FROM
                "btm_rates_standardised"
           ) 
           , standardised_rates_with_end AS (
              SELECT
                *
-             , "max"(end_max) OVER (PARTITION BY client_id, service_name, effective_from) "end"
+             , "max"(end_max) OVER (PARTITION BY client_id, event_name, effective_from) "end"
              FROM
                standardised_rates_with_max_date
           ) 
@@ -182,8 +182,8 @@ Resources:
                   ON (t.event_name = c.event_name)
                   AND (t.client_id = c.client_id)
                  LEFT JOIN "standardised_rates_with_end" r
-                  ON (c.service_name = r.service_name)
-                  AND (t.client_id = c.client_id)
+                  ON (t.event_name = r.event_name)
+                  AND (t.client_id = r.client_id)
                   AND (t.month_event_count BETWEEN r.volumes_from AND COALESCE(r.volumes_to, 999999))
                   AND (t.timestamp BETWEEN TRY_CAST(r.effective_from AS date) AND TRY_CAST(r."end" AS date)))
           ) 
