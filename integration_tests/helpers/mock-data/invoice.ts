@@ -1,7 +1,8 @@
-import JsPdf from "jspdf";
+import JSPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { writeInvoiceToDisk } from "./writer";
-// import placeNames from "./place-names.json";
+import placeNames from "./place-names.json";
+import streetTypes from "./street-types.json";
 
 interface LineItem {
   description: string;
@@ -11,36 +12,103 @@ interface LineItem {
   subtotal: number;
 }
 
-// interface Invoice {
-//   customerAddress: string[];
-//   companyAddress: string[];
-//   date: Date;
-//   invoiceNumber: string;
-//   reference: string;
-//   vatNumber: string;
-//   dueDate: Date;
-//   lineItems: LineItem[];
-// }
+interface Vendor {
+  name: string;
+  address: string[];
+  vatNumber: string;
+}
 
-// interface Suppliers {
-//   [id: number]: string;
-// }
+interface Customer {
+  name: string;
+  address: string[];
+}
 
-// const randomName = (): string => {
-//   return placeNames[Math.floor(Math.random() * placeNames.length)];
-// };
+interface InvoiceData {
+  vendor: Vendor;
+  customer: Customer;
+  date: Date;
+  dueDate: Date;
+  invoiceNumber: string;
+  lineItems: LineItem[];
+}
 
-// const generateSuppliers = (quantity: number): Suppliers => {
-//   return new Array(quantity).fill(null).reduce<Suppliers>(
-//     (acc, _cur, i) => ({
-//       ...acc,
-//       [i]: randomName(),
-//     }),
-//     {}
-//   );
-// };
+class Invoice {
+  constructor(invoice: InvoiceData) {
+    this.vendor = invoice.vendor;
+    this.customer = invoice.customer;
+    this.date = invoice.date;
+    this.invoiceNumber = invoice.invoiceNumber;
+    this.dueDate = invoice.dueDate;
+    this.lineItems = invoice.lineItems;
+  }
 
-const generateLineItem = (): LineItem => {
+  public vendor;
+  public customer;
+  public date;
+  public invoiceNumber;
+  public dueDate;
+  public lineItems;
+
+  getSubtotal(): number {
+    return this.lineItems.reduce((acc, cur) => acc + cur.subtotal, 0);
+  }
+
+  getTotal(): number {
+    return this.lineItems.reduce((acc, cur) => acc + cur.subtotal, 0);
+  }
+}
+
+const randomLetter = (): string => {
+  return Math.ceil(10 + Math.random() * 25).toString(36);
+};
+
+const randomString = (length: number): string => {
+  return new Array(length)
+    .fill(null)
+    .reduce<string>((acc) => acc + randomLetter(), "");
+};
+
+const randomStreetType = (): string => {
+  return streetTypes[Math.floor(Math.random() * streetTypes.length)];
+};
+
+const randomName = (): string => {
+  return placeNames[Math.floor(Math.random() * placeNames.length)];
+};
+
+const randomPostcode = (): string => {
+  return `${randomLetter()}${randomLetter()}${Math.floor(
+    1 + Math.random() * 8
+  )} ${Math.floor(
+    1 + Math.random() * 8
+  )}${randomLetter()}${randomLetter()}`.toUpperCase();
+};
+
+const randomAddress = (): string[] => {
+  return [
+    `${Math.floor(Math.random() * 100)} ${randomName()}`,
+    `${randomName()} ${randomStreetType()}`,
+    randomName(),
+    randomPostcode(),
+  ];
+};
+
+const randomVendor = (): Vendor => {
+  return {
+    name: randomName(),
+    vatNumber: `GB${Math.floor(Math.random() * 1_000_000_000)}`,
+    address: randomAddress(),
+  };
+};
+
+const randomCustomer = (): Customer => {
+  return {
+    name: randomName(),
+    address: randomAddress(),
+  };
+};
+
+const randomLineItem = (): LineItem => {
   const priceTier = [
     { min: 0, max: 5, unitPrice: 6.5 },
     { min: 6, max: 10, unitPrice: 0.25 },
@@ -58,20 +126,33 @@ const generateLineItem = (): LineItem => {
   };
 };
 
-const generateLineItems = (quantity: number): LineItem[] => {
-  return new Array(quantity).fill(null).map(generateLineItem);
+const randomLineItems = (quantity: number): LineItem[] => {
+  return new Array(quantity).fill(null).map(randomLineItem);
 };
 
-export const makeInvoice =
-  (writeOutput: (file: ArrayBuffer) => Promise<void>) =>
-  async (lineItems: LineItem[]): Promise<void> => {
-    const doc = new JsPdf({
+export const randomInvoice = (): Invoice => {
+  return new Invoice({
+    vendor: randomVendor(),
+    customer: randomCustomer(),
+    date: new Date(),
+    invoiceNumber: `${randomString(3)}-${Math.floor(
+      Math.random() * 1_000_000_000
+    )}`,
+    dueDate: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
+    lineItems: randomLineItems(10),
+  });
+};
+
+export const makeInvoicePDF =
+  <TWriteOutput>(writeOutput: (file: ArrayBuffer) => Promise<TWriteOutput>) =>
+  async (invoice: Invoice): Promise<TWriteOutput> => {
+    const doc = new JSPDF({
       unit: "cm",
     });
 
     autoTable(doc, {
       head: [["Description", "Quantity", "Unit Price", "VAT", "Amount"]],
-      body: lineItems.map((lineItem) => [
+      body: invoice.lineItems.map((lineItem) => [
         lineItem.description,
         lineItem.quantity,
         lineItem.unitPrice.toLocaleString("en-GB", {
@@ -89,29 +170,25 @@ export const makeInvoice =
       ]),
       foot: [
         [
-          `Subtotal: ${lineItems
-            .reduce((acc, cur) => acc + cur.subtotal, 0)
-            .toLocaleString("en-GB", {
-              style: "currency",
-              currency: "gbp",
-            })}`,
+          `Subtotal: ${invoice.getSubtotal().toLocaleString("en-GB", {
+            style: "currency",
+            currency: "gbp",
+          })}`,
         ],
         [
-          `Total: ${lineItems
-            .reduce((acc, cur) => acc + cur.subtotal + cur.vat, 0)
-            .toLocaleString("en-GB", {
-              style: "currency",
-              currency: "gbp",
-            })}`,
+          `Total: ${invoice.getTotal().toLocaleString("en-GB", {
+            style: "currency",
+            currency: "gbp",
+          })}`,
         ],
       ],
     });
 
-    const output = doc.output("arraybuffer");
+    const output = await writeOutput(doc.output("arraybuffer"));
 
-    await writeOutput(output);
+    return output;
   };
 
 export const orchestrator = async (): Promise<void> => {
-  await makeInvoice(writeInvoiceToDisk)(generateLineItems(10));
+  await makeInvoicePDF(writeInvoiceToDisk)(randomInvoice());
 };
