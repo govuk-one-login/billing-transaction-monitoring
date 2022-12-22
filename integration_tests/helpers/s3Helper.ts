@@ -7,11 +7,17 @@ import {
   CopyObjectCommand,
   HeadObjectCommand,
   HeadObjectCommandOutput,
-  PutObjectCommandOutput,
   PutObjectCommandInput,
+  ListObjectsCommandOutput,
+  PutObjectCommandOutput,
+  DeleteObjectCommandOutput,
+  CopyObjectCommandOutput,
 } from "@aws-sdk/client-s3";
 
-async function getS3ItemsList(bucketName: string, prefix?: string) {
+async function getS3ItemsList(
+  bucketName: string,
+  prefix?: string
+): Promise<ListObjectsCommandOutput> {
   const bucketParams = {
     Bucket: bucketName,
     Prefix: prefix,
@@ -20,7 +26,10 @@ async function getS3ItemsList(bucketName: string, prefix?: string) {
   return data;
 }
 
-async function getS3Object(bucketName: string, key: string) {
+async function getS3Object(
+  bucketName: string,
+  key: string
+): Promise<string | undefined> {
   const bucketParams = {
     Bucket: bucketName,
     Key: key,
@@ -28,7 +37,7 @@ async function getS3Object(bucketName: string, key: string) {
   const getObjectResult = await s3Client.send(
     new GetObjectCommand(bucketParams)
   );
-  return getObjectResult.Body?.transformToString();
+  return await getObjectResult.Body?.transformToString();
 }
 
 async function putObjectToS3(
@@ -45,7 +54,10 @@ async function putObjectToS3(
   return response;
 }
 
-async function deleteObjectInS3(bucketName: string, key: string) {
+async function deleteObjectInS3(
+  bucketName: string,
+  key: string
+): Promise<DeleteObjectCommandOutput> {
   const bucketParams = {
     Bucket: bucketName,
     Key: key,
@@ -58,7 +70,7 @@ async function copyObject(
   destinationBucketName: string,
   sourceKey: string,
   destinationKey: string
-) {
+): Promise<CopyObjectCommandOutput> {
   const bucketParams = {
     Bucket: destinationBucketName,
     CopySource: sourceKey,
@@ -70,7 +82,10 @@ async function copyObject(
   return response;
 }
 
-async function checkIfFileExists(bucketName: string, key: string) {
+async function checkIfFileExists(
+  bucketName: string,
+  key: string
+): Promise<boolean> {
   const bucketParams = {
     Bucket: bucketName,
     Key: key,
@@ -87,6 +102,37 @@ async function checkIfFileExists(bucketName: string, key: string) {
   }
 }
 
+async function getAllObjectsFromS3(bucketName: string, prefix: string) {
+  const content = [];
+  const response = await getS3ItemsList(bucketName, prefix);
+  if (response.Contents === undefined) {
+    throw new Error("Invalid results");
+  } else {
+    for (let currentValue of response.Contents) {
+      if (currentValue.Size! > 0) {
+        const res = await getS3Object(bucketName, currentValue.Key!);
+        if (res !== undefined) {
+          content.push(res);
+        }
+      }
+    }
+  }
+
+  return content;
+}
+
+async function s3GetObjectsToArray(bucketName: string, folderPrefix: string) {
+  const s3Response = await getAllObjectsFromS3(bucketName, folderPrefix);
+  const convertS3Repsonse2Str = JSON.stringify(s3Response);
+  const formatS3Str = convertS3Repsonse2Str
+    .replace(/:[^"0-9.]*([0-9.]+)/g, ':\\"$1\\"') //converts digits to string for parsing
+    .replace(/\\n|'/g, "") //removes //n character , single quotes
+    .replace(/}{/g, "},{"); //replace comma in between }{ brackets
+  const data = JSON.parse(formatS3Str);
+  const s3Array = JSON.parse("[" + data["0"] + "]");
+  return s3Array;
+}
+
 export {
   getS3ItemsList,
   getS3Object,
@@ -94,4 +140,6 @@ export {
   deleteObjectInS3,
   copyObject,
   checkIfFileExists,
+  getAllObjectsFromS3,
+  s3GetObjectsToArray,
 };

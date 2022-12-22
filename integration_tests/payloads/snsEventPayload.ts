@@ -1,4 +1,4 @@
-const generateRandomNumber = () => {
+const generateRandomNumber = (): string => {
   return Math.floor(Math.random() * 10000000).toString();
 };
 
@@ -42,7 +42,7 @@ const snsInvalidTimeStampPayload = {
 const snsMissingEventNamePayload = {
   event_id: generateRandomNumber(),
   component_id: "TEST_COMP",
-  timestamp: new Date().getTime(),
+  timestamp: validTimestamp(),
   client_id: "client1",
 };
 
@@ -56,14 +56,14 @@ const snsEventMissingTimestampPayload = {
 const snsEventMissingCompIdPayload = {
   event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
   event_id: generateRandomNumber(),
-  timestamp: new Date().getTime(),
+  timestamp: validTimestamp(),
   client_id: "client1",
 };
 
 const snsMissingEventIdPayload = {
   event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
   component_id: "TEST_COMP",
-  timestamp: new Date().getTime(),
+  timestamp: validTimestamp(),
   client_id: "client1",
 };
 
@@ -71,7 +71,7 @@ const snsEventInvalidCompId = {
   event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
   event_id: generateRandomNumber(),
   component_id: 5678,
-  timestamp: new Date().getTime(),
+  timestamp: validTimestamp(),
   client_id: "client1",
 };
 
@@ -79,7 +79,7 @@ const snsEventMisisingEventIdValue = {
   event_name: "IPV_PASSPORT_CRI_REQUEST_SENT",
   event_id: null,
   component_id: 5678,
-  timestamp: new Date().getTime(),
+  timestamp: validTimestamp(),
   client_id: "client1",
 };
 

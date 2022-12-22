@@ -1,6 +1,5 @@
 import {
   deleteObjectInS3,
-  copyObject,
   checkIfFileExists,
   getS3ItemsList,
   getS3Object,
