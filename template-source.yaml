@@ -3,13 +3,16 @@ Description: CloudFormation template for infrastructure to monitor user identity
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
-  Prefix:
-    Type: String
-    Default: di-btm
   Environment:
     Description: Environment type
     Type: String
     Default: dev
+    AllowedValues:
+      - dev
+      - build
+      - staging
+      - integration
+      - production
   CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
@@ -18,6 +21,10 @@ Parameters:
     Description: ARN of permissions boundary for new roles
     Type: String
     Default: none
+  ConfigStack:
+    Description: Config stack to use for configuration
+    Type: String
+    Default: di-btm-cfg
 
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
@@ -44,29 +51,6 @@ Conditions:
       !Equals [!Ref Environment, integration],
     ]
 
-Mappings:
-  Environments:
-    dev:
-      TransactionInputQueueArn: none
-      TransactionInputDLQArn: none
-      TransactionInputKMSKeyArn: none
-    build:
-      TransactionInputQueueArn: none
-      TransactionInputDLQArn: none
-      TransactionInputKMSKeyArn: none
-    staging:
-      TransactionInputQueueArn: arn:aws:sqs:eu-west-2:178023842775:PublishToBillingSQSQueue-staging
-      TransactionInputDLQArn: arn:aws:sqs:eu-west-2:178023842775:PublishToBillingSQSDLQueue-staging
-      TransactionInputKMSKeyArn: arn:aws:kms:eu-west-2:178023842775:key/a9d351bb-92f6-4209-b821-78f10474b879
-    integration:
-      TransactionInputQueueArn: arn:aws:sqs:eu-west-2:729485541398:PublishToBillingSQSQueue-integration
-      TransactionInputDLQArn: arn:aws:sqs:eu-west-2:729485541398:PublishToBillingSQSDLQueue-integration
-      TransactionInputKMSKeyArn: arn:aws:kms:eu-west-2:729485541398:key/6abc512a-ca28-4a81-8576-ac7f47a92e72
-    production:
-      TransactionInputQueueArn: arn:aws:sqs:eu-west-2:123456789012:PublishToBillingSQSQueue-production
-      TransactionInputDLQArn: arn:aws:sqs:eu-west-2:123456789012:PublishToBillingSQSDLQueue-production
-      TransactionInputKMSKeyArn: arn:aws:kms:eu-west-2:123456789012:key/12345678-1234-1234-1234-123456789012
-
 Globals:
   Function:
     CodeSigningConfigArn:
@@ -83,7 +67,6 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/filtering.yaml,
   ./cloudformation/cleaning.yaml,
   ./cloudformation/transaction-storage.yaml,
-  ./cloudformation/config-store.yaml#NO_LOCAL,
   ./cloudformation/custom-s3-object-resource.yaml#NO_LOCAL,
   ./cloudformation/raw-invoice-textract-data-store.yaml,
   ./cloudformation/raw-invoice-pdf-store.yaml,
