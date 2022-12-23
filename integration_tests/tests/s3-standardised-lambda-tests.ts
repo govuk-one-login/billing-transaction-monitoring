@@ -36,12 +36,11 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
 
     const deleteFileAfterTest = async (): Promise<boolean> => {
       const result = await getS3ItemsList(bucketName, "successful");
-      if (
-        !(result.Contents?.some((t) => t.Key?.includes(path)) ?? false) ??
-        false
-      ) {
-        return false;
-      }
+      const pathIsNotInBucket = !(
+        result.Contents?.some((t) => t.Key?.includes(path)) ?? false
+      );
+      if (pathIsNotInBucket) return false;
+
       await deleteObjectInS3(bucketName, "successful/" + path);
       console.log("deleted the file from s3");
       return true;
