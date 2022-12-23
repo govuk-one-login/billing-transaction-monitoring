@@ -24,7 +24,7 @@ Parameters:
   ConfigStack:
     Description: Config stack to use for configuration
     Type: String
-    Default: di-btm-config
+    Default: di-btm-cfg
 
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]

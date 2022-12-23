@@ -4,7 +4,7 @@ const resourcePrefix = (): string =>
   }`;
 
 const configStackName = (): string =>
-  `di-btm-config-${
+  `di-btm-cfg-${
     process.env.CONFIG_NAME !== undefined ? process.env.CONFIG_NAME : "dev"
   }`;
 

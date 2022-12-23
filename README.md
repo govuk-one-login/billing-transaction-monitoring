@@ -176,7 +176,7 @@ properly set and exported.
 
 In rare cases you might want to run the integration tests against a different config stack. You can then export the
 `CONFIG_NAME` env-variable before running the tests and it should use a config-stack with the name
-`di-btm-config-${CONFIG_NAME}` instead of the default config-stack `di-btm-config-dev`.
+`di-btm-cfg-${CONFIG_NAME}` instead of the default config-stack `di-btm-cfg-dev`.
 
 ### Alerts in ephemeral environments
 
