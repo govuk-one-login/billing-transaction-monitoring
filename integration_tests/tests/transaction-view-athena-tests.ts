@@ -2,14 +2,12 @@ import { resourcePrefix } from "../helpers/envHelper";
 import {
   startQueryExecutionCommand,
   queryObject,
-  formattedQueryResults,
-} from "../helpers/athenaHelper";
+  } from "../helpers/athenaHelper";
 
 import {
   deleteS3Event,
   generateTestEventsAndValidateEventExists,
-  waitForTrue,
-} from "../helpers/commonHelpers";
+  } from "../helpers/commonHelpers";
 import { publishSNS } from "../helpers/snsHelper";
 import { snsInvalidEventNamePayload } from "../payloads/snsEventPayload";
 
@@ -50,7 +48,7 @@ describe("\nExecute athena query to retrive transaction data\n", () => {
     expect(expectedCalculatedPrice).toEqual(response[0].price);
   });
 
-  test.only("no results returned from billing_curated athena view query when the event payload has invalid eventName", async () => {
+  test("no results returned from billing_curated athena view query when the event payload has invalid eventName", async () => {
     await publishSNS(snsInvalidEventNamePayload);
     const queryRes = await queryResults();
     expect(queryRes.length).not.toBeGreaterThan(0);

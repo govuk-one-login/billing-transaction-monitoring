@@ -42,14 +42,13 @@ async function generateTestEventsAndValidateEventExists(
 
     const checkEventId = async (): Promise<boolean> => {
       const result = await getS3ItemsList(`${prefix}-storage`, objectsPrefix);
-      if (result.Contents !== undefined) {
-        return JSON.stringify(result.Contents.map((data) => data.Key)).includes(
-          snsValidEventPayload.event_id
-        );
-      } else {
+      if (result.Contents === undefined) {
         console.log("Storage bucket contents empty");
         return false;
       }
+      return JSON.stringify(result.Contents.map((data) => data.Key)).includes(
+        snsValidEventPayload.event_id
+      );
     };
     const eventIdExists = await waitForTrue(checkEventId, 1000, 10000);
     expect(eventIdExists).toBeTruthy();
