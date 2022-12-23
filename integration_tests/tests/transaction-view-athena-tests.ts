@@ -5,17 +5,21 @@ import {
   formattedQueryResults,
 } from "../helpers/athenaHelper";
 
-import { deleteS3Event, generateTestEventsAndValidateEventExists, waitForTrue } from "../helpers/commonHelpers";
+import {
+  deleteS3Event,
+  generateTestEventsAndValidateEventExists,
+  waitForTrue,
+} from "../helpers/commonHelpers";
 import { publishSNS } from "../helpers/snsHelper";
-import {snsInvalidEventNamePayload} from "../payloads/snsEventPayload";
+import { snsInvalidEventNamePayload } from "../payloads/snsEventPayload";
 
 const prefix = resourcePrefix();
 const databaseName = `${prefix}-calculations`;
 
 describe("\nExecute athena query to retrive transaction data\n", () => {
-  test("price retrived from billing_curated athena view query should matches with expected calculated price for 2 events", async () => {
+  test("price retrived from billing_curated athena view query should match with expected calculated price for 2 events", async () => {
     const expectedCalculatedPrice = (2 * 6.5).toFixed(4); // fake_prices.csv indicates these should be charged at £6.50 each
-   await generateTestEventsAndValidateEventExists(
+    await generateTestEventsAndValidateEventExists(
       2,
       "IPV_ADDRESS_CRI_END",
       "client3"
@@ -24,7 +28,7 @@ describe("\nExecute athena query to retrive transaction data\n", () => {
     expect(expectedCalculatedPrice).toEqual(response[0].price);
   });
 
-  test("price retrived from billing_curated athena view query should matches with expected calculated price for 7 events", async () => {
+  test("price retrived from billing_curated athena view query should match with expected calculated price for 7 events", async () => {
     const expectedCalculatedPrice = (7 * 0.25).toFixed(4); // fake_prices.csv indicates these should be charged at £0.25 each
     await generateTestEventsAndValidateEventExists(
       7,
@@ -35,7 +39,7 @@ describe("\nExecute athena query to retrive transaction data\n", () => {
     expect(expectedCalculatedPrice).toEqual(response[0].price);
   });
 
-  test("price retrived from billing_curated athena view query should matches with expected calculated price for 14 events", async () => {
+  test("price retrived from billing_curated athena view query should match with expected calculated price for 14 events", async () => {
     const expectedCalculatedPrice = (14 * 8.88).toFixed(4); // fake_prices.csv indicates these should be charged at £8.88 each
     await generateTestEventsAndValidateEventExists(
       14,
@@ -47,7 +51,7 @@ describe("\nExecute athena query to retrive transaction data\n", () => {
   });
 
   test.only("no results returned from billing_curated athena view query when the event payload has invalid eventName", async () => {
-     await publishSNS(snsInvalidEventNamePayload);
+    await publishSNS(snsInvalidEventNamePayload);
     const queryRes = await queryResults();
     expect(queryRes.length).not.toBeGreaterThan(0);
   });
@@ -58,7 +62,7 @@ describe("\nExecute athena query to retrive transaction data\n", () => {
   });
 });
 
-async function queryResults(): Promise<Array<{price: number}>> {
+async function queryResults(): Promise<Array<{ price: number }>> {
   const curatedQueryString = `SELECT * FROM "btm_transactions_curated"`;
   const queryId = await startQueryExecutionCommand(
     databaseName,
