@@ -5,11 +5,10 @@ import {
 import { deleteObjectInS3, getS3ItemsList } from "./s3Helper";
 import { publishSNS } from "./snsHelper";
 import { resourcePrefix } from "../helpers/envHelper";
-import { validTimestamp } from '../payloads/snsEventPayload';
 
 const prefix = resourcePrefix();
 const objectsPrefix = "btm_transactions";
-const details: string[] = [];
+
 
 export const waitForTrue = async (
   predicate: Function,
@@ -31,6 +30,7 @@ export const waitForTrue = async (
     setTimeout(() => complete(false), timeoutMS);
   });
 }
+const details: string[] = [];
 
 export const generateTestEvents = async (eventName:string,
   clientId:string): Promise<Object> => {
