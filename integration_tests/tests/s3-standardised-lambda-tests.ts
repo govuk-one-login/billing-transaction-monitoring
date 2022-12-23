@@ -1,5 +1,4 @@
 import {
-  copyObject,
   checkIfFileExists,
   deleteObjectInS3,
   getS3ItemsList,
@@ -8,20 +7,18 @@ import { resourcePrefix } from "../helpers/envHelper";
 import { checkGivenStringExistsInLogs } from "../helpers/cloudWatchHelper";
 import { waitForTrue } from "../helpers/commonHelpers";
 import {
-  makeInvoicePDF,
-  orchestrator,
+  makeMockInvoicePDF,
   randomInvoice,
+  writeInvoiceToS3,
 } from "../helpers/mock-data/invoice";
-import { writeInvoiceToS3 } from "../helpers/mock-data/writer";
 
 const prefix = resourcePrefix();
-
 
 describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => {
   test("standardised-invoice-storage-function should be executed without errors upon uploading the file to s3 raw invoice pdf bucket", async () => {
     const testStartTime = new Date();
     const invoice = randomInvoice();
-    const { bucketName, path } = await makeInvoicePDF(writeInvoiceToS3)(
+    const { bucketName, path } = await makeMockInvoicePDF(writeInvoiceToS3)(
       invoice
     );
 
@@ -37,18 +34,17 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
 
     expect(givenStringExistsInLogs).toBeFalsy();
 
-    const deleteFileAfterTest = async () => {
+    const deleteFileAfterTest = async (): Promise<boolean> => {
       const result = await getS3ItemsList(bucketName, "successful");
       if (
-        (result.Contents?.filter((t) => t.Key?.includes(path))) != null
+        !(result.Contents?.some((t) => t.Key?.includes(path)) ?? false) ??
+        false
       ) {
-        await deleteObjectInS3(
-          bucketName,
-          "successful/" + path
-        );
-        console.log("deleted the file from s3");
-        return true;
+        return false;
       }
+      await deleteObjectInS3(bucketName, "successful/" + path);
+      console.log("deleted the file from s3");
+      return true;
     };
     const fileDeleted = await waitForTrue(deleteFileAfterTest, 1000, 5000);
     expect(fileDeleted).toBeTruthy();
