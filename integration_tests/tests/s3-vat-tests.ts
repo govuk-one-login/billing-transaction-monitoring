@@ -1,13 +1,14 @@
 import { getS3Object } from "../helpers/s3Helper";
-import expectedVat from "../../cloudformation/uk-vat.json";
-import { resourcePrefix } from "../helpers/envHelper";
+import { configStackName } from "../helpers/envHelper";
 
 describe("\n Verify VAT details exists in S3 config bucket\n", () => {
   test("S3 config bucket should contain VAT details matches with expected vat config file ", async () => {
-    const response = await getS3Object(
-      `${resourcePrefix()}-config-bucket`,
-      "uk-vat.json"
-    );
-    expect(response?.replace(/\s/g, "")).toEqual(JSON.stringify(expectedVat));
+    const response = await getS3Object({
+      bucket: configStackName(),
+      key: "uk-vat.json",
+    });
+    expect(JSON.parse(response ?? "")).toEqual([
+      { rate: 0.2, start: "2011-01-04" },
+    ]);
   });
 });

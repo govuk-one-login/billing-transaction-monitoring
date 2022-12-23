@@ -1,7 +1,0 @@
-vendor_name,vendor_regex,client_id,service_name,service_regex,event_name
-Client One,Client.*[One|1],client1,Passport check,Passport.*check,EVENT_1
-Client One,Client.*[One|1],client1,Fraud check,Fraud.*check,EVENT_3
-Client Two,Client.*[Two|2],client2,Passport check,Passport.*check,EVENT_1
-Client Two,Client.*[Two|2],client2,Kbv check,Kbv.*check,EVENT_7
-Client Three,Client.*[Three|3],client3,Passport check,Passport.*check,EVENT_1
-Client Three,Client.*[Three|3],client3,Address check,Address.*check,EVENT_6
