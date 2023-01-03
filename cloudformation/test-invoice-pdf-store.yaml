@@ -3,6 +3,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   TestInvoicePdfBucket:
     Type: AWS::S3::Bucket
+    Condition: IsLowerEnv
     Properties:
       BucketName: !Sub ${AWS::StackName}-test-invoice-pdf
       AccessControl: Private

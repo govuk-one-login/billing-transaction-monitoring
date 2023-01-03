@@ -69,8 +69,7 @@ Resources:
         TableType: EXTERNAL_TABLE
         Parameters:
           has_encrypted_data: true
-          storage.location.template:
-            !Join ['', ['s3://', !Ref ConfigBucket, '/rate_tables/prices.csv']]
+          storage.location.template: !Sub s3://${ConfigStack}-${Environment}/rate_tables/prices.csv
         StorageDescriptor:
           Columns:
             - Name: client_id
@@ -87,7 +86,7 @@ Resources:
               Type: date
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Join ['', ['s3://', !Ref ConfigBucket, '/rate_tables/']]
+          Location: !Sub s3://${ConfigStack}-${Environment}/rate_tables/
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
@@ -107,15 +106,7 @@ Resources:
         TableType: EXTERNAL_TABLE
         Parameters:
           has_encrypted_data: true
-          storage.location.template:
-            !Join [
-              '',
-              [
-                's3://',
-                !Ref ConfigBucket,
-                '/vendor_services/vendor-services.csv',
-              ],
-            ]
+          storage.location.template: !Sub s3://${ConfigStack}-${Environment}/vendor_services/vendor-services.csv
         StorageDescriptor:
           Columns:
             - Name: vendor_name
@@ -132,8 +123,7 @@ Resources:
               Type: string
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location:
-            !Join ['', ['s3://', !Ref ConfigBucket, '/vendor_services/']]
+          Location: !Sub s3://${ConfigStack}-${Environment}/vendor_services/
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
