@@ -18,7 +18,7 @@ describe("\nExecute athena query to retrive invoice data and validate it matches
   const bucketName = `${prefix}-storage`;
   const bucketKey = "btm_billing_standardised/receipt.txt";
   const folderPrefix = "btm_billing_standardised";
-  const databaseName = `${prefix}-invoices`;
+  const databaseName = `${prefix}-calculations`;
 
   beforeAll(async () => {
     //uploading file to s3 will be removed once BTM-276 implemented

@@ -222,17 +222,12 @@ Resources:
               COALESCE(t.price,0)                                                                                                             AS transaction_price,
               COALESCE(t.quantity,0)                                                                                                          AS transaction_quantity
           FROM btm_transactions_curated t
-          FULL JOIN "${AWS::StackName}-invoices".btm_billing_curated b ON (
+          FULL JOIN btm_billing_curated b ON (
               t.vendor_name=b.vendor_name AND
               t.service_name=b.service_name AND
               t.year=b.year AND
               t.month=b.month
           )
-          
-          ################################################################ TODO
-          ## The above query works when pasted into a new view in AWS (with the StackName bit hand fixed), but fails
-          ## to deploy, with a `Query execution failed`, so the ${AWS::StackName} part is probably incorrect.
-
         Workgroup: !Ref AthenaTransactionWorkgroup
 
   AthenaTransactionWorkgroup:
