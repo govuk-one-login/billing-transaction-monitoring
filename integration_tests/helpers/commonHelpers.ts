@@ -1,4 +1,4 @@
-import { ClientId, SNSEventPayload } from "../payloads/snsEventPayload";
+import { ClientId, SNSEventPayload, EventName } from '../payloads/snsEventPayload';
 import { deleteObjectInS3, getS3ItemsList } from "./s3Helper";
 import { publishSNS } from "./snsHelper";
 import { resourcePrefix } from "../helpers/envHelper";
@@ -25,6 +25,7 @@ export const waitForTrue = async (
       clearInterval(intervalHandle);
       resolve(result);
     };
+     
     const callPredicateAndComplete = async (): Promise<void> => {
       (await predicate()) && complete(true);
     };
@@ -36,7 +37,7 @@ export const waitForTrue = async (
 };
 
 export const generateTestEvent = async (
-  eventName: string,
+  eventName: EventName,
   clientId: ClientId
 ): Promise<SNSEventPayload> => {
   return {
@@ -51,10 +52,6 @@ export const generateTestEvent = async (
 export const publishAndValidateEvent = async (
   event: SNSEventPayload
 ): Promise<void> => {
-  console.log(
-    "🚀 ~ file: commonHelpers.ts:61 ~ publishAndValidateEvents ~ events",
-    event
-  );
   await publishSNS(event);
   const checkEventId = async (): Promise<boolean> => {
     const result = await getS3ItemsList(`${prefix}-storage`, objectsPrefix);
@@ -62,7 +59,7 @@ export const publishAndValidateEvent = async (
       console.log("Storage bucket contents empty");
       return false;
     }
-    return result.Contents.map((data) => data.Key).includes(event.event_id);
+    return result.Contents.some((data) => data.Key?.match(event.event_id));
   };
   const eventIdExists = await waitForTrue(checkEventId, 1000, 10000);
   expect(eventIdExists).toBeTruthy();
@@ -74,7 +71,7 @@ export const generatePublishAndValidateEvents = async ({
   clientId,
 }: {
   numberOfTestEvents: number;
-  eventName: string;
+  eventName: EventName;
   clientId: ClientId;
 }): Promise<string[]> => {
   const eventIds: string[] = [];
@@ -82,7 +79,6 @@ export const generatePublishAndValidateEvents = async ({
     const event = await generateTestEvent(eventName, clientId);
     await publishAndValidateEvent(event);
     eventIds.push(event.event_id); // storing event_ids in array to delete from s3 later on
-    console.log("🚀 ~ file: commonHelpers.ts:44 ~ details", eventIds);
   }
   return eventIds;
 };

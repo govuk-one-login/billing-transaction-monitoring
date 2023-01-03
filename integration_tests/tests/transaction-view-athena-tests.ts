@@ -37,8 +37,8 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
         clientId,
       });
       const response = await queryResults({ clientId, eventName });
-      await deleteS3Events(eventIds);
       expect(expectedPrice).toEqual(response[0].price);
+      await deleteS3Events(eventIds);
     }
   );
 
