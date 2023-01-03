@@ -98,6 +98,6 @@ export const deleteS3Events = async (eventIds: string[]): Promise<boolean> => {
   for (const eventId of eventIds) {
     await deleteS3Event(eventId);
   }
-  console.log("deleted the file from s3");
+  console.log("deleted the files from s3");
   return true;
 };
