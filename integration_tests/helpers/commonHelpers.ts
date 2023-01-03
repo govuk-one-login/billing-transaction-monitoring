@@ -90,10 +90,10 @@ export const generatePublishAndValidateEvents = async ({
 export const deleteS3Event = async (eventId: string): Promise<boolean> => {
   const bucketName = `${prefix}-storage`;
   const date = new Date().toISOString().slice(0, 10);
-  await deleteObjectInS3(
-    bucketName,
-    `btm_transactions/${date}/${eventId}.json`
-  );
+  await deleteObjectInS3({
+    bucket: bucketName,
+    key: `btm_transactions/${date}/${eventId}.json`,
+  });
   console.log("deleted the file from s3");
   return true;
 };
