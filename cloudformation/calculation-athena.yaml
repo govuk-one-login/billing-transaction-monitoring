@@ -200,6 +200,41 @@ Resources:
 
         Workgroup: !Ref AthenaTransactionWorkgroup
 
+  BillingAndTransactionsCuratedView:
+    Type: Custom::AthenaView
+    Properties:
+      ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
+      View:
+        Database: !Ref CalculationsDB
+        Name: btm_billing_and_transactions_curated
+        Query: |
+          SELECT 
+              b.vendor_name,
+              b.service_name,
+              COALESCE(b.year,t.year)                                                                                                         AS year,
+              COALESCE(b.month,t.month)                                                                                                       AS month,
+              GREATEST(COALESCE(b.price,0),COALESCE(t.price,0))-LEAST(COALESCE(b.price,0),COALESCE(t.price,0))                                AS price_difference,
+              GREATEST(COALESCE(b.quantity,0),COALESCE(t.quantity,0))-LEAST(COALESCE(b.quantity,0),COALESCE(t.quantity,0))                    AS quantity_difference,
+              ROUND(100-((LEAST(COALESCE(b.price,0),COALESCE(t.price,0))/GREATEST(NULLIF(b.price,0),NULLIF(t.price,0)))*100.0),2)             AS price_difference_percentage,
+              ROUND(100-((LEAST(COALESCE(b.quantity,0),COALESCE(t.quantity,0))/GREATEST(NULLIF(b.quantity,0),NULLIF(t.quantity,0)))*100.0),2) AS quantity_difference_percentage,
+              COALESCE(b.price,0)                                                                                                             AS billing_price,
+              COALESCE(b.quantity,0)                                                                                                          AS billing_quantity,
+              COALESCE(t.price,0)                                                                                                             AS transaction_price,
+              COALESCE(t.quantity,0)                                                                                                          AS transaction_quantity
+          FROM btm_transactions_curated t
+          FULL JOIN "${AWS::StackName}-invoices".btm_billing_curated b ON (
+              t.vendor_name=b.vendor_name AND
+              t.service_name=b.service_name AND
+              t.year=b.year AND
+              t.month=b.month
+          )
+          
+          ################################################################ TODO
+          ## The above query works when pasted into a new view in AWS (with the StackName bit hand fixed), but fails
+          ## to deploy, with a `Query execution failed`, so the ${AWS::StackName} part is probably incorrect.
+
+        Workgroup: !Ref AthenaTransactionWorkgroup
+
   AthenaTransactionWorkgroup:
     Type: AWS::Athena::WorkGroup
     Properties:
