@@ -17,14 +17,20 @@ import {
   prettyEventNameMap,
   snsInvalidEventNamePayload,
 } from "../payloads/snsEventPayload";
+import { deleteDirectoryRecursiveInS3 } from "../helpers/s3Helper";
 
 const prefix = resourcePrefix();
 const databaseName = `${prefix}-calculations`;
+const bucketName = `${prefix}-storage`;
 
 describe("\nExecute athena transaction curated query to retrive price \n", () => {
+  beforeAll(async () => {
+    await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
+  });
+
   test.each`
     eventName                          | clientId     | numberOfTestEvents | unitPrice
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client2"} | ${2}               | ${2.0}
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client2"} | ${2}               | ${2.5}
     ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client3"} | ${7}               | ${4.0}
     ${"IPV_ADDRESS_CRI_END"}           | ${"client3"} | ${14}              | ${8.88}
   `(
@@ -62,6 +68,7 @@ async function queryResults({
 }): Promise<Array<{ price: number }>> {
   const prettyClientName = prettyClientNameMap[clientId];
   const prettyEventName = prettyEventNameMap[eventName];
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   const curatedQueryString = `SELECT * FROM "btm_transactions_curated" WHERE vendor_name='${prettyClientName}' AND service_name='${prettyEventName}'`;
   const queryId = await startQueryExecutionCommand(
     databaseName,

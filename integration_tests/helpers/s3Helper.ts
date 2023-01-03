@@ -66,6 +66,22 @@ async function deleteObjectInS3(
   return response;
 }
 
+async function deleteDirectoryRecursiveInS3(
+  bucketName: string,
+  prefix?: string
+): Promise<DeleteObjectCommandOutput[]> {
+  const result = await getS3ItemsList(bucketName, prefix);
+  if (result.Contents == null) {
+    throw new Error("No files found to delete");
+  }
+
+  return await Promise.all(
+    result.Contents.map(
+      async (item) => await deleteObjectInS3(bucketName, item.Key ?? "")
+    )
+  );
+}
+
 async function copyObject(
   destinationBucketName: string,
   sourceKey: string,
@@ -102,18 +118,22 @@ async function checkIfFileExists(
   }
 }
 
-async function getAllObjectsFromS3(bucketName: string, prefix: string) {
+async function getAllObjectsFromS3(
+  bucketName: string,
+  prefix: string
+): Promise<string[]> {
   const content = [];
   const response = await getS3ItemsList(bucketName, prefix);
   if (response.Contents === undefined) {
     throw new Error("Invalid results");
   } else {
-    for (let currentValue of response.Contents) {
-      if (currentValue.Size! > 0) {
-        const res = await getS3Object(bucketName, currentValue.Key!);
-        if (res !== undefined) {
-          content.push(res);
-        }
+    for (const currentValue of response.Contents) {
+      if (currentValue.Size === null || currentValue.Key === undefined) {
+        continue;
+      }
+      const res = await getS3Object(bucketName, currentValue.Key);
+      if (res !== undefined) {
+        content.push(res);
       }
     }
   }
@@ -121,16 +141,36 @@ async function getAllObjectsFromS3(bucketName: string, prefix: string) {
   return content;
 }
 
-async function s3GetObjectsToArray(bucketName:string, folderPrefix:string) {
+interface S3BillingStandardised {
+  invoice_receipt_id: string;
+  vendor_name: string;
+  total: number;
+  invoice_receipt_date: string;
+  subtotal: number;
+  due_date: string;
+  tax: number;
+  tax_payer_id: string;
+  item_id: number;
+  item_description: string;
+  service_name: string;
+  unit_price: number;
+  quantity: number;
+  price: number;
+}
+
+async function s3GetObjectsToArray(
+  bucketName: string,
+  folderPrefix: string
+): Promise<S3BillingStandardised[]> {
   const s3Response = await getAllObjectsFromS3(bucketName, folderPrefix);
   const convertS3Repsonse2Str = JSON.stringify(s3Response);
   const formatS3Str = convertS3Repsonse2Str
-    .replace(/:[^"0-9.]*([0-9.]+)/g, ':\\"$1\\"')//converts digits to string for parsing
-    .replace(/\\n|'/g, "") //removes //n character , single quotes
-    .replace(/}{/g, "},{"); //replace comma in between }{ brackets
-    const data = JSON.parse(formatS3Str);
-    const s3Array = JSON.parse("[" + data["0"] + "]");
-  return s3Array
+    .replace(/:[^"0-9.]*([0-9.]+)/g, ':\\"$1\\"') // converts digits to string for parsing
+    .replace(/\\n|'/g, "") // removes //n character , single quotes
+    .replace(/}{/g, "},{"); // replace comma in between }{ brackets
+  const data = JSON.parse(formatS3Str);
+  const s3Array = JSON.parse("[" + String(data["0"]) + "]");
+  return s3Array;
 }
 
 export {
@@ -140,5 +180,7 @@ export {
   deleteObjectInS3,
   copyObject,
   checkIfFileExists,
-  getAllObjectsFromS3,s3GetObjectsToArray
+  getAllObjectsFromS3,
+  s3GetObjectsToArray,
+  deleteDirectoryRecursiveInS3,
 };

@@ -36,10 +36,11 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
 
     expect(givenStringExistsInLogs).toBeFalsy();
 
-    const deleteFileAfterTest = async () => {
+    const deleteFileAfterTest = async (): Promise<boolean | undefined> => {
       const result = await getS3ItemsList(rawInvoiceBucketName, "successful");
       if (
-        result.Contents?.filter((t) => t.Key?.includes(rawInvoiceBucketKey))
+        result.Contents?.filter((t) => t.Key?.includes(rawInvoiceBucketKey)) !=
+        null
       ) {
         await deleteObjectInS3(
           rawInvoiceBucketName,

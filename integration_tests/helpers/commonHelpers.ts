@@ -1,4 +1,8 @@
-import { ClientId, SNSEventPayload, EventName } from '../payloads/snsEventPayload';
+import {
+  ClientId,
+  SNSEventPayload,
+  EventName,
+} from "../payloads/snsEventPayload";
 import { deleteObjectInS3, getS3ItemsList } from "./s3Helper";
 import { publishSNS } from "./snsHelper";
 import { resourcePrefix } from "../helpers/envHelper";
@@ -15,7 +19,7 @@ export const validTimestamp = (): number => {
 };
 
 export const waitForTrue = async (
-  predicate: () => Promise<boolean>,
+  predicate: () => Promise<boolean | undefined | Object[]>,
   delayMS: number,
   timeoutMS: number
 ): Promise<boolean> => {
@@ -25,9 +29,9 @@ export const waitForTrue = async (
       clearInterval(intervalHandle);
       resolve(result);
     };
-     
+
     const callPredicateAndComplete = async (): Promise<void> => {
-      (await predicate()) && complete(true);
+      ((await predicate()) as boolean) && complete(true);
     };
     intervalHandle = setInterval(() => {
       void callPredicateAndComplete();
