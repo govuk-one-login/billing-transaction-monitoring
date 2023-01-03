@@ -12,7 +12,7 @@ import {
   snsEventWithAdditionalFieldsPayload,
   snsMissingEventNamePayload,
   snsMissingEventIdPayload,
-  snsEventMisisingEventIdValue,
+  snsEventMissingEventIdValue,
 } from "../payloads/snsEventPayload";
 import { resourcePrefix } from "../helpers/envHelper";
 
@@ -189,7 +189,7 @@ describe(
     });
 
     test("S3 should not contain eventid for SNS message with missing EventId value in the payload", async () => {
-      snsResponse = await publishSNS(snsEventMisisingEventIdValue);
+      snsResponse = await publishSNS(snsEventMissingEventIdValue);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
@@ -214,16 +214,17 @@ describe(
       const checkEventId = async () => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);
         if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty")
-        return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-          "event_id=undefined"
-        );
-      } else {
-        console.log("Storage bucket contents empty");
-        return false;
-      }
-    }
+          console.log("Storage bucket contents not empty");
+          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
+            "event_id=undefined"
+          );
+        } else {
+          console.log("Storage bucket contents empty");
+          return false;
+        }
+      };
       const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
       expect(eventIdExists).toBeFalsy();
     });
-  });
+  }
+);
