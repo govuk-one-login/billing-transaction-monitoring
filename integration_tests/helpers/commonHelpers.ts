@@ -30,20 +30,21 @@ export const waitForTrue = async (
     setTimeout(() => complete(false), timeoutMS);
   });
 }
-const details: string[] = [];
 
-export const generateTestEvents = async (eventName:string,
+
+export const generateTestEvent = async (eventName:string,
   clientId:string): Promise<Object> => {
-
+ 
     snsValidEventPayload.event_name = eventName;
     snsValidEventPayload.event_id = generateRandomNumber();
-    details.push(snsValidEventPayload.event_id); // storing event_ids in array to delete from s3 later on
+    
     snsValidEventPayload.client_id = clientId;
     return snsValidEventPayload;
 };
 
-export const publishAndValidateEvents = async(events: object) => {
-  await publishSNS(events);
+export const publishAndValidateEvent = async(event: object) => {
+  console.log("🚀 ~ file: commonHelpers.ts:61 ~ publishAndValidateEvents ~ events", event)
+  await publishSNS(event);
   const checkEventId = async (): Promise<boolean> => {
     const result = await getS3ItemsList(`${prefix}-storage`, objectsPrefix);
     if (result.Contents === undefined) {
@@ -57,6 +58,21 @@ export const publishAndValidateEvents = async(events: object) => {
   const eventIdExists = await waitForTrue(checkEventId, 1000, 10000);
   expect(eventIdExists).toBeTruthy();
 }
+
+export const genratePublishAndValidateEvents = async({numberOfTestEvents, eventName,
+  clientId} : {numberOfTestEvents: number, eventName:string,
+    clientId:string}) => {
+  const details: string[] = [];
+  for (let i = 0; i < numberOfTestEvents; i++) {
+    const event = await generateTestEvent(eventName, clientId);
+    await publishAndValidateEvent(event);
+    //details.push(event.event_id); // storing event_ids in array to delete from s3 later on
+    console.log("🚀 ~ file: commonHelpers.ts:44 ~ details", details)
+
+  }
+
+}
+ 
 
 export const deleteS3Event = async(): Promise<boolean> =>{
   const bucketName = `${prefix}-storage`;

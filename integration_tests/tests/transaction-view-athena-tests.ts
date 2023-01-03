@@ -8,8 +8,8 @@ import { deleteS3Event } from "../helpers/commonHelpers";
 import { publishSNS } from "../helpers/snsHelper";
 import { snsInvalidEventNamePayload } from "../payloads/snsEventPayload";
 import {
-  generateTestEvents,
-  publishAndValidateEvents,
+  generateTestEvent as generateTestEvent,
+  publishAndValidateEvent as publishAndValidateEvent,
 } from "../helpers/commonHelpers";
 
 const prefix = resourcePrefix();
@@ -26,12 +26,12 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
     async ({ event_name, client_id, numberOfTestEvents, unitPrice }) => {
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
       for (let i = 0; i < numberOfTestEvents; i++) {
-        const events = await generateTestEvents(event_name, client_id);
-        await publishAndValidateEvents(events);
+        const event = await generateTestEvent(event_name, client_id);
+        await publishAndValidateEvent(event);
       }
       const response = await queryResults();
       expect(expectedPrice).toEqual(response[0].price);
-      await deleteS3Event();
+      //await deleteS3Event();
     }
   );
 
