@@ -120,7 +120,7 @@ describe("Custom Athena view resource handler", () => {
       QueryExecutionContext: {
         Database: mockedDatabase,
       },
-      QueryString: `CREATE OR REPLACE VIEW "${mockedName}" AS (${mockedQuery})`,
+      QueryString: `CREATE OR REPLACE VIEW "${mockedName}" AS ${mockedQuery}`,
       WorkGroup: mockedWorkgroup,
     });
     expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
@@ -173,7 +173,7 @@ describe("Custom Athena view resource handler", () => {
       QueryExecutionContext: {
         Database: mockedDatabase,
       },
-      QueryString: `CREATE OR REPLACE VIEW "${mockedName}" AS (${mockedQuery})`,
+      QueryString: `CREATE OR REPLACE VIEW "${mockedName}" AS ${mockedQuery}`,
       WorkGroup: mockedWorkgroup,
     });
     expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
