@@ -34,7 +34,7 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
     ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client3"} | ${7}               | ${4.0}
     ${"IPV_ADDRESS_CRI_END"}           | ${"client3"} | ${14}              | ${8.88}
   `(
-    "price retrived from billing_curated athena view query should match with expected calculated price for $numberOfTestEvents",
+    "price retrived from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
     async ({ eventName, clientId, numberOfTestEvents, unitPrice }) => {
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
       const eventIds = await generatePublishAndValidateEvents({
@@ -48,7 +48,7 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
     }
   );
 
-  test("no results returned from billing_curated athena view query when the event payload has invalid eventName", async () => {
+  test("no results returned from transaction_curated athena view query when the event payload has invalid eventName", async () => {
     await publishSNS(snsInvalidEventNamePayload);
     const queryRes = await queryResults({
       clientId: snsInvalidEventNamePayload.client_id,

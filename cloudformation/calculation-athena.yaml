@@ -140,65 +140,64 @@ Resources:
         Database: !Ref CalculationsDB
         Name: btm_transactions_curated
         Query: |
-          WITH
-            standardised_rates_with_max_date AS (
-             SELECT
-               *
-             , (CAST("lead"(effective_from, 1, "from_iso8601_timestamp"('2049-12-31')) 
-                OVER (PARTITION BY client_id, event_name ORDER BY client_id ASC, event_name ASC, effective_from ASC) AS date) - INTERVAL '1' DAY) "end_max"
-             FROM
-               "btm_rates_standardised"
-          ) 
-          , standardised_rates_with_end AS (
-             SELECT
-               *
-             , "max"(end_max) 
-                OVER (PARTITION BY client_id, event_name, effective_from) "end"
-             FROM
-               standardised_rates_with_max_date
-          ) 
-          , btm_transactions_standardised_with_count AS (
-             SELECT
-               *
-             , "$path" path
-             , "count"(event_id) 
-                OVER (PARTITION BY event_name, client_id, "date_trunc"('month', timestamp) 
-                ORDER BY "date_trunc"('month', timestamp) ASC) month_event_count
-             FROM
-               "btm_transactions_standardised"
-          ) 
-          , btm_transactions_harmonised AS (
-             SELECT
-               t.client_id
-             , t.event_id
-             , t.event_name
-             , t.timestamp
-             , c.vendor_name
-             , c.service_name
-             , r.unit_price transaction_price
-             , "date_format"(timestamp, '%m') month
-             , "date_format"(timestamp, '%Y') year
-             FROM
-               (btm_transactions_standardised_with_count t
-                 LEFT JOIN "btm_vendor_service_standardised" c
-                  ON (t.event_name = c.event_name)
-                  AND (t.client_id = c.client_id)
-                 LEFT JOIN "standardised_rates_with_end" r
-                  ON (t.event_name = r.event_name)
-                  AND (t.client_id = r.client_id)
-                  AND (t.month_event_count BETWEEN r.volumes_from AND COALESCE(r.volumes_to, 9999999))
-                  AND (t.timestamp BETWEEN r.effective_from AND r."end"))
-          ) 
-          SELECT
-            "max"(vendor_name) vendor_name
-          , "max"(service_name) service_name
-          , "sum"(transaction_price) price
-          , "count"(event_id) quantity
-          , month
-          , year
-          FROM
+          WITH standardised_rates_with_max_date
+            AS (SELECT *,
+                        ( Cast("Lead"(effective_from, 1,
+                              "From_iso8601_timestamp"('2049-12-31'))
+                                over (
+                                  PARTITION BY client_id, event_name
+                                  ORDER BY client_id ASC, event_name ASC,
+                                effective_from ASC
+                                )
+                              AS DATE)
+                          - interval '1' day ) "end_max"
+                FROM   "btm_rates_standardised"),
+            standardised_rates_with_end
+            AS (SELECT *,
+                        "Max"(end_max)
+                          over (
+                            PARTITION BY client_id, event_name, effective_from) "end"
+                FROM   standardised_rates_with_max_date),
+            btm_transactions_standardised_with_count
+            AS (SELECT *,
+                        "$path" path,
+                        "COUNT"(event_id)
+                          over (
+                            PARTITION BY event_name, client_id, "Date_trunc"('month',
+                          timestamp)
+                            ORDER BY "Date_trunc"('month', timestamp) ASC)
+                        month_event_count
+                FROM   "btm_transactions_standardised"),
             btm_transactions_harmonised
-          GROUP BY vendor_name, service_name, year, month
+            AS (SELECT txn.client_id,
+                        txn.event_id,
+                        txn.event_name,
+                        txn.timestamp,
+                        ven.vendor_name,
+                        ven.service_name,
+                        rates.unit_price transaction_price,
+                        "Date_format"(timestamp, '%m') month,
+                        "Date_format"(timestamp, '%Y') year
+                FROM (btm_transactions_standardised_with_count txn
+                        left join "btm_vendor_service_standardised" ven 
+                                ON ( txn.event_name = ven.event_name )
+                                  AND ( txn.client_id = ven.client_id )
+                        left join "standardised_rates_with_end" rates
+                                ON ( txn.event_name = rates.event_name )
+                                  AND ( txn.client_id = rates.client_id )
+                                  AND ( txn.month_event_count BETWEEN rates.volumes_from AND Coalesce(rates.volumes_to, 9999999))
+                                  AND ( txn.timestamp BETWEEN rates.effective_from AND rates."end" )))
+          SELECT "MAX"(vendor_name)      vendor_name,
+                "MAX"(service_name)      service_name,
+                "SUM"(transaction_price) price,
+                "COUNT"(event_id)        quantity,
+                month,
+                year
+          FROM   btm_transactions_harmonised
+          GROUP  BY vendor_name,
+                    service_name,
+                    year,
+                    month
 
         Workgroup: !Ref AthenaTransactionWorkgroup
 
