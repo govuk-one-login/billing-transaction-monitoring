@@ -72,7 +72,7 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
     const textractFilteredObject = await waitForTrue(
       checkTextractDataFileContainsStringFromOriginalPdf,
       1000,
-      21000
+      25000
     );
     expect(textractFilteredObject).toBeTruthy();
 
