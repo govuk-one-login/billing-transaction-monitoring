@@ -1,5 +1,5 @@
 import {
-  checkIfFileExists,
+  checkIfS3ObjectExists,
   deleteObjectInS3,
   getS3ItemsList,
 } from "../helpers/s3Helper";
@@ -22,7 +22,10 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
       invoice
     );
 
-    const checkRawPdfFileExists = await checkIfFileExists(bucketName, path);
+    const checkRawPdfFileExists = await checkIfS3ObjectExists({
+      bucket: bucketName,
+      key: path,
+    });
     expect(checkRawPdfFileExists).toBeTruthy();
     console.log("file exists in raw invoice pdf bucket");
 
@@ -41,7 +44,7 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
       );
       if (pathIsNotInBucket) return false;
 
-      await deleteObjectInS3(bucketName, "successful/" + path);
+      await deleteObjectInS3({ bucket: bucketName, key: "successful/" + path });
       console.log("deleted the file from s3");
       return true;
     };
