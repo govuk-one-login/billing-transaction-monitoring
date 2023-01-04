@@ -7,12 +7,6 @@ Parameters:
     Description: Environment type
     Type: String
     Default: dev
-    AllowedValues:
-      - dev
-      - build
-      - staging
-      - integration
-      - production
   CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
