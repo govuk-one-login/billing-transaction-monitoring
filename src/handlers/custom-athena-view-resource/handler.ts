@@ -22,7 +22,7 @@ export const handler = async (
         QueryString:
           event.RequestType === "Delete"
             ? `DROP VIEW IF EXISTS "${name}"`
-            : `CREATE OR REPLACE VIEW "${name}" AS (${query})`,
+            : `CREATE OR REPLACE VIEW "${name}" AS ${query}`,
         WorkGroup: workgroup,
       })
       .promise();

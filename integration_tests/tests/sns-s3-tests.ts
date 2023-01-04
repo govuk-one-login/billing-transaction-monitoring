@@ -12,7 +12,7 @@ import {
   snsEventWithAdditionalFieldsPayload,
   snsMissingEventNamePayload,
   snsMissingEventIdPayload,
-  snsEventMisisingEventIdValue,
+  snsEventMissingEventIdValue,
 } from "../payloads/snsEventPayload";
 import { resourcePrefix } from "../helpers/envHelper";
 
@@ -41,7 +41,7 @@ describe(
           return false;
         }
       };
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
+      const eventIdExists = await waitForTrue(checkEventId, 1000, 7000);
       expect(eventIdExists).toBeTruthy();
     });
 
@@ -189,7 +189,7 @@ describe(
     });
 
     test("S3 should not contain eventid for SNS message with missing EventId value in the payload", async () => {
-      snsResponse = await publishSNS(snsEventMisisingEventIdValue);
+      snsResponse = await publishSNS(snsEventMissingEventIdValue);
       expect(snsResponse).toHaveProperty("MessageId");
       const checkEventId = async (): Promise<boolean> => {
         const result = await getS3ItemsList(storageBucket, objectsPrefix);

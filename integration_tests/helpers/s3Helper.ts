@@ -64,6 +64,23 @@ const deleteObjectInS3 = async (
   return await s3Client.send(new DeleteObjectCommand(bucketParams));
 };
 
+const deleteDirectoryRecursiveInS3 = async (
+  bucketName: string,
+  prefix?: string
+): Promise<DeleteObjectCommandOutput[]> => {
+  const result = await getS3ItemsList(bucketName, prefix);
+  if (result.Contents == null) {
+    throw new Error("No files found to delete");
+  }
+
+  return await Promise.all(
+    result.Contents.map(
+      async (item) =>
+        await deleteObjectInS3({ bucket: bucketName, key: item.Key ?? "" })
+    )
+  );
+};
+
 const copyObject = async (
   source: S3Object,
   destination: S3Object
@@ -104,14 +121,15 @@ const getAllObjectsFromS3 = async (
     throw new Error("Invalid results");
   } else {
     for (const currentValue of response.Contents) {
-      if ((currentValue.Size ?? 0) > 0) {
-        const res = await getS3Object({
-          bucket: bucketName,
-          key: currentValue.Key ?? "",
-        });
-        if (res !== undefined) {
-          content.push(res);
-        }
+      if (currentValue.Size === null || currentValue.Key === undefined) {
+        continue;
+      }
+      const res = await getS3Object({
+        bucket: bucketName,
+        key: currentValue.Key,
+      });
+      if (res !== undefined) {
+        content.push(res);
       }
     }
   }
@@ -119,10 +137,27 @@ const getAllObjectsFromS3 = async (
   return content;
 };
 
+interface S3BillingStandardised {
+  invoice_receipt_id: string;
+  vendor_name: string;
+  total: number;
+  invoice_receipt_date: string;
+  subtotal: number;
+  due_date: string;
+  tax: number;
+  tax_payer_id: string;
+  item_id: number;
+  item_description: string;
+  service_name: string;
+  unit_price: number;
+  quantity: number;
+  price: number;
+}
+
 const s3GetObjectsToArray = async (
   bucketName: string,
   folderPrefix: string
-): Promise<any> => {
+): Promise<S3BillingStandardised[]> => {
   const s3Response = await getAllObjectsFromS3(bucketName, folderPrefix);
   const convertS3Repsonse2Str = JSON.stringify(s3Response);
   const formatS3Str = convertS3Repsonse2Str
@@ -130,7 +165,7 @@ const s3GetObjectsToArray = async (
     .replace(/\\n|'/g, "") // removes //n character , single quotes
     .replace(/}{/g, "},{"); // replace comma in between }{ brackets
   const data = JSON.parse(formatS3Str);
-  return JSON.parse(`[${(data as string[])["0"]}]`);
+  return JSON.parse("[" + String(data["0"]) + "]");
 };
 
 export {
@@ -140,6 +175,7 @@ export {
   putObjectToS3,
   deleteObjectInS3,
   copyObject,
+  deleteDirectoryRecursiveInS3,
   checkIfS3ObjectExists,
   getAllObjectsFromS3,
   s3GetObjectsToArray,

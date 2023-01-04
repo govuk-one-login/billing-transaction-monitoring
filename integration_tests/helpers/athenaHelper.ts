@@ -48,9 +48,9 @@ async function getQueryExecutionStatus(
 async function getQueryResults(
   queryId: string
 ): Promise<GetQueryResultsCommandOutput | undefined> {
-  const checkState = async (): Promise<RegExpMatchArray | null | undefined> => {
+  const checkState = async (): Promise<boolean> => {
     const result = await getQueryExecutionStatus(queryId);
-    return result?.State?.match("SUCCEEDED");
+    return !! result?.State?.match("SUCCEEDED");
   };
   const queryStatusSuccess = await waitForTrue(checkState, 5000, 10000);
   if (queryStatusSuccess) {
