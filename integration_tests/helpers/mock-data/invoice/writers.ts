@@ -1,6 +1,6 @@
 import { writeFile } from "fs";
-import { resourcePrefix } from "../envHelper";
-import { putObjectToS3 } from "../s3Helper";
+import { resourcePrefix } from "../../envHelper";
+import { putObjectToS3 } from "../../s3Helper";
 
 export const writeInvoiceToS3 = async (
   file: ArrayBuffer
@@ -9,7 +9,7 @@ export const writeInvoiceToS3 = async (
   const path = `raw-Invoice-${Math.random()
     .toString(36)
     .substring(2, 7)}-validFile.pdf`;
-  await putObjectToS3(bucketName, path, file);
+  await putObjectToS3({bucket:bucketName, key:path}, file);
   return {
     bucketName,
     path,
