@@ -74,7 +74,7 @@ Resources:
           Columns:
             - Name: client_id
               Type: string
-            - Name: service_name
+            - Name: event_name
               Type: string
             - Name: volumes_from
               Type: int
@@ -131,6 +131,75 @@ Resources:
               field.delim: ','
               skip.header.line.count: 1
             SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+
+  TransactionsCuratedView:
+    Type: Custom::AthenaView
+    Properties:
+      ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
+      View:
+        Database: !Ref CalculationsDB
+        Name: btm_transactions_curated
+        Query: |
+          WITH standardised_rates_with_max_date
+            AS (SELECT *,
+                        ( Cast("Lead"(effective_from, 1,
+                              "From_iso8601_timestamp"('2049-12-31'))
+                                over (
+                                  PARTITION BY client_id, event_name
+                                  ORDER BY client_id ASC, event_name ASC,
+                                effective_from ASC
+                                )
+                              AS DATE)
+                          - interval '1' day ) "end_max"
+                FROM   "btm_rates_standardised"),
+            standardised_rates_with_end
+            AS (SELECT *,
+                        "Max"(end_max)
+                          over (
+                            PARTITION BY client_id, event_name, effective_from) "end"
+                FROM   standardised_rates_with_max_date),
+            btm_transactions_standardised_with_count
+            AS (SELECT *,
+                        "$path" path,
+                        "COUNT"(event_id)
+                          over (
+                            PARTITION BY event_name, client_id, "Date_trunc"('month',
+                          timestamp)
+                            ORDER BY "Date_trunc"('month', timestamp) ASC)
+                        month_event_count
+                FROM   "btm_transactions_standardised"),
+            btm_transactions_harmonised
+            AS (SELECT txn.client_id,
+                        txn.event_id,
+                        txn.event_name,
+                        txn.timestamp,
+                        ven.vendor_name,
+                        ven.service_name,
+                        rates.unit_price transaction_price,
+                        "Date_format"(timestamp, '%m') month,
+                        "Date_format"(timestamp, '%Y') year
+                FROM (btm_transactions_standardised_with_count txn
+                        left join "btm_vendor_service_standardised" ven 
+                                ON ( txn.event_name = ven.event_name )
+                                  AND ( txn.client_id = ven.client_id )
+                        left join "standardised_rates_with_end" rates
+                                ON ( txn.event_name = rates.event_name )
+                                  AND ( txn.client_id = rates.client_id )
+                                  AND ( txn.month_event_count BETWEEN rates.volumes_from AND Coalesce(rates.volumes_to, 9999999))
+                                  AND ( txn.timestamp BETWEEN rates.effective_from AND rates."end" )))
+          SELECT "MAX"(vendor_name)      vendor_name,
+                "MAX"(service_name)      service_name,
+                "SUM"(transaction_price) price,
+                "COUNT"(event_id)        quantity,
+                month,
+                year
+          FROM   btm_transactions_harmonised
+          GROUP  BY vendor_name,
+                    service_name,
+                    year,
+                    month
+
+        Workgroup: !Ref AthenaTransactionWorkgroup
 
   AthenaTransactionWorkgroup:
     Type: AWS::Athena::WorkGroup
