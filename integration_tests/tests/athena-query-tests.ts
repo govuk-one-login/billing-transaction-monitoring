@@ -26,7 +26,7 @@ describe("\nPublish valid sns message and execute athena query\n", () => {
         return false;
       }
     };
-    const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
+    const eventIdExists = await waitForTrue(checkEventId, 1000, 7000);
     expect(eventIdExists).toBeTruthy();
   });
 
