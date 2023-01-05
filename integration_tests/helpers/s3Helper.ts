@@ -10,9 +10,9 @@ import {
   ListObjectsCommand,
   ListObjectsCommandOutput,
   PutObjectCommand,
+  PutObjectCommandInput,
   PutObjectCommandOutput,
 } from "@aws-sdk/client-s3";
-import { ReadStream } from "fs";
 
 interface S3Object {
   bucket: string;
@@ -44,7 +44,7 @@ const getS3Object = async (object: S3Object): Promise<string | undefined> => {
 
 const putObjectToS3 = async (
   object: S3Object,
-  body: ReadStream
+  body: PutObjectCommandInput["Body"]
 ): Promise<PutObjectCommandOutput> => {
   const bucketParams = {
     Bucket: object.bucket,
