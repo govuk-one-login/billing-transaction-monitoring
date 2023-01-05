@@ -203,6 +203,7 @@ Resources:
 
   BillingAndTransactionsCuratedView:
     Type: Custom::AthenaView
+    DependsOn: TransactionsCuratedView
     Properties:
       ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
       View:
