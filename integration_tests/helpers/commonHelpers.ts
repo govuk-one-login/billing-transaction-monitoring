@@ -1,7 +1,7 @@
 import {
   ClientId,
   SNSEventPayload,
-  EventName
+  EventName,
 } from "../payloads/snsEventPayload";
 import { deleteObjectInS3, getS3ItemsList } from "./s3Helper";
 import { publishSNS } from "./snsHelper";
@@ -20,12 +20,12 @@ export const validTimestamp = (): number => {
 
 export const thisTimeLastYear = (): number => {
   return Math.floor((new Date().getTime() - 365 * 24 * 60 * 60 * 1000) / 1000);
-}
+};
 
 export const eventTimeStamp = {
-  THIS_TIME_LASTYEAR:thisTimeLastYear() ,
-  CURRENT_TIME: validTimestamp()
-} 
+  THIS_TIME_LASTYEAR: thisTimeLastYear(),
+  CURRENT_TIME: validTimestamp(),
+};
 
 export const waitForTrue = async (
   predicate: () => Promise<boolean | undefined | Object[]>,
@@ -50,19 +50,14 @@ export const waitForTrue = async (
 };
 
 export const generateTestEvent = async (
-  eventName: EventName,
-  clientId: ClientId,
-  eventTime: string
- ): Promise<SNSEventPayload> => {
-  const key = eventTime;
-  return {
-    event_name: eventName,
-    event_id: generateRandomId(),
-    component_id: "TEST_COMP",
-    timestamp:eventTimeStamp[key as keyof typeof eventTimeStamp],
-    client_id: clientId,
-  };
-};
+  overrides: Partial<SNSEventPayload> &
+    Pick<SNSEventPayload, "event_name" | "client_id">
+): Promise<SNSEventPayload> => ({
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp(),
+  ...overrides,
+});
 
 export const publishAndValidateEvent = async (
   event: SNSEventPayload
@@ -84,26 +79,37 @@ export const generatePublishAndValidateEvents = async ({
   numberOfTestEvents,
   eventName,
   clientId,
-  eventTime
+  eventTime,
 }: {
   numberOfTestEvents: number;
   eventName: EventName;
   clientId: ClientId;
-  eventTime:string
+  eventTime: string;
 }): Promise<string[]> => {
   const eventIds: string[] = [];
   for (let i = 0; i < numberOfTestEvents; i++) {
-    const event = await generateTestEvent(eventName, clientId, eventTime);
+    const event = await generateTestEvent({
+      client_id: clientId,
+      event_name: eventName,
+      timestamp: eventTimeStamp[eventTime as keyof typeof eventTimeStamp],
+    });
     await publishAndValidateEvent(event);
     eventIds.push(event.event_id); // storing event_ids in array to delete from s3 later on
   }
   return eventIds;
 };
 
-export const deleteS3Event = async (eventId: string, eventTime:string): Promise<boolean> => {
+export const deleteS3Event = async (
+  eventId: string,
+  eventTime: string
+): Promise<boolean> => {
   const bucketName = `${prefix}-storage`;
   const key = eventTime;
-  const date = new Date(eventTimeStamp[key as keyof typeof eventTimeStamp] * 1000).toISOString().slice(0, 10);
+  const date = new Date(
+    eventTimeStamp[key as keyof typeof eventTimeStamp] * 1000
+  )
+    .toISOString()
+    .slice(0, 10);
   await deleteObjectInS3({
     bucket: bucketName,
     key: `btm_transactions/${date}/${eventId}.json`,
@@ -112,7 +118,10 @@ export const deleteS3Event = async (eventId: string, eventTime:string): Promise<
   return true;
 };
 
-export const deleteS3Events = async (eventIds: string[], eventTime:string): Promise<boolean> => {
+export const deleteS3Events = async (
+  eventIds: string[],
+  eventTime: string
+): Promise<boolean> => {
   for (const eventId of eventIds) {
     await deleteS3Event(eventId, eventTime);
   }

@@ -10,7 +10,7 @@ import {
   generatePublishAndValidateEvents,
 } from "../helpers/commonHelpers";
 import { publishSNS } from "../helpers/snsHelper";
-import { SNSEventPayload } from "../payloads/snsEventPayload";
+
 import {
   ClientId,
   EventName,
