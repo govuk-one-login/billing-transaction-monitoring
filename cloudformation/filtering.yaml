@@ -61,7 +61,7 @@ Resources:
             Queue:
               !If [
                 IsHigherEnv,
-                !Sub '{{resolve:ssm:${ConfigStack}-${Environment}-transaction-input-queue-arn}}',
+                !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-queue-arn}}',
                 !GetAtt FilterQueue.Arn,
               ]
       Environment:
@@ -81,7 +81,7 @@ Resources:
               Resource:
                 !If [
                   IsHigherEnv,
-                  !Sub '{{resolve:ssm:${ConfigStack}-${Environment}-transaction-input-queue-arn}}',
+                  !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-queue-arn}}',
                   !GetAtt FilterQueue.Arn,
                 ]
             - Effect: Allow
@@ -97,7 +97,7 @@ Resources:
                 - !GetAtt KmsKey.Arn
                 - !If [
                     IsHigherEnv,
-                    !Sub '{{resolve:ssm:${ConfigStack}-${Environment}-transaction-input-kms-key-arn}}',
+                    !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-kms-key-arn}}',
                     !Ref AWS::NoValue,
                   ]
       ReservedConcurrentExecutions: 10

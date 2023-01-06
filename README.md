@@ -120,23 +120,23 @@ aws --endpoint-url=http://localhost:4566 s3api list-objects --bucket di-btm-stor
 
 To run the tests against aws environment
 
-```
-npm i
+```sh
+npm ci
 npm run test:integration
 
 ```
 
 To run the tests against local environment
 
-```
-npm i
+```sh
+npm ci
 npm run test:integration:local
 ```
 
-To generate emailable allure report after running the integration test
+To generate the allure report after running the integration test
 
-```
- docker run --name allure -p 5050:5050  \
+```sh
+docker run --name allure -p 5050:5050  \
                  -v ${PWD}/allure-results:/app/allure-results \
                  -v ${PWD}/allure-reports:/app/default-reports \
                  frankescobar/allure-docker-service
@@ -144,39 +144,63 @@ To generate emailable allure report after running the integration test
 
 To clean the allure results and allure reports folder
 
-```
+```sh
 npm run beforeIntTest
 ```
 
 ## Deploy
 
-To deploy to the `dev` environment on the main stack `di-btm`, commit to the `main` branch, this will also deploy into
-the `build` environment in the build account.
+### To dev, build, staging, production
 
-To deploy to your own on-demand stack:
+Open a PR against the `main` branch, get approvals for it and merge it. A GitHub action will pick up this merge and
+do an automatic build/test cycle (unit-tests only) and on success kick off secure pipeline deployments into the
+`di-btm-dev` environment in the `dev` account and to the `di-btm-build` environment in the `build` account.
 
-Log in to the `dev` account using your method of choice (`gds-cli`, AWS profiles, etc.).
+Integration tests will then automatically run in the build account (eventually...) and, on success, an automatic
+promotion to the `di-btm-staging` environment in the `staging` account will be triggered.
+
+Further deployments into the `di-btm-integration` environment in the `integration` account and the `di-btm-production`
+environment in the `production` account are triggered manually by approving the promotion in the AWS code-pipelines GUI
+within the respective AWS accounts.
+
+### Ephemeral environments
+
+To deploy to your own private stack to the `dev` account:
+
+Log in to the `dev` AWS account using your method of choice (`gds-cli`, AWS profiles, etc.).
 Then run:
 
-```
-export ENV_NAME=dev-od-ph-purpose
+```sh
+export ENV_NAME=yourname-purpose
 ```
 
-Replace `ph` with your initials and replace `purpose` with a very short purpose of the env like `testing`.
+Replace `yourname` with your name (short but recognisable) and replace `purpose` with a very short purpose of the env
+like `testing`.
+
+If you want to run your stack with a different (private) config stack, you should export the
+`CONFIG_NAME` env-variable before deploying and running integration tests.
+
+```sh
+export CONFIG_NAME=your-config-stack-name
+```
+
+Your stack should then use a config-stack with the name `di-btm-cfg-${CONFIG_NAME}` instead of the default
+config-stack `di-btm-cfg-dev`. This should only be necessary when developing config files and testing with
+different configs, so you can leave this out for normal app development.
 
 Then run:
 
-```
+```sh
 npm run sam:build
 npm run sam:deploy
 ```
 
-`npm run test:integration` should automatically run against your own env as long as the env-variable `ENV_NAME` is
-properly set and exported.
+To run integration tests against a private stack, make sure to set the env-variable `ENV_NAME` (and
+`CONFIG_NAME` if necessary) accordingly and run:
 
-In rare cases you might want to run the integration tests against a different config stack. You can then export the
-`CONFIG_NAME` env-variable before running the tests and it should use a config-stack with the name
-`di-btm-cfg-${CONFIG_NAME}` instead of the default config-stack `di-btm-cfg-dev`.
+```sh
+npm run test:integration
+```
 
 ### Alerts in ephemeral environments
 
@@ -185,11 +209,11 @@ CloudFormation stack in the Amazon Web Services console with `alert-chatbot-temp
 Slack workspace and channel IDs (eleven- and nine-character codes found in the URL for the Slack channel) as well as
 the Amazon Resource Name for Simple Notification Service output by the `di-btm` stack
 
-## Destroying your on-demand stack
+## Destroying your ephemeral environments
 
-To destroy your stack, make sure `ENV_NAME` is set as explained above and run:
+To destroy your private stack, make sure `ENV_NAME` is set as explained above and run:
 
-```
+```sh
 npm run sam:teardown
 ```
 

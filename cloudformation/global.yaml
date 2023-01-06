@@ -79,3 +79,22 @@ Resources:
                 aws:SourceAccount: !Ref AWS::AccountId
               Bool:
                 aws:SecureTransport: true
+
+  ConfigStackParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub ${AWS::StackName}-config-stack
+      Type: String
+      Value:
+        !Join [
+          '-',
+          [
+            di-btm-cfg,
+            !If [
+              UsePrivateConfigStack,
+              !Ref PrivateConfigStack,
+              !If [IsDev, dev, !Ref Environment],
+            ],
+          ],
+        ]
+      Description: !Sub Config stack used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
