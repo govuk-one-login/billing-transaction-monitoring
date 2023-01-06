@@ -5,9 +5,9 @@ import {
 } from "../helpers/athenaHelper";
 
 import {
-  deleteS3Event,
   deleteS3Events,
   generatePublishAndValidateEvents,
+  TimeStamps,
 } from "../helpers/commonHelpers";
 import { publishSNS } from "../helpers/snsHelper";
 
@@ -31,10 +31,10 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
 
   test.each`
     eventName                          | clientId     | numberOfTestEvents | unitPrice | eventTime
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${2}               | ${1.23}   | ${"THIS_TIME_LASTYEAR"}
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client2"} | ${2}               | ${2.5}    | ${"CURRENT_TIME"}
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client3"} | ${7}               | ${4.0}    | ${"CURRENT_TIME"}
-    ${"IPV_ADDRESS_CRI_END"}           | ${"client3"} | ${14}              | ${8.88}   | ${"CURRENT_TIME"}
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${2}               | ${1.23}   | ${TimeStamps.THIS_TIME_LAST_YEAR}
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client2"} | ${2}               | ${2.5}    | ${TimeStamps.CURRENT_TIME}
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
+    ${"IPV_ADDRESS_CRI_END"}           | ${"client3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
   `(
     "price retrived from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
     async ({

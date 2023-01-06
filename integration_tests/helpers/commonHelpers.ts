@@ -22,9 +22,14 @@ export const thisTimeLastYear = (): number => {
   return Math.floor((new Date().getTime() - 365 * 24 * 60 * 60 * 1000) / 1000);
 };
 
+export enum TimeStamps {
+  THIS_TIME_LAST_YEAR,
+  CURRENT_TIME,
+}
+
 export const eventTimeStamp = {
-  THIS_TIME_LASTYEAR: thisTimeLastYear(),
-  CURRENT_TIME: validTimestamp(),
+  [TimeStamps.THIS_TIME_LAST_YEAR]: thisTimeLastYear(),
+  [TimeStamps.CURRENT_TIME]: validTimestamp(),
 };
 
 export const waitForTrue = async (
@@ -84,14 +89,14 @@ export const generatePublishAndValidateEvents = async ({
   numberOfTestEvents: number;
   eventName: EventName;
   clientId: ClientId;
-  eventTime: string;
+  eventTime: TimeStamps;
 }): Promise<string[]> => {
   const eventIds: string[] = [];
   for (let i = 0; i < numberOfTestEvents; i++) {
     const event = await generateTestEvent({
       client_id: clientId,
       event_name: eventName,
-      timestamp: eventTimeStamp[eventTime as keyof typeof eventTimeStamp],
+      timestamp: eventTimeStamp[eventTime],
     });
     await publishAndValidateEvent(event);
     eventIds.push(event.event_id); // storing event_ids in array to delete from s3 later on
@@ -101,13 +106,10 @@ export const generatePublishAndValidateEvents = async ({
 
 export const deleteS3Event = async (
   eventId: string,
-  eventTime: string
+  eventTime: TimeStamps
 ): Promise<boolean> => {
   const bucketName = `${prefix}-storage`;
-  const key = eventTime;
-  const date = new Date(
-    eventTimeStamp[key as keyof typeof eventTimeStamp] * 1000
-  )
+  const date = new Date(eventTimeStamp[eventTime] * 1000)
     .toISOString()
     .slice(0, 10);
   await deleteObjectInS3({
@@ -120,7 +122,7 @@ export const deleteS3Event = async (
 
 export const deleteS3Events = async (
   eventIds: string[],
-  eventTime: string
+  eventTime: TimeStamps
 ): Promise<boolean> => {
   for (const eventId of eventIds) {
     await deleteS3Event(eventId, eventTime);
