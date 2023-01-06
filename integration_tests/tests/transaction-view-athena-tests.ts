@@ -10,6 +10,7 @@ import {
   generatePublishAndValidateEvents,
 } from "../helpers/commonHelpers";
 import { publishSNS } from "../helpers/snsHelper";
+import { SNSEventPayload } from '../payloads/snsEventPayload';
 import {
   ClientId,
   EventName,
@@ -28,26 +29,30 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
     await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
   });
 
-  test.each`
-    eventName                          | clientId     | numberOfTestEvents | unitPrice
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client2"} | ${2}               | ${2.5}
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client3"} | ${7}               | ${4.0}
-    ${"IPV_ADDRESS_CRI_END"}           | ${"client3"} | ${14}              | ${8.88}
-  `(
-    "price retrived from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
-    async ({ eventName, clientId, numberOfTestEvents, unitPrice }) => {
-      const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
-      const eventIds = await generatePublishAndValidateEvents({
-        numberOfTestEvents,
-        eventName,
-        clientId,
-      });
-      const response = await queryResults({ clientId, eventName });
-      expect(expectedPrice).toEqual(response[0].price);
-      await deleteS3Events(eventIds);
-    }
-  );
+test.each`
+  eventName                          | clientId     | numberOfTestEvents | unitPrice | eventTime
+  ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${2}               | ${1.23}   | ${"THIS_TIME_LASTYEAR"}
+  ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client2"} | ${2}               | ${2.5}    | ${"CURRENT_TIME"}
+  ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client3"} | ${7}               | ${4.0}    | ${"CURRENT_TIME"}
+  ${"IPV_ADDRESS_CRI_END"}           | ${"client3"} | ${14}              | ${8.88}   | ${"CURRENT_TIME"}
 
+
+`(
+"price retrived from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
+async ({ eventName, clientId, numberOfTestEvents, unitPrice,eventTime }) => {
+  const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
+  const eventIds = await generatePublishAndValidateEvents({
+    numberOfTestEvents,
+    eventName,
+    clientId,eventTime
+  });
+  const response = await queryResults({ clientId, eventName });
+  await deleteS3Events(eventIds,eventTime);
+  expect(response[0].price).toEqual(expectedPrice);
+ 
+}
+);
+  
   test("no results returned from transaction_curated athena view query when the event payload has invalid eventName", async () => {
     await publishSNS(snsInvalidEventNamePayload);
     const queryRes = await queryResults({
@@ -55,7 +60,7 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
       eventName: snsInvalidEventNamePayload.event_name,
     });
     expect(queryRes.length).not.toBeGreaterThan(0);
-    await deleteS3Event(snsInvalidEventNamePayload.event_id);
+    
   });
 });
 
