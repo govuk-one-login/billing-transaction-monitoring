@@ -5,11 +5,12 @@ import {
 } from "../helpers/athenaHelper";
 
 import {
-  deleteS3Event,
   deleteS3Events,
   generatePublishAndValidateEvents,
+  TimeStamps,
 } from "../helpers/commonHelpers";
 import { publishSNS } from "../helpers/snsHelper";
+
 import {
   ClientId,
   EventName,
@@ -29,22 +30,30 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
   });
 
   test.each`
-    eventName                          | clientId     | numberOfTestEvents | unitPrice
-    ${"EVENT_1"} | ${"client2"} | ${2}               | ${2.5}
-    ${"EVENT_1"} | ${"client3"} | ${7}               | ${4.0}
-    ${"EVENT_6"}           | ${"client3"} | ${14}              | ${8.88}
+    eventName                          | clientId     | numberOfTestEvents | unitPrice | eventTime
+    ${"EVENT_1"} | ${"client1"} | ${2}               | ${1.23}   | ${TimeStamps.THIS_TIME_LAST_YEAR}
+    ${"EVENT_1"} | ${"client2"} | ${2}               | ${2.5}    | ${TimeStamps.CURRENT_TIME}
+    ${"EVENT_1"} | ${"client3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
+    ${"EVENT_6"}           | ${"client3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
   `(
     "price retrived from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
-    async ({ eventName, clientId, numberOfTestEvents, unitPrice }) => {
+    async ({
+      eventName,
+      clientId,
+      numberOfTestEvents,
+      unitPrice,
+      eventTime,
+    }) => {
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
       const eventIds = await generatePublishAndValidateEvents({
         numberOfTestEvents,
         eventName,
         clientId,
+        eventTime,
       });
       const response = await queryResults({ clientId, eventName });
-      expect(expectedPrice).toEqual(response[0].price);
-      await deleteS3Events(eventIds);
+      await deleteS3Events(eventIds, eventTime);
+      expect(response[0].price).toEqual(expectedPrice);
     }
   );
 
@@ -55,7 +64,6 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
       eventName: snsInvalidEventNamePayload.event_name,
     });
     expect(queryRes.length).not.toBeGreaterThan(0);
-    await deleteS3Event(snsInvalidEventNamePayload.event_id);
   });
 });
 
