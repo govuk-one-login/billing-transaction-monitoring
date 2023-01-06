@@ -54,12 +54,6 @@ Resources:
         deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
         maxReceiveCount: 1
 
-  RawInvoiceTextractDataDeadLetterQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: !Sub ${AWS::StackName}-raw-invoice-textract-data-dlq
-      KmsMasterKeyId: !GetAtt KmsKey.Arn
-
   RawInvoiceTextractDataQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
@@ -74,6 +68,37 @@ Resources:
             Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
       Queues:
         - !Ref RawInvoiceTextractDataQueue
+
+  RawInvoiceTextractDataDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-raw-invoice-textract-data-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  RawInvoiceTextractDataDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-raw-invoice-textract-data-dlq-alarm
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      Metrics:
+        - Id: messages
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !GetAtt RawInvoiceTextractDataDeadLetterQueue.QueueName
+              MetricName: ApproximateNumberOfMessagesVisible
+              Namespace: AWS/SQS
+            Period: 1800
+            Stat: Sum
+          ReturnData: false
+        - Id: messagesRate
+          Expression: RATE(messages)
+          ReturnData: true
+      Threshold: 0
 
   RawInvoiceTextractDataStorageFunction:
     # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
@@ -125,3 +150,20 @@ Resources:
               Resource:
                 !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
       ReservedConcurrentExecutions: 10
+
+  RawInvoiceTextractDataStorageFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-raw-textract-storage-function-alarm
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref CleanFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
