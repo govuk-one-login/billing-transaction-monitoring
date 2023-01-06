@@ -211,8 +211,8 @@ Resources:
         Name: btm_billing_and_transactions_curated
         Query: |
           SELECT 
-              invoice.vendor_name,
-              invoice.service_name,
+              COALESCE(invoice.vendor_name,txn.vendor_name)                                                                                                   AS vendor_name,
+              COALESCE(invoice.service_name,txn.service_name)                                                                                                 AS service_name,
               COALESCE(invoice.year,txn.year)                                                                                                                 AS year,
               COALESCE(invoice.month,txn.month)                                                                                                               AS month,
               GREATEST(COALESCE(invoice.price,0),COALESCE(txn.price,0))-LEAST(COALESCE(invoice.price,0),COALESCE(txn.price,0))                                AS price_difference,
