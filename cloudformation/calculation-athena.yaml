@@ -211,18 +211,18 @@ Resources:
         Name: btm_billing_and_transactions_curated
         Query: |
           SELECT 
-              COALESCE(invoice.vendor_name,txn.vendor_name)                                                                                                   AS vendor_name,
-              COALESCE(invoice.service_name,txn.service_name)                                                                                                 AS service_name,
-              COALESCE(invoice.year,txn.year)                                                                                                                 AS year,
-              COALESCE(invoice.month,txn.month)                                                                                                               AS month,
-              GREATEST(COALESCE(invoice.price,0),COALESCE(txn.price,0))-LEAST(COALESCE(invoice.price,0),COALESCE(txn.price,0))                                AS price_difference,
-              GREATEST(COALESCE(invoice.quantity,0),COALESCE(txn.quantity,0))-LEAST(COALESCE(invoice.quantity,0),COALESCE(txn.quantity,0))                    AS quantity_difference,
-              ROUND(100-((LEAST(COALESCE(invoice.price,0),COALESCE(txn.price,0))/GREATEST(NULLIF(invoice.price,0),NULLIF(txn.price,0)))*100.0),2)             AS price_difference_percentage,
-              ROUND(100-((LEAST(COALESCE(invoice.quantity,0),COALESCE(txn.quantity,0))/GREATEST(NULLIF(invoice.quantity,0),NULLIF(txn.quantity,0)))*100.0),2) AS quantity_difference_percentage,
-              COALESCE(invoice.price,0)                                                                                                                       AS billing_price,
-              COALESCE(invoice.quantity,0)                                                                                                                    AS billing_quantity,
-              COALESCE(txn.price,0)                                                                                                                           AS transaction_price,
-              COALESCE(txn.quantity,0)                                                                                                                        AS transaction_quantity
+              COALESCE(invoice.vendor_name,txn.vendor_name)         AS vendor_name,
+              COALESCE(invoice.service_name,txn.service_name)       AS service_name,
+              COALESCE(invoice.year,txn.year)                       AS year,
+              COALESCE(invoice.month,txn.month)                     AS month,
+              COALESCE(invoice.price,0)-COALESCE(txn.price,0)       AS price_difference,
+              COALESCE(invoice.quantity,0)-COALESCE(txn.quantity,0) AS quantity_difference,
+              (CASE WHEN txn.price is null then null else 100*(COALESCE(invoice.price,0)-txn.price)/txn.price END) AS price_difference_percentage,
+              (CASE WHEN txn.price is null then null else 100*(COALESCE(invoice.quantity,0)-txn.quantity)/txn.quantity END) AS quantity_difference_percentage,
+              invoice.price                                         AS billing_price,
+              invoice.quantity                                      AS billing_quantity,
+              txn.price                                             AS transaction_price,
+              txn.quantity                                          AS transaction_quantity
           FROM btm_transactions_curated txn
           FULL JOIN btm_billing_curated invoice ON (
               txn.vendor_name=invoice.vendor_name AND
