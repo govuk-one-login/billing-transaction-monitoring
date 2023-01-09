@@ -8,26 +8,24 @@ import {
 } from "../helpers/commonHelpers";
 import { deleteDirectoryRecursiveInS3,putObjectToS3,
     checkIfS3ObjectExists,
-    S3Object } from "../helpers/s3Helper";
+    S3Object} from "../helpers/s3Helper";
 import path from "path";
 import fs from "fs";
 import { startQueryExecutionCommand, queryObject } from "../helpers/athenaHelper";
 import { ClientId, EventName, prettyClientNameMap, prettyEventNameMap } from "../payloads/snsEventPayload";
 
-
 const prefix = resourcePrefix();
-// eslint-disable-next-line spaced-comment
 const bucketName = `${prefix}-storage`;
 const databaseName = `${prefix}-calculations`;
 
-describe("\nExecute athena transaction curated query to retrive price \n", () => {
+describe("\nUpload invoice to standardised folder and verify invoiced parameters matches with transaction parameters \n", () => {
     const folderPrefix = "btm_billing_standardised";
     const testObject: S3Object = {
     bucket: `${prefix}-storage`,
     key: `${folderPrefix}/receipt.txt`,
   };
   beforeAll(async () => {
-        //await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
+        await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
         // uploading file to s3 will be removed once BTM-276 implemented
         const file = "../payloads/receipt.txt";
         const filePath = path.join(__dirname, file);
@@ -47,28 +45,48 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
     "results retrived from billing and transaction_curated view query should match with expected billingQuantity,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice",
     async ({
       eventName,clientId ,eventTime,numberOfTestEvents,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice,billingQty,transactionPrice,transactionQty}) => {
-     // const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
-      const eventIds=await generatePublishAndValidateEvents({
-        numberOfTestEvents,
-        eventName,
-        clientId,
-        eventTime,
-      });
-
-     const tableName=TableNames.BILLING_TRANSACTION_CURATED
-      const response: BillingTransactionCurated[] = await queryResults({clientId,eventName,tableName});
-      console.log("🚀 ~ file: billing-transaction-view-tests.ts:56 ~ describe ~ response", response)
-      await deleteS3Events(eventIds, eventTime);
-      expect(response[0].price_difference).toEqual(priceDiff);
-      expect(response[0].quantity_difference).toEqual(qtyDiff);
-      expect(response[0].price_difference_percentage).toEqual(priceDifferencePercent);
-      expect(response[0].quantity_difference_percentage).toEqual(qtyDifferencePercent);
-      expect(response[0].billing_price).toEqual(billingPrice);
-      expect(response[0].billing_quantity).toEqual(billingQty);
-      expect(response[0].transaction_price).toEqual(transactionPrice);
-      expect(response[0].transaction_quantity).toEqual(transactionQty);
+        await validation(eventName,clientId ,eventTime,numberOfTestEvents,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice,billingQty,transactionPrice,transactionQty);
     });
 })
+
+describe("\n no invoice received for the transaction\n", () => {
+    beforeAll(async () => {
+       await deleteDirectoryRecursiveInS3(bucketName, "btm_billing_standardised");
+    });
+    test.each`
+    eventName                          | clientId     | eventTime                 |numberOfTestEvents|priceDiff     | qtyDiff   | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty  |transactionPrice| transactionQty
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"1"}         | ${"-3.3300"}  | ${"-1"}   |${"-100.0000"}          | ${"-100"}            | ${undefined} |${undefined} | ${"3.3300"}    | ${"1"} 
+  `(
+    "results retrived from billing and transaction_curated view query should match with expected billingQuantity,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice",
+    async ({
+      eventName,clientId ,eventTime,numberOfTestEvents,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice,billingQty,transactionPrice,transactionQty}) => {
+       await validation(eventName,clientId ,eventTime,numberOfTestEvents,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice,billingQty,transactionPrice,transactionQty);
+    });
+})
+
+export const validation = async( 
+    eventName:EventName,
+    clientId:ClientId,
+    eventTime:number,numberOfTestEvents:number,priceDiff:string,qtyDiff:string,priceDifferencePercent:string,qtyDifferencePercent:string,billingPrice:string,billingQty:string,transactionPrice:string,transactionQty:string):Promise<Boolean> => {
+     const eventIds=await generatePublishAndValidateEvents({
+            numberOfTestEvents,
+            eventName,
+            clientId,
+            eventTime,
+          });
+          const tableName=TableNames.BILLING_TRANSACTION_CURATED
+          const response: BillingTransactionCurated[] = await queryResults({clientId,eventName,tableName});
+         await deleteS3Events(eventIds, eventTime);
+          expect(response[0].price_difference).toEqual(priceDiff);
+          expect(response[0].quantity_difference).toEqual(qtyDiff);
+          expect(response[0].price_difference_percentage).toEqual(priceDifferencePercent);
+          expect(response[0].quantity_difference_percentage).toEqual(qtyDifferencePercent);
+          expect(response[0].billing_price).toEqual(billingPrice);
+          expect(response[0].billing_quantity).toEqual(billingQty);
+          expect(response[0].transaction_price).toEqual(transactionPrice);
+          expect(response[0].transaction_quantity).toEqual(transactionQty);
+          return true
+    }
 
 interface BillingTransactionCurated {
     vendor_name: string;
@@ -98,9 +116,7 @@ export const queryResults = async({
   
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_name='${prettyClientName}' AND service_name='${prettyEventName}'`;
-    console.log("🚀 ~ file: billing-transaction-view-tests.ts:101 ~ curatedQueryString", curatedQueryString)
     const queryId = await startQueryExecutionCommand(
-      
       databaseName,
       curatedQueryString
     );
