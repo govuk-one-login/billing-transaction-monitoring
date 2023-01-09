@@ -38,11 +38,13 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
   });
 
   test.each`
-    eventName                          | clientId     | eventTime                 |numberOfTestEvents|billingQuantity |unitPrice  |priceDiff     | qtyDiff   | priceDifferencePercent   | qtyDifferencePercent | billingPrice   
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"2"}         | ${"2"}         | ${3.33}   |${"0.0000"}   | ${"0"}    |${"0.0"}                  | ${"0.0"}             | ${"6.6600"} 
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"1"}         | ${"2"}         | ${3.33}   |${"3.3300"}   | ${"1"}    |${"50.0"}                 | ${"100.0"}           | ${"6.6600"} 
+    eventName                          | clientId     | eventTime                 |numberOfTestEvents|billingQuantity |unitPrice  |priceDiff     | qtyDiff   | priceDifferencePercent   | qtyDifferencePercent | billingPrice 
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"2"}         | ${"2"}         | ${3.33}   |${"0.0000"}   | ${"0"}    |${"0.0000"}               | ${"0"}               | ${"6.6600"}   
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"1"}         | ${"2"}         | ${3.33}   |${"3.3300"}   | ${"1"}    |${"100.0000"}             | ${"100"}             | ${"6.6600"} 
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"0"}         | ${"2"}         | ${3.33}   |${"3.3300"}   | ${"1"}    |${"100.0000"}             | ${"100"}             | ${"6.6600"} 
+    
   `(
-    "results retrived from billing and transaction_curated view query should match with expected vendorname, service name, price and quantity for $numberOfTestEvents",
+    "results retrived from billing and transaction_curated view query should match with expected billingQuantity,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice",
     async ({
       eventName,clientId ,eventTime,numberOfTestEvents,unitPrice,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingQuantity, billingPrice}) => {
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
