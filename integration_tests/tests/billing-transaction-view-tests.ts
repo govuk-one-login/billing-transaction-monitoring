@@ -3,9 +3,6 @@ import { resourcePrefix } from "../helpers/envHelper";
 import {
   deleteS3Events,
   generatePublishAndValidateEvents,
-  
-  queryResults,
-  
   TableNames,
   TimeStamps,
 } from "../helpers/commonHelpers";
@@ -14,10 +11,14 @@ import { deleteDirectoryRecursiveInS3,putObjectToS3,
     S3Object } from "../helpers/s3Helper";
 import path from "path";
 import fs from "fs";
+import { startQueryExecutionCommand, queryObject } from "../helpers/athenaHelper";
+import { ClientId, EventName, prettyClientNameMap, prettyEventNameMap } from "../payloads/snsEventPayload";
 
 
 const prefix = resourcePrefix();
+// eslint-disable-next-line spaced-comment
 const bucketName = `${prefix}-storage`;
+const databaseName = `${prefix}-calculations`;
 
 describe("\nExecute athena transaction curated query to retrive price \n", () => {
     const folderPrefix = "btm_billing_standardised";
@@ -26,7 +27,7 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
     key: `${folderPrefix}/receipt.txt`,
   };
   beforeAll(async () => {
-       await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
+        await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
         // uploading file to s3 will be removed once BTM-276 implemented
         const file = "../payloads/receipt.txt";
         const filePath = path.join(__dirname, file);
@@ -37,14 +38,15 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
   });
 
   test.each`
-    eventName                          | clientId     | eventTime                 |numberOfTestEvents|unitPrice  |priceDiff   | qtyDiff   | priceDifferencePercent   | qtyDifferencePercent    
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"2"}         |${3.33}    |${"0.0000"}   | ${"0"}    |${"0.0"}                | ${"0.0"}
+    eventName                          | clientId     | eventTime                 |numberOfTestEvents|billingQuantity |unitPrice  |priceDiff     | qtyDiff   | priceDifferencePercent   | qtyDifferencePercent | billingPrice   
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"2"}         | ${"2"}         | ${3.33}   |${"0.0000"}   | ${"0"}    |${"0.0"}                  | ${"0.0"}             | ${"6.6600"} 
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"1"}         | ${"2"}         | ${3.33}   |${"3.3300"}   | ${"1"}    |${"50.0"}                 | ${"100.0"}           | ${"6.6600"} 
   `(
     "results retrived from billing and transaction_curated view query should match with expected vendorname, service name, price and quantity for $numberOfTestEvents",
     async ({
-      eventName,clientId ,eventTime,numberOfTestEvents,unitPrice,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent}) => {
+      eventName,clientId ,eventTime,numberOfTestEvents,unitPrice,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingQuantity, billingPrice}) => {
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
-    const eventIds=await generatePublishAndValidateEvents({
+      const eventIds=await generatePublishAndValidateEvents({
         numberOfTestEvents,
         eventName,
         clientId,
@@ -55,9 +57,9 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
       const response: BillingTransactionCurated[] = await queryResults({clientId,eventName,tableName});
       console.log("🚀 ~ file: billing-transaction-view-tests.ts:56 ~ describe ~ response", response)
       await deleteS3Events(eventIds, eventTime);
-      expect(response[0].billing_quantity).toEqual(numberOfTestEvents);
+      expect(response[0].billing_quantity).toEqual(billingQuantity);
       expect(response[0].transaction_quantity).toEqual(numberOfTestEvents);
-      expect(response[0].billing_price).toEqual(expectedPrice);
+      expect(response[0].billing_price).toEqual(billingPrice);
       expect(response[0].transaction_price).toEqual(expectedPrice);
       expect(response[0].price_difference).toEqual(priceDiff);
       expect(response[0].quantity_difference).toEqual(qtyDiff);
@@ -83,5 +85,29 @@ interface BillingTransactionCurated {
     transaction_quantity: number;
 }
 
+export const queryResults = async({
+    clientId,
+    eventName, tableName
+  }: {
+    clientId: ClientId;
+    eventName: EventName;
+    tableName:TableNames
+  }): Promise<[]> => {
+    const prettyClientName = prettyClientNameMap[clientId];
+    const prettyEventName = prettyEventNameMap[eventName];
+  
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_name='${prettyClientName}' AND service_name='${prettyEventName}'`;
+    console.log("🚀 ~ file: billing-transaction-view-tests.ts:101 ~ curatedQueryString", curatedQueryString)
+    const queryId = await startQueryExecutionCommand(
+      
+      databaseName,
+      curatedQueryString
+    );
+    const results = await queryObject(queryId);
+    return results;
+  }
+
+  
  
 
