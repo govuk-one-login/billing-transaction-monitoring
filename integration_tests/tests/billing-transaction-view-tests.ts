@@ -27,7 +27,7 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
     key: `${folderPrefix}/receipt.txt`,
   };
   beforeAll(async () => {
-        await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
+        //await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
         // uploading file to s3 will be removed once BTM-276 implemented
         const file = "../payloads/receipt.txt";
         const filePath = path.join(__dirname, file);
@@ -38,16 +38,16 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
   });
 
   test.each`
-    eventName                          | clientId     | eventTime                 |numberOfTestEvents|billingQuantity |unitPrice  |priceDiff     | qtyDiff   | priceDifferencePercent   | qtyDifferencePercent | billingPrice 
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"2"}         | ${"2"}         | ${3.33}   |${"0.0000"}   | ${"0"}    |${"0.0000"}               | ${"0"}               | ${"6.6600"}   
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"1"}         | ${"2"}         | ${3.33}   |${"3.3300"}   | ${"1"}    |${"100.0000"}             | ${"100"}             | ${"6.6600"} 
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"0"}         | ${"2"}         | ${3.33}   |${"3.3300"}   | ${"1"}    |${"100.0000"}             | ${"100"}             | ${"6.6600"} 
+    eventName                          | clientId     | eventTime                 |numberOfTestEvents|priceDiff     | qtyDiff   | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty|transactionPrice| transactionQty
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"2"}         | ${"0.0000"}  | ${"0"}    |${"0.0000"}             | ${"0"}               | ${"6.6600"}  |${"2"}     | ${"6.6600"}    | ${"2"} 
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${"1"}         | ${"3.3300"}  | ${"1"}    |${"100.0000"}           | ${"100"}             | ${"6.6600"}  |${"2"}     | ${"3.3300"}    | ${"1"} 
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} |${TimeStamps.CURRENT_TIME} |   ${undefined}   |${"6.6600"}   | ${"2"}    |${undefined}            | ${undefined}         | ${"6.6600"}  |${"2"}     | ${undefined}   | ${undefined}  
     
   `(
     "results retrived from billing and transaction_curated view query should match with expected billingQuantity,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice",
     async ({
-      eventName,clientId ,eventTime,numberOfTestEvents,unitPrice,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingQuantity, billingPrice}) => {
-      const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
+      eventName,clientId ,eventTime,numberOfTestEvents,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice,billingQty,transactionPrice,transactionQty}) => {
+     // const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
       const eventIds=await generatePublishAndValidateEvents({
         numberOfTestEvents,
         eventName,
@@ -59,17 +59,15 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
       const response: BillingTransactionCurated[] = await queryResults({clientId,eventName,tableName});
       console.log("🚀 ~ file: billing-transaction-view-tests.ts:56 ~ describe ~ response", response)
       await deleteS3Events(eventIds, eventTime);
-      expect(response[0].billing_quantity).toEqual(billingQuantity);
-      expect(response[0].transaction_quantity).toEqual(numberOfTestEvents);
-      expect(response[0].billing_price).toEqual(billingPrice);
-      expect(response[0].transaction_price).toEqual(expectedPrice);
       expect(response[0].price_difference).toEqual(priceDiff);
       expect(response[0].quantity_difference).toEqual(qtyDiff);
       expect(response[0].price_difference_percentage).toEqual(priceDifferencePercent);
       expect(response[0].quantity_difference_percentage).toEqual(qtyDifferencePercent);
-    }
-    
-  );
+      expect(response[0].billing_price).toEqual(billingPrice);
+      expect(response[0].billing_quantity).toEqual(billingQty);
+      expect(response[0].transaction_price).toEqual(transactionPrice);
+      expect(response[0].transaction_quantity).toEqual(transactionQty);
+    });
 })
 
 interface BillingTransactionCurated {
