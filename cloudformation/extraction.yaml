@@ -67,7 +67,7 @@ Resources:
       QueueName: !Sub ${AWS::StackName}-extract-queue
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
-        deadLetterTargetArn: !GetAtt ExtractDeadLetterQueue.Arn
+        deadLetterTargetArn: !GetAtt ExtractQueueDeadLetterQueue.Arn
         maxReceiveCount: 1
 
   ExtractQueuePolicy:
@@ -87,13 +87,13 @@ Resources:
       Queues:
         - !Ref ExtractQueue
 
-  ExtractDeadLetterQueue:
+  ExtractQueueDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Sub ${AWS::StackName}-extract-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-  ExtractDeadLetterQueueAlarm:
+  ExtractQueueDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: !Sub ${AWS::StackName}-extract-dlq-alarm
@@ -107,7 +107,7 @@ Resources:
             Metric:
               Dimensions:
                 - Name: QueueName
-                  Value: !GetAtt ExtractDeadLetterQueue.QueueName
+                  Value: !GetAtt ExtractQueueDeadLetterQueue.QueueName
               MetricName: ApproximateNumberOfMessagesVisible
               Namespace: AWS/SQS
             Period: 1800

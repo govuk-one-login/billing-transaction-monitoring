@@ -160,7 +160,7 @@ Resources:
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName
-          Value: !Ref CleanFunction
+          Value: !Ref RawInvoiceTextractDataStorageFunction
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
