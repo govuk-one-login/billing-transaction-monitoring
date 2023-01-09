@@ -123,7 +123,3 @@ export const queryResults = async({
     const results = await queryObject(queryId);
     return results;
   }
-
-  
- 
-

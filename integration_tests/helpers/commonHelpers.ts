@@ -7,14 +7,8 @@ import { deleteObjectInS3, getS3ItemsList } from "./s3Helper";
 import { publishSNS } from "./snsHelper";
 import { resourcePrefix } from "../helpers/envHelper";
 
-
-
-
-
 const prefix = resourcePrefix();
 const objectsPrefix = "btm_transactions";
-
-
 
 export const generateRandomId = (): string => {
   return Math.floor(Math.random() * 10000000).toString();
@@ -141,6 +135,3 @@ export const deleteS3Events = async (
   console.log("deleted the files from s3");
   return true;
 };
-
-
-
