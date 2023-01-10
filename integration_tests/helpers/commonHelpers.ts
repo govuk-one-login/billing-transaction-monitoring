@@ -2,7 +2,7 @@ import {
   ClientId,
   SNSEventPayload,
   EventName,
- } from "../payloads/snsEventPayload";
+} from "../payloads/snsEventPayload";
 import { deleteObjectInS3, getS3ItemsList } from "./s3Helper";
 import { publishSNS } from "./snsHelper";
 import { resourcePrefix } from "../helpers/envHelper";
@@ -28,8 +28,8 @@ export enum TimeStamps {
 }
 
 export enum TableNames {
-  BILLING_TRANSACTION_CURATED="btm_billing_and_transactions_curated",
-  TRANSACTION_CURATED="btm_transactions_curated",
+  BILLING_TRANSACTION_CURATED = "btm_billing_and_transactions_curated",
+  TRANSACTION_CURATED = "btm_transactions_curated",
 }
 
 export const eventTimeStamp = {
