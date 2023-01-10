@@ -18,6 +18,20 @@ export const validTimestamp = (): number => {
   return new Date().getTime() / 1000;
 };
 
+export const thisTimeLastYear = (): number => {
+  return Math.floor((new Date().getTime() - 365 * 24 * 60 * 60 * 1000) / 1000);
+};
+
+export enum TimeStamps {
+  THIS_TIME_LAST_YEAR,
+  CURRENT_TIME,
+}
+
+export const eventTimeStamp = {
+  [TimeStamps.THIS_TIME_LAST_YEAR]: thisTimeLastYear(),
+  [TimeStamps.CURRENT_TIME]: validTimestamp(),
+};
+
 export const waitForTrue = async (
   predicate: () => Promise<boolean | undefined | Object[]>,
   delayMS: number,
@@ -41,17 +55,14 @@ export const waitForTrue = async (
 };
 
 export const generateTestEvent = async (
-  eventName: EventName,
-  clientId: ClientId
-): Promise<SNSEventPayload> => {
-  return {
-    event_name: eventName,
-    event_id: generateRandomId(),
-    component_id: "TEST_COMP",
-    timestamp: validTimestamp(),
-    client_id: clientId,
-  };
-};
+  overrides: Partial<SNSEventPayload> &
+    Pick<SNSEventPayload, "event_name" | "client_id">
+): Promise<SNSEventPayload> => ({
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp(),
+  ...overrides,
+});
 
 export const publishAndValidateEvent = async (
   event: SNSEventPayload
@@ -73,23 +84,34 @@ export const generatePublishAndValidateEvents = async ({
   numberOfTestEvents,
   eventName,
   clientId,
+  eventTime,
 }: {
   numberOfTestEvents: number;
   eventName: EventName;
   clientId: ClientId;
+  eventTime: TimeStamps;
 }): Promise<string[]> => {
   const eventIds: string[] = [];
   for (let i = 0; i < numberOfTestEvents; i++) {
-    const event = await generateTestEvent(eventName, clientId);
+    const event = await generateTestEvent({
+      client_id: clientId,
+      event_name: eventName,
+      timestamp: eventTimeStamp[eventTime],
+    });
     await publishAndValidateEvent(event);
     eventIds.push(event.event_id); // storing event_ids in array to delete from s3 later on
   }
   return eventIds;
 };
 
-export const deleteS3Event = async (eventId: string): Promise<boolean> => {
+export const deleteS3Event = async (
+  eventId: string,
+  eventTime: TimeStamps
+): Promise<boolean> => {
   const bucketName = `${prefix}-storage`;
-  const date = new Date().toISOString().slice(0, 10);
+  const date = new Date(eventTimeStamp[eventTime] * 1000)
+    .toISOString()
+    .slice(0, 10);
   await deleteObjectInS3({
     bucket: bucketName,
     key: `btm_transactions/${date}/${eventId}.json`,
@@ -98,9 +120,12 @@ export const deleteS3Event = async (eventId: string): Promise<boolean> => {
   return true;
 };
 
-export const deleteS3Events = async (eventIds: string[]): Promise<boolean> => {
+export const deleteS3Events = async (
+  eventIds: string[],
+  eventTime: TimeStamps
+): Promise<boolean> => {
   for (const eventId of eventIds) {
-    await deleteS3Event(eventId);
+    await deleteS3Event(eventId, eventTime);
   }
   console.log("deleted the files from s3");
   return true;

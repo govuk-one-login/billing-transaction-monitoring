@@ -7,6 +7,12 @@ Parameters:
     Description: Environment type
     Type: String
     Default: dev
+    AllowedValues:
+      - dev
+      - build
+      - staging
+      - integration
+      - production
   CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
@@ -15,16 +21,18 @@ Parameters:
     Description: ARN of permissions boundary for new roles
     Type: String
     Default: none
-  ConfigStack:
-    Description: Config stack to use for configuration
+  PrivateConfigStack:
+    Description: Private config stack to use for configuration
     Type: String
-    Default: di-btm-cfg
+    Default: none
 
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
+  UsePrivateConfigStack: !Not [!Equals [!Ref PrivateConfigStack, none]]
   IsLocal: !Equals [!Ref Environment, local]
-  IsDev: !Equals [!Ref Environment, dev]
+  # This is a workaround for the pipeline in dev being deployed with Environment=build due to hardcoded permissions
+  IsDev: !Equals [!Select [2, !Split ['-', !Ref AWS::StackName]], dev]
   IsBuild: !Equals [!Ref Environment, build]
   IsStaging: !Equals [!Ref Environment, staging]
   IsIntegration: !Equals [!Ref Environment, integration]
