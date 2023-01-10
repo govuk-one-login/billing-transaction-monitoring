@@ -2,6 +2,15 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
+  CleanQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-clean-queue
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt CleanDeadLetterQueue.Arn
+        maxReceiveCount: 1
+
   CleanDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -90,12 +99,3 @@ Resources:
       Period: 1800
       Statistic: Sum
       Threshold: 0
-
-  CleanQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: !Sub ${AWS::StackName}-clean-queue
-      KmsMasterKeyId: !GetAtt KmsKey.Arn
-      RedrivePolicy:
-        deadLetterTargetArn: !GetAtt CleanDeadLetterQueue.Arn
-        maxReceiveCount: 1
