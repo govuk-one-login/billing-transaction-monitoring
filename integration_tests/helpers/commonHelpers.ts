@@ -2,7 +2,7 @@ import {
   ClientId,
   SNSEventPayload,
   EventName,
-} from "../payloads/snsEventPayload";
+ } from "../payloads/snsEventPayload";
 import { deleteObjectInS3, getS3ItemsList } from "./s3Helper";
 import { publishSNS } from "./snsHelper";
 import { resourcePrefix } from "../helpers/envHelper";
