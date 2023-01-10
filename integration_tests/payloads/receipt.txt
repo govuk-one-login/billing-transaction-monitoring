@@ -1,1 +1,1 @@
-{"invoice_receipt_id":"receipt_0000","vendor_name":"Client One","total":6.6600,"invoice_receipt_date":"2023-01-06","subtotal":6.6600,"item_id":0,"item_description":"item_type_0000","service_name":"Passport check","unit_price":3.33,"quantity":2,"price":6.6600}
+{"invoice_receipt_id":"receipt_0000","vendor_name":"Client One","total":6.6600,"invoice_receipt_date":"2023-01-06","subtotal":6.6600,"item_id":0,"item_description":"item_type_0000","service_name":"Passport check","unit_price":3.3300,"quantity":2,"price":6.6600}

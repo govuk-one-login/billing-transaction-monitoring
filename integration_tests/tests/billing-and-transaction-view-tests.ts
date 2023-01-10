@@ -79,6 +79,7 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
 describe("\n no inoice uploaded to standardised folder and verify billing and transaction_curated view query results matches with expected data    \n", () => {
   beforeAll(async () => {
     await deleteDirectoryRecursiveInS3(bucketName, "btm_billing_standardised");
+    await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
   });
   test.each`
     eventName                          | clientId     | eventTime                  | numberOfTestEvents | priceDiff    | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty   | transactionPrice | transactionQty
