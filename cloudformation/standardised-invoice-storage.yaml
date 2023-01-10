@@ -34,6 +34,31 @@ Resources:
       QueueName: !Sub ${AWS::StackName}-standardised-invoice-storage-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
+  StandardisedInvoiceStorageDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-standardised-invoice-storage-dlq-alarm
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      Metrics:
+        - Id: messages
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !GetAtt StandardisedInvoiceStorageDeadLetterQueue.QueueName
+              MetricName: ApproximateNumberOfMessagesVisible
+              Namespace: AWS/SQS
+            Period: 1800
+            Stat: Sum
+          ReturnData: false
+        - Id: messagesRate
+          Expression: RATE(messages)
+          ReturnData: true
+      Threshold: 0
+
   StandardisedInvoiceStorageFunction:
     # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
@@ -78,3 +103,20 @@ Resources:
               Resource:
                 - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
       ReservedConcurrentExecutions: 10
+
+  StandardisedInvoiceStorageFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-standardised-invoice-storage-function-alarm
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref StandardisedInvoiceStorageFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
