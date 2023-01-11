@@ -18,8 +18,8 @@ import {
 
 const prefix = resourcePrefix();
 
-describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket test\n", () => {
-  test("raw-invoice-textract-data bucket should contain textract data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
+describe("\n Happy path S3 uploading mock invoice to the raw invoice pdf bucket test\n", () => {
+  test("storage and raw-invoice-textract-data buckets should contain textract data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
     const testStartTime = new Date();
     const invoice = randomInvoice();
     const { bucketName, path } = await makeMockInvoicePDF(writeInvoiceToS3)(
@@ -70,6 +70,47 @@ describe("\n Happy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket 
     );
     console.log(textractFilteredObject);
     expect(textractFilteredObject).toBeTruthy();
+
+    const checkStandardisedFileContainsStringFromOriginalPdf =
+      async (): Promise<boolean> => {
+        const result = await getS3ItemsList(
+          `${prefix}-storage`,'btm_billing_standardised'
+        );
+
+        if (result.Contents === undefined) {
+          return false;
+        }
+
+        const s3ContentsFilteredByTestStartTime = result.Contents?.filter(
+          (item) => {
+            return (
+              item.LastModified !== undefined &&
+              item.LastModified >= testStartTime
+            );
+          }
+        );
+        console.log("Filtered contents:", s3ContentsFilteredByTestStartTime);
+        if (s3ContentsFilteredByTestStartTime.length === 0) {
+          return false;
+        }
+        const key =  String(s3ContentsFilteredByTestStartTime[0].Key);
+        console.log("🚀 ~ file: billing-standardised-tests.ts:94 ~ key", key)
+        const fileContents = await getS3Object({
+          bucket: `${prefix}-storage`,
+          key,
+        });
+        return fileContents?.includes(invoice.invoiceNumber) ?? false;
+      };
+
+
+      const standardisedFilteredObject = await waitForTrue(
+        checkStandardisedFileContainsStringFromOriginalPdf,
+        1000,
+        25000
+      );
+      console.log(standardisedFilteredObject);
+      expect(standardisedFilteredObject).toBeTruthy();
+  
 
     const isFileMovedToSuccessfulFolder = async (): Promise<boolean> => {
       const result = await getS3ItemsList(bucketName, "successful");
