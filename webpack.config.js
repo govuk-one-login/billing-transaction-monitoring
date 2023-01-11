@@ -17,6 +17,7 @@ export default {
     storeTransactions: "./src/handlers/store-transactions/handler.ts",
     storeStandardisedInvoices:
       "./src/handlers/store-standardised-invoices/handler.ts",
+    transformation: "./src/handlers/transformation/handler.ts",
   },
   externals: "aws-sdk",
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",

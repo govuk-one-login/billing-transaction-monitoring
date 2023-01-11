@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  TransformationBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-transformation
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: storage-bucket/log
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.csv'
+            Function: !GetAtt TransformationFunction.Arn
+
+  TransformationFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-transformation-function
+      Events:
+        S3Event:
+          Type: S3
+          Properties:
+            Bucket: !Ref TransformationBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.csv'
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          OUTPUT_QUEUE_URL: !Ref FilterQueue
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+      Handler: transformation.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !GetAtt FilterQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource:
+                - !GetAtt KmsKey.Arn
+                - !If [
+                  IsHigherEnv,
+                  !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-kms-key-arn}}',
+                  !Ref AWS::NoValue,
+                ]
+      ReservedConcurrentExecutions: 10
