@@ -18,8 +18,8 @@ import {
 
 const prefix = resourcePrefix();
 
-describe("\n Happy path S3 uploading mock invoice to the raw invoice pdf bucket test\n", () => {
-  test("storage and raw-invoice-textract-data buckets should contain textract data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
+describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf bucket test\n", () => {
+  test("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
     const testStartTime = new Date();
     const invoice = randomInvoice();
     const { bucketName, path } = await makeMockInvoicePDF(writeInvoiceToS3)(
@@ -51,7 +51,7 @@ describe("\n Happy path S3 uploading mock invoice to the raw invoice pdf bucket 
             );
           }
         );
-        console.log("Filtered contents:", s3ContentsFilteredByTestStartTime);
+        console.log("Raw-invoice-Textract folder filtered contents:", s3ContentsFilteredByTestStartTime);
         if (s3ContentsFilteredByTestStartTime.length === 0) {
           return false;
         }
@@ -89,12 +89,11 @@ describe("\n Happy path S3 uploading mock invoice to the raw invoice pdf bucket 
             );
           }
         );
-        console.log("Filtered contents:", s3ContentsFilteredByTestStartTime);
+        console.log("Standardised folder filtered contents:", s3ContentsFilteredByTestStartTime);
         if (s3ContentsFilteredByTestStartTime.length === 0) {
           return false;
         }
         const key =  String(s3ContentsFilteredByTestStartTime[0].Key);
-        console.log("🚀 ~ file: billing-standardised-tests.ts:94 ~ key", key)
         const fileContents = await getS3Object({
           bucket: `${prefix}-storage`,
           key,
@@ -133,14 +132,14 @@ describe("\n Happy path S3 uploading mock invoice to the raw invoice pdf bucket 
   });
 });
 
-describe("\n Unappy path S3 raw-invoice-pdf and raw-invoice-textract-data bucket test\n", () => {
+describe("\n Unappy path - Upload invalid pdf to the raw invoice pdf bucket test\n", () => {
   const uniqueString = Math.random().toString(36).substring(2, 7);
   const rawInvoice: S3Object = {
     bucket: `${prefix}-raw-invoice-pdf`,
     key: `raw-Invoice-${uniqueString}-validFile.pdf`,
   };
 
-  test("raw-invoice-textract-data bucket should not contain textract data file for uploaded invalid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to failed folder in s3 raw-invoice-pdf bucket ", async () => {
+  test("raw-invoice-textract-data and storage buckets should not contain textracted and standardised data file for the uploaded invalid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to failed folder in s3 raw-invoice-pdf bucket ", async () => {
     const file = "../payloads/invalidFiletoTestTextractFailure.pdf";
     const filename = path.join(__dirname, file);
     const fileStream = fs.createReadStream(filename);
