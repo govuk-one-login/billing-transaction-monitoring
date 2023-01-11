@@ -7,7 +7,11 @@ export const getDueDate = (
 ): string | undefined => {
   const rawDateText = getHighestConfidenceTextractValue(fields, "DUE_DATE");
 
-  return rawDateText === undefined
-    ? undefined
-    : getStandardisedDateText(rawDateText);
+  if (rawDateText === undefined) return undefined;
+
+  try {
+    return getStandardisedDateText(rawDateText);
+  } catch (error) {
+    console.warn(error);
+  }
 };

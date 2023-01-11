@@ -18,7 +18,7 @@ const MONTH_NUMBER_BY_ABBREVIATION = {
 /** Given string with day then month then year, where month can be name or number, get in format YYYY-MM-DD */
 export const getStandardisedDateText = (rawText: string): string => {
   const match = rawText.match(/^(\d+)[ /.-](\d?\d|[a-z]+)[ /.-](\d\d\d\d)$/i);
-  if (match === null) throw new Error("Invalid date format.");
+  if (match === null) throw new Error(`Unsupported date format: ${rawText}`);
   const dayNumber = Number(match[1]);
   const monthNumber = getMonthNumber(match[2]);
   const yearNumber = Number(match[3]);
@@ -30,13 +30,14 @@ const getMonthNumber = (monthText: string): number => {
 
   if (numberMatch !== null) return Number(monthText);
 
-  if (monthText.length < 3) throw new Error("Invalid month abbreviation.");
+  if (monthText.length < 3)
+    throw new Error(`Invalid month abbreviation: ${monthText}`);
 
   const abbreviation = monthText.slice(0, 3);
   const lowerCaseAbbreviation = abbreviation.toLowerCase();
 
   if (!isMonthAbbrevation(lowerCaseAbbreviation))
-    throw new Error("Unrecognised month.");
+    throw new Error(`Unrecognised month: ${monthText}`);
 
   return MONTH_NUMBER_BY_ABBREVIATION[lowerCaseAbbreviation];
 };

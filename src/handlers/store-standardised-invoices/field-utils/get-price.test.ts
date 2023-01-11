@@ -9,9 +9,16 @@ const mockedGetHighestConfidenceTextractValue =
 jest.mock("./get-number-from-money-text");
 const mockedGetNumberFromMoneyText = getNumberFromMoneyText as jest.Mock;
 
+const oldConsoleWarn = console.warn;
+
 describe("Price getter", () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    console.warn = jest.fn();
+  });
+
+  afterAll(() => {
+    console.warn = oldConsoleWarn;
   });
 
   test("Price getter with no Textract value", () => {
@@ -43,6 +50,31 @@ describe("Price getter", () => {
     const result = getPrice(givenFields);
 
     expect(result).toBe(mockedPriceNumber);
+    expect(getHighestConfidenceTextractValue).toHaveBeenCalledTimes(1);
+    expect(getHighestConfidenceTextractValue).toHaveBeenCalledWith(
+      givenFields,
+      "PRICE"
+    );
+    expect(mockedGetNumberFromMoneyText).toHaveBeenCalledTimes(1);
+    expect(mockedGetNumberFromMoneyText).toHaveBeenCalledWith(
+      mockedTextractValue
+    );
+  });
+
+  test("Price getter with money parsing error", () => {
+    const mockedTextractValue = "mocked Textract value";
+    mockedGetHighestConfidenceTextractValue.mockReturnValue(
+      mockedTextractValue
+    );
+    mockedGetNumberFromMoneyText.mockImplementation(() => {
+      throw new Error("mocked error");
+    });
+
+    const givenFields = "given fields" as any;
+
+    const result = getPrice(givenFields);
+
+    expect(result).toBeUndefined();
     expect(getHighestConfidenceTextractValue).toHaveBeenCalledTimes(1);
     expect(getHighestConfidenceTextractValue).toHaveBeenCalledWith(
       givenFields,

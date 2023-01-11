@@ -6,5 +6,12 @@ export const getPrice = (
   fields: Textract.ExpenseField[]
 ): number | undefined => {
   const price = getHighestConfidenceTextractValue(fields, "PRICE");
-  return price === undefined ? undefined : getNumberFromMoneyText(price);
+
+  if (price === undefined) return undefined;
+
+  try {
+    return getNumberFromMoneyText(price);
+  } catch (error) {
+    console.warn(error);
+  }
 };

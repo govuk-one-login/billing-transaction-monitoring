@@ -9,9 +9,16 @@ const mockedGetHighestConfidenceTextractValue =
 jest.mock("./get-standardised-date-text");
 const mockedGetStandardisedDateText = getStandardisedDateText as jest.Mock;
 
+const oldConsoleWarn = console.warn;
+
 describe("Due date getter", () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    console.warn = jest.fn();
+  });
+
+  afterAll(() => {
+    console.warn = oldConsoleWarn;
   });
 
   test("Due date getter with no Textract value", () => {
@@ -43,6 +50,31 @@ describe("Due date getter", () => {
     const result = getDueDate(givenFields);
 
     expect(result).toBe(mockedDateText);
+    expect(getHighestConfidenceTextractValue).toHaveBeenCalledTimes(1);
+    expect(getHighestConfidenceTextractValue).toHaveBeenCalledWith(
+      givenFields,
+      "DUE_DATE"
+    );
+    expect(mockedGetStandardisedDateText).toHaveBeenCalledTimes(1);
+    expect(mockedGetStandardisedDateText).toHaveBeenCalledWith(
+      mockedTextractValue
+    );
+  });
+
+  test("Due date getter with date parsing error", () => {
+    const mockedTextractValue = "mocked Textract value";
+    mockedGetHighestConfidenceTextractValue.mockReturnValue(
+      mockedTextractValue
+    );
+    mockedGetStandardisedDateText.mockImplementation(() => {
+      throw new Error("mocked error");
+    });
+
+    const givenFields = "given fields" as any;
+
+    const result = getDueDate(givenFields);
+
+    expect(result).toBeUndefined();
     expect(getHighestConfidenceTextractValue).toHaveBeenCalledTimes(1);
     expect(getHighestConfidenceTextractValue).toHaveBeenCalledWith(
       givenFields,

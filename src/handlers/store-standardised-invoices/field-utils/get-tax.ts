@@ -4,5 +4,12 @@ import { getNumberFromMoneyText } from "./get-number-from-money-text";
 
 export const getTax = (fields: Textract.ExpenseField[]): number | undefined => {
   const taxText = getHighestConfidenceTextractValue(fields, "TAX");
-  return taxText === undefined ? undefined : getNumberFromMoneyText(taxText);
+
+  if (taxText === undefined) return undefined;
+
+  try {
+    return getNumberFromMoneyText(taxText);
+  } catch (error) {
+    console.warn(error);
+  }
 };

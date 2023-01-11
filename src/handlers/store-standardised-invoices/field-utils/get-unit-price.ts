@@ -7,7 +7,11 @@ export const getUnitPrice = (
 ): number | undefined => {
   const unitPrice = getHighestConfidenceTextractValue(fields, "UNIT_PRICE");
 
-  return unitPrice === undefined
-    ? undefined
-    : getNumberFromMoneyText(unitPrice);
+  if (unitPrice === undefined) return undefined;
+
+  try {
+    return getNumberFromMoneyText(unitPrice);
+  } catch (error) {
+    console.warn(error);
+  }
 };

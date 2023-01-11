@@ -6,5 +6,12 @@ export const getSubtotal = (
   fields: Textract.ExpenseField[]
 ): number | undefined => {
   const subtotal = getHighestConfidenceTextractValue(fields, "SUBTOTAL");
-  return subtotal === undefined ? undefined : getNumberFromMoneyText(subtotal);
+
+  if (subtotal === undefined) return undefined;
+
+  try {
+    return getNumberFromMoneyText(subtotal);
+  } catch (error) {
+    console.warn(error);
+  }
 };
