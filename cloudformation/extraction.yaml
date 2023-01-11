@@ -44,6 +44,23 @@ Resources:
               Resource: !Join ['/', [!GetAtt RawInvoicePdfBucket.Arn, '*']]
       ReservedConcurrentExecutions: 10
 
+  ExtractFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-extract-function-alarm
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref ExtractFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 1800
+      Statistic: Sum
+      Threshold: 0
+
   ExtractQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -53,11 +70,53 @@ Resources:
         deadLetterTargetArn: !GetAtt ExtractQueueDeadLetterQueue.Arn
         maxReceiveCount: 1
 
+  ExtractQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnLike:
+                aws:SourceArn: arn:aws:s3:::*
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+            Effect: Allow
+            Principal: '*'
+            Resource: '*'
+      Queues:
+        - !Ref ExtractQueue
+
   ExtractQueueDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Sub ${AWS::StackName}-extract-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  ExtractQueueDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-extract-dlq-alarm
+      AlarmActions:
+        - !Ref AlarmTopic
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      Metrics:
+        - Id: messages
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !GetAtt ExtractQueueDeadLetterQueue.QueueName
+              MetricName: ApproximateNumberOfMessagesVisible
+              Namespace: AWS/SQS
+            Period: 1800
+            Stat: Sum
+          ReturnData: false
+        - Id: messagesRate
+          Expression: RATE(messages)
+          ReturnData: true
+      Threshold: 0
 
   TextractRole:
     Type: AWS::IAM::Role
@@ -97,20 +156,3 @@ Resources:
                   - kms:GenerateDataKey*
                   - kms:Encrypt
                 Resource: !GetAtt KmsKey.Arn
-
-  ExtractQueuePolicy:
-    Type: AWS::SQS::QueuePolicy
-    Properties:
-      PolicyDocument:
-        Statement:
-          - Action: SQS:SendMessage
-            Condition:
-              ArnLike:
-                aws:SourceArn: arn:aws:s3:::*
-              StringEquals:
-                aws:SourceAccount: !Ref AWS::AccountId
-            Effect: Allow
-            Principal: '*'
-            Resource: '*'
-      Queues:
-        - !Ref ExtractQueue
