@@ -47,7 +47,7 @@ export const makeMockInvoicePDF =
     });
     doc.text(`Invoice Number:\n${invoice.invoiceNumber}`, 12, 2);
     doc.text(`Invoice Date:\n${invoice.date.toLocaleDateString("en-GB")}`, 12, 3);
-    doc.text(`Due Date:\n${invoice.dueDate.toLocaleString("en-GB")}`, 12, 4);
+    doc.text(`Due Date:\n${invoice.dueDate.toLocaleDateString("en-GB")}`, 12, 4);
     doc.text(`VAT Number:\n${invoice.vendor.vatNumber}`, 12, 5);
 
     autoTable(doc, {
