@@ -5,6 +5,7 @@ import {
   generatePublishAndValidateEvents,
   TableNames,
   TimeStamps,
+  waitForTrue,
 } from "../helpers/commonHelpers";
 import {
   deleteDirectoryRecursiveInS3,
@@ -33,18 +34,23 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
     const filePath = path.join(__dirname, file);
     const fileStream = fs.createReadStream(filePath);
     await putObjectToS3(testObject, fileStream);
-    const checkFileExists = await checkIfS3ObjectExists(testObject);
+    const checkFileExists:any = await checkIfS3ObjectExists(testObject);
+    console.log("🚀 ~ file: billing-and-transaction-view-tests.ts:37 ~ beforeAll ~ checkFileExists", checkFileExists)
     expect(checkFileExists).toBeTruthy();
   });
 
   test.each`
-         testCase                             | eventName                          | clientId     | eventTime                  | numberOfTestEvents | priceDiff   | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty | transactionPrice | transactionQty
-   ${"BillingQty equals TransactionQty"}      | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME} | ${"2"}             | ${"0.0000"} | ${"0"}  | ${"0.0000"}            | ${"0"}               | ${"6.6600"}  | ${"2"}     | ${"6.6600"}      | ${"2"}
-   ${"BillingQty greater than TransactionQty"}| ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME} | ${"1"}             | ${"3.3300"} | ${"1"}  | ${"100.0000"}          | ${"100"}             | ${"6.6600"}  | ${"2"}     | ${"3.3300"}      | ${"1"}
-   ${"BillingQty less than TransactionQty"}   | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME} | ${"3"}             | ${"-3.3300"}| ${"-1"} | ${"-33.3333"}          | ${"-33"}             | ${"6.6600"}  | ${"2"}     | ${"9.9900"}      | ${"3"}
-   ${"No TransactionQty but has BillingQty"}  | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME} | ${undefined}       | ${"6.6600"} | ${"2"}  | ${undefined}           | ${undefined}         | ${"6.6600"}  | ${"2"}     | ${undefined}     | ${undefined}
+        
+  testCase                                        | eventName                          | clientId     | eventTime                  | numberOfTestEvents | priceDiff    | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty | transactionPrice | transactionQty
+  ${"BillingQty equals TransactionQty"}           | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME} | ${"2"}             | ${"0.0000"}  | ${"0"}  | ${"0.0000"}            | ${"0"}               | ${"6.6600"}  | ${"2"}     | ${"6.6600"}      | ${"2"}
+  ${"BillingQty greater than TransactionQty"}     | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME} | ${"1"}             | ${"3.3300"}  | ${"1"}  | ${"100.0000"}          | ${"100"}             | ${"6.6600"}  | ${"2"}     | ${"3.3300"}      | ${"1"}
+  ${"BillingQty less than TransactionQty"}        | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME} | ${"3"}             | ${"-3.3300"} | ${"-1"} | ${"-33.3333"}          | ${"-33"}             | ${"6.6600"}  | ${"2"}     | ${"9.9900"}      | ${"3"}
+  ${"No TransactionQty but has BillingQty"}       | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME} | ${undefined}       | ${"6.6600"}  | ${"2"}  | ${undefined}           | ${undefined}         | ${"6.6600"}  | ${"2"}     | ${undefined}     | ${undefined}
+  ${"No billing price but has transactionPrice"}  | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client4"} | ${TimeStamps.CURRENT_TIME} | ${11}              | ${"-27.5000"}| ${"-9"} | ${"-100.0000"}         | ${"-81"}             | ${"0.0000"}  | ${"2"}     | ${"27.5000"}     | ${"11"}
+  ${"No Transaction price and No billing price"}  | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client4"} | ${TimeStamps.CURRENT_TIME} | ${2}               | ${"0.0000"}  | ${"0"}  | ${undefined}           | ${"0"}               | ${"0.0000"}  | ${"2"}     | ${"0.0000"}      | ${"2"}
+  ${"No TransactionPrice but has billing price"}  | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client4"} | ${TimeStamps.CURRENT_TIME} | ${2}               | ${"0.0000"} | ${"9"}  | ${"100.0000"}           | ${"81"}              | ${"27.0000"} | ${"11"}    | ${"0.0000"}      | ${"2"}
   `(
-    "results retrived from billing and transaction_curated view query should match with expected billingQuantity,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice",
+    'results retrived from billing and transaction_curated view query should match with expected $testCase,$billingQty,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent,$billingPrice',
     async ({
       eventName,
       clientId,
@@ -86,7 +92,7 @@ describe("\n no inoice uploaded to standardised folder and verify billing and tr
       testCase                             | eventName                         | clientId     | eventTime                  | numberOfTestEvents | priceDiff    | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty   | transactionPrice | transactionQty
   ${"No BillingQty but has TransactionQty"}|${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME} | ${"1"}             | ${"-3.3300"} | ${"-1"} | ${"-100.0000"}         | ${"-100"}            | ${undefined} | ${undefined} | ${"3.3300"}      | ${"1"}
   `(
-    "results retrived from billing and transaction_curated view query should match with expected billingQuantity,priceDiff,qtyDiff,priceDifferencePercent,qtyDifferencePercent,billingPrice",
+    "results retrived from billing and transaction_curated view query should match with expected $testCase,$billingQuantity,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent,$billingPrice",
     async ({
       eventName,
       clientId,

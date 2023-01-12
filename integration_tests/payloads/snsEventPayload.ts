@@ -4,6 +4,7 @@ export enum ClientId {
   client1 = "client1",
   client2 = "client2",
   client3 = "client3",
+  client4 = "client4",
 }
 
 export enum EventName {
@@ -25,6 +26,7 @@ export const prettyClientNameMap = {
   client1: "Client One",
   client2: "Client Two",
   client3: "Client Three",
+  client4: "Client Four",
 };
 
 export const prettyEventNameMap = {
