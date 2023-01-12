@@ -21,7 +21,7 @@ Resources:
         Status: Enabled
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: storage-bucket/log
+        LogFilePrefix: transformation-bucket/log
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:*
@@ -36,6 +36,7 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
+    DependsOn: TransformationBucket
     Properties:
       FunctionName: !Sub ${AWS::StackName}-transformation-function
       Events:
@@ -59,6 +60,9 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - Statement:
             - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Join ['/', [!GetAtt TransformationBucket.Arn, '*']]
+            - Effect: Allow
               Action:
                 - sqs:SendMessage
               Resource: !GetAtt FilterQueue.Arn
@@ -67,11 +71,5 @@ Resources:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
-              Resource:
-                - !GetAtt KmsKey.Arn
-                - !If [
-                  IsHigherEnv,
-                  !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-kms-key-arn}}',
-                  !Ref AWS::NoValue,
-                ]
+              Resource: !GetAtt KmsKey.Arn
       ReservedConcurrentExecutions: 10
