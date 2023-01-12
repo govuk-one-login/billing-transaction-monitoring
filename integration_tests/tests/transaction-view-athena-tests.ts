@@ -1,6 +1,7 @@
 import { resourcePrefix } from "../helpers/envHelper";
 import {
   deleteS3Events,
+  eventTimeStamp,
   generatePublishAndValidateEvents,
   TableNames,
   TimeStamps,
@@ -13,7 +14,7 @@ import {
   snsInvalidEventNamePayload,
 } from "../payloads/snsEventPayload";
 import { deleteDirectoryRecursiveInS3 } from "../helpers/s3Helper";
-import { queryResponseFilterByVendorServiceNames } from "../helpers/queryHelper";
+import {  queryResponseFilterByVendorServiceNameYear } from "../helpers/queryHelper";
 
 const prefix = resourcePrefix();
 const bucketName = `${prefix}-storage`;
@@ -42,7 +43,8 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
       eventName: EventName;
       numberOfTestEvents: number;
       unitPrice: number;
-      eventTime: number;
+      eventTime: TimeStamps;
+      year:number
     }) => {
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
       const eventIds = await generatePublishAndValidateEvents({
@@ -52,11 +54,12 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
         eventTime,
       });
       const tableName = TableNames.TRANSACTION_CURATED;
+      const year = new Date(eventTimeStamp[eventTime] * 1000).getFullYear()
       const response: TransactionCuratedView[] =
-        await queryResponseFilterByVendorServiceNames({
+        await queryResponseFilterByVendorServiceNameYear({
           clientId,
           eventName,
-          tableName,
+          tableName,year
         });
       await deleteS3Events(eventIds, eventTime);
       expect(response[0].price).toEqual(expectedPrice);
@@ -66,10 +69,11 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
   test("no results returned from transaction_curated athena view query when the event payload has invalid eventName", async () => {
     await publishSNS(snsInvalidEventNamePayload);
     const tableName = TableNames.TRANSACTION_CURATED;
-    const queryRes = await queryResponseFilterByVendorServiceNames({
+    const year = new Date(snsInvalidEventNamePayload.timestamp * 1000).getFullYear()
+    const queryRes = await queryResponseFilterByVendorServiceNameYear({
       clientId: snsInvalidEventNamePayload.client_id,
       eventName: snsInvalidEventNamePayload.event_name,
-      tableName,
+      tableName,year
     });
     expect(queryRes.length).not.toBeGreaterThan(0);
   });
