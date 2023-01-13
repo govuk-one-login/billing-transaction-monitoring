@@ -17,8 +17,8 @@ export const handler = async (event: S3Event): Promise<void> => {
 
   const promises = rows.map(async (row) => {
     await transformRow(row);
-    await Promise.all(promises);
   });
+  await Promise.all(promises);
 };
 
 async function transformCsvToJson(event: S3Event): Promise<any[]> {
