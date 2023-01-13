@@ -12,6 +12,7 @@ export const VALID_EVENT_NAMES = new Set<ValidEventName>([
   "IPV_ADDRESS_CRI_END",
   "IPV_KBV_CRI_REQUEST_SENT",
   "IPV_KBV_CRI_THIRD_PARTY_REQUEST_ENDED",
+  "NEW_EVENT_NAME"
 ]);
 
 export const VALID_TEXTRACT_STATUS_MESSAGES = new Set<ValidTextractJobStatus>([
