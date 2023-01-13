@@ -36,7 +36,6 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    DependsOn: TransformationBucket
     Properties:
       FunctionName: !Sub ${AWS::StackName}-transformation-function
       Events:
@@ -61,7 +60,7 @@ Resources:
         - Statement:
             - Effect: Allow
               Action: s3:GetObject
-              Resource: !Join ['/', [!GetAtt TransformationBucket.Arn, '*']]
+              Resource: !Join ['/', [!Sub "arn:aws:s3:::${AWS::StackName}-transformation", '*']]
             - Effect: Allow
               Action:
                 - sqs:SendMessage
