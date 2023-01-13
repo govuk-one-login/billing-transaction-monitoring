@@ -110,7 +110,7 @@ export const assertResultsWithTestData = async ({
   });
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
   const year = new Date(eventTimeStamp[eventTime] * 1000).getFullYear();
-  const response: BillingTransactionCurated[] =
+  const response: BillingTransactionCurated =
     await queryResponseFilterByVendorServiceNameYear({
       clientId,
       eventName,
@@ -132,7 +132,7 @@ export const assertResultsWithTestData = async ({
   expect(response[0].transaction_quantity).toEqual(transactionQty);
 };
 
-interface BillingTransactionCurated {
+type BillingTransactionCurated = Array<{
   vendor_name: string;
   service_name: string;
   year: string;
@@ -145,4 +145,4 @@ interface BillingTransactionCurated {
   billing_quantity: number;
   transaction_price: number;
   transaction_quantity: number;
-}
+}>
