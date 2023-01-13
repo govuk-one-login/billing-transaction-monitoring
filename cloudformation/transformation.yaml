@@ -60,7 +60,11 @@ Resources:
         - Statement:
             - Effect: Allow
               Action: s3:GetObject
-              Resource: !Join ['/', [!Sub "arn:aws:s3:::${AWS::StackName}-transformation", '*']]
+              Resource:
+                !Join [
+                  '/',
+                  [!Sub 'arn:aws:s3:::${AWS::StackName}-transformation', '*'],
+                ]
             - Effect: Allow
               Action:
                 - sqs:SendMessage
