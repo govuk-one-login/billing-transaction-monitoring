@@ -35,10 +35,6 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
     const fileStream = fs.createReadStream(filePath);
     await putObjectToS3(testObject, fileStream);
     const checkFileExists: any = await checkIfS3ObjectExists(testObject);
-    console.log(
-      "🚀 ~ file: billing-and-transaction-view-tests.ts:37 ~ beforeAll ~ checkFileExists",
-      checkFileExists
-    );
     expect(checkFileExists).toBeTruthy();
   });
 
@@ -54,34 +50,8 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
     ${"BillingQty equals TransactionQty but BillingPrice greater than TransactionPrice"}    | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.THIS_TIME_LAST_YEAR} | ${2}               | ${"4.2000"}   | ${"0"}  | ${"170.7317"}          | ${"0"}               | ${"6.6600"}  | ${"2"}     | ${"2.4600"}      | ${"2"}
     `(
     "results retrived from billing and transaction_curated view query should match with expected $testCase,$billingQty,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent,$billingPrice",
-    async ({
-      eventName,
-      clientId,
-      eventTime,
-      numberOfTestEvents,
-      priceDiff,
-      qtyDiff,
-      priceDifferencePercent,
-      qtyDifferencePercent,
-      billingPrice,
-      billingQty,
-      transactionPrice,
-      transactionQty,
-    }) => {
-      await assertResultsWithTestData(
-        eventName,
-        clientId,
-        eventTime,
-        numberOfTestEvents,
-        priceDiff,
-        qtyDiff,
-        priceDifferencePercent,
-        qtyDifferencePercent,
-        billingPrice,
-        billingQty,
-        transactionPrice,
-        transactionQty
-      );
+    async (data) => {
+      await assertResultsWithTestData(data);
     }
   );
 });
@@ -96,39 +66,14 @@ describe("\n no inoice uploaded to standardised folder and verify billing and tr
     ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME} | ${"1"}             | ${"-3.3300"} | ${"-1"} | ${"-100.0000"}         | ${"-100"}            | ${undefined} | ${undefined} | ${"3.3300"}      | ${"1"}
   `(
     "results retrived from billing and transaction_curated view query should match with expected $testCase,$billingQuantity,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent,$billingPrice",
-    async ({
-      eventName,
-      clientId,
-      eventTime,
-      numberOfTestEvents,
-      priceDiff,
-      qtyDiff,
-      priceDifferencePercent,
-      qtyDifferencePercent,
-      billingPrice,
-      billingQty,
-      transactionPrice,
-      transactionQty,
-    }) => {
-      await assertResultsWithTestData(
-        eventName,
-        clientId,
-        eventTime,
-        numberOfTestEvents,
-        priceDiff,
-        qtyDiff,
-        priceDifferencePercent,
-        qtyDifferencePercent,
-        billingPrice,
-        billingQty,
-        transactionPrice,
-        transactionQty
-      );
+    async (data) => {
+      await assertResultsWithTestData(data);
     }
   );
 });
 
-export const assertResultsWithTestData = async (
+
+interface TestData{
   eventName: EventName,
   clientId: ClientId,
   eventTime: TimeStamps,
@@ -141,6 +86,21 @@ export const assertResultsWithTestData = async (
   billingQty: string,
   transactionPrice: string,
   transactionQty: string
+}
+
+export const assertResultsWithTestData = async ({
+  eventName,
+  clientId,
+  eventTime,
+  numberOfTestEvents,
+  priceDiff,
+  qtyDiff,
+  priceDifferencePercent,
+  qtyDifferencePercent,
+  billingPrice,
+  billingQty,
+  transactionPrice,
+  transactionQty}:TestData
 ): Promise<void> => {
   const eventIds = await generatePublishAndValidateEvents({
     numberOfTestEvents,
