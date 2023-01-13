@@ -64,11 +64,13 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     const queryObj = await queryObject(queryId);
     const queryObjectsVal: BillingStandardised[] = Object.values(queryObj);
     const s3Json = await s3GetObjectsToJson(storageBucket, folderPrefix);
-    const s3Array: BillingStandardised[] = JSON.parse(
-      "[" + String(s3Json["0"]) + "]"
+    const s3Array= JSON.parse(
+      "[" + String(s3Json) + "]"
     );
-    const s3ObjectsVal: BillingStandardised[] = Object.values(s3Array);
-    for (let i = 0; i < s3ObjectsVal.length; i++) {
+
+    const s3ObjectsVal: BillingStandardised[] = [s3Array[0]];
+   
+    for (let i = 0; i < s3Array.length; i++) {
       expect(s3ObjectsVal[i].invoice_receipt_id).toEqual(
         queryObjectsVal[i].invoice_receipt_id
       );
@@ -97,25 +99,25 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
         queryObjectsVal[i].service_name
       );
       expect(Number(s3ObjectsVal[i].unit_price).toFixed(4)).toEqual(
-        queryObjectsVal[i].unit_price
+        queryObjectsVal[i].unit_price.toString()
       );
       expect(s3ObjectsVal[i].quantity).toEqual(queryObjectsVal[i].quantity);
       expect(Number(s3ObjectsVal[i].price).toFixed(4)).toEqual(
-        queryObjectsVal[i].price
+        queryObjectsVal[i].price.toString()
       );
     }
   });
 
-  test("price retrived from billing_curated view results should match with invoiced qty and price", async () => {
+  test.only("price retrived from billing_curated view results should match with invoiced qty and price", async () => {
     let invoiceQty: number = 0;
-    for (let i = 0; i < invoice.lineItems.length; i++) {
-      const lineQty = invoice.lineItems[i].quantity;
-      invoiceQty = invoiceQty + lineQty;
+    for (const item of invoice.lineItems) {
+      invoiceQty = invoiceQty + item.quantity;
     }
     const queryString =
       'SELECT * FROM "btm_billing_curated" ORDER BY service_name ASC';
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const strFromQuery: BillingCurated[] = await queryObject(queryId);
+    console.log("🚀 ~ file: invoice-athena-tests.ts:121 ~ test ~ strFromQuery", strFromQuery)
     expect(strFromQuery[0].quantity).toEqual(invoiceQty.toString());
     expect(strFromQuery[0].price).toEqual(
       Number(invoice.getSubtotal()).toFixed(4)

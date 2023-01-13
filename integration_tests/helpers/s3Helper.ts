@@ -13,7 +13,8 @@ import {
   PutObjectCommandInput,
   PutObjectCommandOutput,
 } from "@aws-sdk/client-s3";
-import { parseStrToJson, regexToRemoveSpecialChar } from "./commonHelpers";
+import { regexToRemoveSpecialChar } from "./commonHelpers";
+
 
 interface S3Object {
   bucket: string;
@@ -158,11 +159,13 @@ export interface BillingStandardised {
  const s3GetObjectsToJson = async (
   bucketName: string,
   folderPrefix: string
-): Promise<BillingStandardised[]> => {
+): Promise<object> => {
   const s3Response = await getAllObjectsFromS3(bucketName, folderPrefix);
   const convertS3Repsonse2Str = JSON.stringify(s3Response);
   const formatS3Str = regexToRemoveSpecialChar(convertS3Repsonse2Str)
-  return parseStrToJson(formatS3Str)
+  const jsonObj= JSON.parse(formatS3Str)
+  return jsonObj
+
 };
 
 export {
