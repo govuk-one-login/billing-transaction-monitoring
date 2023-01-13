@@ -109,10 +109,9 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
   });
 
   test.only("price retrived from billing_curated view results should match with invoiced qty and price", async () => {
-    let invoiceQty: number = 0;
-    for (const item of invoice.lineItems) {
-      invoiceQty = invoiceQty + item.quantity;
-    }
+    const invoiceQty = invoice.lineItems.reduce((accumulator, currentValue) => {
+      return accumulator + currentValue.quantity
+    }, 0)
     const queryString =
       'SELECT * FROM "btm_billing_curated" ORDER BY service_name ASC';
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
