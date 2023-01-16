@@ -66,6 +66,9 @@ Resources:
                   [!Sub 'arn:aws:s3:::${AWS::StackName}-transformation', '*'],
                 ]
             - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub s3://${ConfigStackParameter.Value}/idp_vendors/*
+            - Effect: Allow
               Action:
                 - sqs:SendMessage
               Resource: !GetAtt FilterQueue.Arn

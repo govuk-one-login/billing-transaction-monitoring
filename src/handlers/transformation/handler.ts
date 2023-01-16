@@ -2,6 +2,8 @@ import { S3Event } from "aws-lambda";
 import * as AWS from "aws-sdk";
 import csv from "csvtojson";
 import { sendRecord } from "../../shared/utils";
+import {getS3Object} from "../../../integration_tests/helpers/s3Helper";
+import {configStackName} from "../../../integration_tests/helpers/envHelper";
 
 interface TransformationEventBodyObject {
   event_id: string;
@@ -33,6 +35,29 @@ async function transformCsvToJson(event: S3Event): Promise<any[]> {
   return rows;
 }
 
+let idpClientLookup : Map<string, string> | undefined;
+
+async function getIdpClientLookup() : Promise<Map<string, string>> {
+  if (idpClientLookup === undefined) {
+    idpClientLookup = await readIdpClientLookup();
+  }
+  return idpClientLookup;
+}
+
+async function readIdpClientLookup(): Promise<Map<string, string>> {
+  const x = await getS3Object({
+    bucket: configStackName(),
+    key: "idp-clients.csv",
+  });
+
+  console.log(JSON.stringify(x));
+  return new Map<string, string>();
+}
+
+async function convertClientId(idpEntityId: string): Promise<string> {
+  return (await getIdpClientLookup()).get(idpEntityId) ?? "unknown";
+}
+
 async function transformRow(row: any): Promise<void> {
   if (
     process.env.OUTPUT_QUEUE_URL === undefined ||
@@ -47,8 +72,8 @@ async function transformRow(row: any): Promise<void> {
 
   const idpEntityId = row["Idp Entity Id"];
   const requestId = row["Request Id"];
-  const timestamp = 1671117135;
   const timestampFormatted = row.Timestamp;
+  const timestamp = Math.floor(Date.parse(timestampFormatted) / 1000);
   const rpEntityId = row["RP Entity Id"];
 
   const transformationEventBodyObject: TransformationEventBodyObject = {
@@ -57,7 +82,7 @@ async function transformRow(row: any): Promise<void> {
     timestamp_formatted: timestampFormatted,
     event_name: "NEW_EVENT_NAME",
     component_id: rpEntityId,
-    client_id: idpEntityId,
+    client_id: await convertClientId(idpEntityId),
   };
 
   await sendRecord(
