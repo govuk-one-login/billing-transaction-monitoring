@@ -131,11 +131,3 @@ export const deleteS3Events = async (
   return true;
 };
 
-export const regexToRemoveSpecialChar = (str:string): string => {
-  const formatS3Str = str
-
-    .replace(/\\n/g, "") // removes //n character , single quotes
-    .replace(/}{/g, "},{"); // replace comma in between }{ brackets
-     return formatS3Str
-}
-
