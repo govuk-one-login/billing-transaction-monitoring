@@ -20,12 +20,18 @@ export const handler = async (event: S3Event): Promise<void> => {
     key: "idp_clients/idp-clients.json",
   });
 
-  if (mappedIdpClients !== undefined) {
+  const mappedEventNames = await getS3Object({
+    bucket: configStackName(),
+    key: "idp_event_name_rules/idp-event-name-rules.json",
+  });
+
+  if (mappedIdpClients !== undefined && mappedEventNames !== undefined) {
     const idpClientLookup = JSON.parse(mappedIdpClients);
+    const eventNameRules = JSON.parse(mappedEventNames);
     const rows = await transformCsvToJson(event);
 
     const promises = rows.map(async (row) => {
-      await transformRow(row, idpClientLookup);
+      await transformRow(row, idpClientLookup, eventNameRules);
     });
     await Promise.all(promises);
   }
@@ -44,7 +50,8 @@ async function transformCsvToJson(event: S3Event): Promise<any[]> {
 
 async function transformRow(
   row: any,
-  idpClientLookup: { [index: string]: string }
+  idpClientLookup: { [index: string]: string },
+  eventNameRules: EventNameRules
 ): Promise<void> {
   if (
     process.env.OUTPUT_QUEUE_URL === undefined ||
@@ -60,12 +67,19 @@ async function transformRow(
   const timestampFormatted = row.Timestamp;
   const timestamp = Math.floor(Date.parse(timestampFormatted) / 1000);
   const rpEntityId = row["RP Entity Id"];
+  const minLevelOfAssurance = row["Minimum Level Of Assurance"];
+  const billableStatus = row["Billable Status"];
 
   const transformationEventBodyObject: TransformationEventBodyObject = {
     event_id: requestId,
     timestamp,
     timestamp_formatted: timestampFormatted,
-    event_name: "NEW_EVENT_NAME",
+    event_name: await buildEventName(
+      eventNameRules,
+      idpEntityId,
+      minLevelOfAssurance,
+      billableStatus
+    ),
     component_id: rpEntityId,
     client_id: idpClientLookup[idpEntityId],
   };
@@ -74,4 +88,33 @@ async function transformRow(
     process.env.OUTPUT_QUEUE_URL,
     JSON.stringify(transformationEventBodyObject)
   );
+}
+
+interface Rules {
+  "Minimum Level Of Assurance": string;
+  "Billable Status": string;
+  "Event Name": string;
+}
+
+interface EventNameRules {
+  [key: string]: Rules[];
+}
+
+async function buildEventName(
+  eventNameRules: EventNameRules,
+  idpEntityId: string,
+  minLevelOfAssurance: string,
+  billableStatus: string
+): Promise<string> {
+  const rules = eventNameRules[idpEntityId];
+
+  for (const rule of rules) {
+    if (
+      minLevelOfAssurance === rule["Minimum Level Of Assurance"] &&
+      billableStatus === rule["Billable Status"]
+    ) {
+      return rule["Event Name"];
+    }
+  }
+  return "unknown";
 }
