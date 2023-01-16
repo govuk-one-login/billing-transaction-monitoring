@@ -72,7 +72,7 @@ Resources:
                   '/',
                   [
                     !Sub 'arn:aws:s3:::${ConfigStackParameter.Value}',
-                    'idp-clients',
+                    'idp_clients',
                     '*',
                   ],
                 ]

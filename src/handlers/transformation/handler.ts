@@ -2,7 +2,8 @@ import { S3Event } from "aws-lambda";
 import * as AWS from "aws-sdk";
 import csv from "csvtojson";
 import { sendRecord } from "../../shared/utils";
-import { convertClientId } from "./idpClientLookup";
+import { getS3Object } from "../../../integration_tests/helpers/s3Helper";
+import { configStackName } from "../../../integration_tests/helpers/envHelper";
 
 interface TransformationEventBodyObject {
   event_id: string;
@@ -14,12 +15,20 @@ interface TransformationEventBodyObject {
 }
 
 export const handler = async (event: S3Event): Promise<void> => {
-  const rows = await transformCsvToJson(event);
-
-  const promises = rows.map(async (row) => {
-    await transformRow(row);
+  const mappedIdpClients = await getS3Object({
+    bucket: configStackName(),
+    key: "idp_clients/idp-clients.json",
   });
-  await Promise.all(promises);
+
+  if (mappedIdpClients !== undefined) {
+    const idpClientLookup = JSON.parse(mappedIdpClients);
+    const rows = await transformCsvToJson(event);
+
+    const promises = rows.map(async (row) => {
+      await transformRow(row, idpClientLookup);
+    });
+    await Promise.all(promises);
+  }
 };
 
 async function transformCsvToJson(event: S3Event): Promise<any[]> {
@@ -30,12 +39,13 @@ async function transformCsvToJson(event: S3Event): Promise<any[]> {
   };
   const stream = S3.getObject(params).createReadStream();
   const rows = await csv().fromStream(stream);
-  // TO-DO Remove/update this console log
-  console.log("transformCsvToJson rows", rows);
   return rows;
 }
 
-async function transformRow(row: any): Promise<void> {
+async function transformRow(
+  row: any,
+  idpClientLookup: { [index: string]: string }
+): Promise<void> {
   if (
     process.env.OUTPUT_QUEUE_URL === undefined ||
     process.env.OUTPUT_QUEUE_URL.length === 0
@@ -57,7 +67,7 @@ async function transformRow(row: any): Promise<void> {
     timestamp_formatted: timestampFormatted,
     event_name: "NEW_EVENT_NAME",
     component_id: rpEntityId,
-    client_id: await convertClientId(idpEntityId),
+    client_id: idpClientLookup[idpEntityId],
   };
 
   await sendRecord(
