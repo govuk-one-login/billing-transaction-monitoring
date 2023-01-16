@@ -28,14 +28,16 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
     key: `${folderPrefix}/receipt.txt`,
   };
   beforeAll(async () => {
+    // tests are enabled to run sequentially as we are deleting the S3 directory in view tests so when running the test
+    // parallelly other tests will be interrupted(eg sns-s3 tests generate and checks eventId). We can enable to parallel once we implement BTM-340 the clean up for each test
     await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
     // uploading file to s3 will be removed once BTM-276 changes merged
     const file = "../payloads/receipt.txt";
     const filePath = path.join(__dirname, file);
     const fileStream = fs.createReadStream(filePath);
     await putObjectToS3(testObject, fileStream);
-    const checkFileExists: any = await checkIfS3ObjectExists(testObject);
-    expect(checkFileExists).toBeTruthy();
+    const checkFileExists = await checkIfS3ObjectExists(testObject);
+    expect(checkFileExists).toBe(true);
   });
 
   test.each`
@@ -46,7 +48,7 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
     ${"No TransactionQty No TransactionPrice(no events) but has BillingQty BillingPrice"}   | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.CURRENT_TIME}        | ${undefined}       | ${"6.6600"}   | ${"2"}  | ${undefined}           | ${undefined}         | ${"6.6600"}  | ${"2"}     | ${undefined}     | ${undefined}
     ${"BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice "}  | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client4"} | ${TimeStamps.CURRENT_TIME}        | ${11}              | ${"-27.5000"} | ${"-9"} | ${"-100.0000"}         | ${"-81"}             | ${"0.0000"}  | ${"2"}     | ${"27.5000"}     | ${"11"}
     ${"BillingQty equals TransactionQty and No TransactionPrice No BillingPrice "}          | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client4"} | ${TimeStamps.CURRENT_TIME}        | ${2}               | ${"0.0000"}   | ${"0"}  | ${undefined}           | ${"0"}               | ${"0.0000"}  | ${"2"}     | ${"0.0000"}      | ${"2"}
-    ${"BillingQty greater than TransactionQty and No TransactionPrice but has BillingPrice"}| ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client4"} | ${TimeStamps.THIS_TIME_LAST_YEAR} | ${2}               | ${"27.0000"}  | ${"9"}  | ${undefined}           | ${"450"}             | ${"27.0000"} | ${"11"}    | ${"0.0000"}      | ${"2"}
+    ${"BillingQty greater than TransactionQty and No TransactionPrice but has BillingPrice"}| ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client4"} | ${TimeStamps.THIS_TIME_LAST_YEAR} | ${2}               | ${"27.5000"}  | ${"9"}  | ${undefined}           | ${"450"}             | ${"27.5000"} | ${"11"}    | ${"0.0000"}      | ${"2"}
     ${"BillingQty equals TransactionQty but BillingPrice greater than TransactionPrice"}    | ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${TimeStamps.THIS_TIME_LAST_YEAR} | ${2}               | ${"4.2000"}   | ${"0"}  | ${"170.7317"}          | ${"0"}               | ${"6.6600"}  | ${"2"}     | ${"2.4600"}      | ${"2"}
     `(
     "results retrived from billing and transaction_curated view query should match with expected $testCase,$billingQty,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent,$billingPrice",
