@@ -217,9 +217,9 @@ Resources:
               COALESCE(invoice.month,txn.month)                     AS month,
               COALESCE(invoice.price,0)-COALESCE(txn.price,0)       AS price_difference,
               COALESCE(invoice.quantity,0)-COALESCE(txn.quantity,0) AS quantity_difference,
-              (CASE WHEN COALESCE(txn.price,0) = 0 then null else 100*(COALESCE(invoice.price,0)-txn.price)/txn.price END)
+              (CASE WHEN COALESCE(txn.price,0) = 0 then (CASE WHEN COALESCE(invoice.price,0) = 0 THEN 0 ELSE null END) ELSE 100*(COALESCE(invoice.price,0)-txn.price)/txn.price END)
                                                                     AS price_difference_percentage,
-              (CASE WHEN COALESCE(txn.quantity,0) = 0 then null else 100*(COALESCE(invoice.quantity,0)-txn.quantity)/txn.quantity END)
+              (CASE WHEN COALESCE(txn.quantity,0) = 0 THEN null ELSE 100*(COALESCE(invoice.quantity,0)-txn.quantity)/txn.quantity END)
                                                                     AS quantity_difference_percentage,
               invoice.price                                         AS billing_price,
               invoice.quantity                                      AS billing_quantity,
