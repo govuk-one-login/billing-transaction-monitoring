@@ -70,7 +70,11 @@ Resources:
               Resource:
                 !Join [
                   '/',
-                  [!Sub 'arn:aws:s3:::${ConfigStackParameter.Value}', 'idp-clients', '*']
+                  [
+                    !Sub 'arn:aws:s3:::${ConfigStackParameter.Value}',
+                    'idp-clients',
+                    '*',
+                  ],
                 ]
             - Effect: Allow
               Action:
@@ -87,6 +91,8 @@ Resources:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
-              #              TODO fix this resource
-              Resource: arn:aws:kms:eu-west-2:582874090139:key/70b94c0a-6383-432f-8612-9d5d7f77f415
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
       ReservedConcurrentExecutions: 10

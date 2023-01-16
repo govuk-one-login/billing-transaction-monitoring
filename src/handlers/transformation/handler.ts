@@ -2,8 +2,7 @@ import { S3Event } from "aws-lambda";
 import * as AWS from "aws-sdk";
 import csv from "csvtojson";
 import { sendRecord } from "../../shared/utils";
-import {getS3Object} from "../../../integration_tests/helpers/s3Helper";
-import {configStackName} from "../../../integration_tests/helpers/envHelper";
+import { convertClientId } from "./idpClientLookup";
 
 interface TransformationEventBodyObject {
   event_id: string;
@@ -31,32 +30,9 @@ async function transformCsvToJson(event: S3Event): Promise<any[]> {
   };
   const stream = S3.getObject(params).createReadStream();
   const rows = await csv().fromStream(stream);
+  // TO-DO Remove/update this console log
   console.log("transformCsvToJson rows", rows);
   return rows;
-}
-
-let idpClientLookup : Map<string, string> | undefined;
-
-async function getIdpClientLookup() : Promise<Map<string, string>> {
-  if (idpClientLookup === undefined) {
-    idpClientLookup = await readIdpClientLookup();
-  }
-  return idpClientLookup;
-}
-
-async function readIdpClientLookup(): Promise<Map<string, string>> {
-  console.log('Getting idp-clients.csv');
-  const x = await getS3Object({
-    bucket: configStackName(),
-    key: "idp-clients/idp-clients.csv",
-  });
-
-  console.log(JSON.stringify(x));
-  return new Map<string, string>();
-}
-
-async function convertClientId(idpEntityId: string): Promise<string> {
-  return (await getIdpClientLookup()).get(idpEntityId) ?? "unknown";
 }
 
 async function transformRow(row: any): Promise<void> {
