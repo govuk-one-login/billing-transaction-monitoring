@@ -45,9 +45,10 @@ async function getIdpClientLookup() : Promise<Map<string, string>> {
 }
 
 async function readIdpClientLookup(): Promise<Map<string, string>> {
+  console.log('Getting idp-clients.csv');
   const x = await getS3Object({
     bucket: configStackName(),
-    key: "idp-clients.csv",
+    key: "idp-clients/idp-clients.csv",
   });
 
   console.log(JSON.stringify(x));
@@ -67,8 +68,6 @@ async function transformRow(row: any): Promise<void> {
     console.error(message);
     throw new Error(message);
   }
-
-  console.log(typeof row);
 
   const idpEntityId = row["Idp Entity Id"];
   const requestId = row["Request Id"];
