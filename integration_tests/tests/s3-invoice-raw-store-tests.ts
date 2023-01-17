@@ -20,7 +20,7 @@ import {
 const prefix = resourcePrefix();
 
 describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf bucket test\n", () => {
-  test("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
+  test.only("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
     const testStartTime = new Date();
     const invoice = randomInvoice();
     const storageBucket = `${prefix}-storage`;
@@ -56,17 +56,20 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
         if (s3ContentsFilteredByTestStartTime.length === 0) {
           return false;
         }
-
-        const key = String(s3ContentsFilteredByTestStartTime[0].Key);
-        return s3ContentsFilteredByTestStartTime.some(async () => {
+        
+        return s3ContentsFilteredByTestStartTime.some(async ({Key}) => {
+          if(Key===undefined) {
+            return false
+          }
           const fileContents = await getS3Object({
-            bucket: `${prefix}-raw-invoice-textract-data`,
-            key,
+           bucket:  `${prefix}-raw-invoice-textract-data`,
+            key: Key,
           });
-
+         
           return fileContents?.includes(invoice.invoiceNumber) ?? false;
         });
-      };
+      }
+    
 
     const textractFilteredObject = await waitForTrue(
       checkTextractDataFileContainsStringFromOriginalPdf,
@@ -96,23 +99,20 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
               item.LastModified >= testStartTime
             );
           });
-        console.log(
-          "Standardised folder filtered contents:",
-          standardisedContentsFilteredByTestStartTime
-        );
+     
         if (standardisedContentsFilteredByTestStartTime.length === 0) {
           return false;
         }
 
-        const key = String(standardisedContentsFilteredByTestStartTime[0].Key);
-        return standardisedContentsFilteredByTestStartTime.some(async () => {
+        return standardisedContentsFilteredByTestStartTime.some(async ({ Key }) => {
+          if(Key===undefined) {
+            return false
+          }
           standardisedFileContents = await getS3Object({
             bucket: storageBucket,
-            key,
+            key: Key,
           });
-          return (
-            standardisedFileContents?.includes(invoice.invoiceNumber) ?? false
-          );
+          return standardisedFileContents?.includes(invoice.invoiceNumber) ?? false;
         });
       };
 
