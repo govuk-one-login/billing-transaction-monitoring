@@ -7,6 +7,7 @@ import {
   ServiceOutputTypes,
 } from "@aws-sdk/client-s3";
 import type { Command, SmithyConfiguration } from "@aws-sdk/smithy-client";
+import { getS3Object } from "../../../integration_tests/helpers/s3Helper";
 
 const s3 = new S3Client({
   region: "eu-west-2",
@@ -80,3 +81,20 @@ const send = async <T extends ServiceInputTypes, U extends ServiceOutputTypes>(
       console.log(err, err.stack);
       throw err;
     });
+
+// TO-DO Fix the return type of this function. Speak to Nithya about the helper getS3Object
+export async function readJsonFromS3(
+  bucket: string,
+  key: string
+): Promise<any> {
+  const jsonString = await getS3Object({
+    bucket,
+    key,
+  });
+
+  if (jsonString === undefined) {
+    throw new Error("Unable to access bucket:" + bucket + " key:" + key);
+  }
+
+  return JSON.parse(jsonString);
+}

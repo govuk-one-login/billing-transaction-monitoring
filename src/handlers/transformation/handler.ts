@@ -1,8 +1,7 @@
 import { S3Event } from "aws-lambda";
 import * as AWS from "aws-sdk";
 import csv from "csvtojson";
-import { sendRecord } from "../../shared/utils";
-import { getS3Object } from "../../../integration_tests/helpers/s3Helper";
+import { readJsonFromS3, sendRecord } from "../../shared/utils";
 import { configStackName } from "../../../integration_tests/helpers/envHelper";
 
 interface TransformationEventBodyObject {
@@ -17,28 +16,26 @@ interface TransformationEventBodyObject {
 export const handler = async (event: S3Event): Promise<void> => {
   try {
     // 1. Set up dependencies
-    const mappedIdpClients = await getS3Object({
-      bucket: configStackName(),
-      key: "idp_clients/idp-clients.json",
-    });
 
-    const mappedEventNames = await getS3Object({
-      bucket: configStackName(),
-      key: "idp_event_name_rules/idp-event-name-rules.json",
-    });
+    const idpClientLookup = await readJsonFromS3(
+      configStackName(),
+      "idp_clients/idp-clients.json"
+    );
+
+    const eventNameRules = await readJsonFromS3(
+      configStackName(),
+      "idp_event_name_rules/idp-event-name-rules.json"
+    );
 
     const rows = await transformCsvToJson(event);
 
     // 2. Transform data and send to SQS
-    if (mappedIdpClients !== undefined && mappedEventNames !== undefined) {
-      const idpClientLookup = JSON.parse(mappedIdpClients);
-      const eventNameRules = JSON.parse(mappedEventNames);
 
-      const promises = rows.map(async (row) => {
-        await transformRow(row, idpClientLookup, eventNameRules);
-      });
-      await Promise.all(promises);
-    }
+    const promises = rows.map(async (row) => {
+      await transformRow(row, idpClientLookup, eventNameRules);
+    });
+
+    await Promise.all(promises);
   } catch (error) {
     console.error(error);
     throw new Error("Transformation Handler error");
