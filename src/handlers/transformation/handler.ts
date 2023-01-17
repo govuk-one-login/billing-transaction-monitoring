@@ -42,7 +42,7 @@ export const handler = async (event: S3Event): Promise<void> => {
   }
 };
 
-async function transformCsvToJson(event: S3Event): Promise<any[]> {
+export async function transformCsvToJson(event: S3Event): Promise<any[]> {
   const S3 = new AWS.S3();
   const params = {
     Bucket: event.Records[0].s3.bucket.name,
