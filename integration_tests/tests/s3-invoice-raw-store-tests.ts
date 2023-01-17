@@ -20,7 +20,7 @@ import {
 const prefix = resourcePrefix();
 
 describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf bucket test\n", () => {
-  test.only("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
+  test("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
     const testStartTime = new Date();
     const invoice = randomInvoice();
     const storageBucket = `${prefix}-storage`;
@@ -56,20 +56,19 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
         if (s3ContentsFilteredByTestStartTime.length === 0) {
           return false;
         }
-        
-        return s3ContentsFilteredByTestStartTime.some(async ({Key}) => {
-          if(Key===undefined) {
-            return false
+
+        return s3ContentsFilteredByTestStartTime.some(async ({ Key }) => {
+          if (Key === undefined) {
+            return false;
           }
           const fileContents = await getS3Object({
-           bucket:  `${prefix}-raw-invoice-textract-data`,
+            bucket: `${prefix}-raw-invoice-textract-data`,
             key: Key,
           });
-         
+
           return fileContents?.includes(invoice.invoiceNumber) ?? false;
         });
-      }
-    
+      };
 
     const textractFilteredObject = await waitForTrue(
       checkTextractDataFileContainsStringFromOriginalPdf,
@@ -99,30 +98,36 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
               item.LastModified >= testStartTime
             );
           });
-     
+
         if (standardisedContentsFilteredByTestStartTime.length === 0) {
           return false;
         }
 
-        return standardisedContentsFilteredByTestStartTime.some(async ({ Key }) => {
-          if(Key===undefined) {
-            return false
+        return standardisedContentsFilteredByTestStartTime.some(
+          async ({ Key }) => {
+            if (Key === undefined) {
+              return false;
+            }
+            standardisedFileContents = await getS3Object({
+              bucket: storageBucket,
+              key: Key,
+            });
+            return (
+              standardisedFileContents?.includes(invoice.invoiceNumber) ?? false
+            );
           }
-          standardisedFileContents = await getS3Object({
-            bucket: storageBucket,
-            key: Key,
-          });
-          return standardisedFileContents?.includes(invoice.invoiceNumber) ?? false;
-        });
+        );
       };
 
-    const  convertedFileContentsToJsonStr= `[${standardisedFileContents
+    const convertedFileContentsToJsonStr = `[${standardisedFileContents
       .split("\n")
       .join(",")}]`;
     const parsedFileContents = JSON.parse(convertedFileContentsToJsonStr);
 
     for (let i = 0; i < parsedFileContents.length; i++) {
-      expect(parsedFileContents[i].invoice_receipt_id).toEqual(invoice.invoiceNumber);
+      expect(parsedFileContents[i].invoice_receipt_id).toEqual(
+        invoice.invoiceNumber
+      );
       expect(parsedFileContents[i].invoice_receipt_date).toEqual(
         invoice.date.toISOString().slice(0, 10)
       );
