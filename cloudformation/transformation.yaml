@@ -77,6 +77,17 @@ Resources:
                   ],
                 ]
             - Effect: Allow
+              Action: s3:GetObject
+              Resource:
+                !Join [
+                  '/',
+                  [
+                    !Sub 'arn:aws:s3:::${ConfigStackParameter.Value}',
+                    'idp_event_name_rules',
+                    '*',
+                  ],
+                ]
+            - Effect: Allow
               Action:
                 - sqs:SendMessage
               Resource: !GetAtt FilterQueue.Arn

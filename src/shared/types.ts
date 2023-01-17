@@ -7,7 +7,16 @@ export type ValidEventName =
   | "IPV_KBV_CRI_THIRD_PARTY_REQUEST_ENDED"
   | "IPV_PASSPORT_CRI_REQUEST_SENT"
   | "IPV_PASSPORT_CRI_RESPONSE_RECEIVED"
-  | "NEW_EVENT_NAME";
+  | "IPV_C3_TEST1"
+  | "IPV_C3_S_TEST1"
+  | "IPV_C3_S_TEST2"
+  | "IPV_C3_SI_TEST2"
+  | "IPV_C3_TEST3"
+  | "IPV_C4_TEST1"
+  | "IPV_C4_S_TEST1"
+  | "IPV_C4_S_TEST2"
+  | "IPV_C4_SI_TEST2"
+  | "IPV_C4_TEST3";
 
 export interface Response {
   batchItemFailures: Array<{ itemIdentifier: string }>;

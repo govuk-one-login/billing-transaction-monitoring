@@ -15,6 +15,7 @@ interface TransformationEventBodyObject {
 }
 
 export const handler = async (event: S3Event): Promise<void> => {
+  // 1. Set up dependencies
   const mappedIdpClients = await getS3Object({
     bucket: configStackName(),
     key: "idp_clients/idp-clients.json",
@@ -24,11 +25,12 @@ export const handler = async (event: S3Event): Promise<void> => {
     bucket: configStackName(),
     key: "idp_event_name_rules/idp-event-name-rules.json",
   });
+  const rows = await transformCsvToJson(event);
 
+  // 2. Transform data and send to SQS
   if (mappedIdpClients !== undefined && mappedEventNames !== undefined) {
     const idpClientLookup = JSON.parse(mappedIdpClients);
     const eventNameRules = JSON.parse(mappedEventNames);
-    const rows = await transformCsvToJson(event);
 
     const promises = rows.map(async (row) => {
       await transformRow(row, idpClientLookup, eventNameRules);
