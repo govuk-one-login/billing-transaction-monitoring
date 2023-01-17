@@ -3,6 +3,15 @@ import placeNames from "./data/place-names.json";
 import streetTypes from "./data/street-types.json";
 import { Customer, LineItem, Vendor } from "./types";
 
+export interface InvoiceOptions {
+  vendor?: Partial<Vendor>;
+  customer?: Partial<Customer>;
+  date?: Date;
+  dueDate?: Date;
+  invoiceNumber?: string;
+  lineItems?: LineItem[];
+}
+
 const randomLetter = (): string => {
   return Math.ceil(10 + Math.random() * 25).toString(36);
 };
@@ -53,37 +62,49 @@ const randomCustomer = (): Customer => {
   };
 };
 
-const randomLineItem = (): LineItem => {
+export const randomLineItem = (options?: Partial<LineItem>): LineItem => {
   const priceTier = [
     { min: 0, max: 5, unitPrice: 6.5 },
     { min: 6, max: 10, unitPrice: 0.25 },
     { min: 10, unitPrice: 8.88 },
   ][Math.floor(Math.random() * 3)]; // These match fake-prices.csv
   const quantity =
+    options?.quantity ??
     priceTier.min + Math.floor(Math.random() * (priceTier.max ?? 20));
-  const subtotal = quantity * priceTier.unitPrice;
+  const unitPrice = options?.unitPrice ?? priceTier.unitPrice;
+  const subtotal = options?.subtotal ?? quantity * unitPrice;
   return {
-    description: "Verification of sentience via address checking mechanism", // should match IPV_ADDRESS_CRI_END from fake-vendor-services.csv
-    vat: 0.2 * subtotal,
+    description:
+      options?.description ??
+      "Verification of sentience via address checking mechanism", // should match IPV_ADDRESS_CRI_END from fake-vendor-services.csv
+    vat: options?.vat ?? 0.2 * subtotal,
     quantity,
-    unitPrice: priceTier.unitPrice,
+    unitPrice,
     subtotal,
   };
 };
 
 const randomLineItems = (quantity: number): LineItem[] => {
-  return new Array(quantity).fill(null).map(randomLineItem);
+  return new Array(quantity).fill(null).map(() => randomLineItem());
 };
 
-export const randomInvoice = (): Invoice => {
+export const randomInvoice = (options?: InvoiceOptions): Invoice => {
   return new Invoice({
-    vendor: randomVendor(),
-    customer: randomCustomer(),
-    date: new Date(),
-    invoiceNumber: `${randomString(3)}-${Math.floor(
-      Math.random() * 1_000_000_000
-    )}`,
-    dueDate: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-    lineItems: randomLineItems(10),
+    vendor: {
+      ...randomVendor(),
+      ...options?.vendor,
+    },
+    customer: {
+      ...randomCustomer(),
+      ...options?.customer,
+    },
+    date: options?.date ?? new Date(),
+    invoiceNumber:
+      options?.invoiceNumber ??
+      `${randomString(3)}-${Math.floor(Math.random() * 1_000_000_000)}`,
+    dueDate:
+      options?.dueDate ??
+      new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
+    lineItems: options?.lineItems ?? randomLineItems(10),
   });
 };
