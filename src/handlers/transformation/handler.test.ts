@@ -5,48 +5,53 @@ import { readJsonFromS3, sendRecord } from "../../shared/utils";
 jest.mock("../../shared/utils");
 const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>;
 
+jest.mock("../../shared/utils");
 const mockReadJsonFromS3 = readJsonFromS3 as jest.MockedFunction<
   typeof readJsonFromS3
 >;
-jest.mock("./handler");
+
+jest.mock("./handler.ts", () => ({
+  ...jest.requireActual("./handler.ts"),
+  transformCsvToJson: jest.fn(),
+}));
+
 const mockTransformCsvToJson = transformCsvToJson as jest.MockedFn<
   typeof transformCsvToJson
 >;
-
-const BUCKET = "bucket1";
-const FILENAME = "onecsv.csv";
-const TIME1 = new Date(2022, 11, 5, 17, 0, 0, 0);
-const CLIENT1 = "https://a.client1.eu";
-// const CLIENT2 = "https://a.client2.eu";
-const CLIENT1_RULES = [
-  {
-    "Minimum Level Of Assurance": "LEVEL_1",
-    "Billable Status": "BILLABLE",
-    "Event Name": "IPV_C3_TEST1",
-  },
-  {
-    "Minimum Level Of Assurance": "LEVEL_1",
-    "Billable Status": "REPEAT-BILLABLE",
-    "Event Name": "IPV_C3_S_TEST1",
-  },
-  {
-    "Minimum Level Of Assurance": "LEVEL_2",
-    "Billable Status": "BILLABLE",
-    "Event Name": "IPV_C3_S_TEST2",
-  },
-  {
-    "Minimum Level Of Assurance": "LEVEL_2",
-    "Billable Status": "REPEAT-BILLABLE",
-    "Event Name": "IPV_C3_SI_TEST2",
-  },
-  {
-    "Minimum Level Of Assurance": "LEVEL_2",
-    "Billable Status": "BILLABLE-UPLIFT",
-    "Event Name": "IPV_C3_TEST3",
-  },
-];
-
 describe("Transformation handler tests", () => {
+  const BUCKET = "bucket1";
+  const FILENAME = "onecsv.csv";
+  const TIME1 = new Date(2022, 11, 5, 17, 0, 0, 0);
+  const CLIENT1 = "https://a.client1.eu";
+  // const CLIENT2 = "https://a.client2.eu";
+  const CLIENT1_RULES = [
+    {
+      "Minimum Level Of Assurance": "LEVEL_1",
+      "Billable Status": "BILLABLE",
+      "Event Name": "IPV_C3_TEST1",
+    },
+    {
+      "Minimum Level Of Assurance": "LEVEL_1",
+      "Billable Status": "REPEAT-BILLABLE",
+      "Event Name": "IPV_C3_S_TEST1",
+    },
+    {
+      "Minimum Level Of Assurance": "LEVEL_2",
+      "Billable Status": "BILLABLE",
+      "Event Name": "IPV_C3_S_TEST2",
+    },
+    {
+      "Minimum Level Of Assurance": "LEVEL_2",
+      "Billable Status": "REPEAT-BILLABLE",
+      "Event Name": "IPV_C3_SI_TEST2",
+    },
+    {
+      "Minimum Level Of Assurance": "LEVEL_2",
+      "Billable Status": "BILLABLE-UPLIFT",
+      "Event Name": "IPV_C3_TEST3",
+    },
+  ];
+
   const OLD_ENV = process.env;
   // const oldConsoleError = console.error;
 
@@ -76,20 +81,10 @@ describe("Transformation handler tests", () => {
     };
   }
 
-  // function mockRows(rows: object[]): void {
-  //   mockTransformCsvToJson = jest.fn(() => ({
-  //     promise: jest.fn().mockResolvedValue(rows),
-  //   }));
-  // }
-
   afterAll(() => {
     process.env = OLD_ENV;
     // console.error = oldConsoleError;
   });
-
-  // test("Can't read idp-clients throws error", async () => {});
-
-  // test("Can't read idp-event-name-rules throws error", async () => {});
 
   test("it generates events if given expected data in the csv", async () => {
     const rows = [
@@ -98,7 +93,7 @@ describe("Transformation handler tests", () => {
     ];
     mockTransformCsvToJson.mockResolvedValue(rows);
 
-    mockReadJsonFromS3.mockResolvedValueOnce({
+    mockReadJsonFromS3.mockResolvedValue({
       "https://a.client1.eu": "client1",
       "https://a.client2.eu": "client2",
     });
@@ -109,7 +104,8 @@ describe("Transformation handler tests", () => {
     const validEventRecords = createS3EventRecord(BUCKET, FILENAME);
     const validEvent = createEvent([validEventRecords]);
 
-    await handler(validEvent);
+    const result = await handler(validEvent);
+    console.log(result);
     expect(mockedSendRecord).toHaveBeenCalledTimes(2);
   });
 
