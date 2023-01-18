@@ -9,18 +9,12 @@ export const createS3EventRecord = (
   fileName: string
 ): S3EventRecord =>
   ({
-    body: JSON.stringify({
-      Records: [
-        {
-          s3: {
-            bucket: {
-              name: bucketName,
-            },
-            object: {
-              key: fileName,
-            },
-          },
-        },
-      ],
-    }),
+    s3: {
+      bucket: {
+        name: bucketName,
+      },
+      object: {
+        key: fileName,
+      },
+    },
   } as any);
