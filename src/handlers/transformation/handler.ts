@@ -20,16 +20,13 @@ export const handler = async (event: S3Event): Promise<void> => {
       configStackName(),
       "idp_clients/idp-clients.json"
     );
-    console.log("TEST idpClientLookup", idpClientLookup);
 
     const eventNameRules = await readJsonFromS3(
       configStackName(),
       "idp_event_name_rules/idp-event-name-rules.json"
     );
-    console.log("TEST eventNameRules", eventNameRules);
 
     const rows = await transformCsvToJson(event);
-    console.log("TEST rows", rows);
 
     // 2. Transform data and send to SQS
 
@@ -92,7 +89,7 @@ interface Rules {
   "Event Name": string;
 }
 
-interface EventNameRules {
+export interface EventNameRules {
   [key: string]: Rules[];
 }
 
@@ -104,12 +101,14 @@ async function buildEventName(
 ): Promise<string> {
   const rules = eventNameRules[idpEntityId];
 
-  for (const rule of rules) {
-    if (
-      minLevelOfAssurance === rule["Minimum Level Of Assurance"] &&
-      billableStatus === rule["Billable Status"]
-    ) {
-      return rule["Event Name"];
+  if (rules !== undefined) {
+    for (const rule of rules) {
+      if (
+        minLevelOfAssurance === rule["Minimum Level Of Assurance"] &&
+        billableStatus === rule["Billable Status"]
+      ) {
+        return rule["Event Name"];
+      }
     }
   }
   return "unknown";

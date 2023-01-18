@@ -1,4 +1,4 @@
-import { handler } from "./handler";
+import { handler, EventNameRules } from "./handler";
 import { transformCsvToJson } from "./transform";
 import { createEvent, createS3EventRecord } from "../../../test-helpers/S3";
 import { readJsonFromS3, sendRecord } from "../../shared/utils";
@@ -50,6 +50,19 @@ describe("Transformation handler tests", () => {
     },
   ];
 
+  const DEFAULT_IDP_CLIENT_LOOKUP = {
+    "https://a.client1.eu": "client1",
+    "https://a.client2.eu": "client2",
+  };
+
+  const DEFAULT_EVENT_NAME_RULES : EventNameRules = {
+    'https://a.client1.eu': CLIENT1_RULES,
+  };
+
+  const DEFAULT_RECORD = createS3EventRecord(BUCKET, FILENAME);
+  const DEFAULT_EVENT = createEvent([DEFAULT_RECORD]);
+
+
   const OLD_ENV = process.env;
   // const oldConsoleError = console.error;
 
@@ -84,25 +97,17 @@ describe("Transformation handler tests", () => {
   });
 
   test("it generates events if given expected data in the csv", async () => {
-    const rows = [
+
+    mockReadJsonFromS3.mockResolvedValueOnce(DEFAULT_IDP_CLIENT_LOOKUP);
+    mockReadJsonFromS3.mockResolvedValueOnce(DEFAULT_EVENT_NAME_RULES);
+
+    const csvRows = [
       buildRow(CLIENT1, TIME1, "id1", "LEVEL_1", "BILLABLE"),
       buildRow(CLIENT1, TIME1, "id2", "LEVEL_1", "REPEAT-BILLABLE"),
     ];
-    mockTransformCsvToJson.mockResolvedValue(rows);
+    mockTransformCsvToJson.mockResolvedValue(csvRows);
 
-    mockReadJsonFromS3.mockResolvedValue({
-      "https://a.client1.eu": "client1",
-      "https://a.client2.eu": "client2",
-    });
-
-    mockReadJsonFromS3.mockResolvedValueOnce({
-      CLIENT1: CLIENT1_RULES,
-    });
-    const validEventRecords = createS3EventRecord(BUCKET, FILENAME);
-    const validEvent = createEvent([validEventRecords]);
-
-    const result = await handler(validEvent);
-    console.log(result);
+    await handler(DEFAULT_EVENT);
     expect(mockedSendRecord).toHaveBeenCalledTimes(2);
   });
 
@@ -124,5 +129,19 @@ describe("Transformation handler tests", () => {
   // await handler(event);
   // expect(mockedSendRecord).not.toHaveBeenCalled();
 
-  // test("it doesnt generate any events if given unexpected data in the csv", async () => {});
+  test("it doesnt generate any events if given unexpected data in the csv", async () => {
+
+    mockReadJsonFromS3.mockResolvedValueOnce(DEFAULT_IDP_CLIENT_LOOKUP);
+    mockReadJsonFromS3.mockResolvedValueOnce(DEFAULT_EVENT_NAME_RULES);
+
+    const csvRows = [
+      buildRow("ignored client", TIME1, "id1", "LEVEL_1", "BILLABLE"),
+      buildRow(CLIENT1, TIME1, "id2", "ignored mloa", "REPEAT-BILLABLE"),
+    ];
+    mockTransformCsvToJson.mockResolvedValue(csvRows);
+
+    await handler(DEFAULT_EVENT);
+    expect(mockedSendRecord).not.toHaveBeenCalled();
+
+  });
 });
