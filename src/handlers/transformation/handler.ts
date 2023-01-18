@@ -1,8 +1,7 @@
 import { S3Event } from "aws-lambda";
-import * as AWS from "aws-sdk";
-import csv from "csvtojson";
 import { readJsonFromS3, sendRecord } from "../../shared/utils";
 import { configStackName } from "../../../integration_tests/helpers/envHelper";
+import { transformCsvToJson } from "./transform";
 
 interface TransformationEventBodyObject {
   event_id: string;
@@ -44,17 +43,6 @@ export const handler = async (event: S3Event): Promise<void> => {
     throw new Error("Transformation Handler error");
   }
 };
-
-export async function transformCsvToJson(event: S3Event): Promise<any[]> {
-  const S3 = new AWS.S3();
-  const params = {
-    Bucket: event.Records[0].s3.bucket.name,
-    Key: event.Records[0].s3.object.key,
-  };
-  const stream = S3.getObject(params).createReadStream();
-  const rows = await csv().fromStream(stream);
-  return rows;
-}
 
 async function transformRow(
   row: any,

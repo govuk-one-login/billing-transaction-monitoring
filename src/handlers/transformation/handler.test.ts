@@ -1,4 +1,5 @@
-import { handler, transformCsvToJson } from "./handler";
+import { handler } from "./handler";
+import { transformCsvToJson } from "./transform";
 import { createEvent, createS3EventRecord } from "../../../test-helpers/S3";
 import { readJsonFromS3, sendRecord } from "../../shared/utils";
 
@@ -10,14 +11,10 @@ const mockReadJsonFromS3 = readJsonFromS3 as jest.MockedFunction<
   typeof readJsonFromS3
 >;
 
-jest.mock("./handler.ts", () => {
-  const originalModule = jest.requireActual("./handler.ts");
-  return {
-    __esModule: true,
-    ...originalModule,
-    transformCsvToJson: jest.fn(),
-  };
-});
+jest.mock("./transform");
+const mockTransformCsvToJson = transformCsvToJson as jest.MockedFunction<
+  typeof transformCsvToJson
+>;
 
 describe("Transformation handler tests", () => {
   const BUCKET = "bucket1";
@@ -58,7 +55,6 @@ describe("Transformation handler tests", () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    // console.error = jest.fn();
 
     process.env = {
       ...OLD_ENV,
@@ -92,7 +88,7 @@ describe("Transformation handler tests", () => {
       buildRow(CLIENT1, TIME1, "id1", "LEVEL_1", "BILLABLE"),
       buildRow(CLIENT1, TIME1, "id2", "LEVEL_1", "REPEAT-BILLABLE"),
     ];
-    (transformCsvToJson as jest.Mock).mockResolvedValue(rows);
+    mockTransformCsvToJson.mockResolvedValue(rows);
 
     mockReadJsonFromS3.mockResolvedValue({
       "https://a.client1.eu": "client1",
