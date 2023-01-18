@@ -130,3 +130,4 @@ export const deleteS3Events = async (
   console.log("deleted the files from s3");
   return true;
 };
+
