@@ -18,10 +18,11 @@ import {
 } from "../helpers/mock-data/invoice";
 
 const prefix = resourcePrefix();
+const testStartTime = new Date();
 
 describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf bucket test\n", () => {
-  const testStartTime = new Date();
   const storageBucket = `${prefix}-storage`;
+  const textractBucket = `${prefix}-raw-invoice-textract-data`;
   const standardisedFolderPrefix = "btm_billing_standardised";
   const invoice = randomInvoice();
   test("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
@@ -37,38 +38,10 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
 
     const checkTextractDataFileContainsStringFromOriginalPdf =
       async (): Promise<boolean> => {
-        const result = await getS3ItemsList(
-          `${prefix}-raw-invoice-textract-data`
-        );
-        if (result.Contents === undefined) {
-          return false;
-        }
-        const s3ContentsFilteredByTestStartTime = result.Contents?.filter(
-          (item) => {
-            return (
-              item.LastModified !== undefined &&
-              item.LastModified >= testStartTime
-            );
-          }
-        );
-        console.log("Raw-invoice-Textract:", s3ContentsFilteredByTestStartTime);
-
-        if (s3ContentsFilteredByTestStartTime.length === 0) {
-          return false;
-        }
-
-        const filePromises = s3ContentsFilteredByTestStartTime.map(
-          async ({ Key }) =>
-            Key === undefined
-              ? undefined
-              : await getS3Object({
-                  bucket: `${prefix}-raw-invoice-textract-data`,
-                  key: Key,
-                })
-        );
-        const textractedFiles = await Promise.all(filePromises);
-        return textractedFiles.some((textractedFile) =>
-          textractedFile?.includes(invoice.invoiceNumber)
+        const textractedFileContents =
+          await getS3FileContentsBasedOnLastModified(textractBucket);
+        return textractedFileContents.some((file) =>
+          file?.includes(invoice.invoiceNumber)
         );
       };
 
@@ -82,44 +55,15 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
 
     const checkStandardisedFileContainsExpectedFiledsFromOriginalPdf =
       async (): Promise<boolean> => {
-        const result = await getS3ItemsList(
-          storageBucket,
-          standardisedFolderPrefix
-        );
-
-        if (result.Contents === undefined) {
-          return false;
-        }
-
-        const standardisedContentsFilteredByTestStartTime =
-          result.Contents?.filter((item) => {
-            return (
-              item.LastModified !== undefined &&
-              item.LastModified >= testStartTime
-            );
-          });
-
-        if (standardisedContentsFilteredByTestStartTime.length === 0) {
-          return false;
-        }
-
-        if (standardisedContentsFilteredByTestStartTime === undefined)
-          return false;
-
-        const filePromises = standardisedContentsFilteredByTestStartTime.map(
-          async ({ Key }) =>
-            Key === undefined
-              ? undefined
-              : await getS3Object({
-                  bucket: storageBucket,
-                  key: Key,
-                })
-        );
-        const standardisedFiles = await Promise.all(filePromises);
+        const standardisedFilesContents =
+          await getS3FileContentsBasedOnLastModified(
+            storageBucket,
+            standardisedFolderPrefix
+          );
         const invoiceNumber = invoice.invoiceNumber;
         const invoiceDate = invoice.date.toISOString().slice(0, 10);
         const invoiceTotal = invoice.getTotal().toFixed(2);
-        return standardisedFiles.some(
+        return standardisedFilesContents.some(
           (standardisedFile) =>
             (standardisedFile?.includes(invoiceNumber) ?? false) &&
             (standardisedFile?.includes(invoiceDate) ?? false) &&
@@ -195,3 +139,29 @@ describe("\n Unappy path - Upload invalid pdf to the raw invoice pdf bucket test
     console.log("deleted the file from s3");
   });
 });
+
+const getS3FileContentsBasedOnLastModified = async (
+  bucketName: string,
+  folderPrefix?: string
+): Promise<Array<string | undefined>> => {
+  const result = await getS3ItemsList(bucketName, folderPrefix);
+  if (result.Contents === undefined) {
+    throw new Error("No files found");
+  }
+  const s3ContentsFilteredByTestStartTime = result.Contents?.filter((item) => {
+    return (
+      item.LastModified !== undefined && item.LastModified >= testStartTime
+    );
+  });
+  console.log("Files", s3ContentsFilteredByTestStartTime);
+  const filePromises = s3ContentsFilteredByTestStartTime.map(async ({ Key }) =>
+    Key === undefined
+      ? undefined
+      : await getS3Object({
+          bucket: bucketName,
+          key: Key,
+        })
+  );
+  const files = await Promise.all(filePromises);
+  return files;
+};
