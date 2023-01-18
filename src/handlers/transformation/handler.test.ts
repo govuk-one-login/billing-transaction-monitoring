@@ -1,6 +1,6 @@
 import { handler, EventNameRules } from "./handler";
 import { transformCsvToJson } from "./transform";
-import { createEvent, createS3EventRecord } from "../../../test-helpers/S3";
+import { createEvent } from "../../../test-helpers/S3";
 import { readJsonFromS3, sendRecord } from "../../shared/utils";
 
 jest.mock("../../shared/utils");
@@ -17,8 +17,6 @@ const mockTransformCsvToJson = transformCsvToJson as jest.MockedFunction<
 >;
 
 describe("Transformation handler tests", () => {
-  const BUCKET = "bucket1";
-  const FILENAME = "onecsv.csv";
   const TIME1 = new Date(2022, 11, 5, 17, 0, 0, 0);
   const CLIENT1 = "https://a.client1.eu";
   // const CLIENT2 = "https://a.client2.eu";
@@ -49,22 +47,15 @@ describe("Transformation handler tests", () => {
       "Event Name": "IPV_C3_TEST3",
     },
   ];
-
   const DEFAULT_IDP_CLIENT_LOOKUP = {
     "https://a.client1.eu": "client1",
     "https://a.client2.eu": "client2",
   };
-
   const DEFAULT_EVENT_NAME_RULES : EventNameRules = {
     'https://a.client1.eu': CLIENT1_RULES,
   };
-
-  const DEFAULT_RECORD = createS3EventRecord(BUCKET, FILENAME);
-  const DEFAULT_EVENT = createEvent([DEFAULT_RECORD]);
-
-
+  const DEFAULT_EVENT = createEvent([]);
   const OLD_ENV = process.env;
-  // const oldConsoleError = console.error;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -108,28 +99,26 @@ describe("Transformation handler tests", () => {
     mockTransformCsvToJson.mockResolvedValue(csvRows);
 
     await handler(DEFAULT_EVENT);
-    expect(mockedSendRecord).toHaveBeenCalledTimes(2);
+
+    expect(mockedSendRecord).toHaveBeenCalledWith(
+      "output-queue-url",
+      JSON.stringify({"event_id":"id1",
+        "timestamp":1670259600,
+        "timestamp_formatted":"12/5/2022, 5:00:00 PM",
+        "event_name":"IPV_C3_TEST1",
+        "client_id":"client1"
+      }));
+    expect(mockedSendRecord).toHaveBeenCalledWith(
+      "output-queue-url",
+      JSON.stringify({"event_id":"id2",
+        "timestamp":1670259600,
+        "timestamp_formatted":"12/5/2022, 5:00:00 PM",
+        "event_name":"IPV_C3_S_TEST1",
+        "client_id":"client1"
+      }));
   });
 
-  // mockReadJsonFromS3.mockResolvedValue((bucket: string, key: string) => {
-  //   if (key === "idp_clients/idp-clients.json") {
-  //     return {
-  //       "https://a.client3.eu": "client3",
-  //       "https://a.client4.co.uk": "client4",
-  //     };
-  //   } else if (key === "idp_event_name_rules/idp-event-name-rules.json") {
-  //     return {
-  //       CLIENT1: CLIENT1_RULES,
-  //     };
-  //   }
-  // });
-
-  // const record1 = createS3EventRecord(BUCKET, FILENAME);
-  // const event = createEvent([record1]);
-  // await handler(event);
-  // expect(mockedSendRecord).not.toHaveBeenCalled();
-
-  test("it doesnt generate any events if given unexpected data in the csv", async () => {
+  test("it generates events of type 'unknown' if given unexpected data in the csv", async () => {
 
     mockReadJsonFromS3.mockResolvedValueOnce(DEFAULT_IDP_CLIENT_LOOKUP);
     mockReadJsonFromS3.mockResolvedValueOnce(DEFAULT_EVENT_NAME_RULES);
@@ -141,7 +130,42 @@ describe("Transformation handler tests", () => {
     mockTransformCsvToJson.mockResolvedValue(csvRows);
 
     await handler(DEFAULT_EVENT);
-    expect(mockedSendRecord).not.toHaveBeenCalled();
 
+    expect(mockedSendRecord).toHaveBeenCalledWith(
+      "output-queue-url",
+      JSON.stringify({"event_id":"id1",
+        "timestamp":1670259600,
+        "timestamp_formatted":"12/5/2022, 5:00:00 PM",
+        "event_name":"unknown"
+      }));
+    expect(mockedSendRecord).toHaveBeenCalledWith(
+      "output-queue-url",
+      JSON.stringify({"event_id":"id2",
+        "timestamp":1670259600,
+        "timestamp_formatted":"12/5/2022, 5:00:00 PM",
+        "event_name":"unknown",
+        "client_id":"client1"
+      }));
+
+  });
+
+  test("it doesn't generate any events it fails to retrieve lookup", async () => {
+    const saveImplementation = mockReadJsonFromS3.getMockImplementation();
+    try {
+
+      mockReadJsonFromS3.mockImplementation(async () => {
+        throw new Error("Error reading from S3")
+      });
+
+      await handler(DEFAULT_EVENT);
+
+    } catch (e) {
+
+      expect((e as Error).message).toEqual("Transformation Handler error");
+      expect(mockedSendRecord).not.toHaveBeenCalled();
+
+    } finally {
+      mockReadJsonFromS3.mockImplementation(saveImplementation);
+    }
   });
 });
