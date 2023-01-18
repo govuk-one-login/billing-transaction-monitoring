@@ -17,42 +17,35 @@ const mockTransformCsvToJson = transformCsvToJson as jest.MockedFunction<
 >;
 
 describe("Transformation handler tests", () => {
+
   const TIME1 = new Date(2022, 11, 5, 17, 0, 0, 0);
+
   const CLIENT1 = "https://a.client1.eu";
-  // const CLIENT2 = "https://a.client2.eu";
+  const CLIENT2 = "https://a.client2.eu";
+  const CLIENT_ID1 = "client1";
+  const CLIENT_ID2 = "client2";
+
+  const DEFAULT_IDP_CLIENT_LOOKUP = {
+    [CLIENT1]: CLIENT_ID1,
+    [CLIENT2]: CLIENT_ID2,
+  };
+
+  const EVENT_NAME1 = "event1";
+  const EVENT_NAME2 = "event2";
   const CLIENT1_RULES = [
     {
       "Minimum Level Of Assurance": "LEVEL_1",
       "Billable Status": "BILLABLE",
-      "Event Name": "IPV_C3_TEST1",
+      "Event Name": EVENT_NAME1,
     },
     {
       "Minimum Level Of Assurance": "LEVEL_1",
       "Billable Status": "REPEAT-BILLABLE",
-      "Event Name": "IPV_C3_S_TEST1",
-    },
-    {
-      "Minimum Level Of Assurance": "LEVEL_2",
-      "Billable Status": "BILLABLE",
-      "Event Name": "IPV_C3_S_TEST2",
-    },
-    {
-      "Minimum Level Of Assurance": "LEVEL_2",
-      "Billable Status": "REPEAT-BILLABLE",
-      "Event Name": "IPV_C3_SI_TEST2",
-    },
-    {
-      "Minimum Level Of Assurance": "LEVEL_2",
-      "Billable Status": "BILLABLE-UPLIFT",
-      "Event Name": "IPV_C3_TEST3",
-    },
+      "Event Name": EVENT_NAME2,
+    }
   ];
-  const DEFAULT_IDP_CLIENT_LOOKUP = {
-    "https://a.client1.eu": "client1",
-    "https://a.client2.eu": "client2",
-  };
   const DEFAULT_EVENT_NAME_RULES : EventNameRules = {
-    'https://a.client1.eu': CLIENT1_RULES,
+    [CLIENT1]: CLIENT1_RULES,
   };
   const DEFAULT_EVENT = createEvent([]);
   const OLD_ENV = process.env;
@@ -102,19 +95,21 @@ describe("Transformation handler tests", () => {
 
     expect(mockedSendRecord).toHaveBeenCalledWith(
       "output-queue-url",
-      JSON.stringify({"event_id":"id1",
-        "timestamp":1670259600,
-        "timestamp_formatted":"12/5/2022, 5:00:00 PM",
-        "event_name":"IPV_C3_TEST1",
-        "client_id":"client1"
+      JSON.stringify({
+        "event_id": "id1",
+        "timestamp": 1670259600,
+        "timestamp_formatted": "12/5/2022, 5:00:00 PM",
+        "event_name": EVENT_NAME1,
+        "client_id": CLIENT_ID1
       }));
     expect(mockedSendRecord).toHaveBeenCalledWith(
       "output-queue-url",
-      JSON.stringify({"event_id":"id2",
-        "timestamp":1670259600,
-        "timestamp_formatted":"12/5/2022, 5:00:00 PM",
-        "event_name":"IPV_C3_S_TEST1",
-        "client_id":"client1"
+      JSON.stringify({
+        "event_id": "id2",
+        "timestamp": 1670259600,
+        "timestamp_formatted": "12/5/2022, 5:00:00 PM",
+        "event_name": EVENT_NAME2,
+        "client_id": CLIENT_ID1
       }));
   });
 
@@ -133,20 +128,21 @@ describe("Transformation handler tests", () => {
 
     expect(mockedSendRecord).toHaveBeenCalledWith(
       "output-queue-url",
-      JSON.stringify({"event_id":"id1",
-        "timestamp":1670259600,
-        "timestamp_formatted":"12/5/2022, 5:00:00 PM",
-        "event_name":"unknown"
+      JSON.stringify({
+        "event_id": "id1",
+        "timestamp": 1670259600,
+        "timestamp_formatted": "12/5/2022, 5:00:00 PM",
+        "event_name": "unknown"
       }));
     expect(mockedSendRecord).toHaveBeenCalledWith(
       "output-queue-url",
-      JSON.stringify({"event_id":"id2",
-        "timestamp":1670259600,
-        "timestamp_formatted":"12/5/2022, 5:00:00 PM",
-        "event_name":"unknown",
-        "client_id":"client1"
+      JSON.stringify({
+        "event_id": "id2",
+        "timestamp": 1670259600,
+        "timestamp_formatted": "12/5/2022, 5:00:00 PM",
+        "event_name": "unknown",
+        "client_id": CLIENT_ID1
       }));
-
   });
 
   test("it doesn't generate any events it fails to retrieve lookup", async () => {
