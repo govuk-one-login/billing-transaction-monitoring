@@ -10,14 +10,15 @@ const mockReadJsonFromS3 = readJsonFromS3 as jest.MockedFunction<
   typeof readJsonFromS3
 >;
 
-jest.mock("./handler.ts", () => ({
-  ...jest.requireActual("./handler.ts"),
-  transformCsvToJson: jest.fn(),
-}));
+jest.mock("./handler.ts", () => {
+  const originalModule = jest.requireActual("./handler.ts");
+  return {
+    __esModule: true,
+    ...originalModule,
+    transformCsvToJson: jest.fn(),
+  };
+});
 
-const mockTransformCsvToJson = transformCsvToJson as jest.MockedFn<
-  typeof transformCsvToJson
->;
 describe("Transformation handler tests", () => {
   const BUCKET = "bucket1";
   const FILENAME = "onecsv.csv";
@@ -91,7 +92,7 @@ describe("Transformation handler tests", () => {
       buildRow(CLIENT1, TIME1, "id1", "LEVEL_1", "BILLABLE"),
       buildRow(CLIENT1, TIME1, "id2", "LEVEL_1", "REPEAT-BILLABLE"),
     ];
-    mockTransformCsvToJson.mockResolvedValue(rows);
+    (transformCsvToJson as jest.Mock).mockResolvedValue(rows);
 
     mockReadJsonFromS3.mockResolvedValue({
       "https://a.client1.eu": "client1",
