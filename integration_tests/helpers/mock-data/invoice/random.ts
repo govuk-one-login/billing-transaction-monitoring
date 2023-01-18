@@ -9,7 +9,13 @@ export interface InvoiceOptions {
   date?: Date;
   dueDate?: Date;
   invoiceNumber?: string;
+  lineItemCount?: number;
+  lineItemOptions?: LineItemOptions;
   lineItems?: LineItem[];
+}
+
+export interface LineItemOptions extends Partial<LineItem> {
+  vatRate?: number;
 }
 
 const randomLetter = (): string => {
@@ -62,7 +68,7 @@ const randomCustomer = (): Customer => {
   };
 };
 
-export const randomLineItem = (options?: Partial<LineItem>): LineItem => {
+export const randomLineItem = (options?: LineItemOptions): LineItem => {
   const priceTier = [
     { min: 0, max: 5, unitPrice: 6.5 },
     { min: 6, max: 10, unitPrice: 0.25 },
@@ -73,22 +79,28 @@ export const randomLineItem = (options?: Partial<LineItem>): LineItem => {
     priceTier.min + Math.floor(Math.random() * (priceTier.max ?? 20));
   const unitPrice = options?.unitPrice ?? priceTier.unitPrice;
   const subtotal = options?.subtotal ?? quantity * unitPrice;
+  const vatRate = options?.vatRate ?? 0.2;
   return {
     description:
       options?.description ??
       "Verification of sentience via address checking mechanism", // should match IPV_ADDRESS_CRI_END from fake-vendor-services.csv
-    vat: options?.vat ?? 0.2 * subtotal,
+    vat: options?.vat ?? vatRate * subtotal,
     quantity,
     unitPrice,
     subtotal,
   };
 };
 
-const randomLineItems = (quantity: number): LineItem[] => {
-  return new Array(quantity).fill(null).map(() => randomLineItem());
+const randomLineItems = (
+  quantity: number,
+  options?: LineItemOptions
+): LineItem[] => {
+  return new Array(quantity).fill(null).map(() => randomLineItem(options));
 };
 
 export const randomInvoice = (options?: InvoiceOptions): Invoice => {
+  const lineItemCount = options?.lineItemCount ?? 10;
+
   return new Invoice({
     vendor: {
       ...randomVendor(),
@@ -105,6 +117,8 @@ export const randomInvoice = (options?: InvoiceOptions): Invoice => {
     dueDate:
       options?.dueDate ??
       new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-    lineItems: options?.lineItems ?? randomLineItems(10),
+    lineItems:
+      options?.lineItems ??
+      randomLineItems(lineItemCount, options?.lineItemOptions),
   });
 };

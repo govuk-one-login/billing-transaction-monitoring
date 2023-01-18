@@ -11,33 +11,44 @@ interface VendorServiceConfigRow {
   event_name: string;
 }
 
-let cachedVendorServiceConfig: VendorServiceConfigRow[] | undefined;
+const isVendorServiceConfigRow = (x: any): x is VendorServiceConfigRow =>
+  typeof x === "object" &&
+  typeof x.vendor_name === "string" &&
+  typeof x.vendor_regex === "string" &&
+  typeof x.client_id === "string" &&
+  typeof x.service_name === "string" &&
+  typeof x.service_regex === "string" &&
+  typeof x.event_name === "string";
+
+const vendorServiceConfigPromise = (async (): Promise<
+  VendorServiceConfigRow[]
+> => {
+  const vendorServiceConfigText = await getS3Object({
+    bucket: configStackName(),
+    key: "vendor_services/vendor-services.csv",
+  });
+
+  if (vendorServiceConfigText === undefined)
+    throw Error("No vendor service config found");
+
+  const csvConverter = getCsvConverter();
+
+  const vendorServiceConfig = await csvConverter.fromString(
+    vendorServiceConfigText
+  );
+
+  if (!vendorServiceConfig.every(isVendorServiceConfigRow))
+    throw new Error("Invalid vendor service config");
+
+  return vendorServiceConfig;
+})();
 
 export const getVendorServiceConfigRow = async (
   fields: Partial<VendorServiceConfigRow>
 ): Promise<VendorServiceConfigRow> => {
-  if (cachedVendorServiceConfig === undefined) {
-    const vendorServiceConfigText = await getS3Object({
-      bucket: configStackName(),
-      key: "vendor_services/vendor-services.csv",
-    });
+  const vendorServiceConfig = await vendorServiceConfigPromise;
 
-    if (vendorServiceConfigText === undefined)
-      throw Error("No vendor service config found");
-
-    const csvConverter = getCsvConverter();
-
-    const vendorServiceConfig = await csvConverter.fromString(
-      vendorServiceConfigText
-    );
-
-    if (!vendorServiceConfig.every(isVendorServiceConfigRow))
-      throw new Error("Invalid vendor service config");
-
-    cachedVendorServiceConfig = vendorServiceConfig;
-  }
-
-  const vendorServiceConfigRow = cachedVendorServiceConfig.find((row) =>
+  const vendorServiceConfigRow = vendorServiceConfig.find((row) =>
     Object.entries(fields).every(
       ([fieldName, fieldValue]) =>
         fieldValue === undefined ||
@@ -50,12 +61,3 @@ export const getVendorServiceConfigRow = async (
 
   return vendorServiceConfigRow;
 };
-
-const isVendorServiceConfigRow = (x: any): x is VendorServiceConfigRow =>
-  typeof x === "object" &&
-  typeof x.vendor_name === "string" &&
-  typeof x.vendor_regex === "string" &&
-  typeof x.client_id === "string" &&
-  typeof x.service_name === "string" &&
-  typeof x.service_regex === "string" &&
-  typeof x.event_name === "string";
