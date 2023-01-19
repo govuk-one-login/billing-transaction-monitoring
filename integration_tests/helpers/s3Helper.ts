@@ -159,10 +159,8 @@ const s3GetObjectsToArray = async (
   folderPrefix: string
 ): Promise<BillingStandardised[]> => {
   const s3Response = await getAllObjectsFromS3(bucketName, folderPrefix);
-  console.log("🚀 ~ file: s3Helper.ts:162 ~ s3Response", s3Response)
-  const s3String = s3Response.join("").replace(/\n/g,"").replace(/}{/g,'},{')
-  console.log("🚀 ~ file: s3Helper.ts:163 ~ s3String", s3String)
-  return JSON.parse("[" + s3String + "]")
+  const s3String = s3Response.join("").replace(/\n/g, "").replace(/}{/g, "},{");
+  return JSON.parse("[" + s3String + "]");
 };
 
 export {
@@ -175,5 +173,5 @@ export {
   deleteDirectoryRecursiveInS3,
   checkIfS3ObjectExists,
   getAllObjectsFromS3,
-  s3GetObjectsToArray
+  s3GetObjectsToArray,
 };

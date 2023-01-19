@@ -8,8 +8,6 @@ import {
   s3GetObjectsToArray,
   S3Object,
   BillingStandardised,
-  getAllObjectsFromS3,
-  getS3ItemsList,
 } from "../helpers/s3Helper";
 import { resourcePrefix } from "../helpers/envHelper";
 import path from "path";
@@ -40,18 +38,17 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
       'SELECT * FROM "btm_billing_standardised" ORDER BY service_name ASC';
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const queryObj = await queryObject(queryId);
-    const queryObjectsVal:BillingStandardised[] = Object.values(queryObj);
-    const s3Response = await s3GetObjectsToArray(testObject.bucket,folderPrefix);
+    const queryObjectsVal: BillingStandardised[] = Object.values(queryObj);
+    const s3Response = await s3GetObjectsToArray(
+      testObject.bucket,
+      folderPrefix
+    );
     for (let i = 0; i < s3Response.length; i++) {
       expect(s3Response[i].invoice_receipt_id).toEqual(
         queryObjectsVal[i].invoice_receipt_id
       );
-      expect(s3Response[i].vendor_name).toEqual(
-        queryObjectsVal[i].vendor_name
-      );
-      expect(s3Response[i].total.toFixed(4)).toEqual(
-        queryObjectsVal[i].total
-      );
+      expect(s3Response[i].vendor_name).toEqual(queryObjectsVal[i].vendor_name);
+      expect(s3Response[i].total.toFixed(4)).toEqual(queryObjectsVal[i].total);
       expect(s3Response[i].invoice_receipt_date).toEqual(
         queryObjectsVal[i].invoice_receipt_date
       );
@@ -63,7 +60,9 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
       expect(s3Response[i].tax_payer_id).toEqual(
         queryObjectsVal[i].tax_payer_id
       );
-      expect(s3Response[i].item_id.toString()).toEqual(queryObjectsVal[i].item_id);
+      expect(s3Response[i].item_id.toString()).toEqual(
+        queryObjectsVal[i].item_id
+      );
       expect(s3Response[i].item_description).toEqual(
         queryObjectsVal[i].item_description
       );
@@ -73,26 +72,30 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
       expect(s3Response[i].unit_price.toFixed(4)).toEqual(
         queryObjectsVal[i].unit_price
       );
-      expect(s3Response[i].quantity.toString()).toEqual(queryObjectsVal[i].quantity);
-      expect(s3Response[i].price.toFixed(4)).toEqual(
-        queryObjectsVal[i].price);
+      expect(s3Response[i].quantity.toString()).toEqual(
+        queryObjectsVal[i].quantity
+      );
+      expect(s3Response[i].price.toFixed(4)).toEqual(queryObjectsVal[i].price);
     }
   });
 
   test("retrieved view query results should matches with s3", async () => {
-    const s3Response = await s3GetObjectsToArray(testObject.bucket,folderPrefix);
+    const s3Response = await s3GetObjectsToArray(
+      testObject.bucket,
+      folderPrefix
+    );
     const s3Objects = s3Response.map(
       (element: {
         vendor_name: string;
         service_name: string;
         price: number;
-        quantity:number
+        quantity: number;
       }) => {
         return {
           vendor_name: element.vendor_name,
           service_name: element.service_name,
           price: element.price,
-          quantity:element.quantity
+          quantity: element.quantity,
         };
       }
     );
@@ -100,16 +103,17 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     const queryString =
       'SELECT * FROM "btm_billing_curated" ORDER BY service_name ASC';
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
-    const queryObjects:BillingCurated[] = await queryObject(queryId);
+    const queryObjects: BillingCurated[] = await queryObject(queryId);
     for (let i = 0; i < s3Response.length; i++) {
-    expect(s3Objects[i].vendor_name).toEqual(queryObjects[i].vendor_name);
-    expect(s3Objects[i].service_name).toEqual(queryObjects[i].service_name);
-    expect(s3Objects[i].quantity.toString()).toEqual(queryObjects[i].quantity);
-    expect(s3Objects[i].price.toFixed(4)).toEqual(queryObjects[i].price);
+      expect(s3Objects[i].vendor_name).toEqual(queryObjects[i].vendor_name);
+      expect(s3Objects[i].service_name).toEqual(queryObjects[i].service_name);
+      expect(s3Objects[i].quantity.toString()).toEqual(
+        queryObjects[i].quantity
+      );
+      expect(s3Objects[i].price.toFixed(4)).toEqual(queryObjects[i].price);
     }
   });
 });
-
 
 interface BillingCurated {
   vendor_name: string;
