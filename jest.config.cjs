@@ -6,4 +6,6 @@ module.exports = {
         "^.+\\.ts?$":"ts-jest"
     },
     collectCoverage: true,
+    testRunner: "jasmine2",
+    setupFilesAfterEnv: ["jest-allure/dist/setup"],
 }
