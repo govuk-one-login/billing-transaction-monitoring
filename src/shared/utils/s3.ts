@@ -8,6 +8,7 @@ import {
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import type { Command, SmithyConfiguration } from "@aws-sdk/smithy-client";
+import { S3Event, S3EventRecord, SQSRecord } from "aws-lambda";
 
 const s3 = new S3Client({
   region: "eu-west-2",
@@ -23,6 +24,23 @@ export async function deleteS3(bucket: string, key: string): Promise<void> {
   await send(deleteCommand);
 }
 
+export const getS3EventRecords = (queueRecord: SQSRecord): S3EventRecord[] => {
+  let bodyObject;
+  try {
+    bodyObject = JSON.parse(queueRecord.body);
+  } catch {
+    throw new Error("Record body not valid JSON.");
+  }
+
+  if (typeof bodyObject !== "object")
+    throw new Error("Record body not object.");
+
+  if (!isS3Event(bodyObject))
+    throw new Error("Event record body not valid S3 event.");
+
+  return bodyObject.Records;
+};
+
 export async function fetchS3(
   bucket: string,
   key: string
@@ -35,6 +53,14 @@ export async function fetchS3(
   const data = await send(getCommand);
   return await data.Body?.transformToString();
 }
+
+const isS3Event = (object: any): object is S3Event =>
+  Array.isArray(object.Records) &&
+  object.Records.every(
+    (record: any) =>
+      typeof record?.s3?.bucket?.name === "string" &&
+      typeof record?.s3?.object?.key === "string"
+  );
 
 export async function moveS3(
   sourceBucket: string,

@@ -1,8 +1,7 @@
 import { SQSRecord } from "aws-lambda";
-import { putTextS3 } from "../../shared/utils";
+import { getS3EventRecords, putTextS3 } from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
-import { getS3EventRecords } from "./get-s3-event-records";
 
 export async function storeStandardisedInvoices(
   queueRecord: SQSRecord,

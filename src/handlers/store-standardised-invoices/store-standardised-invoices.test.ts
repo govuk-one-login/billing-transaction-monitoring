@@ -1,18 +1,15 @@
 import { SQSRecord } from "aws-lambda";
-import { putTextS3 } from "../../shared/utils";
+import { getS3EventRecords, putTextS3 } from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
-import { getS3EventRecords } from "./get-s3-event-records";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 import { storeStandardisedInvoices } from "./store-standardised-invoices";
 
 jest.mock("../../shared/utils");
+const mockedGetS3EventRecords = getS3EventRecords as jest.Mock;
 const mockedPutTextS3 = putTextS3 as jest.Mock;
 
 jest.mock("./fetch-s3-textract-data");
 const mockedFetchS3TextractData = fetchS3TextractData as jest.Mock;
-
-jest.mock("./get-s3-event-records");
-const mockedGetS3EventRecords = getS3EventRecords as jest.Mock;
 
 jest.mock("./get-standardised-invoice");
 const mockedGetStandardisedInvoice = getStandardisedInvoice as jest.Mock;
