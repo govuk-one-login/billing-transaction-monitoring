@@ -1,0 +1,51 @@
+name: Unit Tests
+
+on:
+  schedule:
+    # Every day, 3 times daily, at 9AM, 1PM and 4PM.
+    - cron: '0 9,13,16 * * 1-5'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  Test:
+    permissions:
+      contents: write
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
+      - name: Assign branch value
+        run: echo "branch=${{ steps.branch-name.outputs.current_branch }}" >> $GITHUB_ENV
+      - name: Check out respository code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Node 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - name: Run unit tests
+        run: npm test
+      - name: Get Allure history
+        uses: actions/checkout@v2
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - name: Allure report action
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        with:
+          keep_reports: 5
+      - name: Deploy report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-history
