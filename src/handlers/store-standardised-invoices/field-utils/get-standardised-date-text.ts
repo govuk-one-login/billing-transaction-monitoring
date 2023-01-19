@@ -36,13 +36,13 @@ const getMonthNumber = (monthText: string): number => {
   const abbreviation = monthText.slice(0, 3);
   const lowerCaseAbbreviation = abbreviation.toLowerCase();
 
-  if (!isMonthAbbrevation(lowerCaseAbbreviation))
+  if (!isMonthAbbreviation(lowerCaseAbbreviation))
     throw new Error(`Unrecognised month: ${monthText}`);
 
   return MONTH_NUMBER_BY_ABBREVIATION[lowerCaseAbbreviation];
 };
 
-const isMonthAbbrevation = (
+const isMonthAbbreviation = (
   x: string
 ): x is keyof typeof MONTH_NUMBER_BY_ABBREVIATION =>
   x in MONTH_NUMBER_BY_ABBREVIATION;
