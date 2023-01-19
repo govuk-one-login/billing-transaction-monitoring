@@ -60,8 +60,6 @@ async function transformRow(
   const timestampFormatted = row.Timestamp;
   const timestamp = Math.floor(Date.parse(timestampFormatted) / 1000);
   const rpEntityId = row["RP Entity Id"];
-  const minLevelOfAssurance = row["Minimum Level Of Assurance"];
-  const billableStatus = row["Billable Status"];
 
   const transformationEventBodyObject: TransformationEventBodyObject = {
     event_id: requestId,
@@ -70,8 +68,7 @@ async function transformRow(
     event_name: await buildEventName(
       eventNameRules,
       idpEntityId,
-      minLevelOfAssurance,
-      billableStatus
+      row
     ),
     component_id: rpEntityId,
     client_id: idpClientLookup[idpEntityId],
@@ -96,9 +93,11 @@ export interface EventNameRules {
 async function buildEventName(
   eventNameRules: EventNameRules,
   idpEntityId: string,
-  minLevelOfAssurance: string,
-  billableStatus: string
-): Promise<string> {
+  row: any): Promise<string> {
+
+  const minLevelOfAssurance = row["Minimum Level Of Assurance"];
+  const billableStatus = row["Billable Status"];
+
   const rules = eventNameRules[idpEntityId];
 
   if (rules !== undefined) {
