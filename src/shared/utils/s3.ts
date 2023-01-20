@@ -123,7 +123,7 @@ const send = async <T extends ServiceInputTypes, U extends ServiceOutputTypes>(
       throw err;
     });
 
-// TO-DO Fix the return type of this function. Speak to Nithya about the helper getS3Object
+// TO-DO Fix the return type of this function. Speak to Nithya about the helper getS3Object. Can use fetchS3 from this file.
 export async function readJsonFromS3(
   bucket: string,
   key: string
