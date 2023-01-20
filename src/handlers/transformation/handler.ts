@@ -5,11 +5,13 @@ import { transformCsvToJson } from "./transform-csv-to-json";
 import { transformRow } from "./transform-row";
 
 export const handler = async (event: S3Event): Promise<void> => {
+  console.log("**event=", event);
   const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
 
   if (outputQueueUrl === undefined || outputQueueUrl.length === 0) {
     throw new Error("Output queue URL not set.");
   }
+  console.log("**outputQueueUrl=", outputQueueUrl);
 
   try {
     // Set up dependencies
@@ -18,13 +20,15 @@ export const handler = async (event: S3Event): Promise<void> => {
       configStackName(),
       "idp_clients/idp-clients.json"
     );
+    console.log("**idpClientLookup=", idpClientLookup);
 
     const eventNameRules = await readJsonFromS3(
       configStackName(),
       "idp_event_name_rules/idp-event-name-rules.json"
     );
-
+    console.log("**eventNameRules=", eventNameRules);
     const rows = await transformCsvToJson(event);
+    console.log("**rows=", rows);
 
     // Transform data and send to SQS
 

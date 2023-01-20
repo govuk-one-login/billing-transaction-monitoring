@@ -42,35 +42,34 @@ describe("Transformation handler test", () => {
   });
 
   const client1 = "https://a.client1.eu";
-  const client2 = "https://a.client2.eu";
-  const clientId1 = "client1";
-  const clientId2 = "client2";
-  const eventName1 = "event name 1";
-  const eventName2 = "event name 2";
   const timestamp = "2022-10-01T00:27:41.186Z";
   const idpClientLookUp = {
-    [client1]: clientId1,
-    [client2]: clientId2,
+    [client1]: "client1",
   };
-
-  const client1Rules = [
-    {
-      "Minimum Level Of Assurance": "LEVEL_1",
-      "Billable Status": "BILLABLE",
-      "Event Name": eventName1,
-    },
-    {
-      "Minimum Level Of Assurance": "LEVEL_1",
-      "Billable Status": "REPEAT-BILLABLE",
-      "Event Name": eventName2,
-    },
-  ];
   const eventNameRules = {
-    [client1]: client1Rules,
+    [client1]: [
+      {
+        "rule name": "rule value",
+      },
+    ],
   };
   const csvRows = [
-    buildRow(client1, timestamp, "event-id-1", "LEVEL_1", "BILLABLE"),
-    buildRow(client1, timestamp, "event-id-2", "LEVEL_1", "REPEAT-BILLABLE"),
+    buildRow(
+      client1,
+      timestamp,
+      "some request id",
+      "some min level",
+      "some status",
+      "some entity id 1"
+    ),
+    buildRow(
+      client1,
+      timestamp,
+      "another request id 2",
+      "another min level",
+      "another status",
+      "another entity 2"
+    ),
   ];
 
   test("should throw error if no output queue set", async () => {
