@@ -1,168 +1,120 @@
-import { handler, EventNameRules } from "./handler";
-import { transformCsvToJson } from "./transform";
+import { handler } from "./handler";
+import { transformCsvToJson } from "./transform-csv-to-json";
 import { createEvent } from "../../../test-helpers/S3";
-import { readJsonFromS3, sendRecord } from "../../shared/utils";
+import { readJsonFromS3 } from "../../shared/utils";
+import { S3Event } from "aws-lambda";
+import { transformRow } from "./transform-row";
+import { buildRow } from "../../../test-helpers/build-rows";
+
+jest.mock("./transform-row");
+const mockedTransformRow = transformRow as jest.MockedFunction<
+  typeof transformRow
+>;
 
 jest.mock("../../shared/utils");
-const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>;
-
-jest.mock("../../shared/utils");
-const mockReadJsonFromS3 = readJsonFromS3 as jest.MockedFunction<
+const mockedReadJsonFromS3 = readJsonFromS3 as jest.MockedFunction<
   typeof readJsonFromS3
 >;
 
-jest.mock("./transform");
-const mockTransformCsvToJson = transformCsvToJson as jest.MockedFunction<
+jest.mock("./transform-csv-to-json");
+const mockedTransformCsvToJson = transformCsvToJson as jest.MockedFunction<
   typeof transformCsvToJson
 >;
 
-describe("Transformation handler tests", () => {
+describe("Transformation handler test", () => {
+  const OLD_ENV = process.env;
+  const oldConsoleError = console.error;
+  let givenEvent: S3Event;
 
-  const TIME1 = new Date(2022, 11, 5, 17, 0, 0, 0);
+  beforeEach(() => {
+    jest.resetAllMocks();
+    console.error = jest.fn();
+    process.env = {
+      ...OLD_ENV,
+      OUTPUT_QUEUE_URL: "output queue url",
+    };
+    givenEvent = { Records: [] };
+  });
 
-  const CLIENT1 = "https://a.client1.eu";
-  const CLIENT2 = "https://a.client2.eu";
-  const CLIENT_ID1 = "client1";
-  const CLIENT_ID2 = "client2";
+  afterAll(() => {
+    process.env = OLD_ENV;
+    console.error = oldConsoleError;
+  });
 
-  const DEFAULT_IDP_CLIENT_LOOKUP = {
-    [CLIENT1]: CLIENT_ID1,
-    [CLIENT2]: CLIENT_ID2,
+  const client1 = "https://a.client1.eu";
+  const client2 = "https://a.client2.eu";
+  const clientId1 = "client1";
+  const clientId2 = "client2";
+  const eventName1 = "event name 1";
+  const eventName2 = "event name 2";
+  const timestamp = "2022-10-01T00:27:41.186Z";
+  const idpClientLookUp = {
+    [client1]: clientId1,
+    [client2]: clientId2,
   };
 
-  const EVENT_NAME1 = "event1";
-  const EVENT_NAME2 = "event2";
-  const CLIENT1_RULES = [
+  const client1Rules = [
     {
       "Minimum Level Of Assurance": "LEVEL_1",
       "Billable Status": "BILLABLE",
-      "Event Name": EVENT_NAME1,
+      "Event Name": eventName1,
     },
     {
       "Minimum Level Of Assurance": "LEVEL_1",
       "Billable Status": "REPEAT-BILLABLE",
-      "Event Name": EVENT_NAME2,
-    }
+      "Event Name": eventName2,
+    },
   ];
-  const DEFAULT_EVENT_NAME_RULES : EventNameRules = {
-    [CLIENT1]: CLIENT1_RULES,
+  const eventNameRules = {
+    [client1]: client1Rules,
   };
-  const DEFAULT_EVENT = createEvent([]);
-  const OLD_ENV = process.env;
+  const csvRows = [
+    buildRow(client1, timestamp, "event-id-1", "LEVEL_1", "BILLABLE"),
+    buildRow(client1, timestamp, "event-id-2", "LEVEL_1", "REPEAT-BILLABLE"),
+  ];
 
-  beforeEach(() => {
-    jest.resetAllMocks();
-
-    process.env = {
-      ...OLD_ENV,
-      OUTPUT_QUEUE_URL: "output-queue-url",
-    };
+  test("should throw error if no output queue set", async () => {
+    delete process.env.OUTPUT_QUEUE_URL;
+    await expect(handler(givenEvent)).rejects.toThrowError("Output queue");
   });
 
-  function buildRow(
-    client: String,
-    timestamp: Date,
-    id: String,
-    mloa: String,
-    status: String
-  ): object {
-    return {
-      "Idp Entity Id": client,
-      Timestamp: timestamp.toLocaleString(),
-      "Request Id": id,
-      "Minimum Level Of Assurance": mloa,
-      "Billable Status": status,
-    };
-  }
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-    // console.error = oldConsoleError;
+  test("should throw error with failing idpClient or eventNameRules Lookup", async () => {
+    mockedReadJsonFromS3.mockRejectedValue("Error reading from S3");
+    await expect(handler(givenEvent)).rejects.toThrowError(
+      "Transformation Handler error"
+    );
+    expect(mockedReadJsonFromS3).toHaveBeenCalled();
+    expect(mockedTransformCsvToJson).not.toHaveBeenCalled();
+    expect(mockedTransformRow).not.toHaveBeenCalled();
   });
 
-  test("it generates events if given expected data in the csv", async () => {
-
-    mockReadJsonFromS3.mockResolvedValueOnce(DEFAULT_IDP_CLIENT_LOOKUP);
-    mockReadJsonFromS3.mockResolvedValueOnce(DEFAULT_EVENT_NAME_RULES);
-
-    const csvRows = [
-      buildRow(CLIENT1, TIME1, "id1", "LEVEL_1", "BILLABLE"),
-      buildRow(CLIENT1, TIME1, "id2", "LEVEL_1", "REPEAT-BILLABLE"),
-    ];
-    mockTransformCsvToJson.mockResolvedValue(csvRows);
-
-    await handler(DEFAULT_EVENT);
-
-    expect(mockedSendRecord).toHaveBeenCalledWith(
-      "output-queue-url",
-      JSON.stringify({
-        "event_id": "id1",
-        "timestamp": 1670259600,
-        "timestamp_formatted": "12/5/2022, 5:00:00 PM",
-        "event_name": EVENT_NAME1,
-        "client_id": CLIENT_ID1
-      }));
-    expect(mockedSendRecord).toHaveBeenCalledWith(
-      "output-queue-url",
-      JSON.stringify({
-        "event_id": "id2",
-        "timestamp": 1670259600,
-        "timestamp_formatted": "12/5/2022, 5:00:00 PM",
-        "event_name": EVENT_NAME2,
-        "client_id": CLIENT_ID1
-      }));
+  test("should throw error with failing transformCsvToJson", async () => {
+    mockedTransformCsvToJson.mockRejectedValue("Error transforming data");
+    await expect(handler(givenEvent)).rejects.toThrowError(
+      "Transformation Handler error"
+    );
+    expect(mockedReadJsonFromS3).toHaveBeenCalled();
+    expect(mockedTransformCsvToJson).toHaveBeenCalled();
+    expect(mockedTransformRow).not.toHaveBeenCalled();
   });
 
-  test("it generates events of type 'unknown' if given unexpected data in the csv", async () => {
-
-    mockReadJsonFromS3.mockResolvedValueOnce(DEFAULT_IDP_CLIENT_LOOKUP);
-    mockReadJsonFromS3.mockResolvedValueOnce(DEFAULT_EVENT_NAME_RULES);
-
-    const csvRows = [
-      buildRow("ignored client", TIME1, "id1", "LEVEL_1", "BILLABLE"),
-      buildRow(CLIENT1, TIME1, "id2", "ignored mloa", "REPEAT-BILLABLE"),
-    ];
-    mockTransformCsvToJson.mockResolvedValue(csvRows);
-
-    await handler(DEFAULT_EVENT);
-
-    expect(mockedSendRecord).toHaveBeenCalledWith(
-      "output-queue-url",
-      JSON.stringify({
-        "event_id": "id1",
-        "timestamp": 1670259600,
-        "timestamp_formatted": "12/5/2022, 5:00:00 PM",
-        "event_name": "unknown"
-      }));
-    expect(mockedSendRecord).toHaveBeenCalledWith(
-      "output-queue-url",
-      JSON.stringify({
-        "event_id": "id2",
-        "timestamp": 1670259600,
-        "timestamp_formatted": "12/5/2022, 5:00:00 PM",
-        "event_name": "unknown",
-        "client_id": CLIENT_ID1
-      }));
-  });
-
-  test("it doesn't generate any events it fails to retrieve lookup", async () => {
-    const saveImplementation = mockReadJsonFromS3.getMockImplementation();
-    try {
-
-      mockReadJsonFromS3.mockImplementation(async () => {
-        throw new Error("Error reading from S3")
-      });
-
-      await handler(DEFAULT_EVENT);
-      fail("Expected exception to be thrown");
-
-    } catch (e) {
-
-      expect((e as Error).message).toEqual("Transformation Handler error");
-      expect(mockedSendRecord).not.toHaveBeenCalled();
-
-    } finally {
-      mockReadJsonFromS3.mockImplementation(saveImplementation);
-    }
+  test("should call transformRow with the expected paramaters", async () => {
+    mockedReadJsonFromS3.mockResolvedValueOnce(idpClientLookUp);
+    mockedReadJsonFromS3.mockResolvedValueOnce(eventNameRules);
+    mockedTransformCsvToJson.mockResolvedValue(csvRows);
+    await handler(createEvent([]));
+    expect(mockedTransformRow).toHaveBeenCalledTimes(2);
+    expect(mockedTransformRow).toHaveBeenCalledWith(
+      csvRows[0],
+      idpClientLookUp,
+      eventNameRules,
+      "output queue url"
+    );
+    expect(mockedTransformRow).toHaveBeenCalledWith(
+      csvRows[1],
+      idpClientLookUp,
+      eventNameRules,
+      "output queue url"
+    );
   });
 });
