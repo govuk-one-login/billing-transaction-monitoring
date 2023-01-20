@@ -19,14 +19,7 @@ describe("Total getter", () => {
 
     const givenFields = "given fields" as any;
 
-    let resultError;
-    try {
-      getTotal(givenFields);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    expect(() => getTotal(givenFields)).toThrowError("total");
     expect(getHighestConfidenceTextractValue).toHaveBeenCalledTimes(1);
     expect(getHighestConfidenceTextractValue).toHaveBeenCalledWith(
       givenFields,

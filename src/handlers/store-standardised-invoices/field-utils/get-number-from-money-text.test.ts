@@ -22,14 +22,6 @@ describe("Number from money text getter", () => {
 
   test("Number from money text getter with invalid money text", () => {
     const givenText = "given invalid text";
-
-    let resultError;
-    try {
-      getNumberFromMoneyText(givenText);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    expect(() => getNumberFromMoneyText(givenText)).toThrowError("format");
   });
 });

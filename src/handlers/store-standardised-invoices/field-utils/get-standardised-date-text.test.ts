@@ -29,40 +29,16 @@ describe("Standardised date text getter", () => {
 
   test("Standardised date text getter with invalid format", () => {
     const givenRawText = "given invalid raw text";
-
-    let resultError;
-    try {
-      getStandardisedDateText(givenRawText);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    expect(() => getStandardisedDateText(givenRawText)).toThrowError("format");
   });
 
   test("Standardised date text getter with nonexistent month", () => {
     const givenRawText = "1 Invalidmonth 2000";
-
-    let resultError;
-    try {
-      getStandardisedDateText(givenRawText);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    expect(() => getStandardisedDateText(givenRawText)).toThrowError("month");
   });
 
   test("Standardised date text getter with month abbreviation too short", () => {
     const givenRawText = "1 F 2000";
-
-    let resultError;
-    try {
-      getStandardisedDateText(givenRawText);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    expect(() => getStandardisedDateText(givenRawText)).toThrowError("month");
   });
 });

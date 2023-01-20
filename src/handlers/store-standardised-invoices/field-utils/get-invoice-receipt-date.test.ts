@@ -19,14 +19,9 @@ describe("Invoice receipt date getter", () => {
 
     const givenFields = "given fields" as any;
 
-    let resultError;
-    try {
-      getInvoiceReceiptDate(givenFields);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    expect(() => getInvoiceReceiptDate(givenFields)).toThrowError(
+      "invoice receipt date"
+    );
     expect(getHighestConfidenceTextractValue).toHaveBeenCalledTimes(1);
     expect(getHighestConfidenceTextractValue).toHaveBeenCalledWith(
       givenFields,

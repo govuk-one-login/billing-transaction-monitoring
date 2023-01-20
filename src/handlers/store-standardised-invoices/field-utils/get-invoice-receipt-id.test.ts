@@ -15,14 +15,9 @@ describe("Invoice receipt ID getter", () => {
 
     const givenFields = "given fields" as any;
 
-    let resultError;
-    try {
-      getInvoiceReceiptId(givenFields);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    expect(() => getInvoiceReceiptId(givenFields)).toThrowError(
+      "invoice receipt ID"
+    );
     expect(getHighestConfidenceTextractValue).toHaveBeenCalledTimes(1);
     expect(getHighestConfidenceTextractValue).toHaveBeenCalledWith(
       givenFields,
