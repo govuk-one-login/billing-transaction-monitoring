@@ -1,4 +1,3 @@
-import { s3Client } from "../clients/s3Client";
 import {
   CopyObjectCommand,
   CopyObjectCommandOutput,
@@ -10,53 +9,84 @@ import {
   ListObjectsCommand,
   ListObjectsCommandOutput,
   PutObjectCommand,
-  PutObjectCommandInput,
   PutObjectCommandOutput,
 } from "@aws-sdk/client-s3";
+import { runViaLambda } from "./envHelper";
+import { s3Client } from "../clients";
+import { sendLambdaCommand } from "./lambdaHelper";
 
 interface S3Object {
   bucket: string;
   key: string;
 }
 
-const getS3ItemsList = async (
-  bucketName: string,
-  prefix?: string
+interface BucketAndPrefix {
+  bucketName: string;
+  prefix?: string;
+}
+
+interface DataAndTarget {
+  data: ArrayBuffer;
+  target: S3Object;
+}
+
+const listS3Objects = async (
+  params: BucketAndPrefix
 ): Promise<ListObjectsCommandOutput> => {
+  if (runViaLambda())
+    return (await sendLambdaCommand(
+      "listS3Objects",
+      params
+    )) as unknown as ListObjectsCommandOutput;
+
   const bucketParams = {
-    Bucket: bucketName,
-    Prefix: prefix,
+    Bucket: params.bucketName,
+    Prefix: params.prefix,
   };
   const data = await s3Client.send(new ListObjectsCommand(bucketParams));
   return data;
 };
 
 const getS3Object = async (object: S3Object): Promise<string | undefined> => {
+  if (runViaLambda()) return await sendLambdaCommand("getS3Object", object);
+
   const bucketParams = {
     Bucket: object.bucket,
     Key: object.key,
   };
+
   const getObjectResult = await s3Client.send(
     new GetObjectCommand(bucketParams)
   );
   return await getObjectResult.Body?.transformToString();
 };
 
-const putObjectToS3 = async (
-  object: S3Object,
-  body: PutObjectCommandInput["Body"]
+const putS3Object = async (
+  dataAndTarget: DataAndTarget
 ): Promise<PutObjectCommandOutput> => {
+  if (runViaLambda())
+    return (await sendLambdaCommand(
+      "putS3Object",
+      dataAndTarget
+    )) as unknown as PutObjectCommandOutput;
+
   const bucketParams = {
-    Bucket: object.bucket,
-    Key: object.key,
-    Body: body,
+    Bucket: dataAndTarget.target.bucket,
+    Key: dataAndTarget.target.key,
+    Body: Buffer.from(dataAndTarget.data),
   };
   return await s3Client.send(new PutObjectCommand(bucketParams));
 };
 
-const deleteObjectInS3 = async (
+const deleteS3Object = async (
   object: S3Object
 ): Promise<DeleteObjectCommandOutput> => {
+  if (runViaLambda())
+    return (await sendLambdaCommand(
+      "deleteS3Object",
+      object
+    )) as unknown as DeleteObjectCommandOutput;
+
   const bucketParams = {
     Bucket: object.bucket,
     Key: object.key,
@@ -64,19 +94,23 @@ const deleteObjectInS3 = async (
   return await s3Client.send(new DeleteObjectCommand(bucketParams));
 };
 
-const deleteDirectoryRecursiveInS3 = async (
-  bucketName: string,
-  prefix?: string
+const deleteS3Objects = async (
+  params: BucketAndPrefix
 ): Promise<DeleteObjectCommandOutput[]> => {
-  const result = await getS3ItemsList(bucketName, prefix);
-  if (result.Contents === undefined) {
-   return []
-  }
+  if (runViaLambda())
+    return (await sendLambdaCommand(
+      "deleteS3Objects",
+      params
+    )) as unknown as DeleteObjectCommandOutput[];
+
+  const result = await listS3Objects(params);
+
+  if (result.Contents === undefined) return []
 
   return await Promise.all(
     result.Contents.map(
       async (item) =>
-        await deleteObjectInS3({ bucket: bucketName, key: item.Key ?? "" })
+        await deleteS3Object({ bucket: params.bucketName, key: item.Key ?? "" })
     )
   );
 };
@@ -96,6 +130,12 @@ const copyObject = async (
 };
 
 const checkIfS3ObjectExists = async (object: S3Object): Promise<boolean> => {
+  if (runViaLambda())
+    return (await sendLambdaCommand(
+      "checkIfS3ObjectExists",
+      object
+    )) as unknown as boolean;
+
   const bucketParams = {
     Bucket: object.bucket,
     Key: object.key,
@@ -111,12 +151,15 @@ const checkIfS3ObjectExists = async (object: S3Object): Promise<boolean> => {
   }
 };
 
-const getAllObjectsFromS3 = async (
-  bucketName: string,
-  prefix: string
-): Promise<string[]> => {
+const getS3Objects = async (params: BucketAndPrefix): Promise<string[]> => {
+  if (runViaLambda())
+    return (await sendLambdaCommand(
+      "getS3Objects",
+      params
+    )) as unknown as string[];
+
   const content = [];
-  const response = await getS3ItemsList(bucketName, prefix);
+  const response = await listS3Objects(params);
   if (response.Contents === undefined) {
     throw new Error("Invalid results");
   } else {
@@ -125,7 +168,7 @@ const getAllObjectsFromS3 = async (
         continue;
       }
       const res = await getS3Object({
-        bucket: bucketName,
+        bucket: params.bucketName,
         key: currentValue.Key,
       });
       if (res !== undefined) {
@@ -154,24 +197,24 @@ export interface BillingStandardised {
   price: number;
 }
 
-const s3GetObjectsToArray = async (
+const getS3ObjectsAsArray = async (
   bucketName: string,
   folderPrefix: string
 ): Promise<BillingStandardised[]> => {
-  const s3Response = await getAllObjectsFromS3(bucketName, folderPrefix);
+  const s3Response = await getS3Objects({bucketName, prefix: folderPrefix});
   const s3String = s3Response.join("").replace(/\n/g, "").replace(/}{/g, "},{");
   return JSON.parse("[" + s3String + "]");
 };
 
 export {
   S3Object,
-  getS3ItemsList,
+  listS3Objects,
   getS3Object,
-  putObjectToS3,
-  deleteObjectInS3,
+  putS3Object,
+  deleteS3Object,
   copyObject,
-  deleteDirectoryRecursiveInS3,
+  deleteS3Objects,
   checkIfS3ObjectExists,
-  getAllObjectsFromS3,
-  s3GetObjectsToArray,
+  getS3Objects,
+  getS3ObjectsAsArray,
 };

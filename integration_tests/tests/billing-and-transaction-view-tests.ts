@@ -1,4 +1,4 @@
-import { resourcePrefix } from "../helpers/envHelper";
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 
 import {
   deleteS3Events,
@@ -6,17 +6,17 @@ import {
   generatePublishAndValidateEvents,
   TableNames,
   TimeStamps,
-} from "../helpers/commonHelpers";
+} from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
-  deleteDirectoryRecursiveInS3,
-  putObjectToS3,
+  deleteS3Objects,
+  putS3Object,
   checkIfS3ObjectExists,
   S3Object,
-} from "../helpers/s3Helper";
+} from "../../src/handlers/int-test-support/helpers/s3Helper";
 import path from "path";
 import fs from "fs";
 import { EventName, ClientId } from "../payloads/snsEventPayload";
-import { queryResponseFilterByVendorServiceNameYear } from "../helpers/queryHelper";
+import { queryResponseFilterByVendorServiceNameYear } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
 const prefix = resourcePrefix();
 const bucketName = `${prefix}-storage`;
@@ -30,12 +30,12 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
   beforeAll(async () => {
     // tests are enabled to run sequentially as we are deleting the S3 directory in view tests so when running the test
     // parallelly other tests will be interrupted(eg sns-s3 tests generate and checks eventId). We can enable to parallel once we implement BTM-340 the clean up for each test
-    await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
+    await deleteS3Objects({bucketName, prefix: "btm_transactions"});
     // uploading file to s3 will be removed once BTM-276 changes merged
     const file = "../payloads/receipt.txt";
     const filePath = path.join(__dirname, file);
-    const fileStream = fs.createReadStream(filePath);
-    await putObjectToS3(testObject, fileStream);
+    const fileData = fs.readFileSync(filePath);
+    await putS3Object({data: fileData, target: testObject});
     const checkFileExists = await checkIfS3ObjectExists(testObject);
     expect(checkFileExists).toBe(true);
   });
@@ -60,8 +60,8 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
 
 describe("\n no inoice uploaded to standardised folder and verify billing and transaction_curated view query results matches with expected data    \n", () => {
   beforeAll(async () => {
-    await deleteDirectoryRecursiveInS3(bucketName, "btm_billing_standardised");
-    await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
+    await deleteS3Objects({bucketName, prefix: "btm_billing_standardised"});
+    await deleteS3Objects({bucketName, prefix: "btm_transactions"});
   });
   test.each`
     testCase                                                                                 | eventName                          | clientId     | eventTime                  | numberOfTestEvents | priceDiff    | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty   | transactionPrice | transactionQty

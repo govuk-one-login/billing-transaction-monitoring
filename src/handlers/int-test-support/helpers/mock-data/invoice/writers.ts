@@ -1,19 +1,17 @@
 import { writeFile } from "fs";
 import { resourcePrefix } from "../../envHelper";
-import { putObjectToS3 } from "../../s3Helper";
+import { putS3Object, S3Object } from "../../s3Helper";
 
 export const writeInvoiceToS3 = async (
   file: ArrayBuffer
-): Promise<{ bucketName: string; path: string }> => {
+): Promise<S3Object> => {
   const bucketName = `${resourcePrefix()}-raw-invoice-pdf`;
   const path = `raw-Invoice-${Math.random()
     .toString(36)
     .substring(2, 7)}-validFile.pdf`;
-  await putObjectToS3({bucket:bucketName, key:path}, file);
-  return {
-    bucketName,
-    path,
-  };
+  const s3object = { bucket: bucketName, key: path };
+  await putS3Object({ data: file, target: s3object });
+  return s3object;
 };
 
 // This is just for testing the invoice creation during dev

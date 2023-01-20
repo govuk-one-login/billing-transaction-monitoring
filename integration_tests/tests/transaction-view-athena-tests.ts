@@ -1,27 +1,20 @@
-import { resourcePrefix } from "../helpers/envHelper";
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
+import { deleteS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import {
-  deleteS3Events,
-  eventTimeStamp,
-  generatePublishAndValidateEvents,
-  TableNames,
+  deleteS3Events, eventTimeStamp,
+  generatePublishAndValidateEvents, TableNames,
   TimeStamps,
-} from "../helpers/commonHelpers";
-import { publishSNS } from "../helpers/snsHelper";
-
-import {
-  ClientId,
-  EventName,
-  snsInvalidEventNamePayload,
-} from "../payloads/snsEventPayload";
-import { deleteDirectoryRecursiveInS3 } from "../helpers/s3Helper";
-import {  queryResponseFilterByVendorServiceNameYear } from "../helpers/queryHelper";
+} from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { publishSNS } from "../../src/handlers/int-test-support/helpers/snsHelper";
+import { ClientId, EventName, snsInvalidEventNamePayload } from '../payloads/snsEventPayload';
+import { queryResponseFilterByVendorServiceNameYear } from '../../src/handlers/int-test-support/helpers/queryHelper';
 
 const prefix = resourcePrefix();
 const bucketName = `${prefix}-storage`;
 
-describe("\nExecute athena transaction curated query to retrive price \n", () => {
+describe("\nExecute athena transaction curated query to retrieve price \n", () => {
   beforeAll(async () => {
-    await deleteDirectoryRecursiveInS3(bucketName, "btm_transactions");
+    await deleteS3Objects({ bucketName, prefix: "btm_transactions" });
   });
 
   test.each`
@@ -31,7 +24,7 @@ describe("\nExecute athena transaction curated query to retrive price \n", () =>
     ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
     ${"IPV_ADDRESS_CRI_END"}           | ${"client3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
   `(
-    "price retrived from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
+    "price retrieved from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
     async ({
       eventName,
       clientId,

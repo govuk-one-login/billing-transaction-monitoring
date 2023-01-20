@@ -1,4 +1,4 @@
-import { ClientId, EventName, prettyClientNameMap, prettyEventNameMap } from "../payloads/snsEventPayload";
+import { ClientId, EventName, prettyClientNameMap, prettyEventNameMap } from "../../../../integration_tests/payloads/snsEventPayload";
 import { startQueryExecutionCommand, queryObject } from "./athenaHelper";
 import { TableNames } from "./commonHelpers";
 import { resourcePrefix } from "./envHelper";
@@ -23,10 +23,7 @@ export const queryResponseFilterByVendorServiceNameYear = async({
   
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_name='${prettyClientName}' AND service_name='${prettyEventName}' AND year='${year}'`;
-    const queryId = await startQueryExecutionCommand(
-      databaseName,
-      curatedQueryString
-    );
+    const queryId = await startQueryExecutionCommand({databaseName, queryString: curatedQueryString});
     const results = await queryObject(queryId);
     return results;
   }
