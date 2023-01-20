@@ -154,6 +154,7 @@ describe("Transformation handler tests", () => {
       });
 
       await handler(DEFAULT_EVENT);
+      fail("Expected exception to be thrown");
 
     } catch (e) {
 
