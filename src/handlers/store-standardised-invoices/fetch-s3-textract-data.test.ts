@@ -4,7 +4,7 @@ import { fetchS3TextractData } from "./fetch-s3-textract-data";
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
 
-describe("S3 Textract data fetcherer", () => {
+describe("S3 Textract data fetcher", () => {
   let mockedS3JsonValue: any;
   let givenBucket: string;
   let givenKey: string;
