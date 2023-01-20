@@ -1,6 +1,7 @@
 import * as AWS from "aws-sdk";
-import { S3Event, SQSEvent } from "aws-lambda";
+import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
+import { getS3EventRecords } from "../../shared/utils";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   // Set Up
@@ -22,15 +23,10 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   const promises = event.Records.map(async (record) => {
     try {
       console.log("Event body:", record.body);
-      const bodyObject = JSON.parse(record.body);
-      // Get Bucket and filename from the event.
-      if (typeof bodyObject !== "object")
-        throw new Error("Event record body not an object.");
 
-      if (!isS3Event(bodyObject))
-        throw new Error("Event record body not valid S3 event.");
+      const storageRecords = getS3EventRecords(record);
 
-      for (const record of bodyObject.Records) {
+      for (const record of storageRecords) {
         const bucket = record.s3.bucket.name;
         const fileName = record.s3.object.key;
 
@@ -66,11 +62,3 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   await Promise.all(promises);
   return response;
 };
-
-const isS3Event = (object: any): object is S3Event =>
-  Array.isArray(object.Records) &&
-  object.Records.every(
-    (record: any) =>
-      typeof record?.s3?.bucket?.name === "string" &&
-      typeof record?.s3?.object?.key === "string"
-  );
