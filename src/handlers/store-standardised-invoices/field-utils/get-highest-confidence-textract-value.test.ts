@@ -19,58 +19,45 @@ const mockField = (
 });
 
 describe("Highest confidence Textract value getter", () => {
+  let givenFields: Textract.ExpenseField[];
   let givenType: string;
 
   beforeEach(() => {
+    givenFields = [];
     givenType = "given type";
   });
 
   test("Highest confidence Textract value getter with no fields", () => {
-    const givenFields: Textract.ExpenseField[] = [];
     const result = getHighestConfidenceTextractValue(givenFields, givenType);
     expect(result).toBeUndefined();
   });
 
   test("Highest confidence Textract value getter with empty fields", () => {
-    const givenFields: Textract.ExpenseField[] = [{}, {}];
+    givenFields = [{}, {}];
     const result = getHighestConfidenceTextractValue(givenFields, givenType);
     expect(result).toBeUndefined();
   });
 
   test("Highest confidence Textract value getter with field without type", () => {
-    const givenFields: Textract.ExpenseField[] = [
-      mockField(undefined, "given value", 100),
-    ];
-
+    givenFields = [mockField(undefined, "given value", 100)];
     const result = getHighestConfidenceTextractValue(givenFields, givenType);
-
     expect(result).toBeUndefined();
   });
 
   test("Highest confidence Textract value getter with field without value", () => {
-    const givenFields: Textract.ExpenseField[] = [
-      mockField(givenType, undefined, 100),
-    ];
-
+    givenFields = [mockField(givenType, undefined, 100)];
     const result = getHighestConfidenceTextractValue(givenFields, givenType);
-
     expect(result).toBeUndefined();
   });
 
   test("Highest confidence Textract value getter with field without confidence", () => {
-    const givenFields: Textract.ExpenseField[] = [
-      mockField(givenType, "given value", undefined),
-    ];
-
+    givenFields = [mockField(givenType, "given value", undefined)];
     const result = getHighestConfidenceTextractValue(givenFields, givenType);
-
     expect(result).toBeUndefined();
   });
 
   test("Highest confidence Textract value getter with field no matching field", () => {
-    const givenFields: Textract.ExpenseField[] = [
-      mockField("not given type", "given value", 100),
-    ];
+    givenFields = [mockField("not given type", "given value", 100)];
 
     const result = getHighestConfidenceTextractValue(givenFields, givenType);
 
@@ -78,17 +65,13 @@ describe("Highest confidence Textract value getter", () => {
   });
 
   test("Highest confidence Textract value getter with one matching field", () => {
-    const givenFields: Textract.ExpenseField[] = [
-      mockField(givenType, "given value", 100),
-    ];
-
+    givenFields = [mockField(givenType, "given value", 100)];
     const result = getHighestConfidenceTextractValue(givenFields, givenType);
-
     expect(result).toBe("given value");
   });
 
   test("Highest confidence Textract value getter multiple matching fields", () => {
-    const givenFields: Textract.ExpenseField[] = [
+    givenFields = [
       mockField(givenType, "given lower confidence value 1", 98),
       mockField(givenType, "given lower confidence value 2", 0),
       mockField(givenType, "given highest confidence value", 99),
