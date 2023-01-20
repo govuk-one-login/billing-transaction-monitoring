@@ -1,20 +1,18 @@
 import { S3Event } from "aws-lambda";
-import { readJsonFromS3, sendRecord } from "../../shared/utils";
+import { readJsonFromS3 } from "../../shared/utils";
 import { configStackName } from "../../../integration_tests/helpers/envHelper";
-import { transformCsvToJson } from "./transform";
-
-interface TransformationEventBodyObject {
-  event_id: string;
-  timestamp: number;
-  timestamp_formatted: string;
-  event_name: string;
-  component_id: string;
-  client_id: string;
-}
+import { transformCsvToJson } from "./transform-csv-to-json";
+import { transformRow } from "./transform-row";
 
 export const handler = async (event: S3Event): Promise<void> => {
+  const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
+
+  if (outputQueueUrl === undefined || outputQueueUrl.length === 0) {
+    throw new Error("Output queue URL not set.");
+  }
+
   try {
-    // 1. Set up dependencies
+    // Set up dependencies
 
     const idpClientLookup = await readJsonFromS3(
       configStackName(),
@@ -28,10 +26,10 @@ export const handler = async (event: S3Event): Promise<void> => {
 
     const rows = await transformCsvToJson(event);
 
-    // 2. Transform data and send to SQS
+    // Transform data and send to SQS
 
     const promises = rows.map(async (row) => {
-      await transformRow(row, idpClientLookup, eventNameRules);
+      await transformRow(row, idpClientLookup, eventNameRules, outputQueueUrl);
     });
 
     await Promise.all(promises);
@@ -40,75 +38,3 @@ export const handler = async (event: S3Event): Promise<void> => {
     throw new Error("Transformation Handler error");
   }
 };
-
-async function transformRow(
-  row: any,
-  idpClientLookup: { [index: string]: string },
-  eventNameRules: EventNameRules
-): Promise<void> {
-  if (
-    process.env.OUTPUT_QUEUE_URL === undefined ||
-    process.env.OUTPUT_QUEUE_URL.length === 0
-  ) {
-    const message = "Output queue URL not set.";
-    console.error(message);
-    throw new Error(message);
-  }
-
-  const idpEntityId = row["Idp Entity Id"];
-  const requestId = row["Request Id"];
-  const timestampFormatted = row.Timestamp;
-  const timestamp = Math.floor(Date.parse(timestampFormatted) / 1000);
-  const rpEntityId = row["RP Entity Id"];
-
-  const transformationEventBodyObject: TransformationEventBodyObject = {
-    event_id: requestId,
-    timestamp,
-    timestamp_formatted: timestampFormatted,
-    event_name: await buildEventName(
-      eventNameRules,
-      idpEntityId,
-      row
-    ),
-    component_id: rpEntityId,
-    client_id: idpClientLookup[idpEntityId],
-  };
-
-  await sendRecord(
-    process.env.OUTPUT_QUEUE_URL,
-    JSON.stringify(transformationEventBodyObject)
-  );
-}
-
-interface Rules {
-  "Minimum Level Of Assurance": string;
-  "Billable Status": string;
-  "Event Name": string;
-}
-
-export interface EventNameRules {
-  [key: string]: Rules[];
-}
-
-async function buildEventName(
-  eventNameRules: EventNameRules,
-  idpEntityId: string,
-  row: any): Promise<string> {
-
-  const minLevelOfAssurance = row["Minimum Level Of Assurance"];
-  const billableStatus = row["Billable Status"];
-
-  const rules = eventNameRules[idpEntityId];
-
-  if (rules !== undefined) {
-    for (const rule of rules) {
-      if (
-        minLevelOfAssurance === rule["Minimum Level Of Assurance"] &&
-        billableStatus === rule["Billable Status"]
-      ) {
-        return rule["Event Name"];
-      }
-    }
-  }
-  return "unknown";
-}
