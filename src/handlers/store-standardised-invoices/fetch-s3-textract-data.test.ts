@@ -56,56 +56,37 @@ describe("S3 Textract data fetcher", () => {
   });
 
   test("S3 Textract data fetcher with fetch error", async () => {
-    const mockedError = new Error("mocked error");
+    const mockedErrorText = "mocked error";
+    const mockedError = new Error(mockedErrorText);
     mockedFetchS3.mockRejectedValue(mockedError);
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBe(mockedError);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError(mockedErrorText);
   });
 
   test("S3 Textract data fetcher with undefined fetched item", async () => {
     mockedFetchS3.mockResolvedValue(undefined);
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("No Textract data");
   });
 
   test("S3 Textract data fetcher with invalid JSON in fetched file", async () => {
     mockedFetchS3.mockResolvedValue("{");
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("JSON");
   });
 
   test("S3 Textract data fetcher with fetched JSON not array", async () => {
     mockedS3JsonValue = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("array");
   });
 
   test("S3 Textract data fetcher with fetched empty JSON array", async () => {
@@ -117,14 +98,9 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched JSON array of non-objects", async () => {
     mockedS3JsonValue = [1234];
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("objects");
   });
 
   test("S3 Textract data fetcher with fetched JSON array of empty objects", async () => {
@@ -142,14 +118,9 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched line item groups not array", async () => {
     mockedS3JsonValue[0].LineItemGroups = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("array");
   });
 
   test("S3 Textract data fetcher with fetched line items undefined", async () => {
@@ -161,14 +132,9 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched line items defined but not array", async () => {
     mockedS3JsonValue[0].LineItemGroups[0].LineItems = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("line item");
   });
 
   test("S3 Textract data fetcher with fetched line item with fields undefined", async () => {
@@ -183,27 +149,17 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched line item with fields defined but not array", async () => {
     mockedS3JsonValue[0].LineItemGroups[0].LineItems[0].LineItemExpenseFields = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("line item");
   });
 
   test("S3 Textract data fetcher with fetched line item field not object", async () => {
     mockedS3JsonValue[0].LineItemGroups[0].LineItems[0].LineItemExpenseFields[0] = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("line item");
   });
 
   test("S3 Textract data fetcher with fetched line item field empty object", async () => {
@@ -218,14 +174,9 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched line item field type defined but not object", async () => {
     mockedS3JsonValue[0].LineItemGroups[0].LineItems[0].LineItemExpenseFields[0].Type = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("line item");
   });
 
   test("S3 Textract data fetcher with fetched line item field type empty object", async () => {
@@ -240,41 +191,26 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched line item field type text defined but not string", async () => {
     mockedS3JsonValue[0].LineItemGroups[0].LineItems[0].LineItemExpenseFields[0].Type.Text = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("line item");
   });
 
   test("S3 Textract data fetcher with fetched line item field type confidence defined but not number", async () => {
     mockedS3JsonValue[0].LineItemGroups[0].LineItems[0].LineItemExpenseFields[0].Type.Confidence =
       true;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("line item");
   });
 
   test("S3 Textract data fetcher with fetched line item field value detection defined but not object", async () => {
     mockedS3JsonValue[0].LineItemGroups[0].LineItems[0].LineItemExpenseFields[0].ValueDetection = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("line item");
   });
 
   test("S3 Textract data fetcher with fetched line item field value detection empty object", async () => {
@@ -289,28 +225,18 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched line item field value detection text defined but not string", async () => {
     mockedS3JsonValue[0].LineItemGroups[0].LineItems[0].LineItemExpenseFields[0].ValueDetection.Text = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("line item");
   });
 
   test("S3 Textract data fetcher with fetched line item field value detection confidence defined but not number", async () => {
     mockedS3JsonValue[0].LineItemGroups[0].LineItems[0].LineItemExpenseFields[0].ValueDetection.Confidence =
       true;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("line item");
   });
 
   test("S3 Textract data fetcher with fetched summary undefined", async () => {
@@ -322,14 +248,9 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched summary not array", async () => {
     mockedS3JsonValue[0].SummaryFields = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("summary");
   });
 
   test("S3 Textract data fetcher with fetched summary field empty object", async () => {
@@ -341,14 +262,9 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched summary field type defined but not object", async () => {
     mockedS3JsonValue[0].SummaryFields[0].Type = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("summary");
   });
 
   test("S3 Textract data fetcher with fetched summary field type empty object", async () => {
@@ -360,40 +276,25 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched summary field type text defined but not string", async () => {
     mockedS3JsonValue[0].SummaryFields[0].Type.Text = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("summary");
   });
 
   test("S3 Textract data fetcher with fetched summary field type confidence defined but not number", async () => {
     mockedS3JsonValue[0].SummaryFields[0].Type.Confidence = true;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("summary");
   });
 
   test("S3 Textract data fetcher with fetched summary field value detection defined but not object", async () => {
     mockedS3JsonValue[0].SummaryFields[0].ValueDetection = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("summary");
   });
 
   test("S3 Textract data fetcher with fetched summary field value detection empty object", async () => {
@@ -405,26 +306,16 @@ describe("S3 Textract data fetcher", () => {
   test("S3 Textract data fetcher with fetched summary field value detection text defined but not string", async () => {
     mockedS3JsonValue[0].SummaryFields[0].ValueDetection.Text = 1234;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("summary");
   });
 
   test("S3 Textract data fetcher with fetched summary field value detection confidence defined but not number", async () => {
     mockedS3JsonValue[0].SummaryFields[0].ValueDetection.Confidence = true;
 
-    let resultError;
-    try {
-      await fetchS3TextractData(givenBucket, givenKey);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(
+      fetchS3TextractData(givenBucket, givenKey)
+    ).rejects.toThrowError("summary");
   });
 });

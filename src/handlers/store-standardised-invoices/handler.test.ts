@@ -32,28 +32,12 @@ describe("Store Standardised Invoices handler tests", () => {
 
   test("Store Standardised Invoices handler with no destination bucket set", async () => {
     delete process.env.DESTINATION_BUCKET;
-
-    let resultError;
-    try {
-      await handler(givenEvent);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(handler(givenEvent)).rejects.toThrowError("bucket");
   });
 
   test("Store Standardised Invoices handler with no destination folder set", async () => {
     delete process.env.DESTINATION_FOLDER;
-
-    let resultError;
-    try {
-      await handler(givenEvent);
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBeInstanceOf(Error);
+    await expect(handler(givenEvent)).rejects.toThrowError("folder");
   });
 
   test("Store Standardised Invoices handler with two failing records", async () => {

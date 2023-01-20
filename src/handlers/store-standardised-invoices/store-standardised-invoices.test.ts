@@ -76,23 +76,19 @@ describe("Standardised invoice storer", () => {
   });
 
   test("Standardised invoice storer with invalid queue record", async () => {
-    const mockedError = new Error("mocked error");
+    const mockedErrorText = "mocked error";
+    const mockedError = new Error(mockedErrorText);
     mockedGetS3EventRecords.mockImplementation(() => {
       throw mockedError;
     });
 
-    let resultError;
-    try {
-      await storeStandardisedInvoices(
+    await expect(
+      storeStandardisedInvoices(
         givenQueueRecord,
         givenDestinationBucket,
         givenDestinationFolder
-      );
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBe(mockedError);
+      )
+    ).rejects.toThrowError(mockedErrorText);
     expect(mockedGetS3EventRecords).toHaveBeenCalledTimes(1);
     expect(mockedGetS3EventRecords).toHaveBeenCalledWith(givenQueueRecord);
     expect(mockedFetchS3TextractData).not.toHaveBeenCalled();
@@ -115,23 +111,19 @@ describe("Standardised invoice storer", () => {
   });
 
   test("Standardised invoice storer with Textract fetch error", async () => {
-    const mockedError = new Error("mocked error");
+    const mockedErrorText = "mocked error";
+    const mockedError = new Error(mockedErrorText);
     mockedFetchS3TextractData.mockImplementation(() => {
       throw mockedError;
     });
 
-    let resultError;
-    try {
-      await storeStandardisedInvoices(
+    await expect(
+      storeStandardisedInvoices(
         givenQueueRecord,
         givenDestinationBucket,
         givenDestinationFolder
-      );
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBe(mockedError);
+      )
+    ).rejects.toThrowError(mockedErrorText);
     expect(mockedFetchS3TextractData).toHaveBeenCalledTimes(2);
     expect(mockedFetchS3TextractData).toHaveBeenCalledWith(
       mockedS3EventRecord1.s3.bucket.name,
@@ -146,23 +138,19 @@ describe("Standardised invoice storer", () => {
   });
 
   test("Standardised invoice storer with invoice validation failure", async () => {
-    const mockedError = new Error("mocked error");
+    const mockedErrorText = "mocked error";
+    const mockedError = new Error(mockedErrorText);
     mockedGetStandardisedInvoice.mockImplementation(() => {
       throw mockedError;
     });
 
-    let resultError;
-    try {
-      await storeStandardisedInvoices(
+    await expect(
+      storeStandardisedInvoices(
         givenQueueRecord,
         givenDestinationBucket,
         givenDestinationFolder
-      );
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBe(mockedError);
+      )
+    ).rejects.toThrowError(mockedErrorText);
     expect(mockedGetStandardisedInvoice).toHaveBeenCalledTimes(2);
     expect(mockedGetStandardisedInvoice).toHaveBeenCalledWith(
       mockedTextractData
@@ -171,21 +159,17 @@ describe("Standardised invoice storer", () => {
   });
 
   test("Standardised invoice storer with S3 storing failure", async () => {
-    const mockedError = new Error("mocked error");
+    const mockedErrorText = "mocked error";
+    const mockedError = new Error(mockedErrorText);
     mockedPutTextS3.mockRejectedValue(mockedError);
 
-    let resultError;
-    try {
-      await storeStandardisedInvoices(
+    await expect(
+      storeStandardisedInvoices(
         givenQueueRecord,
         givenDestinationBucket,
         givenDestinationFolder
-      );
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBe(mockedError);
+      )
+    ).rejects.toThrowError(mockedErrorText);
     expect(mockedPutTextS3).toHaveBeenCalledTimes(2);
     const expectedStandardisedInvoiceText =
       '"mocked Textract line item 1"\n"mocked Textract line item 2"';
