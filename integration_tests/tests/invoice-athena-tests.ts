@@ -39,7 +39,7 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const queryObj = await queryObject(queryId);
     const queryObjectsVal: BillingStandardised[] = Object.values(queryObj);
-    const s3Response = await s3GetObjectsToArray(
+    const s3Response: BillingStandardised[] = await s3GetObjectsToArray(
       testObject.bucket,
       folderPrefix
     );

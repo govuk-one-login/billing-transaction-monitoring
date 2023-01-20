@@ -70,7 +70,7 @@ const deleteDirectoryRecursiveInS3 = async (
 ): Promise<DeleteObjectCommandOutput[]> => {
   const result = await getS3ItemsList(bucketName, prefix);
   if (result.Contents === undefined) {
-   return []
+    return [];
   }
 
   return await Promise.all(
@@ -157,7 +157,7 @@ export interface BillingStandardised {
 const s3GetObjectsToArray = async (
   bucketName: string,
   folderPrefix: string
-): Promise<BillingStandardised[]> => {
+): Promise<[]> => {
   const s3Response = await getAllObjectsFromS3(bucketName, folderPrefix);
   const s3String = s3Response.join("").replace(/\n/g, "").replace(/}{/g, "},{");
   return JSON.parse("[" + s3String + "]");
