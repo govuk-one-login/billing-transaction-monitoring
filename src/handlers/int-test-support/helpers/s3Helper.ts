@@ -105,7 +105,7 @@ const deleteS3Objects = async (
 
   const result = await listS3Objects(params);
 
-  if (result.Contents === undefined) return []
+  if (result.Contents === undefined) return [];
 
   return await Promise.all(
     result.Contents.map(

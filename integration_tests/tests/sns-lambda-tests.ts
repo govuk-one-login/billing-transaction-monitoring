@@ -8,7 +8,7 @@ import {
   snsInvalidTimeStampPayload,
   snsMissingEventNamePayload,
   snsValidEventPayload,
-} from "../payloads/snsEventPayload";
+} from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { checkGivenStringExistsInLogs } from "../../src/handlers/int-test-support/helpers/cloudWatchHelper";
 import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";

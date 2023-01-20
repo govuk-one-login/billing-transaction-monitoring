@@ -1,13 +1,19 @@
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { deleteS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import {
-  deleteS3Events, eventTimeStamp,
-  generatePublishAndValidateEvents, TableNames,
+  deleteS3Events,
+  eventTimeStamp,
+  generatePublishAndValidateEvents,
+  TableNames,
   TimeStamps,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { publishSNS } from "../../src/handlers/int-test-support/helpers/snsHelper";
-import { ClientId, EventName, snsInvalidEventNamePayload } from '../payloads/snsEventPayload';
-import { queryResponseFilterByVendorServiceNameYear } from '../../src/handlers/int-test-support/helpers/queryHelper';
+import {
+  ClientId,
+  EventName,
+  snsInvalidEventNamePayload,
+} from "../../src/handlers/int-test-support/helpers/payloadHelper";
+import { queryResponseFilterByVendorServiceNameYear } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
 const prefix = resourcePrefix();
 const bucketName = `${prefix}-storage`;
@@ -37,7 +43,7 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       numberOfTestEvents: number;
       unitPrice: number;
       eventTime: TimeStamps;
-      year:number
+      year: number;
     }) => {
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
       const eventIds = await generatePublishAndValidateEvents({
@@ -47,12 +53,13 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
         eventTime,
       });
       const tableName = TableNames.TRANSACTION_CURATED;
-      const year = new Date(eventTimeStamp[eventTime] * 1000).getFullYear()
+      const year = new Date(eventTimeStamp[eventTime] * 1000).getFullYear();
       const response: TransactionCuratedView[] =
         await queryResponseFilterByVendorServiceNameYear({
           clientId,
           eventName,
-          tableName,year
+          tableName,
+          year,
         });
       await deleteS3Events(eventIds, eventTime);
       expect(response[0].price).toEqual(expectedPrice);
@@ -62,11 +69,14 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
   test("no results returned from transaction_curated athena view query when the event payload has invalid eventName", async () => {
     await publishSNS(snsInvalidEventNamePayload);
     const tableName = TableNames.TRANSACTION_CURATED;
-    const year = new Date(snsInvalidEventNamePayload.timestamp * 1000).getFullYear()
+    const year = new Date(
+      snsInvalidEventNamePayload.timestamp * 1000
+    ).getFullYear();
     const queryRes = await queryResponseFilterByVendorServiceNameYear({
       clientId: snsInvalidEventNamePayload.client_id,
       eventName: snsInvalidEventNamePayload.event_name,
-      tableName,year
+      tableName,
+      year,
     });
     expect(queryRes.length).not.toBeGreaterThan(0);
   });

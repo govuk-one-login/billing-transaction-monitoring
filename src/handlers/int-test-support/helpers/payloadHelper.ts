@@ -1,7 +1,4 @@
-import {
-  generateRandomId,
-  validTimestamp,
-} from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { generateRandomId, validTimestamp } from "./commonHelpers";
 
 export enum ClientId {
   client1 = "client1",

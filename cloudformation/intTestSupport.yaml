@@ -48,5 +48,6 @@ Resources:
             - Effect: Allow
               Action:
                 - glue:GetTable
+                - glue:GetDatabase
               Resource: '*'
       ReservedConcurrentExecutions: 10

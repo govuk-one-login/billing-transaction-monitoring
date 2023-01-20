@@ -1,11 +1,7 @@
 import { deleteS3Object, listS3Objects } from "./s3Helper";
 import { publishSNS } from "./snsHelper";
 import { resourcePrefix } from "./envHelper";
-import {
-  ClientId,
-  EventName,
-  SNSEventPayload,
-} from "../../../../integration_tests/payloads/snsEventPayload";
+import { ClientId, EventName, SNSEventPayload } from "./payloadHelper";
 
 const objectsPrefix = "btm_transactions";
 

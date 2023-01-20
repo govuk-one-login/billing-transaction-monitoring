@@ -1,9 +1,9 @@
 import {
-  StartQueryExecutionCommand,
   GetQueryExecutionCommand,
   GetQueryResultsCommand,
-  QueryExecutionStatus,
   GetQueryResultsCommandOutput,
+  QueryExecutionStatus,
+  StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
 import { waitForTrue } from "./commonHelpers";
 import { resourcePrefix, runViaLambda } from "./envHelper";
@@ -49,6 +49,7 @@ const getQueryExecutionStatus = async (
   const params = {
     QueryExecutionId: queryId,
   };
+
   const response = await athenaClient.send(
     new GetQueryExecutionCommand(params)
   );
@@ -63,11 +64,11 @@ const getQueryResults = async (
       "getQueryResults",
       queryId
     )) as unknown as GetQueryResultsCommandOutput;
+
   const params = {
     QueryExecutionId: queryId,
   };
-  const response = await athenaClient.send(new GetQueryResultsCommand(params));
-  return response;
+  return await athenaClient.send(new GetQueryResultsCommand(params));
 };
 
 const waitAndGetQueryResults = async (
@@ -75,9 +76,9 @@ const waitAndGetQueryResults = async (
 ): Promise<GetQueryResultsCommandOutput | undefined> => {
   const checkState = async (): Promise<boolean> => {
     const result = await getQueryExecutionStatus(queryId);
-    return !((result?.State?.match("SUCCEEDED")) == null);
+    return !(result?.State?.match("SUCCEEDED") == null);
   };
-  const queryStatusSuccess = await waitForTrue(checkState, 5000, 10000);
+  const queryStatusSuccess = await waitForTrue(checkState, 1000, 10000);
   if (queryStatusSuccess) {
     return await getQueryResults(queryId);
   }

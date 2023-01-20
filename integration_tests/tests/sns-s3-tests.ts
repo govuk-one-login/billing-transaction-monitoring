@@ -10,7 +10,7 @@ import {
   snsMissingEventIdPayload,
   snsMissingEventNamePayload,
   snsValidEventPayload,
-} from "../payloads/snsEventPayload";
+} from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";

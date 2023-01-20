@@ -1,4 +1,4 @@
-import { snsValidEventPayload } from "../payloads/snsEventPayload";
+import { snsValidEventPayload } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { publishSNS } from "../../src/handlers/int-test-support/helpers/snsHelper";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
