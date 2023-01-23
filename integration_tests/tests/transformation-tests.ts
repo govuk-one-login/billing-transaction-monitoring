@@ -24,7 +24,7 @@ describe("\n Upload verify fake csv to transformation bucket tests and check val
   beforeAll(async () => {
     // before the test runs deletes the btm_transaction/datePrefix folder created by previous run
     await deleteS3FolderBasedOnDate(storageBucket, folderPrefix);
-    console.log("Existing folders are deleted");
+    console.log("Existing sub folders within btm_transactions are deleted");
     const fakeCsvFile = "../payloads/fakeBillingReport.csv";
     const filePath = path.join(__dirname, fakeCsvFile);
     const csvFileData = fs.readFileSync(filePath);
