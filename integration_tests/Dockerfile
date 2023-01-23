@@ -41,7 +41,7 @@ WORKDIR /test-app
 
 COPY package.json package-lock.json tsconfig.json jest.integration.config.ts ./
 COPY integration_tests ./integration_tests
-COPY src/handlers/int-test-support/ ./src
+COPY src/handlers/int-test-support/ ./src/handlers/int-test-support/
 
 RUN npm ci
 
