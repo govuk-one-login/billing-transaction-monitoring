@@ -137,6 +137,21 @@ const getAllObjectsFromS3 = async (
   return content;
 };
 
+const deleteS3FolderBasedOnDate = async (
+  bucketName: string,
+  folderPrefix: string
+): Promise<boolean> => {
+  const result = await getS3ItemsList(bucketName, folderPrefix);
+  const getDateFolderPrefix = result.Contents?.map((data) =>
+    data.Key?.slice(0, 27)
+  );
+  if (getDateFolderPrefix === undefined) return false;
+  for (const dateFolderPrefix of getDateFolderPrefix) {
+    await deleteDirectoryRecursiveInS3(bucketName, dateFolderPrefix);
+  }
+  return true;
+};
+
 export interface BillingStandardised {
   invoice_receipt_id: string;
   vendor_name: string;
@@ -174,4 +189,5 @@ export {
   checkIfS3ObjectExists,
   getAllObjectsFromS3,
   s3GetObjectsToArray,
+  deleteS3FolderBasedOnDate,
 };

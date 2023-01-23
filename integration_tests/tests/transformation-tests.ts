@@ -2,25 +2,29 @@ import {
   putObjectToS3,
   checkIfS3ObjectExists,
   S3Object,
-  deleteDirectoryRecursiveInS3,
   getS3ItemsList,
   s3GetObjectsToArray,
+  deleteS3FolderBasedOnDate,
 } from "../helpers/s3Helper";
 import { resourcePrefix } from "../helpers/envHelper";
 import path from "path";
 import fs from "fs";
 import csv from "csvtojson";
 import { waitForTrue } from "../helpers/commonHelpers";
+import {
+  CsvRow,
+  TransformationEventBodyObject,
+} from "../../src/handlers/transformation/transform-row";
 
 const prefix = resourcePrefix();
 const storageBucket = `${resourcePrefix()}-storage`;
 const folderPrefix = "btm_transactions";
 
-describe("\n Upload verify fake csv to transformation bucket tests", () => {
+describe("\n Upload verify fake csv to transformation bucket tests and check valid events from csv match with s3 events", () => {
   beforeAll(async () => {
-    // before the test runs deletes the btm_transaction/2022-10-01 directory created by previous run
-    await deleteDirectoryRecursiveInS3(storageBucket, folderPrefix);
-    console.log("Existing directory is deleted");
+    // before the test runs deletes the btm_transaction/datePrefix folder created by previous run
+    await deleteS3FolderBasedOnDate(storageBucket, folderPrefix);
+    console.log("Existing folders are deleted");
     const fakeCsvFile = "../payloads/fakeBillingReport.csv";
     const filePath = path.join(__dirname, fakeCsvFile);
     const csvFileData = fs.readFileSync(filePath);
@@ -33,10 +37,15 @@ describe("\n Upload verify fake csv to transformation bucket tests", () => {
     expect(checkCsvFileExists).toBeTruthy();
   });
 
-  test("events which are satisfied client and event name matching rule should be stored in storage bucket", async () => {
+  test("events which are satisfied client and event name matching rule from csv should be stored in s3 storage bucket", async () => {
+    const checkEventsExistsInS3 = await waitForTrue(
+      checkExpectedEventsExistsInS3,
+      1000,
+      10000
+    );
+    expect(checkEventsExistsInS3).toBe(true);
     const eventsFromS3 = await getEventsFromS3();
     const eventsFromCSV = await filterPermittedClientAndBillingEvents();
-    console.log(eventsFromS3.length);
     const isContains = eventsFromS3.some((s3Obj) => {
       return eventsFromCSV.some((csvObj) => {
         return (
@@ -49,7 +58,13 @@ describe("\n Upload verify fake csv to transformation bucket tests", () => {
     expect(isContains).toBe(true);
   });
 
-  test("events which are not satisfied client and event name matching rule should not be stored in storage bucket", async () => {
+  test("events which are not satisfied client and event name matching rule from csv should not be stored in s3 storage bucket", async () => {
+    const checkEventsExistsInS3 = await waitForTrue(
+      checkExpectedEventsExistsInS3,
+      1000,
+      7000
+    );
+    expect(checkEventsExistsInS3).toBe(true);
     const s3Result = await getEventsFromS3();
     const isContains = s3Result.some((s3Obj) => {
       return (
@@ -62,31 +77,6 @@ describe("\n Upload verify fake csv to transformation bucket tests", () => {
   });
 });
 
-type BillingCSV = Array<{
-  "Idp Entity Id": string;
-  Timestamp: string;
-  "Request Id": string;
-  "Session Id": string;
-  "Hashed Persistent Id": string;
-  "Minimum Level Of Assurance": string;
-  "Preferred Level Of Assurance": string;
-  "Provided Level Of Assurance": string;
-  "Billable Status": string;
-  "Previous Billed Event Request Id": string;
-  "Previous Billed Event Timestamp": string;
-  "RP Entity Id": string;
-  "Response type": string;
-}>;
-
-type s3Response = Array<{
-  client_id: string;
-  component_id: string;
-  event_id: string;
-  event_name: string;
-  timestamp: number;
-  timestamp_formatted: string;
-}>;
-
 const csvFileToJson = async (): Promise<any[]> => {
   const file = "../payloads/fakeBillingReport.csv";
   const filePath = path.join(__dirname, file);
@@ -94,8 +84,8 @@ const csvFileToJson = async (): Promise<any[]> => {
   return json;
 };
 
-const filterPermittedClientAndBillingEvents = async (): Promise<BillingCSV> => {
-  const json: BillingCSV = await csvFileToJson();
+const filterPermittedClientAndBillingEvents = async (): Promise<CsvRow[]> => {
+  const json: CsvRow[] = await csvFileToJson();
   const permittedBillingEvents = json.filter(
     (data) =>
       data["Billable Status"] === "BILLABLE" ||
@@ -109,23 +99,20 @@ const filterPermittedClientAndBillingEvents = async (): Promise<BillingCSV> => {
   );
 };
 
-const checkS3ObjListExists = async (): Promise<boolean | undefined> => {
+const checkExpectedEventsExistsInS3 = async (): Promise<boolean> => {
   const result = await getS3ItemsList(storageBucket, folderPrefix);
   if (result.Contents === undefined) {
-    console.log("Storage bucket contents not empty");
+    console.log("Storage bucket contents empty");
     return false;
   }
-
-  console.log(result.Contents);
-  console.log(result.Contents.length);
-
-  if (result.Contents.length === 13) {
+  if (result.Contents.length === 15) {
+    //  15 valid events which satisfies client and event mapping rule from csv to be stored in s3
     return true;
   }
+  return true;
 };
 
-const getEventsFromS3 = async (): Promise<s3Response> => {
-  await waitForTrue(checkS3ObjListExists, 1000, 7000);
+const getEventsFromS3 = async (): Promise<TransformationEventBodyObject[]> => {
   const s3Contents = await s3GetObjectsToArray(storageBucket, folderPrefix);
   return s3Contents;
 };

@@ -1,7 +1,7 @@
 import { sendRecord } from "../../shared/utils";
 import { buildEventName, EventNameRules } from "./build-event-name";
 
-interface TransformationEventBodyObject {
+export interface TransformationEventBodyObject {
   event_id: string;
   timestamp: number;
   timestamp_formatted: string;
