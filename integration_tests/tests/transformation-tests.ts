@@ -46,7 +46,7 @@ describe("\n Upload verify fake csv to transformation bucket tests and check val
     expect(checkEventsExistsInS3).toBe(true);
     const eventsFromS3 = await getEventsFromS3();
     const eventsFromCSV = await filterPermittedClientAndBillingEvents();
-    const isContains = eventsFromS3.some((s3Obj) => {
+    const s3ContainsEventsFromCSV = eventsFromS3.some((s3Obj) => {
       return eventsFromCSV.some((csvObj) => {
         return (
           s3Obj.event_id === csvObj["Request Id"] &&
@@ -55,7 +55,7 @@ describe("\n Upload verify fake csv to transformation bucket tests and check val
         );
       });
     });
-    expect(isContains).toBe(true);
+    expect(s3ContainsEventsFromCSV).toBe(true);
   });
 
   test("events which are not satisfied client and event name matching rule from csv should not be stored in s3 storage bucket", async () => {
@@ -66,14 +66,14 @@ describe("\n Upload verify fake csv to transformation bucket tests and check val
     );
     expect(checkEventsExistsInS3).toBe(true);
     const s3Result = await getEventsFromS3();
-    const isContains = s3Result.some((s3Obj) => {
+    const s3ContainsEventsFromCSV = s3Result.some((s3Obj) => {
       return (
         s3Obj.client_id !== "client1" &&
         s3Obj.client_id !== "client2" &&
         s3Obj.event_name !== "unknown"
       );
     });
-    expect(isContains).toBe(true);
+    expect(s3ContainsEventsFromCSV).toBe(true);
   });
 });
 
