@@ -33,7 +33,7 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     expect(checkFileExists).toBeTruthy();
   });
 
-  test("retrieved invoice details should matches with invoice data in s3 bucket ", async () => {
+  test("retrieved invoice details should match invoice data in s3 bucket", async () => {
     const queryString =
       'SELECT * FROM "btm_billing_standardised" ORDER BY service_name ASC';
     const queryId = await startQueryExecutionCommand({
@@ -41,48 +41,58 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
       queryString,
     });
     const queryObj = await queryObject(queryId);
-    const queryObjectsVal: BillingStandardised[] = Object.values(queryObj);
-    const s3Response = await getS3ObjectsAsArray(
+    const athenaQueryValues: BillingStandardised[] = Object.values(queryObj);
+    const s3InvoiceValues = await getS3ObjectsAsArray(
       testObject.bucket,
       folderPrefix
     );
-    for (let i = 0; i < s3Response.length; i++) {
-      expect(s3Response[i].invoice_receipt_id).toEqual(
-        queryObjectsVal[i].invoice_receipt_id
+    for (let i = 0; i < s3InvoiceValues.length; i++) {
+      expect(s3InvoiceValues[i].invoice_receipt_id).toEqual(
+        athenaQueryValues[i].invoice_receipt_id
       );
-      expect(s3Response[i].vendor_name).toEqual(queryObjectsVal[i].vendor_name);
-      expect(s3Response[i].total.toFixed(4)).toEqual(queryObjectsVal[i].total);
-      expect(s3Response[i].invoice_receipt_date).toEqual(
-        queryObjectsVal[i].invoice_receipt_date
+      expect(s3InvoiceValues[i].vendor_name).toEqual(
+        athenaQueryValues[i].vendor_name
       );
-      expect(s3Response[i].subtotal.toFixed(4)).toEqual(
-        queryObjectsVal[i].subtotal
+      expect(s3InvoiceValues[i].total.toFixed(4)).toEqual(
+        athenaQueryValues[i].total
       );
-      expect(s3Response[i].due_date).toEqual(queryObjectsVal[i].due_date);
-      expect(s3Response[i].tax.toFixed(2)).toEqual(queryObjectsVal[i].tax);
-      expect(s3Response[i].tax_payer_id).toEqual(
-        queryObjectsVal[i].tax_payer_id
+      expect(s3InvoiceValues[i].invoice_receipt_date).toEqual(
+        athenaQueryValues[i].invoice_receipt_date
       );
-      expect(s3Response[i].item_id.toString()).toEqual(
-        queryObjectsVal[i].item_id
+      expect(s3InvoiceValues[i].subtotal.toFixed(4)).toEqual(
+        athenaQueryValues[i].subtotal
       );
-      expect(s3Response[i].item_description).toEqual(
-        queryObjectsVal[i].item_description
+      expect(s3InvoiceValues[i].due_date).toEqual(
+        athenaQueryValues[i].due_date
       );
-      expect(s3Response[i].service_name).toEqual(
-        queryObjectsVal[i].service_name
+      expect(s3InvoiceValues[i].tax.toFixed(2)).toEqual(
+        athenaQueryValues[i].tax
       );
-      expect(s3Response[i].unit_price.toFixed(4)).toEqual(
-        queryObjectsVal[i].unit_price
+      expect(s3InvoiceValues[i].tax_payer_id).toEqual(
+        athenaQueryValues[i].tax_payer_id
       );
-      expect(s3Response[i].quantity.toString()).toEqual(
-        queryObjectsVal[i].quantity
+      expect(s3InvoiceValues[i].item_id.toString()).toEqual(
+        athenaQueryValues[i].item_id
       );
-      expect(s3Response[i].price.toFixed(4)).toEqual(queryObjectsVal[i].price);
+      expect(s3InvoiceValues[i].item_description).toEqual(
+        athenaQueryValues[i].item_description
+      );
+      expect(s3InvoiceValues[i].service_name).toEqual(
+        athenaQueryValues[i].service_name
+      );
+      expect(s3InvoiceValues[i].unit_price.toFixed(4)).toEqual(
+        athenaQueryValues[i].unit_price
+      );
+      expect(s3InvoiceValues[i].quantity.toString()).toEqual(
+        athenaQueryValues[i].quantity
+      );
+      expect(s3InvoiceValues[i].price.toFixed(4)).toEqual(
+        athenaQueryValues[i].price
+      );
     }
   });
 
-  test("retrieved view query results should matches with s3", async () => {
+  test("retrieved view query results should match s3", async () => {
     const s3Response = await getS3ObjectsAsArray(
       testObject.bucket,
       folderPrefix
@@ -105,7 +115,10 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
 
     const queryString =
       'SELECT * FROM "btm_billing_curated" ORDER BY service_name ASC';
-    const queryId = await startQueryExecutionCommand({databaseName, queryString});
+    const queryId = await startQueryExecutionCommand({
+      databaseName,
+      queryString,
+    });
     const queryObjects: BillingCurated[] = await queryObject(queryId);
     for (let i = 0; i < s3Response.length; i++) {
       expect(s3Objects[i].vendor_name).toEqual(queryObjects[i].vendor_name);

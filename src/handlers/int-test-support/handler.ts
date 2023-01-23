@@ -24,7 +24,6 @@ export interface TestSupportEvent {
 }
 
 export interface TestSupportReturn {
-  error?: string;
   success?: boolean;
   successObject?: any;
 }

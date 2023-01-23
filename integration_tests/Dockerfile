@@ -15,7 +15,7 @@ RUN git clone --single-branch --depth 1 -b ${AWS_CLI_VERSION} https://github.com
 
 WORKDIR /aws-cli
 
-RUN sed -i'' 's/PyInstaller.*/PyInstaller==5.6.2/g' requirements-build.txt
+RUN sed -i 's/PyInstaller.*/PyInstaller==5.6.2/g' requirements-build.txt
 RUN python -m venv venv
 RUN . venv/bin/activate
 RUN scripts/installers/make-exe
@@ -50,10 +50,10 @@ WORKDIR /test-app/integration_tests
 RUN mv ./run-tests.sh /run-tests.sh
 RUN chmod +x /run-tests.sh
 
-# To run unit-tests for starters
-WORKDIR /test-app
-COPY jest.config.cjs ./
-COPY test-helpers ./test-helpers
-COPY src ./src
+## To run unit-tests for starters
+#WORKDIR /test-app
+#COPY jest.config.cjs ./
+#COPY test-helpers ./test-helpers
+#COPY src ./src
 
 ENTRYPOINT ["/run-tests.sh"]

@@ -6,12 +6,11 @@
 # TEST_REPORT_DIR - Relative path from current directory to where the test report file should be placed
 # TEST_ENVIRONMENT - The environment the pipeline is running the tests in
 
-# This file needs to be located at the root when running in the container. The path /tests is defined
+# This file needs to be located at the root when running in the container. The path /test-app is defined
 # in the Dockerfile.
 cd /test-app || exit 1
 
-#npm run test:integration
-npm run test
+npm run test:integration
 
 TESTS_EXIT_CODE=$?
 
