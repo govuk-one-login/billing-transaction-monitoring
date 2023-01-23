@@ -100,7 +100,7 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     );
 
     const queryString =
-      'SELECT * FROM "btm_billing_curated" ORDER BY service_name ASC';
+      'SELECT * FROM "btm_billing_curated" ORDER BY vendor_name DESC';
     const queryId = await startQueryExecutionCommand(databaseName, queryString);
     const queryObjects: BillingCurated[] = await queryObject(queryId);
     for (let i = 0; i < s3Response.length; i++) {
