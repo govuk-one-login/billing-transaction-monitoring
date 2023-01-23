@@ -19,10 +19,8 @@ const folderPrefix = "btm_transactions";
 describe("\n Upload verify fake csv to transformation bucket tests", () => {
   beforeAll(async () => {
     // before the test runs deletes the btm_transaction/2022-10-01 directory created by previous run
-    await deleteDirectoryRecursiveInS3(
-      storageBucket,
-      folderPrefix + "/2022-10-01"
-    );
+    await deleteDirectoryRecursiveInS3(storageBucket, folderPrefix);
+    console.log("Existing directory is deleted");
     const fakeCsvFile = "../payloads/fakeBillingReport.csv";
     const filePath = path.join(__dirname, fakeCsvFile);
     const csvFileData = fs.readFileSync(filePath);
@@ -36,10 +34,10 @@ describe("\n Upload verify fake csv to transformation bucket tests", () => {
   });
 
   test("events which are satisfied client and event name matching rule should be stored in storage bucket", async () => {
-    const s3Result = await s3Events();
+    const eventsFromS3 = await getEventsFromS3();
     const eventsFromCSV = await filterPermittedClientAndBillingEvents();
-
-    const isContains = s3Result.some((s3Obj) => {
+    console.log(eventsFromS3.length);
+    const isContains = eventsFromS3.some((s3Obj) => {
       return eventsFromCSV.some((csvObj) => {
         return (
           s3Obj.event_id === csvObj["Request Id"] &&
@@ -52,7 +50,7 @@ describe("\n Upload verify fake csv to transformation bucket tests", () => {
   });
 
   test("events which are not satisfied client and event name matching rule should not be stored in storage bucket", async () => {
-    const s3Result = await s3Events();
+    const s3Result = await getEventsFromS3();
     const isContains = s3Result.some((s3Obj) => {
       return (
         s3Obj.client_id !== "client1" &&
@@ -101,7 +99,8 @@ const filterPermittedClientAndBillingEvents = async (): Promise<BillingCSV> => {
   const permittedBillingEvents = json.filter(
     (data) =>
       data["Billable Status"] === "BILLABLE" ||
-      data["Billable Status"] === "REPEAT-BILLABLE"
+      data["Billable Status"] === "REPEAT-BILLABLE" ||
+      data["Billable Status"] === "BILLABLE-UPLIFT"
   );
   return permittedBillingEvents.filter(
     (data) =>
@@ -116,10 +115,16 @@ const checkS3ObjListExists = async (): Promise<boolean | undefined> => {
     console.log("Storage bucket contents not empty");
     return false;
   }
-  return result.Contents.length > 0;
+
+  console.log(result.Contents);
+  console.log(result.Contents.length);
+
+  if (result.Contents.length === 13) {
+    return true;
+  }
 };
 
-const s3Events = async (): Promise<s3Response> => {
+const getEventsFromS3 = async (): Promise<s3Response> => {
   await waitForTrue(checkS3ObjListExists, 1000, 7000);
   const s3Contents = await s3GetObjectsToArray(storageBucket, folderPrefix);
   return s3Contents;
