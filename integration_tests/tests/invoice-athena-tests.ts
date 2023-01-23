@@ -3,6 +3,7 @@ import fs from "fs";
 import {
   BillingStandardised,
   checkIfS3ObjectExists,
+  deleteS3Objects,
   getS3ObjectsAsArray,
   putS3Object,
   S3Object,
@@ -24,6 +25,10 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
   const databaseName = `${prefix}-calculations`;
 
   beforeAll(async () => {
+    await deleteS3Objects({
+      bucketName: testObject.bucket,
+      prefix: folderPrefix,
+    });
     // uploading file to s3 will be removed once BTM-276 implemented
     const file = "../payloads/receipt.txt";
     const filePath = path.join(__dirname, file);
@@ -114,7 +119,7 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     );
 
     const queryString =
-      'SELECT * FROM "btm_billing_curated" ORDER BY service_name ASC';
+      'SELECT * FROM "btm_billing_curated" ORDER BY vendor_name DESC, year DESC';
     const queryId = await startQueryExecutionCommand({
       databaseName,
       queryString,

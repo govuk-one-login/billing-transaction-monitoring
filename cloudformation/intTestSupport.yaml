@@ -51,3 +51,11 @@ Resources:
                 - glue:GetDatabase
               Resource: '*'
       ReservedConcurrentExecutions: 10
+
+  AllowTestingContainerToInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref IntTestSupportFunction
+      Principal: !Sub arn:aws:iam::${AWS::AccountId}:role/PL-build-pipeline-TestRole-025141d84c68
+      SourceAccount: !Ref AWS::AccountId
