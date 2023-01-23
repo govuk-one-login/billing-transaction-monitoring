@@ -8,6 +8,7 @@ import {
   s3GetObjectsToArray,
   S3Object,
   BillingStandardised,
+  deleteDirectoryRecursiveInS3,
 } from "../helpers/s3Helper";
 import { resourcePrefix } from "../helpers/envHelper";
 import path from "path";
@@ -24,7 +25,9 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
   const databaseName = `${prefix}-calculations`;
 
   beforeAll(async () => {
-    // uploading file to s3 will be removed once BTM-276 implemented
+    // deletes the standardised directory created by other tests
+    await deleteDirectoryRecursiveInS3(testObject.bucket, folderPrefix);
+    // uploading of receipt.txt will removed as part of BTM-352
     const file = "../payloads/receipt.txt";
     const filePath = path.join(__dirname, file);
     const fileStream = fs.createReadStream(filePath);
