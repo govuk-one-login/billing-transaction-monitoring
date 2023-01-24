@@ -34,19 +34,14 @@ describe("\n Upload verify fake csv to transformation bucket tests and check val
     };
     await putObjectToS3(testObject, csvFileData);
     const checkCsvFileExists = await checkIfS3ObjectExists(testObject);
-    expect(checkCsvFileExists).toBeTruthy();
+    expect(checkCsvFileExists).toBe(true);
+  
   });
 
   test("events which are satisfied client and event name matching rule from csv should be stored in s3 storage bucket", async () => {
-    const checkEventsExistsInS3 = await waitForTrue(
-      checkExpectedEventsExistsInS3,
-      1000,
-      10000
-    );
-    expect(checkEventsExistsInS3).toBe(true);
     const eventsFromS3 = await getEventsFromS3();
     const eventsFromCSV = await filterPermittedClientAndBillingEvents();
-    const s3ContainsEventsFromCSV = eventsFromS3.some((s3Obj) => {
+    const s3ContainsEventsFromCSV = eventsFromS3.every((s3Obj) => {
       return eventsFromCSV.some((csvObj) => {
         return (
           s3Obj.event_id === csvObj["Request Id"] &&
@@ -59,21 +54,15 @@ describe("\n Upload verify fake csv to transformation bucket tests and check val
   });
 
   test("events which are not satisfied client and event name matching rule from csv should not be stored in s3 storage bucket", async () => {
-    const checkEventsExistsInS3 = await waitForTrue(
-      checkExpectedEventsExistsInS3,
-      1000,
-      7000
-    );
-    expect(checkEventsExistsInS3).toBe(true);
-    const s3Result = await getEventsFromS3();
-    const s3ContainsEventsFromCSV = s3Result.some((s3Obj) => {
+    const eventsFromS3 = await getEventsFromS3();
+    const s3NotContainsEventsClientsFromCSV = eventsFromS3.some((s3Obj) => {
       return (
         s3Obj.client_id !== "client1" &&
         s3Obj.client_id !== "client2" &&
         s3Obj.event_name !== "unknown"
       );
     });
-    expect(s3ContainsEventsFromCSV).toBe(true);
+    expect(s3NotContainsEventsClientsFromCSV).toBe(true);
   });
 });
 
@@ -99,20 +88,24 @@ const filterPermittedClientAndBillingEvents = async (): Promise<CsvRow[]> => {
   );
 };
 
-const checkExpectedEventsExistsInS3 = async (): Promise<boolean> => {
+const checkExpectedNumberOfEventsExistsInS3 = async (): Promise<boolean> => {
   const result = await getS3ItemsList(storageBucket, folderPrefix);
   if (result.Contents === undefined) {
     console.log("Storage bucket contents empty");
     return false;
   }
-  if (result.Contents.length === 15) {
-    //  15 valid events which satisfies client and event mapping rule from csv to be stored in s3
-    return true;
-  }
-  return true;
+  const expectedNumberOfEvents = (await filterPermittedClientAndBillingEvents())
+    .length;
+  return result.Contents.length === expectedNumberOfEvents;
 };
 
 const getEventsFromS3 = async (): Promise<TransformationEventBodyObject[]> => {
+  const checkNumberOfExpectedEventsInS3 = await waitForTrue(
+    checkExpectedNumberOfEventsExistsInS3,
+    1000,
+    10000
+  );
+  expect(checkNumberOfExpectedEventsInS3).toBe(true);
   const s3Contents = await s3GetObjectsToArray(storageBucket, folderPrefix);
   return s3Contents;
 };
