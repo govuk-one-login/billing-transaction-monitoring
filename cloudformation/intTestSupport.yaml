@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  IntTestSupportFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for synchronously invoked lambda
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-int-test-support-function
+      Handler: intTestSupport.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonS3FullAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: !Ref TestTxMASNS
+            - Effect: Allow
+              Action:
+                - sns:ListTopics
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - logs:FilterLogEvents
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - athena:StartQueryExecution
+                - athena:GetQueryExecution
+                - athena:GetQueryResults
+              Resource:
+                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaInvoiceWorkgroup}
+                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaTransactionWorkgroup}
+            - Effect: Allow
+              Action:
+                - glue:GetTable
+                - glue:GetDatabase
+              Resource: '*'
+      ReservedConcurrentExecutions: 10
+
+  AllowTestingContainerToInvoke:
+    Type: AWS::Lambda::Permission
+    Condition: UseTestRole
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref IntTestSupportFunction
+      Principal: !Ref TestRoleArn

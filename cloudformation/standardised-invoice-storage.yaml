@@ -97,9 +97,9 @@ Resources:
               Resource: !GetAtt KmsKey.Arn
             - Effect: Allow
               Action:
-                - 's3:GetObject'
-                - 's3:ListBucket'
-                - 's3:PutObject'
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:PutObject
               Resource:
                 - !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
                 - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]

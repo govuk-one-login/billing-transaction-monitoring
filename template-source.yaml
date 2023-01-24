@@ -21,6 +21,11 @@ Parameters:
     Description: ARN of permissions boundary for new roles
     Type: String
     Default: none
+  TestRoleArn:
+    Type: String
+    Description: The ARN of the role that will used for integration tests
+    Default: none
+    AllowedPattern: (none)|(arn:aws:iam::.*:role/.*)
   PrivateConfigStack:
     Description: Private config stack to use for configuration
     Type: String
@@ -29,6 +34,7 @@ Parameters:
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
+  UseTestRole: !Not [!Equals [!Ref TestRoleArn, none]]
   UsePrivateConfigStack: !Not [!Equals [!Ref PrivateConfigStack, none]]
   IsLocal: !Equals [!Ref Environment, local]
   # This is a workaround for the pipeline in dev being deployed with Environment=build due to hardcoded permissions
@@ -69,7 +75,7 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/filtering.yaml,
   ./cloudformation/cleaning.yaml,
   ./cloudformation/transaction-storage.yaml,
-  ./cloudformation/custom-s3-object-resource.yaml#NO_LOCAL,
+  ./cloudformation/intTestSupport.yaml#NO_LOCAL,
   ./cloudformation/raw-invoice-textract-data-store.yaml,
   ./cloudformation/raw-invoice-pdf-store.yaml,
   ./cloudformation/standardised-invoice-storage.yaml,

@@ -1,21 +1,17 @@
-import {
-  deleteObjectInS3,
-  checkIfS3ObjectExists,
-  getS3ItemsList,
-  getS3Object,
-  putObjectToS3,
-  S3Object,
-} from "../helpers/s3Helper";
 import path from "path";
 import fs from "fs";
-import { resourcePrefix } from "../helpers/envHelper";
-import { waitForTrue } from "../helpers/commonHelpers";
-
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
-  makeMockInvoicePDF,
-  randomInvoice,
-  writeInvoiceToS3,
-} from "../helpers/mock-data/invoice";
+  checkIfS3ObjectExists,
+  deleteS3Object,
+  getS3Object,
+  listS3Objects,
+  putS3Object,
+  S3Object,
+} from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { randomInvoice } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
+import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 
 const prefix = resourcePrefix();
 const testStartTime = new Date();
@@ -27,21 +23,17 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
   const standardisedFolderPrefix = "btm_billing_standardised";
   const invoice = randomInvoice();
   test("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
-    const { bucketName, path } = await makeMockInvoicePDF(writeInvoiceToS3)(
-      invoice,
-      givenVendorFolder
-    );
-    const checkRawPdfFileExists = await checkIfS3ObjectExists({
-      bucket: bucketName,
-      key: path,
-    });
+    const s3Object = await createInvoiceInS3(invoice);
+    const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
-    console.log("file exists in raw invoice pdf bucket");
 
     const checkTextractDataFileContainsStringFromOriginalPdf =
       async (): Promise<boolean> => {
         const textractedFileContents =
-          await getS3FileContentsBasedOnLastModified(textractBucket);
+          await getS3FileContentsBasedOnLastModified(
+            testStartTime,
+            textractBucket
+          );
         return textractedFileContents.some((file) =>
           file?.includes(invoice.invoiceNumber)
         );
@@ -55,10 +47,11 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
     console.log(textractFilteredObject);
     expect(textractFilteredObject).toBe(true);
 
-    const checkStandardisedFileContainsExpectedFiledsFromOriginalPdf =
+    const checkStandardisedFileContainsExpectedFieldsFromOriginalPdf =
       async (): Promise<boolean> => {
         const standardisedFilesContents =
           await getS3FileContentsBasedOnLastModified(
+            testStartTime,
             storageBucket,
             standardisedFolderPrefix
           );
@@ -73,18 +66,21 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
         );
       };
     const standardisedFilteredObject = await waitForTrue(
-      checkStandardisedFileContainsExpectedFiledsFromOriginalPdf,
+      checkStandardisedFileContainsExpectedFieldsFromOriginalPdf,
       1000,
       25000
     );
     expect(standardisedFilteredObject).toBe(true);
 
     const isFileMovedToSuccessfulFolder = async (): Promise<boolean> => {
-      const result = await getS3ItemsList(bucketName, "successful");
+      const result = await listS3Objects({
+        bucketName: s3Object.bucket,
+        prefix: "successful",
+      });
       if (result.Contents === undefined) {
         return false;
       }
-      return result.Contents.some((t) => t.Key?.includes(path));
+      return result.Contents.some((t) => t.Key?.includes(s3Object.key));
     };
 
     const originalFileExistsInSuccessfulFolder = await waitForTrue(
@@ -93,8 +89,8 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
       21000
     );
     expect(originalFileExistsInSuccessfulFolder).toBeTruthy();
-    await deleteObjectInS3({
-      bucket: bucketName,
+    await deleteS3Object({
+      bucket: s3Object.bucket,
       key: `successful/${String(path)}`,
     });
     console.log("deleted the file from s3");
@@ -111,16 +107,18 @@ describe("\n Unappy path - Upload invalid pdf to the raw invoice pdf bucket test
   test("should move the original raw invoice to failed folder in s3 raw-invoice-pdf bucket upon uploading the invalid pdf file ", async () => {
     const file = "../payloads/invalidFiletoTestTextractFailure.pdf";
     const filename = path.join(__dirname, file);
-    const fileStream = fs.createReadStream(filename);
+    const fileData = fs.readFileSync(filename);
 
-    await putObjectToS3(rawInvoice, fileStream);
+    await putS3Object({ data: fileData, target: rawInvoice });
 
     const checkRawPdfFileExists = await checkIfS3ObjectExists(rawInvoice);
     expect(checkRawPdfFileExists).toBeTruthy();
-    console.log("file exists in raw invoice pdf bucket");
 
     const isFileMovedToFailedFolder = async (): Promise<boolean> => {
-      const result = await getS3ItemsList(rawInvoice.bucket, "failed");
+      const result = await listS3Objects({
+        bucketName: rawInvoice.bucket,
+        prefix: "failed",
+      });
       if (result.Contents === undefined) {
         return false;
       }
@@ -134,7 +132,7 @@ describe("\n Unappy path - Upload invalid pdf to the raw invoice pdf bucket test
       20000
     );
     expect(originalFileExistsInFailedFolder).toBeTruthy();
-    await deleteObjectInS3({
+    await deleteS3Object({
       bucket: rawInvoice.bucket,
       key: "failed/" + rawInvoice.key,
     });
@@ -143,16 +141,17 @@ describe("\n Unappy path - Upload invalid pdf to the raw invoice pdf bucket test
 });
 
 const getS3FileContentsBasedOnLastModified = async (
+  newerThan: Date,
   bucketName: string,
   folderPrefix?: string
 ): Promise<Array<string | undefined>> => {
-  const result = await getS3ItemsList(bucketName, folderPrefix);
-  if (result.Contents === undefined) {
-    throw new Error("No files found");
-  }
+  const result = await listS3Objects({ bucketName, prefix: folderPrefix });
+  if (result.Contents === undefined) return [];
+
   const s3ContentsFilteredByTestStartTime = result.Contents?.filter((item) => {
     return (
-      item.LastModified !== undefined && item.LastModified >= testStartTime
+      item.LastModified !== undefined &&
+      new Date(item.LastModified) >= newerThan
     );
   });
   console.log("Files", s3ContentsFilteredByTestStartTime);
@@ -164,6 +163,5 @@ const getS3FileContentsBasedOnLastModified = async (
           key: Key,
         })
   );
-  const files = await Promise.all(filePromises);
-  return files;
+  return await Promise.all(filePromises);
 };

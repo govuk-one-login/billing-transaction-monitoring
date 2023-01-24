@@ -1,7 +1,7 @@
 import { Invoice } from "./invoice";
 import placeNames from "./data/place-names.json";
 import streetTypes from "./data/street-types.json";
-import { Customer, LineItem, Vendor } from "./types";
+import { Customer, InvoiceData, LineItem, Vendor } from "./types";
 
 export interface InvoiceOptions {
   vendor?: Partial<Vendor>;
@@ -98,27 +98,27 @@ const randomLineItems = (
   return new Array(quantity).fill(null).map(() => randomLineItem(options));
 };
 
-export const randomInvoice = (options?: InvoiceOptions): Invoice => {
-  const lineItemCount = options?.lineItemCount ?? 10;
+export const randomInvoiceData = (options?: InvoiceOptions): InvoiceData => ({
+  vendor: {
+    ...randomVendor(),
+    ...options?.vendor,
+  },
+  customer: {
+    ...randomCustomer(),
+    ...options?.customer,
+  },
+  date: options?.date ?? new Date(),
+  invoiceNumber:
+    options?.invoiceNumber ??
+    `${randomString(3)}-${Math.floor(Math.random() * 1_000_000_000)}`,
+  dueDate:
+    options?.dueDate ??
+    new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
+  lineItems:
+    options?.lineItems ??
+    randomLineItems(options?.lineItemCount ?? 10, options?.lineItemOptions),
+});
 
-  return new Invoice({
-    vendor: {
-      ...randomVendor(),
-      ...options?.vendor,
-    },
-    customer: {
-      ...randomCustomer(),
-      ...options?.customer,
-    },
-    date: options?.date ?? new Date(),
-    invoiceNumber:
-      options?.invoiceNumber ??
-      `${randomString(3)}-${Math.floor(Math.random() * 1_000_000_000)}`,
-    dueDate:
-      options?.dueDate ??
-      new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-    lineItems:
-      options?.lineItems ??
-      randomLineItems(lineItemCount, options?.lineItemOptions),
-  });
+export const randomInvoice = (options?: InvoiceOptions): Invoice => {
+  return new Invoice(randomInvoiceData(options));
 };
