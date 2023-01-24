@@ -6,6 +6,7 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for synchronously invoked lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
+    Condition: IsEnvWithAutoTests
     Properties:
       FunctionName: !Sub ${AWS::StackName}-int-test-support-function
       Handler: intTestSupport.handler
@@ -58,7 +59,7 @@ Resources:
 
   AllowTestingContainerToInvoke:
     Type: AWS::Lambda::Permission
-    Condition: UseTestRole
+    Condition: IsEnvWithAutoTests
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Ref IntTestSupportFunction
