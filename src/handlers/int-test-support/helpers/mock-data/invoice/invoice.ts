@@ -35,6 +35,9 @@ export const makeMockInvoicePDF =
       unit: "cm",
     });
 
+    const date = new Date(invoice.date);
+    const dueDate = new Date(invoice.dueDate);
+
     doc.setFontSize(24);
     doc.text(`Tax Invoice`, 2, 2);
 
@@ -46,8 +49,8 @@ export const makeMockInvoicePDF =
       doc.text(line, 16, 2 + i / 2);
     });
     doc.text(`Invoice Number:\n${invoice.invoiceNumber}`, 12, 2);
-    doc.text(`Invoice Date:\n${invoice.date.toLocaleDateString("en-GB")}`, 12, 3);
-    doc.text(`Due Date:\n${invoice.dueDate.toLocaleDateString("en-GB")}`, 12, 4);
+    doc.text(`Invoice Date:\n${date.toLocaleDateString("en-GB")}`, 12, 3);
+    doc.text(`Due Date:\n${dueDate.toLocaleDateString("en-GB")}`, 12, 4);
     doc.text(`VAT Number:\n${invoice.vendor.vatNumber}`, 12, 5);
 
     autoTable(doc, {
@@ -85,7 +88,5 @@ export const makeMockInvoicePDF =
       ],
     });
     doc.text(`Invoice number: ${invoice.invoiceNumber}`, 2, 20);
-    const output = await writeOutput(doc.output("arraybuffer"));
-
-    return output;
+    return await writeOutput(doc.output("arraybuffer"));
   };

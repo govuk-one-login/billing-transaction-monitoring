@@ -1,50 +1,55 @@
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
+import { randomInvoiceData } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
+import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import {
   checkIfS3ObjectExists,
-  deleteObjectInS3,
-  getS3ItemsList,
-} from "../helpers/s3Helper";
-import { resourcePrefix } from "../helpers/envHelper";
-import { checkGivenStringExistsInLogs } from "../helpers/cloudWatchHelper";
-import { waitForTrue } from "../helpers/commonHelpers";
-import {
-  makeMockInvoicePDF,
-  randomInvoice,
-  writeInvoiceToS3,
-} from "../helpers/mock-data/invoice";
+  deleteS3Object,
+  listS3Objects,
+} from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { checkGivenStringExistsInLogs } from "../../src/handlers/int-test-support/helpers/cloudWatchHelper";
+import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 
 const prefix = resourcePrefix();
 
 describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => {
   test("standardised-invoice-storage-function should be executed without errors upon uploading the file to s3 raw invoice pdf bucket", async () => {
     const testStartTime = new Date();
-    const invoice = randomInvoice();
-    const { bucketName, path } = await makeMockInvoicePDF(writeInvoiceToS3)(
-      invoice
-    );
+    const invoiceData = randomInvoiceData();
+    const s3Object = await createInvoiceInS3(invoiceData);
 
-    const checkRawPdfFileExists = await checkIfS3ObjectExists({
-      bucket: bucketName,
-      key: path,
-    });
+    const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
     console.log("file exists in raw invoice pdf bucket");
 
-    const givenStringExistsInLogs = await checkGivenStringExistsInLogs(
-      `${prefix}-standardised-invoice-storage-function`,
-      "ERROR",
-      testStartTime.getTime()
-    ); // checks for ERROR string in standardised invoice storage function cloudwatch logs
+    const checkGivenStringExists = async (): Promise<boolean | undefined> => {
+      return await checkGivenStringExistsInLogs({
+        logName: `${prefix}-standardised-invoice-storage-function`,
+        expectedString: "ERROR",
+        testStartTime: testStartTime.getTime(),
+      }); // checks for ERROR string in standardised invoice storage function cloudwatch logs
+    };
+    const expectedStringExists = await waitForTrue(
+      checkGivenStringExists,
+      3000,
+      25000
+    );
 
-    expect(givenStringExistsInLogs).toBeFalsy();
+    expect(expectedStringExists).toBeFalsy();
 
     const deleteFileAfterTest = async (): Promise<boolean> => {
-      const result = await getS3ItemsList(bucketName, "successful");
+      const result = await listS3Objects({
+        bucketName: s3Object.bucket,
+        prefix: "successful",
+      });
       const pathIsNotInBucket = !(
-        result.Contents?.some((t) => t.Key?.includes(path)) ?? false
+        result.Contents?.some((t) => t.Key?.includes(s3Object.key)) ?? false
       );
       if (pathIsNotInBucket) return false;
 
-      await deleteObjectInS3({ bucket: bucketName, key: "successful/" + path });
+      await deleteS3Object({
+        bucket: s3Object.bucket,
+        key: "successful/" + s3Object.key,
+      });
       console.log("deleted the file from s3");
       return true;
     };

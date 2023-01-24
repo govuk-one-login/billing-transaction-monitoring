@@ -1,13 +1,8 @@
-import {
-  ClientId,
-  SNSEventPayload,
-  EventName,
-} from "../payloads/snsEventPayload";
-import { deleteObjectInS3, getS3ItemsList } from "./s3Helper";
-import { publishSNS } from "./snsHelper";
-import { resourcePrefix } from "../helpers/envHelper";
+import { deleteS3Object, listS3Objects } from "./s3Helper";
+import { publishToTestTopic } from "./snsHelper";
+import { resourcePrefix } from "./envHelper";
+import { ClientId, EventName, SNSEventPayload } from "./payloadHelper";
 
-const prefix = resourcePrefix();
 const objectsPrefix = "btm_transactions";
 
 export const generateRandomId = (): string => {
@@ -72,9 +67,12 @@ export const generateTestEvent = async (
 export const publishAndValidateEvent = async (
   event: SNSEventPayload
 ): Promise<void> => {
-  await publishSNS(event);
+  await publishToTestTopic(event);
   const checkEventId = async (): Promise<boolean> => {
-    const result = await getS3ItemsList(`${prefix}-storage`, objectsPrefix);
+    const result = await listS3Objects({
+      bucketName: `${resourcePrefix()}-storage`,
+      prefix: objectsPrefix,
+    });
     if (result.Contents === undefined) {
       console.log("Storage bucket contents empty");
       return false;
@@ -113,11 +111,11 @@ export const deleteS3Event = async (
   eventId: string,
   eventTime: TimeStamps
 ): Promise<boolean> => {
-  const bucketName = `${prefix}-storage`;
+  const bucketName = `${resourcePrefix()}-storage`;
   const date = new Date(eventTimeStamp[eventTime] * 1000)
     .toISOString()
     .slice(0, 10);
-  await deleteObjectInS3({
+  await deleteS3Object({
     bucket: bucketName,
     key: `btm_transactions/${date}/${eventId}.json`,
   });
@@ -135,4 +133,3 @@ export const deleteS3Events = async (
   console.log("deleted the files from s3");
   return true;
 };
-
