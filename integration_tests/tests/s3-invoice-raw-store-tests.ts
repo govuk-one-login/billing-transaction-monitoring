@@ -15,7 +15,7 @@ import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/m
 
 const prefix = resourcePrefix();
 const testStartTime = new Date();
-const givenVendorFolder = "vendor-name";
+const givenVendorFolder = "Vendor_Name";
 
 describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf bucket test\n", () => {
   const storageBucket = `${prefix}-storage`;

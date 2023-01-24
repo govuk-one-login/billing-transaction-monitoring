@@ -15,9 +15,6 @@ export const createInvoiceInS3 = async (
     )) as unknown as S3Object;
 
   const invoice = new Invoice(invoiceData);
-
-  return await makeMockInvoicePDF(writeInvoiceToS3)(
-    invoice,
-    invoice.vendor.name
-  );
+  const vendorFolder = invoice.vendor.name.replace(" ", "_");
+  return await makeMockInvoicePDF(writeInvoiceToS3)(invoice, vendorFolder);
 };

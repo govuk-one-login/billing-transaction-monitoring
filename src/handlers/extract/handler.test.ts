@@ -15,7 +15,7 @@ describe("Extract handler test", () => {
 
   let mockStartExpenseAnalysis: jest.Mock;
 
-  const givenVendorFolder = "vendor-name";
+  const givenVendorFolder = "Vendor_Name";
 
   const validEvent = createEvent([
     createEventRecordWithS3Body(
