@@ -16,10 +16,13 @@ const prefix = resourcePrefix();
 
 describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => {
   test("standardised-invoice-storage-function should be executed without errors upon uploading the file to s3 raw invoice pdf bucket", async () => {
+    const givenVendorFolder = "vendor-name";
+
     const testStartTime = new Date();
     const invoice = randomInvoice();
     const { bucketName, path } = await makeMockInvoicePDF(writeInvoiceToS3)(
-      invoice
+      invoice,
+      givenVendorFolder
     );
 
     const checkRawPdfFileExists = await checkIfS3ObjectExists({

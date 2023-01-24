@@ -3,13 +3,15 @@ import { resourcePrefix } from "../../envHelper";
 import { putObjectToS3 } from "../../s3Helper";
 
 export const writeInvoiceToS3 = async (
-  file: ArrayBuffer
+  file: ArrayBuffer,
+  vendorFolder: string
 ): Promise<{ bucketName: string; path: string }> => {
   const bucketName = `${resourcePrefix()}-raw-invoice-pdf`;
-  const path = `raw-Invoice-${Math.random()
+  const fileName = `raw-Invoice-${Math.random()
     .toString(36)
     .substring(2, 7)}-validFile.pdf`;
-  await putObjectToS3({bucket:bucketName, key:path}, file);
+  const path = `${vendorFolder}/${fileName}`;
+  await putObjectToS3({ bucket: bucketName, key: path }, file);
   return {
     bucketName,
     path,

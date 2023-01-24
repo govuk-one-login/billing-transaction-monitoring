@@ -15,15 +15,17 @@ describe("Extract handler test", () => {
 
   let mockStartExpenseAnalysis: jest.Mock;
 
+  const givenVendorFolder = "vendor-name";
+
   const validEvent = createEvent([
     createEventRecordWithS3Body(
       "di-btm-anybucket",
-      "onepdf.pdf",
+      `${givenVendorFolder}/onepdf.pdf`,
       "message ID 1"
     ),
     createEventRecordWithS3Body(
       "di-btm-anybucket",
-      "secondpdf.pdf",
+      `${givenVendorFolder}/secondpdf.pdf`,
       "message ID 2"
     ),
   ]);
@@ -58,7 +60,7 @@ describe("Extract handler test", () => {
       DocumentLocation: {
         S3Object: {
           Bucket: "di-btm-anybucket",
-          Name: "onepdf.pdf",
+          Name: `${givenVendorFolder}/onepdf.pdf`,
         },
       },
       NotificationChannel: {
@@ -70,7 +72,7 @@ describe("Extract handler test", () => {
       DocumentLocation: {
         S3Object: {
           Bucket: "di-btm-anybucket",
-          Name: "secondpdf.pdf",
+          Name: `${givenVendorFolder}/secondpdf.pdf`,
         },
       },
       NotificationChannel: {
@@ -212,8 +214,8 @@ describe("Extract handler test", () => {
 
   test("Extract handler with single event record that has valid S3 event in body with multiple records", async () => {
     const givenBucketName = "some bucket name";
-    const givenObjectKey1 = "some object key";
-    const givenObjectKey2 = "some other object key";
+    const givenObjectKey1 = `${givenVendorFolder}/some object key`;
+    const givenObjectKey2 = `${givenVendorFolder}/some other object key`;
     const givenEvent = {
       Records: [
         {
@@ -272,6 +274,36 @@ describe("Extract handler test", () => {
         RoleArn: process.env.TEXTRACT_ROLE,
         SNSTopicArn: process.env.TEXTRACT_SNS_TOPIC,
       },
+    });
+  });
+
+  test("Extract handler with event record that has valid S3 event in body with no vendor folder", async () => {
+    const givenEvent = {
+      Records: [
+        {
+          body: JSON.stringify({
+            Records: [
+              {
+                s3: {
+                  bucket: {
+                    name: "given bucket name",
+                  },
+                  object: {
+                    key: "given-file-path-with-no-folder",
+                  },
+                },
+              },
+            ],
+          }),
+          messageId: "given message ID",
+        },
+      ],
+    };
+
+    const result = await handler(givenEvent as SQSEvent);
+
+    expect(result).toEqual({
+      batchItemFailures: [{ itemIdentifier: "given message ID" }],
     });
   });
 });

@@ -19,6 +19,7 @@ import {
 
 const prefix = resourcePrefix();
 const testStartTime = new Date();
+const givenVendorFolder = "vendor-name";
 
 describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf bucket test\n", () => {
   const storageBucket = `${prefix}-storage`;
@@ -27,7 +28,8 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
   const invoice = randomInvoice();
   test("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
     const { bucketName, path } = await makeMockInvoicePDF(writeInvoiceToS3)(
-      invoice
+      invoice,
+      givenVendorFolder
     );
     const checkRawPdfFileExists = await checkIfS3ObjectExists({
       bucket: bucketName,
@@ -103,7 +105,7 @@ describe("\n Unappy path - Upload invalid pdf to the raw invoice pdf bucket test
   const uniqueString = Math.random().toString(36).substring(2, 7);
   const rawInvoice: S3Object = {
     bucket: `${prefix}-raw-invoice-pdf`,
-    key: `raw-Invoice-${uniqueString}-validFile.pdf`,
+    key: `${givenVendorFolder}/raw-Invoice-${uniqueString}-validFile.pdf`,
   };
 
   test("should move the original raw invoice to failed folder in s3 raw-invoice-pdf bucket upon uploading the invalid pdf file ", async () => {

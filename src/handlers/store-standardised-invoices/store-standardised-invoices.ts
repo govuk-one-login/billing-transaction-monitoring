@@ -12,14 +12,27 @@ export async function storeStandardisedInvoices(
 
   const promises = storageRecords.map(async (storageRecord) => {
     const sourceBucket = storageRecord.s3.bucket.name;
-    const sourceFileName = storageRecord.s3.object.key;
+    const sourceFilePath = storageRecord.s3.object.key;
+
+    // Source file must be in folder, which determines vendor. Throw error otherwise.
+    const sourcePathParts = sourceFilePath.split("/");
+    if (sourcePathParts.length < 2)
+      throw Error(
+        `File not in vendor folder: ${sourceBucket}/${sourceFilePath}`
+      );
+
+    const vendorFolder = sourcePathParts[0];
+    const sourceFileName = sourcePathParts[sourcePathParts.length - 1];
 
     const textractData = await fetchS3TextractData(
       sourceBucket,
-      sourceFileName
+      sourceFilePath
     );
 
-    const standardisedInvoice = getStandardisedInvoice(textractData);
+    const standardisedInvoice = getStandardisedInvoice(
+      textractData,
+      vendorFolder
+    );
 
     // Convert line items to new-line-separated JSON object text, to work with Glue/Athena.
     const standardisedInvoiceText = standardisedInvoice
