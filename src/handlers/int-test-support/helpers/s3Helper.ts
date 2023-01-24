@@ -184,13 +184,13 @@ const deleteS3FolderBasedOnDate = async (
   bucketName: string,
   folderPrefix: string
 ): Promise<boolean> => {
-  const result = await getS3ItemsList(bucketName, folderPrefix);
+  const result = await listS3Objects({ bucketName, prefix: folderPrefix });
   const getDateFolderPrefix = result.Contents?.map((data) =>
     data.Key?.slice(0, 27)
   );
   if (getDateFolderPrefix === undefined) return false;
   for (const dateFolderPrefix of getDateFolderPrefix) {
-    await deleteDirectoryRecursiveInS3(bucketName, dateFolderPrefix);
+    await deleteS3Objects({ bucketName, prefix: dateFolderPrefix });
   }
   return true;
 };
@@ -216,7 +216,7 @@ const getS3ObjectsAsArray = async (
   bucketName: string,
   folderPrefix: string
 ): Promise<BillingStandardised[]> => {
-  const s3Response = await getS3Objects({bucketName, prefix: folderPrefix});
+  const s3Response = await getS3Objects({ bucketName, prefix: folderPrefix });
   const s3String = s3Response.join("").replace(/\n/g, "").replace(/}{/g, "},{");
   return JSON.parse("[" + s3String + "]");
 };
@@ -232,4 +232,5 @@ export {
   checkIfS3ObjectExists,
   getS3Objects,
   getS3ObjectsAsArray,
+  deleteS3FolderBasedOnDate,
 };
