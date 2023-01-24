@@ -8,8 +8,7 @@ export default {
     clean: "./src/handlers/clean/handler.ts",
     customAthenaViewResource:
       "./src/handlers/custom-athena-view-resource/handler.ts",
-    customS3ObjectResource:
-      "./src/handlers/custom-s3-object-resource/handler.ts",
+    intTestSupport: "./src/handlers/int-test-support/handler.ts",
     extract: "./src/handlers/extract/handler.ts",
     filter: "./src/handlers/filter/handler.ts",
     storeRawInvoiceTextractData:

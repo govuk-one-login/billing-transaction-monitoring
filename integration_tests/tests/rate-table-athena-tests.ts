@@ -1,10 +1,13 @@
-import {
-  startQueryExecutionCommand,
-  formattedQueryResults,
-} from "../helpers/athenaHelper";
 import csvjson from "csvtojson";
-import { configStackName, resourcePrefix } from "../helpers/envHelper";
-import { getS3Object } from "../helpers/s3Helper";
+import {
+  configStackName,
+  resourcePrefix,
+} from "../../src/handlers/int-test-support/helpers/envHelper";
+import {
+  formattedQueryResults,
+  startQueryExecutionCommand,
+} from "../../src/handlers/int-test-support/helpers/athenaHelper";
+import { getS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
 const prefix = resourcePrefix();
 const configBucket = configStackName();
 
@@ -12,7 +15,10 @@ describe("Execute athena query to retrieve rate details", () => {
   test("retrieved rate details should match rate csv uploaded in s3 config bucket", async () => {
     const databaseName = `${prefix}-calculations`;
     const queryString = `SELECT * FROM "btm_rates_standardised"`;
-    const queryId = await startQueryExecutionCommand(databaseName, queryString);
+    const queryId = await startQueryExecutionCommand({
+      databaseName,
+      queryString,
+    });
     const queryResult = await formattedQueryResults(queryId);
     const queryResultToString = JSON.stringify(queryResult)
       .replace(/\s00:00:00.000/g, "")

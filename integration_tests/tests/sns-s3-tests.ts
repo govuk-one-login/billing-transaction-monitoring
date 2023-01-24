@@ -1,20 +1,20 @@
-import { publishSNS } from "../helpers/snsHelper";
 import { PublishResponse } from "@aws-sdk/client-sns";
-import { getS3ItemsList } from "../helpers/s3Helper";
-import { waitForTrue } from "../helpers/commonHelpers";
 import {
-  snsValidEventPayload,
-  snsInvalidEventNamePayload,
-  snsEventMissingCompIdPayload,
   snsEventInvalidCompId,
-  snsInvalidTimeStampPayload,
+  snsEventMissingCompIdPayload,
+  snsEventMissingEventIdValue,
   snsEventMissingTimestampPayload,
   snsEventWithAdditionalFieldsPayload,
-  snsMissingEventNamePayload,
+  snsInvalidEventNamePayload,
+  snsInvalidTimeStampPayload,
   snsMissingEventIdPayload,
-  snsEventMissingEventIdValue,
-} from "../payloads/snsEventPayload";
-import { resourcePrefix } from "../helpers/envHelper";
+  snsMissingEventNamePayload,
+  snsValidEventPayload,
+} from "../../src/handlers/int-test-support/helpers/payloadHelper";
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
+import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 
 let snsResponse: PublishResponse;
 const storageBucket: string = `${resourcePrefix()}-storage`;
@@ -22,46 +22,50 @@ const objectsPrefix = "btm_transactions";
 
 console.log(storageBucket);
 
+const checkS3BucketForEventId = async (
+  eventIdString: string,
+  timeoutMs: number
+): Promise<boolean> => {
+  const checkS3BucketForEventIdString = async (): Promise<boolean> => {
+    const result = await listS3Objects({
+      bucketName: storageBucket,
+      prefix: objectsPrefix,
+    });
+    if (result.Contents !== undefined) {
+      return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
+        eventIdString
+      );
+    } else {
+      console.log("Storage bucket contents empty");
+      return false;
+    }
+  };
+  return await waitForTrue(checkS3BucketForEventIdString, 1000, timeoutMs);
+};
+
 describe(
   "\n Happy path tests\n" +
-    "\n Publish valid SNS message and expect eventid stored in S3\n",
+    "\n Publish valid SNS message and expect event id stored in S3\n",
   () => {
     test("S3 should contain event id for valid SNS message", async () => {
-      snsResponse = await publishSNS(snsValidEventPayload);
+      snsResponse = await publishToTestTopic(snsValidEventPayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const checkEventId = async (): Promise<boolean> => {
-        const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty");
-          return JSON.stringify(
-            result.Contents.map((data) => data.Key)
-          ).includes(snsValidEventPayload.event_id);
-        } else {
-          console.log("Storage bucket contents empty");
-          return false;
-        }
-      };
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 7000);
+      const eventIdExists = await checkS3BucketForEventId(
+        snsValidEventPayload.event_id,
+        7000
+      );
       expect(eventIdExists).toBeTruthy();
     });
 
     test("S3 should contain event id for SNS message with additional fields in the payload", async () => {
-      snsResponse = await publishSNS(snsEventWithAdditionalFieldsPayload);
+      snsResponse = await publishToTestTopic(
+        snsEventWithAdditionalFieldsPayload
+      );
       expect(snsResponse).toHaveProperty("MessageId");
-      const checkEventId = async (): Promise<boolean> => {
-        const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-            snsEventWithAdditionalFieldsPayload.event_id
-          );
-        } else {
-          console.log("Storage bucket contents empty");
-          return false;
-        }
-      };
-
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
+      const eventIdExists = await checkS3BucketForEventId(
+        snsEventWithAdditionalFieldsPayload.event_id,
+        5000
+      );
       expect(eventIdExists).toBeTruthy();
     });
   }
@@ -69,161 +73,85 @@ describe(
 
 describe(
   "\nUnhappy path tests\n" +
-    "\n Publish invalid SNS message and expect eventid not stored in S3\n",
+    "\n Publish invalid SNS message and expect event id not stored in S3\n",
   () => {
-    test("S3 should not contain eventid for SNS message with invalid EventName in the payload", async () => {
-      snsResponse = await publishSNS(snsInvalidEventNamePayload);
+    test("S3 should not contain event id for SNS message with invalid EventName in the payload", async () => {
+      snsResponse = await publishToTestTopic(snsInvalidEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const checkEventId = async (): Promise<boolean> => {
-        const result = await getS3ItemsList(storageBucket, objectsPrefix);
-
-        if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-            snsInvalidEventNamePayload.event_id
-          );
-        } else {
-          console.log("Storage bucket contents empty");
-          return false;
-        }
-      };
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 3000);
+      const eventIdExists = await checkS3BucketForEventId(
+        snsInvalidEventNamePayload.event_id,
+        3000
+      );
       expect(eventIdExists).toBeFalsy();
     });
 
-    test("S3 should not contain eventid for SNS message with invalid ComponentId in the payload", async () => {
-      snsResponse = await publishSNS(snsEventInvalidCompId);
+    test("S3 should not contain event id for SNS message with invalid ComponentId in the payload", async () => {
+      snsResponse = await publishToTestTopic(snsEventInvalidCompId);
       expect(snsResponse).toHaveProperty("MessageId");
-      const checkEventId = async (): Promise<boolean> => {
-        const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty");
-
-          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-            snsEventInvalidCompId.event_id
-          );
-        } else {
-          console.log("Storage bucket contents empty");
-          return false;
-        }
-      };
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 3000);
+      const eventIdExists = await checkS3BucketForEventId(
+        snsEventInvalidCompId.event_id,
+        3000
+      );
       expect(eventIdExists).toBeFalsy();
     });
 
-    test("S3 should not contain eventid for SNS message with invalid Timestamp in the payload", async () => {
-      snsResponse = await publishSNS(snsInvalidTimeStampPayload);
+    test("S3 should not contain event id for SNS message with invalid Timestamp in the payload", async () => {
+      snsResponse = await publishToTestTopic(snsInvalidTimeStampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const checkEventId = async (): Promise<boolean> => {
-        const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-            snsInvalidTimeStampPayload.event_id
-          );
-        } else {
-          console.log("Storage bucket contents empty");
-          return false;
-        }
-      };
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 3000);
+      const eventIdExists = await checkS3BucketForEventId(
+        snsInvalidTimeStampPayload.event_id,
+        3000
+      );
       expect(eventIdExists).toBeFalsy();
     });
 
-    test("S3 should no contain eventid for SNS message with missing timestamp field in the payload", async () => {
-      snsResponse = await publishSNS(snsEventMissingTimestampPayload);
+    test("S3 should no contain event id for SNS message with missing timestamp field in the payload", async () => {
+      snsResponse = await publishToTestTopic(snsEventMissingTimestampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const checkEventId = async (): Promise<boolean> => {
-        const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-            snsEventMissingTimestampPayload.event_id
-          );
-        } else {
-          console.log("Storage bucket contents empty");
-          return false;
-        }
-      };
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 3000);
+      const eventIdExists = await checkS3BucketForEventId(
+        snsEventMissingTimestampPayload.event_id,
+        3000
+      );
       expect(eventIdExists).toBeFalsy();
     });
 
-    test("S3 should not contain eventid for SNS message with missing ComponentId field in the payload", async () => {
-      snsResponse = await publishSNS(snsEventMissingCompIdPayload);
+    test("S3 should not contain event id for SNS message with missing ComponentId field in the payload", async () => {
+      snsResponse = await publishToTestTopic(snsEventMissingCompIdPayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const checkEventId = async (): Promise<boolean> => {
-        const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty");
-
-          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-            snsEventMissingCompIdPayload.event_id
-          );
-        } else {
-          console.log("Storage bucket contents empty");
-          return false;
-        }
-      };
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 3000);
+      const eventIdExists = await checkS3BucketForEventId(
+        snsEventMissingCompIdPayload.event_id,
+        3000
+      );
       expect(eventIdExists).toBeFalsy();
     });
 
-    test("S3 should not contain eventid for SNS message with missing EventName field in the payload", async () => {
-      snsResponse = await publishSNS(snsMissingEventNamePayload);
+    test("S3 should not contain event id for SNS message with missing EventName field in the payload", async () => {
+      snsResponse = await publishToTestTopic(snsMissingEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const checkEventId = async (): Promise<boolean> => {
-        const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-            snsMissingEventNamePayload.event_id
-          );
-        } else {
-          console.log("Storage bucket contents empty");
-          return false;
-        }
-      };
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 3000);
+      const eventIdExists = await checkS3BucketForEventId(
+        snsMissingEventNamePayload.event_id,
+        3000
+      );
       expect(eventIdExists).toBeFalsy();
     });
 
-    test("S3 should not contain eventid for SNS message with missing EventId value in the payload", async () => {
-      snsResponse = await publishSNS(snsEventMissingEventIdValue);
+    test("S3 should not contain event id for SNS message with missing EventId value in the payload", async () => {
+      snsResponse = await publishToTestTopic(snsEventMissingEventIdValue);
       expect(snsResponse).toHaveProperty("MessageId");
-      const checkEventId = async (): Promise<boolean> => {
-        const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty");
-
-          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-            "event_id=null"
-          );
-        } else {
-          console.log("Storage bucket contents empty");
-          return false;
-        }
-      };
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
+      const eventIdExists = await checkS3BucketForEventId(
+        "event_id=null",
+        5000
+      );
       expect(eventIdExists).toBeFalsy();
     });
 
-    test("S3 should not contain eventid for SNS message with missing EventId field in the payload", async () => {
-      snsResponse = await publishSNS(snsMissingEventIdPayload);
+    test("S3 should not contain event id for SNS message with missing EventId field in the payload", async () => {
+      snsResponse = await publishToTestTopic(snsMissingEventIdPayload);
       expect(snsResponse).toHaveProperty("MessageId");
-      const checkEventId = async (): Promise<boolean> => {
-        const result = await getS3ItemsList(storageBucket, objectsPrefix);
-        if (result.Contents !== undefined) {
-          console.log("Storage bucket contents not empty");
-          return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-            "event_id=undefined"
-          );
-        } else {
-          console.log("Storage bucket contents empty");
-          return false;
-        }
-      };
-      const eventIdExists = await waitForTrue(checkEventId, 1000, 5000);
+      const eventIdExists = await checkS3BucketForEventId(
+        "event_id=undefined",
+        5000
+      );
       expect(eventIdExists).toBeFalsy();
     });
   }
