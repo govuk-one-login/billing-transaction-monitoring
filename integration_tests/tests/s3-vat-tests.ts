@@ -1,5 +1,5 @@
-import { getS3Object } from "../helpers/s3Helper";
-import { configStackName } from "../helpers/envHelper";
+import { getS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { configStackName } from "../../src/handlers/int-test-support/helpers/envHelper";
 
 describe("\n Verify VAT details exists in S3 config bucket\n", () => {
   test("S3 config bucket should contain VAT details matches with expected vat config file ", async () => {
