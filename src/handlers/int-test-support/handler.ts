@@ -8,7 +8,7 @@ import {
   checkIfS3ObjectExists,
   putS3Object,
 } from "./helpers/s3Helper";
-import { publishSNS } from "./helpers/snsHelper";
+import { publishToTestTopic } from "./helpers/snsHelper";
 import { checkGivenStringExistsInLogs } from "./helpers/cloudWatchHelper";
 import {
   getQueryExecutionStatus,
@@ -36,7 +36,7 @@ const functionMap: { [name: string]: Function } = {
   deleteS3Object,
   deleteS3Objects,
   checkIfS3ObjectExists,
-  publishSNS,
+  publishToTestTopic,
   checkGivenStringExistsInLogs,
   startQueryExecutionCommand,
   getQueryExecutionStatus,

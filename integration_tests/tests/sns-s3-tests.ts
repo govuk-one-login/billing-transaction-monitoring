@@ -14,7 +14,7 @@ import {
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { publishSNS } from "../../src/handlers/int-test-support/helpers/snsHelper";
+import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 
 let snsResponse: PublishResponse;
 const storageBucket: string = `${resourcePrefix()}-storage`;
@@ -48,7 +48,7 @@ describe(
     "\n Publish valid SNS message and expect event id stored in S3\n",
   () => {
     test("S3 should contain event id for valid SNS message", async () => {
-      snsResponse = await publishSNS(snsValidEventPayload);
+      snsResponse = await publishToTestTopic(snsValidEventPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkS3BucketForEventId(
         snsValidEventPayload.event_id,
@@ -58,7 +58,9 @@ describe(
     });
 
     test("S3 should contain event id for SNS message with additional fields in the payload", async () => {
-      snsResponse = await publishSNS(snsEventWithAdditionalFieldsPayload);
+      snsResponse = await publishToTestTopic(
+        snsEventWithAdditionalFieldsPayload
+      );
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkS3BucketForEventId(
         snsEventWithAdditionalFieldsPayload.event_id,
@@ -74,7 +76,7 @@ describe(
     "\n Publish invalid SNS message and expect event id not stored in S3\n",
   () => {
     test("S3 should not contain event id for SNS message with invalid EventName in the payload", async () => {
-      snsResponse = await publishSNS(snsInvalidEventNamePayload);
+      snsResponse = await publishToTestTopic(snsInvalidEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkS3BucketForEventId(
         snsInvalidEventNamePayload.event_id,
@@ -84,7 +86,7 @@ describe(
     });
 
     test("S3 should not contain event id for SNS message with invalid ComponentId in the payload", async () => {
-      snsResponse = await publishSNS(snsEventInvalidCompId);
+      snsResponse = await publishToTestTopic(snsEventInvalidCompId);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkS3BucketForEventId(
         snsEventInvalidCompId.event_id,
@@ -94,7 +96,7 @@ describe(
     });
 
     test("S3 should not contain event id for SNS message with invalid Timestamp in the payload", async () => {
-      snsResponse = await publishSNS(snsInvalidTimeStampPayload);
+      snsResponse = await publishToTestTopic(snsInvalidTimeStampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkS3BucketForEventId(
         snsInvalidTimeStampPayload.event_id,
@@ -104,7 +106,7 @@ describe(
     });
 
     test("S3 should no contain event id for SNS message with missing timestamp field in the payload", async () => {
-      snsResponse = await publishSNS(snsEventMissingTimestampPayload);
+      snsResponse = await publishToTestTopic(snsEventMissingTimestampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkS3BucketForEventId(
         snsEventMissingTimestampPayload.event_id,
@@ -114,7 +116,7 @@ describe(
     });
 
     test("S3 should not contain event id for SNS message with missing ComponentId field in the payload", async () => {
-      snsResponse = await publishSNS(snsEventMissingCompIdPayload);
+      snsResponse = await publishToTestTopic(snsEventMissingCompIdPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkS3BucketForEventId(
         snsEventMissingCompIdPayload.event_id,
@@ -124,7 +126,7 @@ describe(
     });
 
     test("S3 should not contain event id for SNS message with missing EventName field in the payload", async () => {
-      snsResponse = await publishSNS(snsMissingEventNamePayload);
+      snsResponse = await publishToTestTopic(snsMissingEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkS3BucketForEventId(
         snsMissingEventNamePayload.event_id,
@@ -134,7 +136,7 @@ describe(
     });
 
     test("S3 should not contain event id for SNS message with missing EventId value in the payload", async () => {
-      snsResponse = await publishSNS(snsEventMissingEventIdValue);
+      snsResponse = await publishToTestTopic(snsEventMissingEventIdValue);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkS3BucketForEventId(
         "event_id=null",
@@ -144,7 +146,7 @@ describe(
     });
 
     test("S3 should not contain event id for SNS message with missing EventId field in the payload", async () => {
-      snsResponse = await publishSNS(snsMissingEventIdPayload);
+      snsResponse = await publishToTestTopic(snsMissingEventIdPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkS3BucketForEventId(
         "event_id=undefined",

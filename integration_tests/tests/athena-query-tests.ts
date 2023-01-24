@@ -1,6 +1,6 @@
 import { snsValidEventPayload } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import { publishSNS } from "../../src/handlers/int-test-support/helpers/snsHelper";
+import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
@@ -13,7 +13,7 @@ const objectsPrefix = "btm_transactions";
 
 describe("\nPublish valid sns message and execute athena query\n", () => {
   beforeAll(async () => {
-    await publishSNS(snsValidEventPayload);
+    await publishToTestTopic(snsValidEventPayload);
     const checkEventId = async (): Promise<boolean> => {
       const result = await listS3Objects({
         bucketName: `${prefix}-storage`,

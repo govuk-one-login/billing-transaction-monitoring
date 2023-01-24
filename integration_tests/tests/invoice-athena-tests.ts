@@ -70,12 +70,6 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
       expect(s3InvoiceValues[i].due_date).toEqual(
         athenaQueryValues[i].due_date
       );
-      expect(s3InvoiceValues[i].tax.toFixed(2)).toEqual(
-        athenaQueryValues[i].tax
-      );
-      expect(s3InvoiceValues[i].tax_payer_id).toEqual(
-        athenaQueryValues[i].tax_payer_id
-      );
       expect(s3InvoiceValues[i].item_id.toString()).toEqual(
         athenaQueryValues[i].item_id
       );

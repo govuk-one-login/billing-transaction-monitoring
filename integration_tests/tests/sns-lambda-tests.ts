@@ -12,7 +12,7 @@ import {
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { checkGivenStringExistsInLogs } from "../../src/handlers/int-test-support/helpers/cloudWatchHelper";
 import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { publishSNS } from "../../src/handlers/int-test-support/helpers/snsHelper";
+import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 
 let snsResponse: PublishResponse;
 
@@ -41,7 +41,7 @@ describe(
     "\n publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId\n",
   () => {
     beforeAll(async () => {
-      snsResponse = await publishSNS(snsValidEventPayload);
+      snsResponse = await publishToTestTopic(snsValidEventPayload);
     });
 
     test("Filter function cloud watch logs should contain eventid", async () => {
@@ -76,7 +76,9 @@ describe(
     });
 
     test("Clean function cloud watch logs should contain event id for SNS message with some additional field in the payload", async () => {
-      snsResponse = await publishSNS(snsEventWithAdditionalFieldsPayload);
+      snsResponse = await publishToTestTopic(
+        snsEventWithAdditionalFieldsPayload
+      );
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkAndWaitForStringInLogs(
         logNamePrefix + "-clean-function",
@@ -94,7 +96,7 @@ describe(
     "\n publish invalid SNS message and check cloud watch logs lambda functions not contain the eventId\n",
   () => {
     test("Filter function cloud watch logs should not contain eventid for sns message with invalid event name", async () => {
-      snsResponse = await publishSNS(snsInvalidEventNamePayload);
+      snsResponse = await publishToTestTopic(snsInvalidEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkAndWaitForStringInLogs(
         logNamePrefix + "-filter-function",
@@ -106,7 +108,7 @@ describe(
     });
 
     test("Clean function cloud watch logs should not contain eventid for SNS message with invalid Timestamp in the payload", async () => {
-      snsResponse = await publishSNS(snsInvalidTimeStampPayload);
+      snsResponse = await publishToTestTopic(snsInvalidTimeStampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkAndWaitForStringInLogs(
         logNamePrefix + "-clean-function",
@@ -118,7 +120,7 @@ describe(
     });
 
     test("Clean function cloud watch logs should not contain eventid for SNS  message with invalid ComponentId in the payload", async () => {
-      snsResponse = await publishSNS(snsEventInvalidCompId);
+      snsResponse = await publishToTestTopic(snsEventInvalidCompId);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkAndWaitForStringInLogs(
         logNamePrefix + "-clean-function",
@@ -130,7 +132,7 @@ describe(
     });
 
     test("Filter function cloud watch logs should not contain event id for SNS message with missing EventName in the payload", async () => {
-      snsResponse = await publishSNS(snsMissingEventNamePayload);
+      snsResponse = await publishToTestTopic(snsMissingEventNamePayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkAndWaitForStringInLogs(
         logNamePrefix + "-filter-function",
@@ -142,7 +144,7 @@ describe(
     });
 
     test("Clean function cloud watch logs should not contain event id for SNS message with missing ComponentId in the payload", async () => {
-      snsResponse = await publishSNS(snsEventMissingCompIdPayload);
+      snsResponse = await publishToTestTopic(snsEventMissingCompIdPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkAndWaitForStringInLogs(
         logNamePrefix + "-clean-function",
@@ -154,7 +156,7 @@ describe(
     });
 
     test("Clean function cloud watch logs should not contain event id for SNS message with missing Timestamp in the payload", async () => {
-      snsResponse = await publishSNS(snsEventMissingTimestampPayload);
+      snsResponse = await publishToTestTopic(snsEventMissingTimestampPayload);
       expect(snsResponse).toHaveProperty("MessageId");
       const eventIdExists = await checkAndWaitForStringInLogs(
         logNamePrefix + "-clean-function",

@@ -1,4 +1,5 @@
 import {
+  Datum,
   GetQueryExecutionCommand,
   GetQueryResultsCommand,
   GetQueryResultsCommandOutput,
@@ -92,26 +93,26 @@ const formattedQueryResults = async (
     throw new Error("Invalid query results");
   const columns = queryResults.ResultSet.Rows[0].Data;
   const rows = queryResults.ResultSet.Rows.slice(1).map((d) => d.Data);
-  const formattedData = rows.map((row) => {
-    const object: StringObject = {};
-    row?.forEach(function (_, index) {
-      const fieldName = columns[index].VarCharValue;
-      const fieldValue = row[index].VarCharValue;
-      if (fieldName !== undefined && fieldValue !== undefined) {
-        object[fieldName] = fieldValue;
-        return object;
-      }
-    });
-    return object;
-  });
-  return formattedData;
+  return rows
+    .filter((val: Datum[] | undefined): val is Datum[] => val !== undefined)
+    .map((row) =>
+      row.reduce<StringObject>((acc, _, index) => {
+        const fieldName = columns[index].VarCharValue;
+        const fieldValue = row[index].VarCharValue;
+        return fieldName === undefined || fieldValue === undefined
+          ? acc
+          : {
+              ...acc,
+              [fieldName]: fieldValue,
+            };
+      }, {})
+    );
 };
 
 const queryObject = async (queryId: string): Promise<any> => {
   const queryResults: StringObject[] = await formattedQueryResults(queryId);
   const strFromQuery = JSON.stringify(queryResults);
-  const queryObj = JSON.parse(strFromQuery);
-  return queryObj;
+  return JSON.parse(strFromQuery);
 };
 
 export {

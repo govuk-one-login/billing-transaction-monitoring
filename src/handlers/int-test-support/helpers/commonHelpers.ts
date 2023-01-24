@@ -1,5 +1,5 @@
 import { deleteS3Object, listS3Objects } from "./s3Helper";
-import { publishSNS } from "./snsHelper";
+import { publishToTestTopic } from "./snsHelper";
 import { resourcePrefix } from "./envHelper";
 import { ClientId, EventName, SNSEventPayload } from "./payloadHelper";
 
@@ -67,7 +67,7 @@ export const generateTestEvent = async (
 export const publishAndValidateEvent = async (
   event: SNSEventPayload
 ): Promise<void> => {
-  await publishSNS(event);
+  await publishToTestTopic(event);
   const checkEventId = async (): Promise<boolean> => {
     const result = await listS3Objects({
       bucketName: `${resourcePrefix()}-storage`,
@@ -133,4 +133,3 @@ export const deleteS3Events = async (
   console.log("deleted the files from s3");
   return true;
 };
-

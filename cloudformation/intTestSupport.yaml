@@ -35,6 +35,10 @@ Resources:
               Resource: !Ref TestTxMASNS
             - Effect: Allow
               Action:
+                - sns:ListTopics
+              Resource: '*'
+            - Effect: Allow
+              Action:
                 - logs:FilterLogEvents
               Resource: '*'
             - Effect: Allow
@@ -54,8 +58,8 @@ Resources:
 
   AllowTestingContainerToInvoke:
     Type: AWS::Lambda::Permission
+    Condition: UseTestRole
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Ref IntTestSupportFunction
-      Principal: !Sub arn:aws:iam::${AWS::AccountId}:role/PL-build-pipeline-TestRole-025141d84c68
-      SourceAccount: !Ref AWS::AccountId
+      Principal: !Ref TestRoleArn

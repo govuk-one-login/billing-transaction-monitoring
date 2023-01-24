@@ -7,7 +7,7 @@ import {
   TableNames,
   TimeStamps,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { publishSNS } from "../../src/handlers/int-test-support/helpers/snsHelper";
+import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 import {
   ClientId,
   EventName,
@@ -67,7 +67,7 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
   );
 
   test("no results returned from transaction_curated athena view query when the event payload has invalid eventName", async () => {
-    await publishSNS(snsInvalidEventNamePayload);
+    await publishToTestTopic(snsInvalidEventNamePayload);
     const tableName = TableNames.TRANSACTION_CURATED;
     const year = new Date(
       snsInvalidEventNamePayload.timestamp * 1000
