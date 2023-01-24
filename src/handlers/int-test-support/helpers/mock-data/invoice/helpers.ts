@@ -14,5 +14,10 @@ export const createInvoiceInS3 = async (
       invoiceData
     )) as unknown as S3Object;
 
-  return await makeMockInvoicePDF(writeInvoiceToS3)(new Invoice(invoiceData));
+  const invoice = new Invoice(invoiceData);
+
+  return await makeMockInvoicePDF(writeInvoiceToS3)(
+    invoice,
+    invoice.vendor.name
+  );
 };
