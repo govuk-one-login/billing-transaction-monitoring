@@ -1,6 +1,7 @@
 import { S3Event } from "aws-lambda";
 import { readJsonFromS3 } from "../../shared/utils";
-import { configStackName } from "../../../integration_tests/helpers/envHelper";
+import { configStackName } from "../int-test-support/helpers/envHelper";
+
 import { transformCsvToJson } from "./transform-csv-to-json";
 import { transformRow } from "./transform-row";
 
