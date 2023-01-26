@@ -82,4 +82,30 @@ describe("objectsToCSV", () => {
       expect(csv).toEqual(expectedCsv);
     });
   });
+
+  describe("Given a dictionary of keys to rename and a list of keys to filter", () => {
+    it("renames spicifed keys and removes specified keysin the output", () => {
+      const objects = [
+        {
+          a: "thing1",
+          b: "thing2",
+          c: "thing3",
+        },
+        {
+          a: "thing4",
+          b: "thing5",
+          c: "thing6",
+        },
+      ];
+      const expectedCsv = `z,e\nthing1,thing2\nthing4,thing5`;
+      const csv = objectsToCSV(objects, {
+        renameKeys: new Map([
+          ["a", "z"],
+          ["b", "e"],
+        ]),
+        filterKeys: ["c"],
+      });
+      expect(csv).toEqual(expectedCsv);
+    });
+  });
 });

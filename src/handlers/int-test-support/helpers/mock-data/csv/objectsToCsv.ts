@@ -8,45 +8,26 @@ type ObjectsToCSV = (
 ) => string;
 
 export const objectsToCSV: ObjectsToCSV = (objects, options) => {
+  // Filter objects with given keys
   if (options?.filterKeys !== undefined) {
-    options?.filterKeys.forEach((filterKey) =>
-      objects.map((object) => {
-        for (const key in object) {
-          if (key.match(filterKey) != null) {
-            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-            delete object[key];
-          }
-        }
-        return object;
-      })
-    );
+    filterKeys(objects, options?.filterKeys);
   }
 
-  if (options?.renameKeys !== undefined) {
-    for (const [renameKey, renameValue] of options.renameKeys.entries()) {
-      console.log("1", renameKey);
-      console.log("2", renameValue);
-      objects.map((object) => {
-        console.log("3", object);
-        for (const key in object) {
-          console.log("4", key);
-          if (key === renameKey) {
-            object[renameValue] = object[key];
-            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-            delete object[key];
-          }
-        }
-        console.log("5", object);
-        return object;
-      });
-    }
-  }
-
+  // Set up header row
   const csvString = [];
   const headerRow = [
     ...new Set(objects.map((object) => Object.keys(object)).flat()),
   ];
-  csvString.push(headerRow);
+  console.log(headerRow);
+
+  // Rename header row items with given dictionary
+  if (options?.renameKeys !== undefined) {
+    csvString.push(renameHeaderKeys(headerRow, options?.renameKeys));
+  } else {
+    csvString.push(headerRow);
+  }
+
+  // Build CSV String
   for (let i = 0; i < objects.length; i++) {
     const row = [];
     for (let j = 0; j < headerRow.length; j++) {
@@ -54,6 +35,37 @@ export const objectsToCSV: ObjectsToCSV = (objects, options) => {
     }
     csvString.push(row);
   }
-  console.log(csvString);
   return csvString.map((e) => e.join(",")).join("\n");
 };
+
+function filterKeys(
+  objects: Array<Record<string, string | number>>,
+  keysToFilter: string[]
+): void {
+  keysToFilter.forEach((keyToFilter) =>
+    objects.map((object) => {
+      for (const key in object) {
+        if (key.match(keyToFilter) != null) {
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete object[key];
+        }
+      }
+      return object;
+    })
+  );
+}
+
+function renameHeaderKeys(
+  headerRow: string[],
+  renameKeys: Map<string, string>
+): string[] {
+  const renamedHeaderRow: string[] = [];
+  for (let i = 0; i < headerRow.length; i++) {
+    if (renameKeys.get(headerRow[i]) === undefined) {
+      renamedHeaderRow.push(headerRow[i]);
+    } else {
+      renamedHeaderRow.push(renameKeys.get(headerRow[i]) as string);
+    }
+  }
+  return renamedHeaderRow;
+}
