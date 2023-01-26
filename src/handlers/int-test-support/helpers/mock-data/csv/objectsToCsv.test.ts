@@ -49,8 +49,8 @@ describe("objectsToCSV", () => {
         },
         {
           a: "thing4",
-          b: "thing5",
           c: "thing6",
+          b: "thing5",
         },
       ];
       const expectedCsv = `b\nthing2\nthing5`;
@@ -72,10 +72,10 @@ describe("objectsToCSV", () => {
           c: "thing6",
         },
       ];
-      const expectedCsv = `c,e,c\nthing1,thing2thing,thing3\n,thing4,thing5,thing6`;
+      const expectedCsv = `z,e,c\nthing1,thing2,thing3\nthing4,thing5,thing6`;
       const csv = objectsToCSV(objects, {
         renameKeys: new Map([
-          ["a", "c"],
+          ["a", "z"],
           ["b", "e"],
         ]),
       });
