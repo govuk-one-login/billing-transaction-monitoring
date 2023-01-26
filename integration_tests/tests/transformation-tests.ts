@@ -1,46 +1,246 @@
-import path from "path";
-import fs from "fs";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import {
-  S3Object,
-  putS3Object,
-  listS3Objects,
-  deleteS3FolderBasedOnDate,
-} from "../../src/handlers/int-test-support/helpers/s3Helper";
-import { wait } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 
 const prefix = resourcePrefix();
-const storageBucket = `${resourcePrefix()}-storage`;
-const folderPrefix = "btm_transactions";
 
-describe("\n Upload verify fake csv to transformation bucket tests and check valid events from csv match with s3 events", () => {
-  beforeAll(async () => {
-    // before the test runs deletes the btm_transaction/datePrefix folder created by previous run
-    await deleteS3FolderBasedOnDate(storageBucket, folderPrefix);
-    console.log("Existing sub folders within btm_transactions are deleted");
-    const fakeCsvFile = "../payloads/fakeBillingReport.csv";
-    const filePath = path.join(__dirname, fakeCsvFile);
-    const csvFileData = fs.readFileSync(filePath);
-    const testObject: S3Object = {
-      bucket: `${prefix}-transformation`,
-      key: `fakeBillingReport.csv`,
-    };
+describe("\n Given a csv with event data is uploaded to the transformation bucket", () => {
+  // 1. Ensure S3 bucket storage/btm_transactions is empty
+  // 2. Add const testPaths (see lines 12-229)
+  // 3. Augment the data (see line 231)
+  // 4. Convert to a csv string (see line 237)
+  // 5. Upload the csv file to S3 transformation bucket
 
-    await putS3Object({ target: testObject, data: csvFileData });
-    await wait(10000);
-  });
+  // const testPaths: TestPaths = [
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "LEVEL_1",
+  //     status: "BILLABLE",
+  //     path: "happy",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "LEVEL_1",
+  //     status: "REPEAT-BILLABLE",
+  //     path: "happy",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "LEVEL_1",
+  //     status: "BILLABLE-UPLIFT",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "LEVEL_1",
+  //     status: "GOOP",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "LEVEL_2",
+  //     status: "BILLABLE",
+  //     path: "happy",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "LEVEL_2",
+  //     status: "REPEAT-BILLABLE",
+  //     path: "happy",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "LEVEL_2",
+  //     status: "BILLABLE-UPLIFT",
+  //     path: "happy",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "LEVEL_2",
+  //     status: "GOOP",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "GOOP",
+  //     status: "BILLABLE",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "GOOP",
+  //     status: "REPEAT-BILLABLE",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "GOOP",
+  //     status: "BILLABLE-UPLIFT",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client4.co.uk",
+  //     loa: "GOOP",
+  //     status: "GOOP",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "LEVEL_1",
+  //     status: "BILLABLE",
+  //     path: "happy",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "LEVEL_1",
+  //     status: "REPEAT-BILLABLE",
+  //     path: "happy",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "LEVEL_1",
+  //     status: "BILLABLE-UPLIFT",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "LEVEL_1",
+  //     status: "GOOP",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "LEVEL_2",
+  //     status: "BILLABLE",
+  //     path: "happy",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "LEVEL_2",
+  //     status: "REPEAT-BILLABLE",
+  //     path: "happy",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "LEVEL_2",
+  //     status: "BILLABLE-UPLIFT",
+  //     path: "happy",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "LEVEL_2",
+  //     status: "GOOP",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "GOOP",
+  //     status: "BILLABLE",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "GOOP",
+  //     status: "REPEAT-BILLABLE",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "GOOP",
+  //     status: "BILLABLE-UPLIFT",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://a.client3.eu",
+  //     loa: "GOOP",
+  //     status: "GOOP",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "LEVEL_1",
+  //     status: "BILLABLE",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "LEVEL_1",
+  //     status: "REPEAT-BILLABLE",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "LEVEL_1",
+  //     status: "BILLABLE-UPLIFT",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "LEVEL_1",
+  //     status: "GOOP",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "LEVEL_2",
+  //     status: "BILLABLE",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "LEVEL_2",
+  //     status: "REPEAT-BILLABLE",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "LEVEL_2",
+  //     status: "BILLABLE-UPLIFT",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "LEVEL_2",
+  //     status: "GOOP",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "GOOP",
+  //     status: "BILLABLE",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "GOOP",
+  //     status: "REPEAT-BILLABLE",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "GOOP",
+  //     status: "BILLABLE-UPLIFT",
+  //     path: "sad",
+  //   },
+  //   {
+  //     entity: "https://g.oo.p",
+  //     loa: "GOOP",
+  //     status: "GOOP",
+  //     path: "sad",
+  //   },
+  // ];
+  //
+  // const augmentedData = addFauxDataToTestPaths(testPaths, {
+  //   Timestamp: // maybe hardcode this? For example "2023-01-01T00:27:41.186Z"
+  //   "RP Entity Id": "fake rp entity id",
+  //   "Request Id": // this needs to be unique per row
+  // });
+  //
+  // const csvString = objectsToCSV(augmentedData, {filterKeys: ['path'], renameKeys: new Map([['entity', 'Idp Entity Id'], ['loa', 'Minimum Level Of Assurance'], ['status', 'Billable Status']])})
 
-  test("events which are satisfied client and event name matching rule from csv should be stored in s3 storage bucket", async () => {
-    const { Contents } = await listS3Objects({
-      bucketName: storageBucket,
-      prefix: folderPrefix,
-    });
-    console.log(Contents);
-    if (Contents === undefined) throw new Error("Contents Empty");
+  it("stores valid events in the storage/btm_transactions/yyyy-mm-dd folder", async () => {
     // TODO
   });
 
-  test("events which are not satisfied client and event name matching rule from csv should not be stored in s3 storage bucket", async () => {
+  it("does not store invalid events in the storage/btm-transactions/yyyy-mm-dd folder", async () => {
     // TODO
   });
 });

@@ -1,4 +1,4 @@
-interface TestPath {
+export interface TestPath {
   entity: string;
   loa: string;
   status: string;
