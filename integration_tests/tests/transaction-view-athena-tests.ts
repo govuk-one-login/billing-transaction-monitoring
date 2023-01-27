@@ -24,11 +24,11 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
   });
 
   test.each`
-    eventName                          | clientId     | numberOfTestEvents | unitPrice | eventTime
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client1"} | ${2}               | ${1.23}   | ${TimeStamps.THIS_TIME_LAST_YEAR}
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client2"} | ${2}               | ${2.5}    | ${TimeStamps.CURRENT_TIME}
-    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"client3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
-    ${"IPV_ADDRESS_CRI_END"}           | ${"client3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
+    eventName                          | clientId                | numberOfTestEvents | unitPrice | eventTime
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"vendor_testvendor1"} | ${2}               | ${1.23}   | ${TimeStamps.THIS_TIME_LAST_YEAR}
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"vendor_testvendor2"} | ${2}               | ${2.5}    | ${TimeStamps.CURRENT_TIME}
+    ${"IPV_PASSPORT_CRI_REQUEST_SENT"} | ${"vendor_testvendor3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
+    ${"IPV_ADDRESS_CRI_END"}           | ${"vendor_testvendor3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
   `(
     "price retrieved from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
     async ({
