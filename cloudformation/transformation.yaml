@@ -61,26 +61,9 @@ Resources:
             - Effect: Allow
               Action: s3:GetObject
               Resource:
-                - !Join [
-                    '/',
-                    [!Sub 'arn:aws:s3:::${AWS::StackName}-transformation', '*'],
-                  ]
-                - !Join [
-                    '/',
-                    [
-                      !Sub 'arn:aws:s3:::${ConfigStackParameter.Value}',
-                      'idp_clients',
-                      '*',
-                    ],
-                  ]
-                - !Join [
-                    '/',
-                    [
-                      !Sub 'arn:aws:s3:::${ConfigStackParameter.Value}',
-                      'idp_event_name_rules',
-                      '*',
-                    ],
-                  ]
+                - !Sub arn:aws:s3:::${AWS::StackName}-transformation/*
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/idp_clients/*
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/idp_event_name_rules/*
             - Effect: Allow
               Action:
                 - sqs:SendMessage
