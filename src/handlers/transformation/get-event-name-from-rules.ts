@@ -21,14 +21,12 @@ export async function getEventNameFromRules(
   const rules = eventNameRules[idpEntityId];
 
   if (rules !== undefined) {
-    for (const rule of rules) {
-      if (
+    const eventName = rules.find(
+      (rule) =>
         minLevelOfAssurance === rule["Minimum Level Of Assurance"] &&
         billableStatus === rule["Billable Status"]
-      ) {
-        return rule["Event Name"];
-      }
-    }
+    );
+    return eventName !== undefined ? eventName["Event Name"] : "Unknown";
   }
-  return "unknown";
+  return "Unknown";
 }

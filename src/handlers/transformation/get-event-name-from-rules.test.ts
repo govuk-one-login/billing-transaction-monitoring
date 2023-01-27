@@ -46,7 +46,7 @@ describe("Build Event Name Test", () => {
       idpEntityId2,
       row
     );
-    expect(eventName).toEqual("unknown");
+    expect(eventName).toEqual("Unknown");
   });
 
   test("Should return 'unknown' if there are rules for the idpEntityId but the data from the CSV does not match the eventNameRules", async () => {
@@ -63,6 +63,6 @@ describe("Build Event Name Test", () => {
       idpEntityId1,
       row
     );
-    expect(eventName).toEqual("unknown");
+    expect(eventName).toEqual("Unknown");
   });
 });
