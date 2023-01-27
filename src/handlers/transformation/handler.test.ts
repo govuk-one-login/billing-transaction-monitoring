@@ -30,6 +30,7 @@ describe("Transformation handler test", () => {
     process.env = {
       ...OLD_ENV,
       OUTPUT_QUEUE_URL: "output queue url",
+      CONFIG_BUCKET: "config bucket",
     };
     givenEvent = { Records: [] };
   });
@@ -73,6 +74,11 @@ describe("Transformation handler test", () => {
   test("should throw error if no output queue set", async () => {
     delete process.env.OUTPUT_QUEUE_URL;
     await expect(handler(givenEvent)).rejects.toThrowError("Output queue");
+  });
+
+  test("should throw error if no config bucket set", async () => {
+    delete process.env.CONFIG_BUCKET;
+    await expect(handler(givenEvent)).rejects.toThrowError("Config Bucket");
   });
 
   test("should throw error with failing idpClient or eventNameRules Lookup", async () => {
