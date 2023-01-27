@@ -24,11 +24,11 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
   });
 
   test.each`
-    eventName                          | clientId     | numberOfTestEvents | unitPrice | eventTime
-    ${"EVENT_1"} | ${"client1"} | ${2}               | ${1.23}   | ${TimeStamps.THIS_TIME_LAST_YEAR}
-    ${"EVENT_1"} | ${"client2"} | ${2}               | ${2.5}    | ${TimeStamps.CURRENT_TIME}
-    ${"EVENT_1"} | ${"client3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
-    ${"EVENT_6"}           | ${"client3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
+    eventName                          | clientId                | numberOfTestEvents | unitPrice | eventTime
+    ${"EVENT_1"} | ${"vendor_testvendor1"} | ${2}               | ${1.23}   | ${TimeStamps.THIS_TIME_LAST_YEAR}
+    ${"EVENT_1"} | ${"vendor_testvendor2"} | ${2}               | ${2.5}    | ${TimeStamps.CURRENT_TIME}
+    ${"EVENT_1"} | ${"vendor_testvendor3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
+    ${"EVENT_6"}           | ${"vendor_testvendor3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
   `(
     "price retrieved from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
     async ({
