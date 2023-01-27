@@ -1,12 +1,11 @@
 import { buildRow } from "../../../test-helpers/build-rows";
 import { sendRecord } from "../../shared/utils";
-import { buildEventName } from "./build-event-name";
-import { transformRow } from "./transform-row";
+import { getEventNameFromRules } from "./get-event-name-from-rules";
+import { processRow } from "./process-row";
 
-jest.mock("./build-event-name");
-const mockedBuildEventName = buildEventName as jest.MockedFunction<
-  typeof buildEventName
->;
+jest.mock("./get-event-name-from-rules");
+const mockedGetEventNameFromRules =
+  getEventNameFromRules as jest.MockedFunction<typeof getEventNameFromRules>;
 
 jest.mock("../../shared/utils");
 const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>;
@@ -50,18 +49,18 @@ describe("Transform Row test", () => {
     [idpEntityId1]: clientId1,
     [idpEntityId2]: clientId2,
   };
-  test("should throw error with failing buildEventName function", async () => {
+  test("should throw error with failing getEventNameFromRules function", async () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
-    mockedBuildEventName.mockImplementation(() => {
+    mockedGetEventNameFromRules.mockImplementation(() => {
       throw mockedError;
     });
 
     await expect(
-      transformRow(row, idpClientLookUp, eventNameRules, outputQueueUrl)
+      processRow(row, idpClientLookUp, eventNameRules, outputQueueUrl)
     ).rejects.toThrowError(mockedErrorText);
-    expect(mockedBuildEventName).toHaveBeenCalledTimes(1);
-    expect(mockedBuildEventName).toHaveBeenCalledWith(
+    expect(mockedGetEventNameFromRules).toHaveBeenCalledTimes(1);
+    expect(mockedGetEventNameFromRules).toHaveBeenCalledWith(
       eventNameRules,
       idpEntityId1,
       row
@@ -69,13 +68,13 @@ describe("Transform Row test", () => {
     expect(mockedSendRecord).not.toHaveBeenCalled();
   });
 
-  test("should send record with csv data transformed to event data if no buildEventName failure", async () => {
-    mockedBuildEventName.mockResolvedValue(eventName1);
+  test("should send record with csv data transformed to event data if no getEventNameFromRules failure", async () => {
+    mockedGetEventNameFromRules.mockResolvedValue(eventName1);
 
-    await transformRow(row, idpClientLookUp, eventNameRules, outputQueueUrl);
+    await processRow(row, idpClientLookUp, eventNameRules, outputQueueUrl);
 
-    expect(mockedBuildEventName).toHaveBeenCalledTimes(1);
-    expect(mockedBuildEventName).toHaveBeenCalledWith(
+    expect(mockedGetEventNameFromRules).toHaveBeenCalledTimes(1);
+    expect(mockedGetEventNameFromRules).toHaveBeenCalledWith(
       eventNameRules,
       idpEntityId1,
       row

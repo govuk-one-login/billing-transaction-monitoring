@@ -1,5 +1,5 @@
 import { buildRow } from "../../../test-helpers/build-rows";
-import { buildEventName } from "./build-event-name";
+import { getEventNameFromRules } from "./get-event-name-from-rules";
 
 describe("Build Event Name Test", () => {
   const idpEntityId1 = "https://a.client1.eu";
@@ -32,12 +32,20 @@ describe("Build Event Name Test", () => {
   };
 
   test("Should return the correct event name when given correct paramaters", async () => {
-    const eventName = await buildEventName(eventNameRules, idpEntityId1, row);
+    const eventName = await getEventNameFromRules(
+      eventNameRules,
+      idpEntityId1,
+      row
+    );
     expect(eventName).toEqual(eventName1);
   });
 
   test("Should return 'unknown' if there are no rules for the idpEntityId", async () => {
-    const eventName = await buildEventName(eventNameRules, idpEntityId2, row);
+    const eventName = await getEventNameFromRules(
+      eventNameRules,
+      idpEntityId2,
+      row
+    );
     expect(eventName).toEqual("unknown");
   });
 
@@ -50,7 +58,11 @@ describe("Build Event Name Test", () => {
       "NON-BILLABLE",
       rpEntityId1
     );
-    const eventName = await buildEventName(eventNameRules, idpEntityId1, row);
+    const eventName = await getEventNameFromRules(
+      eventNameRules,
+      idpEntityId1,
+      row
+    );
     expect(eventName).toEqual("unknown");
   });
 });

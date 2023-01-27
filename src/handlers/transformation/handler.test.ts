@@ -3,13 +3,11 @@ import { transformCsvToJson } from "./transform-csv-to-json";
 import { createEvent } from "../../../test-helpers/S3";
 import { readJsonFromS3 } from "../../shared/utils";
 import { S3Event } from "aws-lambda";
-import { transformRow } from "./transform-row";
+import { processRow } from "./process-row";
 import { buildRow } from "../../../test-helpers/build-rows";
 
-jest.mock("./transform-row");
-const mockedTransformRow = transformRow as jest.MockedFunction<
-  typeof transformRow
->;
+jest.mock("./process-row");
+const mockedProcessRow = processRow as jest.MockedFunction<typeof processRow>;
 
 jest.mock("../../shared/utils");
 const mockedReadJsonFromS3 = readJsonFromS3 as jest.MockedFunction<
@@ -84,7 +82,7 @@ describe("Transformation handler test", () => {
     );
     expect(mockedReadJsonFromS3).toHaveBeenCalled();
     expect(mockedTransformCsvToJson).not.toHaveBeenCalled();
-    expect(mockedTransformRow).not.toHaveBeenCalled();
+    expect(mockedProcessRow).not.toHaveBeenCalled();
   });
 
   test("should throw error with failing transformCsvToJson", async () => {
@@ -94,22 +92,22 @@ describe("Transformation handler test", () => {
     );
     expect(mockedReadJsonFromS3).toHaveBeenCalled();
     expect(mockedTransformCsvToJson).toHaveBeenCalled();
-    expect(mockedTransformRow).not.toHaveBeenCalled();
+    expect(mockedProcessRow).not.toHaveBeenCalled();
   });
 
-  test("should call transformRow with the expected paramaters", async () => {
+  test("should call processRow with the expected paramaters", async () => {
     mockedReadJsonFromS3.mockResolvedValueOnce(idpClientLookUp);
     mockedReadJsonFromS3.mockResolvedValueOnce(eventNameRules);
     mockedTransformCsvToJson.mockResolvedValue(csvRows);
     await handler(createEvent([]));
-    expect(mockedTransformRow).toHaveBeenCalledTimes(2);
-    expect(mockedTransformRow).toHaveBeenCalledWith(
+    expect(mockedProcessRow).toHaveBeenCalledTimes(2);
+    expect(mockedProcessRow).toHaveBeenCalledWith(
       csvRows[0],
       idpClientLookUp,
       eventNameRules,
       "output queue url"
     );
-    expect(mockedTransformRow).toHaveBeenCalledWith(
+    expect(mockedProcessRow).toHaveBeenCalledWith(
       csvRows[1],
       idpClientLookUp,
       eventNameRules,

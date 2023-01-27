@@ -3,7 +3,7 @@ import { readJsonFromS3 } from "../../shared/utils";
 import { configStackName } from "../int-test-support/helpers/envHelper";
 
 import { transformCsvToJson } from "./transform-csv-to-json";
-import { transformRow } from "./transform-row";
+import { processRow } from "./process-row";
 
 export const handler = async (event: S3Event): Promise<void> => {
   console.log("**event=", event);
@@ -34,7 +34,7 @@ export const handler = async (event: S3Event): Promise<void> => {
     // Transform data and send to SQS
 
     const promises = rows.map(async (row) => {
-      await transformRow(row, idpClientLookup, eventNameRules, outputQueueUrl);
+      await processRow(row, idpClientLookup, eventNameRules, outputQueueUrl);
     });
 
     await Promise.all(promises);

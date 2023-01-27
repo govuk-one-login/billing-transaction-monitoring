@@ -1,4 +1,4 @@
-import { CsvRow } from "./transform-row";
+import { CsvRow } from "./process-row";
 
 interface Rules {
   "Minimum Level Of Assurance": string;
@@ -10,7 +10,7 @@ export interface EventNameRules {
   [key: string]: Rules[];
 }
 
-export async function buildEventName(
+export async function getEventNameFromRules(
   eventNameRules: EventNameRules,
   idpEntityId: string,
   row: CsvRow

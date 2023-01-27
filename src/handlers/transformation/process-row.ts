@@ -1,5 +1,8 @@
 import { sendRecord } from "../../shared/utils";
-import { buildEventName, EventNameRules } from "./build-event-name";
+import {
+  getEventNameFromRules,
+  EventNameRules,
+} from "./get-event-name-from-rules";
 
 export interface TransformationEventBodyObject {
   event_id: string;
@@ -19,7 +22,7 @@ export interface CsvRow {
   "RP Entity Id": string;
 }
 
-export async function transformRow(
+export async function processRow(
   row: CsvRow,
   idpClientLookup: { [index: string]: string },
   eventNameRules: EventNameRules,
@@ -35,7 +38,7 @@ export async function transformRow(
     event_id: requestId,
     timestamp,
     timestamp_formatted: timestampFormatted,
-    event_name: await buildEventName(eventNameRules, idpEntityId, row),
+    event_name: await getEventNameFromRules(eventNameRules, idpEntityId, row),
     component_id: rpEntityId,
     client_id: idpClientLookup[idpEntityId],
   };
