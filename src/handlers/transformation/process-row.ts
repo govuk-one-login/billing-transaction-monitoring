@@ -38,7 +38,7 @@ export async function processRow(
     event_id: requestId,
     timestamp,
     timestamp_formatted: timestampFormatted,
-    event_name: await getEventNameFromRules(eventNameRules, idpEntityId, row),
+    event_name: getEventNameFromRules(eventNameRules, idpEntityId, row),
     component_id: rpEntityId,
     client_id: idpClientLookup[idpEntityId],
   };

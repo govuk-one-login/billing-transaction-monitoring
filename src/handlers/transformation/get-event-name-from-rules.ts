@@ -10,11 +10,11 @@ export interface EventNameRules {
   [key: string]: Rules[];
 }
 
-export async function getEventNameFromRules(
+export function getEventNameFromRules(
   eventNameRules: EventNameRules,
   idpEntityId: string,
   row: CsvRow
-): Promise<string> {
+): string {
   const minLevelOfAssurance = row["Minimum Level Of Assurance"];
   const billableStatus = row["Billable Status"];
 

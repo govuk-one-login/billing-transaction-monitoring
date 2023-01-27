@@ -69,7 +69,7 @@ describe("Transform Row test", () => {
   });
 
   test("should send record with csv data transformed to event data if no getEventNameFromRules failure", async () => {
-    mockedGetEventNameFromRules.mockResolvedValue(eventName1);
+    mockedGetEventNameFromRules.mockReturnValue(eventName1);
 
     await processRow(row, idpClientLookUp, eventNameRules, outputQueueUrl);
 
