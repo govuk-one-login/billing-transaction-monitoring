@@ -30,7 +30,7 @@ describe("Standardised invoice getter", () => {
   let givenTextractPages: any;
   let givenTextractPagesLineItemFields: any;
   let givenTextractPagesSummaryFields: any;
-  let givenVendorFolder: string;
+  let givenVendorName: string;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -86,16 +86,13 @@ describe("Standardised invoice getter", () => {
       },
     ];
 
-    givenVendorFolder = "Vendor_Name";
+    givenVendorName = "Vendor Name";
   });
 
   test("Standardised invoice getter with no pages", () => {
     givenTextractPages = [];
 
-    const result = getStandardisedInvoice(
-      givenTextractPages,
-      givenVendorFolder
-    );
+    const result = getStandardisedInvoice(givenTextractPages, givenVendorName);
 
     expect(result).toEqual([]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -121,7 +118,7 @@ describe("Standardised invoice getter", () => {
   test("Standardised invoice getter with undefined summary fields", () => {
     givenTextractPages[0].SummaryFields = undefined;
 
-    getStandardisedInvoice(givenTextractPages, givenVendorFolder);
+    getStandardisedInvoice(givenTextractPages, givenVendorName);
 
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledWith([]);
@@ -158,10 +155,7 @@ describe("Standardised invoice getter", () => {
   test("Standardised invoice getter with undefined line items", () => {
     givenTextractPages[0].LineItemGroups[0].LineItems = undefined;
 
-    const result = getStandardisedInvoice(
-      givenTextractPages,
-      givenVendorFolder
-    );
+    const result = getStandardisedInvoice(givenTextractPages, givenVendorName);
 
     expect(result).toEqual([]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -199,10 +193,7 @@ describe("Standardised invoice getter", () => {
   test("Standardised invoice getter with undefined line item groups", () => {
     givenTextractPages[0].LineItemGroups = undefined;
 
-    const result = getStandardisedInvoice(
-      givenTextractPages,
-      givenVendorFolder
-    );
+    const result = getStandardisedInvoice(givenTextractPages, givenVendorName);
 
     expect(result).toEqual([]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -240,10 +231,7 @@ describe("Standardised invoice getter", () => {
   test("Standardised invoice getter with no line items", () => {
     givenTextractPages[0].LineItemGroups[0].LineItems = [];
 
-    const result = getStandardisedInvoice(
-      givenTextractPages,
-      givenVendorFolder
-    );
+    const result = getStandardisedInvoice(givenTextractPages, givenVendorName);
 
     expect(result).toEqual([]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -282,7 +270,7 @@ describe("Standardised invoice getter", () => {
     givenTextractPages[0].LineItemGroups[0].LineItems.LineItemExpenseFields =
       undefined;
 
-    getStandardisedInvoice(givenTextractPages, givenVendorFolder);
+    getStandardisedInvoice(givenTextractPages, givenVendorName);
 
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledWith(
@@ -321,10 +309,7 @@ describe("Standardised invoice getter", () => {
   });
 
   test("Standardised invoice getter with a line item", () => {
-    const result = getStandardisedInvoice(
-      givenTextractPages,
-      givenVendorFolder
-    );
+    const result = getStandardisedInvoice(givenTextractPages, givenVendorName);
 
     expect(result).toEqual([
       {
@@ -341,7 +326,7 @@ describe("Standardised invoice getter", () => {
         tax_payer_id: "mocked taxPayerId",
         total: "mocked total",
         unit_price: "mocked unit price",
-        vendor_name: "Vendor Name",
+        vendor_name: givenVendorName,
       },
     ]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);

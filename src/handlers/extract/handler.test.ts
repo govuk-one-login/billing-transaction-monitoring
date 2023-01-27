@@ -15,17 +15,17 @@ describe("Extract handler test", () => {
 
   let mockStartExpenseAnalysis: jest.Mock;
 
-  const givenVendorFolder = "Vendor_Name";
+  const givenClientIdFolder = "client123";
 
   const validEvent = createEvent([
     createEventRecordWithS3Body(
       "di-btm-anybucket",
-      `${givenVendorFolder}/onepdf.pdf`,
+      `${givenClientIdFolder}/onepdf.pdf`,
       "message ID 1"
     ),
     createEventRecordWithS3Body(
       "di-btm-anybucket",
-      `${givenVendorFolder}/secondpdf.pdf`,
+      `${givenClientIdFolder}/secondpdf.pdf`,
       "message ID 2"
     ),
   ]);
@@ -60,7 +60,7 @@ describe("Extract handler test", () => {
       DocumentLocation: {
         S3Object: {
           Bucket: "di-btm-anybucket",
-          Name: `${givenVendorFolder}/onepdf.pdf`,
+          Name: `${givenClientIdFolder}/onepdf.pdf`,
         },
       },
       NotificationChannel: {
@@ -72,7 +72,7 @@ describe("Extract handler test", () => {
       DocumentLocation: {
         S3Object: {
           Bucket: "di-btm-anybucket",
-          Name: `${givenVendorFolder}/secondpdf.pdf`,
+          Name: `${givenClientIdFolder}/secondpdf.pdf`,
         },
       },
       NotificationChannel: {
@@ -214,8 +214,8 @@ describe("Extract handler test", () => {
 
   test("Extract handler with single event record that has valid S3 event in body with multiple records", async () => {
     const givenBucketName = "some bucket name";
-    const givenObjectKey1 = `${givenVendorFolder}/some object key`;
-    const givenObjectKey2 = `${givenVendorFolder}/some other object key`;
+    const givenObjectKey1 = `${givenClientIdFolder}/some object key`;
+    const givenObjectKey2 = `${givenClientIdFolder}/some other object key`;
     const givenEvent = {
       Records: [
         {
@@ -277,7 +277,7 @@ describe("Extract handler test", () => {
     });
   });
 
-  test("Extract handler with event record that has valid S3 event in body with no vendor folder", async () => {
+  test("Extract handler with event record that has valid S3 event in body with no client ID folder", async () => {
     const givenEvent = {
       Records: [
         {

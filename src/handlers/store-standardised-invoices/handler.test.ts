@@ -18,6 +18,7 @@ describe("Store Standardised Invoices handler tests", () => {
 
     process.env = {
       ...OLD_ENV,
+      CONFIG_BUCKET: "given config bucket",
       DESTINATION_BUCKET: "given destination bucket",
       DESTINATION_FOLDER: "given destination folder",
     };
@@ -30,9 +31,16 @@ describe("Store Standardised Invoices handler tests", () => {
     console.error = oldConsoleError;
   });
 
+  test("Store Standardised Invoices handler with no config bucket set", async () => {
+    delete process.env.CONFIG_BUCKET;
+    await expect(handler(givenEvent)).rejects.toThrowError("Config bucket");
+  });
+
   test("Store Standardised Invoices handler with no destination bucket set", async () => {
     delete process.env.DESTINATION_BUCKET;
-    await expect(handler(givenEvent)).rejects.toThrowError("bucket");
+    await expect(handler(givenEvent)).rejects.toThrowError(
+      "Destination bucket"
+    );
   });
 
   test("Store Standardised Invoices handler with no destination folder set", async () => {
@@ -57,12 +65,14 @@ describe("Store Standardised Invoices handler tests", () => {
     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledWith(
       givenRecord1,
       process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER
+      process.env.DESTINATION_FOLDER,
+      process.env.CONFIG_BUCKET
     );
     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledWith(
       givenRecord2,
       process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER
+      process.env.DESTINATION_FOLDER,
+      process.env.CONFIG_BUCKET
     );
     expect(result).toEqual({
       batchItemFailures: [
@@ -89,12 +99,14 @@ describe("Store Standardised Invoices handler tests", () => {
     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledWith(
       givenRecord1,
       process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER
+      process.env.DESTINATION_FOLDER,
+      process.env.CONFIG_BUCKET
     );
     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledWith(
       givenRecord2,
       process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER
+      process.env.DESTINATION_FOLDER,
+      process.env.CONFIG_BUCKET
     );
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given record 1 message ID" }],

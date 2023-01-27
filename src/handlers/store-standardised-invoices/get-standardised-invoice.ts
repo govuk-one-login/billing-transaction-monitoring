@@ -32,7 +32,7 @@ export interface StandardisedLineItem {
 
 export const getStandardisedInvoice = (
   textractPages: Textract.ExpenseDocument[],
-  vendorFolder: string
+  vendorName: string
 ): StandardisedLineItem[] => {
   const summaryFields = getSummaryFields(textractPages);
 
@@ -41,7 +41,7 @@ export const getStandardisedInvoice = (
 
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
-    vendor_name: vendorFolder.replace("_", " "),
+    vendor_name: vendorName,
     total: getTotal(summaryFields),
     invoice_receipt_date: getInvoiceReceiptDate(summaryFields),
     subtotal: getSubtotal(summaryFields),
