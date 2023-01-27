@@ -54,6 +54,7 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           OUTPUT_QUEUE_URL: !Ref FilterQueue
           LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
       Handler: transformation.handler
       Policies:
         - AWSLambdaBasicExecutionRole

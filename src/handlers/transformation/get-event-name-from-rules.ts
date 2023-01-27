@@ -1,5 +1,6 @@
 import { CsvRow } from "./process-row";
 
+// To Do Tidy up the interface, so its not tightly coupled to the specific CSV.
 interface Rules {
   "Minimum Level Of Assurance": string;
   "Billable Status": string;
