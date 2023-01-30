@@ -1,18 +1,16 @@
 import { handler } from "./handler";
 import { transformCsvToJson } from "./transform-csv-to-json";
 import { createEvent } from "../../../test-helpers/S3";
-import { readJsonFromS3 } from "../../shared/utils";
 import { S3Event } from "aws-lambda";
 import { processRow } from "./process-row";
 import { buildRow } from "../../../test-helpers/build-rows";
+import { fetchS3 } from "../../shared/utils";
 
 jest.mock("./process-row");
 const mockedProcessRow = processRow as jest.MockedFunction<typeof processRow>;
 
 jest.mock("../../shared/utils");
-const mockedReadJsonFromS3 = readJsonFromS3 as jest.MockedFunction<
-  typeof readJsonFromS3
->;
+const mockedFetchS3 = fetchS3 as jest.MockedFunction<typeof fetchS3>;
 
 jest.mock("./transform-csv-to-json");
 const mockedTransformCsvToJson = transformCsvToJson as jest.MockedFunction<
@@ -82,28 +80,30 @@ describe("Transaction CSV To JSON Event handler test", () => {
   });
 
   test("should throw error with failing idpClient or eventNameRules Lookup", async () => {
-    mockedReadJsonFromS3.mockRejectedValue("Error reading from S3");
+    mockedFetchS3.mockRejectedValue("Error reading from S3");
     await expect(handler(givenEvent)).rejects.toThrowError(
       "Transaction CSV to Json Event Handler error"
     );
-    expect(mockedReadJsonFromS3).toHaveBeenCalled();
+    expect(mockedFetchS3).toHaveBeenCalled();
     expect(mockedTransformCsvToJson).not.toHaveBeenCalled();
     expect(mockedProcessRow).not.toHaveBeenCalled();
   });
 
   test("should throw error with failing transformCsvToJson", async () => {
+    mockedFetchS3.mockResolvedValueOnce(JSON.stringify(idpClientLookUp));
+    mockedFetchS3.mockResolvedValueOnce(JSON.stringify(eventNameRules));
     mockedTransformCsvToJson.mockRejectedValue("Error transforming data");
     await expect(handler(givenEvent)).rejects.toThrowError(
       "Transaction CSV to Json Event Handler error"
     );
-    expect(mockedReadJsonFromS3).toHaveBeenCalled();
+    expect(mockedFetchS3).toHaveBeenCalled();
     expect(mockedTransformCsvToJson).toHaveBeenCalled();
     expect(mockedProcessRow).not.toHaveBeenCalled();
   });
 
   test("should call processRow with the expected paramaters", async () => {
-    mockedReadJsonFromS3.mockResolvedValueOnce(idpClientLookUp);
-    mockedReadJsonFromS3.mockResolvedValueOnce(eventNameRules);
+    mockedFetchS3.mockResolvedValueOnce(JSON.stringify(idpClientLookUp));
+    mockedFetchS3.mockResolvedValueOnce(JSON.stringify(eventNameRules));
     mockedTransformCsvToJson.mockResolvedValue(csvRows);
     await handler(createEvent([]));
     expect(mockedProcessRow).toHaveBeenCalledTimes(2);

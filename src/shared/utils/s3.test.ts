@@ -14,7 +14,6 @@ import {
   moveToFolderS3,
   putS3,
   putTextS3,
-  readJsonFromS3,
 } from "./s3";
 
 let s3Mock: ReturnType<typeof mockClient>;
@@ -222,20 +221,15 @@ test("Fetch object without callback error", async () => {
   });
 });
 
-test("Read JSON from S3 without error", async () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const file = require("./s3");
-  jest.spyOn(file, "fetchS3").mockResolvedValue('{"result":"given record"}');
-  const result = await readJsonFromS3(bucket, key);
-  expect(result).toEqual({ result: "given record" });
-});
+test("Fetch object with undefined error", async () => {
+  s3Mock.on(GetObjectCommand).resolves({
+    Body: {
+      transformToString: () => undefined,
+    },
+  } as any);
 
-test("Read JSON from S3 with  error", async () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const file = require("./s3");
-  jest.spyOn(file, "fetchS3").mockResolvedValue(undefined);
-  await expect(readJsonFromS3(bucket, key)).rejects.toThrowError(
-    "Unable to access bucket:given-bucket-name key:given/key"
+  await expect(fetchS3(bucket, key)).rejects.toEqual(
+    new Error(`No data found in ${bucket}/${key}`)
   );
 });
 

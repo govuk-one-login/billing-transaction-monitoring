@@ -17,4 +17,4 @@ export const createS3EventRecord = (
         key: fileName,
       },
     },
-  } as any);
+  } as unknown as S3EventRecord);

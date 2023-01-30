@@ -65,14 +65,6 @@ describe("S3 Textract data fetcher", () => {
     ).rejects.toThrowError(mockedErrorText);
   });
 
-  test("S3 Textract data fetcher with undefined fetched item", async () => {
-    mockedFetchS3.mockResolvedValue(undefined);
-
-    await expect(
-      fetchS3TextractData(givenBucket, givenKey)
-    ).rejects.toThrowError("No Textract data");
-  });
-
   test("S3 Textract data fetcher with invalid JSON in fetched file", async () => {
     mockedFetchS3.mockResolvedValue("{");
 

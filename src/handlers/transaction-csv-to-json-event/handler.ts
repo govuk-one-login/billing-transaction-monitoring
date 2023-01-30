@@ -1,5 +1,5 @@
 import { S3Event } from "aws-lambda";
-import { readJsonFromS3 } from "../../shared/utils";
+import { fetchS3 } from "../../shared/utils";
 
 import { transformCsvToJson } from "./transform-csv-to-json";
 import { processRow } from "./process-row";
@@ -20,17 +20,11 @@ export const handler = async (event: S3Event): Promise<void> => {
   try {
     // Set up dependencies
 
-    const idpClientLookup = await readJsonFromS3(
-      configBucket,
-      "idp_clients/idp-clients.json"
-    );
-    console.log("**idpClientLookup=", idpClientLookup);
+    const [idpClientLookup, eventNameRules] = await Promise.all([
+      fetchS3(configBucket, "idp_clients/idp-clients.json"),
+      fetchS3(configBucket, "idp_event_name_rules/idp-event-name-rules.json"),
+    ]).then((results) => results.map((result) => JSON.parse(result)));
 
-    const eventNameRules = await readJsonFromS3(
-      configBucket,
-      "idp_event_name_rules/idp-event-name-rules.json"
-    );
-    console.log("**eventNameRules=", eventNameRules);
     const rows = await transformCsvToJson(event);
     console.log("**rows=", rows);
 
@@ -40,8 +34,14 @@ export const handler = async (event: S3Event): Promise<void> => {
       await processRow(row, idpClientLookup, eventNameRules, outputQueueUrl);
     });
 
-    // TO DO: Look into using Promise.allSettled
-    await Promise.all(promises);
+    const results = await Promise.allSettled(promises);
+    if (results.some((result) => result.status === "rejected")) {
+      console.error(
+        `Failed to process all rows: ${
+          results.filter((result) => result.status === "rejected").length
+        } out of ${results.length} failed`
+      );
+    }
   } catch (error) {
     console.error(error);
     throw new Error("Transaction CSV to Json Event Handler error");

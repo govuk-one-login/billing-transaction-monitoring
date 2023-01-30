@@ -43,17 +43,17 @@ export const getS3EventRecordsFromSqs = (
   return bodyObject.Records;
 };
 
-export async function fetchS3(
-  bucket: string,
-  key: string
-): Promise<string | undefined> {
+export async function fetchS3(bucket: string, key: string): Promise<string> {
   const getCommand = new GetObjectCommand({
     Bucket: bucket,
     Key: key,
   });
 
-  const data = await send(getCommand);
-  return await data.Body?.transformToString();
+  const response = await send(getCommand);
+  const data = await response.Body?.transformToString();
+  if (data === undefined) throw new Error(`No data found in ${bucket}/${key}`);
+
+  return data;
 }
 
 const isS3Event = (object: any): object is S3Event =>
@@ -123,16 +123,3 @@ const send = async <T extends ServiceInputTypes, U extends ServiceOutputTypes>(
       console.log(err, err.stack);
       throw err;
     });
-
-export async function readJsonFromS3(
-  bucket: string,
-  key: string
-): Promise<any> {
-  const jsonString = await exports.fetchS3(bucket, key);
-  console.log("jsonString", jsonString);
-  if (jsonString === undefined) {
-    throw new Error("Unable to access bucket:" + bucket + " key:" + key);
-  }
-
-  return JSON.parse(jsonString);
-}
