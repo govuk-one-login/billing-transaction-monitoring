@@ -1,4 +1,4 @@
-import { CsvRow } from "../src/handlers/transformation/transform-row";
+import { CsvRow } from "../src/handlers/transaction-csv-to-json-event/process-row";
 
 export function buildRow(
   client: string,

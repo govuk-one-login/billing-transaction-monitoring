@@ -1,7 +1,10 @@
 import { sendRecord } from "../../shared/utils";
-import { buildEventName, EventNameRules } from "./build-event-name";
+import {
+  getEventNameFromRules,
+  EventNameRules,
+} from "./get-event-name-from-rules";
 
-export interface TransformationEventBodyObject {
+export interface TransactionEventBodyObject {
   event_id: string;
   timestamp: number;
   timestamp_formatted: string;
@@ -19,7 +22,7 @@ export interface CsvRow {
   "RP Entity Id": string;
 }
 
-export async function transformRow(
+export async function processRow(
   row: CsvRow,
   idpClientLookup: { [index: string]: string },
   eventNameRules: EventNameRules,
@@ -31,17 +34,14 @@ export async function transformRow(
   const timestamp = Math.floor(Date.parse(timestampFormatted) / 1000);
   const rpEntityId = row["RP Entity Id"];
 
-  const transformationEventBodyObject: TransformationEventBodyObject = {
+  const transactionEventBodyObject: TransactionEventBodyObject = {
     event_id: requestId,
     timestamp,
     timestamp_formatted: timestampFormatted,
-    event_name: await buildEventName(eventNameRules, idpEntityId, row),
+    event_name: getEventNameFromRules(eventNameRules, idpEntityId, row),
     component_id: rpEntityId,
     client_id: idpClientLookup[idpEntityId],
   };
 
-  await sendRecord(
-    outputQueueUrl,
-    JSON.stringify(transformationEventBodyObject)
-  );
+  await sendRecord(outputQueueUrl, JSON.stringify(transactionEventBodyObject));
 }

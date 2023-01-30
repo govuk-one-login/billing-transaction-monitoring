@@ -2,10 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  TransformationBucket:
+  TransactionCsvBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${AWS::StackName}-transformation
+      BucketName: !Sub ${AWS::StackName}-transaction-csv
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -21,7 +21,7 @@ Resources:
         Status: Enabled
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: transformation-bucket/log
+        LogFilePrefix: transaction-csv-bucket/log
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:*
@@ -30,19 +30,19 @@ Resources:
                 Rules:
                   - Name: suffix
                     Value: '.csv'
-            Function: !GetAtt TransformationFunction.Arn
+            Function: !GetAtt TransactionCsvToJsonEventFunction.Arn
 
-  TransformationFunction:
+  TransactionCsvToJsonEventFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${AWS::StackName}-transformation-function
+      FunctionName: !Sub ${AWS::StackName}-transaction-csv-to-json-event-function
       Events:
         S3Event:
           Type: S3
           Properties:
-            Bucket: !Ref TransformationBucket
+            Bucket: !Ref TransactionCsvBucket
             Events: s3:ObjectCreated:*
             Filter:
               S3Key:
@@ -54,33 +54,17 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           OUTPUT_QUEUE_URL: !Ref FilterQueue
           LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
-      Handler: transformation.handler
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+      Handler: transactionCsvToJsonEvent.handler
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
             - Effect: Allow
               Action: s3:GetObject
               Resource:
-                - !Join [
-                    '/',
-                    [!Sub 'arn:aws:s3:::${AWS::StackName}-transformation', '*'],
-                  ]
-                - !Join [
-                    '/',
-                    [
-                      !Sub 'arn:aws:s3:::${ConfigStackParameter.Value}',
-                      'idp_clients',
-                      '*',
-                    ],
-                  ]
-                - !Join [
-                    '/',
-                    [
-                      !Sub 'arn:aws:s3:::${ConfigStackParameter.Value}',
-                      'idp_event_name_rules',
-                      '*',
-                    ],
-                  ]
+                - !Sub arn:aws:s3:::${AWS::StackName}-transaction-csv/*
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/idp_clients/*
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/idp_event_name_rules/*
             - Effect: Allow
               Action:
                 - sqs:SendMessage
@@ -102,16 +86,16 @@ Resources:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
       ReservedConcurrentExecutions: 10
 
-  TransformationFunctionAlarm:
+  TransactionCsvToJsonEventFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub ${AWS::StackName}-transformation-function-alarm
+      AlarmName: !Sub ${AWS::StackName}-transaction-csv-to-json-event-function-alarm
       AlarmActions:
         - !Ref AlarmTopic
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName
-          Value: !Ref TransformationFunction
+          Value: !Ref TransactionCsvToJsonEventFunction
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda

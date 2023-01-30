@@ -1,5 +1,6 @@
-import { CsvRow } from "./transform-row";
+import { CsvRow } from "./process-row";
 
+// To Do Tidy up the interface, so its not tightly coupled to the specific CSV.
 interface Rules {
   "Minimum Level Of Assurance": string;
   "Billable Status": string;
@@ -10,25 +11,23 @@ export interface EventNameRules {
   [key: string]: Rules[];
 }
 
-export async function buildEventName(
+export function getEventNameFromRules(
   eventNameRules: EventNameRules,
   idpEntityId: string,
   row: CsvRow
-): Promise<string> {
+): string {
   const minLevelOfAssurance = row["Minimum Level Of Assurance"];
   const billableStatus = row["Billable Status"];
 
   const rules = eventNameRules[idpEntityId];
 
   if (rules !== undefined) {
-    for (const rule of rules) {
-      if (
+    const eventName = rules.find(
+      (rule) =>
         minLevelOfAssurance === rule["Minimum Level Of Assurance"] &&
         billableStatus === rule["Billable Status"]
-      ) {
-        return rule["Event Name"];
-      }
-    }
+    );
+    return eventName !== undefined ? eventName["Event Name"] : "Unknown";
   }
-  return "unknown";
+  return "Unknown";
 }
