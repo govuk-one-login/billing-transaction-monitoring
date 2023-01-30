@@ -12,11 +12,17 @@ export async function storeExpenseDocuments(
   record: SQSRecord,
   destinationBucket: string
 ): Promise<void> {
-  const { jobId, sourceBucket, sourceFileName, status } =
+  const { jobId, sourceBucket, sourceFilePath, status } =
     getQueuedExpenseAnalysisNotificationData(record);
 
+  // Source file must be in folder, which determines vendor. Throw error otherwise.
+  const sourcePathParts = sourceFilePath.split("/");
+  if (sourcePathParts.length < 2)
+    throw Error(`File not in vendor folder: ${sourceBucket}/${sourceFilePath}`);
+
+  const sourceFolder = sourcePathParts[0];
+
   // Do not reprocess documents moved to the failure or success folders.
-  const [sourceFolder] = sourceFileName.split("/");
   if (
     sourceFolder === RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE ||
     sourceFolder === RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS
@@ -24,21 +30,21 @@ export async function storeExpenseDocuments(
     return;
 
   if (status !== "SUCCEEDED")
-    return await handleTextractFailure(sourceBucket, sourceFileName);
+    return await handleTextractFailure(sourceBucket, sourceFilePath);
 
   let documents;
   try {
     documents = await fetchExpenseDocuments(jobId);
   } catch (error) {
     console.error(error);
-    return await handleTextractFailure(sourceBucket, sourceFileName);
+    return await handleTextractFailure(sourceBucket, sourceFilePath);
   }
 
   await handleTextractSuccess(
     sourceBucket,
-    sourceFileName,
+    sourceFilePath,
     destinationBucket,
-    `${jobId}.json`,
+    `${sourceFolder}/${jobId}.json`,
     documents
   );
 }

@@ -9,4 +9,3 @@ export * from "./get-tax";
 export * from "./get-tax-payer-id";
 export * from "./get-total";
 export * from "./get-unit-price";
-export * from "./get-vendor-name";

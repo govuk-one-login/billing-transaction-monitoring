@@ -3,6 +3,11 @@ import { Response } from "../../shared/types";
 import { storeStandardisedInvoices } from "./store-standardised-invoices";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
+  const configBucket = process.env.CONFIG_BUCKET;
+
+  if (configBucket === undefined || configBucket.length === 0)
+    throw new Error("Config bucket not set.");
+
   const destinationBucket = process.env.DESTINATION_BUCKET;
 
   if (destinationBucket === undefined || destinationBucket.length === 0)
@@ -20,7 +25,8 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
       await storeStandardisedInvoices(
         record,
         destinationBucket,
-        destinationFolder
+        destinationFolder,
+        configBucket
       );
     } catch (e) {
       console.error(e);

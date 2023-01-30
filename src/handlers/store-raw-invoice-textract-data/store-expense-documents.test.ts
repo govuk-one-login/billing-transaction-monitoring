@@ -30,6 +30,8 @@ describe("Expense documents storer", () => {
   let mockedJobId: string;
   let mockedSourceBucket: string;
   let mockedSourceFileName: string;
+  let mockedSourceFolder: string;
+  let mockedSourceFilePath: string;
   let givenDestinationBucket: string;
   let givenRecord: SQSRecord;
 
@@ -41,10 +43,12 @@ describe("Expense documents storer", () => {
     mockedJobId = "mocked job ID";
     mockedSourceBucket = "mocked source bucket";
     mockedSourceFileName = "mocked source file name";
+    mockedSourceFolder = "mocked source folder";
+    mockedSourceFilePath = `${mockedSourceFolder}/${mockedSourceFileName}`;
     mockedExpenseAnalysisNotificationData = {
       jobId: mockedJobId,
       sourceBucket: mockedSourceBucket,
-      sourceFileName: mockedSourceFileName,
+      sourceFilePath: mockedSourceFilePath,
       status: "SUCCEEDED",
     };
     mockedGetQueuedExpenseAnalysisNotificationData.mockReturnValue(
@@ -87,9 +91,21 @@ describe("Expense documents storer", () => {
     expect(mockedHandleTextractSuccess).not.toHaveBeenCalled();
   });
 
+  test("Expense documents storer with source file not in folder", async () => {
+    mockedSourceFilePath = "mocked source file path without folder";
+    mockedExpenseAnalysisNotificationData.sourceFilePath = mockedSourceFilePath;
+
+    await expect(
+      storeExpenseDocuments(givenRecord, givenDestinationBucket)
+    ).rejects.toThrowError("folder");
+    expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
+    expect(mockedHandleTextractFailure).not.toHaveBeenCalled();
+    expect(mockedHandleTextractSuccess).not.toHaveBeenCalled();
+  });
+
   test("Expense documents storer with source file in failure folder", async () => {
-    mockedSourceFileName = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE}/${mockedSourceFileName}`;
-    mockedExpenseAnalysisNotificationData.sourceFileName = mockedSourceFileName;
+    mockedSourceFilePath = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE}/${mockedSourceFileName}`;
+    mockedExpenseAnalysisNotificationData.sourceFilePath = mockedSourceFilePath;
 
     await storeExpenseDocuments(givenRecord, givenDestinationBucket);
 
@@ -99,8 +115,8 @@ describe("Expense documents storer", () => {
   });
 
   test("Expense documents storer with source file in success folder", async () => {
-    mockedSourceFileName = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${mockedSourceFileName}`;
-    mockedExpenseAnalysisNotificationData.sourceFileName = mockedSourceFileName;
+    mockedSourceFilePath = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${mockedSourceFileName}`;
+    mockedExpenseAnalysisNotificationData.sourceFilePath = mockedSourceFilePath;
 
     await storeExpenseDocuments(givenRecord, givenDestinationBucket);
 
@@ -117,7 +133,7 @@ describe("Expense documents storer", () => {
     expect(mockedHandleTextractFailure).toHaveBeenCalledTimes(1);
     expect(mockedHandleTextractFailure).toHaveBeenCalledWith(
       mockedSourceBucket,
-      mockedSourceFileName
+      mockedSourceFilePath
     );
     expect(mockedFetchExpenseDocuments).not.toHaveBeenCalled();
     expect(mockedHandleTextractSuccess).not.toHaveBeenCalled();
@@ -133,7 +149,7 @@ describe("Expense documents storer", () => {
     expect(mockedHandleTextractFailure).toHaveBeenCalledTimes(1);
     expect(mockedHandleTextractFailure).toHaveBeenCalledWith(
       mockedSourceBucket,
-      mockedSourceFileName
+      mockedSourceFilePath
     );
     expect(mockedHandleTextractSuccess).not.toHaveBeenCalled();
   });
@@ -170,9 +186,9 @@ describe("Expense documents storer", () => {
     expect(mockedHandleTextractSuccess).toHaveBeenCalledTimes(1);
     expect(mockedHandleTextractSuccess).toHaveBeenCalledWith(
       mockedSourceBucket,
-      mockedSourceFileName,
+      mockedSourceFilePath,
       givenDestinationBucket,
-      `${mockedJobId}.json`,
+      `${mockedSourceFolder}/${mockedJobId}.json`,
       mockedDocuments
     );
   });

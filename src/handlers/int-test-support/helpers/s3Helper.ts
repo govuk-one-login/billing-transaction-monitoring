@@ -201,7 +201,7 @@ const getS3ObjectsAsArray = async (
   bucketName: string,
   folderPrefix: string
 ): Promise<BillingStandardised[]> => {
-  const s3Response = await getS3Objects({bucketName, prefix: folderPrefix});
+  const s3Response = await getS3Objects({ bucketName, prefix: folderPrefix });
   const s3String = s3Response.join("").replace(/\n/g, "").replace(/}{/g, "},{");
   return JSON.parse("[" + s3String + "]");
 };

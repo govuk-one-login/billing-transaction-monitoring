@@ -117,7 +117,7 @@ export const randomInvoiceData = (options?: InvoiceOptions): InvoiceData => ({
   lineItems:
     options?.lineItems ??
     randomLineItems(options?.lineItemCount ?? 10, options?.lineItemOptions),
-})
+});
 
 export const randomInvoice = (options?: InvoiceOptions): Invoice => {
   return new Invoice(randomInvoiceData(options));
