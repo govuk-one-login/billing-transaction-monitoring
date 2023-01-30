@@ -44,6 +44,6 @@ export const handler = async (event: S3Event): Promise<void> => {
     await Promise.all(promises);
   } catch (error) {
     console.error(error);
-    throw new Error("Transformation Handler error");
+    throw new Error("Transaction CSV to Json Event Handler error");
   }
 };

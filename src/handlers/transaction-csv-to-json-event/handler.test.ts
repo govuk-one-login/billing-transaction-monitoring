@@ -19,7 +19,7 @@ const mockedTransformCsvToJson = transformCsvToJson as jest.MockedFunction<
   typeof transformCsvToJson
 >;
 
-describe("Transformation handler test", () => {
+describe("Transaction CSV To JSON Event handler test", () => {
   const OLD_ENV = process.env;
   const oldConsoleError = console.error;
   let givenEvent: S3Event;
@@ -84,7 +84,7 @@ describe("Transformation handler test", () => {
   test("should throw error with failing idpClient or eventNameRules Lookup", async () => {
     mockedReadJsonFromS3.mockRejectedValue("Error reading from S3");
     await expect(handler(givenEvent)).rejects.toThrowError(
-      "Transformation Handler error"
+      "Transaction CSV to Json Event Handler error"
     );
     expect(mockedReadJsonFromS3).toHaveBeenCalled();
     expect(mockedTransformCsvToJson).not.toHaveBeenCalled();
@@ -94,7 +94,7 @@ describe("Transformation handler test", () => {
   test("should throw error with failing transformCsvToJson", async () => {
     mockedTransformCsvToJson.mockRejectedValue("Error transforming data");
     await expect(handler(givenEvent)).rejects.toThrowError(
-      "Transformation Handler error"
+      "Transaction CSV to Json Event Handler error"
     );
     expect(mockedReadJsonFromS3).toHaveBeenCalled();
     expect(mockedTransformCsvToJson).toHaveBeenCalled();

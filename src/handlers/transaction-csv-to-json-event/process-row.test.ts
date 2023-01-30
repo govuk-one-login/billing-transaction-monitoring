@@ -10,7 +10,7 @@ const mockedGetEventNameFromRules =
 jest.mock("../../shared/utils");
 const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>;
 
-describe("Transform Row test", () => {
+describe("Process Row test", () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });

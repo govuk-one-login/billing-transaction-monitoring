@@ -4,7 +4,7 @@ import {
   EventNameRules,
 } from "./get-event-name-from-rules";
 
-export interface TransformationEventBodyObject {
+export interface TransactionEventBodyObject {
   event_id: string;
   timestamp: number;
   timestamp_formatted: string;
@@ -34,7 +34,7 @@ export async function processRow(
   const timestamp = Math.floor(Date.parse(timestampFormatted) / 1000);
   const rpEntityId = row["RP Entity Id"];
 
-  const transformationEventBodyObject: TransformationEventBodyObject = {
+  const transactionEventBodyObject: TransactionEventBodyObject = {
     event_id: requestId,
     timestamp,
     timestamp_formatted: timestampFormatted,
@@ -43,8 +43,5 @@ export async function processRow(
     client_id: idpClientLookup[idpEntityId],
   };
 
-  await sendRecord(
-    outputQueueUrl,
-    JSON.stringify(transformationEventBodyObject)
-  );
+  await sendRecord(outputQueueUrl, JSON.stringify(transactionEventBodyObject));
 }

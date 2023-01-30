@@ -1,7 +1,7 @@
 import { buildRow } from "../../../test-helpers/build-rows";
 import { getEventNameFromRules } from "./get-event-name-from-rules";
 
-describe("Build Event Name Test", () => {
+describe("Get Event Name from Rules Test", () => {
   const idpEntityId1 = "https://a.client1.eu";
   const idpEntityId2 = "https://a.client2.eu";
   const requestId1 = "event-id-1";
