@@ -29,8 +29,10 @@ export class Invoice {
 }
 
 export const makeMockInvoicePDF =
-  <TWriteOutput>(writeOutput: (file: ArrayBuffer) => Promise<TWriteOutput>) =>
-  async (invoice: Invoice): Promise<TWriteOutput> => {
+  <TWriteOutput>(
+    writeOutput: (file: ArrayBuffer, folder: string) => Promise<TWriteOutput>
+  ) =>
+  async (invoice: Invoice, folder: string): Promise<TWriteOutput> => {
     const doc = new JSPDF({
       unit: "cm",
     });
@@ -88,5 +90,5 @@ export const makeMockInvoicePDF =
       ],
     });
     doc.text(`Invoice number: ${invoice.invoiceNumber}`, 2, 20);
-    return await writeOutput(doc.output("arraybuffer"));
+    return await writeOutput(doc.output("arraybuffer"), folder);
   };

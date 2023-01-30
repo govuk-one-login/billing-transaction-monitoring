@@ -1,7 +1,12 @@
-import {ClientId, EventName, prettyClientNameMap, prettyEventNameMap,} from "./payloadHelper";
-import {queryObject, startQueryExecutionCommand} from "./athenaHelper";
-import {TableNames} from "./commonHelpers";
-import {resourcePrefix} from "./envHelper";
+import {
+  ClientId,
+  EventName,
+  prettyClientNameMap,
+  prettyEventNameMap,
+} from "./payloadHelper";
+import { queryObject, startQueryExecutionCommand } from "./athenaHelper";
+import { TableNames } from "./commonHelpers";
+import { resourcePrefix } from "./envHelper";
 
 const prefix = resourcePrefix();
 const databaseName = `${prefix}-calculations`;

@@ -167,7 +167,7 @@ describe("Queued expense analysis notification data getter", () => {
     expect(result).toEqual({
       jobId: givenRecordBodyMessage.JobId,
       sourceBucket: givenRecordBodyMessage.DocumentLocation.S3Bucket,
-      sourceFileName: givenRecordBodyMessage.DocumentLocation.S3ObjectName,
+      sourceFilePath: givenRecordBodyMessage.DocumentLocation.S3ObjectName,
       status: givenRecordBodyMessage.Status,
     });
   });

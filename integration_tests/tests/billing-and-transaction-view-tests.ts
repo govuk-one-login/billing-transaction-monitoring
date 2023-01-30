@@ -38,7 +38,7 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
     const file = "../payloads/receipt.txt";
     const filePath = path.join(__dirname, file);
     const fileData = fs.readFileSync(filePath);
-    await putS3Object({data: fileData, target: testObject});
+    await putS3Object({ data: fileData, target: testObject });
     const checkFileExists = await checkIfS3ObjectExists(testObject);
     expect(checkFileExists).toBe(true);
   });
@@ -63,8 +63,8 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
 
 describe("\n no invoice uploaded to standardised folder and verify billing and transaction_curated view query results matches with expected data    \n", () => {
   beforeAll(async () => {
-    await deleteS3Objects({bucketName, prefix: "btm_billing_standardised"});
-    await deleteS3Objects({bucketName, prefix: "btm_transactions"});
+    await deleteS3Objects({ bucketName, prefix: "btm_billing_standardised" });
+    await deleteS3Objects({ bucketName, prefix: "btm_transactions" });
   });
   test.each`
     testCase                                                                                 | eventName                          | clientId                | eventTime                  | numberOfTestEvents | priceDiff    | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty   | transactionPrice | transactionQty

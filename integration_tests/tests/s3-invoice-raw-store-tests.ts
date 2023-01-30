@@ -1,18 +1,21 @@
 import path from "path";
 import fs from "fs";
-import {resourcePrefix} from "../../src/handlers/int-test-support/helpers/envHelper";
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkIfS3ObjectExists,
   deleteS3Object,
   getS3Object,
-  listS3Objects, putS3Object, S3Object
+  listS3Objects,
+  putS3Object,
+  S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import {waitForTrue} from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import {randomInvoice} from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
-import {createInvoiceInS3} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
+import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { randomInvoice } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
+import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 
 const prefix = resourcePrefix();
 const testStartTime = new Date();
+const givenClientIdFolder = "client123";
 
 describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf bucket test\n", () => {
   const storageBucket = `${prefix}-storage`;
@@ -27,7 +30,10 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
     const checkTextractDataFileContainsStringFromOriginalPdf =
       async (): Promise<boolean> => {
         const textractedFileContents =
-          await getS3FileContentsBasedOnLastModified(testStartTime, textractBucket);
+          await getS3FileContentsBasedOnLastModified(
+            testStartTime,
+            textractBucket
+          );
         return textractedFileContents.some((file) =>
           file?.includes(invoice.invoiceNumber)
         );
@@ -95,7 +101,7 @@ describe("\n Unappy path - Upload invalid pdf to the raw invoice pdf bucket test
   const uniqueString = Math.random().toString(36).substring(2, 7);
   const rawInvoice: S3Object = {
     bucket: `${prefix}-raw-invoice-pdf`,
-    key: `raw-Invoice-${uniqueString}-validFile.pdf`,
+    key: `${givenClientIdFolder}/raw-Invoice-${uniqueString}-validFile.pdf`,
   };
 
   test("should move the original raw invoice to failed folder in s3 raw-invoice-pdf bucket upon uploading the invalid pdf file ", async () => {
@@ -139,12 +145,13 @@ const getS3FileContentsBasedOnLastModified = async (
   bucketName: string,
   folderPrefix?: string
 ): Promise<Array<string | undefined>> => {
-  const result = await listS3Objects({bucketName, prefix: folderPrefix});
+  const result = await listS3Objects({ bucketName, prefix: folderPrefix });
   if (result.Contents === undefined) return [];
 
   const s3ContentsFilteredByTestStartTime = result.Contents?.filter((item) => {
     return (
-      item.LastModified !== undefined && new Date(item.LastModified) >= newerThan
+      item.LastModified !== undefined &&
+      new Date(item.LastModified) >= newerThan
     );
   });
   console.log("Files", s3ContentsFilteredByTestStartTime);
@@ -152,9 +159,9 @@ const getS3FileContentsBasedOnLastModified = async (
     Key === undefined
       ? undefined
       : await getS3Object({
-        bucket: bucketName,
-        key: Key,
-      })
+          bucket: bucketName,
+          key: Key,
+        })
   );
   return await Promise.all(filePromises);
 };
