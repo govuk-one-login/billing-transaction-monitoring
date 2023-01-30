@@ -2,13 +2,15 @@ import { wait } from "../../src/handlers/int-test-support/helpers/commonHelpers"
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { addFauxDataToTestPaths } from "../../src/handlers/int-test-support/helpers/mock-data/csv/addFauxDataToTestPaths";
 import { objectsToCSV } from "../../src/handlers/int-test-support/helpers/mock-data/csv/objectsToCsv";
+import { testPaths } from "../../src/handlers/int-test-support/helpers/mock-data/csv/transformCSV-to-event-test-data";
 import {
   deleteS3Objects,
   getS3Object,
   putS3Object,
   S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import { testPaths } from "../payloads/transactionCSV-to-event-test-data";
+
+import { TransactionEventBodyObject } from "../../src/handlers/transaction-csv-to-json-event/process-row";
 
 const prefix = resourcePrefix();
 
@@ -16,20 +18,12 @@ describe("\n Given a csv with event data is uploaded to the transformation bucke
   const folderPrefix = "btm_transactions";
   const bucketName = `${prefix}-storage`;
 
-  // 1. Ensure S3 bucket storage/btm_transactions is empty
   beforeAll(async () => {
     await deleteS3Objects({ bucketName, prefix: folderPrefix });
-
-    // 2. Add const testPaths (see lines 12-229)
-
-    // 3. Augment the data (see line 231)
     const augmentedData = addFauxDataToTestPaths(testPaths, {
       Timestamp: "2023-01-01T00:27:41.186Z",
       "RP Entity Id": "fake rp entity id",
     });
-    console.log(augmentedData);
-
-    // 4. Convert to a csv string (see line 237)
     const csvString = objectsToCSV(augmentedData, {
       filterKeys: ["path"],
       renameKeys: new Map([
@@ -39,25 +33,27 @@ describe("\n Given a csv with event data is uploaded to the transformation bucke
         ["eventId", "Request Id"],
       ]),
     });
-    // 5. Upload the csv file to S3 transformation bucket
+    // Upload the csv file to S3 transformation bucket
     const testObject: S3Object = {
       bucket: `${prefix}-transaction-csv`,
       key: `fakeBillingReport.csv`,
     };
     await putS3Object({ target: testObject, data: Buffer.from(csvString) });
-    await wait(10000);
+    await wait(10000); // added implicit wait for the file to be uploaded
   });
 
   it("stores valid events in the storage/btm_transactions/yyyy-mm-dd folder", async () => {
     for (let i = 0; i < testPaths.length; i++) {
       const s3Object = await getS3Object({
         bucket: bucketName,
-        key: `btm_transactions/${"2023-01-01"}/${testPaths[i].eventId}.json`,
+        key: `${folderPrefix}/${"2023-01-01"}/${testPaths[i].eventId}.json`,
       });
-      if (testPaths[i].path === "happy") {
-        expect(s3Object).toContain(testPaths[i].clientId);
-        expect(s3Object).toContain(testPaths[i].eventId);
-        expect(s3Object).toContain(testPaths[i].eventName);
+
+      if (testPaths[i].path === "happy" && s3Object !== undefined) {
+        const s3Event: TransactionEventBodyObject = JSON.parse(s3Object);
+        expect(s3Event.client_id).toContain(testPaths[i].clientId);
+        expect(s3Event.event_id).toContain(testPaths[i].eventId);
+        expect(s3Event.event_name).toContain(testPaths[i].eventName);
       }
     }
   });
@@ -66,7 +62,7 @@ describe("\n Given a csv with event data is uploaded to the transformation bucke
     for (let i = 0; i < testPaths.length; i++) {
       const s3Object = await getS3Object({
         bucket: bucketName,
-        key: `btm_transactions/${"2023-01-01"}/${testPaths[i].eventId}.json`,
+        key: `${folderPrefix}/${"2023-01-01"}/${testPaths[i].eventId}.json`,
       });
       if (testPaths[i].path === "sad") {
         expect(s3Object).toEqual("NoSuchKey");

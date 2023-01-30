@@ -1,4 +1,4 @@
-import { TestPaths } from "../../src/handlers/int-test-support/helpers/mock-data/csv";
+import { TestPaths } from "./addFauxDataToTestPaths";
 
 export const testPaths: TestPaths = [
   {
