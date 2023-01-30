@@ -128,8 +128,8 @@ export async function readJsonFromS3(
   bucket: string,
   key: string
 ): Promise<any> {
-  const jsonString = await fetchS3(bucket, key);
-
+  const jsonString = await exports.fetchS3(bucket, key);
+  console.log("jsonString", jsonString);
   if (jsonString === undefined) {
     throw new Error("Unable to access bucket:" + bucket + " key:" + key);
   }
