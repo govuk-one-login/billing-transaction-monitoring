@@ -3,6 +3,9 @@ export interface TestPath {
   loa: string;
   status: string;
   path: "happy" | "sad";
+  eventId: string;
+  eventName: string;
+  clientId: string;
 }
 
 export type TestPaths = TestPath[];

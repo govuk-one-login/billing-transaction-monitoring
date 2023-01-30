@@ -54,11 +54,14 @@ const getS3Object = async (object: S3Object): Promise<string | undefined> => {
     Bucket: object.bucket,
     Key: object.key,
   };
-
-  const getObjectResult = await s3Client.send(
-    new GetObjectCommand(bucketParams)
-  );
-  return await getObjectResult.Body?.transformToString();
+  try {
+    const getObjectResult = await s3Client.send(
+      new GetObjectCommand(bucketParams)
+    );
+    return await getObjectResult.Body?.transformToString();
+  } catch (err) {
+    if (err instanceof Error) return err.name;
+  }
 };
 
 const putS3Object = async (
@@ -180,21 +183,6 @@ const getS3Objects = async (params: BucketAndPrefix): Promise<string[]> => {
   return content;
 };
 
-const deleteS3FolderBasedOnDate = async (
-  bucketName: string,
-  folderPrefix: string
-): Promise<boolean> => {
-  const result = await listS3Objects({ bucketName, prefix: folderPrefix });
-  const getDateFolderPrefix = result.Contents?.map((data) =>
-    data.Key?.slice(0, 27)
-  );
-  if (getDateFolderPrefix === undefined) return false;
-  for (const dateFolderPrefix of getDateFolderPrefix) {
-    await deleteS3Objects({ bucketName, prefix: dateFolderPrefix });
-  }
-  return true;
-};
-
 export interface BillingStandardised {
   invoice_receipt_id: string;
   vendor_name: string;
@@ -232,5 +220,4 @@ export {
   checkIfS3ObjectExists,
   getS3Objects,
   getS3ObjectsAsArray,
-  deleteS3FolderBasedOnDate,
 };
