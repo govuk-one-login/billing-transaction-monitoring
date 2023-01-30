@@ -1,11 +1,11 @@
 import { SQSRecord } from "aws-lambda";
-import { getS3EventRecords, putTextS3 } from "../../shared/utils";
+import { getS3EventRecordsFromSqs, putTextS3 } from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 import { storeStandardisedInvoices } from "./store-standardised-invoices";
 
 jest.mock("../../shared/utils");
-const mockedGetS3EventRecords = getS3EventRecords as jest.Mock;
+const mockedGetS3EventRecordsFromSQS = getS3EventRecordsFromSqs as jest.Mock;
 const mockedPutTextS3 = putTextS3 as jest.Mock;
 
 jest.mock("./fetch-s3-textract-data");
@@ -68,7 +68,7 @@ describe("Standardised invoice storer", () => {
     };
 
     mockedS3EventRecords = [mockedS3EventRecord1, mockedS3EventRecord2];
-    mockedGetS3EventRecords.mockReturnValue(mockedS3EventRecords);
+    mockedGetS3EventRecordsFromSQS.mockReturnValue(mockedS3EventRecords);
 
     givenDestinationBucket = "given destination bucket";
     givenDestinationFolder = "given destination folder";
@@ -78,7 +78,7 @@ describe("Standardised invoice storer", () => {
   test("Standardised invoice storer with invalid queue record", async () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
-    mockedGetS3EventRecords.mockImplementation(() => {
+    mockedGetS3EventRecordsFromSQS.mockImplementation(() => {
       throw mockedError;
     });
 
@@ -89,15 +89,17 @@ describe("Standardised invoice storer", () => {
         givenDestinationFolder
       )
     ).rejects.toThrowError(mockedErrorText);
-    expect(mockedGetS3EventRecords).toHaveBeenCalledTimes(1);
-    expect(mockedGetS3EventRecords).toHaveBeenCalledWith(givenQueueRecord);
+    expect(mockedGetS3EventRecordsFromSQS).toHaveBeenCalledTimes(1);
+    expect(mockedGetS3EventRecordsFromSQS).toHaveBeenCalledWith(
+      givenQueueRecord
+    );
     expect(mockedFetchS3TextractData).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoice).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });
 
   test("Standardised invoice storer with no storage records", async () => {
-    mockedGetS3EventRecords.mockReturnValue([]);
+    mockedGetS3EventRecordsFromSQS.mockReturnValue([]);
 
     await storeStandardisedInvoices(
       givenQueueRecord,

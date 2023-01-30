@@ -24,7 +24,9 @@ export async function deleteS3(bucket: string, key: string): Promise<void> {
   await send(deleteCommand);
 }
 
-export const getS3EventRecords = (queueRecord: SQSRecord): S3EventRecord[] => {
+export const getS3EventRecordsFromSqs = (
+  queueRecord: SQSRecord
+): S3EventRecord[] => {
   let bodyObject;
   try {
     bodyObject = JSON.parse(queueRecord.body);
