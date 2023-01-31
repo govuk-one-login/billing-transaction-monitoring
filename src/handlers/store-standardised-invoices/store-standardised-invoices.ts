@@ -1,6 +1,6 @@
 import { SQSRecord } from "aws-lambda";
 import {
-  getS3EventRecords,
+  getS3EventRecordsFromSqs,
   getVendorServiceConfigRow,
   putTextS3,
 } from "../../shared/utils";
@@ -13,7 +13,7 @@ export async function storeStandardisedInvoices(
   destinationFolder: string,
   configBucket: string
 ): Promise<void> {
-  const storageRecords = getS3EventRecords(queueRecord);
+  const storageRecords = getS3EventRecordsFromSqs(queueRecord);
 
   const promises = storageRecords.map(async (storageRecord) => {
     const sourceBucket = storageRecord.s3.bucket.name;

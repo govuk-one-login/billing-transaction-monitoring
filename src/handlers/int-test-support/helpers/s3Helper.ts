@@ -54,11 +54,14 @@ const getS3Object = async (object: S3Object): Promise<string | undefined> => {
     Bucket: object.bucket,
     Key: object.key,
   };
-
-  const getObjectResult = await s3Client.send(
-    new GetObjectCommand(bucketParams)
-  );
-  return await getObjectResult.Body?.transformToString();
+  try {
+    const getObjectResult = await s3Client.send(
+      new GetObjectCommand(bucketParams)
+    );
+    return await getObjectResult.Body?.transformToString();
+  } catch (err) {
+    if (err instanceof Error) return err.name;
+  }
 };
 
 const putS3Object = async (

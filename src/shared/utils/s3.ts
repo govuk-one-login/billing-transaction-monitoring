@@ -24,7 +24,9 @@ export async function deleteS3(bucket: string, key: string): Promise<void> {
   await send(deleteCommand);
 }
 
-export const getS3EventRecords = (queueRecord: SQSRecord): S3EventRecord[] => {
+export const getS3EventRecordsFromSqs = (
+  queueRecord: SQSRecord
+): S3EventRecord[] => {
   let bodyObject;
   try {
     bodyObject = JSON.parse(queueRecord.body);
@@ -41,17 +43,17 @@ export const getS3EventRecords = (queueRecord: SQSRecord): S3EventRecord[] => {
   return bodyObject.Records;
 };
 
-export async function fetchS3(
-  bucket: string,
-  key: string
-): Promise<string | undefined> {
+export async function fetchS3(bucket: string, key: string): Promise<string> {
   const getCommand = new GetObjectCommand({
     Bucket: bucket,
     Key: key,
   });
 
-  const data = await send(getCommand);
-  return await data.Body?.transformToString();
+  const response = await send(getCommand);
+  const data = await response.Body?.transformToString();
+  if (data === undefined) throw new Error(`No data found in ${bucket}/${key}`);
+
+  return data;
 }
 
 const isS3Event = (object: any): object is S3Event =>
