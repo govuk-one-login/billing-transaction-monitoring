@@ -32,10 +32,6 @@ export const eventTimeStamp = {
   [TimeStamps.CURRENT_TIME]: validTimestamp(),
 };
 
-export const wait = async (milliseconds: number): Promise<void> => {
-  return await new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
-
 export const waitForTrue = async (
   predicate: () => Promise<boolean | undefined | Object[]>,
   delayMS: number,
