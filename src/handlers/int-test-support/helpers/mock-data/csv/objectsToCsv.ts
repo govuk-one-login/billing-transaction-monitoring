@@ -14,17 +14,14 @@ export const objectsToCSV: ObjectsToCSV = (objects, options) => {
   }
 
   // Set up header row
-  const csvString = [];
-  const headerRow = [
-    ...new Set(objects.map((object) => Object.keys(object)).flat()),
-  ];
-  console.log(headerRow);
+  const csvData = [];
+  const headerRow = Array.from(new Set(objects.map(Object.keys).flat()));
 
   // Rename header row items with given dictionary
   if (options?.renameKeys !== undefined) {
-    csvString.push(renameHeaderKeys(headerRow, options?.renameKeys));
+    csvData.push(renameHeaderKeys(headerRow, options?.renameKeys));
   } else {
-    csvString.push(headerRow);
+    csvData.push(headerRow);
   }
 
   // Build CSV String
@@ -33,9 +30,9 @@ export const objectsToCSV: ObjectsToCSV = (objects, options) => {
     for (let j = 0; j < headerRow.length; j++) {
       row.push(objects[i][headerRow[j]]);
     }
-    csvString.push(row);
+    csvData.push(row);
   }
-  return csvString.map((e) => e.join(",")).join("\n");
+  return csvData.map((e) => e.join(",")).join("\n");
 };
 
 function filterKeys(

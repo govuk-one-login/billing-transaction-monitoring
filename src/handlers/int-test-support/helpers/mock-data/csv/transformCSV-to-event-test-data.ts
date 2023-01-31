@@ -1,6 +1,6 @@
-import { TestPaths } from "./addFauxDataToTestPaths";
+import { TestCases } from "./addFauxDataToTestCases";
 
-export const testPaths: TestPaths = [
+export const testCases: TestCases = [
   {
     givenEntity: "https://a.client4.co.uk",
     givenLoa: "LEVEL_1",

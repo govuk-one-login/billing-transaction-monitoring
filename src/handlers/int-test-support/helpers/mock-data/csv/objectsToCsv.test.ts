@@ -84,7 +84,7 @@ describe("objectsToCSV", () => {
   });
 
   describe("Given a dictionary of keys to rename and a list of keys to filter", () => {
-    it("renames spicifed keys and removes specified keysin the output", () => {
+    it("renames specified keys and removes specified keys in the output", () => {
       const objects = [
         {
           a: "thing1",

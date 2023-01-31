@@ -1,8 +1,8 @@
 import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import { addFauxDataToTestPaths } from "../../src/handlers/int-test-support/helpers/mock-data/csv/addFauxDataToTestPaths";
+import { addFauxDataToTestCases } from "../../src/handlers/int-test-support/helpers/mock-data/csv/addFauxDataToTestCases";
 import { objectsToCSV } from "../../src/handlers/int-test-support/helpers/mock-data/csv/objectsToCsv";
-import { testPaths } from "../../src/handlers/int-test-support/helpers/mock-data/csv/transformCSV-to-event-test-data";
+import { testCases } from "../../src/handlers/int-test-support/helpers/mock-data/csv/transformCSV-to-event-test-data";
 import {
   deleteS3Objects,
   getS3Object,
@@ -25,7 +25,7 @@ const checkS3BucketForEventIds = async (): Promise<boolean> => {
   if (
     result.Contents === undefined ||
     result.Contents.length !==
-      testPaths.filter((data) => data.expectedPath === "happy").length
+      testCases.filter((data) => data.expectedPath === "happy").length
   ) {
     return false;
   } else {
@@ -38,7 +38,7 @@ describe("\n Given a csv with event data is uploaded to the transaction csv buck
     // First delete all transactions in btm_transaction
     await deleteS3Objects({ bucketName, prefix: folderPrefix });
     // Add data to build the test csv
-    const augmentedData = addFauxDataToTestPaths(testPaths, {
+    const augmentedData = addFauxDataToTestCases(testCases, {
       Timestamp: "2023-01-01T00:27:41.186Z",
       "RP Entity Id": "fake rp entity id",
     });
@@ -67,32 +67,32 @@ describe("\n Given a csv with event data is uploaded to the transaction csv buck
       10000
     );
     expect(checkEventsExistsInS3).toBe(true);
-    for (let i = 0; i < testPaths.length; i++) {
+    for (let i = 0; i < testCases.length; i++) {
       const s3Object = await getS3Object({
         bucket: bucketName,
         key: `${folderPrefix}/${"2023-01-01"}/${
-          testPaths[i].expectedEventId
+          testCases[i].expectedEventId
         }.json`,
       });
 
-      if (testPaths[i].expectedPath === "happy" && s3Object !== undefined) {
+      if (testCases[i].expectedPath === "happy" && s3Object !== undefined) {
         const s3Event: TransactionEventBodyObject = JSON.parse(s3Object);
-        expect(s3Event.client_id).toEqual(testPaths[i].expectedClientId);
-        expect(s3Event.event_id).toEqual(testPaths[i].expectedEventId);
-        expect(s3Event.event_name).toEqual(testPaths[i].expectedEventName);
+        expect(s3Event.client_id).toEqual(testCases[i].expectedClientId);
+        expect(s3Event.event_id).toEqual(testCases[i].expectedEventId);
+        expect(s3Event.event_name).toEqual(testCases[i].expectedEventName);
       }
     }
   });
 
   it("does not store invalid events in the storage/btm-transactions/yyyy-mm-dd folder", async () => {
-    for (let i = 0; i < testPaths.length; i++) {
+    for (let i = 0; i < testCases.length; i++) {
       const s3Object = await getS3Object({
         bucket: bucketName,
         key: `${folderPrefix}/${"2023-01-01"}/${
-          testPaths[i].expectedEventId
+          testCases[i].expectedEventId
         }.json`,
       });
-      if (testPaths[i].expectedPath === "sad") {
+      if (testCases[i].expectedPath === "sad") {
         expect(s3Object).toEqual("NoSuchKey");
       }
     }

@@ -1,2 +1,2 @@
-export * from "./addFauxDataToTestPaths";
+export * from "./addFauxDataToTestCases";
 export * from "./objectsToCsv";

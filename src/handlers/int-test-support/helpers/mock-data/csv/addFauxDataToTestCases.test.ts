@@ -1,9 +1,9 @@
-import { addFauxDataToTestPaths, TestPaths } from "./addFauxDataToTestPaths";
+import { addFauxDataToTestCases, TestCases } from "./addFauxDataToTestCases";
 
-describe("addFauxDataToTestPaths", () => {
+describe("addFauxDataToTestCases", () => {
   describe("Given an array of test paths and record containing hardcoded data", () => {
     it("merges the hardcoded data into each test path", () => {
-      const testPaths: TestPaths = [
+      const testCases: TestCases = [
         {
           givenEntity: "entity1",
           givenLoa: "loa1",
@@ -28,7 +28,7 @@ describe("addFauxDataToTestPaths", () => {
         b: "thing2",
         c: "thing3",
       };
-      const expectedTestPathsWithAdditionalData = [
+      const expectedTestCasesWithAdditionalData = [
         {
           givenEntity: "entity1",
           givenLoa: "loa1",
@@ -54,12 +54,12 @@ describe("addFauxDataToTestPaths", () => {
           c: "thing3",
         },
       ];
-      const testPathsWithAdditionalData = addFauxDataToTestPaths(
-        testPaths,
+      const testCasesWithAdditionalData = addFauxDataToTestCases(
+        testCases,
         fauxData
       );
-      expect(testPathsWithAdditionalData).toEqual(
-        expectedTestPathsWithAdditionalData
+      expect(testCasesWithAdditionalData).toEqual(
+        expectedTestCasesWithAdditionalData
       );
     });
   });

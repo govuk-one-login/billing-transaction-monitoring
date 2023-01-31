@@ -1,4 +1,4 @@
-export interface TestPath {
+export interface TestCase {
   givenEntity: string;
   givenLoa: string;
   givenStatus: string;
@@ -8,18 +8,18 @@ export interface TestPath {
   expectedEventName: string;
 }
 
-export type TestPaths = TestPath[];
+export type TestCases = TestCase[];
 
-type AddFauxDataToTestPaths = (
-  testPaths: TestPaths,
+type AddFauxDataToTestCases = (
+  testCases: TestCases,
   fauxData: Record<string, string | number>
 ) => Array<Record<string, string | number>>;
 
-export const addFauxDataToTestPaths: AddFauxDataToTestPaths = (
-  testPaths,
+export const addFauxDataToTestCases: AddFauxDataToTestCases = (
+  testCases,
   fauxData
 ) => {
-  return testPaths.map((testPath) => {
-    return { ...testPath, ...fauxData };
+  return testCases.map((testCase) => {
+    return { ...testCase, ...fauxData };
   });
 };
