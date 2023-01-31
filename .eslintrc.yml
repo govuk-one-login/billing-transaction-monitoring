@@ -3,12 +3,14 @@ extends:
   - prettier
 ignorePatterns:
   - dist
+  - allure-reports
+  - allure-results
 overrides:
   - files: '*.ts'
     parserOptions:
       project: ./tsconfig.json
     rules:
-      "@typescript-eslint/no-unused-vars":
+      '@typescript-eslint/no-unused-vars':
         - error
-        - argsIgnorePattern: "^_"
-          varsIgnorePattern: "^_"
+        - argsIgnorePattern: '^_'
+          varsIgnorePattern: '^_'

@@ -12,6 +12,16 @@ export const VALID_EVENT_NAMES = new Set<ValidEventName>([
   "IPV_ADDRESS_CRI_END",
   "IPV_KBV_CRI_REQUEST_SENT",
   "IPV_KBV_CRI_THIRD_PARTY_REQUEST_ENDED",
+  "IPV_C3_TEST1",
+  "IPV_C3_S_TEST1",
+  "IPV_C3_S_TEST2",
+  "IPV_C3_SI_TEST2",
+  "IPV_C3_TEST3",
+  "IPV_C4_TEST1",
+  "IPV_C4_S_TEST1",
+  "IPV_C4_S_TEST2",
+  "IPV_C4_SI_TEST2",
+  "IPV_C4_TEST3",
 ]);
 
 export const VALID_TEXTRACT_STATUS_MESSAGES = new Set<ValidTextractJobStatus>([
