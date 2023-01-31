@@ -9,13 +9,13 @@ type ObjectsToCSV = (
 
 export const objectsToCSV: ObjectsToCSV = (objects, options) => {
   // Filter objects with given keys
-  if (options?.filterKeys !== undefined) {
-    filterKeys(objects, options?.filterKeys);
-  }
 
+  const filteredObjects = redactKeys(objects, options?.filterKeys);
   // Set up header row
   const csvData = [];
-  const headerRow = Array.from(new Set(objects.map(Object.keys).flat()));
+  const headerRow = Array.from(
+    new Set(filteredObjects.map(Object.keys).flat())
+  );
 
   // Rename header row items with given dictionary
   if (options?.renameKeys !== undefined) {
@@ -25,32 +25,39 @@ export const objectsToCSV: ObjectsToCSV = (objects, options) => {
   }
 
   // Build CSV String
-  for (let i = 0; i < objects.length; i++) {
+  for (let i = 0; i < filteredObjects.length; i++) {
     const row = [];
     for (let j = 0; j < headerRow.length; j++) {
-      row.push(objects[i][headerRow[j]]);
+      row.push(filteredObjects[i][headerRow[j]]);
     }
     csvData.push(row);
   }
   return csvData.map((e) => e.join(",")).join("\n");
 };
 
-function filterKeys(
+const redactKeys = (
   objects: Array<Record<string, string | number>>,
-  keysToFilter: string[]
-): void {
-  keysToFilter.forEach((keyToFilter) =>
-    objects.map((object) => {
-      for (const key in object) {
-        if (key.match(keyToFilter) != null) {
-          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-          delete object[key];
-        }
-      }
-      return object;
-    })
+  filterKeys: string[] = []
+): Array<Record<string, string | number>> => {
+  return objects.reduce<Array<Record<string, string | number>>>(
+    (filteredObjects, currentObject) => [
+      ...filteredObjects,
+      {
+        ...Object.entries(currentObject).reduce(
+          (filteredObject, [key, value]) => {
+            if (filterKeys.includes(key)) return filteredObject;
+            return {
+              ...filteredObject,
+              [key]: value,
+            };
+          },
+          {}
+        ),
+      },
+    ],
+    []
   );
-}
+};
 
 function renameHeaderKeys(
   headerRow: string[],
