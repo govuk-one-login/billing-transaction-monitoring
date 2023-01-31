@@ -36,7 +36,7 @@ export const handler = async (event: S3Event): Promise<void> => {
 
     const results = await Promise.allSettled(promises);
     if (results.some((result) => result.status === "rejected")) {
-      console.error(
+      throw new Error(
         `Failed to process all rows: ${
           results.filter((result) => result.status === "rejected").length
         } out of ${results.length} failed`

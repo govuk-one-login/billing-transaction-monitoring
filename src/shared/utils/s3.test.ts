@@ -228,8 +228,8 @@ test("Fetch object with undefined error", async () => {
     },
   } as any);
 
-  await expect(fetchS3(bucket, key)).rejects.toEqual(
-    new Error(`No data found in ${bucket}/${key}`)
+  await expect(fetchS3(bucket, key)).rejects.toThrowError(
+    `No data found in ${bucket}/${key}`
   );
 });
 
