@@ -1,4 +1,4 @@
-import { wait } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { addFauxDataToTestPaths } from "../../src/handlers/int-test-support/helpers/mock-data/csv/addFauxDataToTestPaths";
 import { objectsToCSV } from "../../src/handlers/int-test-support/helpers/mock-data/csv/objectsToCsv";
@@ -6,6 +6,7 @@ import { testPaths } from "../../src/handlers/int-test-support/helpers/mock-data
 import {
   deleteS3Objects,
   getS3Object,
+  listS3Objects,
   putS3Object,
   S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
@@ -42,15 +43,36 @@ describe("\n Given a csv with event data is uploaded to the transaction csv buck
       key: `fakeBillingReport.csv`,
     };
     await putS3Object({ target: testObject, data: Buffer.from(csvString) });
-    await wait(10000); // added implicit wait for the file to be uploaded
   });
 
+  const checkS3BucketForEventIds = async (): Promise<boolean> => {
+    const result = await listS3Objects({
+      bucketName,
+      prefix: folderPrefix,
+    });
+    if (
+      result.Contents === undefined ||
+      result.Contents.length !==
+        testPaths.filter((data) => data.path === "happy").length
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   it("stores valid events in the storage/btm_transactions/yyyy-mm-dd folder", async () => {
+    const checkEventsExistsInS3 = await waitForTrue(
+      checkS3BucketForEventIds,
+      1000,
+      10000
+    );
+    expect(checkEventsExistsInS3).toBe(true);
     for (let i = 0; i < testPaths.length; i++) {
       const s3Object = await getS3Object({
         bucket: bucketName,
         key: `${folderPrefix}/${"2023-01-01"}/${
-          testPaths[i].eventId as string
+          testPaths[i].eventId 
         }.json`,
       });
 
@@ -68,7 +90,7 @@ describe("\n Given a csv with event data is uploaded to the transaction csv buck
       const s3Object = await getS3Object({
         bucket: bucketName,
         key: `${folderPrefix}/${"2023-01-01"}/${
-          testPaths[i].eventId as string
+          testPaths[i].eventId 
         }.json`,
       });
       if (testPaths[i].path === "sad") {
