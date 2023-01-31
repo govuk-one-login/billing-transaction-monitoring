@@ -34,7 +34,7 @@ Parameters:
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
-  UseTestRole: !Not [!Equals [!Ref TestRoleArn, none]]
+  IsEnvWithAutoTests: !Not [!Equals [!Ref TestRoleArn, none]]
   UsePrivateConfigStack: !Not [!Equals [!Ref PrivateConfigStack, none]]
   IsLocal: !Equals [!Ref Environment, local]
   # This is a workaround for the pipeline in dev being deployed with Environment=build due to hardcoded permissions

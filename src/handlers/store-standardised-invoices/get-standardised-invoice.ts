@@ -11,7 +11,6 @@ import {
   getTaxPayerId,
   getTotal,
   getUnitPrice,
-  getVendorName,
 } from "./field-utils";
 
 export interface StandardisedLineItem {
@@ -32,7 +31,8 @@ export interface StandardisedLineItem {
 }
 
 export const getStandardisedInvoice = (
-  textractPages: Textract.ExpenseDocument[]
+  textractPages: Textract.ExpenseDocument[],
+  vendorName: string
 ): StandardisedLineItem[] => {
   const summaryFields = getSummaryFields(textractPages);
 
@@ -41,7 +41,7 @@ export const getStandardisedInvoice = (
 
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
-    vendor_name: getVendorName(summaryFields),
+    vendor_name: vendorName,
     total: getTotal(summaryFields),
     invoice_receipt_date: getInvoiceReceiptDate(summaryFields),
     subtotal: getSubtotal(summaryFields),

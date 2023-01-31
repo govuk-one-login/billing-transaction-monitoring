@@ -28,14 +28,19 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
       for (const record of storageRecords) {
         const bucket = record.s3.bucket.name;
-        const fileName = record.s3.object.key;
+        const filePath = record.s3.object.key;
+
+        // File must be in folder, which determines client ID. Throw error otherwise.
+        const filePathParts = filePath.split("/");
+        if (filePathParts.length < 2)
+          throw Error(`File not in client ID folder: ${bucket}/${filePath}`);
 
         // Define params for Textract API call
         const params: AWS.Textract.StartExpenseAnalysisRequest = {
           DocumentLocation: {
             S3Object: {
               Bucket: bucket,
-              Name: fileName,
+              Name: filePath,
             },
           },
           NotificationChannel: {
@@ -50,7 +55,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         if (textractResponse.JobId === undefined) {
           throw new Error("Textract error");
         }
-        console.log("Filename:", fileName);
+        console.log("File path:", filePath);
         console.log("Job ID:", textractResponse.JobId);
       }
     } catch (e) {
