@@ -5,38 +5,24 @@ import {
   getInvoiceReceiptId,
   getItemDescription,
   getPrice,
-  getQuantity,
   getSubtotal,
   getTax,
   getTaxPayerId,
   getTotal,
   getUnitPrice,
-} from "./field-utils";
+} from "../field-utils";
+import {
+  StandardisationModule,
+  StandardisedLineItem,
+} from "./get-standardised-invoice";
 
-export interface StandardisedLineItem {
-  invoice_receipt_id: string;
-  vendor_name?: string;
-  total: number;
-  invoice_receipt_date: string;
-  subtotal?: number;
-  due_date?: string;
-  tax?: number;
-  tax_payer_id?: string;
-  item_id?: number;
-  item_description?: string;
-  service_name?: string;
-  unit_price?: number;
-  quantity?: number;
-  price?: number;
-}
-
-export const getStandardisedInvoice = (
+// To do: replace with useful invoice standardiser, and add unit tests (Jira: BTM-349)
+export const getStandardisedInvoice0: StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
   vendorName: string
 ): StandardisedLineItem[] => {
   const summaryFields = getSummaryFields(textractPages);
 
-  // To do: get line items another way, at least when not found this way (Jira: BTM-161)
   const lineItems = getLineItems(textractPages);
 
   const summary = {
@@ -57,7 +43,7 @@ export const getStandardisedInvoice = (
       ...summary,
       item_description: getItemDescription(itemFields),
       unit_price: getUnitPrice(itemFields),
-      quantity: getQuantity(itemFields),
+      quantity: 9001, // To do: get real quantity (Jira: BTM-349)
       price: getPrice(itemFields),
     };
   });

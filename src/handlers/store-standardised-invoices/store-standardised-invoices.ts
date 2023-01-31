@@ -1,9 +1,5 @@
 import { SQSRecord } from "aws-lambda";
-import {
-  getS3EventRecords,
-  getVendorServiceConfigRow,
-  putTextS3,
-} from "../../shared/utils";
+import { getS3EventRecords, putTextS3 } from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 
@@ -34,14 +30,10 @@ export async function storeStandardisedInvoices(
       sourceFilePath
     );
 
-    const { vendor_name: vendorName } = await getVendorServiceConfigRow(
-      configBucket,
-      { client_id: clientId }
-    );
-
-    const standardisedInvoice = getStandardisedInvoice(
+    const standardisedInvoice = await getStandardisedInvoice(
       textractData,
-      vendorName
+      clientId,
+      configBucket
     );
 
     // Convert line items to new-line-separated JSON object text, to work with Glue/Athena.
