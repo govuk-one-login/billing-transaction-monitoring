@@ -1,11 +1,11 @@
 export interface TestPath {
-  entity: string;
-  loa: string;
-  status: string;
-  path: "happy" | "sad";
-  eventId: string;
-  eventName: string;
-  clientId: string;
+  givenEntity: string;
+  givenLoa: string;
+  givenStatus: string;
+  expectedPath: "happy" | "sad";
+  expectedEventId: string;
+  expectedClientId: string;
+  expectedEventName: string;
 }
 
 export type TestPaths = TestPath[];

@@ -25,7 +25,7 @@ const checkS3BucketForEventIds = async (): Promise<boolean> => {
   if (
     result.Contents === undefined ||
     result.Contents.length !==
-      testPaths.filter((data) => data.path === "happy").length
+      testPaths.filter((data) => data.expectedPath === "happy").length
   ) {
     return false;
   } else {
@@ -44,12 +44,12 @@ describe("\n Given a csv with event data is uploaded to the transaction csv buck
     });
     // Filter and rename data in the test csv
     const csvString = objectsToCSV(augmentedData, {
-      filterKeys: ["path"],
+      filterKeys: ["expectedPath"],
       renameKeys: new Map([
-        ["entity", "Idp Entity Id"],
-        ["loa", "Minimum Level Of Assurance"],
-        ["status", "Billable Status"],
-        ["eventId", "Request Id"],
+        ["givenEntity", "Idp Entity Id"],
+        ["givenLoa", "Minimum Level Of Assurance"],
+        ["givenStatus", "Billable Status"],
+        ["expectedEventId", "Request Id"],
       ]),
     });
     // Upload the csv file to S3 transaction csv bucket
@@ -70,14 +70,16 @@ describe("\n Given a csv with event data is uploaded to the transaction csv buck
     for (let i = 0; i < testPaths.length; i++) {
       const s3Object = await getS3Object({
         bucket: bucketName,
-        key: `${folderPrefix}/${"2023-01-01"}/${testPaths[i].eventId}.json`,
+        key: `${folderPrefix}/${"2023-01-01"}/${
+          testPaths[i].expectedEventId
+        }.json`,
       });
 
-      if (testPaths[i].path === "happy" && s3Object !== undefined) {
+      if (testPaths[i].expectedPath === "happy" && s3Object !== undefined) {
         const s3Event: TransactionEventBodyObject = JSON.parse(s3Object);
-        expect(s3Event.client_id).toEqual(testPaths[i].clientId);
-        expect(s3Event.event_id).toEqual(testPaths[i].eventId);
-        expect(s3Event.event_name).toEqual(testPaths[i].eventName);
+        expect(s3Event.client_id).toEqual(testPaths[i].expectedClientId);
+        expect(s3Event.event_id).toEqual(testPaths[i].expectedEventId);
+        expect(s3Event.event_name).toEqual(testPaths[i].expectedEventName);
       }
     }
   });
@@ -86,9 +88,11 @@ describe("\n Given a csv with event data is uploaded to the transaction csv buck
     for (let i = 0; i < testPaths.length; i++) {
       const s3Object = await getS3Object({
         bucket: bucketName,
-        key: `${folderPrefix}/${"2023-01-01"}/${testPaths[i].eventId}.json`,
+        key: `${folderPrefix}/${"2023-01-01"}/${
+          testPaths[i].expectedEventId
+        }.json`,
       });
-      if (testPaths[i].path === "sad") {
+      if (testPaths[i].expectedPath === "sad") {
         expect(s3Object).toEqual("NoSuchKey");
       }
     }
