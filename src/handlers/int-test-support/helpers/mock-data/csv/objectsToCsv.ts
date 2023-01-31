@@ -7,10 +7,16 @@ type ObjectsToCSV = (
   options?: ObjectsToCSVOptions
 ) => string;
 
-export const objectsToCSV: ObjectsToCSV = (objects, options) => {
+export const objectsToCSV: ObjectsToCSV = (
+  objects,
+  { filterKeys = [], renameKeys = new Map() } = {
+    filterKeys: [],
+    renameKeys: new Map(),
+  }
+) => {
   // Filter objects with given keys
+  const filteredObjects = redactKeys(objects, filterKeys);
 
-  const filteredObjects = redactKeys(objects, options?.filterKeys);
   // Set up header row
   const csvData = [];
   const headerRow = Array.from(
@@ -18,17 +24,13 @@ export const objectsToCSV: ObjectsToCSV = (objects, options) => {
   );
 
   // Rename header row items with given dictionary
-  if (options?.renameKeys !== undefined) {
-    csvData.push(renameHeaderKeys(headerRow, options?.renameKeys));
-  } else {
-    csvData.push(headerRow);
-  }
+  csvData.push(renameHeaderKeys(headerRow, renameKeys));
 
   // Build CSV String
-  for (let i = 0; i < filteredObjects.length; i++) {
+  for (const object of filteredObjects) {
     const row = [];
-    for (let j = 0; j < headerRow.length; j++) {
-      row.push(filteredObjects[i][headerRow[j]]);
+    for (const header of headerRow) {
+      row.push(`${object[header]}`);
     }
     csvData.push(row);
   }
@@ -37,7 +39,7 @@ export const objectsToCSV: ObjectsToCSV = (objects, options) => {
 
 const redactKeys = (
   objects: Array<Record<string, string | number>>,
-  filterKeys: string[] = []
+  filterKeys: string[]
 ): Array<Record<string, string | number>> => {
   return objects.reduce<Array<Record<string, string | number>>>(
     (filteredObjects, currentObject) => [
@@ -59,17 +61,12 @@ const redactKeys = (
   );
 };
 
-function renameHeaderKeys(
+const renameHeaderKeys = (
   headerRow: string[],
   renameKeys: Map<string, string>
-): string[] {
-  const renamedHeaderRow: string[] = [];
-  for (let i = 0; i < headerRow.length; i++) {
-    if (renameKeys.get(headerRow[i]) === undefined) {
-      renamedHeaderRow.push(headerRow[i]);
-    } else {
-      renamedHeaderRow.push(renameKeys.get(headerRow[i]) as string);
-    }
-  }
-  return renamedHeaderRow;
-}
+): string[] => {
+  return headerRow.map((header) => {
+    if (renameKeys.has(header)) return renameKeys.get(header) as string;
+    return header;
+  });
+};
