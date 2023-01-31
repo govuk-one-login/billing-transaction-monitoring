@@ -5,7 +5,6 @@ import { transformCsvToJson } from "./transform-csv-to-json";
 import { processRow } from "./process-row";
 
 export const handler = async (event: S3Event): Promise<void> => {
-  console.log("**event=", event);
   const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
   const configBucket = process.env.CONFIG_BUCKET;
 
@@ -26,7 +25,6 @@ export const handler = async (event: S3Event): Promise<void> => {
     ]).then((results) => results.map((result) => JSON.parse(result)));
 
     const rows = await transformCsvToJson(event);
-    console.log("**rows=", rows);
 
     // Transform data and send to SQS
 
