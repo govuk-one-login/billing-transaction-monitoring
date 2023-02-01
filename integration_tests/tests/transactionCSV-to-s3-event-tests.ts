@@ -11,8 +11,6 @@ import {
   S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
-import { TransactionEventBodyObject } from "../../src/handlers/transaction-csv-to-json-event/process-row";
-
 const prefix = resourcePrefix();
 const folderPrefix = "btm_transactions";
 const bucketName = `${prefix}-storage`;
@@ -76,7 +74,7 @@ describe("\n Given a csv with event data is uploaded to the transaction csv buck
       });
 
       if (testCases[i].expectedPath === "happy" && s3Object !== undefined) {
-        const s3Event: TransactionEventBodyObject = JSON.parse(s3Object);
+        const s3Event = JSON.parse(s3Object);
         expect(s3Event.client_id).toEqual(testCases[i].expectedClientId);
         expect(s3Event.event_id).toEqual(testCases[i].expectedEventId);
         expect(s3Event.event_name).toEqual(testCases[i].expectedEventName);
