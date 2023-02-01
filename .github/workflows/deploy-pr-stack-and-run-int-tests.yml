@@ -1,0 +1,58 @@
+name: When opening a pull-request, deploy a PR stack and run integration tests
+
+on:
+  push:
+    branches:
+      - '*'
+
+env:
+  AWS_REGION: eu-west-2
+
+jobs:
+  Deploy:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm test
+      #      - name: Build lambdas
+      #        run: npm run build
+      #      - name: SAM setup
+      #        uses: aws-actions/setup-sam@v2
+      #        with:
+      #          version: 1.59.0
+      #      - name: Merge template files into template.yaml
+      #        run: npm run build:template
+      #      - name: Check for potential CloudFormation security issues
+      #        uses: bridgecrewio/checkov-action@master
+      #        with:
+      #          file: template.yaml
+      #          framework: cloudformation
+      #          quiet: true
+      #          soft_fail: false
+      #      - name: SAM build & test
+      #        run: sam build
+      - name: Assume AWS role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
+      #      - name: SAM validate
+      #        run: sam validate
+      #      - name: SAM deploy
+      #        uses: alphagov/di-devplatform-upload-action@v3
+      #        with:
+      #          artifact-bucket-name: ${{ secrets.DEV_ARTIFACT_BUCKET_NAME }}
+      #          signing-profile-name: ${{ secrets.DEV_SIGNING_PROFILE_NAME }}
+      #          working-directory: .
+      - name: Run integration tests
+        env:
+          ENV_NAME: dev
+        run: npm run test:integration
