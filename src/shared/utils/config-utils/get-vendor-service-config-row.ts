@@ -1,6 +1,6 @@
 import getCsvConverter from "csvtojson";
-import { VENDOR_SERVICE_CONFIG_PATH } from "../constants";
-import { fetchS3 } from "./s3";
+import { VENDOR_SERVICE_CONFIG_PATH } from "../../constants";
+import { fetchS3 } from "../s3";
 
 export interface VendorServiceConfigRow {
   vendor_name: string;

@@ -115,7 +115,7 @@ Resources:
                 - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
             - Effect: Allow
               Action: s3:GetObject
-              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/vendor_services/*
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
       ReservedConcurrentExecutions: 10
 
   StandardisedInvoiceStorageFunctionAlarm:
