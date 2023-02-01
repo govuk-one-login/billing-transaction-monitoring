@@ -19,7 +19,7 @@ export async function sendRecord(
   return await sqs
     .send(params)
     .then((data) => {
-      console.log("SQS data", data);
+      console.log("SQS data", data.$metadata);
     })
     .catch((err) => {
       console.log(err, err.stack);

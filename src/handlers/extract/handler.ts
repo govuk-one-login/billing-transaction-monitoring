@@ -22,8 +22,6 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
   const promises = event.Records.map(async (record) => {
     try {
-      console.log("Event body:", record.body);
-
       const storageRecords = getS3EventRecordsFromSqs(record);
 
       for (const record of storageRecords) {
@@ -55,8 +53,6 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         if (textractResponse.JobId === undefined) {
           throw new Error("Textract error");
         }
-        console.log("File path:", filePath);
-        console.log("Job ID:", textractResponse.JobId);
       }
     } catch (e) {
       console.log(e);

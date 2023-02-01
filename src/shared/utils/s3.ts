@@ -116,7 +116,7 @@ const send = async <T extends ServiceInputTypes, U extends ServiceOutputTypes>(
   await s3
     .send(command)
     .then((data) => {
-      console.log(data);
+      console.log(data.$metadata);
       return data;
     })
     .catch((err) => {
