@@ -44,7 +44,6 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
       1000,
       35000
     );
-    console.log(textractFilteredObject);
     expect(textractFilteredObject).toBe(true);
 
     const checkStandardisedFileContainsExpectedFieldsFromOriginalPdf =
@@ -97,7 +96,7 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
   });
 });
 
-describe("\n Unappy path - Upload invalid pdf to the raw invoice pdf bucket test\n", () => {
+describe("\n Unhappy path - Upload invalid pdf to the raw invoice pdf bucket test\n", () => {
   const uniqueString = Math.random().toString(36).substring(2, 7);
   const rawInvoice: S3Object = {
     bucket: `${prefix}-raw-invoice-pdf`,
@@ -105,7 +104,7 @@ describe("\n Unappy path - Upload invalid pdf to the raw invoice pdf bucket test
   };
 
   test("should move the original raw invoice to failed folder in s3 raw-invoice-pdf bucket upon uploading the invalid pdf file ", async () => {
-    const file = "../payloads/invalidFiletoTestTextractFailure.pdf";
+    const file = "../payloads/invalidFileToTestTextractFailure.pdf";
     const filename = path.join(__dirname, file);
     const fileData = fs.readFileSync(filename);
 
@@ -154,7 +153,6 @@ const getS3FileContentsBasedOnLastModified = async (
       new Date(item.LastModified) >= newerThan
     );
   });
-  console.log("Files", s3ContentsFilteredByTestStartTime);
   const filePromises = s3ContentsFilteredByTestStartTime.map(async ({ Key }) =>
     Key === undefined
       ? undefined

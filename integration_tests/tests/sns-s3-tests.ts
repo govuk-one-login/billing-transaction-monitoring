@@ -20,8 +20,6 @@ let snsResponse: PublishResponse;
 const storageBucket: string = `${resourcePrefix()}-storage`;
 const objectsPrefix = "btm_transactions";
 
-console.log(storageBucket);
-
 const checkS3BucketForEventId = async (
   eventIdString: string,
   timeoutMs: number
