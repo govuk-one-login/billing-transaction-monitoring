@@ -14,7 +14,7 @@ describe("Filter handler tests", () => {
   const oldConsoleLog = console.log;
 
   beforeEach(() => {
-    process.env = { ...OLD_ENV };
+    process.env = { ...OLD_ENV, CONFIG_BUCKET: "given config bucket" };
     console.error = jest.fn();
     console.log = jest.fn();
     mockedSendRecord.mockClear();
@@ -27,23 +27,21 @@ describe("Filter handler tests", () => {
     console.log = oldConsoleLog;
   });
 
+  test("Filter handler with no config bucket set", async () => {
+    const event = createEvent([]);
+    delete process.env.CONFIG_BUCKET;
+    await expect(handler(event)).rejects.toThrowError("Config Bucket not set.");
+  });
+
   test("Filter handler with empty event batch", async () => {
     const event = createEvent([]);
-
     await handler(event);
-
     expect(mockedSendRecord).not.toHaveBeenCalled();
   });
 
   test("Filter handler with some valid events and some ignored", async () => {
-    const validRecord1 = createEventRecordWithName(
-      "EVENT_1",
-      1
-    );
-    const validRecord2 = createEventRecordWithName(
-      "EVENT_5",
-      2
-    );
+    const validRecord1 = createEventRecordWithName("EVENT_1", 1);
+    const validRecord2 = createEventRecordWithName("EVENT_5", 2);
     const ignoredRecord = createEventRecordWithName(
       "SOME_IGNORED_EVENT_NAME",
       3
@@ -68,10 +66,7 @@ describe("Filter handler tests", () => {
   test("SQS output queue not defined", async () => {
     process.env.OUTPUT_QUEUE_URL = undefined;
 
-    const validRecord = createEventRecordWithName(
-      "EVENT_1",
-      1
-    );
+    const validRecord = createEventRecordWithName("EVENT_1", 1);
 
     const event = createEvent([validRecord]);
 
@@ -81,14 +76,8 @@ describe("Filter handler tests", () => {
   });
 
   test("Failing send message", async () => {
-    const validRecord = createEventRecordWithName(
-      "EVENT_1",
-      1
-    );
-    const invalidRecord = createEventRecordWithName(
-      "EVENT_5",
-      2
-    );
+    const validRecord = createEventRecordWithName("EVENT_1", 1);
+    const invalidRecord = createEventRecordWithName("EVENT_5", 2);
 
     const event = createEvent([validRecord, invalidRecord]);
 

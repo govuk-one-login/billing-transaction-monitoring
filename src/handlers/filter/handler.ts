@@ -5,6 +5,11 @@ import { sendRecord } from "../../shared/utils";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   const response: Response = { batchItemFailures: [] };
+  const configBucket = process.env.CONFIG_BUCKET;
+
+  if (configBucket === undefined || configBucket.length === 0) {
+    throw new Error("Config Bucket not set.");
+  }
 
   const promises = event.Records.filter((record) => {
     const body = JSON.parse(record.body);

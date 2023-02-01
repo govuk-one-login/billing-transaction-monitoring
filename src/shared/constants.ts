@@ -1,9 +1,9 @@
-import { ValidEventName, ValidTextractJobStatus } from "./types";
+import { ValidTextractJobStatus } from "./types";
 
 export const RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE = "failed";
 export const RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS = "successful";
 
-export const VALID_EVENT_NAMES = new Set<ValidEventName>([
+export const VALID_EVENT_NAMES = new Set<string>([
   "EVENT_1",
   "EVENT_2",
   "EVENT_3",

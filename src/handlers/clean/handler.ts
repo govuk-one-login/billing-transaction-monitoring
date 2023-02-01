@@ -1,13 +1,13 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { VALID_EVENT_NAMES } from "../../shared/constants";
-import { Response, ValidEventName } from "../../shared/types";
+import { Response } from "../../shared/types";
 import { sendRecord } from "../../shared/utils";
 
 interface CleanedEventBodyObject {
   client_id?: string;
   component_id: string;
   event_id?: string;
-  event_name: ValidEventName;
+  event_name: string;
   extensions?: {
     iss?: string;
   };
