@@ -19,6 +19,7 @@ import { createInvoiceInS3 } from "./helpers/mock-data/invoice/helpers";
 
 export interface TestSupportEvent {
   environment: string;
+  config: string;
   command: string;
   parameters: any;
 }
@@ -62,6 +63,7 @@ export const handler = async (
   console.log("Context", context);
 
   process.env.ENV_NAME = event.environment;
+  process.env.CONFIG_NAME = event.config;
 
   const retVal = await callFunction(event.command, event.parameters);
 

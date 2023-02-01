@@ -32,6 +32,7 @@ describe("Handler test for integration test support function", () => {
   test("Input event with getS3Object command calls getS3Object function with given parameters", async () => {
     inputEvent = {
       environment: "test-env",
+      config: "test-config",
       command: "getS3Object",
       parameters: { some: "parameter" },
     };
@@ -46,6 +47,7 @@ describe("Handler test for integration test support function", () => {
   test("Input event with listS3Objects command calls listS3Objects function with given parameters", async () => {
     inputEvent = {
       environment: "test-env",
+      config: "test-config",
       command: "listS3Objects",
       parameters: { some: "parameter" },
     };
@@ -60,6 +62,7 @@ describe("Handler test for integration test support function", () => {
   test("Input event with unknown command results in error", async () => {
     inputEvent = {
       environment: "test-env",
+      config: "test-config",
       command: "someUnknownCommand",
       parameters: { some: "parameter" },
     };

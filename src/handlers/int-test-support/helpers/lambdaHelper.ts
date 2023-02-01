@@ -1,7 +1,7 @@
 import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
-import { envName, resourcePrefix } from "./envHelper";
+import { configName, envName, resourcePrefix } from "./envHelper";
 
 export const sendLambdaCommand = async (
   command: string,
@@ -12,7 +12,12 @@ export const sendLambdaCommand = async (
     InvocationType: "RequestResponse",
     LogType: "Tail",
     Payload: fromUtf8(
-      JSON.stringify({ environment: envName(), command, parameters })
+      JSON.stringify({
+        environment: envName(),
+        config: configName(),
+        command,
+        parameters,
+      })
     ),
   };
 

@@ -1,9 +1,6 @@
 name: Unit Tests
 
 on:
-  schedule:
-    # Every day, 3 times daily, at 9AM, 1PM and 4PM.
-    - cron: '0 9,13,16 * * 1-5'
   push:
     branches:
       - main
