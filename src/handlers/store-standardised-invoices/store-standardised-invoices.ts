@@ -1,5 +1,5 @@
 import { SQSRecord } from "aws-lambda";
-import { getS3EventRecords, putTextS3 } from "../../shared/utils";
+import { getS3EventRecordsFromSqs, putTextS3 } from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 
@@ -9,7 +9,7 @@ export async function storeStandardisedInvoices(
   destinationFolder: string,
   configBucket: string
 ): Promise<void> {
-  const storageRecords = getS3EventRecords(queueRecord);
+  const storageRecords = getS3EventRecordsFromSqs(queueRecord);
 
   const promises = storageRecords.map(async (storageRecord) => {
     const sourceBucket = storageRecord.s3.bucket.name;

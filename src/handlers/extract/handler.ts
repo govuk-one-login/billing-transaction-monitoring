@@ -1,7 +1,7 @@
 import * as AWS from "aws-sdk";
 import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { getS3EventRecords } from "../../shared/utils";
+import { getS3EventRecordsFromSqs } from "../../shared/utils";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   // Set Up
@@ -24,7 +24,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     try {
       console.log("Event body:", record.body);
 
-      const storageRecords = getS3EventRecords(record);
+      const storageRecords = getS3EventRecordsFromSqs(record);
 
       for (const record of storageRecords) {
         const bucket = record.s3.bucket.name;

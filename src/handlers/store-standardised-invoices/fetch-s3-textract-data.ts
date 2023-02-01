@@ -7,8 +7,6 @@ export const fetchS3TextractData = async (
 ): Promise<Textract.ExpenseDocument[]> => {
   const text = await fetchS3(bucket, key);
 
-  if (text === undefined) throw new Error("No Textract data.");
-
   let documents;
   try {
     documents = JSON.parse(text);

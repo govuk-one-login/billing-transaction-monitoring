@@ -13,8 +13,20 @@ Resources:
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaBasicExecutionRole
-        - AmazonS3FullAccess
         - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+                - s3:AbortMultipartUpload
+                - s3:PutObject
+                - s3:DeleteObject
+              Resource:
+                - !Sub arn:aws:s3:::${AWS::StackName}*
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}*
             - Effect: Allow
               Action:
                 - kms:Decrypt
