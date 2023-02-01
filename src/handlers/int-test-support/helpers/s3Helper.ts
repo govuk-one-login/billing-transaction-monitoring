@@ -128,7 +128,6 @@ const copyObject = async (
     Key: destination.key,
   };
 
-  console.log(bucketParams);
   return await s3Client.send(new CopyObjectCommand(bucketParams));
 };
 
