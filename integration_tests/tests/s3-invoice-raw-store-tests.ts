@@ -104,7 +104,7 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice pdf bucket tes
   };
 
   test("should move the original raw invoice to failed folder in s3 raw-invoice-pdf bucket upon uploading the invalid pdf file ", async () => {
-    const file = "../payloads/invalidFileToTestTextractFailure.pdf";
+    const file = "../payloads/invalidFiletoTestTextractFailure.pdf";
     const filename = path.join(__dirname, file);
     const fileData = fs.readFileSync(filename);
 
