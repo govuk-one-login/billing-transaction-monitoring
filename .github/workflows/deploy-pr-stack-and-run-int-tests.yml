@@ -1,21 +1,23 @@
-name: When opening a pull-request, deploy a PR stack and run integration tests
+name: When opening a pull-request, deploy a PR cloudformation stack and run integration tests
 
 on:
-  push:
-    branches:
-      - '*'
+  pull_request:
+    types:
+      - opened
+      - reopened
+    branches-ignore:
+      - 'no-int-test/**'
 
 env:
   AWS_REGION: eu-west-2
+  ENV_NAME: pr-${{ github.event.pull_request.number }}
 
 jobs:
-  Deploy:
+  run-integration-tests:
     permissions:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    env:
-      ENV_NAME: pr-123
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3

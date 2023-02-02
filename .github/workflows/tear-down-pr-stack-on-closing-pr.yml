@@ -1,0 +1,33 @@
+name: When closing a pull-request, tear down the associated PR cloudformation stack
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches-ignore:
+      - 'no-int-test/**'
+
+env:
+  AWS_REGION: eu-west-2
+  ENV_NAME: pr-${{ github.event.pull_request.number }}
+
+jobs:
+  run-integration-tests:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - name: Assume AWS role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
+      - name: Tear down Cloudformation stack
+        run: npm run sam:teardown
