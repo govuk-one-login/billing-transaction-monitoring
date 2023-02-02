@@ -3,6 +3,8 @@ import { VALID_EVENT_NAMES } from "../../shared/constants";
 import { Response } from "../../shared/types";
 import { sendRecord } from "../../shared/utils";
 
+// testing key signing
+
 export const handler = async (event: SQSEvent): Promise<Response> => {
   const response: Response = { batchItemFailures: [] };
 
