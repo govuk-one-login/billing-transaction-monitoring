@@ -1,11 +1,6 @@
 import getCsvConverter from "csvtojson";
-import { VENDOR_SERVICE_CONFIG_PATH } from "../../constants";
 import { fetchS3 } from "../s3";
-import {
-  getVendorServiceConfigRow,
-  setVendorServiceConfig,
-  VendorServiceConfigRow,
-} from "./get-vendor-service-config-row";
+import { VendorServiceConfigRow } from "./fetch-vendor-service-config";
 
 jest.mock("csvtojson");
 const mockedGetCsvConverter = getCsvConverter as jest.Mock;
@@ -34,7 +29,6 @@ describe("Fetch Vendor Service Config", () => {
   let mockedVendorName2ServiceConfigRow: VendorServiceConfigRow;
   let mockedVendorServiceConfig: VendorServiceConfigRow[];
   let mockedVendorServiceConfigText: string;
-  let givenConfigBucket: string;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -60,8 +54,6 @@ describe("Fetch Vendor Service Config", () => {
     mockedCsvConverterFromString = jest.fn(() => mockedVendorServiceConfig);
     mockedCsvConverter = { fromString: mockedCsvConverterFromString };
     mockedGetCsvConverter.mockReturnValue(mockedCsvConverter);
-
-    givenConfigBucket = "given config bucket";
   });
 
   test("Throws error if no vendor service config found", async () => {});

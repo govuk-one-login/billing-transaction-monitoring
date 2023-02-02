@@ -1,15 +1,10 @@
-import { fetchVendorServiceConfig } from "./fetch-vendor-service-config";
+import {
+  fetchVendorServiceConfig,
+  VendorServiceConfig,
+  VendorServiceConfigRow,
+} from "./fetch-vendor-service-config";
 
-export interface VendorServiceConfigRow {
-  vendor_name: string;
-  vendor_regex: string;
-  client_id: string;
-  service_name: string;
-  service_regex: string;
-  event_name: string;
-}
-
-let vendorServiceConfigPromise: Promise<VendorServiceConfigRow[]> | undefined;
+let vendorServiceConfigPromise: Promise<VendorServiceConfig> | undefined;
 
 export const getVendorServiceConfigRow = async (
   configBucket: string,

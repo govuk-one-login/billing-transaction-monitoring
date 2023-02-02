@@ -1,11 +1,21 @@
 import getCsvConverter from "csvtojson";
 import { VENDOR_SERVICE_CONFIG_PATH } from "../../constants";
 import { fetchS3 } from "../s3";
-import { VendorServiceConfigRow } from "./get-vendor-service-config-row";
+
+export interface VendorServiceConfigRow {
+  vendor_name: string;
+  vendor_regex: string;
+  client_id: string;
+  service_name: string;
+  service_regex: string;
+  event_name: string;
+}
+
+export type VendorServiceConfig = VendorServiceConfigRow[];
 
 export const fetchVendorServiceConfig = async (
   configBucket: string
-): Promise<VendorServiceConfigRow[]> => {
+): Promise<VendorServiceConfig> => {
   const vendorServiceConfigText = await fetchS3(
     configBucket,
     VENDOR_SERVICE_CONFIG_PATH

@@ -1,11 +1,11 @@
 import getCsvConverter from "csvtojson";
 import { VENDOR_SERVICE_CONFIG_PATH } from "../../constants";
 import { fetchS3 } from "../s3";
+import { VendorServiceConfigRow } from "./fetch-vendor-service-config";
 import {
   clearVendorServiceConfig,
   getVendorServiceConfigRow,
   setVendorServiceConfig,
-  VendorServiceConfigRow,
 } from "./get-vendor-service-config-row";
 
 jest.mock("csvtojson");
