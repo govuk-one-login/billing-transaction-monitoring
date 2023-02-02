@@ -1,4 +1,4 @@
-name: When closing a pull-request, tear down the associated PR cloudformation stack
+name: Tear down CF-stack on closing PR
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ env:
   ENV_NAME: pr-${{ github.event.pull_request.number }}
 
 jobs:
-  run-integration-tests:
+  tear-down-cf-stack:
     permissions:
       contents: read
       id-token: write

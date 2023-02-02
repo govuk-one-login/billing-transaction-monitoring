@@ -1,4 +1,4 @@
-name: When opening a pull-request, deploy a PR cloudformation stack and run integration tests
+name: Deploy CF-stack and run integration tests on PR
 
 on:
   pull_request:
@@ -42,9 +42,9 @@ jobs:
           framework: cloudformation
           quiet: true
           soft_fail: false
-      - name: SAM build & test
+      - name: SAM build
         run: sam build
-      - name: Assume AWS role
+      - name: Assume AWS GitHub actions tooling role in dev
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ env.AWS_REGION }}
