@@ -1,4 +1,4 @@
-name: Post-Merge Deploy
+name: Post-merge deploy to dev and build
 
 on:
   push:
@@ -9,7 +9,7 @@ env:
   AWS_REGION: eu-west-2
 
 jobs:
-  Deploy:
+  deploy-to-dev-and-build:
     permissions:
       contents: read
       id-token: write
@@ -20,8 +20,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm ci
-      - run: npm test
+      - name: Install node packages
+        run: npm ci
       - name: Build lambdas
         run: npm run build
       - name: SAM setup
@@ -37,29 +37,29 @@ jobs:
           framework: cloudformation
           quiet: true
           soft_fail: false
-      - name: SAM build & test
+      - name: SAM build
         run: sam build
-      - name: Assume AWS role
+      - name: Assume AWS GitHub actions role in dev account
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_ROLE_ARN }}
       - name: SAM validate
         run: sam validate
-      - name: SAM deploy
+      - name: Trigger secure pipeline deployment to dev account
         uses: alphagov/di-devplatform-upload-action@v3
         with:
           artifact-bucket-name: ${{ secrets.DEV_ARTIFACT_BUCKET_NAME }}
           signing-profile-name: ${{ secrets.DEV_SIGNING_PROFILE_NAME }}
           working-directory: .
-      - name: Assume AWS role
+      - name: Assume AWS GitHub actions role in build account
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.BUILD_GH_ACTIONS_ROLE_ARN }}
       - name: SAM validate
         run: sam validate
-      - name: SAM deploy
+      - name: Trigger secure pipeline deployment to build account
         uses: alphagov/di-devplatform-upload-action@v3
         with:
           artifact-bucket-name: ${{ secrets.BUILD_ARTIFACT_BUCKET_NAME }}

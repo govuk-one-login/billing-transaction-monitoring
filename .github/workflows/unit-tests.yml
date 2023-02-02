@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  Test:
+  run-unit-tests:
     permissions:
       contents: write
       packages: write
