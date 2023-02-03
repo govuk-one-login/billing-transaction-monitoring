@@ -44,7 +44,7 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
     );
   });
 
-  it("stores stores the events we care about in the storage bucket", async () => {
+  it("stores the events we care about in the storage bucket", async () => {
     for (const testCase of testCases) {
       const s3Object = await getS3Object({
         bucket: outputBucket,
