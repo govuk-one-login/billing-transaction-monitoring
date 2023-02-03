@@ -3,7 +3,7 @@ import { VENDOR_SERVICE_CONFIG_PATH } from "../../constants";
 import { fetchS3 } from "../s3";
 import {
   clearVendorServiceConfig,
-  getVendorServiceConfigRow,
+  getMatchingVendorServiceConfigRows,
   setVendorServiceConfig,
   VendorServiceConfigRow,
 } from "./get-vendor-service-config-row";
@@ -71,12 +71,12 @@ describe("Vendor service config getter", () => {
   test("Vendor service config getter with cached config", async () => {
     setVendorServiceConfig(mockedVendorServiceConfig);
 
-    const result = await getVendorServiceConfigRow(
+    const result = await getMatchingVendorServiceConfigRows(
       givenConfigBucket,
       givenFields
     );
-
-    expect(result).toEqual(mockedVendorServiceConfig[0]);
+    console.log(mockedVendorServiceConfig[0])
+    expect(result[0]).toEqual(mockedVendorServiceConfig[0]);
     expect(result).not.toBe(mockedVendorServiceConfig[0]);
     expect(mockedFetchS3).not.toHaveBeenCalled();
     expect(mockedGetCsvConverter).not.toHaveBeenCalled();
@@ -84,12 +84,12 @@ describe("Vendor service config getter", () => {
   });
 
   test("Vendor service config getter with no cached config", async () => {
-    const result = await getVendorServiceConfigRow(
+    const result = await getMatchingVendorServiceConfigRows(
       givenConfigBucket,
       givenFields
     );
 
-    expect(result).toEqual(mockedVendorServiceConfig[0]);
+    expect(result[0]).toEqual(mockedVendorServiceConfig[0]);
     expect(result).not.toBe(mockedVendorServiceConfig[0]);
     expect(mockedFetchS3).toHaveBeenCalledTimes(1);
     expect(mockedFetchS3).toHaveBeenCalledWith(
@@ -111,7 +111,7 @@ describe("Vendor service config getter", () => {
     });
 
     await expect(
-      getVendorServiceConfigRow(givenConfigBucket, givenFields)
+      getMatchingVendorServiceConfigRows(givenConfigBucket, givenFields)
     ).rejects.toThrowError(mockedFetchS3ErrorText);
 
     expect(mockedGetCsvConverter).not.toHaveBeenCalled();
@@ -122,7 +122,7 @@ describe("Vendor service config getter", () => {
     mockedFetchS3.mockReturnValue(undefined);
 
     await expect(
-      getVendorServiceConfigRow(givenConfigBucket, givenFields)
+      getMatchingVendorServiceConfigRows(givenConfigBucket, givenFields)
     ).rejects.toThrowError("No vendor service config found");
 
     expect(mockedGetCsvConverter).not.toHaveBeenCalled();
@@ -136,7 +136,7 @@ describe("Vendor service config getter", () => {
     });
 
     await expect(
-      getVendorServiceConfigRow(givenConfigBucket, givenFields)
+      getMatchingVendorServiceConfigRows(givenConfigBucket, givenFields)
     ).rejects.toThrowError(mockedCsvConverterErrorText);
   });
 
@@ -146,7 +146,7 @@ describe("Vendor service config getter", () => {
     ]);
 
     await expect(
-      getVendorServiceConfigRow(givenConfigBucket, givenFields)
+      getMatchingVendorServiceConfigRows(givenConfigBucket, givenFields)
     ).rejects.toThrowError("Invalid vendor service config");
   });
 
@@ -154,19 +154,18 @@ describe("Vendor service config getter", () => {
     givenFields.vendor_name = "given vendor name with no vendor service config";
 
     await expect(
-      getVendorServiceConfigRow(givenConfigBucket, givenFields)
+      getMatchingVendorServiceConfigRows(givenConfigBucket, givenFields)
     ).rejects.toThrowError("not found");
   });
 
   test("Vendor service config getter with field found", async () => {
     givenFields.vendor_name = mockedVendorName2;
 
-    const result = await getVendorServiceConfigRow(
+    const result = await getMatchingVendorServiceConfigRows(
       givenConfigBucket,
       givenFields
     );
-
-    expect(result).toEqual(mockedVendorName2ServiceConfigRow);
+    expect(result[0]).toEqual(mockedVendorName2ServiceConfigRow);
     expect(result).not.toBe(mockedVendorName2ServiceConfigRow);
   });
 
@@ -179,8 +178,8 @@ describe("Vendor service config getter", () => {
     );
 
     await Promise.all([
-      getVendorServiceConfigRow(givenConfigBucket, givenFields),
-      getVendorServiceConfigRow(givenConfigBucket, givenFields),
+      getMatchingVendorServiceConfigRows(givenConfigBucket, givenFields),
+      getMatchingVendorServiceConfigRows(givenConfigBucket, givenFields),
     ]);
 
     expect(mockedFetchS3).toHaveBeenCalledTimes(1);

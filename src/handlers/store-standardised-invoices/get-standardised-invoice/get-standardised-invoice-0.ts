@@ -1,4 +1,5 @@
 import { Textract } from "aws-sdk";
+import { VendorServiceConfigRow } from "../../../shared/utils/config-utils/get-vendor-service-config-row";
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -19,7 +20,7 @@ import {
 // To do: replace with useful invoice standardiser, and add unit tests (Jira: BTM-349)
 export const getStandardisedInvoice0: StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  vendorName: string
+  vendorServiceConfigRows: VendorServiceConfigRow[]
 ): StandardisedLineItem[] => {
   const summaryFields = getSummaryFields(textractPages);
 
@@ -27,7 +28,7 @@ export const getStandardisedInvoice0: StandardisationModule = (
 
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
-    vendor_name: vendorName,
+    vendor_name: vendorServiceConfigRows[0].vendor_name,
     total: getTotal(summaryFields),
     invoice_receipt_date: getInvoiceReceiptDate(summaryFields),
     subtotal: getSubtotal(summaryFields),
@@ -36,8 +37,21 @@ export const getStandardisedInvoice0: StandardisationModule = (
     tax_payer_id: getTaxPayerId(summaryFields),
   };
 
+  const serviceRegexArray = vendorServiceConfigRows.map(
+    (configLine) => ({
+      serviceRegex: new RegExp(configLine.service_regex),
+      service_name: configLine.service_name,
+    })
+  );
+
+  console.log(serviceRegexArray);
+
   const standardisedLineItems = lineItems.map((item) => {
     const itemFields = item.LineItemExpenseFields ?? [];
+    const itemDescription = getItemDescription(itemFields)?? "";
+    const serviceName = serviceRegexArray.find((serviceMatcher) => {
+      return serviceMatcher.serviceRegex.test(itemDescription);
+    })?.service_name;
 
     return {
       ...summary,
@@ -45,6 +59,7 @@ export const getStandardisedInvoice0: StandardisationModule = (
       unit_price: getUnitPrice(itemFields),
       quantity: 9001, // To do: get real quantity (Jira: BTM-349)
       price: getPrice(itemFields),
+      service_name:serviceName
     };
   });
 

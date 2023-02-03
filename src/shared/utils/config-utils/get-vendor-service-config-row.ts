@@ -13,16 +13,16 @@ export interface VendorServiceConfigRow {
 
 let vendorServiceConfigPromise: Promise<VendorServiceConfigRow[]> | undefined;
 
-export const getVendorServiceConfigRow = async (
+export const getMatchingVendorServiceConfigRows = async (
   configBucket: string,
   fields: Partial<VendorServiceConfigRow>
-): Promise<VendorServiceConfigRow> => {
+): Promise<VendorServiceConfigRow[]> => {
   if (vendorServiceConfigPromise === undefined)
     vendorServiceConfigPromise = fetchVendorServiceConfig(configBucket);
 
   const vendorServiceConfig = await vendorServiceConfigPromise;
 
-  const vendorServiceConfigRow = vendorServiceConfig.find((row) =>
+  const matchingVendorServiceConfigRows = vendorServiceConfig.filter((row) =>
     Object.entries(fields).every(
       ([fieldName, fieldValue]) =>
         fieldValue === undefined ||
@@ -30,10 +30,10 @@ export const getVendorServiceConfigRow = async (
     )
   );
 
-  if (vendorServiceConfigRow === undefined)
+  if (matchingVendorServiceConfigRows.length === 0)
     throw Error("Vendor service config row not found");
 
-  return { ...vendorServiceConfigRow };
+  return matchingVendorServiceConfigRows;
 };
 
 /** Clear cached vendor service config, for testing purposes. */

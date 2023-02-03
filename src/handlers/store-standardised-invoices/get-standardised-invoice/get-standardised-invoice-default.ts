@@ -1,4 +1,5 @@
 import { Textract } from "aws-sdk";
+import { VendorServiceConfigRow } from '../../../shared/utils/config-utils/get-vendor-service-config-row';
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -17,9 +18,9 @@ import {
   StandardisedLineItem,
 } from "./get-standardised-invoice";
 
-export const getStandardisedInvoiceDefault: StandardisationModule = (
+export const getStandardisedInvoiceDefault: StandardisationModule =  (
   textractPages: Textract.ExpenseDocument[],
-  vendorName: string
+  vendorServiceConfigRows: VendorServiceConfigRow[]
 ): StandardisedLineItem[] => {
   const summaryFields = getSummaryFields(textractPages);
 
@@ -28,7 +29,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
 
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
-    vendor_name: vendorName,
+    vendor_name: vendorServiceConfigRows[0].vendor_name,
     total: getTotal(summaryFields),
     invoice_receipt_date: getInvoiceReceiptDate(summaryFields),
     subtotal: getSubtotal(summaryFields),
@@ -37,15 +38,29 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
     tax_payer_id: getTaxPayerId(summaryFields),
   };
 
+  const serviceRegexArray = vendorServiceConfigRows.map(
+    (configLine) => ({
+      serviceRegex: new RegExp(configLine.service_regex),
+      service_name: configLine.service_name,
+    })
+  );
+
+  console.log(serviceRegexArray);
+
   const standardisedLineItems = lineItems.map((item) => {
     const itemFields = item.LineItemExpenseFields ?? [];
+    const itemDescription = getItemDescription(itemFields)?? "";
+    const serviceName = serviceRegexArray.find((serviceMatcher) => {
+      return serviceMatcher.serviceRegex.test(itemDescription);
+    })?.service_name;
 
     return {
       ...summary,
-      item_description: getItemDescription(itemFields),
+      item_description: itemDescription,
       unit_price: getUnitPrice(itemFields),
       quantity: getQuantity(itemFields),
       price: getPrice(itemFields),
+      service_name:serviceName
     };
   });
 

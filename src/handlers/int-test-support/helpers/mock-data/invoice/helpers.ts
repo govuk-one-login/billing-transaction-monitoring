@@ -4,7 +4,7 @@ import { Invoice, makeMockInvoicePDF } from "./invoice";
 import { writeInvoiceToS3 } from "./writers";
 import { configStackName, runViaLambda } from "../../envHelper";
 import { sendLambdaCommand } from "../../lambdaHelper";
-import { getVendorServiceConfigRow } from "../../../../../shared/utils/config-utils";
+import { getMatchingVendorServiceConfigRows } from "../../../../../shared/utils/config-utils";
 
 export const createInvoiceInS3 = async (
   invoiceData: InvoiceData
@@ -17,7 +17,7 @@ export const createInvoiceInS3 = async (
 
   const invoice = new Invoice(invoiceData);
 
-  const { client_id: clientId } = await getVendorServiceConfigRow(
+  const [{client_id:clientId}] = await getMatchingVendorServiceConfigRows(
     configStackName(),
     { vendor_name: invoice.vendor.name }
   );
