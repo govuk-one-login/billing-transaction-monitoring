@@ -13,7 +13,7 @@ const transactionsDirectory = "btm_transactions";
 const outputBucket = `${resourcePrefix()}-storage`;
 const inputBucket = `${resourcePrefix()}-transaction-csv`;
 
-const { testCases, csv } = mockIdpCsvData();
+const { csv, happyPathCount, testCases } = mockIdpCsvData();
 
 describe("Given a csv with event data is uploaded to the transaction csv bucket", () => {
   beforeAll(async () => {
@@ -38,8 +38,16 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
           bucketName: outputBucket,
           prefix: transactionsDirectory,
         }),
-      (result) =>
-        result.Contents?.length !== undefined && result.Contents?.length > 0
+      (result) => {
+        console.log(
+          "🚀 ~ file: transactionCSV-to-s3-event-tests.ts:46 ~ beforeAll ~ result",
+          result
+        );
+        return (
+          result.Contents?.length !== undefined &&
+          result.Contents?.length === happyPathCount
+        );
+      }
     );
   });
 
@@ -53,7 +61,7 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
       });
       switch (testCase.expectedPath) {
         case "happy": {
-          if (s3Object === undefined)
+          if (s3Object === undefined || s3Object === "NoSuchKey")
             throw new Error("No event was made for a happy path");
           const s3Event = JSON.parse(s3Object);
           expect(s3Event.client_id).toEqual(testCase.expectedClientId);

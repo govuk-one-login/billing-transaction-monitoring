@@ -2,7 +2,11 @@ import { augmentTestCases, TestCases } from "./augmentTestCases";
 import { objectsToCSV } from "./objectsToCsv";
 import { testCases } from "./transformCSV-to-event-test-data";
 
-export const mockIdpCsvData = (): { testCases: TestCases; csv: Buffer } => {
+export const mockIdpCsvData = (): {
+  csv: Buffer;
+  happyPathCount: number;
+  testCases: TestCases;
+} => {
   const augmentedData = augmentTestCases(testCases, {
     timestamp: "2023-01-01T00:27:41.186Z",
     givenRPEntityId: "fake rp entity id",
@@ -18,5 +22,8 @@ export const mockIdpCsvData = (): { testCases: TestCases; csv: Buffer } => {
       ["timestamp", "Timestamp"],
     ]),
   });
-  return { testCases, csv: Buffer.from(csvString) };
+  const happyPathCount = testCases.filter(
+    ({ expectedPath }) => expectedPath === "happy"
+  ).length;
+  return { csv: Buffer.from(csvString), happyPathCount, testCases };
 };
