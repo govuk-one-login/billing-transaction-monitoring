@@ -1,4 +1,4 @@
-import { augmentTestCases, TestCases } from "./addFauxDataToTestCases";
+import { augmentTestCases, TestCases } from "./augmentTestCases";
 import { objectsToCSV } from "./objectsToCsv";
 import { testCases } from "./transformCSV-to-event-test-data";
 

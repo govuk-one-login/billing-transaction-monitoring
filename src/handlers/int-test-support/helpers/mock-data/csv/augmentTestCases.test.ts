@@ -1,6 +1,6 @@
-import { addFauxDataToTestCases, TestCases } from "./addFauxDataToTestCases";
+import { augmentTestCases, TestCases } from "./augmentTestCases";
 
-describe("addFauxDataToTestCases", () => {
+describe("augmentTestCases", () => {
   describe("Given an array of test paths and record containing hardcoded data", () => {
     it("merges the hardcoded data into each test path", () => {
       const testCases: TestCases = [
@@ -54,10 +54,7 @@ describe("addFauxDataToTestCases", () => {
           c: "thing3",
         },
       ];
-      const testCasesWithAdditionalData = addFauxDataToTestCases(
-        testCases,
-        fauxData
-      );
+      const testCasesWithAdditionalData = augmentTestCases(testCases, fauxData);
       expect(testCasesWithAdditionalData).toEqual(
         expectedTestCasesWithAdditionalData
       );

@@ -1,4 +1,4 @@
-import { TestCases } from "./addFauxDataToTestCases";
+import { TestCases } from "./augmentTestCases";
 
 export const testCases: TestCases = [
   {
