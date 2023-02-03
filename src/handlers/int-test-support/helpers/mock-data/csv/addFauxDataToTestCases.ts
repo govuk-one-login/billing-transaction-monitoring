@@ -10,15 +10,12 @@ export interface TestCase {
 
 export type TestCases = TestCase[];
 
-type AddFauxDataToTestCases = (
+type AugmentTestCases = (
   testCases: TestCases,
   fauxData: Record<string, string | number>
 ) => Array<Record<string, string | number>>;
 
-export const addFauxDataToTestCases: AddFauxDataToTestCases = (
-  testCases,
-  fauxData
-) => {
+export const augmentTestCases: AugmentTestCases = (testCases, fauxData) => {
   return testCases.map((testCase) => {
     return { ...testCase, ...fauxData };
   });
