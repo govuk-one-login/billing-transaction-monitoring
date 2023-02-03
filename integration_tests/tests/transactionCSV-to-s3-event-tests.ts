@@ -38,16 +38,9 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
           bucketName: outputBucket,
           prefix: transactionsDirectory,
         }),
-      (result) => {
-        console.log(
-          "🚀 ~ file: transactionCSV-to-s3-event-tests.ts:46 ~ beforeAll ~ result",
-          result
-        );
-        return (
-          result.Contents?.length !== undefined &&
-          result.Contents?.length === happyPathCount
-        );
-      }
+      (result) =>
+        result.Contents?.length !== undefined &&
+        result.Contents?.length === happyPathCount
     );
   });
 
