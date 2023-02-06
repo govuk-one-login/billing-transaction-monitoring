@@ -1,0 +1,252 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 131,
+  "iteration": 1675695922079,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "--BnYST4z"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "Invoice: ${__data.fields.Billing Quantity}=£${__data.fields.Billing Price} Expected: ${__data.fields.Transaction Quantity}=£${__data.fields.Transaction Price}",
+              "url": "https://www.google.com/search?q=${__data.fields.Vendor}"
+            }
+          ],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-yellow",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": -1
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Price"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "string"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Difference"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 10,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "links": [],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Price Difference$/",
+          "values": true
+        },
+        "text": {
+          "titleSize": 12
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.4.7",
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "di-btm-dev-calculations",
+            "region": "__default"
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "--BnYST4z"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  CONCAT(month, '/', year) as \"Month\",\n  CAST(billing_price AS double) AS \"Billing Price\",\n  CAST(price_difference_percentage AS double) AS \"Price Difference\",\n  CAST(transaction_price AS double) AS \"Transaction Price\",\n  CAST(billing_quantity AS double) AS \"Billing Quantity\",\n  CAST(quantity_difference_percentage AS double) AS \"Quantity Difference\",\n  CAST(transaction_quantity AS double) AS \"Transaction Quantity\"\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name,year,month",
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "concatenate",
+          "options": {}
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 0,
+        "y": 7
+      },
+      "id": 4,
+      "options": {
+        "content": "<span style=\"color:red\">Red</span> - Above 1%<br>\n<span style=\"color:green\">Green</span> - Less than or equal to 1%<br>\n",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.4.7",
+      "title": "Legend",
+      "type": "text"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 35,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": "",
+        "current": {
+          "selected": false,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "grafana-athena-datasource",
+          "uid": "--BnYST4z"
+        },
+        "definition": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Vendor",
+        "multi": true,
+        "name": "vendorNames",
+        "options": [],
+        "query": {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "di-btm-dev-calculations",
+            "region": "__default"
+          },
+          "format": 1,
+          "rawSQL": "SELECT vendor_name FROM \"btm_billing_and_transactions_curated\" ORDER BY vendor_name ASC ",
+          "table": "btm_billing_and_transactions_curated"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "2023/02",
+          "value": "2023/02"
+        },
+        "datasource": {
+          "type": "grafana-athena-datasource",
+          "uid": "--BnYST4z"
+        },
+        "definition": "",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Date",
+        "multi": false,
+        "name": "yearMonth",
+        "options": [],
+        "query": {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "di-btm-dev-calculations",
+            "region": "__default"
+          },
+          "format": 1,
+          "rawSQL": "SELECT DISTINCT CONCAT(year, '/', month) as yearMonth FROM \"btm_billing_curated\" ORDER BY yearMonth ASC",
+          "table": "btm_billing_curated"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "hidden": true
+  },
+  "timezone": "",
+  "title": "Billing Reconciliation Dashbaord - PreProd",
+  "version": 18,
+  "weekStart": ""
+}
