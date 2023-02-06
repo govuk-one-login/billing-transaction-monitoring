@@ -1,64 +1,45 @@
-import getCsvConverter from "csvtojson";
 import { fetchS3 } from "../s3";
-import { VendorServiceConfigRow } from "./fetch-vendor-service-config";
-
-jest.mock("csvtojson");
-const mockedGetCsvConverter = getCsvConverter as jest.Mock;
+import { fetchVendorServiceConfig } from "./fetch-vendor-service-config";
 
 jest.mock("../s3");
 const mockedFetchS3 = fetchS3 as jest.Mock;
 
-const mockVendorServiceConfigRow = (
-  fields: Partial<VendorServiceConfigRow>
-): VendorServiceConfigRow => ({
-  vendor_name: "mocked vendor name",
-  vendor_regex: "mocked vendor regular expression",
-  client_id: "mocked client ID",
-  service_name: "mocked service name",
-  service_regex: "mocked service regular expression",
-  event_name: "mocked event name",
-  ...fields,
-});
-
-describe("Fetch Vendor Service Config", () => {
-  let mockedCsvConverter: any;
-  let mockedCsvConverterFromString: jest.Mock;
-  let mockedVendorName1: string;
-  let mockedVendorName1ServiceConfigRow: VendorServiceConfigRow;
-  let mockedVendorName2: string;
-  let mockedVendorName2ServiceConfigRow: VendorServiceConfigRow;
-  let mockedVendorServiceConfig: VendorServiceConfigRow[];
-  let mockedVendorServiceConfigText: string;
-
-  beforeEach(() => {
-    jest.resetAllMocks();
-
-    mockedVendorServiceConfigText = "mocked vendor service config text";
-    mockedFetchS3.mockReturnValue(mockedVendorServiceConfigText);
-
-    mockedVendorName1 = "mocked vendor name 1";
-    mockedVendorName1ServiceConfigRow = mockVendorServiceConfigRow({
-      vendor_name: mockedVendorName1,
-    });
-
-    mockedVendorName2 = "mocked vendor name 2";
-    mockedVendorName2ServiceConfigRow = mockVendorServiceConfigRow({
-      vendor_name: mockedVendorName2,
-    });
-
-    mockedVendorServiceConfig = [
-      mockedVendorName1ServiceConfigRow,
-      mockedVendorName2ServiceConfigRow,
-    ];
-
-    mockedCsvConverterFromString = jest.fn(() => mockedVendorServiceConfig);
-    mockedCsvConverter = { fromString: mockedCsvConverterFromString };
-    mockedGetCsvConverter.mockReturnValue(mockedCsvConverter);
+describe("fetchVendorServiceConfig", () => {
+  it("Returns the vendor service config as json", async () => {
+    mockedFetchS3.mockReturnValueOnce(
+      "vendor_name,vendor_regex,client_id,service_name,service_regex,event_name\nBilly Mitchell LLC,billy mitchell,vendor_billy,Lying About Speedruns,lying about speedruns,donkey_kong\nNito's Bone Zone,bone zone,vendor_nito,Sword dances,sword dance,sword_dance"
+    );
+    const vendorServiceConfig = await fetchVendorServiceConfig("bucket");
+    expect(vendorServiceConfig).toEqual([
+      {
+        vendor_name: "Billy Mitchell LLC",
+        vendor_regex: "billy mitchell",
+        client_id: "vendor_billy",
+        service_name: "Lying About Speedruns",
+        service_regex: "lying about speedruns",
+        event_name: "donkey_kong",
+      },
+      {
+        vendor_name: "Nito's Bone Zone",
+        vendor_regex: "bone zone",
+        client_id: "vendor_nito",
+        service_name: "Sword dances",
+        service_regex: "sword dance",
+        event_name: "sword_dance",
+      },
+    ]);
   });
-
-  test("Throws error if no vendor service config found", async () => {});
-
-  test("Throws error if vendor service config is not valid", async () => {});
-
-  test("Converts CSV to Json", async () => {});
+  describe("If vendor service config is not valid", () => {
+    it("Throws an error", async () => {
+      mockedFetchS3.mockReturnValueOnce(
+        "vendor_name,vendor_regex,client_id,service_shame,service_regex,event_name\nBilly Mitchell LLC,billy mitchell,vendor_billy,Lying About Speedruns,lying about speedruns,donkey_kong\nNito's Bone Zone,bone zone,vendor_nito,Sword dances,sword dance,sword_dance"
+      );
+      try {
+        await fetchVendorServiceConfig("bucket");
+      } catch (error) {
+        expect(error).toBe("Invalid vendor service config");
+      }
+      expect.hasAssertions();
+    });
+  });
 });

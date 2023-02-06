@@ -21,11 +21,7 @@ export const fetchVendorServiceConfig = async (
     VENDOR_SERVICE_CONFIG_PATH
   );
 
-  if (vendorServiceConfigText === undefined)
-    throw Error("No vendor service config found");
-
   const csvConverter = getCsvConverter();
-
   const vendorServiceConfig = await csvConverter.fromString(
     vendorServiceConfigText
   );
