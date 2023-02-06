@@ -40,7 +40,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule =  (
 
   const serviceRegexArray = vendorServiceConfigRows.map(
     (configLine) => ({
-      serviceRegex: new RegExp(configLine.service_regex),
+      serviceRegex: new RegExp(configLine.service_regex,"i"),
       service_name: configLine.service_name,
     })
   );
