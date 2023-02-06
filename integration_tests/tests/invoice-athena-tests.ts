@@ -1,10 +1,8 @@
 import {
   BillingStandardised,
-  checkIfS3ObjectExists,
+  checkS3BucketNotEmpty,
   deleteS3Objects,
   getS3ObjectsAsArray,
-  listS3Objects,
-  S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
@@ -13,7 +11,6 @@ import {
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
 
 import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
-import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { randomInvoice } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 
 const prefix = resourcePrefix();
@@ -24,19 +21,6 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
   const bucket = `${prefix}-storage`
   const databaseName = `${prefix}-calculations`;
 
-  const checkS3FolderNotEmpty = async (): Promise<boolean> => {
-    const result = await listS3Objects({
-      bucketName: bucket,
-      prefix: folderPrefix,
-    });
-    if (result.Contents === undefined || result.Contents.length === 0) {
-      console.log("S3 Folder is empty")
-      return false;
-    } else {
-      return true;
-    }
-  };
-
   beforeAll(async () => {
     await deleteS3Objects({
       bucketName: bucket,
@@ -44,11 +28,7 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     });
 
     await createInvoiceInS3(invoice);
-    const checkFileExistsInStandardisedFolder = await waitForTrue(
-      checkS3FolderNotEmpty,
-      1000,
-      25000
-    );
+    const checkFileExistsInStandardisedFolder = await checkS3BucketNotEmpty({bucketName:bucket,prefix:folderPrefix},25000);
     expect(checkFileExistsInStandardisedFolder).toBe(true);
   });
 
@@ -116,6 +96,7 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     }, 0);
     for (let i = 0; i < queryObjects.length; i++) {
       expect(invoice.vendor.name).toEqual(queryObjects[i].vendor_name);
+      expect(invoice.lineItems.every(obj=>obj.description.includes(queryObjects[i].service_name)))
       expect(invoiceQty.toString()).toEqual(queryObjects[i].quantity);
       expect(invoice.getSubtotal().toFixed(4)).toEqual(queryObjects[i].price);
      expect(invoice.date.getFullYear().toString()).toEqual(queryObjects[i].year)

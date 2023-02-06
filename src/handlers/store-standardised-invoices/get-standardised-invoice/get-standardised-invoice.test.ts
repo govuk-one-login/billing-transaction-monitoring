@@ -1,7 +1,7 @@
 import { Textract } from "aws-sdk";
 import {
   getVendorInvoiceStandardisationModuleId,
-  getVendorServiceConfigRow,
+  getMatchingVendorServiceConfigRows,
 } from "../../../shared/utils";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
@@ -10,7 +10,7 @@ import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-defaul
 jest.mock("../../../shared/utils");
 const mockedGetVendorInvoiceStandardisationModuleId =
   getVendorInvoiceStandardisationModuleId as jest.Mock;
-const mockedGetVendorServiceConfigRow = getVendorServiceConfigRow as jest.Mock;
+const mockedGetVendorServiceConfigRow = getMatchingVendorServiceConfigRows as jest.Mock;
 
 jest.mock("./get-standardised-invoice-0");
 const mockedGetStandardisedInvoice0 = getStandardisedInvoice0 as jest.Mock;
@@ -108,7 +108,7 @@ describe("Standardised invoice getter", () => {
   });
 
   test("Standardised invoice getter with no standardisation config module ID", async () => {
-    mockedGetVendorInvoiceStandardisationModuleId.mockResolvedValue(undefined);
+    mockedGetVendorInvoiceStandardisationModuleId.mockResolvedValue({"vendor_name": undefined});
 
     const result = await getStandardisedInvoice(
       givenTextractPages,
@@ -121,7 +121,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledTimes(1);
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledWith(
       givenTextractPages,
-      mockedVendorName
+      {"vendor_name": mockedVendorName}
     );
   });
 
@@ -139,7 +139,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledTimes(1);
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledWith(
       givenTextractPages,
-      mockedVendorName
+      {"vendor_name": mockedVendorName}
     );
   });
 
@@ -156,7 +156,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoice0).toHaveBeenCalledTimes(1);
     expect(mockedGetStandardisedInvoice0).toHaveBeenCalledWith(
       givenTextractPages,
-      mockedVendorName
+      {"vendor_name": mockedVendorName}
     );
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
   });

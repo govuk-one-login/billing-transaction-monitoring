@@ -14,6 +14,7 @@ import {
 import { runViaLambda } from "./envHelper";
 import { s3Client } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
+import { waitForTrue } from "./commonHelpers";
 
 interface S3Object {
   bucket: string;
@@ -207,6 +208,22 @@ const getS3ObjectsAsArray = async (
   const s3String = s3Response.join("").replace(/\n/g, "").replace(/}{/g, "},{");
   return JSON.parse("[" + s3String + "]");
 };
+
+export const checkS3BucketNotEmpty = async (params: BucketAndPrefix,
+  timeoutMs: number
+): Promise<boolean> => {
+  const checkS3FolderNotEmpty = async (): Promise<boolean> => {
+    const result = await listS3Objects(params);
+    if (result.Contents === undefined || result.Contents.length === 0) {
+      console.log("S3 Folder is empty")
+      return false;
+    } else {
+      return true;
+    }
+  };
+return await waitForTrue(checkS3FolderNotEmpty, 1000, timeoutMs);
+}
+
 
 export {
   S3Object,
