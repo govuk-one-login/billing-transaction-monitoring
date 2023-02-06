@@ -37,7 +37,7 @@ describe("fetchVendorServiceConfig", () => {
       try {
         await fetchVendorServiceConfig("bucket");
       } catch (error) {
-        expect(error).toBe("Invalid vendor service config");
+        expect((error as Error).message).toBe("Invalid vendor service config");
       }
       expect.hasAssertions();
     });
