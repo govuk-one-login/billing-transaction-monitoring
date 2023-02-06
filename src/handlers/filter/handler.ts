@@ -6,7 +6,7 @@ import { fetchEventNames } from "../../shared/utils/config-utils/fetch-event-nam
 export const handler = async (event: SQSEvent): Promise<Response> => {
   const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
   if (outputQueueUrl === undefined || outputQueueUrl.length === 0)
-    throw new Error("no OUTPUT_QUEUE_URL defined in this environment");
+    throw new Error("No OUTPUT_QUEUE_URL defined in this environment");
 
   const response: Response = { batchItemFailures: [] };
 

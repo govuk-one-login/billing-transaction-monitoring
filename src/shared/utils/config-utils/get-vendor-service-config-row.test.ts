@@ -119,7 +119,7 @@ describe("Vendor service config getter", () => {
   });
 
   test("Vendor service config getter with no cached config and no vendor service config", async () => {
-    mockedFetchS3.mockReturnValue(undefined);
+    mockedFetchS3.mockReturnValue("");
 
     await expect(
       getVendorServiceConfigRow(givenConfigBucket, givenFields)

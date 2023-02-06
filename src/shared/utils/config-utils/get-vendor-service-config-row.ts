@@ -10,6 +10,7 @@ export const getVendorServiceConfigRow = async (
   configBucket: string,
   fields: Partial<VendorServiceConfigRow>
 ): Promise<VendorServiceConfigRow> => {
+  console.log(vendorServiceConfigPromise);
   if (vendorServiceConfigPromise === undefined)
     vendorServiceConfigPromise = fetchVendorServiceConfig(configBucket);
 

@@ -29,6 +29,18 @@ describe("fetchVendorServiceConfig", () => {
       },
     ]);
   });
+  describe("If vendor service config is empty", () => {
+    it("Throws an error", async () => {
+      mockedFetchS3.mockReturnValueOnce("");
+      try {
+        await fetchVendorServiceConfig("bucket");
+      } catch (error) {
+        expect((error as Error).message).toBe("No vendor service config found");
+      }
+      expect.hasAssertions();
+    });
+  });
+
   describe("If vendor service config is not valid", () => {
     it("Throws an error", async () => {
       mockedFetchS3.mockReturnValueOnce(
