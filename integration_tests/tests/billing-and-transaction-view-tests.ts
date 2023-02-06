@@ -3,6 +3,7 @@ import {
   deleteS3Events,
   eventTimeStamp,
   generatePublishAndValidateEvents,
+  poll,
   TableNames,
   TimeStamps,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
@@ -11,6 +12,7 @@ import {
   putS3Object,
   checkIfS3ObjectExists,
   S3Object,
+  listS3Objects,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import path from "path";
 import fs from "fs";
@@ -39,12 +41,14 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
     const filePath = path.join(__dirname, file);
     const fileData = fs.readFileSync(filePath);
     await putS3Object({ data: fileData, target: testObject });
-    const checkFileExists = await checkIfS3ObjectExists(testObject);
-    expect(checkFileExists).toBe(true);
+    await poll(
+      async () => await listS3Objects({ bucketName, prefix }),
+      (results) => Boolean(results.Contents?.length)
+    );
   });
 
   test.each`
-    testCase                                                                                 | eventName                          | clientId                | eventTime                         | numberOfTestEvents | priceDiff     | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty | transactionPrice | transactionQty
+    testCase                                                                                 | eventName    | clientId                | eventTime                         | numberOfTestEvents | priceDiff     | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty | transactionPrice | transactionQty
     ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                  | ${"EVENT_1"} | ${"vendor_testvendor1"} | ${TimeStamps.CURRENT_TIME}        | ${"2"}             | ${"0.0000"}   | ${"0"}  | ${"0.0000"}            | ${"0"}               | ${"6.6600"}  | ${"2"}     | ${"6.6600"}      | ${"2"}
     ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}            | ${"EVENT_1"} | ${"vendor_testvendor1"} | ${TimeStamps.CURRENT_TIME}        | ${"1"}             | ${"3.3300"}   | ${"1"}  | ${"100.0000"}          | ${"100"}             | ${"6.6600"}  | ${"2"}     | ${"3.3300"}      | ${"1"}
     ${"BillingQty BillingPrice less than TransactionQty and TransactionPrice"}               | ${"EVENT_1"} | ${"vendor_testvendor1"} | ${TimeStamps.CURRENT_TIME}        | ${"3"}             | ${"-3.3300"}  | ${"-1"} | ${"-33.3333"}          | ${"-33"}             | ${"6.6600"}  | ${"2"}     | ${"9.9900"}      | ${"3"}
@@ -67,7 +71,7 @@ describe("\n no invoice uploaded to standardised folder and verify billing and t
     await deleteS3Objects({ bucketName, prefix: "btm_transactions" });
   });
   test.each`
-    testCase                                                                                 | eventName                          | clientId                | eventTime                  | numberOfTestEvents | priceDiff    | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty   | transactionPrice | transactionQty
+    testCase                                                                                 | eventName    | clientId                | eventTime                  | numberOfTestEvents | priceDiff    | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty   | transactionPrice | transactionQty
     ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"EVENT_1"} | ${"vendor_testvendor1"} | ${TimeStamps.CURRENT_TIME} | ${"1"}             | ${"-3.3300"} | ${"-1"} | ${"-100.0000"}         | ${"-100"}            | ${undefined} | ${undefined} | ${"3.3300"}      | ${"1"}
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQuantity,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent,$billingPrice",
