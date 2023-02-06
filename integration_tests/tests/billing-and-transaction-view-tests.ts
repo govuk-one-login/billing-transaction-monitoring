@@ -10,7 +10,6 @@ import {
 import {
   deleteS3Objects,
   putS3Object,
-  checkIfS3ObjectExists,
   S3Object,
   listS3Objects,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
