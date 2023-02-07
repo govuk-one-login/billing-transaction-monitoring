@@ -1,8 +1,8 @@
 import {
   BillingStandardised,
-  checkS3BucketNotEmpty,
   deleteS3Objects,
   getS3ObjectsAsArray,
+  listS3Objects,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
@@ -12,6 +12,8 @@ import {
 
 import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { randomInvoice } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
+import { ListObjectsCommandOutput } from "@aws-sdk/client-s3";
+import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 
 const prefix = resourcePrefix();
 const invoice = randomInvoice();
@@ -28,8 +30,17 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     });
 
     await createInvoiceInS3(invoice);
-    const checkFileExistsInStandardisedFolder = await checkS3BucketNotEmpty({bucketName:bucket,prefix:folderPrefix},25000);
-    expect(checkFileExistsInStandardisedFolder).toBe(true);
+    await poll<ListObjectsCommandOutput>(
+      async () =>
+        await listS3Objects({
+          bucketName:bucket,
+          prefix: "btm_billing_standardised",
+        }),
+      (result) =>
+        result.Contents?.length !== undefined 
+      
+    );
+ 
   });
 
   test("retrieved invoice details should match invoice data in s3 bucket", async () => {
