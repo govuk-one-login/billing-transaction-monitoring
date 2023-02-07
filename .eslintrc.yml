@@ -3,8 +3,6 @@ extends:
   - prettier
 ignorePatterns:
   - dist
-  - allure-reports
-  - allure-results
 overrides:
   - files: '*.ts'
     parserOptions:
