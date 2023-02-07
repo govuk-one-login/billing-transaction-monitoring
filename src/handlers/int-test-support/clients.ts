@@ -16,14 +16,10 @@ export const cloudWatchLogsClient = new CloudWatchLogsClient({
   endpoint: process.env.LOCAL_ENDPOINT,
 });
 
-export const s3Client = new S3Client({
-  region,
-  endpoint: process.env.S3_LOCALENDPOINT,
-});
+const awsConfig = { region, endpoint: process.env.S3_LOCALENDPOINT, httpOtions: {timeOut: 50000}}
 
-export const snsClient = new SNSClient({
-  region: `${region}`,
-  endpoint: process.env.LOCAL_ENDPOINT,
-});
+export const s3Client = new S3Client(awsConfig);
+
+export const snsClient = new SNSClient(awsConfig);
 
 export const lambdaClient = new LambdaClient({ region });
