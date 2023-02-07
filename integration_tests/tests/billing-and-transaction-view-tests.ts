@@ -41,7 +41,7 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
     const fileData = fs.readFileSync(filePath);
     await putS3Object({ data: fileData, target: testObject });
     await poll(
-      async () => await listS3Objects({ bucketName, prefix }),
+      async () => await listS3Objects({ bucketName, prefix: testObject.key }),
       (results) => Boolean(results.Contents?.length)
     );
   });
