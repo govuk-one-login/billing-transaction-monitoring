@@ -37,9 +37,13 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
           bucketName: outputBucket,
           prefix: transactionsDirectory,
         }),
-      (result) =>
-        result.Contents?.length !== undefined &&
-        result.Contents?.length === happyPathCount
+      (result) => {
+        console.log(result.Contents);
+        return (
+          result.Contents?.length !== undefined &&
+          result.Contents?.length === happyPathCount
+        );
+      }
     );
   });
 
