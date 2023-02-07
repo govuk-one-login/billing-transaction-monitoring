@@ -1,4 +1,4 @@
-import { ListObjectsCommandOutput } from "@aws-sdk/client-s3";
+import { inspect } from "util";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { mockIdpCsvData } from "../../src/handlers/int-test-support/helpers/mock-data/csv";
@@ -32,15 +32,21 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
       },
       data: csv,
     });
-    await poll<ListObjectsCommandOutput>(
+    await poll(
       async () =>
         await listS3Objects({
           bucketName: outputBucket,
           prefix: transactionsDirectory,
         }),
-      (result) =>
-        result.Contents?.length !== undefined &&
-        result.Contents?.length === happyPathCount
+      (result) => {
+        console.log(
+          inspect(result, { showHidden: false, depth: null, colors: true })
+        );
+        return (
+          result.Contents?.length !== undefined &&
+          result.Contents?.length === happyPathCount
+        );
+      }
     );
   });
 

@@ -1,8 +1,9 @@
 import { S3Event } from "aws-lambda";
-import { fetchS3 } from "../../shared/utils";
+import { fetchS3, sendRecord } from "../../shared/utils";
 
 import { transformCsvToJson } from "./transform-csv-to-json";
 import { processRow } from "./process-row";
+import { getEventNameFromRules } from "./get-event-name-from-rules";
 
 export const handler = async (event: S3Event): Promise<void> => {
   const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
@@ -24,13 +25,20 @@ export const handler = async (event: S3Event): Promise<void> => {
       fetchS3(configBucket, "idp_event_name_rules/idp-event-name-rules.json"),
     ]).then((results) => results.map((result) => JSON.parse(result)));
 
-    const rows = await transformCsvToJson(event);
+    const source = await transformCsvToJson(event);
 
     // Transform data and send to SQS
-
-    const promises = rows.map(async (row) => {
-      await processRow(row, idpClientLookup, eventNameRules, outputQueueUrl);
-    });
+    const promises = source.reduce<Array<Promise<void>>>((accumulator, row) => {
+      const isInvalidEvent =
+        getEventNameFromRules(eventNameRules, row["Idp Entity Id"], row) ===
+        "Unknown";
+      if (isInvalidEvent) return accumulator;
+      const transactionEvent = processRow(row, idpClientLookup, eventNameRules);
+      return [
+        ...accumulator,
+        sendRecord(outputQueueUrl, JSON.stringify(transactionEvent)),
+      ];
+    }, []);
 
     const results = await Promise.allSettled(promises);
     if (results.some((result) => result.status === "rejected")) {
