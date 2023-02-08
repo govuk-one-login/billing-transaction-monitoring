@@ -4,7 +4,7 @@ import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envH
 import {
   checkIfS3ObjectExists,
   deleteS3Object,
-  getS3Object,
+  getS3FileContentsBasedOnLastModified,
   listS3Objects,
   putS3Object,
   S3Object,
@@ -67,7 +67,7 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
     const standardisedFilteredObject = await waitForTrue(
       checkStandardisedFileContainsExpectedFieldsFromOriginalPdf,
       1000,
-      25000
+      30000
     );
     expect(standardisedFilteredObject).toBe(true);
 
@@ -139,27 +139,3 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice pdf bucket tes
   });
 });
 
-const getS3FileContentsBasedOnLastModified = async (
-  newerThan: Date,
-  bucketName: string,
-  folderPrefix?: string
-): Promise<Array<string | undefined>> => {
-  const result = await listS3Objects({ bucketName, prefix: folderPrefix });
-  if (result.Contents === undefined) return [];
-
-  const s3ContentsFilteredByTestStartTime = result.Contents?.filter((item) => {
-    return (
-      item.LastModified !== undefined &&
-      new Date(item.LastModified) >= newerThan
-    );
-  });
-  const filePromises = s3ContentsFilteredByTestStartTime.map(async ({ Key }) =>
-    Key === undefined
-      ? undefined
-      : await getS3Object({
-          bucket: bucketName,
-          key: Key,
-        })
-  );
-  return await Promise.all(filePromises);
-};

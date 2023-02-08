@@ -209,6 +209,31 @@ const getS3ObjectsAsArray = async (
   return JSON.parse("[" + s3String + "]");
 };
 
+ const getS3FileContentsBasedOnLastModified = async (
+  newerThan: Date,
+  bucketName: string,
+  folderPrefix?: string
+): Promise<Array<string | undefined>> => {
+  const result = await listS3Objects({ bucketName, prefix: folderPrefix });
+  if (result.Contents === undefined) return [];
+
+  const s3ContentsFilteredByTestStartTime = result.Contents?.filter((item) => {
+    return (
+      item.LastModified !== undefined &&
+      new Date(item.LastModified) >= newerThan
+    );
+  });
+  const filePromises = s3ContentsFilteredByTestStartTime.map(async ({ Key }) =>
+    Key === undefined
+      ? undefined
+      : await getS3Object({
+          bucket: bucketName,
+          key: Key,
+        })
+  );
+  return await Promise.all(filePromises);
+};
+
 export {
   S3Object,
   listS3Objects,
@@ -220,4 +245,5 @@ export {
   checkIfS3ObjectExists,
   getS3Objects,
   getS3ObjectsAsArray,
+  getS3FileContentsBasedOnLastModified
 };
