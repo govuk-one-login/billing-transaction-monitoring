@@ -33,7 +33,7 @@ const transactionFolderPrefix = "btm_transactions";
 const standardisedFolderPrefix = "btm_billing_standardised";
 
 describe("\nUpload invoice to standardised folder and verify billing and transaction_curated view query results matches with expected data \n", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     // tests are enabled to run sequentially as we are deleting the S3 directory in view tests so when running the test
     // in parallel other tests will be interrupted(e.g. sns-s3 tests generate and checks eventId). We can enable to run in parallel
     // once we implement BTM-340 to clean up after each test
@@ -45,6 +45,7 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
       bucketName: storageBucket,
       prefix: standardisedFolderPrefix,
     });
+    console.log("cleared down between view tests"); // TEMP
   });
 
   test.each`
@@ -128,22 +129,15 @@ export const assertResultsWithTestData = async ({
     createInvoiceInS3(givenInvoice),
   ]);
 
-  async function checkFile(): Promise<boolean> {
-    const fileContent = await getS3FileContentsBasedOnLastModified(
-      testStartTime,
-      storageBucket,
-      standardisedFolderPrefix
-    );
-    return fileContent.some((file) =>
-      file?.includes(givenInvoice.invoiceNumber)
-    );
-  }
-
-  await poll<boolean>(
-    async () => await checkFile(),
-    (result) => result,
-    100,
-    30000
+  await poll(
+    async () =>
+      await getS3FileContentsBasedOnLastModified(
+        testStartTime,
+        storageBucket,
+        standardisedFolderPrefix
+      ),
+    (fileContent) =>
+      fileContent.some((file) => file?.includes(givenInvoice.invoiceNumber))
   );
 
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
