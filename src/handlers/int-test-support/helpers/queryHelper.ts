@@ -1,5 +1,5 @@
 import {
-  ClientId,
+  VendorId,
   EventName,
   prettyClientNameMap,
   prettyEventNameMap,
@@ -12,17 +12,17 @@ const prefix = resourcePrefix();
 const databaseName = `${prefix}-calculations`;
 
 export const queryResponseFilterByVendorServiceNameYear = async ({
-  clientId,
+  vendorId,
   eventName,
   tableName,
   year,
 }: {
-  clientId: ClientId;
+  vendorId: VendorId;
   eventName: EventName;
   tableName: TableNames;
   year: number;
 }): Promise<[]> => {
-  const prettyClientName = prettyClientNameMap[clientId];
+  const prettyClientName = prettyClientNameMap[vendorId];
   const prettyEventName = prettyEventNameMap[eventName];
 
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

@@ -17,10 +17,10 @@ export const createInvoiceInS3 = async (
 
   const invoice = new Invoice(invoiceData);
 
-  const { client_id: clientId } = await getVendorServiceConfigRow(
+  const { vendor_id: vendorId } = await getVendorServiceConfigRow(
     configStackName(),
     { vendor_name: invoice.vendor.name }
   );
 
-  return await makeMockInvoicePDF(writeInvoiceToS3)(invoice, clientId);
+  return await makeMockInvoicePDF(writeInvoiceToS3)(invoice, vendorId);
 };

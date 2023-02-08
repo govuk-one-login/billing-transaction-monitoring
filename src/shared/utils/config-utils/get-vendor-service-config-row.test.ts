@@ -19,7 +19,7 @@ const mockVendorServiceConfigRow = (
 ): VendorServiceConfigRow => ({
   vendor_name: "mocked vendor name",
   vendor_regex: "mocked vendor regular expression",
-  client_id: "mocked client ID",
+  vendor_id: "mocked client ID",
   service_name: "mocked service name",
   service_regex: "mocked service regular expression",
   event_name: "mocked event name",
