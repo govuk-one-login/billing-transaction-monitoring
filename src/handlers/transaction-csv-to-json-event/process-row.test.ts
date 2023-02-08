@@ -62,7 +62,7 @@ describe("Process Row test", () => {
       timestamp_formatted: timestamp,
       event_name: eventName1,
       component_id: rpEntityId1,
-      client_id: clientId1,
+      vendor_id: clientId1,
     });
   });
 });

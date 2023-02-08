@@ -124,11 +124,11 @@ describe("Transaction CSV To JSON Event handler test", () => {
     await handler(createEvent([]));
     expect(mockedSendRecord).toHaveBeenCalledWith(
       "output queue url",
-      '{"event_id":"some request id","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C3_TEST1","component_id":"some entity id 1","client_id":"client3"}'
+      '{"event_id":"some request id","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C3_TEST1","component_id":"some entity id 1","vendor_id":"client3"}'
     );
     expect(mockedSendRecord).toHaveBeenCalledWith(
       "output queue url",
-      '{"event_id":"another request id 2","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C4_TEST1","component_id":"another entity 2","client_id":"client4"}'
+      '{"event_id":"another request id 2","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C4_TEST1","component_id":"another entity 2","vendor_id":"client4"}'
     );
   });
 });

@@ -3,7 +3,7 @@ import { Response } from "../../shared/types";
 import { sendRecord } from "../../shared/utils";
 
 interface CleanedEventBodyObject {
-  client_id?: string;
+  vendor_id?: string;
   component_id: string;
   event_id?: string;
   event_name: string;
@@ -53,7 +53,7 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
   }
 
   const {
-    client_id: clientId,
+    vendor_id: clientId,
     component_id: componentId,
     event_id: eventId,
     event_name: eventName,
@@ -64,7 +64,7 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
   } = bodyObject;
 
   const cleanedBodyObject: CleanedEventBodyObject = {
-    client_id: typeof clientId === "string" ? clientId : undefined,
+    vendor_id: typeof clientId === "string" ? clientId : undefined,
     component_id: componentId,
     event_id: typeof eventId === "string" ? eventId : undefined,
     event_name: eventName,
