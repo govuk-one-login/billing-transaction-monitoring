@@ -19,7 +19,6 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
 
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
-    console.log("file exists in raw invoice pdf bucket");
 
     const checkGivenStringExists = async (): Promise<boolean | undefined> => {
       return await checkGivenStringExistsInLogs({
@@ -50,7 +49,6 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
         bucket: s3Object.bucket,
         key: "successful/" + s3Object.key,
       });
-      console.log("deleted the file from s3");
       return true;
     };
     const fileDeleted = await waitForTrue(deleteFileAfterTest, 1000, 5000);

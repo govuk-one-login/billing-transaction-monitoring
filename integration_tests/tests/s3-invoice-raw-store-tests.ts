@@ -57,12 +57,13 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
         const invoiceNumber = invoice.invoiceNumber;
         const invoiceDate = invoice.date.toISOString().slice(0, 10);
         const invoiceTotal = invoice.getTotal().toFixed(2);
-        return standardisedFilesContents.some(
-          (standardisedFile) =>
-            (standardisedFile?.includes(invoiceNumber) ?? false) &&
-            (standardisedFile?.includes(invoiceDate) ?? false) &&
-            (standardisedFile?.includes(invoiceTotal) ?? false)
-        );
+        return standardisedFilesContents.some((standardisedFile) => {
+          return (
+            standardisedFile?.includes(invoiceNumber) &&
+            standardisedFile?.includes(invoiceDate) &&
+            standardisedFile?.includes(invoiceTotal)
+          );
+        });
       };
     const standardisedFilteredObject = await waitForTrue(
       checkStandardisedFileContainsExpectedFieldsFromOriginalPdf,
@@ -92,7 +93,6 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
       bucket: s3Object.bucket,
       key: `successful/${String(path)}`,
     });
-    console.log("deleted the file from s3");
   });
 });
 
@@ -135,7 +135,5 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice pdf bucket tes
       bucket: rawInvoice.bucket,
       key: "failed/" + rawInvoice.key,
     });
-    console.log("deleted the file from s3");
   });
 });
-
