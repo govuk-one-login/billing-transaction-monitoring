@@ -23,7 +23,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
   {
     service_name: serviceName,
     service_regex: serviceRegexPattern,
-    vendor_name: VendorName,
+    vendor_name: vendorName,
   }: VendorServiceConfigRow
 ): StandardisedLineItem[] => {
   const summaryFields = getSummaryFields(textractPages);
@@ -33,7 +33,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
 
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
-    vendor_name: VendorName,
+    vendor_name: vendorName,
     total: getTotal(summaryFields),
     invoice_receipt_date: getInvoiceReceiptDate(summaryFields),
     subtotal: getSubtotal(summaryFields),
