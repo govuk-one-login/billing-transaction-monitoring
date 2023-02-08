@@ -121,7 +121,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledTimes(1);
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledWith(
       givenTextractPages,
-      mockedVendorName
+      { vendor_name: undefined }
     );
   });
 
@@ -139,7 +139,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledTimes(1);
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledWith(
       givenTextractPages,
-      mockedVendorName
+      { vendor_name: undefined }
     );
   });
 
@@ -156,7 +156,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoice0).toHaveBeenCalledTimes(1);
     expect(mockedGetStandardisedInvoice0).toHaveBeenCalledWith(
       givenTextractPages,
-      mockedVendorName
+      { vendor_name: undefined }
     );
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
   });

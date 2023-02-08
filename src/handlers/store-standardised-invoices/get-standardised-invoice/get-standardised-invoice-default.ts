@@ -49,6 +49,10 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
       const itemFields = item.LineItemExpenseFields ?? [];
 
       const itemDescription = getItemDescription(itemFields);
+      console.log(
+        "🚀 ~ file: get-standardised-invoice-default.ts:52 ~ itemDescription",
+        itemDescription
+      );
       if (!itemDescription?.match(serviceRegex)) {
         return acc;
       }

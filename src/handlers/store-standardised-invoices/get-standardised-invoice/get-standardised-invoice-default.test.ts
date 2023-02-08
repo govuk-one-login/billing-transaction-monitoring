@@ -1,3 +1,4 @@
+import { VendorServiceConfigRow } from "../../../shared/utils/config-utils/fetch-vendor-service-config";
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -30,7 +31,7 @@ describe("Standardised invoice default getter", () => {
   let givenTextractPages: any;
   let givenTextractPagesLineItemFields: any;
   let givenTextractPagesSummaryFields: any;
-  let givenVendorName: string;
+  let givenVendorServiceConfigRow: VendorServiceConfigRow;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -38,7 +39,9 @@ describe("Standardised invoice default getter", () => {
     mockedGetDueDate.mockReturnValue("mocked due date");
     mockedGetInvoiceReceiptDate.mockReturnValue("mocked invoice receipt date");
     mockedGetInvoiceReceiptId.mockReturnValue("mocked invoice receipt ID");
-    mockedGetItemDescription.mockReturnValue("mocked item description");
+    mockedGetItemDescription.mockReturnValue(
+      "Lying about speedruns to seem cool on the internet"
+    );
     mockedGetPrice.mockReturnValue("mocked price");
     mockedGetQuantity.mockReturnValue("mocked quantity");
     mockedGetSubtotal.mockReturnValue("mocked subtotal");
@@ -86,7 +89,14 @@ describe("Standardised invoice default getter", () => {
       },
     ];
 
-    givenVendorName = "Vendor Name";
+    givenVendorServiceConfigRow = {
+      vendor_name: "Billy Mitchell LLC",
+      vendor_regex: "billy mitchell",
+      vendor_id: "vendor_billy",
+      service_name: "Lying About Speedruns",
+      service_regex: "lying about speedruns",
+      event_name: "donkey_kong",
+    };
   });
 
   test("Standardised invoice default getter with no pages", () => {
@@ -94,7 +104,7 @@ describe("Standardised invoice default getter", () => {
 
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorName
+      givenVendorServiceConfigRow
     );
 
     expect(result).toEqual([]);
@@ -121,7 +131,10 @@ describe("Standardised invoice default getter", () => {
   test("Standardised invoice default getter with undefined summary fields", () => {
     givenTextractPages[0].SummaryFields = undefined;
 
-    getStandardisedInvoiceDefault(givenTextractPages, givenVendorName);
+    getStandardisedInvoiceDefault(
+      givenTextractPages,
+      givenVendorServiceConfigRow
+    );
 
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledWith([]);
@@ -160,7 +173,7 @@ describe("Standardised invoice default getter", () => {
 
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorName
+      givenVendorServiceConfigRow
     );
 
     expect(result).toEqual([]);
@@ -201,7 +214,7 @@ describe("Standardised invoice default getter", () => {
 
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorName
+      givenVendorServiceConfigRow
     );
 
     expect(result).toEqual([]);
@@ -242,7 +255,7 @@ describe("Standardised invoice default getter", () => {
 
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorName
+      givenVendorServiceConfigRow
     );
 
     expect(result).toEqual([]);
@@ -282,7 +295,10 @@ describe("Standardised invoice default getter", () => {
     givenTextractPages[0].LineItemGroups[0].LineItems.LineItemExpenseFields =
       undefined;
 
-    getStandardisedInvoiceDefault(givenTextractPages, givenVendorName);
+    getStandardisedInvoiceDefault(
+      givenTextractPages,
+      givenVendorServiceConfigRow
+    );
 
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledWith(
@@ -323,7 +339,7 @@ describe("Standardised invoice default getter", () => {
   test("Standardised invoice default getter with a line item", () => {
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorName
+      givenVendorServiceConfigRow
     );
 
     expect(result).toEqual([
@@ -331,17 +347,16 @@ describe("Standardised invoice default getter", () => {
         due_date: "mocked due date",
         invoice_receipt_date: "mocked invoice receipt date",
         invoice_receipt_id: "mocked invoice receipt ID",
-        item_description: "mocked item description",
-        item_id: undefined,
+        item_description: "Lying about speedruns to seem cool on the internet",
         price: "mocked price",
         quantity: "mocked quantity",
-        service_name: undefined,
+        service_name: "Lying About Speedruns",
         subtotal: "mocked subtotal",
         tax: "mocked tax",
         tax_payer_id: "mocked taxPayerId",
         total: "mocked total",
         unit_price: "mocked unit price",
-        vendor_name: givenVendorName,
+        vendor_name: givenVendorServiceConfigRow.vendor_name,
       },
     ]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
