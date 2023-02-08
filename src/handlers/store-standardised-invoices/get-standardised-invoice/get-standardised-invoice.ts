@@ -3,6 +3,7 @@ import {
   getVendorInvoiceStandardisationModuleId,
   getVendorServiceConfigRow,
 } from "../../../shared/utils";
+import { VendorServiceConfigRow } from "../../../shared/utils/config-utils/fetch-vendor-service-config";
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
 import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-default";
 
@@ -25,7 +26,7 @@ export interface StandardisedLineItem {
 
 export type StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  vendorName: string
+  vendorName: VendorServiceConfigRow
 ) => StandardisedLineItem[];
 
 const standardisationModuleMap: Record<number, StandardisationModule> = {
@@ -34,12 +35,12 @@ const standardisationModuleMap: Record<number, StandardisationModule> = {
 
 export const getStandardisedInvoice = async (
   textractPages: Textract.ExpenseDocument[],
-  clientId: string,
+  vendorId: string,
   configBucket: string
 ): Promise<StandardisedLineItem[]> => {
   const [standardisationModuleId, vendorServiceConfigRow] = await Promise.all([
-    getVendorInvoiceStandardisationModuleId(configBucket, clientId),
-    getVendorServiceConfigRow(configBucket, { vendor_id: clientId }),
+    getVendorInvoiceStandardisationModuleId(configBucket, vendorId),
+    getVendorServiceConfigRow(configBucket, { vendor_id: vendorId }),
   ]);
 
   const standardisationModule =
@@ -48,8 +49,5 @@ export const getStandardisedInvoice = async (
       ? standardisationModuleMap[standardisationModuleId]
       : getStandardisedInvoiceDefault;
 
-  return standardisationModule(
-    textractPages,
-    vendorServiceConfigRow.vendor_name
-  );
+  return standardisationModule(textractPages, vendorServiceConfigRow);
 };

@@ -22,7 +22,7 @@ export async function storeStandardisedInvoices(
         `File not in client ID folder: ${sourceBucket}/${sourceFilePath}`
       );
 
-    const clientId = sourcePathParts[0];
+    const vendorId = sourcePathParts[0];
     const sourceFileName = sourcePathParts[sourcePathParts.length - 1];
 
     const textractData = await fetchS3TextractData(
@@ -32,7 +32,7 @@ export async function storeStandardisedInvoices(
 
     const standardisedInvoice = await getStandardisedInvoice(
       textractData,
-      clientId,
+      vendorId,
       configBucket
     );
 
