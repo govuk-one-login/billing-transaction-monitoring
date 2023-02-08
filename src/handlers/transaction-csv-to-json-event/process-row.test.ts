@@ -17,8 +17,8 @@ describe("Process Row test", () => {
   const minLevel1 = "LEVEL_1";
   const status1 = "BILLABLE";
   const rpEntityId1 = "https://entity.id";
-  const clientId1 = "client1";
-  const clientId2 = "client2";
+  const vendorId1 = "vendor1";
+  const vendorId2 = "vendor2";
   const eventName1 = "IPV_EVENT_NAME_1";
   const timestamp = "2022-10-01T00:27:41.186Z";
   const row = buildRow(
@@ -29,7 +29,7 @@ describe("Process Row test", () => {
     status1,
     rpEntityId1
   );
-  const client1Rules = [
+  const vendor1Rules = [
     {
       "Minimum Level Of Assurance": minLevel1,
       "Billable Status": "BILLABLE",
@@ -37,12 +37,12 @@ describe("Process Row test", () => {
     },
   ];
   const eventNameRules = {
-    [idpEntityId1]: client1Rules,
+    [idpEntityId1]: vendor1Rules,
   };
 
   const idpClientLookUp = {
-    [idpEntityId1]: clientId1,
-    [idpEntityId2]: clientId2,
+    [idpEntityId1]: vendorId1,
+    [idpEntityId2]: vendorId2,
   };
 
   test("should send record with csv data transformed to event data if no getEventNameFromRules failure", async () => {
@@ -62,7 +62,7 @@ describe("Process Row test", () => {
       timestamp_formatted: timestamp,
       event_name: eventName1,
       component_id: rpEntityId1,
-      vendor_id: clientId1,
+      vendor_id: vendorId1,
     });
   });
 });
