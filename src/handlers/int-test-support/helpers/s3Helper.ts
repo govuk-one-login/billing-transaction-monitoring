@@ -14,7 +14,6 @@ import {
 import { runViaLambda } from "./envHelper";
 import { s3Client } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
-import { waitForTrue } from "./commonHelpers";
 
 interface S3Object {
   bucket: string;
@@ -209,7 +208,7 @@ const getS3ObjectsAsArray = async (
   return JSON.parse("[" + s3String + "]");
 };
 
- const getS3FileContentsBasedOnLastModified = async (
+const getS3FileContentsBasedOnLastModified = async (
   newerThan: Date,
   bucketName: string,
   folderPrefix?: string
@@ -245,5 +244,5 @@ export {
   checkIfS3ObjectExists,
   getS3Objects,
   getS3ObjectsAsArray,
-  getS3FileContentsBasedOnLastModified
+  getS3FileContentsBasedOnLastModified,
 };

@@ -20,7 +20,7 @@ const invoice = randomInvoice();
 
 describe("\nExecute athena query to retrieve invoice data and validate that it matches invoice files in storage s3 bucket\n", () => {
   const folderPrefix = "btm_billing_standardised";
-  const bucket = `${prefix}-storage`
+  const bucket = `${prefix}-storage`;
   const databaseName = `${prefix}-calculations`;
 
   beforeAll(async () => {
@@ -33,14 +33,11 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     await poll<ListObjectsCommandOutput>(
       async () =>
         await listS3Objects({
-          bucketName:bucket,
+          bucketName: bucket,
           prefix: "btm_billing_standardised",
         }),
-      (result) =>
-        result.Contents?.length !== undefined 
-      
+      (result) => result.Contents?.length !== undefined
     );
- 
   });
 
   test("retrieved invoice details should match invoice data in s3 bucket", async () => {
@@ -51,10 +48,7 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     });
     const queryObj = await queryObject(queryId);
     const athenaQueryValues: BillingStandardised[] = Object.values(queryObj);
-    const s3InvoiceValues = await getS3ObjectsAsArray(
-      bucket,
-      folderPrefix
-    );
+    const s3InvoiceValues = await getS3ObjectsAsArray(bucket, folderPrefix);
 
     for (let i = 0; i < s3InvoiceValues.length; i++) {
       expect(s3InvoiceValues[i].invoice_receipt_id).toEqual(
@@ -107,13 +101,20 @@ describe("\nExecute athena query to retrieve invoice data and validate that it m
     }, 0);
     for (let i = 0; i < queryObjects.length; i++) {
       expect(invoice.vendor.name).toEqual(queryObjects[i].vendor_name);
-      expect(invoice.lineItems.every(obj=>obj.description.includes(queryObjects[i].service_name)))
+      expect(
+        invoice.lineItems.every((obj) =>
+          obj.description.includes(queryObjects[i].service_name)
+        )
+      );
       expect(invoiceQty.toString()).toEqual(queryObjects[i].quantity);
       expect(invoice.getSubtotal().toFixed(4)).toEqual(queryObjects[i].price);
-     expect(invoice.date.getFullYear().toString()).toEqual(queryObjects[i].year)
-     const getMonthFromInvoiceDate= `0${(invoice.date.getMonth() + 1)}`.toString()
-     expect(getMonthFromInvoiceDate).toEqual(queryObjects[i].month)
-
+      expect(invoice.date.getFullYear().toString()).toEqual(
+        queryObjects[i].year
+      );
+      const getMonthFromInvoiceDate = `0${
+        invoice.date.getMonth() + 1
+      }`.toString();
+      expect(getMonthFromInvoiceDate).toEqual(queryObjects[i].month);
     }
   });
 });

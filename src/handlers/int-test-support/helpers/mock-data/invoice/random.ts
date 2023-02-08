@@ -83,7 +83,7 @@ export const randomLineItem = (options?: LineItemOptions): LineItem => {
   return {
     description:
       options?.description ??
-      "Verification of sentience via Address checking mechanism", // should match EVENT_6 from fake-vendor-services.csv
+      "Verification of sentience via address checking mechanism", // should match EVENT_6 from fake-vendor-services.csv
     vat: options?.vat ?? vatRate * subtotal,
     quantity,
     unitPrice,

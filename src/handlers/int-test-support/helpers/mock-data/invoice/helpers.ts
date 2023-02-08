@@ -17,7 +17,7 @@ export const createInvoiceInS3 = async (
 
   const invoice = new Invoice(invoiceData);
 
-  const [{client_id:clientId}] = await getMatchingVendorServiceConfigRows(
+  const [{ client_id: clientId }] = await getMatchingVendorServiceConfigRows(
     configStackName(),
     { vendor_name: invoice.vendor.name }
   );
