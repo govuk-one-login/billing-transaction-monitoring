@@ -73,7 +73,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledTimes(1);
     expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledWith(
       givenConfigBucket,
-      { client_id: givenClientId }
+      { vendor_id: givenClientId }
     );
     expect(mockedGetStandardisedInvoice0).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
@@ -101,7 +101,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledTimes(1);
     expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledWith(
       givenConfigBucket,
-      { client_id: givenClientId }
+      { vendor_id: givenClientId }
     );
     expect(mockedGetStandardisedInvoice0).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();

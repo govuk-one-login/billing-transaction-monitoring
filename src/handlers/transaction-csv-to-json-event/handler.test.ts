@@ -2,15 +2,12 @@ import { handler } from "./handler";
 import { transformCsvToJson } from "./transform-csv-to-json";
 import { createEvent } from "../../../test-helpers/S3";
 import { S3Event } from "aws-lambda";
-import { processRow } from "./process-row";
 import { buildRow } from "../../../test-helpers/build-rows";
-import { fetchS3 } from "../../shared/utils";
-
-jest.mock("./process-row");
-const mockedProcessRow = processRow as jest.MockedFunction<typeof processRow>;
+import { fetchS3, sendRecord } from "../../shared/utils";
 
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.MockedFunction<typeof fetchS3>;
+const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>;
 
 jest.mock("./transform-csv-to-json");
 const mockedTransformCsvToJson = transformCsvToJson as jest.MockedFunction<
@@ -50,24 +47,6 @@ describe("Transaction CSV To JSON Event handler test", () => {
       },
     ],
   };
-  const csvRows = [
-    buildRow(
-      client1,
-      timestamp,
-      "some request id",
-      "some min level",
-      "some status",
-      "some entity id 1"
-    ),
-    buildRow(
-      client1,
-      timestamp,
-      "another request id 2",
-      "another min level",
-      "another status",
-      "another entity 2"
-    ),
-  ];
 
   test("should throw error if no output queue set", async () => {
     delete process.env.OUTPUT_QUEUE_URL;
@@ -86,7 +65,6 @@ describe("Transaction CSV To JSON Event handler test", () => {
     );
     expect(mockedFetchS3).toHaveBeenCalled();
     expect(mockedTransformCsvToJson).not.toHaveBeenCalled();
-    expect(mockedProcessRow).not.toHaveBeenCalled();
   });
 
   test("should throw error with failing transformCsvToJson", async () => {
@@ -98,26 +76,59 @@ describe("Transaction CSV To JSON Event handler test", () => {
     );
     expect(mockedFetchS3).toHaveBeenCalled();
     expect(mockedTransformCsvToJson).toHaveBeenCalled();
-    expect(mockedProcessRow).not.toHaveBeenCalled();
   });
 
-  test("should call processRow with the expected paramaters", async () => {
-    mockedFetchS3.mockResolvedValueOnce(JSON.stringify(idpClientLookUp));
-    mockedFetchS3.mockResolvedValueOnce(JSON.stringify(eventNameRules));
-    mockedTransformCsvToJson.mockResolvedValue(csvRows);
-    await handler(createEvent([]));
-    expect(mockedProcessRow).toHaveBeenCalledTimes(2);
-    expect(mockedProcessRow).toHaveBeenCalledWith(
-      csvRows[0],
-      idpClientLookUp,
-      eventNameRules,
-      "output queue url"
+  test("should call processRow with the expected parameters", async () => {
+    mockedFetchS3.mockResolvedValueOnce(
+      JSON.stringify({
+        "https://a.client3.eu": "client3",
+        "https://a.client4.co.uk": "client4",
+      })
     );
-    expect(mockedProcessRow).toHaveBeenCalledWith(
-      csvRows[1],
-      idpClientLookUp,
-      eventNameRules,
-      "output queue url"
+    mockedFetchS3.mockResolvedValueOnce(
+      JSON.stringify({
+        "https://a.client3.eu": [
+          {
+            "Minimum Level Of Assurance": "LEVEL_1",
+            "Billable Status": "BILLABLE",
+            "Event Name": "IPV_C3_TEST1",
+          },
+        ],
+        "https://a.client4.co.uk": [
+          {
+            "Minimum Level Of Assurance": "LEVEL_1",
+            "Billable Status": "BILLABLE",
+            "Event Name": "IPV_C4_TEST1",
+          },
+        ],
+      })
+    );
+    mockedTransformCsvToJson.mockResolvedValue([
+      buildRow(
+        "https://a.client3.eu",
+        timestamp,
+        "some request id",
+        "LEVEL_1",
+        "BILLABLE",
+        "some entity id 1"
+      ),
+      buildRow(
+        "https://a.client4.co.uk",
+        timestamp,
+        "another request id 2",
+        "LEVEL_1",
+        "BILLABLE",
+        "another entity 2"
+      ),
+    ]);
+    await handler(createEvent([]));
+    expect(mockedSendRecord).toHaveBeenCalledWith(
+      "output queue url",
+      '{"event_id":"some request id","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C3_TEST1","component_id":"some entity id 1","vendor_id":"client3"}'
+    );
+    expect(mockedSendRecord).toHaveBeenCalledWith(
+      "output queue url",
+      '{"event_id":"another request id 2","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C4_TEST1","component_id":"another entity 2","vendor_id":"client4"}'
     );
   });
 });

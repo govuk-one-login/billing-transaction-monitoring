@@ -9,7 +9,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 import {
-  ClientId,
+  VendorId,
   EventName,
   snsInvalidEventNamePayload,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
@@ -24,21 +24,21 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
   });
 
   test.each`
-    eventName                          | clientId                | numberOfTestEvents | unitPrice | eventTime
+    eventName    | vendorId                | numberOfTestEvents | unitPrice | eventTime
     ${"EVENT_1"} | ${"vendor_testvendor1"} | ${2}               | ${1.23}   | ${TimeStamps.THIS_TIME_LAST_YEAR}
     ${"EVENT_1"} | ${"vendor_testvendor2"} | ${2}               | ${2.5}    | ${TimeStamps.CURRENT_TIME}
     ${"EVENT_1"} | ${"vendor_testvendor3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
-    ${"EVENT_6"}           | ${"vendor_testvendor3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
+    ${"EVENT_6"} | ${"vendor_testvendor3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
   `(
     "price retrieved from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
     async ({
       eventName,
-      clientId,
+      vendorId,
       numberOfTestEvents,
       unitPrice,
       eventTime,
     }: {
-      clientId: ClientId;
+      vendorId: VendorId;
       eventName: EventName;
       numberOfTestEvents: number;
       unitPrice: number;
@@ -49,14 +49,14 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       const eventIds = await generatePublishAndValidateEvents({
         numberOfTestEvents,
         eventName,
-        clientId,
+        vendorId,
         eventTime,
       });
       const tableName = TableNames.TRANSACTION_CURATED;
       const year = new Date(eventTimeStamp[eventTime] * 1000).getFullYear();
       const response: TransactionCuratedView[] =
         await queryResponseFilterByVendorServiceNameYear({
-          clientId,
+          vendorId,
           eventName,
           tableName,
           year,
@@ -73,7 +73,7 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       snsInvalidEventNamePayload.timestamp * 1000
     ).getFullYear();
     const queryRes = await queryResponseFilterByVendorServiceNameYear({
-      clientId: snsInvalidEventNamePayload.client_id,
+      vendorId: snsInvalidEventNamePayload.vendor_id,
       eventName: snsInvalidEventNamePayload.event_name,
       tableName,
       year,

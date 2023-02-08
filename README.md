@@ -101,7 +101,7 @@ aws --endpoint-url=http://localhost:4566 sns list-topics
 Publish a message on the SNS topic
 
 ```sh
-aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_id":"67e5-4b66-a403","timestamp":1668124800,"timestamp_formatted":"2022-11-11T09:26:18.000Z","event_name":"EVENT_1","component_id":"https://test.gov.uk","reIngestCount":0, "client_id": "vendor_testvendor1"}'
+aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_id":"67e5-4b66-a403","timestamp":1668124800,"timestamp_formatted":"2022-11-11T09:26:18.000Z","event_name":"EVENT_1","component_id":"https://test.gov.uk","reIngestCount":0}'
 ```
 
 List the buckets in S3
@@ -131,21 +131,6 @@ To run the tests against local environment
 ```sh
 npm ci
 npm run test:integration:local
-```
-
-To generate the allure report after running the integration test
-
-```sh
-docker run --name allure -p 5050:5050  \
-                 -v ${PWD}/allure-results:/app/allure-results \
-                 -v ${PWD}/allure-reports:/app/default-reports \
-                 frankescobar/allure-docker-service
-```
-
-To clean the allure results and allure reports folder
-
-```sh
-npm run beforeIntTest
 ```
 
 ## Deploy
