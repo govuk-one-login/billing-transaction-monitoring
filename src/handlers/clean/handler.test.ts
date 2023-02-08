@@ -131,7 +131,7 @@ test("Clean handler with valid event record that has unwanted field", async () =
 test("Clean handler with valid event record that has invalid optional values", async () => {
   const recordBody = JSON.stringify({
     ...validRecordBodyObject,
-    client_id: 123,
+    vendor_id: 123,
     event_id: 234,
     extensions: "some string",
     timestamp_formatted: 345,
@@ -161,7 +161,7 @@ test("Clean handler with valid event record that has invalid optional values", a
 test("Clean handler with valid event record that has valid optional values", async () => {
   const recordBodyObject = {
     ...validRecordBodyObject,
-    client_id: "some client ID",
+    vendor_id: "some client ID",
     event_id: "some event ID",
     extensions: {
       iss: "some ISS",

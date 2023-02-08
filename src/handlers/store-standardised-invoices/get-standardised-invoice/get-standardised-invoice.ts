@@ -39,7 +39,7 @@ export const getStandardisedInvoice = async (
 ): Promise<StandardisedLineItem[]> => {
   const [standardisationModuleId, vendorServiceConfigRow] = await Promise.all([
     getVendorInvoiceStandardisationModuleId(configBucket, clientId),
-    getVendorServiceConfigRow(configBucket, { client_id: clientId }),
+    getVendorServiceConfigRow(configBucket, { vendor_id: clientId }),
   ]);
 
   const standardisationModule =

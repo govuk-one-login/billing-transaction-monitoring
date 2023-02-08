@@ -1,6 +1,6 @@
 import { generateRandomId, validTimestamp } from "./commonHelpers";
 
-export enum ClientId {
+export enum VendorId {
   vendor_testvendor1 = "vendor_testvendor1",
   vendor_testvendor2 = "vendor_testvendor2",
   vendor_testvendor3 = "vendor_testvendor3",
@@ -19,7 +19,7 @@ export interface SNSEventPayload {
   event_id: string;
   component_id: string;
   timestamp: number;
-  client_id: ClientId;
+  vendor_id: VendorId;
 }
 
 export const prettyClientNameMap = {
@@ -41,7 +41,7 @@ const snsValidEventPayload: SNSEventPayload = {
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: validTimestamp(),
-  client_id: ClientId.vendor_testvendor1,
+  vendor_id: VendorId.vendor_testvendor1,
 };
 
 const snsEventWithAdditionalFieldsPayload: SNSEventPayload = {
@@ -50,7 +50,7 @@ const snsEventWithAdditionalFieldsPayload: SNSEventPayload = {
   component_id: "TEST_COMP",
   timestamp: validTimestamp(),
   someUnwantedField: "some value",
-  client_id: ClientId.vendor_testvendor1,
+  vendor_id: VendorId.vendor_testvendor1,
 } as unknown as SNSEventPayload;
 
 const snsInvalidEventNamePayload: SNSEventPayload = {
@@ -58,7 +58,7 @@ const snsInvalidEventNamePayload: SNSEventPayload = {
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: validTimestamp(),
-  client_id: ClientId.vendor_testvendor1,
+  vendor_id: VendorId.vendor_testvendor1,
 };
 
 const snsInvalidTimeStampPayload: SNSEventPayload = {
@@ -66,35 +66,35 @@ const snsInvalidTimeStampPayload: SNSEventPayload = {
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: "somestring" as unknown as number,
-  client_id: ClientId.vendor_testvendor1,
+  vendor_id: VendorId.vendor_testvendor1,
 };
 
 const snsMissingEventNamePayload: SNSEventPayload = {
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: validTimestamp(),
-  client_id: ClientId.vendor_testvendor1,
+  vendor_id: VendorId.vendor_testvendor1,
 } as unknown as SNSEventPayload;
 
 const snsEventMissingTimestampPayload: SNSEventPayload = {
   event_name: EventName.EVENT_1,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
-  client_id: ClientId.vendor_testvendor1,
+  vendor_id: VendorId.vendor_testvendor1,
 } as unknown as SNSEventPayload;
 
 const snsEventMissingCompIdPayload: SNSEventPayload = {
   event_name: EventName.EVENT_1,
   event_id: generateRandomId(),
   timestamp: validTimestamp(),
-  client_id: ClientId.vendor_testvendor1,
+  vendor_id: VendorId.vendor_testvendor1,
 } as unknown as SNSEventPayload;
 
 const snsMissingEventIdPayload: SNSEventPayload = {
   event_name: EventName.EVENT_1,
   component_id: "TEST_COMP",
   timestamp: validTimestamp(),
-  client_id: ClientId.vendor_testvendor1,
+  vendor_id: VendorId.vendor_testvendor1,
 } as unknown as SNSEventPayload;
 
 const snsEventInvalidCompId: SNSEventPayload = {
@@ -102,7 +102,7 @@ const snsEventInvalidCompId: SNSEventPayload = {
   event_id: generateRandomId(),
   component_id: 5678 as unknown as string,
   timestamp: validTimestamp(),
-  client_id: ClientId.vendor_testvendor1,
+  vendor_id: VendorId.vendor_testvendor1,
 };
 
 const snsEventMissingEventIdValue: SNSEventPayload = {
@@ -110,7 +110,7 @@ const snsEventMissingEventIdValue: SNSEventPayload = {
   event_id: null as unknown as string,
   component_id: 5678 as unknown as string,
   timestamp: validTimestamp(),
-  client_id: ClientId.vendor_testvendor1,
+  vendor_id: VendorId.vendor_testvendor1,
 };
 
 export {

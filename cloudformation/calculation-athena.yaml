@@ -33,7 +33,7 @@ Resources:
           - { Name: datetime, Type: date }
         StorageDescriptor:
           Columns:
-            - Name: client_id
+            - Name: vendor_id
               Type: string
             - Name: event_id
               Type: string
@@ -72,7 +72,7 @@ Resources:
           storage.location.template: !Sub s3://${ConfigStackParameter.Value}/rate_tables/prices.csv
         StorageDescriptor:
           Columns:
-            - Name: client_id
+            - Name: vendor_id
               Type: string
             - Name: event_name
               Type: string
@@ -113,7 +113,7 @@ Resources:
               Type: string
             - Name: vendor_regex
               Type: string
-            - Name: client_id
+            - Name: vendor_id
               Type: string
             - Name: service_name
               Type: string
@@ -145,8 +145,8 @@ Resources:
                         ( Cast("Lead"(effective_from, 1,
                               "From_iso8601_timestamp"('2049-12-31'))
                                 over (
-                                  PARTITION BY client_id, event_name
-                                  ORDER BY client_id ASC, event_name ASC,
+                                  PARTITION BY vendor_id, event_name
+                                  ORDER BY vendor_id ASC, event_name ASC,
                                 effective_from ASC
                                 )
                               AS DATE)
@@ -156,20 +156,20 @@ Resources:
             AS (SELECT *,
                         "Max"(end_max)
                           over (
-                            PARTITION BY client_id, event_name, effective_from) "end"
+                            PARTITION BY vendor_id, event_name, effective_from) "end"
                 FROM   standardised_rates_with_max_date),
             btm_transactions_standardised_with_count
             AS (SELECT *,
                         "$path" path,
                         "COUNT"(event_id)
                           over (
-                            PARTITION BY event_name, client_id, "Date_trunc"('month',
+                            PARTITION BY event_name, vendor_id, "Date_trunc"('month',
                           timestamp)
                             ORDER BY "Date_trunc"('month', timestamp) ASC)
                         month_event_count
                 FROM   "btm_transactions_standardised"),
             btm_transactions_harmonised
-            AS (SELECT txn.client_id,
+            AS (SELECT txn.vendor_id,
                         txn.event_id,
                         txn.event_name,
                         txn.timestamp,
@@ -181,10 +181,10 @@ Resources:
                 FROM (btm_transactions_standardised_with_count txn
                         left join "btm_vendor_service_standardised" ven 
                                 ON ( txn.event_name = ven.event_name )
-                                  AND ( txn.client_id = ven.client_id )
+                                  AND ( txn.vendor_id = ven.vendor_id )
                         left join "standardised_rates_with_end" rates
                                 ON ( txn.event_name = rates.event_name )
-                                  AND ( txn.client_id = rates.client_id )
+                                  AND ( txn.vendor_id = rates.vendor_id )
                                   AND ( txn.month_event_count BETWEEN rates.volumes_from AND Coalesce(rates.volumes_to, 9999999))
                                   AND ( txn.timestamp BETWEEN rates.effective_from AND rates."end" )))
           SELECT "MAX"(vendor_name)      vendor_name,

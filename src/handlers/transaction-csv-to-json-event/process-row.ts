@@ -9,7 +9,7 @@ export interface TransactionEventBodyObject {
   timestamp_formatted: string;
   event_name: string;
   component_id: string;
-  client_id: string;
+  vendor_id: string;
 }
 
 export interface CsvRow {
@@ -38,6 +38,6 @@ export function processRow(
     timestamp_formatted: timestampFormatted,
     event_name: getEventNameFromRules(eventNameRules, idpEntityId, row),
     component_id: rpEntityId,
-    client_id: idpClientLookup[idpEntityId],
+    vendor_id: idpClientLookup[idpEntityId],
   };
 }

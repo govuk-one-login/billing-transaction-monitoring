@@ -1,7 +1,7 @@
 import { deleteS3Object, listS3Objects } from "./s3Helper";
 import { publishToTestTopic } from "./snsHelper";
 import { resourcePrefix } from "./envHelper";
-import { ClientId, EventName, SNSEventPayload } from "./payloadHelper";
+import { VendorId, EventName, SNSEventPayload } from "./payloadHelper";
 
 const objectsPrefix = "btm_transactions";
 
@@ -104,7 +104,7 @@ export const poll = async <Resolution>(
 
 export const generateTestEvent = async (
   overrides: Partial<SNSEventPayload> &
-    Pick<SNSEventPayload, "event_name" | "client_id">
+    Pick<SNSEventPayload, "event_name" | "vendor_id">
 ): Promise<SNSEventPayload> => ({
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
@@ -134,18 +134,18 @@ export const publishAndValidateEvent = async (
 export const generatePublishAndValidateEvents = async ({
   numberOfTestEvents,
   eventName,
-  clientId,
+  vendorId,
   eventTime,
 }: {
   numberOfTestEvents: number;
   eventName: EventName;
-  clientId: ClientId;
+  vendorId: VendorId;
   eventTime: TimeStamps;
 }): Promise<string[]> => {
   const eventIds: string[] = [];
   for (let i = 0; i < numberOfTestEvents; i++) {
     const event = await generateTestEvent({
-      client_id: clientId,
+      vendor_id: vendorId,
       event_name: eventName,
       timestamp: eventTimeStamp[eventTime],
     });
