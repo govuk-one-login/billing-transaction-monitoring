@@ -1,5 +1,4 @@
 import { createEvent, createRecord } from "../../../test-helpers/SQS";
-import { VALID_EVENT_NAMES } from "../../shared/constants";
 import { sendRecord } from "../../shared/utils";
 import { handler } from "./handler";
 
@@ -22,13 +21,13 @@ beforeEach(() => {
 
   validRecordBodyObject = {
     component_id: "some component ID",
-    event_name: VALID_EVENT_NAMES.values().next().value,
+    event_name: "TEST_EVENT_NAME",
     timestamp: TIMESTAMP_SECONDS,
   };
 
   sentRecordBodyObject = {
     ...validRecordBodyObject,
-    timestamp: 1000 * TIMESTAMP_SECONDS
+    timestamp: 1000 * TIMESTAMP_SECONDS,
   };
 });
 
@@ -54,10 +53,6 @@ test("Clean handler with event whose records have invalid bodies", async () => {
     ...validRecordBodyObject,
     component_id: 456,
   });
-  const recordBodyWithInvalidEventName = JSON.stringify({
-    ...validRecordBodyObject,
-    event_name: "some event name string",
-  });
   const recordBodyWithInvalidTimestamp = JSON.stringify({
     ...validRecordBodyObject,
     timestamp: "some timestamp string",
@@ -66,8 +61,7 @@ test("Clean handler with event whose records have invalid bodies", async () => {
     createRecord("", "message ID 1"),
     createRecord("some non-empty string", "message ID 2"),
     createRecord(recordBodyWithInvalidComponentId, "message ID 3"),
-    createRecord(recordBodyWithInvalidEventName, "message ID 4"),
-    createRecord(recordBodyWithInvalidTimestamp, "message ID 5"),
+    createRecord(recordBodyWithInvalidTimestamp, "message ID 4"),
   ]);
 
   const result = await handler(event);
@@ -75,7 +69,7 @@ test("Clean handler with event whose records have invalid bodies", async () => {
   expect(result).toEqual({
     batchItemFailures: expect.any(Array),
   });
-  expect(result.batchItemFailures).toHaveLength(5);
+  expect(result.batchItemFailures).toHaveLength(4);
   expect(result.batchItemFailures[0]).toEqual({
     itemIdentifier: "message ID 1",
   });
@@ -87,9 +81,6 @@ test("Clean handler with event whose records have invalid bodies", async () => {
   });
   expect(result.batchItemFailures[3]).toEqual({
     itemIdentifier: "message ID 4",
-  });
-  expect(result.batchItemFailures[4]).toEqual({
-    itemIdentifier: "message ID 5",
   });
   expect(mockedSendRecord).not.toHaveBeenCalled();
 });
@@ -185,8 +176,8 @@ test("Clean handler with valid event record that has valid optional values", asy
   const event = createEvent([record]);
   const expectedRecordBody = {
     ...recordBodyObject,
-    timestamp: TIMESTAMP_SECONDS * 1000
-  }
+    timestamp: TIMESTAMP_SECONDS * 1000,
+  };
 
   expect(mockedSendRecord).not.toHaveBeenCalled();
 
@@ -216,8 +207,8 @@ test("Clean handler with valid event record that has extensions but no iss", asy
   const event = createEvent([record]);
   const expectedRecordBody = {
     ...recordBodyObject,
-    timestamp: TIMESTAMP_SECONDS * 1000
-  }
+    timestamp: TIMESTAMP_SECONDS * 1000,
+  };
   expect(mockedSendRecord).not.toHaveBeenCalled();
 
   const result = await handler(event);

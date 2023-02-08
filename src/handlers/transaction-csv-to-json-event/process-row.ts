@@ -1,4 +1,3 @@
-import { sendRecord } from "../../shared/utils";
 import {
   getEventNameFromRules,
   EventNameRules,
@@ -22,19 +21,18 @@ export interface CsvRow {
   "RP Entity Id": string;
 }
 
-export async function processRow(
+export function processRow(
   row: CsvRow,
   idpClientLookup: { [index: string]: string },
-  eventNameRules: EventNameRules,
-  outputQueueUrl: string
-): Promise<void> {
+  eventNameRules: EventNameRules
+): TransactionEventBodyObject {
   const idpEntityId = row["Idp Entity Id"];
   const requestId = row["Request Id"];
   const timestampFormatted = row.Timestamp;
   const timestamp = Math.floor(Date.parse(timestampFormatted) / 1000);
   const rpEntityId = row["RP Entity Id"];
 
-  const transactionEventBodyObject: TransactionEventBodyObject = {
+  return {
     event_id: requestId,
     timestamp,
     timestamp_formatted: timestampFormatted,
@@ -42,6 +40,4 @@ export async function processRow(
     component_id: rpEntityId,
     client_id: idpClientLookup[idpEntityId],
   };
-
-  await sendRecord(outputQueueUrl, JSON.stringify(transactionEventBodyObject));
 }

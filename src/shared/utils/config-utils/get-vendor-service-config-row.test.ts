@@ -1,11 +1,11 @@
 import getCsvConverter from "csvtojson";
 import { VENDOR_SERVICE_CONFIG_PATH } from "../../constants";
 import { fetchS3 } from "../s3";
+import { VendorServiceConfigRow } from "./fetch-vendor-service-config";
 import {
   clearVendorServiceConfig,
   getMatchingVendorServiceConfigRows,
   setVendorServiceConfig,
-  VendorServiceConfigRow,
 } from "./get-vendor-service-config-row";
 
 jest.mock("csvtojson");
@@ -119,7 +119,7 @@ describe("Vendor service config getter", () => {
   });
 
   test("Vendor service config getter with no cached config and no vendor service config", async () => {
-    mockedFetchS3.mockReturnValue(undefined);
+    mockedFetchS3.mockReturnValue("");
 
     await expect(
       getMatchingVendorServiceConfigRows(givenConfigBucket, givenFields)
