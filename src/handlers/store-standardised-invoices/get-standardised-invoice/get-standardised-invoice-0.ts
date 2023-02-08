@@ -1,5 +1,5 @@
 import { Textract } from "aws-sdk";
-import { VendorServiceConfigRow } from "../../../shared/utils/config-utils/get-vendor-service-config-row";
+import { VendorServiceConfigRow } from "../../../shared/utils/config-utils/fetch-vendor-service-config";
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -37,18 +37,16 @@ export const getStandardisedInvoice0: StandardisationModule = (
     tax_payer_id: getTaxPayerId(summaryFields),
   };
 
-  const serviceRegexArray = vendorServiceConfigRows.map(
-    (configLine) => ({
-      serviceRegex: new RegExp(configLine.service_regex,"i"),
-      service_name: configLine.service_name,
-    })
-  );
+  const serviceRegexArray = vendorServiceConfigRows.map((configLine) => ({
+    serviceRegex: new RegExp(configLine.service_regex, "i"),
+    service_name: configLine.service_name,
+  }));
 
   console.log(serviceRegexArray);
 
   const standardisedLineItems = lineItems.map((item) => {
     const itemFields = item.LineItemExpenseFields ?? [];
-    const itemDescription = getItemDescription(itemFields)?? "";
+    const itemDescription = getItemDescription(itemFields) ?? "";
     const serviceName = serviceRegexArray.find((serviceMatcher) => {
       return serviceMatcher.serviceRegex.test(itemDescription);
     })?.service_name;
@@ -59,7 +57,7 @@ export const getStandardisedInvoice0: StandardisationModule = (
       unit_price: getUnitPrice(itemFields),
       quantity: 9001, // To do: get real quantity (Jira: BTM-349)
       price: getPrice(itemFields),
-      service_name:serviceName
+      service_name: serviceName,
     };
   });
 

@@ -3,7 +3,7 @@ import {
   getVendorInvoiceStandardisationModuleId,
   getMatchingVendorServiceConfigRows,
 } from "../../../shared/utils";
-import { VendorServiceConfigRow } from "../../../shared/utils/config-utils/get-vendor-service-config-row";
+import { VendorServiceConfigRow } from "../../../shared/utils/config-utils/fetch-vendor-service-config";
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
 import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-default";
 
@@ -24,7 +24,7 @@ export interface StandardisedLineItem {
   price?: number;
 }
 
-export type StandardisationModule =  (
+export type StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
   vendorServiceConfigRows: VendorServiceConfigRow[]
 ) => StandardisedLineItem[];
@@ -49,8 +49,5 @@ export const getStandardisedInvoice = async (
       ? standardisationModuleMap[standardisationModuleId]
       : getStandardisedInvoiceDefault;
 
-  return  standardisationModule(
-    textractPages,
-    vendorServiceConfigRows
-  );
+  return standardisationModule(textractPages, vendorServiceConfigRows);
 };
