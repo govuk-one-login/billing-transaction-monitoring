@@ -15,6 +15,7 @@ import {
   getQueryResults,
 } from "./helpers/athenaHelper";
 import { createInvoiceInS3 } from "./helpers/mock-data/invoice/helpers";
+import { Context } from "aws-lambda";
 
 export interface TestSupportEvent {
   environment: string;
@@ -55,7 +56,8 @@ const callFunction = async (name: string, parameters: any): Promise<any> => {
 };
 
 export const handler = async (
-  event: TestSupportEvent
+  event: TestSupportEvent,
+  _context: Context
 ): Promise<TestSupportReturn> => {
   process.env.ENV_NAME = event.environment;
   process.env.CONFIG_NAME = event.config;

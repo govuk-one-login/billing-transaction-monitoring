@@ -43,8 +43,6 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
     service_name: configLine.service_name,
   }));
 
-  console.log(serviceRegexArray);
-
   const standardisedLineItems = lineItems.map((item) => {
     const itemFields = item.LineItemExpenseFields ?? [];
     const itemDescription = getItemDescription(itemFields) ?? "";

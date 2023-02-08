@@ -75,7 +75,6 @@ describe("Vendor service config getter", () => {
       givenConfigBucket,
       givenFields
     );
-    console.log(mockedVendorServiceConfig[0])
     expect(result[0]).toEqual(mockedVendorServiceConfig[0]);
     expect(result).not.toBe(mockedVendorServiceConfig[0]);
     expect(mockedFetchS3).not.toHaveBeenCalled();
