@@ -11,7 +11,7 @@ describe("augmentTestCases", () => {
           expectedPath: "happy",
           expectedEventId: "123",
           expectedEventName: "test_event",
-          expectedClientId: "client1",
+          expectedVendorId: "vendor1",
         },
         {
           givenEntity: "entity2",
@@ -20,7 +20,7 @@ describe("augmentTestCases", () => {
           expectedPath: "sad",
           expectedEventId: "123",
           expectedEventName: "test_event",
-          expectedClientId: "client1",
+          expectedVendorId: "vendor1",
         },
       ];
       const fauxData = {
@@ -36,7 +36,7 @@ describe("augmentTestCases", () => {
           expectedPath: "happy",
           expectedEventId: "123",
           expectedEventName: "test_event",
-          expectedClientId: "client1",
+          expectedVendorId: "vendor1",
           a: "thing1",
           b: "thing2",
           c: "thing3",
@@ -48,7 +48,7 @@ describe("augmentTestCases", () => {
           expectedPath: "sad",
           expectedEventId: "123",
           expectedEventName: "test_event",
-          expectedClientId: "client1",
+          expectedVendorId: "vendor1",
           a: "thing1",
           b: "thing2",
           c: "thing3",
