@@ -73,24 +73,31 @@ export const chunkArray = <ArrayElem>(
   return chunks;
 };
 
+const wait = async (ms: number): Promise<void> =>
+  await new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+
 describe("\nGENERATE EVENTS\n", () => {
   test("S3 EVENTS", async () => {
-    const batchPromises = cases.reduce<Array<Promise<PublishCommandOutput>>>(
-      (acc, { vendor, count, name, date }) => {
-        const messages = makeMessages(count, vendor, name, date);
+    const batchPromises = cases.reduce<
+      Array<() => Promise<PublishCommandOutput>>
+    >((acc, { vendor, count, name, date }) => {
+      const messages = makeMessages(count, vendor, name, date);
 
-        const chunkedMessages = chunkArray(messages, 10);
-        // eslint-disable-next-line @typescript-eslint/promise-function-async
-        const chunkPromises = chunkedMessages.map((chunk) =>
-          batchPublishToTestTopic(chunk)
-        );
-        return [...acc, ...chunkPromises];
-      },
-      []
-    );
+      const chunkedMessages = chunkArray(messages, 10);
+      // eslint-disable-next-line @typescript-eslint/promise-function-async
+      const chunkPromises = chunkedMessages.map(
+        (chunk) => async () => await batchPublishToTestTopic(chunk)
+      );
+      return [...acc, ...chunkPromises];
+    }, []);
 
-    await Promise.all(batchPromises).then((resolutions) => {
-      console.log(resolutions);
-    });
+    for (const batchPromise of batchPromises) {
+      await wait(100);
+      await batchPromise();
+    }
   });
 });
