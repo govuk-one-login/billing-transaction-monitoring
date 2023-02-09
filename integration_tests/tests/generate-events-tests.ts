@@ -1,9 +1,10 @@
 import { PublishBatchRequestEntry } from "@aws-sdk/client-sns";
+import { writeFileSync } from "fs";
+import { join } from "path";
 import {
   VendorId,
   EventName,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-import { batchPublishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 
 const createPublishBatchRequestEntry = (
   numberOfEvents: number,
@@ -11,19 +12,16 @@ const createPublishBatchRequestEntry = (
   eventName: EventName,
   eventTime: number
 ): PublishBatchRequestEntry[] => {
-  const events = [];
-  for (let i = 0; i < numberOfEvents; i++) {
-    const eventId = "event_" + (10000 + i).toString(36);
-    const message = JSON.stringify({
+  return new Array(numberOfEvents).map((_, i) => ({
+    Id: "message_" + (10000 + i).toString(36),
+    Message: JSON.stringify({
       vendor_id: vendorId,
       component_id: "Test_COMP",
-      event_id: eventId,
+      event_id: "event_" + (10000 + i).toString(36),
       timestamp: eventTime,
       event_name: eventName,
-    });
-    events.push({ Id: eventId, Message: message });
-  }
-  return events;
+    }),
+  }));
 };
 
 describe("\nGENERATE EVENTS\n", () => {
@@ -34,10 +32,9 @@ describe("\nGENERATE EVENTS\n", () => {
       EventName.EVENT_1,
       1672572427
     );
-    try {
-      await batchPublishToTestTopic(messages);
-    } catch (e) {
-      console.log(e);
-    }
+    writeFileSync(
+      join(__dirname, "../payloads/messages.json"),
+      JSON.stringify(messages)
+    );
   });
 });
