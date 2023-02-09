@@ -53,9 +53,10 @@ export const batchPublishToTestTopic = async (
   payloads: any[]
 ): Promise<PublishCommandOutput> => {
   const TopicArn = await testTopic();
-
-  const result = await snsClient.send(
-    new PublishBatchCommand({ TopicArn, PublishBatchRequestEntries: payloads })
-  );
+  const command = new PublishBatchCommand({
+    TopicArn,
+    PublishBatchRequestEntries: payloads,
+  });
+  const result = await snsClient.send(command);
   return result;
 };

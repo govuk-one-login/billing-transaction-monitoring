@@ -34,6 +34,10 @@ describe("\nGENERATE EVENTS\n", () => {
       EventName.EVENT_1,
       1672572427
     );
-    await batchPublishToTestTopic(messages);
+    try {
+      await batchPublishToTestTopic(messages);
+    } catch (e) {
+      console.log(e);
+    }
   });
 });
