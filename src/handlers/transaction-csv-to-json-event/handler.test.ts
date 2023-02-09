@@ -81,20 +81,20 @@ describe("Transaction CSV To JSON Event handler test", () => {
   test("should call processRow with the expected parameters", async () => {
     mockedFetchS3.mockResolvedValueOnce(
       JSON.stringify({
-        "https://a.client3.eu": "client3",
-        "https://a.client4.co.uk": "client4",
+        "https://a.vendor3.eu": "client3",
+        "https://a.vendor4.co.uk": "client4",
       })
     );
     mockedFetchS3.mockResolvedValueOnce(
       JSON.stringify({
-        "https://a.client3.eu": [
+        "https://a.vendor3.eu": [
           {
             "Minimum Level Of Assurance": "LEVEL_1",
             "Billable Status": "BILLABLE",
             "Event Name": "IPV_C3_TEST1",
           },
         ],
-        "https://a.client4.co.uk": [
+        "https://a.vendor4.co.uk": [
           {
             "Minimum Level Of Assurance": "LEVEL_1",
             "Billable Status": "BILLABLE",
@@ -105,7 +105,7 @@ describe("Transaction CSV To JSON Event handler test", () => {
     );
     mockedTransformCsvToJson.mockResolvedValue([
       buildRow(
-        "https://a.client3.eu",
+        "https://a.vendor3.eu",
         timestamp,
         "some request id",
         "LEVEL_1",
@@ -113,7 +113,7 @@ describe("Transaction CSV To JSON Event handler test", () => {
         "some entity id 1"
       ),
       buildRow(
-        "https://a.client4.co.uk",
+        "https://a.vendor4.co.uk",
         timestamp,
         "another request id 2",
         "LEVEL_1",

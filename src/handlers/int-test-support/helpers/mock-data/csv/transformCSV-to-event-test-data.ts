@@ -2,7 +2,7 @@ import { TestCases } from "./augmentTestCases";
 
 export const testCases: TestCases = [
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "LEVEL_1",
     givenStatus: "BILLABLE",
     expectedPath: "happy",
@@ -11,7 +11,7 @@ export const testCases: TestCases = [
     expectedEventName: "IPV_C4_TEST1",
   },
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "LEVEL_1",
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "happy",
@@ -20,7 +20,7 @@ export const testCases: TestCases = [
     expectedEventName: "IPV_C4_S_TEST1",
   },
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "LEVEL_1",
     givenStatus: "GOOP",
     expectedPath: "sad",
@@ -29,7 +29,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "LEVEL_2",
     givenStatus: "BILLABLE",
     expectedPath: "happy",
@@ -38,7 +38,7 @@ export const testCases: TestCases = [
     expectedEventName: "IPV_C4_S_TEST2",
   },
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "LEVEL_2",
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "happy",
@@ -47,7 +47,7 @@ export const testCases: TestCases = [
     expectedEventName: "IPV_C4_SI_TEST2",
   },
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "LEVEL_2",
     givenStatus: "BILLABLE-UPLIFT",
     expectedPath: "happy",
@@ -56,7 +56,7 @@ export const testCases: TestCases = [
     expectedEventName: "IPV_C4_TEST3",
   },
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "LEVEL_2",
     givenStatus: "GOOP",
     expectedPath: "sad",
@@ -65,7 +65,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "GOOP",
     givenStatus: "BILLABLE",
     expectedPath: "sad",
@@ -74,7 +74,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "GOOP",
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "sad",
@@ -83,7 +83,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "GOOP",
     givenStatus: "BILLABLE-UPLIFT",
     expectedPath: "sad",
@@ -92,7 +92,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client4.co.uk",
+    givenEntity: "https://a.vendor4.co.uk",
     givenLoa: "GOOP",
     givenStatus: "GOOP",
     expectedPath: "sad",
@@ -101,7 +101,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "LEVEL_1",
     givenStatus: "BILLABLE",
     expectedPath: "happy",
@@ -110,7 +110,7 @@ export const testCases: TestCases = [
     expectedEventName: "IPV_C3_TEST1",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "LEVEL_1",
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "happy",
@@ -119,7 +119,7 @@ export const testCases: TestCases = [
     expectedEventName: "IPV_C3_S_TEST1",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "LEVEL_1",
     givenStatus: "GOOP",
     expectedPath: "sad",
@@ -128,7 +128,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "LEVEL_2",
     givenStatus: "BILLABLE",
     expectedPath: "happy",
@@ -137,7 +137,7 @@ export const testCases: TestCases = [
     expectedEventName: "IPV_C3_S_TEST2",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "LEVEL_2",
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "happy",
@@ -146,7 +146,7 @@ export const testCases: TestCases = [
     expectedEventName: "IPV_C3_SI_TEST2",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "LEVEL_2",
     givenStatus: "BILLABLE-UPLIFT",
     expectedPath: "happy",
@@ -155,7 +155,7 @@ export const testCases: TestCases = [
     expectedEventName: "IPV_C3_TEST3",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "LEVEL_2",
     givenStatus: "GOOP",
     expectedPath: "sad",
@@ -164,7 +164,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "GOOP",
     givenStatus: "BILLABLE",
     expectedPath: "sad",
@@ -173,7 +173,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "GOOP",
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "sad",
@@ -182,7 +182,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "GOOP",
     givenStatus: "BILLABLE-UPLIFT",
     expectedPath: "sad",
@@ -191,7 +191,7 @@ export const testCases: TestCases = [
     expectedEventName: "unknown",
   },
   {
-    givenEntity: "https://a.client3.eu",
+    givenEntity: "https://a.vendor3.eu",
     givenLoa: "GOOP",
     givenStatus: "GOOP",
     expectedPath: "sad",
