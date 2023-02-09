@@ -217,20 +217,27 @@ Resources:
               COALESCE(invoice.month,txn.month)                     AS month,
               COALESCE(invoice.price,0)-COALESCE(txn.price,0)       AS price_difference,
               COALESCE(invoice.quantity,0)-COALESCE(txn.quantity,0) AS quantity_difference,
-              (CASE WHEN COALESCE(txn.price,0) = 0 then (CASE WHEN COALESCE(invoice.price,0) = 0 THEN 0 ELSE null END) ELSE 100*(COALESCE(invoice.price,0)-txn.price)/txn.price END)
+              (CASE WHEN COALESCE(txn.price,0) = 0 THEN (CASE WHEN COALESCE(invoice.price,0) = 0 THEN 0 ELSE null END) ELSE 100*(COALESCE(invoice.price,0)-txn.price)/txn.price END)
                                                                     AS price_difference_percentage,
               (CASE WHEN COALESCE(txn.quantity,0) = 0 THEN null ELSE 100*(COALESCE(invoice.quantity,0)-txn.quantity)/txn.quantity END)
                                                                     AS quantity_difference_percentage,
-              invoice.price                                         AS billing_price,
-              invoice.quantity                                      AS billing_quantity,
+              invoice.price                                         AS invoice_price,
+              invoice.quantity                                      AS invoice_quantity,
               txn.price                                             AS transaction_price,
-              txn.quantity                                          AS transaction_quantity
+              txn.quantity                                          AS transaction_quantity,
+              CASE
+                WHEN invoice.price = 0 AND txn.price = 0 THEN 'No charge for this month'
+                WHEN txn.price = 0 THEN 'Rate card data missing'
+                WHEN invoice.price IS null AND invoice.quantity IS null THEN 'Invoice data missing'
+                WHEN txn.price IS null AND txn.quantity IS null THEN 'Transaction data missing'
+                ELSE ''
+              END AS Message
           FROM btm_transactions_curated txn
           FULL JOIN btm_billing_curated invoice ON (
-              txn.vendor_name=invoice.vendor_name AND
-              txn.service_name=invoice.service_name AND
-              txn.year=invoice.year AND
-              txn.month=invoice.month
+              txn.vendor_name = invoice.vendor_name AND
+              txn.service_name = invoice.service_name AND
+              txn.year = invoice.year AND
+              txn.month = invoice.month
           )
         Workgroup: !Ref AthenaTransactionWorkgroup
 
