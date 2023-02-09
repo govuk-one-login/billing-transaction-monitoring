@@ -23,10 +23,41 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": 131,
-  "iteration": 1675695922079,
+  "iteration": 1675941618846,
   "links": [],
   "liveNow": false,
   "panels": [
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "content": "<h2>Billing Reconciliation Dashboard</h2>\n\n<table style=\"border-collapse: collapse; border: none;\">\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\">Invoice type:</td><td style=\"border: none;\"><b>PxQ suppliers</b></td></tr>\n</table>\n",
+        "mode": "html"
+      },
+      "pluginVersion": "8.4.7",
+      "type": "text"
+    },
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "content": "<table style=\"border-collapse: collapse; border: none;\">\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: red; border: none;\">Red</span></td><td style=\"border: none;\">Above 1%</td></tr>\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: #59A94F; border: none;\">Green</span></td><td style=\"border: none;\">Less than or equal to 1%</td></tr>\n</table>",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.4.7",
+      "title": "Key",
+      "type": "text"
+    },
     {
       "datasource": {
         "type": "grafana-athena-datasource",
@@ -40,9 +71,9 @@
           "decimals": 1,
           "links": [
             {
-              "targetBlank": true,
+              "targetBlank": false,
               "title": "Invoice: ${__data.fields.Billing Quantity}=£${__data.fields.Billing Price} Expected: ${__data.fields.Transaction Quantity}=£${__data.fields.Transaction Price}",
-              "url": "https://www.google.com/search?q=${__data.fields.Vendor}"
+              "url": "/d/8Yl8CW04k/billing-reconciliation-dashboard-preprod?var-vendorNames=${__data.fields.Vendor}"
             }
           ],
           "mappings": [],
@@ -93,10 +124,10 @@
         ]
       },
       "gridPos": {
-        "h": 7,
-        "w": 10,
+        "h": 8,
+        "w": 12,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 2,
       "links": [],
@@ -130,7 +161,7 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  CONCAT(month, '/', year) as \"Month\",\n  CAST(billing_price AS double) AS \"Billing Price\",\n  CAST(price_difference_percentage AS double) AS \"Price Difference\",\n  CAST(transaction_price AS double) AS \"Transaction Price\",\n  CAST(billing_quantity AS double) AS \"Billing Quantity\",\n  CAST(quantity_difference_percentage AS double) AS \"Quantity Difference\",\n  CAST(transaction_quantity AS double) AS \"Transaction Quantity\"\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name,year,month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  CONCAT(month, '/', year) as \"Month\",\n  CAST(billing_price AS double) AS \"Billing Price\",\n  CAST(price_difference_percentage AS double) AS \"Price Difference\",\n  CAST(transaction_price AS double) AS \"Transaction Price\",\n  CAST(billing_quantity AS double) AS \"Billing Quantity\",\n  CAST(quantity_difference_percentage AS double) AS \"Quantity Difference\",\n  CAST(transaction_quantity AS double) AS \"Transaction Quantity\",\n  Message\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A"
         }
       ],
@@ -144,19 +175,79 @@
     },
     {
       "gridPos": {
-        "h": 3,
-        "w": 5,
+        "h": 5,
+        "w": 12,
         "x": 0,
-        "y": 7
+        "y": 11
       },
-      "id": 4,
+      "id": 8,
       "options": {
-        "content": "<span style=\"color:red\">Red</span> - Above 1%<br>\n<span style=\"color:green\">Green</span> - Less than or equal to 1%<br>\n",
+        "content": "If a supplier is marked as <span style=\"color:red\">Red</span>, it means that the discrepancy between our internal data and the supplier’s reported data is above our threshold of 1%, and is considered to have Failed. Please first reach out to the Data & Analytics team to confirm our internal data. You should also reach out to the supplier to confirm their data.<br>\n<br>\nIf a supplier is marked as <span style=\"color:#59A94F\">Green</span>, it means that the discrepancy between our internal data and the supplier’s reported data is below our threshold of 1%, and is considered to have Passed. Please contact the PMO team to confirm that their invoice for this month can paid.<br>",
         "mode": "markdown"
       },
       "pluginVersion": "8.4.7",
-      "title": "Legend",
       "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "center",
+            "displayMode": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 10,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "8.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 2,
+          "refId": "A"
+        }
+      ],
+      "type": "table"
     }
   ],
   "refresh": "",
@@ -168,7 +259,7 @@
       {
         "allValue": "",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -235,6 +326,13 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
+      },
+      {
+        "hide": 2,
+        "name": "thisPage",
+        "query": "https://g-9908ef36be.grafana-workspace.eu-west-2.amazonaws.com/d/8Yl8CW04k/billing-reconciliation-dashboard-preprod",
+        "skipUrlSync": false,
+        "type": "constant"
       }
     ]
   },
@@ -246,7 +344,7 @@
     "hidden": true
   },
   "timezone": "",
-  "title": "Billing Reconciliation Dashbaord - PreProd",
-  "version": 18,
+  "title": "Billing Reconciliation Dashboard - Dev",
+  "version": 52,
   "weekStart": ""
 }
