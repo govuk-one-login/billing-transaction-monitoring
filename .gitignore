@@ -6,4 +6,4 @@ dist
 coverage
 template.yaml
 reports
-
+integration_tests/payloads/messages
