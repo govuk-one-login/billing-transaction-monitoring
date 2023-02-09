@@ -161,7 +161,7 @@ test("Clean handler with valid event record that has invalid optional values", a
 test("Clean handler with valid event record that has valid optional values", async () => {
   const recordBodyObject = {
     ...validRecordBodyObject,
-    vendor_id: "some client ID",
+    vendor_id: "some vendor ID",
     event_id: "some event ID",
     extensions: {
       iss: "some ISS",

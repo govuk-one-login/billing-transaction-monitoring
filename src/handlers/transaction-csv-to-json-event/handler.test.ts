@@ -35,13 +35,13 @@ describe("Transaction CSV To JSON Event handler test", () => {
     console.error = oldConsoleError;
   });
 
-  const client1 = "https://a.client1.eu";
+  const vendor1 = "https://a.vendor1.eu";
   const timestamp = "2022-10-01T00:27:41.186Z";
-  const idpClientLookUp = {
-    [client1]: "client1",
+  const idpVendorLookUp = {
+    [vendor1]: "vendor1",
   };
   const eventNameRules = {
-    [client1]: [
+    [vendor1]: [
       {
         "rule name": "rule value",
       },
@@ -58,7 +58,7 @@ describe("Transaction CSV To JSON Event handler test", () => {
     await expect(handler(givenEvent)).rejects.toThrowError("Config Bucket");
   });
 
-  test("should throw error with failing idpClient or eventNameRules Lookup", async () => {
+  test("should throw error with failing idpVendor or eventNameRules Lookup", async () => {
     mockedFetchS3.mockRejectedValue("Error reading from S3");
     await expect(handler(givenEvent)).rejects.toThrowError(
       "Transaction CSV to Json Event Handler error"
@@ -68,7 +68,7 @@ describe("Transaction CSV To JSON Event handler test", () => {
   });
 
   test("should throw error with failing transformCsvToJson", async () => {
-    mockedFetchS3.mockResolvedValueOnce(JSON.stringify(idpClientLookUp));
+    mockedFetchS3.mockResolvedValueOnce(JSON.stringify(idpVendorLookUp));
     mockedFetchS3.mockResolvedValueOnce(JSON.stringify(eventNameRules));
     mockedTransformCsvToJson.mockRejectedValue("Error transforming data");
     await expect(handler(givenEvent)).rejects.toThrowError(
@@ -81,8 +81,8 @@ describe("Transaction CSV To JSON Event handler test", () => {
   test("should call processRow with the expected parameters", async () => {
     mockedFetchS3.mockResolvedValueOnce(
       JSON.stringify({
-        "https://a.vendor3.eu": "client3",
-        "https://a.vendor4.co.uk": "client4",
+        "https://a.vendor3.eu": "vendor3",
+        "https://a.vendor4.co.uk": "vendor4",
       })
     );
     mockedFetchS3.mockResolvedValueOnce(
@@ -124,11 +124,11 @@ describe("Transaction CSV To JSON Event handler test", () => {
     await handler(createEvent([]));
     expect(mockedSendRecord).toHaveBeenCalledWith(
       "output queue url",
-      '{"event_id":"some request id","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C3_TEST1","component_id":"some entity id 1","vendor_id":"client3"}'
+      '{"event_id":"some request id","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C3_TEST1","component_id":"some entity id 1","vendor_id":"vendor3"}'
     );
     expect(mockedSendRecord).toHaveBeenCalledWith(
       "output queue url",
-      '{"event_id":"another request id 2","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C4_TEST1","component_id":"another entity 2","vendor_id":"client4"}'
+      '{"event_id":"another request id 2","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C4_TEST1","component_id":"another entity 2","vendor_id":"vendor4"}'
     );
   });
 });

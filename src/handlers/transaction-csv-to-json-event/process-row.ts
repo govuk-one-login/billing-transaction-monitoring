@@ -23,7 +23,7 @@ export interface CsvRow {
 
 export function processRow(
   row: CsvRow,
-  idpClientLookup: { [index: string]: string },
+  idpVendorLookup: { [index: string]: string },
   eventNameRules: EventNameRules
 ): TransactionEventBodyObject {
   const idpEntityId = row["Idp Entity Id"];
@@ -38,6 +38,6 @@ export function processRow(
     timestamp_formatted: timestampFormatted,
     event_name: getEventNameFromRules(eventNameRules, idpEntityId, row),
     component_id: rpEntityId,
-    vendor_id: idpClientLookup[idpEntityId],
+    vendor_id: idpVendorLookup[idpEntityId],
   };
 }
