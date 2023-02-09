@@ -1,6 +1,7 @@
 import {
   ListTopicsCommand,
   PublishBatchCommand,
+  PublishBatchRequestEntry,
   PublishCommand,
   PublishCommandOutput,
   PublishInput,
@@ -50,13 +51,14 @@ export const publishToTestTopic = async (
 };
 
 export const batchPublishToTestTopic = async (
-  payloads: any[]
+  payloads: PublishBatchRequestEntry[]
 ): Promise<PublishCommandOutput> => {
   const TopicArn = await testTopic();
   const command = new PublishBatchCommand({
     TopicArn,
     PublishBatchRequestEntries: payloads,
   });
+  console.log(`Sending batch beginning with message Id ${payloads[0].Id}`);
   const result = await snsClient.send(command);
   return result;
 };

@@ -1,58 +1,38 @@
-import fs, { writeFileSync } from "fs";
-import { join } from "path";
+import {
+  PublishBatchRequestEntry,
+  PublishCommandOutput,
+} from "@aws-sdk/client-sns";
 import {
   VendorId,
   EventName,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-
-interface Message {
-  vendor_id: VendorId;
-  component_id: string;
-  event_id: string;
-  timestamp: number;
-  event_name: EventName;
-}
+import { batchPublishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 
 const makeMessages = (
   numberOfEvents: number,
   vendorId: VendorId,
   eventName: EventName,
   humanDate: string
-): Message[] => {
-  // prettier-ignore
-  const events = []
+): PublishBatchRequestEntry[] => {
+  const events = [];
   for (let i = 0; i < numberOfEvents; i++) {
     events.push({
-      vendor_id: vendorId,
-      component_id: "Test_COMP",
-      event_id: `event_${vendorId}_${(10000 + i).toString(36)}_${
+      Id: `Message_${vendorId}_${(10000 + i).toString(36)}_${
         new Date(humanDate).getTime() / 1000
       }`,
-      timestamp: new Date(humanDate).getTime() / 1000,
-      event_name: eventName,
+      Message: JSON.stringify({
+        vendor_id: vendorId,
+        component_id: "Test_COMP",
+        event_id: `event_${vendorId}_${(10000 + i).toString(36)}_${
+          new Date(humanDate).getTime() / 1000
+        }`,
+        timestamp: new Date(humanDate).getTime() / 1000,
+        event_name: eventName,
+      }),
     });
   }
   return events;
 };
-
-export type MakeDirectorySafely = (
-  path: string,
-  options?: { shouldEmpty: boolean }
-) => void;
-
-export const makeDirectorySafelyFactory =
-  ({ mkdirSync, rmSync, statSync }: typeof fs): MakeDirectorySafely =>
-  (path: string, { shouldEmpty } = { shouldEmpty: false }): void => {
-    const stat = statSync(path, {
-      throwIfNoEntry: false,
-    });
-    if (stat?.isDirectory() && !shouldEmpty) {
-      return;
-    } else if (stat?.isDirectory() && shouldEmpty) {
-      rmSync(path, { recursive: true });
-    }
-    mkdirSync(path);
-  };
 
 const cases = [
   {
@@ -81,36 +61,36 @@ const cases = [
   },
 ];
 
+export const chunkArray = <ArrayElem>(
+  array: ArrayElem[],
+  chunkSize: number
+): ArrayElem[][] => {
+  const chunks = [];
+  const numberOfChunks = Math.ceil(array.length / chunkSize);
+  for (let i = 0; i < numberOfChunks; i++) {
+    chunks.push(array.slice(i * chunkSize, (i + 1) * chunkSize));
+  }
+  return chunks;
+};
+
 describe("\nGENERATE EVENTS\n", () => {
   test("S3 EVENTS", async () => {
-    let batch: Message[] = [];
-    cases.forEach(({ vendor, count, name, date }) => {
-      const messages = makeMessages(count, vendor, name, date);
-      batch = batch.concat(messages);
+    const batchPromises = cases.reduce<Array<Promise<PublishCommandOutput>>>(
+      (acc, { vendor, count, name, date }) => {
+        const messages = makeMessages(count, vendor, name, date);
 
-      writeFileSync(
-        join(__dirname, `../payloads/messages.json`),
-        JSON.stringify(batch)
-      );
+        const chunkedMessages = chunkArray(messages, 10);
+        // eslint-disable-next-line @typescript-eslint/promise-function-async
+        const chunkPromises = chunkedMessages.map((chunk) =>
+          batchPublishToTestTopic(chunk)
+        );
+        return [...acc, ...chunkPromises];
+      },
+      []
+    );
 
-      // Write individual files for each event
-      // makeDirectorySafelyFactory(fs)(
-      //   join(
-      //     __dirname,
-      //     `../payloads/messages/${new Date(date).toISOString().split("T")[0]}`
-      //   )
-      // );
-      // messages.forEach((message) => {
-      //   writeFileSync(
-      //     join(
-      //       __dirname,
-      //       `../payloads/messages/${
-      //         new Date(date).toISOString().split("T")[0]
-      //       }/${message.event_id}.json`
-      //     ),
-      //     JSON.stringify(message)
-      //   );
-      // });
+    await Promise.all(batchPromises).then((resolutions) => {
+      console.log(resolutions);
     });
   });
 });
