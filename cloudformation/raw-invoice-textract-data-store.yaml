@@ -80,7 +80,7 @@ Resources:
     Properties:
       AlarmName: !Sub ${AWS::StackName}-raw-invoice-textract-data-dlq-alarm
       AlarmActions:
-        - !Ref AlarmTopic
+        - !GetAtt AlarmTopicParameter.Value
       ComparisonOperator: GreaterThanThreshold
       EvaluationPeriods: 1
       Metrics:
@@ -156,7 +156,7 @@ Resources:
     Properties:
       AlarmName: !Sub ${AWS::StackName}-raw-textract-storage-function-alarm
       AlarmActions:
-        - !Ref AlarmTopic
+        - !GetAtt AlarmTopicParameter.Value
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName

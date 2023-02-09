@@ -91,7 +91,7 @@ Resources:
     Properties:
       AlarmName: !Sub ${AWS::StackName}-transaction-csv-to-json-event-function-alarm
       AlarmActions:
-        - !Ref AlarmTopic
+        - !GetAtt AlarmTopicParameter.Value
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName

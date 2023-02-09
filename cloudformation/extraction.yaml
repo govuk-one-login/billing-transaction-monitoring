@@ -49,7 +49,7 @@ Resources:
     Properties:
       AlarmName: !Sub ${AWS::StackName}-extract-function-alarm
       AlarmActions:
-        - !Ref AlarmTopic
+        - !GetAtt AlarmTopicParameter.Value
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName
@@ -98,7 +98,7 @@ Resources:
     Properties:
       AlarmName: !Sub ${AWS::StackName}-extract-dlq-alarm
       AlarmActions:
-        - !Ref AlarmTopic
+        - !GetAtt AlarmTopicParameter.Value
       ComparisonOperator: GreaterThanThreshold
       EvaluationPeriods: 1
       Metrics:

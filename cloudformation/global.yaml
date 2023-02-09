@@ -1,11 +1,44 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-  AlarmTopic:
+  AlarmDummyTopic:
+    Condition: AlertingDisabled
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: !Sub ${AWS::StackName}-alarms
+      TopicName: !Sub ${AWS::StackName}-alarms-dummy
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  AlarmDummyQueue:
+    Condition: AlertingDisabled
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-alarms-dummy
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  AlarmDummySQSSubscription:
+    Condition: AlertingDisabled
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt AlarmDummyQueue.Arn
+      Protocol: sqs
+      TopicArn: !Ref AlarmDummyTopic
+
+  AlarmDummyTopicToQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Condition: AlertingDisabled
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Resource: !GetAtt AlarmDummyQueue.Arn
+            Action: SQS:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref AlarmDummyTopic
+      Queues:
+        - Ref: AlarmDummyQueue
 
   KmsKey:
     Type: AWS::KMS::Key
@@ -98,3 +131,23 @@ Resources:
           ],
         ]
       Description: !Sub Config stack used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
+
+  AlarmTopicParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub ${AWS::StackName}-alarm-topic
+      Type: String
+      Value:
+        !If [
+          AlertingDisabled,
+          !Ref AlarmDummyTopic,
+          !Join [
+            '-',
+            [
+              !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:di-btm-tooling',
+              !If [IsDev, dev, !Ref Environment],
+              alarms,
+            ],
+          ],
+        ]
+      Description: !Sub Alarm topic used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
