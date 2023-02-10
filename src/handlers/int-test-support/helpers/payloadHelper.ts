@@ -22,11 +22,11 @@ export interface SNSEventPayload {
   vendor_id: VendorId;
 }
 
-export const prettyClientNameMap = {
-  vendor_testvendor1: "Client One",
-  vendor_testvendor2: "Client Two",
-  vendor_testvendor3: "Client Three",
-  vendor_testvendor4: "Client Four",
+export const prettyVendorNameMap = {
+  vendor_testvendor1: "Vendor One",
+  vendor_testvendor2: "Vendor Two",
+  vendor_testvendor3: "Vendor Three",
+  vendor_testvendor4: "Vendor Four",
 };
 
 export const prettyEventNameMap = {

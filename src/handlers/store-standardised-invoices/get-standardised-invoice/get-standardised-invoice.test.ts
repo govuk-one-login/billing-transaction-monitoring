@@ -23,7 +23,7 @@ describe("Standardised invoice getter", () => {
   let mockedStandardisedInvoice0: any;
   let mockedStandardisedInvoiceDefault: any;
   let mockedVendorName: string;
-  let givenClientId: string;
+  let givenVendorId: string;
   let givenConfigBucket: string;
   let givenTextractPages: Textract.ExpenseDocument[];
 
@@ -44,7 +44,7 @@ describe("Standardised invoice getter", () => {
       mockedStandardisedInvoiceDefault
     );
 
-    givenClientId = "given client ID";
+    givenVendorId = "given vendor ID";
     givenConfigBucket = "given config bucket";
     givenTextractPages = "given Textract pages" as any;
   });
@@ -59,7 +59,7 @@ describe("Standardised invoice getter", () => {
     await expect(
       getStandardisedInvoice(
         givenTextractPages,
-        givenClientId,
+        givenVendorId,
         givenConfigBucket
       )
     ).rejects.toThrowError(mockedErrorText);
@@ -68,12 +68,12 @@ describe("Standardised invoice getter", () => {
     );
     expect(mockedGetVendorInvoiceStandardisationModuleId).toHaveBeenCalledWith(
       givenConfigBucket,
-      givenClientId
+      givenVendorId
     );
     expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledTimes(1);
     expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledWith(
       givenConfigBucket,
-      { vendor_id: givenClientId }
+      { vendor_id: givenVendorId }
     );
     expect(mockedGetStandardisedInvoice0).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
@@ -87,7 +87,7 @@ describe("Standardised invoice getter", () => {
     await expect(
       getStandardisedInvoice(
         givenTextractPages,
-        givenClientId,
+        givenVendorId,
         givenConfigBucket
       )
     ).rejects.toThrowError(mockedErrorText);
@@ -96,12 +96,12 @@ describe("Standardised invoice getter", () => {
     );
     expect(mockedGetVendorInvoiceStandardisationModuleId).toHaveBeenCalledWith(
       givenConfigBucket,
-      givenClientId
+      givenVendorId
     );
     expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledTimes(1);
     expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledWith(
       givenConfigBucket,
-      { vendor_id: givenClientId }
+      { vendor_id: givenVendorId }
     );
     expect(mockedGetStandardisedInvoice0).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
@@ -112,7 +112,7 @@ describe("Standardised invoice getter", () => {
 
     const result = await getStandardisedInvoice(
       givenTextractPages,
-      givenClientId,
+      givenVendorId,
       givenConfigBucket
     );
 
@@ -130,7 +130,7 @@ describe("Standardised invoice getter", () => {
 
     const result = await getStandardisedInvoice(
       givenTextractPages,
-      givenClientId,
+      givenVendorId,
       givenConfigBucket
     );
 
@@ -148,7 +148,7 @@ describe("Standardised invoice getter", () => {
 
     const result = await getStandardisedInvoice(
       givenTextractPages,
-      givenClientId,
+      givenVendorId,
       givenConfigBucket
     );
 

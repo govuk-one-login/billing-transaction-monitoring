@@ -63,7 +63,7 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
           if (s3Object === undefined || s3Object === "NoSuchKey")
             throw new Error("No event was made for a happy path");
           const s3Event = JSON.parse(s3Object);
-          expect(s3Event.vendor_id).toEqual(testCase.expectedClientId);
+          expect(s3Event.vendor_id).toEqual(testCase.expectedVendorId);
           expect(s3Event.event_id).toEqual(testCase.expectedEventId);
           expect(s3Event.event_name).toEqual(testCase.expectedEventName);
           break;

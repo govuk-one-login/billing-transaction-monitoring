@@ -1,7 +1,7 @@
 import { CsvRow } from "../src/handlers/transaction-csv-to-json-event/process-row";
 
 export function buildRow(
-  client: string,
+  vendor: string,
   timestamp: string,
   requestId: string,
   mloa: string,
@@ -9,7 +9,7 @@ export function buildRow(
   rpId: string
 ): CsvRow {
   return {
-    "Idp Entity Id": client,
+    "Idp Entity Id": vendor,
     Timestamp: timestamp,
     "Request Id": requestId,
     "Minimum Level Of Assurance": mloa,

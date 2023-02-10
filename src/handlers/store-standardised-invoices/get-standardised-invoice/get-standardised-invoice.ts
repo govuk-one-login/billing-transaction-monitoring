@@ -34,12 +34,12 @@ const standardisationModuleMap: Record<number, StandardisationModule> = {
 
 export const getStandardisedInvoice = async (
   textractPages: Textract.ExpenseDocument[],
-  clientId: string,
+  vendorId: string,
   configBucket: string
 ): Promise<StandardisedLineItem[]> => {
   const [standardisationModuleId, vendorServiceConfigRow] = await Promise.all([
-    getVendorInvoiceStandardisationModuleId(configBucket, clientId),
-    getVendorServiceConfigRow(configBucket, { vendor_id: clientId }),
+    getVendorInvoiceStandardisationModuleId(configBucket, vendorId),
+    getVendorServiceConfigRow(configBucket, { vendor_id: vendorId }),
   ]);
 
   const standardisationModule =
