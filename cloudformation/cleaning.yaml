@@ -9,7 +9,7 @@ Resources:
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt CleanDeadLetterQueue.Arn
-        maxReceiveCount: 1
+        maxReceiveCount: 3
 
   CleanDeadLetterQueue:
     Type: AWS::SQS::Queue
