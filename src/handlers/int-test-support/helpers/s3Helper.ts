@@ -148,7 +148,6 @@ const checkIfS3ObjectExists = async (object: S3Object): Promise<boolean> => {
     );
     return data.$metadata.httpStatusCode === 200;
   } catch (err) {
-    if (err instanceof Error) console.log(err.name);
     return false;
   }
 };

@@ -24,7 +24,6 @@ describe("\nPublish valid sns message and execute athena query\n", () => {
           snsValidEventPayload.event_id
         );
       } else {
-        console.log("Storage bucket contents empty");
         return false;
       }
     };
