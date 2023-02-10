@@ -15,17 +15,17 @@ describe("Extract handler test", () => {
 
   let mockStartExpenseAnalysis: jest.Mock;
 
-  const givenClientIdFolder = "client123";
+  const givenVendorIdFolder = "vendor123";
 
   const validEvent = createEvent([
     createEventRecordWithS3Body(
       "di-btm-anybucket",
-      `${givenClientIdFolder}/onepdf.pdf`,
+      `${givenVendorIdFolder}/onepdf.pdf`,
       "message ID 1"
     ),
     createEventRecordWithS3Body(
       "di-btm-anybucket",
-      `${givenClientIdFolder}/secondpdf.pdf`,
+      `${givenVendorIdFolder}/secondpdf.pdf`,
       "message ID 2"
     ),
   ]);
@@ -60,7 +60,7 @@ describe("Extract handler test", () => {
       DocumentLocation: {
         S3Object: {
           Bucket: "di-btm-anybucket",
-          Name: `${givenClientIdFolder}/onepdf.pdf`,
+          Name: `${givenVendorIdFolder}/onepdf.pdf`,
         },
       },
       NotificationChannel: {
@@ -72,7 +72,7 @@ describe("Extract handler test", () => {
       DocumentLocation: {
         S3Object: {
           Bucket: "di-btm-anybucket",
-          Name: `${givenClientIdFolder}/secondpdf.pdf`,
+          Name: `${givenVendorIdFolder}/secondpdf.pdf`,
         },
       },
       NotificationChannel: {
@@ -214,8 +214,8 @@ describe("Extract handler test", () => {
 
   test("Extract handler with single event record that has valid S3 event in body with multiple records", async () => {
     const givenBucketName = "some bucket name";
-    const givenObjectKey1 = `${givenClientIdFolder}/some object key`;
-    const givenObjectKey2 = `${givenClientIdFolder}/some other object key`;
+    const givenObjectKey1 = `${givenVendorIdFolder}/some object key`;
+    const givenObjectKey2 = `${givenVendorIdFolder}/some other object key`;
     const givenEvent = {
       Records: [
         {
@@ -277,7 +277,7 @@ describe("Extract handler test", () => {
     });
   });
 
-  test("Extract handler with event record that has valid S3 event in body with no client ID folder", async () => {
+  test("Extract handler with event record that has valid S3 event in body with no vendor ID folder", async () => {
     const givenEvent = {
       Records: [
         {

@@ -2,8 +2,8 @@ import { buildRow } from "../../../test-helpers/build-rows";
 import { getEventNameFromRules } from "./get-event-name-from-rules";
 
 describe("Get Event Name from Rules Test", () => {
-  const idpEntityId1 = "https://a.client1.eu";
-  const idpEntityId2 = "https://a.client2.eu";
+  const idpEntityId1 = "https://a.vendor1.eu";
+  const idpEntityId2 = "https://a.vendor2.eu";
   const requestId1 = "event-id-1";
   const minLevel1 = "LEVEL_1";
   const status1 = "BILLABLE";
@@ -20,7 +20,7 @@ describe("Get Event Name from Rules Test", () => {
     rpEntityId1
   );
 
-  const client1Rules = [
+  const vendor1Rules = [
     {
       "Minimum Level Of Assurance": minLevel1,
       "Billable Status": status1,
@@ -28,7 +28,7 @@ describe("Get Event Name from Rules Test", () => {
     },
   ];
   const eventNameRules = {
-    [idpEntityId1]: client1Rules,
+    [idpEntityId1]: vendor1Rules,
   };
 
   test("Should return the correct event name when given correct paramaters", async () => {

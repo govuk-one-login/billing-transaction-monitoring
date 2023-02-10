@@ -4,11 +4,11 @@ import { putS3Object, S3Object } from "../../s3Helper";
 
 export const writeInvoiceToS3 = async (
   file: ArrayBuffer,
-  clientIdFolder: string
+  vendorIdFolder: string
 ): Promise<S3Object> => {
   const s3Object = {
     bucket: `${resourcePrefix()}-raw-invoice-pdf`,
-    key: `${clientIdFolder}/raw-Invoice-${Math.random()
+    key: `${vendorIdFolder}/raw-Invoice-${Math.random()
       .toString(36)
       .substring(2, 7)}-validFile.pdf`,
   };

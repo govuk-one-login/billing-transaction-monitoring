@@ -2,7 +2,7 @@ import { VENDOR_INVOICE_STANDARDISATION_CONFIG_PATH } from "../../constants";
 import { fetchS3 } from "../s3";
 
 export interface VendorInvoiceStandardisationConfigItem {
-  clientId: string;
+  vendorId: string;
   invoiceStandardisationModuleId: number;
 }
 
@@ -12,11 +12,11 @@ let configPromise:
 
 export const getVendorInvoiceStandardisationModuleId = async (
   configBucket: string,
-  clientId: string
+  vendorId: string
 ): Promise<number | undefined> => {
   if (configPromise === undefined) configPromise = fetchConfig(configBucket);
   const configItems = await configPromise;
-  const configItem = configItems.find((item) => item.clientId === clientId);
+  const configItem = configItems.find((item) => item.vendorId === vendorId);
   return configItem?.invoiceStandardisationModuleId;
 };
 
@@ -61,5 +61,5 @@ const fetchConfig = async (
 
 const isConfigItem = (x: any): x is VendorInvoiceStandardisationConfigItem =>
   typeof x === "object" &&
-  typeof x.clientId === "string" &&
+  typeof x.vendorId === "string" &&
   typeof x.invoiceStandardisationModuleId === "number";

@@ -4,7 +4,7 @@ export interface TestCase {
   givenStatus: string;
   expectedPath: "happy" | "sad";
   expectedEventId: string;
-  expectedClientId: string;
+  expectedVendorId: string;
   expectedEventName: string;
 }
 

@@ -11,49 +11,49 @@ jest.mock("../s3");
 const mockedFetchS3 = fetchS3 as jest.Mock;
 
 describe("Vendor invoice standardisation module ID getter", () => {
-  let mockedClientId1: string;
-  let mockedClientId1ConfigItem: VendorInvoiceStandardisationConfigItem;
-  let mockedClientId2: string;
-  let mockedClientId2ConfigItem: VendorInvoiceStandardisationConfigItem;
+  let mockedVendorId1: string;
+  let mockedVendorId1ConfigItem: VendorInvoiceStandardisationConfigItem;
+  let mockedVendorId2: string;
+  let mockedVendorId2ConfigItem: VendorInvoiceStandardisationConfigItem;
   let mockedConfig: VendorInvoiceStandardisationConfigItem[];
   let mockedInvoiceStandardisationModuleId1: number;
   let mockedInvoiceStandardisationModuleId2: number;
   let givenConfigBucket: string;
-  let givenClientId: string;
+  let givenVendorId: string;
 
   beforeEach(() => {
     jest.resetAllMocks();
     clearVendorInvoiceStandardisationConfig();
 
-    mockedClientId1 = "mocked client ID 1";
+    mockedVendorId1 = "mocked vendor ID 1";
     mockedInvoiceStandardisationModuleId1 = 123;
-    mockedClientId1ConfigItem = {
-      clientId: mockedClientId1,
+    mockedVendorId1ConfigItem = {
+      vendorId: mockedVendorId1,
       invoiceStandardisationModuleId: mockedInvoiceStandardisationModuleId1,
     };
 
-    mockedClientId2 = "mocked client ID 2";
+    mockedVendorId2 = "mocked vendor ID 2";
     mockedInvoiceStandardisationModuleId2 = 456;
-    mockedClientId2ConfigItem = {
-      clientId: mockedClientId2,
+    mockedVendorId2ConfigItem = {
+      vendorId: mockedVendorId2,
       invoiceStandardisationModuleId: mockedInvoiceStandardisationModuleId2,
     };
 
-    mockedConfig = [mockedClientId1ConfigItem, mockedClientId2ConfigItem];
+    mockedConfig = [mockedVendorId1ConfigItem, mockedVendorId2ConfigItem];
     mockedFetchS3.mockReturnValue(JSON.stringify(mockedConfig));
 
     givenConfigBucket = "given config bucket";
-    givenClientId = "given client ID";
+    givenVendorId = "given vendor ID";
   });
 
   test("Vendor invoice standardisation module ID getter with cached config", async () => {
     setVendorInvoiceStandardisationConfig(mockedConfig);
 
-    givenClientId = mockedClientId2;
+    givenVendorId = mockedVendorId2;
 
     const result = await getVendorInvoiceStandardisationModuleId(
       givenConfigBucket,
-      givenClientId
+      givenVendorId
     );
 
     expect(result).toEqual(mockedInvoiceStandardisationModuleId2);
@@ -61,11 +61,11 @@ describe("Vendor invoice standardisation module ID getter", () => {
   });
 
   test("Vendor invoice standardisation module ID getter with no cached config", async () => {
-    givenClientId = mockedClientId2;
+    givenVendorId = mockedVendorId2;
 
     const result = await getVendorInvoiceStandardisationModuleId(
       givenConfigBucket,
-      givenClientId
+      givenVendorId
     );
 
     expect(result).toEqual(mockedInvoiceStandardisationModuleId2);
@@ -83,7 +83,7 @@ describe("Vendor invoice standardisation module ID getter", () => {
     });
 
     await expect(
-      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenClientId)
+      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenVendorId)
     ).rejects.toThrowError(mockedFetchS3ErrorText);
   });
 
@@ -91,7 +91,7 @@ describe("Vendor invoice standardisation module ID getter", () => {
     mockedFetchS3.mockReturnValue(undefined);
 
     await expect(
-      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenClientId)
+      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenVendorId)
     ).rejects.toThrowError("No vendor invoice standardisation config found");
   });
 
@@ -99,7 +99,7 @@ describe("Vendor invoice standardisation module ID getter", () => {
     mockedFetchS3.mockReturnValue("{");
 
     await expect(
-      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenClientId)
+      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenVendorId)
     ).rejects.toThrowError("not valid JSON");
   });
 
@@ -107,7 +107,7 @@ describe("Vendor invoice standardisation module ID getter", () => {
     mockedFetchS3.mockReturnValue("{}");
 
     await expect(
-      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenClientId)
+      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenVendorId)
     ).rejects.toThrowError("not array");
   });
 
@@ -115,17 +115,17 @@ describe("Vendor invoice standardisation module ID getter", () => {
     mockedFetchS3.mockReturnValue("[{}]");
 
     await expect(
-      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenClientId)
+      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenVendorId)
     ).rejects.toThrowError("Invalid");
   });
 
-  test("Vendor invoice standardisation module ID getter with client ID not found", async () => {
-    givenClientId =
-      "given client ID with no vendor invoice standardisation module";
+  test("Vendor invoice standardisation module ID getter with vendor ID not found", async () => {
+    givenVendorId =
+      "given vendor ID with no vendor invoice standardisation module";
 
     const result = await getVendorInvoiceStandardisationModuleId(
       givenConfigBucket,
-      givenClientId
+      givenVendorId
     );
 
     expect(result).toBeUndefined();
@@ -140,8 +140,8 @@ describe("Vendor invoice standardisation module ID getter", () => {
     );
 
     await Promise.all([
-      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenClientId),
-      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenClientId),
+      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenVendorId),
+      getVendorInvoiceStandardisationModuleId(givenConfigBucket, givenVendorId),
     ]);
 
     expect(mockedFetchS3).toHaveBeenCalledTimes(1);

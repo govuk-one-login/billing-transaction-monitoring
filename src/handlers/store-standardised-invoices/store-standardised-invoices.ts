@@ -15,11 +15,11 @@ export async function storeStandardisedInvoices(
     const sourceBucket = storageRecord.s3.bucket.name;
     const sourceFilePath = storageRecord.s3.object.key;
 
-    // Source file must be in folder, which determines client ID. Throw error otherwise.
+    // Source file must be in folder, which determines vendor ID. Throw error otherwise.
     const sourcePathParts = sourceFilePath.split("/");
     if (sourcePathParts.length < 2)
       throw Error(
-        `File not in client ID folder: ${sourceBucket}/${sourceFilePath}`
+        `File not in vendor ID folder: ${sourceBucket}/${sourceFilePath}`
       );
 
     const vendorId = sourcePathParts[0];
