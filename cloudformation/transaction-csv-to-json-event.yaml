@@ -84,14 +84,14 @@ Resources:
               Condition:
                 ForAnyValue:StringEquals:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
-      ReservedConcurrentExecutions: 10
+      ReservedConcurrentExecutions: 1
 
   TransactionCsvToJsonEventFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: !Sub ${AWS::StackName}-transaction-csv-to-json-event-function-alarm
       AlarmActions:
-        - !Ref AlarmTopic
+        - !GetAtt AlarmTopicParameter.Value
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName
@@ -99,6 +99,6 @@ Resources:
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
-      Period: 1800
+      Period: 60
       Statistic: Sum
       Threshold: 0

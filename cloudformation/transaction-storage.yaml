@@ -23,25 +23,18 @@ Resources:
     Properties:
       AlarmName: !Sub ${AWS::StackName}-storage-dlq-alarm
       AlarmActions:
-        - !Ref AlarmTopic
-      ComparisonOperator: GreaterThanThreshold
-      EvaluationPeriods: 1
-      Metrics:
-        - Id: messages
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !GetAtt StorageDeadLetterQueue.QueueName
-              MetricName: ApproximateNumberOfMessagesVisible
-              Namespace: AWS/SQS
-            Period: 1800
-            Stat: Sum
-          ReturnData: false
-        - Id: messagesRate
-          Expression: RATE(messages)
-          ReturnData: true
+        - !GetAtt AlarmTopicParameter.Value
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt StorageDeadLetterQueue.QueueName
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
+      Period: 60
       Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
 
   StorageFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
@@ -93,7 +86,7 @@ Resources:
     Properties:
       AlarmName: !Sub ${AWS::StackName}-storage-function-alarm
       AlarmActions:
-        - !Ref AlarmTopic
+        - !GetAtt AlarmTopicParameter.Value
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName
@@ -101,6 +94,6 @@ Resources:
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
-      Period: 1800
+      Period: 60
       Statistic: Sum
       Threshold: 0
