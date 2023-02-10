@@ -7,7 +7,7 @@ export const testCases: TestCases = [
     givenStatus: "BILLABLE",
     expectedPath: "happy",
     expectedEventId: "9656",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "IPV_C4_TEST1",
   },
   {
@@ -16,7 +16,7 @@ export const testCases: TestCases = [
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "happy",
     expectedEventId: "42758",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "IPV_C4_S_TEST1",
   },
   {
@@ -25,7 +25,7 @@ export const testCases: TestCases = [
     givenStatus: "GOOP",
     expectedPath: "sad",
     expectedEventId: "74876",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "unknown",
   },
   {
@@ -34,7 +34,7 @@ export const testCases: TestCases = [
     givenStatus: "BILLABLE",
     expectedPath: "happy",
     expectedEventId: "49087",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "IPV_C4_S_TEST2",
   },
   {
@@ -43,7 +43,7 @@ export const testCases: TestCases = [
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "happy",
     expectedEventId: "85970",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "IPV_C4_SI_TEST2",
   },
   {
@@ -52,7 +52,7 @@ export const testCases: TestCases = [
     givenStatus: "BILLABLE-UPLIFT",
     expectedPath: "happy",
     expectedEventId: "56013",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "IPV_C4_TEST3",
   },
   {
@@ -61,7 +61,7 @@ export const testCases: TestCases = [
     givenStatus: "GOOP",
     expectedPath: "sad",
     expectedEventId: "30825",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "unknown",
   },
   {
@@ -70,7 +70,7 @@ export const testCases: TestCases = [
     givenStatus: "BILLABLE",
     expectedPath: "sad",
     expectedEventId: "94891",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "unknown",
   },
   {
@@ -79,7 +79,7 @@ export const testCases: TestCases = [
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "sad",
     expectedEventId: "8199",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "unknown",
   },
   {
@@ -88,7 +88,7 @@ export const testCases: TestCases = [
     givenStatus: "BILLABLE-UPLIFT",
     expectedPath: "sad",
     expectedEventId: "76015",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "unknown",
   },
   {
@@ -97,7 +97,7 @@ export const testCases: TestCases = [
     givenStatus: "GOOP",
     expectedPath: "sad",
     expectedEventId: "44021",
-    expectedVendorId: "vendor4",
+    expectedVendorId: "vendor_testvendor4",
     expectedEventName: "unknown",
   },
   {
@@ -106,7 +106,7 @@ export const testCases: TestCases = [
     givenStatus: "BILLABLE",
     expectedPath: "happy",
     expectedEventId: "99178",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "IPV_C3_TEST1",
   },
   {
@@ -115,7 +115,7 @@ export const testCases: TestCases = [
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "happy",
     expectedEventId: "46561",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "IPV_C3_S_TEST1",
   },
   {
@@ -124,7 +124,7 @@ export const testCases: TestCases = [
     givenStatus: "GOOP",
     expectedPath: "sad",
     expectedEventId: "47976",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "unknown",
   },
   {
@@ -133,7 +133,7 @@ export const testCases: TestCases = [
     givenStatus: "BILLABLE",
     expectedPath: "happy",
     expectedEventId: "23270",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "IPV_C3_S_TEST2",
   },
   {
@@ -142,7 +142,7 @@ export const testCases: TestCases = [
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "happy",
     expectedEventId: "89270",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "IPV_C3_SI_TEST2",
   },
   {
@@ -151,7 +151,7 @@ export const testCases: TestCases = [
     givenStatus: "BILLABLE-UPLIFT",
     expectedPath: "happy",
     expectedEventId: "20736",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "IPV_C3_TEST3",
   },
   {
@@ -160,7 +160,7 @@ export const testCases: TestCases = [
     givenStatus: "GOOP",
     expectedPath: "sad",
     expectedEventId: "14487",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "unknown",
   },
   {
@@ -169,7 +169,7 @@ export const testCases: TestCases = [
     givenStatus: "BILLABLE",
     expectedPath: "sad",
     expectedEventId: "50945",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "unknown",
   },
   {
@@ -178,7 +178,7 @@ export const testCases: TestCases = [
     givenStatus: "REPEAT-BILLABLE",
     expectedPath: "sad",
     expectedEventId: "82622",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "unknown",
   },
   {
@@ -187,7 +187,7 @@ export const testCases: TestCases = [
     givenStatus: "BILLABLE-UPLIFT",
     expectedPath: "sad",
     expectedEventId: "84787",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "unknown",
   },
   {
@@ -196,7 +196,7 @@ export const testCases: TestCases = [
     givenStatus: "GOOP",
     expectedPath: "sad",
     expectedEventId: "59034",
-    expectedVendorId: "vendor3",
+    expectedVendorId: "vendor_testvendor3",
     expectedEventName: "unknown",
   },
   {
