@@ -142,7 +142,7 @@ Resources:
                 - s3:PutObject
               Resource:
                 !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
-      ReservedConcurrentExecutions: 10
+      ReservedConcurrentExecutions: 1
 
   RawInvoiceTextractDataStorageFunctionAlarm:
     Type: AWS::CloudWatch::Alarm

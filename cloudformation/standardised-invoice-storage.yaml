@@ -109,7 +109,7 @@ Resources:
             - Effect: Allow
               Action: s3:GetObject
               Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
-      ReservedConcurrentExecutions: 10
+      ReservedConcurrentExecutions: 1
 
   StandardisedInvoiceStorageFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
