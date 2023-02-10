@@ -26,6 +26,10 @@ Parameters:
     Description: The ARN of the role that will used for integration tests
     Default: none
     AllowedPattern: (none)|(arn:aws:iam::.*:role/.*)
+  EnableAlerting:
+    Description: Whether to send errors and alarms to Slack
+    Type: String
+    Default: true
   PrivateConfigStack:
     Description: Private config stack to use for configuration
     Type: String
@@ -34,6 +38,7 @@ Parameters:
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
+  AlertingDisabled: !Not [!Equals [!Ref EnableAlerting, true]]
   IsEnvWithAutoTests: !Not [!Equals [!Ref TestRoleArn, none]]
   UsePrivateConfigStack: !Not [!Equals [!Ref PrivateConfigStack, none]]
   IsLocal: !Equals [!Ref Environment, local]
@@ -85,8 +90,3 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/calculation-athena.yaml#NO_LOCAL,
   ./cloudformation/custom-athena-view-resource.yaml#NO_LOCAL,
   ./cloudformation/invoice-athena.yaml#NO_LOCAL
-
-Outputs:
-  SnsAlarmTopicArn:
-    Description: Amazon Resource Name for Simple Notification Service topic to which CloudWatch alarms are published
-    Value: !Ref AlarmTopic
