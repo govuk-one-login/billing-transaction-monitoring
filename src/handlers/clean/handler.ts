@@ -53,7 +53,7 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
   }
 
   const {
-    vendor_id: clientId,
+    vendor_id: vendorId,
     component_id: componentId,
     event_id: eventId,
     event_name: eventName,
@@ -64,7 +64,7 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
   } = bodyObject;
 
   const cleanedBodyObject: CleanedEventBodyObject = {
-    vendor_id: typeof clientId === "string" ? clientId : undefined,
+    vendor_id: typeof vendorId === "string" ? vendorId : undefined,
     component_id: componentId,
     event_id: typeof eventId === "string" ? eventId : undefined,
     event_name: eventName,

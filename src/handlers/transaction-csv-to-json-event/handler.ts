@@ -20,8 +20,8 @@ export const handler = async (event: S3Event): Promise<void> => {
   try {
     // Set up dependencies
 
-    const [idpClientLookup, eventNameRules] = await Promise.all([
-      fetchS3(configBucket, "idp_clients/idp-clients.json"),
+    const [idpVendorLookup, eventNameRules] = await Promise.all([
+      fetchS3(configBucket, "idp_vendors/idp-vendors.json"),
       fetchS3(configBucket, "idp_event_name_rules/idp-event-name-rules.json"),
     ]).then((results) => results.map((result) => JSON.parse(result)));
 
@@ -33,7 +33,7 @@ export const handler = async (event: S3Event): Promise<void> => {
         getEventNameFromRules(eventNameRules, row["Idp Entity Id"], row) ===
         "Unknown";
       if (isInvalidEvent) return accumulator;
-      const transactionEvent = processRow(row, idpClientLookup, eventNameRules);
+      const transactionEvent = processRow(row, idpVendorLookup, eventNameRules);
       return [
         ...accumulator,
         sendRecord(outputQueueUrl, JSON.stringify(transactionEvent)),

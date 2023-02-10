@@ -11,8 +11,8 @@ describe("Process Row test", () => {
     jest.resetAllMocks();
   });
 
-  const idpEntityId1 = "https://a.client1.eu";
-  const idpEntityId2 = "https://a.client2.eu";
+  const idpEntityId1 = "https://a.vendor1.eu";
+  const idpEntityId2 = "https://a.vendor2.eu";
   const requestId1 = "event-id-1";
   const minLevel1 = "LEVEL_1";
   const status1 = "BILLABLE";
@@ -40,7 +40,7 @@ describe("Process Row test", () => {
     [idpEntityId1]: vendor1Rules,
   };
 
-  const idpClientLookUp = {
+  const idpVendorLookUp = {
     [idpEntityId1]: vendorId1,
     [idpEntityId2]: vendorId2,
   };
@@ -48,7 +48,7 @@ describe("Process Row test", () => {
   test("should send record with csv data transformed to event data if no getEventNameFromRules failure", async () => {
     mockedGetEventNameFromRules.mockReturnValue(eventName1);
 
-    const processedRow = await processRow(row, idpClientLookUp, eventNameRules);
+    const processedRow = await processRow(row, idpVendorLookUp, eventNameRules);
 
     expect(mockedGetEventNameFromRules).toHaveBeenCalledTimes(1);
     expect(mockedGetEventNameFromRules).toHaveBeenCalledWith(

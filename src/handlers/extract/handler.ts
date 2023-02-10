@@ -28,10 +28,10 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         const bucket = record.s3.bucket.name;
         const filePath = record.s3.object.key;
 
-        // File must be in folder, which determines client ID. Throw error otherwise.
+        // File must be in folder, which determines vendor ID. Throw error otherwise.
         const filePathParts = filePath.split("/");
         if (filePathParts.length < 2)
-          throw Error(`File not in client ID folder: ${bucket}/${filePath}`);
+          throw Error(`File not in vendor ID folder: ${bucket}/${filePath}`);
 
         // Define params for Textract API call
         const params: AWS.Textract.StartExpenseAnalysisRequest = {
