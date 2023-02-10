@@ -52,7 +52,7 @@ Resources:
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
-        maxReceiveCount: 1
+        maxReceiveCount: 3
 
   RawInvoiceTextractDataQueuePolicy:
     Type: AWS::SQS::QueuePolicy
@@ -80,25 +80,18 @@ Resources:
     Properties:
       AlarmName: !Sub ${AWS::StackName}-raw-invoice-textract-data-dlq-alarm
       AlarmActions:
-        - !Ref AlarmTopic
-      ComparisonOperator: GreaterThanThreshold
-      EvaluationPeriods: 1
-      Metrics:
-        - Id: messages
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !GetAtt RawInvoiceTextractDataDeadLetterQueue.QueueName
-              MetricName: ApproximateNumberOfMessagesVisible
-              Namespace: AWS/SQS
-            Period: 1800
-            Stat: Sum
-          ReturnData: false
-        - Id: messagesRate
-          Expression: RATE(messages)
-          ReturnData: true
+        - !GetAtt AlarmTopicParameter.Value
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt RawInvoiceTextractDataDeadLetterQueue.QueueName
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
+      Period: 60
       Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
 
   RawInvoiceTextractDataStorageFunction:
     # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
@@ -149,14 +142,14 @@ Resources:
                 - s3:PutObject
               Resource:
                 !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
-      ReservedConcurrentExecutions: 10
+      ReservedConcurrentExecutions: 1
 
   RawInvoiceTextractDataStorageFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: !Sub ${AWS::StackName}-raw-textract-storage-function-alarm
       AlarmActions:
-        - !Ref AlarmTopic
+        - !GetAtt AlarmTopicParameter.Value
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName
@@ -164,6 +157,6 @@ Resources:
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
-      Period: 1800
+      Period: 60
       Statistic: Sum
       Threshold: 0
