@@ -99,6 +99,6 @@ Resources:
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
-      Period: 1800
+      Period: 60
       Statistic: Sum
       Threshold: 0

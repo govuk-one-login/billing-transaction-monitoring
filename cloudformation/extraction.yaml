@@ -57,7 +57,7 @@ Resources:
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
-      Period: 1800
+      Period: 60
       Statistic: Sum
       Threshold: 0
 
@@ -99,24 +99,17 @@ Resources:
       AlarmName: !Sub ${AWS::StackName}-extract-dlq-alarm
       AlarmActions:
         - !GetAtt AlarmTopicParameter.Value
-      ComparisonOperator: GreaterThanThreshold
-      EvaluationPeriods: 1
-      Metrics:
-        - Id: messages
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !GetAtt ExtractQueueDeadLetterQueue.QueueName
-              MetricName: ApproximateNumberOfMessagesVisible
-              Namespace: AWS/SQS
-            Period: 1800
-            Stat: Sum
-          ReturnData: false
-        - Id: messagesRate
-          Expression: RATE(messages)
-          ReturnData: true
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt ExtractQueueDeadLetterQueue.QueueName
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
+      Period: 60
       Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
 
   TextractRole:
     Type: AWS::IAM::Role
