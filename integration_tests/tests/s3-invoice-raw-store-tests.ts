@@ -15,7 +15,7 @@ import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/m
 
 const prefix = resourcePrefix();
 const testStartTime = new Date();
-const givenClientIdFolder = "client123";
+const givenVendorIdFolder = "vendor123";
 
 describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf bucket test\n", () => {
   const storageBucket = `${prefix}-storage`;
@@ -100,7 +100,7 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice pdf bucket tes
   const uniqueString = Math.random().toString(36).substring(2, 7);
   const rawInvoice: S3Object = {
     bucket: `${prefix}-raw-invoice-pdf`,
-    key: `${givenClientIdFolder}/raw-Invoice-${uniqueString}-validFile.pdf`,
+    key: `${givenVendorIdFolder}/raw-Invoice-${uniqueString}-validFile.pdf`,
   };
 
   test("should move the original raw invoice to failed folder in s3 raw-invoice-pdf bucket upon uploading the invalid pdf file ", async () => {
