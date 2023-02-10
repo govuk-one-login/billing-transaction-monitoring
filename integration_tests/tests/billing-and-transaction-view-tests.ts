@@ -133,8 +133,8 @@ export const assertResultsWithTestData = async ({
   expect(response[0].quantity_difference_percentage).toEqual(
     qtyDifferencePercent
   );
-  expect(response[0].invoice_price).toEqual(billingPrice);
-  expect(response[0].invoice_quantity).toEqual(billingQty);
+  expect(response[0].billing_price).toEqual(billingPrice);
+  expect(response[0].billing_quantity).toEqual(billingQty);
   expect(response[0].transaction_price).toEqual(transactionPrice);
   expect(response[0].transaction_quantity).toEqual(transactionQty);
 };
@@ -148,8 +148,8 @@ type BillingTransactionCurated = Array<{
   quantity_difference: number;
   price_difference_percentage: number;
   quantity_difference_percentage: number;
-  invoice_price: number;
-  invoice_quantity: number;
+  billing_price: number;
+  billing_quantity: number;
   transaction_price: number;
   transaction_quantity: number;
 }>;
