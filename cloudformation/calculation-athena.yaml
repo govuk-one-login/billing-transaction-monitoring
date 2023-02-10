@@ -210,7 +210,6 @@ Resources:
         Database: !Ref CalculationsDB
         Name: btm_billing_and_transactions_curated
         Query: |
-          CREATE OR REPLACE VIEW "btm_billing_and_transactions_curated" AS
           SELECT
             COALESCE(invoice.vendor_name, txn.vendor_name) vendor_name
             , COALESCE(invoice.service_name, txn.service_name) service_name
