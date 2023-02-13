@@ -23,7 +23,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": 131,
-  "iteration": 1675941618846,
+  "iteration": 1676029803035,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -69,13 +69,7 @@
             "mode": "thresholds"
           },
           "decimals": 1,
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Invoice: ${__data.fields.Billing Quantity}=£${__data.fields.Billing Price} Expected: ${__data.fields.Transaction Quantity}=£${__data.fields.Transaction Price}",
-              "url": "/d/8Yl8CW04k/billing-reconciliation-dashboard-preprod?var-vendorNames=${__data.fields.Vendor}"
-            }
-          ],
+          "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -146,7 +140,7 @@
         "text": {
           "titleSize": 12
         },
-        "textMode": "auto"
+        "textMode": "value_and_name"
       },
       "pluginVersion": "8.4.7",
       "targets": [
@@ -161,7 +155,7 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  CONCAT(month, '/', year) as \"Month\",\n  CAST(billing_price AS double) AS \"Billing Price\",\n  CAST(price_difference_percentage AS double) AS \"Price Difference\",\n  CAST(transaction_price AS double) AS \"Transaction Price\",\n  CAST(billing_quantity AS double) AS \"Billing Quantity\",\n  CAST(quantity_difference_percentage AS double) AS \"Quantity Difference\",\n  CAST(transaction_quantity AS double) AS \"Transaction Quantity\",\n  Message\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  CONCAT(month, '/', year) as \"Month\",\n  billing_price AS \"Billing Price\",\n  CAST(price_difference_percentage AS double) AS \"Price Difference\",\n  transaction_price AS \"Transaction Price\",\n  CAST(billing_quantity AS double) AS \"Billing Quantity\",\n  CAST(quantity_difference_percentage AS double) AS \"Quantity Difference\",\n  CAST(transaction_quantity AS double) AS \"Transaction Quantity\",\n  Message\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A"
         }
       ],
@@ -190,8 +184,8 @@
     },
     {
       "datasource": {
-        "type": "datasource",
-        "uid": "-- Dashboard --"
+        "type": "grafana-athena-datasource",
+        "uid": "--BnYST4z"
       },
       "fieldConfig": {
         "defaults": {
@@ -200,7 +194,8 @@
           },
           "custom": {
             "align": "center",
-            "displayMode": "auto"
+            "displayMode": "auto",
+            "filterable": false
           },
           "mappings": [],
           "thresholds": {
@@ -220,8 +215,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 24,
+        "h": 5,
+        "w": 12,
         "x": 0,
         "y": 16
       },
@@ -239,12 +234,19 @@
       "pluginVersion": "8.4.7",
       "targets": [
         {
-          "datasource": {
-            "type": "datasource",
-            "uid": "-- Dashboard --"
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "__default",
+            "region": "__default"
           },
-          "panelId": 2,
-          "refId": "A"
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "--BnYST4z"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Billing Price\",\n  transaction_price_formatted AS \"Transaction Price\",\n  Message\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "refId": "A",
+          "table": "btm_billing_and_transactions_curated"
         }
       ],
       "type": "table"
@@ -326,13 +328,6 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
-      },
-      {
-        "hide": 2,
-        "name": "thisPage",
-        "query": "https://g-9908ef36be.grafana-workspace.eu-west-2.amazonaws.com/d/8Yl8CW04k/billing-reconciliation-dashboard-preprod",
-        "skipUrlSync": false,
-        "type": "constant"
       }
     ]
   },
@@ -345,6 +340,5 @@
   },
   "timezone": "",
   "title": "Billing Reconciliation Dashboard - Dev",
-  "version": 52,
   "weekStart": ""
 }

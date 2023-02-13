@@ -223,10 +223,12 @@ Resources:
             , invoice.quantity billing_quantity
             , txn.price transaction_price
             , txn.quantity transaction_quantity
-            , (CASE WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN 'No charge for this month' WHEN (txn.price = 0) THEN 'Rate card data missing' WHEN ((invoice.price IS null) AND (invoice.quantity IS null)) THEN 'Invoice data missing' WHEN ((txn.price IS null) AND (txn.quantity IS null)) THEN 'Transaction data missing' ELSE CONCAT(CAST((CASE WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE null END) ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price) END) AS varchar), '%') END) Message
+            , CONCAT(U&'\00A3', CAST(CAST(invoice.price AS DECIMAL(5, 2)) as varchar)) billing_price_formatted
+            , CONCAT(U&'\00A3', CAST(CAST(txn.price AS DECIMAL(5, 2)) as varchar)) transaction_price_formatted
+            , (CASE WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN 'No charge for this month' WHEN (txn.price = 0) THEN 'Rate card data missing' WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN 'Invoice data missing' WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN 'Transaction data missing' ELSE '' END) Message
           FROM
             (btm_transactions_curated txn
-          FULL JOIN btm_billing_curated invoice ON ((((txn.vendor_name = invoice.vendor_name) AND (txn.service_name = invoice.service_name)) AND (txn.year = invoice.year)) AND (txn.month = invoice.month)))
+            FULL JOIN btm_billing_curated invoice ON ((((txn.vendor_name = invoice.vendor_name) AND (txn.service_name = invoice.service_name)) AND (txn.year = invoice.year)) AND (txn.month = invoice.month)))
         Workgroup: !Ref AthenaTransactionWorkgroup
 
   AthenaTransactionWorkgroup:
