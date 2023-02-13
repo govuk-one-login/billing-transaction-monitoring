@@ -223,8 +223,8 @@ Resources:
             , invoice.quantity billing_quantity
             , txn.price transaction_price
             , txn.quantity transaction_quantity
-            , CONCAT(U&'\00A3', CAST(CAST(invoice.price AS DECIMAL(5, 2)) as varchar)) billing_price_formatted
-            , CONCAT(U&'\00A3', CAST(CAST(txn.price AS DECIMAL(5, 2)) as varchar)) transaction_price_formatted
+            , CONCAT(U&'\00A3', CAST(CAST(invoice.price AS DECIMAL(10, 2)) as varchar)) billing_price_formatted
+            , CONCAT(U&'\00A3', CAST(CAST(txn.price AS DECIMAL(10, 2)) as varchar)) transaction_price_formatted
             , (CASE WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN 'No charge for this month' WHEN (txn.price = 0) THEN 'Rate card data missing' WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN 'Invoice data missing' WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN 'Transaction data missing' ELSE '' END) Message
           FROM
             (btm_transactions_curated txn
