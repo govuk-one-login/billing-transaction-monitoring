@@ -21,12 +21,9 @@ export const sendLambdaCommand = async (
     ),
   };
 
-  console.log(toUtf8(commandInput.Payload as Uint8Array));
-
   const result = await lambdaClient.send(new InvokeCommand(commandInput));
 
   if (result.StatusCode === 200 && result.Payload != null) {
-    console.log(toUtf8(result.Payload));
     return JSON.parse(toUtf8(result.Payload)).successObject;
   } else {
     return "Error";
