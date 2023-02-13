@@ -32,8 +32,11 @@ export const prettyVendorNameMap = {
 export const prettyEventNameMap = {
   VENDOR_1_EVENT_1: "Passport check",
   VENDOR_1_EVENT_3: "Fraud check",
+  VENDOR_2_EVENT_2: "Passport check",
   VENDOR_2_EVENT_7: "Kbv check",
+  VENDOR_3_EVENT_4: "Passport check",
   VENDOR_3_EVENT_6: "Address check",
+  VENDOR_4_EVENT_5: "Passport check",
 };
 
 const snsValidEventPayload: SNSEventPayload = {
