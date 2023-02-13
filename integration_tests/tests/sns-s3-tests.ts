@@ -34,7 +34,6 @@ const checkS3BucketForEventId = async (
         eventIdString
       );
     } else {
-      console.log("Storage bucket contents empty");
       return false;
     }
   };
