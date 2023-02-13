@@ -210,28 +210,25 @@ Resources:
         Database: !Ref CalculationsDB
         Name: btm_billing_and_transactions_curated
         Query: |
-          SELECT 
-              COALESCE(invoice.vendor_name,txn.vendor_name)         AS vendor_name,
-              COALESCE(invoice.service_name,txn.service_name)       AS service_name,
-              COALESCE(invoice.year,txn.year)                       AS year,
-              COALESCE(invoice.month,txn.month)                     AS month,
-              COALESCE(invoice.price,0)-COALESCE(txn.price,0)       AS price_difference,
-              COALESCE(invoice.quantity,0)-COALESCE(txn.quantity,0) AS quantity_difference,
-              (CASE WHEN COALESCE(txn.price,0) = 0 then (CASE WHEN COALESCE(invoice.price,0) = 0 THEN 0 ELSE null END) ELSE 100*(COALESCE(invoice.price,0)-txn.price)/txn.price END)
-                                                                    AS price_difference_percentage,
-              (CASE WHEN COALESCE(txn.quantity,0) = 0 THEN null ELSE 100*(COALESCE(invoice.quantity,0)-txn.quantity)/txn.quantity END)
-                                                                    AS quantity_difference_percentage,
-              invoice.price                                         AS billing_price,
-              invoice.quantity                                      AS billing_quantity,
-              txn.price                                             AS transaction_price,
-              txn.quantity                                          AS transaction_quantity
-          FROM btm_transactions_curated txn
-          FULL JOIN btm_billing_curated invoice ON (
-              txn.vendor_name=invoice.vendor_name AND
-              txn.service_name=invoice.service_name AND
-              txn.year=invoice.year AND
-              txn.month=invoice.month
-          )
+          SELECT
+            COALESCE(invoice.vendor_name, txn.vendor_name) vendor_name
+            , COALESCE(invoice.service_name, txn.service_name) service_name
+            , COALESCE(invoice.year, txn.year) year
+            , COALESCE(invoice.month, txn.month) month
+            , (COALESCE(invoice.price, 0) - COALESCE(txn.price, 0)) price_difference
+            , (COALESCE(invoice.quantity, 0) - COALESCE(txn.quantity, 0)) quantity_difference
+            , (CASE WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE null END) ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price) END) price_difference_percentage
+            , (CASE WHEN (COALESCE(txn.quantity, 0) = 0) THEN null ELSE ((100 * (COALESCE(invoice.quantity, 0) - txn.quantity)) / txn.quantity) END) quantity_difference_percentage
+            , invoice.price billing_price
+            , invoice.quantity billing_quantity
+            , txn.price transaction_price
+            , txn.quantity transaction_quantity
+            , CONCAT(U&'\00A3', CAST(CAST(invoice.price AS DECIMAL(5, 2)) as varchar)) billing_price_formatted
+            , CONCAT(U&'\00A3', CAST(CAST(txn.price AS DECIMAL(5, 2)) as varchar)) transaction_price_formatted
+            , (CASE WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN 'No charge for this month' WHEN (txn.price = 0) THEN 'Rate card data missing' WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN 'Invoice data missing' WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN 'Transaction data missing' ELSE '' END) Message
+          FROM
+            (btm_transactions_curated txn
+            FULL JOIN btm_billing_curated invoice ON ((((txn.vendor_name = invoice.vendor_name) AND (txn.service_name = invoice.service_name)) AND (txn.year = invoice.year)) AND (txn.month = invoice.month)))
         Workgroup: !Ref AthenaTransactionWorkgroup
 
   AthenaTransactionWorkgroup:

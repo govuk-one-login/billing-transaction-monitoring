@@ -1,0 +1,344 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 131,
+  "iteration": 1676029803035,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "content": "<h2>Billing Reconciliation Dashboard</h2>\n\n<table style=\"border-collapse: collapse; border: none;\">\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\">Invoice type:</td><td style=\"border: none;\"><b>PxQ suppliers</b></td></tr>\n</table>\n",
+        "mode": "html"
+      },
+      "pluginVersion": "8.4.7",
+      "type": "text"
+    },
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "content": "<table style=\"border-collapse: collapse; border: none;\">\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: red; border: none;\">Red</span></td><td style=\"border: none;\">Above 1%</td></tr>\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: #59A94F; border: none;\">Green</span></td><td style=\"border: none;\">Less than or equal to 1%</td></tr>\n</table>",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.4.7",
+      "title": "Key",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "--BnYST4z"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-yellow",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": -1
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Price"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "string"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Difference"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 3
+      },
+      "id": 2,
+      "links": [],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Price Difference$/",
+          "values": true
+        },
+        "text": {
+          "titleSize": 12
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "8.4.7",
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "di-btm-dev-calculations",
+            "region": "__default"
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "--BnYST4z"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  CONCAT(month, '/', year) as \"Month\",\n  billing_price AS \"Billing Price\",\n  CAST(price_difference_percentage AS double) AS \"Price Difference\",\n  transaction_price AS \"Transaction Price\",\n  CAST(billing_quantity AS double) AS \"Billing Quantity\",\n  CAST(quantity_difference_percentage AS double) AS \"Quantity Difference\",\n  CAST(transaction_quantity AS double) AS \"Transaction Quantity\",\n  Message\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "concatenate",
+          "options": {}
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 11
+      },
+      "id": 8,
+      "options": {
+        "content": "If a supplier is marked as <span style=\"color:red\">Red</span>, it means that the discrepancy between our internal data and the supplier’s reported data is above our threshold of 1%, and is considered to have Failed. Please first reach out to the Data & Analytics team to confirm our internal data. You should also reach out to the supplier to confirm their data.<br>\n<br>\nIf a supplier is marked as <span style=\"color:#59A94F\">Green</span>, it means that the discrepancy between our internal data and the supplier’s reported data is below our threshold of 1%, and is considered to have Passed. Please contact the PMO team to confirm that their invoice for this month can paid.<br>",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.4.7",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "--BnYST4z"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "center",
+            "displayMode": "auto",
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 10,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "8.4.7",
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "__default",
+            "region": "__default"
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "--BnYST4z"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Billing Price\",\n  transaction_price_formatted AS \"Transaction Price\",\n  Message\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "refId": "A",
+          "table": "btm_billing_and_transactions_curated"
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 35,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": "",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "grafana-athena-datasource",
+          "uid": "--BnYST4z"
+        },
+        "definition": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Vendor",
+        "multi": true,
+        "name": "vendorNames",
+        "options": [],
+        "query": {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "di-btm-dev-calculations",
+            "region": "__default"
+          },
+          "format": 1,
+          "rawSQL": "SELECT vendor_name FROM \"btm_billing_and_transactions_curated\" ORDER BY vendor_name ASC ",
+          "table": "btm_billing_and_transactions_curated"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "2023/02",
+          "value": "2023/02"
+        },
+        "datasource": {
+          "type": "grafana-athena-datasource",
+          "uid": "--BnYST4z"
+        },
+        "definition": "",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Date",
+        "multi": false,
+        "name": "yearMonth",
+        "options": [],
+        "query": {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "di-btm-dev-calculations",
+            "region": "__default"
+          },
+          "format": 1,
+          "rawSQL": "SELECT DISTINCT CONCAT(year, '/', month) as yearMonth FROM \"btm_billing_curated\" ORDER BY yearMonth ASC",
+          "table": "btm_billing_curated"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "hidden": true
+  },
+  "timezone": "",
+  "title": "Billing Reconciliation Dashboard - Dev",
+  "weekStart": ""
+}
