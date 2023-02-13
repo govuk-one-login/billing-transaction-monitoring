@@ -18,6 +18,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 };
 
 async function storeRecord(record: SQSRecord): Promise<void> {
+  console.log("storing record " + JSON.stringify(record));
   const bodyObject = JSON.parse(record.body);
   const { event_id: eventId, timestamp } = bodyObject;
 
