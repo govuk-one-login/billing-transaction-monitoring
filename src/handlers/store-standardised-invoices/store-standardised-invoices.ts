@@ -42,7 +42,7 @@ export async function storeStandardisedInvoices(
       .join("\n");
 
     // Since that text block is not valid JSON, use a file extension that is not `.json`.
-    const destinationFileName = sourceFileName.replace(/\.json$/g, ".txt");
+    const destinationFileName = sourceFileName.replace(/\.pdf$/g, ".txt");
 
     await putTextS3(
       destinationBucket,
