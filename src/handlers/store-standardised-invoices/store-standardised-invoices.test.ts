@@ -53,7 +53,7 @@ describe("Standardised invoice storer", () => {
           name: "mocked S3 event record 1 S3 bucket name",
         },
         object: {
-          key: `${mockedS3EventRecord1Folder}/${mockedS3EventRecord1FileNameWithoutFileExtension}.json`,
+          key: `${mockedS3EventRecord1Folder}/${mockedS3EventRecord1FileNameWithoutFileExtension}.pdf`,
         },
       },
     };
@@ -69,7 +69,7 @@ describe("Standardised invoice storer", () => {
           name: "mocked S3 event record 2 S3 bucket name",
         },
         object: {
-          key: `${mockedS3EventRecord2Folder}/${mockedS3EventRecord2FileNameWithoutFileExtension}.json`,
+          key: `${mockedS3EventRecord2Folder}/${mockedS3EventRecord2FileNameWithoutFileExtension}.pdf`,
         },
       },
     };
