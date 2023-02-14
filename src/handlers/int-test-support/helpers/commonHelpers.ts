@@ -116,18 +116,15 @@ export const publishAndValidateEvent = async (
   event: SNSEventPayload
 ): Promise<void> => {
   await publishToTestTopic(event);
-  const checkEventId = async (): Promise<boolean> => {
-    const result = await listS3Objects({
-      bucketName: `${resourcePrefix()}-storage`,
-      prefix: objectsPrefix,
-    });
-    if (result.Contents === undefined) {
-      return false;
-    }
-    return result.Contents.some((data) => data.Key?.match(event.event_id));
-  };
-  const eventIdExists = await waitForTrue(checkEventId, 1000, 10000);
-  expect(eventIdExists).toBeTruthy();
+  await poll(
+    async () =>
+      await listS3Objects({
+        bucketName: `${resourcePrefix()}-storage`,
+        prefix: objectsPrefix,
+      }),
+    (result) =>
+      !!result?.Contents?.some((data) => data.Key?.match(event.event_id))
+  );
 };
 
 export const generatePublishAndValidateEvents = async ({
