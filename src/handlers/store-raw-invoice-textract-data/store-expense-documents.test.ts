@@ -42,7 +42,7 @@ describe("Expense documents storer", () => {
 
     mockedJobId = "mocked job ID";
     mockedSourceBucket = "mocked source bucket";
-    mockedSourceFileName = "mocked source file name";
+    mockedSourceFileName = "mocked source file name.pdf";
     mockedSourceFolder = "mocked source folder";
     mockedSourceFilePath = `${mockedSourceFolder}/${mockedSourceFileName}`;
     mockedExpenseAnalysisNotificationData = {
