@@ -188,7 +188,7 @@ describe("Expense documents storer", () => {
       mockedSourceBucket,
       mockedSourceFilePath,
       givenDestinationBucket,
-      `${mockedSourceFolder}/${mockedJobId}.json`,
+      `${mockedSourceFolder}/mocked_source_file_name.json`,
       mockedDocuments
     );
   });

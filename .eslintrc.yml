@@ -5,6 +5,7 @@ ignorePatterns:
   - dist
 rules:
   '@typescript-eslint/strict-boolean-expressions': off
+  '@typescript-eslint/restrict-template-expressions': off
 overrides:
   - files: '*.ts'
     parserOptions:
