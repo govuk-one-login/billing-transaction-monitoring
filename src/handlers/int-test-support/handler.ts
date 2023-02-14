@@ -57,11 +57,8 @@ const callFunction = async (name: string, parameters: any): Promise<any> => {
 
 export const handler = async (
   event: TestSupportEvent,
-  context: Context
+  _context: Context
 ): Promise<TestSupportReturn> => {
-  console.log("Incoming event", event);
-  console.log("Context", context);
-
   process.env.ENV_NAME = event.environment;
   process.env.CONFIG_NAME = event.config;
 
