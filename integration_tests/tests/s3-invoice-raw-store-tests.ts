@@ -54,7 +54,10 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
           prefix: standardisedFolderPrefix,
         }),
       (results) =>
-        !!results?.Contents?.some(({ Key }) => Key?.includes(filename))
+        !!results?.Contents?.some(({ Key }) => {
+          console.log(Key);
+          return Key?.includes(filename);
+        })
     );
 
     // fetch the standardised invoice
