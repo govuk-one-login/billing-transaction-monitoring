@@ -1,7 +1,7 @@
 import { Textract } from "aws-sdk";
 import {
   getVendorInvoiceStandardisationModuleId,
-  getVendorServiceConfigRow,
+  getVendorServiceConfigRows,
 } from "../../../shared/utils";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
@@ -10,7 +10,8 @@ import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-defaul
 jest.mock("../../../shared/utils");
 const mockedGetVendorInvoiceStandardisationModuleId =
   getVendorInvoiceStandardisationModuleId as jest.Mock;
-const mockedGetVendorServiceConfigRow = getVendorServiceConfigRow as jest.Mock;
+const mockedGetVendorServiceConfigRows =
+  getVendorServiceConfigRows as jest.Mock;
 
 jest.mock("./get-standardised-invoice-0");
 const mockedGetStandardisedInvoice0 = getStandardisedInvoice0 as jest.Mock;
@@ -32,9 +33,11 @@ describe("Standardised invoice getter", () => {
 
     mockedGetVendorInvoiceStandardisationModuleId.mockReturnValue(0);
 
-    mockedGetVendorServiceConfigRow.mockResolvedValue({
-      vendor_name: mockedVendorName,
-    });
+    mockedGetVendorServiceConfigRows.mockResolvedValue([
+      {
+        vendor_name: mockedVendorName,
+      },
+    ]);
 
     mockedStandardisedInvoice0 = "mocked standardised invoice 0";
     mockedGetStandardisedInvoice0.mockResolvedValue(mockedStandardisedInvoice0);
@@ -70,8 +73,8 @@ describe("Standardised invoice getter", () => {
       givenConfigBucket,
       givenVendorId
     );
-    expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledTimes(1);
-    expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledWith(
+    expect(mockedGetVendorServiceConfigRows).toHaveBeenCalledTimes(1);
+    expect(mockedGetVendorServiceConfigRows).toHaveBeenCalledWith(
       givenConfigBucket,
       { vendor_id: givenVendorId }
     );
@@ -82,7 +85,7 @@ describe("Standardised invoice getter", () => {
   test("Standardised invoice getter with vendor service config fetch error", async () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
-    mockedGetVendorServiceConfigRow.mockRejectedValue(mockedError);
+    mockedGetVendorServiceConfigRows.mockRejectedValue(mockedError);
 
     await expect(
       getStandardisedInvoice(
@@ -98,8 +101,8 @@ describe("Standardised invoice getter", () => {
       givenConfigBucket,
       givenVendorId
     );
-    expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledTimes(1);
-    expect(mockedGetVendorServiceConfigRow).toHaveBeenCalledWith(
+    expect(mockedGetVendorServiceConfigRows).toHaveBeenCalledTimes(1);
+    expect(mockedGetVendorServiceConfigRows).toHaveBeenCalledWith(
       givenConfigBucket,
       { vendor_id: givenVendorId }
     );
@@ -121,7 +124,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledTimes(1);
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledWith(
       givenTextractPages,
-      { vendor_name: undefined }
+      [{ vendor_name: undefined }]
     );
   });
 
@@ -139,7 +142,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledTimes(1);
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledWith(
       givenTextractPages,
-      { vendor_name: undefined }
+      [{ vendor_name: undefined }]
     );
   });
 
@@ -156,7 +159,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoice0).toHaveBeenCalledTimes(1);
     expect(mockedGetStandardisedInvoice0).toHaveBeenCalledWith(
       givenTextractPages,
-      { vendor_name: undefined }
+      [{ vendor_name: undefined }]
     );
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
   });

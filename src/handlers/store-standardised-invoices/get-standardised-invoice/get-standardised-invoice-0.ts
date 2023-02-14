@@ -1,5 +1,5 @@
 import { Textract } from "aws-sdk";
-import { VendorServiceConfigRow } from "../../../shared/utils/config-utils/fetch-vendor-service-config";
+import { VendorServiceConfigRows } from "../../../shared/utils";
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -20,11 +20,7 @@ import {
 // To do: replace with useful invoice standardiser, and add unit tests (Jira: BTM-349)
 export const getStandardisedInvoice0: StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  {
-    service_name: serviceName,
-    service_regex: serviceRegexPattern,
-    vendor_name: vendorName,
-  }: VendorServiceConfigRow
+  vendorServiceConfigRows: VendorServiceConfigRows
 ): StandardisedLineItem[] => {
   const summaryFields = getSummaryFields(textractPages);
 
@@ -32,7 +28,7 @@ export const getStandardisedInvoice0: StandardisationModule = (
 
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
-    vendor_name: vendorName,
+    vendor_name: vendorServiceConfigRows[0].vendor_name,
     total: getTotal(summaryFields),
     invoice_receipt_date: getInvoiceReceiptDate(summaryFields),
     subtotal: getSubtotal(summaryFields),
@@ -41,33 +37,33 @@ export const getStandardisedInvoice0: StandardisationModule = (
     tax_payer_id: getTaxPayerId(summaryFields),
   };
 
-  const serviceRegex = new RegExp(serviceRegexPattern, "i");
-
-  const standardisedLineItems = lineItems.reduce<StandardisedLineItem[]>(
-    (acc, item) => {
-      const itemFields = item.LineItemExpenseFields ?? [];
-
+  return lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
+    const itemFields = item.LineItemExpenseFields ?? [];
+    let nextAcc = [...acc];
+    for (const {
+      service_name: serviceName,
+      service_regex: serviceRegexPattern,
+    } of vendorServiceConfigRows) {
+      const serviceRegex = new RegExp(serviceRegexPattern, "i");
       const itemDescription = getItemDescription(itemFields);
       if (!itemDescription?.match(serviceRegex)) {
-        return acc;
+        continue;
       }
 
-      return [
-        ...acc,
+      nextAcc = [
+        ...nextAcc,
         {
           ...summary,
           item_description: itemDescription,
           price: getPrice(itemFields),
-          quantity: 9001, // To do: get real quantity (Jira: BTM-349)
+          quantity: 9001, // to be determined in BTM-349
           service_name: serviceName,
           unit_price: getUnitPrice(itemFields),
         },
       ];
-    },
-    []
-  );
-
-  return standardisedLineItems;
+    }
+    return nextAcc;
+  }, []);
 };
 
 const getLineItems = (
