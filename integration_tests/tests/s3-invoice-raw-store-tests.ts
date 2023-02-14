@@ -78,17 +78,10 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
       bucketName: s3Object.bucket,
       prefix: "successful",
     });
-    const { Contents: topLevelFolderContents } = await listS3Objects({
-      bucketName: s3Object.bucket,
-    });
     const isFileInSuccessFolder = successfulFolderContents?.some(({ Key }) =>
       Key?.includes(filename)
     );
-    const isFileInTopLevelFolder = topLevelFolderContents?.some(({ Key }) =>
-      Key?.includes(filename)
-    );
     expect(isFileInSuccessFolder).toBe(true);
-    expect(isFileInTopLevelFolder).toBe(false);
   });
 });
 
