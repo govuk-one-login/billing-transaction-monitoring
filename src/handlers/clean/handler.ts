@@ -42,6 +42,7 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
 
   if (!isValidBodyObject(bodyObject)) {
     console.error("Event record body is invalid.");
+    console.log(bodyObject);
     throw new Error("Event record body is invalid.");
   }
 

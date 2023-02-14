@@ -19,7 +19,7 @@ export interface SNSEventPayload {
   event_id: string;
   component_id: string;
   timestamp: number;
-  vendor_id: VendorId;
+  timestamp_formatted: string;
 }
 
 export const prettyVendorNameMap = {
@@ -44,88 +44,55 @@ const snsValidEventPayload: SNSEventPayload = {
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: validTimestamp(),
-  vendor_id: VendorId.vendor_testvendor1,
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
 };
 
-const snsEventWithAdditionalFieldsPayload: SNSEventPayload = {
-  event_name: EventName.VENDOR_1_EVENT_1,
-  event_id: generateRandomId(),
-  component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
-  someUnwantedField: "some value",
-  vendor_id: VendorId.vendor_testvendor1,
-} as unknown as SNSEventPayload;
-
-const snsInvalidEventNamePayload: SNSEventPayload = {
+const snsInvalidEventPayloadEventName: SNSEventPayload = {
   event_name: "TESTGGHYJKIK" as EventName,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: validTimestamp(),
-  vendor_id: VendorId.vendor_testvendor1,
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
 };
 
-const snsInvalidTimeStampPayload: SNSEventPayload = {
+const snsInvalidEventPayloadTimeStamp: SNSEventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: "somestring" as unknown as number,
-  vendor_id: VendorId.vendor_testvendor1,
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
 };
 
-const snsMissingEventNamePayload: SNSEventPayload = {
-  event_id: generateRandomId(),
-  component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
-  vendor_id: VendorId.vendor_testvendor1,
-} as unknown as SNSEventPayload;
-
-const snsEventMissingTimestampPayload: SNSEventPayload = {
-  event_name: EventName.VENDOR_1_EVENT_1,
-  event_id: generateRandomId(),
-  component_id: "TEST_COMP",
-  vendor_id: VendorId.vendor_testvendor1,
-} as unknown as SNSEventPayload;
-
-const snsEventMissingCompIdPayload: SNSEventPayload = {
-  event_name: EventName.VENDOR_1_EVENT_1,
-  event_id: generateRandomId(),
-  timestamp: validTimestamp(),
-  vendor_id: VendorId.vendor_testvendor1,
-} as unknown as SNSEventPayload;
-
-const snsMissingEventIdPayload: SNSEventPayload = {
-  event_name: EventName.VENDOR_1_EVENT_1,
-  component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
-  vendor_id: VendorId.vendor_testvendor1,
-} as unknown as SNSEventPayload;
-
-const snsEventInvalidCompId: SNSEventPayload = {
+const snsInvalidEventPayloadComponentId: SNSEventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: 5678 as unknown as string,
   timestamp: validTimestamp(),
-  vendor_id: VendorId.vendor_testvendor1,
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
 };
 
-const snsEventMissingEventIdValue: SNSEventPayload = {
+const snsInvalidEventPayloadEventId: SNSEventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
-  event_id: null as unknown as string,
-  component_id: 5678 as unknown as string,
+  event_id: 123 as unknown as string,
+  component_id: "TEST_COMP",
   timestamp: validTimestamp(),
-  vendor_id: VendorId.vendor_testvendor1,
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
+};
+
+const snsInvalidEventPayloadTimestampFormatted: SNSEventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: 123 as unknown as string,
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp(),
+  timestamp_formatted: 123 as unknown as string,
 };
 
 export {
   snsValidEventPayload,
-  snsInvalidEventNamePayload,
-  snsMissingEventIdPayload,
-  snsEventMissingCompIdPayload,
-  snsEventInvalidCompId,
-  snsInvalidTimeStampPayload,
-  snsEventMissingTimestampPayload,
-  snsEventWithAdditionalFieldsPayload,
-  snsMissingEventNamePayload,
-  snsEventMissingEventIdValue,
+  snsInvalidEventPayloadEventName,
+  snsInvalidEventPayloadComponentId,
+  snsInvalidEventPayloadTimeStamp,
+  snsInvalidEventPayloadEventId,
+  snsInvalidEventPayloadTimestampFormatted,
   generateRandomId,
 };

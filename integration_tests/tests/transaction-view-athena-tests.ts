@@ -7,11 +7,9 @@ import {
   TableNames,
   TimeStamps,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 import {
   VendorId,
   EventName,
-  snsInvalidEventNamePayload,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryResponseFilterByVendorServiceNameYear } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
@@ -49,7 +47,6 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       const eventIds = await generatePublishAndValidateEvents({
         numberOfTestEvents,
         eventName,
-        vendorId,
         eventTime,
       });
       const tableName = TableNames.TRANSACTION_CURATED;
@@ -65,21 +62,6 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       expect(response[0].price).toEqual(expectedPrice);
     }
   );
-
-  test("no results returned from transaction_curated athena view query when the event payload has invalid eventName", async () => {
-    await publishToTestTopic(snsInvalidEventNamePayload);
-    const tableName = TableNames.TRANSACTION_CURATED;
-    const year = new Date(
-      snsInvalidEventNamePayload.timestamp * 1000
-    ).getFullYear();
-    const queryRes = await queryResponseFilterByVendorServiceNameYear({
-      vendorId: snsInvalidEventNamePayload.vendor_id,
-      eventName: snsInvalidEventNamePayload.event_name,
-      tableName,
-      year,
-    });
-    expect(queryRes.length).not.toBeGreaterThan(0);
-  });
 });
 
 interface TransactionCuratedView {

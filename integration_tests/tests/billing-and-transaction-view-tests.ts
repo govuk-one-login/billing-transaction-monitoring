@@ -112,7 +112,6 @@ export const assertResultsWithTestData = async ({
   const eventIds = await generatePublishAndValidateEvents({
     numberOfTestEvents,
     eventName,
-    vendorId,
     eventTime,
   });
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
