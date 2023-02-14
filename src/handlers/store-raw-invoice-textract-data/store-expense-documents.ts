@@ -56,14 +56,14 @@ export async function storeExpenseDocuments(
         replaceValue
       );
     };
-    return replaceAll(sourceFileName.trim(), /\s/g, "_");
+    return replaceAll(sourceFileName.replace(/\.pdf$/g, ".json"), /\s/g, "_");
   })();
 
   await handleTextractSuccess(
     sourceBucket,
     sourceFilePath,
     destinationBucket,
-    `${sourceFolder}/${destinationFileName}.json`,
+    `${sourceFolder}/${destinationFileName}`,
     documents
   );
 }
