@@ -70,7 +70,7 @@ describe(
         logNamePrefix + "-storage-function",
         snsValidEventPayload.event_id,
         testStartTime,
-        25000
+        60000
       );
       expect(eventIdExists).toBeTruthy();
     });

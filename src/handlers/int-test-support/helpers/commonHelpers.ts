@@ -122,7 +122,6 @@ export const publishAndValidateEvent = async (
       prefix: objectsPrefix,
     });
     if (result.Contents === undefined) {
-      console.log("Storage bucket contents empty");
       return false;
     }
     return result.Contents.some((data) => data.Key?.match(event.event_id));
@@ -167,7 +166,6 @@ export const deleteS3Event = async (
     bucket: bucketName,
     key: `btm_transactions/${date}/${eventId}.json`,
   });
-  console.log("deleted the file from s3");
   return true;
 };
 
@@ -178,6 +176,5 @@ export const deleteS3Events = async (
   for (const eventId of eventIds) {
     await deleteS3Event(eventId, eventTime);
   }
-  console.log("deleted the files from s3");
   return true;
 };
