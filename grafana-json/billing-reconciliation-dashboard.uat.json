@@ -149,7 +149,7 @@
         {
           "connectionArgs": {
             "catalog": "__default",
-            "database": "di-btm-dev-calculations",
+            "database": "di-btm-nk-test-uat-data-calculations",
             "region": "__default"
           },
           "datasource": {
@@ -260,7 +260,7 @@
         {
           "connectionArgs": {
             "catalog": "__default",
-            "database": "__default",
+            "database": "di-btm-nk-test-uat-data-calculations",
             "region": "__default"
           },
           "datasource": {
@@ -285,7 +285,7 @@
       {
         "allValue": "",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -307,7 +307,7 @@
         "query": {
           "connectionArgs": {
             "catalog": "__default",
-            "database": "di-btm-dev-calculations",
+            "database": "di-btm-nk-test-uat-data-calculations",
             "region": "__default"
           },
           "format": 1,
@@ -340,7 +340,7 @@
         "query": {
           "connectionArgs": {
             "catalog": "__default",
-            "database": "di-btm-dev-calculations",
+            "database": "di-btm-nk-test-uat-data-calculations",
             "region": "__default"
           },
           "format": 1,
@@ -363,6 +363,6 @@
     "hidden": true
   },
   "timezone": "",
-  "title": "Billing Reconciliation Dashboard - Dev",
+  "title": "Billing Reconciliation Dashboard - UAT",
   "weekStart": ""
 }
