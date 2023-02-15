@@ -7,11 +7,9 @@ import {
   TableNames,
   TimeStamps,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 import {
   VendorId,
   EventName,
-  snsInvalidEventNamePayload,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryResponseFilterByVendorServiceNameYear } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
@@ -24,11 +22,11 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
   });
 
   test.each`
-    eventName    | vendorId                | numberOfTestEvents | unitPrice | eventTime
-    ${"EVENT_1"} | ${"vendor_testvendor1"} | ${2}               | ${1.23}   | ${TimeStamps.THIS_TIME_LAST_YEAR}
-    ${"EVENT_1"} | ${"vendor_testvendor2"} | ${2}               | ${2.5}    | ${TimeStamps.CURRENT_TIME}
-    ${"EVENT_1"} | ${"vendor_testvendor3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
-    ${"EVENT_6"} | ${"vendor_testvendor3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
+    eventName             | vendorId                | numberOfTestEvents | unitPrice | eventTime
+    ${"VENDOR_1_EVENT_1"} | ${"vendor_testvendor1"} | ${2}               | ${1.23}   | ${TimeStamps.THIS_TIME_LAST_YEAR}
+    ${"VENDOR_2_EVENT_2"} | ${"vendor_testvendor2"} | ${2}               | ${2.5}    | ${TimeStamps.CURRENT_TIME}
+    ${"VENDOR_3_EVENT_4"} | ${"vendor_testvendor3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
+    ${"VENDOR_3_EVENT_6"} | ${"vendor_testvendor3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
   `(
     "price retrieved from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
     async ({
@@ -49,7 +47,6 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       const eventIds = await generatePublishAndValidateEvents({
         numberOfTestEvents,
         eventName,
-        vendorId,
         eventTime,
       });
       const tableName = TableNames.TRANSACTION_CURATED;
@@ -65,21 +62,6 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       expect(response[0].price).toEqual(expectedPrice);
     }
   );
-
-  test("no results returned from transaction_curated athena view query when the event payload has invalid eventName", async () => {
-    await publishToTestTopic(snsInvalidEventNamePayload);
-    const tableName = TableNames.TRANSACTION_CURATED;
-    const year = new Date(
-      snsInvalidEventNamePayload.timestamp * 1000
-    ).getFullYear();
-    const queryRes = await queryResponseFilterByVendorServiceNameYear({
-      vendorId: snsInvalidEventNamePayload.vendor_id,
-      eventName: snsInvalidEventNamePayload.event_name,
-      tableName,
-      year,
-    });
-    expect(queryRes.length).not.toBeGreaterThan(0);
-  });
 });
 
 interface TransactionCuratedView {

@@ -1,7 +1,7 @@
 import { deleteS3Object, listS3Objects } from "./s3Helper";
 import { publishToTestTopic } from "./snsHelper";
 import { resourcePrefix } from "./envHelper";
-import { VendorId, EventName, SNSEventPayload } from "./payloadHelper";
+import { EventName, SNSEventPayload } from "./payloadHelper";
 
 const objectsPrefix = "btm_transactions";
 
@@ -10,7 +10,7 @@ export const generateRandomId = (): string => {
 };
 
 export const validTimestamp = (): number => {
-  return new Date().getTime() / 1000;
+  return Math.floor(new Date().getTime() / 1000);
 };
 
 export const thisTimeLastYear = (): number => {
@@ -103,12 +103,12 @@ export const poll = async <Resolution>(
   });
 
 export const generateTestEvent = async (
-  overrides: Partial<SNSEventPayload> &
-    Pick<SNSEventPayload, "event_name" | "vendor_id">
+  overrides: Partial<SNSEventPayload> & Pick<SNSEventPayload, "event_name">
 ): Promise<SNSEventPayload> => ({
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: validTimestamp(),
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
   ...overrides,
 });
 
@@ -133,18 +133,15 @@ export const publishAndValidateEvent = async (
 export const generatePublishAndValidateEvents = async ({
   numberOfTestEvents,
   eventName,
-  vendorId,
   eventTime,
 }: {
   numberOfTestEvents: number;
   eventName: EventName;
-  vendorId: VendorId;
   eventTime: TimeStamps;
 }): Promise<string[]> => {
   const eventIds: string[] = [];
   for (let i = 0; i < numberOfTestEvents; i++) {
     const event = await generateTestEvent({
-      vendor_id: vendorId,
       event_name: eventName,
       timestamp: eventTimeStamp[eventTime],
     });

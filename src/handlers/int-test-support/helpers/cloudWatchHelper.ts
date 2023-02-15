@@ -14,6 +14,26 @@ interface LogCheckParameters {
   testStartTime: number;
 }
 
+export async function getRecentCloudwatchLogs(params: {
+  logName: string;
+}): Promise<FilterLogEventsCommandOutput> {
+  if (runViaLambda()) {
+    return (await sendLambdaCommand(
+      "getRecentCloudwatchLogs",
+      params
+    )) as unknown as FilterLogEventsCommandOutput;
+  }
+
+  const commandInput: FilterLogEventsCommandInput = {
+    logGroupName: "/aws/lambda/" + params.logName,
+    startTime: Date.now() - 60 * 1000,
+  };
+
+  return await cloudWatchLogsClient.send(
+    new FilterLogEventsCommand(commandInput)
+  );
+}
+
 async function checkGivenStringExistsInLogs(
   params: LogCheckParameters
 ): Promise<boolean> {

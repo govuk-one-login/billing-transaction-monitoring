@@ -45,6 +45,7 @@ Resources:
         Variables:
           OUTPUT_QUEUE_URL: !Ref StorageQueue
           LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
       Events:
         CleanEvent:
           Type: SQS
@@ -73,6 +74,18 @@ Resources:
                 - kms:GenerateDataKey*
                 - kms:Encrypt
               Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
       ReservedConcurrentExecutions: 10
 
   CleanFunctionAlarm:
