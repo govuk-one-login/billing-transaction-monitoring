@@ -92,7 +92,6 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
       bucket: s3Object.bucket,
       key: `successful/${String(path)}`,
     });
-    console.log("deleted the file from s3");
   });
 });
 
@@ -135,7 +134,6 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice pdf bucket tes
       bucket: rawInvoice.bucket,
       key: "failed/" + rawInvoice.key,
     });
-    console.log("deleted the file from s3");
   });
 });
 
