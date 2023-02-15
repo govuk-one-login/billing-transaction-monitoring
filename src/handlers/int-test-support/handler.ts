@@ -9,7 +9,10 @@ import {
   putS3Object,
 } from "./helpers/s3Helper";
 import { publishToTestTopic } from "./helpers/snsHelper";
-import { checkGivenStringExistsInLogs } from "./helpers/cloudWatchHelper";
+import {
+  getRecentCloudwatchLogs,
+  checkGivenStringExistsInLogs,
+} from "./helpers/cloudWatchHelper";
 import {
   getQueryExecutionStatus,
   startQueryExecutionCommand,
@@ -39,6 +42,7 @@ const functionMap: { [name: string]: Function } = {
   checkIfS3ObjectExists,
   publishToTestTopic,
   checkGivenStringExistsInLogs,
+  getRecentCloudwatchLogs,
   startQueryExecutionCommand,
   getQueryExecutionStatus,
   getQueryResults,

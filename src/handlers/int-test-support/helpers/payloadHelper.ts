@@ -81,7 +81,7 @@ const snsInvalidEventPayloadEventId: SNSEventPayload = {
 
 const snsInvalidEventPayloadTimestampFormatted: SNSEventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
-  event_id: 123 as unknown as string,
+  event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: validTimestamp(),
   timestamp_formatted: 123 as unknown as string,
