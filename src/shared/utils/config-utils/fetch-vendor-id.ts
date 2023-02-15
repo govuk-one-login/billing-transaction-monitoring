@@ -1,4 +1,9 @@
-import { fetchVendorServiceConfig } from "./fetch-vendor-service-config";
+import {
+  fetchVendorServiceConfig,
+  VendorServiceConfig,
+} from "./fetch-vendor-service-config";
+
+let vendorServiceConfigPromise: Promise<VendorServiceConfig> | undefined;
 
 export const fetchVendorId = async (eventName: string): Promise<string> => {
   const configBucket = process.env.CONFIG_BUCKET;
@@ -6,15 +11,20 @@ export const fetchVendorId = async (eventName: string): Promise<string> => {
   if (configBucket === undefined)
     throw new Error("No CONFIG_BUCKET defined in this environment");
 
-  // Event name is unique for each vendor id
-  const vendorServiceConfig = (
-    await fetchVendorServiceConfig(configBucket)
-  ).find((vendor) => vendor.event_name === eventName);
+  if (vendorServiceConfigPromise === undefined)
+    vendorServiceConfigPromise = fetchVendorServiceConfig(configBucket);
 
-  if (vendorServiceConfig === undefined) {
+  const vendorServiceConfig = await vendorServiceConfigPromise;
+
+  // Event name is unique for each vendor id
+  const vendorId = vendorServiceConfig.find(
+    (vendor) => vendor.event_name === eventName
+  );
+
+  if (vendorId === undefined) {
     throw new Error(
       "Event name: " + eventName + " not found in vendorServiceConfig"
     );
   }
-  return vendorServiceConfig.vendor_id;
+  return vendorId.vendor_id;
 };
