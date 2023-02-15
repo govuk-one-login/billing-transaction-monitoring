@@ -37,9 +37,6 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 async function cleanRecord(record: SQSRecord): Promise<void> {
   const bodyObject = JSON.parse(record.body);
 
-  if (typeof bodyObject !== "object")
-    throw new Error("Event record body not an object.");
-
   if (!isValidBodyObject(bodyObject)) {
     console.error("Event record body is invalid.");
     console.log(bodyObject);
