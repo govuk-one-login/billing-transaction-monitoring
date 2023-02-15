@@ -225,7 +225,7 @@ Resources:
             , txn.quantity transaction_quantity
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(invoice.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(txn.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) transaction_price_formatted
-            , (CASE WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN -1234.01 WHEN (txn.price = 0) THEN -1234.02 WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN -1234.03 WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN -1234.04 ELSE (CASE WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE null END) ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price) END) Message
+            , (CASE WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN -1234.01 WHEN (txn.price = 0) THEN -1234.02 WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN -1234.03 WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN -1234.04 ELSE (CASE WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE null END) ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price) END) END) Message
           FROM
             (btm_transactions_curated txn
             FULL JOIN btm_billing_curated invoice ON ((((txn.vendor_name = invoice.vendor_name) AND (txn.service_name = invoice.service_name)) AND (txn.year = invoice.year)) AND (txn.month = invoice.month)))
