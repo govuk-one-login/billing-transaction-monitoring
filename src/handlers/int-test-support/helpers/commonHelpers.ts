@@ -65,6 +65,8 @@ export const poll = async <Resolution>(
     // isn't achieved within the given timeout
     const timeoutHandle = setTimeout(() => {
       clearInterval(intervalHandle);
+      // Rejecting with a string rather than an error so that the failure
+      // bubbles up to the test, giving better output
       // eslint-disable-next-line prefer-promise-reject-errors
       reject("Polling completion condition was never achieved");
     }, timeout);
