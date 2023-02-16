@@ -33,9 +33,7 @@ describe("poll", () => {
           { interval: 100, timeout: 1_000 }
         );
       } catch (error) {
-        expect((error as Error).message).toBe(
-          "Polling completion condition was never achieved"
-        );
+        expect(error).toBe("Polling completion condition was never achieved");
       }
       expect.hasAssertions();
     });
@@ -60,9 +58,7 @@ describe("poll", () => {
           }
         );
       } catch (error) {
-        expect((error as Error).message).toBe(
-          "Polling completion condition was never achieved"
-        );
+        expect(error).toBe("Polling completion condition was never achieved");
       }
       expect.hasAssertions();
     });
