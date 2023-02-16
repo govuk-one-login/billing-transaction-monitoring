@@ -73,22 +73,22 @@
           "mappings": [
             {
               "options": {
-                "-1234.01": {
+                "-1234567.01": {
                   "color": "super-light-green",
                   "index": 0,
                   "text": "No charge for this month"
                 },
-                "-1234.02": {
+                "-1234567.02": {
                   "color": "super-light-red",
                   "index": 1,
                   "text": "Rate card data missing"
                 },
-                "-1234.03": {
+                "-1234567.03": {
                   "color": "#676b71",
                   "index": 2,
                   "text": "Invoice data missing"
                 },
-                "-1234.04": {
+                "-1234567.04": {
                   "color": "#676b71",
                   "index": 3,
                   "text": "Transaction data missing"
@@ -135,7 +135,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "/^Message$/",
+          "fields": "/^Difference$/",
           "values": true
         },
         "text": {
@@ -157,8 +157,9 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  CAST(price_difference_percentage AS double) AS \"Price Difference\",\n  Message\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
-          "refId": "A"
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  Difference\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "refId": "A",
+          "table": "btm_billing_and_transactions_curated"
         }
       ],
       "transformations": [
@@ -202,19 +203,19 @@
           "mappings": [
             {
               "options": {
-                "-1234.01": {
+                "-1234567.01": {
                   "index": 0,
                   "text": "No charge for this month"
                 },
-                "-1234.02": {
+                "-1234567.02": {
                   "index": 1,
                   "text": "Rate card data missing"
                 },
-                "-1234.03": {
+                "-1234567.03": {
                   "index": 2,
                   "text": "Invoice data missing"
                 },
-                "-1234.04": {
+                "-1234567.04": {
                   "index": 3,
                   "text": "Transaction data missing"
                 }
@@ -234,7 +235,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -268,7 +270,7 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Billing Price\",\n  transaction_price_formatted AS \"Transaction Price\",\n  Message\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Billing Price\",\n  transaction_price_formatted AS \"Transaction Price\",\n  Difference\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
           "table": "btm_billing_and_transactions_curated"
         }
