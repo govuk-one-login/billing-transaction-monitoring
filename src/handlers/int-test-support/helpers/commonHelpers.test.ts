@@ -30,8 +30,7 @@ describe("poll", () => {
               resolve("a");
             }),
           (response) => response === "b",
-          100,
-          1_000
+          { interval: 100, timeout: 1_000 }
         );
       } catch (error) {
         expect(error).toBe("Polling completion condition was never achieved");
@@ -53,8 +52,10 @@ describe("poll", () => {
               }, 2000);
             }),
           (response) => response === "a",
-          100,
-          1_000 // we give up on polling after 1 second
+          {
+            interval: 100,
+            timeout: 1_000, // we give up on polling after 1 second
+          }
         );
       } catch (error) {
         expect(error).toBe("Polling completion condition was never achieved");
@@ -75,8 +76,10 @@ describe("poll", () => {
             }, 500);
           }),
         (response) => response === "a",
-        100,
-        1_000 // we give up on polling after 1 second
+        {
+          interval: 100,
+          timeout: 1_000, // we give up on polling after 1 second
+        }
       );
 
       expect(response).toBe("a");
@@ -93,12 +96,10 @@ describe("poll", () => {
             }, 450);
           })
       );
-      await poll(
-        underlyingPromise,
-        (response) => response === "a",
-        100, // we poll every 100ms
-        1_000 // we give up on polling after 1 second
-      );
+      await poll(underlyingPromise, (response) => response === "a", {
+        interval: 100, // we poll every 100ms
+        timeout: 1_000, // we give up on polling after 1 second
+      });
 
       expect(underlyingPromise).toHaveBeenCalledTimes(1);
     });

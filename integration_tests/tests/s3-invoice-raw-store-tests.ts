@@ -42,8 +42,10 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
         }),
       (results) =>
         !!results?.Contents?.some(({ Key }) => Key?.includes(filename)),
-      1000,
-      35000
+      {
+        timeout: 35000,
+        nonCompleteErrorMessage: "Raw invoice failed to upload",
+      }
     );
 
     // wait for standardised invoice to appear
@@ -54,7 +56,8 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
           prefix: standardisedFolderPrefix,
         }),
       (results) =>
-        !!results?.Contents?.some(({ Key }) => Key?.includes(filename))
+        !!results?.Contents?.some(({ Key }) => Key?.includes(filename)),
+      { nonCompleteErrorMessage: "Standardised invoice never appeared" }
     );
 
     // fetch the standardised invoice

@@ -57,10 +57,18 @@ export const waitForTrue = async (
 export const poll = async <Resolution>(
   promise: () => Promise<Resolution>,
   completionCondition: (resolution: Resolution) => boolean,
-  interval: number = 1_000,
-  timeout: number = 30_000
-): Promise<Resolution> =>
-  await new Promise((resolve, reject) => {
+  options?: {
+    interval?: number;
+    timeout?: number;
+    nonCompleteErrorMessage?: string;
+  }
+): Promise<Resolution> => {
+  const {
+    interval = 1_000,
+    timeout = 30_000,
+    nonCompleteErrorMessage = "Polling completion condition was never achieved",
+  } = options ?? {};
+  return await new Promise((resolve, reject) => {
     // This timeout safely exits the function if the completion condition
     // isn't achieved within the given timeout
     const timeoutHandle = setTimeout(() => {
@@ -68,7 +76,7 @@ export const poll = async <Resolution>(
       // Rejecting with a string rather than an error so that the failure
       // bubbles up to the test, giving better output
       // eslint-disable-next-line prefer-promise-reject-errors
-      reject("Polling completion condition was never achieved");
+      reject(nonCompleteErrorMessage);
     }, timeout);
     // using a stack even though we only intend to have one promise at a time
     // because we can synchronously measure the length of an array
@@ -104,7 +112,7 @@ export const poll = async <Resolution>(
       );
     }, interval);
   });
-
+};
 export const generateTestEvent = async (
   overrides: Partial<SNSEventPayload> & Pick<SNSEventPayload, "event_name">
 ): Promise<SNSEventPayload> => ({
