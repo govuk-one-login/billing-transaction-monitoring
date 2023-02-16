@@ -2,16 +2,13 @@ import {
   PublishBatchRequestEntry,
   PublishCommandOutput,
 } from "@aws-sdk/client-sns";
-import {
-  VendorId,
-  EventName,
-} from "../../src/handlers/int-test-support/helpers/payloadHelper";
+import { VendorId } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { batchPublishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 
 const makeMessages = (
   numberOfEvents: number,
   vendorId: VendorId,
-  eventName: EventName,
+  eventName: string,
   humanDate: string
 ): PublishBatchRequestEntry[] => {
   const events = [];
@@ -37,26 +34,45 @@ const makeMessages = (
 const cases = [
   {
     vendor: VendorId.vendor_testvendor1,
-    count: 11598,
-    name: EventName.EVENT_1,
+    count: 11527,
+    name: "VENDOR_1_EVENT_1",
     date: "2023/01/01 10:00",
   },
   {
     vendor: VendorId.vendor_testvendor1,
     count: 18052,
-    name: EventName.EVENT_1,
+    name: "VENDOR_1_EVENT_1",
     date: "2023/02/01 10:00",
   },
   {
     vendor: VendorId.vendor_testvendor2,
     count: 15263,
-    name: EventName.EVENT_1,
+    name: "VENDOR_2_EVENT_2",
     date: "2023/01/01 10:00",
   },
   {
     vendor: VendorId.vendor_testvendor2,
     count: 38271,
-    name: EventName.EVENT_1,
+    name: "VENDOR_2_EVENT_2",
+    date: "2023/02/01 10:00",
+  },
+  {
+    vendor: VendorId.vendor_testvendor3,
+    count: 5000,
+    name: "VENDOR_3_EVENT_4",
+    date: "2023/02/01 10:00",
+  },
+
+  {
+    vendor: VendorId.vendor_testvendor4,
+    count: 9,
+    name: "VENDOR_4_EVENT_5",
+    date: "2023/01/01 10:00",
+  },
+  {
+    vendor: VendorId.vendor_testvendor4,
+    count: 7,
+    name: "VENDOR_4_EVENT_5",
     date: "2023/02/01 10:00",
   },
 ];
