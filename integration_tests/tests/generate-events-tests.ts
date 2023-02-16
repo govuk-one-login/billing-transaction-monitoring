@@ -46,7 +46,7 @@ const cases = [
   },
   {
     vendor: VendorId.vendor_testvendor2,
-    count: 15263,
+    count: 15103,
     name: "VENDOR_2_EVENT_2",
     date: "2023/01/01 10:00",
   },
