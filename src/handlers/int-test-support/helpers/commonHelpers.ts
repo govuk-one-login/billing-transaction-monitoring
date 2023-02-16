@@ -65,7 +65,8 @@ export const poll = async <Resolution>(
     // isn't achieved within the given timeout
     const timeoutHandle = setTimeout(() => {
       clearInterval(intervalHandle);
-      reject(new Error("Polling completion condition was never achieved"));
+      // eslint-disable-next-line prefer-promise-reject-errors
+      reject("Polling completion condition was never achieved");
     }, timeout);
     // using a stack even though we only intend to have one promise at a time
     // because we can synchronously measure the length of an array
