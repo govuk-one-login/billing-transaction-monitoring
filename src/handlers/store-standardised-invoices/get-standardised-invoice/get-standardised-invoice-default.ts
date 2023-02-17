@@ -1,4 +1,5 @@
 import { Textract } from "aws-sdk";
+import { VendorServiceConfigRows } from "../../../shared/utils";
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -19,7 +20,7 @@ import {
 
 export const getStandardisedInvoiceDefault: StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  vendorName: string
+  vendorServiceConfigRows: VendorServiceConfigRows
 ): StandardisedLineItem[] => {
   const summaryFields = getSummaryFields(textractPages);
 
@@ -28,7 +29,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
 
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
-    vendor_name: vendorName,
+    vendor_name: vendorServiceConfigRows[0].vendor_name,
     total: getTotal(summaryFields),
     invoice_receipt_date: getInvoiceReceiptDate(summaryFields),
     subtotal: getSubtotal(summaryFields),
@@ -37,19 +38,33 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
     tax_payer_id: getTaxPayerId(summaryFields),
   };
 
-  const standardisedLineItems = lineItems.map((item) => {
+  return lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
     const itemFields = item.LineItemExpenseFields ?? [];
+    let nextAcc = [...acc];
+    for (const {
+      service_name: serviceName,
+      service_regex: serviceRegexPattern,
+    } of vendorServiceConfigRows) {
+      const serviceRegex = new RegExp(serviceRegexPattern, "i");
+      const itemDescription = getItemDescription(itemFields);
+      if (!itemDescription?.match(serviceRegex)) {
+        continue;
+      }
 
-    return {
-      ...summary,
-      item_description: getItemDescription(itemFields),
-      unit_price: getUnitPrice(itemFields),
-      quantity: getQuantity(itemFields),
-      price: getPrice(itemFields),
-    };
-  });
-
-  return standardisedLineItems;
+      nextAcc = [
+        ...nextAcc,
+        {
+          ...summary,
+          item_description: itemDescription,
+          price: getPrice(itemFields),
+          quantity: getQuantity(itemFields),
+          service_name: serviceName,
+          unit_price: getUnitPrice(itemFields),
+        },
+      ];
+    }
+    return nextAcc;
+  }, []);
 };
 
 const getLineItems = (

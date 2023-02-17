@@ -7,7 +7,8 @@ import { sendLambdaCommand } from "../../lambdaHelper";
 import { getVendorServiceConfigRow } from "../../../../../shared/utils/config-utils";
 
 export const createInvoiceInS3 = async (
-  invoiceData: InvoiceData
+  invoiceData: InvoiceData,
+  filename: string
 ): Promise<S3Object> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
@@ -22,5 +23,9 @@ export const createInvoiceInS3 = async (
     { vendor_name: invoice.vendor.name }
   );
 
-  return await makeMockInvoicePDF(writeInvoiceToS3)(invoice, vendorId);
+  return await makeMockInvoicePDF(writeInvoiceToS3)(
+    invoice,
+    vendorId,
+    filename
+  );
 };
