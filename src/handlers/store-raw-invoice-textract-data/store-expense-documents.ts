@@ -21,6 +21,7 @@ export async function storeExpenseDocuments(
     throw Error(`File not in vendor folder: ${sourceBucket}/${sourceFilePath}`);
 
   const sourceFolder = sourcePathParts[0];
+  const [sourceFileName] = sourcePathParts.slice(-1);
 
   // Do not reprocess documents moved to the failure or success folders.
   if (
@@ -40,11 +41,29 @@ export async function storeExpenseDocuments(
     return await handleTextractFailure(sourceBucket, sourceFilePath);
   }
 
+  const destinationFileName: string = (() => {
+    // I've done this rather than update the lib
+    // I assume es7 was mandated by someone at some point
+    const replaceAll = (
+      string: string,
+      searchValue: string | RegExp,
+      replaceValue: string
+    ): string => {
+      if (!string.match(searchValue)) return string;
+      return replaceAll(
+        string.replace(searchValue, replaceValue),
+        searchValue,
+        replaceValue
+      );
+    };
+    return replaceAll(sourceFileName.replace(/\.pdf$/g, ".json"), /\s/g, "_");
+  })();
+
   await handleTextractSuccess(
     sourceBucket,
     sourceFilePath,
     destinationBucket,
-    `${sourceFolder}/${jobId}.json`,
+    `${sourceFolder}/${destinationFileName}`,
     documents
   );
 }

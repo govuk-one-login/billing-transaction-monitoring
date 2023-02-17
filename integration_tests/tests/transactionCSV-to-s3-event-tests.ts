@@ -42,6 +42,9 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
           result.Contents?.length !== undefined &&
           result.Contents?.length === happyPathCount
         );
+      },
+      {
+        nonCompleteErrorMessage: "Events CSV was not successfully uploaded",
       }
     );
   });

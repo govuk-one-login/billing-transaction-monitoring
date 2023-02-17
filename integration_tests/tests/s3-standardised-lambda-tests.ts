@@ -15,7 +15,10 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
   test("standardised-invoice-storage-function should be executed without errors upon uploading the file to s3 raw invoice pdf bucket", async () => {
     const testStartTime = new Date();
     const invoiceData = randomInvoiceData();
-    const s3Object = await createInvoiceInS3(invoiceData);
+    const filename = `raw-Invoice-${Math.random()
+      .toString(36)
+      .substring(2, 7)}-validFile`;
+    const s3Object = await createInvoiceInS3(invoiceData, `${filename}.pdf`);
 
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();

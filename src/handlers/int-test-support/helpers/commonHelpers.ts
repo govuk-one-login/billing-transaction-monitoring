@@ -57,15 +57,26 @@ export const waitForTrue = async (
 export const poll = async <Resolution>(
   promise: () => Promise<Resolution>,
   completionCondition: (resolution: Resolution) => boolean,
-  interval: number = 1_000,
-  timeout: number = 30_000
-): Promise<Resolution> =>
-  await new Promise((resolve, reject) => {
+  options?: {
+    interval?: number;
+    timeout?: number;
+    nonCompleteErrorMessage?: string;
+  }
+): Promise<Resolution> => {
+  const {
+    interval = 1_000,
+    timeout = 30_000,
+    nonCompleteErrorMessage = "Polling completion condition was never achieved",
+  } = options ?? {};
+  return await new Promise((resolve, reject) => {
     // This timeout safely exits the function if the completion condition
     // isn't achieved within the given timeout
     const timeoutHandle = setTimeout(() => {
       clearInterval(intervalHandle);
-      reject(new Error("Polling completion condition was never achieved"));
+      // Rejecting with a string rather than an error so that the failure
+      // bubbles up to the test, giving better output
+      // eslint-disable-next-line prefer-promise-reject-errors
+      reject(nonCompleteErrorMessage);
     }, timeout);
     // using a stack even though we only intend to have one promise at a time
     // because we can synchronously measure the length of an array
@@ -101,7 +112,7 @@ export const poll = async <Resolution>(
       );
     }, interval);
   });
-
+};
 export const generateTestEvent = async (
   overrides: Partial<SNSEventPayload> & Pick<SNSEventPayload, "event_name">
 ): Promise<SNSEventPayload> => ({
@@ -116,18 +127,15 @@ export const publishAndValidateEvent = async (
   event: SNSEventPayload
 ): Promise<void> => {
   await publishToTestTopic(event);
-  const checkEventId = async (): Promise<boolean> => {
-    const result = await listS3Objects({
-      bucketName: `${resourcePrefix()}-storage`,
-      prefix: objectsPrefix,
-    });
-    if (result.Contents === undefined) {
-      return false;
-    }
-    return result.Contents.some((data) => data.Key?.match(event.event_id));
-  };
-  const eventIdExists = await waitForTrue(checkEventId, 1000, 10000);
-  expect(eventIdExists).toBeTruthy();
+  await poll(
+    async () =>
+      await listS3Objects({
+        bucketName: `${resourcePrefix()}-storage`,
+        prefix: objectsPrefix,
+      }),
+    (result) =>
+      !!result?.Contents?.some((data) => data.Key?.match(event.event_id))
+  );
 };
 
 export const generatePublishAndValidateEvents = async ({

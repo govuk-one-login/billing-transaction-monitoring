@@ -1,7 +1,8 @@
 import { Textract } from "aws-sdk";
 import {
   getVendorInvoiceStandardisationModuleId,
-  getVendorServiceConfigRow,
+  getVendorServiceConfigRows,
+  VendorServiceConfigRows,
 } from "../../../shared/utils";
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
 import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-default";
@@ -25,7 +26,7 @@ export interface StandardisedLineItem {
 
 export type StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  vendorName: string
+  vendorServiceConfigRow: VendorServiceConfigRows
 ) => StandardisedLineItem[];
 
 const standardisationModuleMap: Record<number, StandardisationModule> = {
@@ -37,9 +38,9 @@ export const getStandardisedInvoice = async (
   vendorId: string,
   configBucket: string
 ): Promise<StandardisedLineItem[]> => {
-  const [standardisationModuleId, vendorServiceConfigRow] = await Promise.all([
+  const [standardisationModuleId, vendorServiceConfigRows] = await Promise.all([
     getVendorInvoiceStandardisationModuleId(configBucket, vendorId),
-    getVendorServiceConfigRow(configBucket, { vendor_id: vendorId }),
+    getVendorServiceConfigRows(configBucket, { vendor_id: vendorId }),
   ]);
 
   const standardisationModule =
@@ -48,8 +49,5 @@ export const getStandardisedInvoice = async (
       ? standardisationModuleMap[standardisationModuleId]
       : getStandardisedInvoiceDefault;
 
-  return standardisationModule(
-    textractPages,
-    vendorServiceConfigRow.vendor_name
-  );
+  return standardisationModule(textractPages, vendorServiceConfigRows);
 };

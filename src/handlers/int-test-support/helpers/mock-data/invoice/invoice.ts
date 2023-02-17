@@ -2,6 +2,12 @@ import JSPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { InvoiceData } from "./types";
 
+export type WriteFunc<TWriteOutput> = (
+  file: ArrayBuffer,
+  folder: string,
+  filename: string
+) => Promise<TWriteOutput>;
+
 export class Invoice {
   constructor(invoice: InvoiceData) {
     this.vendor = invoice.vendor;
@@ -29,10 +35,12 @@ export class Invoice {
 }
 
 export const makeMockInvoicePDF =
-  <TWriteOutput>(
-    writeOutput: (file: ArrayBuffer, folder: string) => Promise<TWriteOutput>
-  ) =>
-  async (invoice: Invoice, folder: string): Promise<TWriteOutput> => {
+  <TWriteOutput>(writeOutput: WriteFunc<TWriteOutput>) =>
+  async (
+    invoice: Invoice,
+    folder: string,
+    filename: string
+  ): Promise<TWriteOutput> => {
     const doc = new JSPDF({
       unit: "cm",
     });
@@ -90,5 +98,5 @@ export const makeMockInvoicePDF =
       ],
     });
     doc.text(`Invoice number: ${invoice.invoiceNumber}`, 2, 20);
-    return await writeOutput(doc.output("arraybuffer"), folder);
+    return await writeOutput(doc.output("arraybuffer"), folder, filename);
   };
