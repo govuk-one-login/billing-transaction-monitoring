@@ -12,22 +12,19 @@ async function waitForSubstringInLogs(
   subString: string
 ): Promise<void> {
   // If the substring appears in the logs then the poll is successful, and therefore the test will pass.
-  try {
-    await poll(
-      async () =>
-        await getRecentCloudwatchLogs({
-          logName: logNamePrefix + logName,
-        }),
-      (results) =>
-        !!results.events?.some((event) => {
-          return event.message?.includes(subString);
-        })
-    );
-  } catch (error: any) {
-    if (error.message === "Polling completion condition was never achieved") {
-      throw new Error("Substring " + subString + " not found in logs");
+  await poll(
+    async () =>
+      await getRecentCloudwatchLogs({
+        logName: logNamePrefix + logName,
+      }),
+    (results) =>
+      !!results.events?.some((event) => {
+        return event.message?.includes(subString);
+      }),
+    {
+      nonCompleteErrorMessage: "Substring " + subString + " not found in logs",
     }
-  }
+  );
 }
 
 describe(
