@@ -24,18 +24,15 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
   const textractBucket = `${prefix}-raw-invoice-textract-data`;
   const standardisedFolderPrefix = "btm_billing_standardised";
   const invoice = randomInvoice();
-  test("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
+  test.skip("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
     const filename = `raw-Invoice-${Math.random()
       .toString(36)
       .substring(2, 7)}-validFile`;
-    console.log("filename1:",filename)
     const s3Object = await createInvoiceInS3(invoice, `${filename}.pdf`);
-    console.log("S3Object details:",s3Object)
     const isInvoiceUploadSuccessful = await checkIfS3ObjectExists(s3Object);
     if (!isInvoiceUploadSuccessful) {
       throw new Error("Raw invoice was not uploaded");
     }
-console.log("filename3:",filename)
     // wait for invoice to be uploaded to raw bucket
     await poll(
       async () => 

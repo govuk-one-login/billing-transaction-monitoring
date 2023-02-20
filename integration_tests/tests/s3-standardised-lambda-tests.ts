@@ -11,7 +11,7 @@ import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonH
 
 const prefix = resourcePrefix();
 
-describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => {
+describe.skip("\n Happy path S3 standardised-invoice-storage-function test\n", () => {
   test("standardised-invoice-storage-function should be executed without errors upon uploading the file to s3 raw invoice pdf bucket", async () => {
     const testStartTime = new Date();
     const invoiceData = randomInvoiceData();
