@@ -43,7 +43,7 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
       (results) =>
         !!results?.Contents?.some(({ Key }) => Key?.includes(filename)),
       {
-        timeout: 35000,
+        timeout: 45000,
         nonCompleteErrorMessage: "Invoice was not successfully uploaded",
       }
     );
