@@ -28,15 +28,17 @@ describe("\n Happy path - Upload valid mock invoice pdf to the raw invoice pdf b
     const filename = `raw-Invoice-${Math.random()
       .toString(36)
       .substring(2, 7)}-validFile`;
+    console.log("filename1:",filename)
     const s3Object = await createInvoiceInS3(invoice, `${filename}.pdf`);
+    console.log("S3Object details:",s3Object)
     const isInvoiceUploadSuccessful = await checkIfS3ObjectExists(s3Object);
     if (!isInvoiceUploadSuccessful) {
       throw new Error("Raw invoice was not uploaded");
     }
-
+console.log("filename3:",filename)
     // wait for invoice to be uploaded to raw bucket
     await poll(
-      async () =>
+      async () => 
         await listS3Objects({
           bucketName: textractBucket,
         }),
