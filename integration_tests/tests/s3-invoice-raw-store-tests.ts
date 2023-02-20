@@ -45,7 +45,7 @@ console.log("filename3:",filename)
       (results) =>
         !!results?.Contents?.some(({ Key }) => Key?.includes(filename)),
       {
-        timeout: 35000,
+        timeout: 45000,
         nonCompleteErrorMessage: "Invoice was not successfully uploaded",
       }
     );
