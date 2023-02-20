@@ -63,6 +63,7 @@ export const poll = async <Resolution>(
     nonCompleteErrorMessage?: string;
   }
 ): Promise<Resolution> => {
+  console.log("pollPromise:",promise)
   const {
     interval = 1_000,
     timeout = 30_000,
