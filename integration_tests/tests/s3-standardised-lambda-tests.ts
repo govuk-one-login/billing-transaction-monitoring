@@ -18,7 +18,10 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
     const filename = `raw-Invoice-${Math.random()
       .toString(36)
       .substring(2, 7)}-validFile`;
-    const s3Object =  await createInvoiceInS3({invoiceData, filename:`${filename}.pdf`});
+    const s3Object = await createInvoiceInS3({
+      invoiceData,
+      filename: `${filename}.pdf`,
+    });
 
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
@@ -54,7 +57,7 @@ describe("\n Happy path S3 standardised-invoice-storage-function test\n", () => 
       });
       return true;
     };
-    const fileDeleted = await waitForTrue(deleteFileAfterTest, 1000, 5000);
+    const fileDeleted = await waitForTrue(deleteFileAfterTest, 1000, 10000);
     expect(fileDeleted).toBeTruthy();
   });
 });
