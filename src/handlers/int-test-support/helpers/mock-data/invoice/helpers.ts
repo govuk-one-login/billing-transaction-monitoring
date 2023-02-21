@@ -22,7 +22,6 @@ export const createInvoiceInS3 = async (
     configStackName(),
     { vendor_name: invoice.vendor.name }
   );
-
   return await makeMockInvoicePDF(writeInvoiceToS3)(
     invoice,
     vendorId,
