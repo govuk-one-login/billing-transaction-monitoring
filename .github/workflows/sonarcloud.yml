@@ -1,12 +1,12 @@
-name: Unit Tests
+name: Sonarcloud
 
 on:
   push:
     branches:
-      - main
+      - '*'
 
 jobs:
-  run-unit-tests:
+  sonarcloud:
     permissions:
       contents: write
       packages: write
@@ -17,7 +17,7 @@ jobs:
         uses: tj-actions/branch-names@v6
       - name: Assign branch value
         run: echo "branch=${{ steps.branch-name.outputs.current_branch }}" >> $GITHUB_ENV
-      - name: Check out respository code
+      - name: Check out code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -28,3 +28,8 @@ jobs:
       - run: npm ci
       - name: Run unit tests
         run: npm test
+      - name: Run SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
