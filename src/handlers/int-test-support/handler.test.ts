@@ -1,5 +1,5 @@
 import { Context } from "aws-lambda";
-import { handler, TestSupportEvent } from "./handler";
+import { handler, IntTestHelpers, TestSupportEvent } from "./handler";
 import { getS3Object, listS3Objects } from "./helpers/s3Helper";
 
 jest.mock("./helpers/s3Helper.ts");
@@ -33,7 +33,7 @@ describe("Handler test for integration test support function", () => {
     inputEvent = {
       environment: "test-env",
       config: "test-config",
-      command: "getS3Object",
+      command: IntTestHelpers.getS3Object,
       parameters: { some: "parameter" },
     };
 
@@ -48,7 +48,7 @@ describe("Handler test for integration test support function", () => {
     inputEvent = {
       environment: "test-env",
       config: "test-config",
-      command: "listS3Objects",
+      command: IntTestHelpers.listS3Objects,
       parameters: { some: "parameter" },
     };
 
@@ -63,7 +63,7 @@ describe("Handler test for integration test support function", () => {
     inputEvent = {
       environment: "test-env",
       config: "test-config",
-      command: "someUnknownCommand",
+      command: "someUnknownCommand" as unknown as IntTestHelpers,
       parameters: { some: "parameter" },
     };
 
