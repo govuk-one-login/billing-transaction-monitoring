@@ -35,7 +35,9 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     const filename = `raw-Invoice-${Math.random()
       .toString(36)
       .substring(2, 7)}-validFile`;
-    const s3Object = await createInvoiceInS3(invoice, `${filename}.pdf`);
+    const s3Object = await createInvoiceInS3({
+      invoiceData: invoice,
+      filename: `${filename}.pdf`});
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
 
