@@ -73,6 +73,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     });
     const queryObjects: BillingCurated[] = await queryObject(queryId);
     expect(queryObjects.length).toEqual(2);
+    queryObjects.sort((q0, q1) => { return q0.service_name.localeCompare(q1.service_name) })
     for (let i=0; i<queryObjects.length; i++) {
       expect(invoice.vendor.name).toEqual(queryObjects[i].vendor_name);
       expect(expectedServices[i]).toEqual(queryObjects[i].service_name);
