@@ -33,20 +33,20 @@ export interface TestSupportReturn {
 }
 
 export enum IntTestHelpers {
-  getS3Object,
-  getS3Objects,
-  listS3Objects,
-  putS3Object,
-  deleteS3Object,
-  deleteS3Objects,
-  checkIfS3ObjectExists,
-  publishToTestTopic,
-  checkGivenStringExistsInLogs,
-  getRecentCloudwatchLogs,
-  startQueryExecutionCommand,
-  getQueryExecutionStatus,
-  getQueryResults,
-  createInvoiceInS3,
+  getS3Object = "getS3Object",
+  getS3Objects = "getS3Objects",
+  listS3Objects = "listS3Objects",
+  putS3Object = "putS3Object",
+  deleteS3Object = "deleteS3Object",
+  deleteS3Objects = "deleteS3Objects",
+  checkIfS3ObjectExists = "checkIfS3ObjectExists",
+  publishToTestTopic = "publishToTestTopic",
+  checkGivenStringExistsInLogs = "checkGivenStringExistsInLogs",
+  getRecentCloudwatchLogs = "getRecentCloudwatchLogs",
+  startQueryExecutionCommand = "startQueryExecutionCommand",
+  getQueryExecutionStatus = "getQueryExecutionStatus",
+  getQueryResults = "getQueryResults",
+  createInvoiceInS3 = "createInvoiceInS3",
 }
 
 export interface HelperDict {
