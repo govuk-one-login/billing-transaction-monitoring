@@ -83,9 +83,9 @@ const functionMap: HelperDict = {
   [IntTestHelpers.createInvoiceInS3]: createInvoiceInS3,
 };
 
-const callFunction = async (
-  name: IntTestHelpers,
-  parameters: any
+const callFunction = async <THelper extends IntTestHelpers>(
+  name: THelper,
+  parameters: Parameters<HelperDict[THelper]>[0]
 ): Promise<any> => {
   if (functionMap[name] !== undefined) {
     const func: Function = functionMap[name];
