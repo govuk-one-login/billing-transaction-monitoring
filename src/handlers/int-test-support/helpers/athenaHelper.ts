@@ -10,6 +10,7 @@ import { waitForTrue } from "./commonHelpers";
 import { resourcePrefix, runViaLambda } from "./envHelper";
 import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
+import { IntTestHelpers } from "../handler";
 
 interface StringObject {
   [key: string]: string;
@@ -24,7 +25,10 @@ const startQueryExecutionCommand = async (
   query: DatabaseQuery
 ): Promise<string> => {
   if (runViaLambda())
-    return await sendLambdaCommand("startQueryExecutionCommand", query);
+    return await sendLambdaCommand(
+      IntTestHelpers.startQueryExecutionCommand,
+      query
+    );
   const params = {
     QueryExecutionContext: {
       Database: query.databaseName,
@@ -44,7 +48,7 @@ const getQueryExecutionStatus = async (
 ): Promise<QueryExecutionStatus | undefined> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "getQueryExecutionStatus",
+      IntTestHelpers.getQueryExecutionStatus,
       queryId
     )) as QueryExecutionStatus;
   const params = {
@@ -62,7 +66,7 @@ const getQueryResults = async (
 ): Promise<GetQueryResultsCommandOutput | undefined> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "getQueryResults",
+      IntTestHelpers.getQueryResults,
       queryId
     )) as unknown as GetQueryResultsCommandOutput;
 
