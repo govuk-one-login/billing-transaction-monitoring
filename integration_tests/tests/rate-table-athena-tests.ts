@@ -26,7 +26,7 @@ describe("Execute athena query to retrieve rate details", () => {
     const queryJsonObj = JSON.parse(queryResultToString);
     const ratesCsv = await getS3Object({
       bucket: configBucket,
-      key: "rate_tables/prices.csv",
+      key: "rate_tables/rates.csv",
     });
     const csvData = await csvjson().fromString(ratesCsv ?? "");
     const csvFormattedData = JSON.parse(
