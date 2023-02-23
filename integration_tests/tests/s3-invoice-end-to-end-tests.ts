@@ -5,7 +5,7 @@ import {
   deleteS3Object, deleteS3Objects,
   listS3Objects,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import {poll, waitForTrue} from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { randomInvoice, randomLineItems } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import {queryObject, startQueryExecutionCommand} from "../../src/handlers/int-test-support/helpers/athenaHelper";
@@ -43,26 +43,24 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
 
 
     // Wait for the invoice data to have been written, to some file in the standardised folder.
-    const haveInvoiceLineItemsBeenGenerated = async (): Promise<boolean> => {
-      const result = await listS3Objects({
-        bucketName: storageBucket,
-        prefix: standardisedFolderPrefix,
-      });
-      if (result.Contents === undefined) {
-        return false;
+    await poll(
+      async () =>
+        await listS3Objects({
+          bucketName: storageBucket,
+          prefix: standardisedFolderPrefix,
+        }),
+      ({ Contents }) =>
+        !!Contents?.some(
+          (s3Object) =>
+            s3Object.LastModified !== undefined &&
+            new Date(s3Object.LastModified) >= testStartTime
+        ),
+      {
+        timeout: 21000,
+        nonCompleteErrorMessage:
+          "Invoice data never appeared in standardised folder",
       }
-      return result.Contents.some((s3Object) =>
-        s3Object.LastModified !== undefined &&
-        new Date(s3Object.LastModified) >= testStartTime
-      );
-    };
-    const invoiceLineItemsGenerated = await waitForTrue(
-      haveInvoiceLineItemsBeenGenerated,
-      1000,
-      21000
     );
-    expect(invoiceLineItemsGenerated).toBeTruthy();
-
 
     // Check the view results match the invoice.
     const queryString =

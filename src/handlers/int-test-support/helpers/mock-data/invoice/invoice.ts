@@ -1,7 +1,6 @@
 import JSPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { InvoiceData } from "./types";
-import {LineItemOptions} from "./random";
 
 export type WriteFunc<TWriteOutput> = (
   file: ArrayBuffer,
