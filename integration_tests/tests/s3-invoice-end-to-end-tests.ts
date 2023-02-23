@@ -25,7 +25,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     });
   });
 
-  test("raw-invoice-textract-data and storage buckets should contain textracted and standardised data file for uploaded valid pdf file in raw-invoice-pdf bucket and should move the original raw invoice to successful folder in s3 raw-invoice-pdf bucket", async () => {
+  test("upload valid pdf file in raw-invoice-pdf bucket and see that we can see the data in the view", async () => {
     const passportCheckItems = randomLineItems(8, { description: "passport check"});
     const addressCheckItems = randomLineItems(10, { description: "address check"});
     const invoice = randomInvoice({ lineItems: [ ...passportCheckItems, ...addressCheckItems ]});
