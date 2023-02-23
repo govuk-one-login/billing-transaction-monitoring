@@ -26,7 +26,7 @@ export interface StandardisedLineItem {
 
 export type StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  vendorServiceConfigRow: VendorServiceConfigRows
+  vendorServiceConfigRows: VendorServiceConfigRows
 ) => StandardisedLineItem[];
 
 const standardisationModuleMap: Record<number, StandardisationModule> = {
