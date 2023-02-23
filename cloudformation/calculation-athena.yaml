@@ -1,5 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+  # Codes for error cases returned in response to queries from Grafana to BillingAndTransactionsCuratedView.
+  NoChargeForThisMonth: -1234567.01
+  RateCardDataMissing: -1234567.02
+  InvoiceDataMissing: -1234567.03
+  TransactionDataMissing: -1234567.04
+
 Resources:
   CalculationsDB:
     Type: AWS::Glue::Database
@@ -209,7 +216,7 @@ Resources:
       View:
         Database: !Ref CalculationsDB
         Name: btm_billing_and_transactions_curated
-        Query: |
+        Query: !Sub |
           SELECT
             COALESCE(invoice.vendor_name, txn.vendor_name) vendor_name
             , COALESCE(invoice.service_name, txn.service_name) service_name
@@ -226,10 +233,10 @@ Resources:
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(invoice.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(txn.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) transaction_price_formatted
             , (CASE
-                WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN -1234567.01
-                WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN -1234567.03
-                WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN -1234567.04
-                WHEN (txn.price IS NULL) THEN -1234567.02
+                WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN ${NoChargeForThisMonth}
+                WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN ${InvoiceDataMissing}
+                WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN ${TransactionDataMissing}
+                WHEN (txn.price IS NULL) THEN ${RateCardDataMissing}
                 ELSE (CASE WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE null END) ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price) END) END) Difference
           FROM
             (btm_transactions_curated txn
