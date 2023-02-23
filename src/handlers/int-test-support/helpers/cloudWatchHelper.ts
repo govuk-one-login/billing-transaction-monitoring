@@ -7,6 +7,7 @@ import {
 import { runViaLambda } from "./envHelper";
 import { cloudWatchLogsClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
+import { IntTestHelpers } from "../handler";
 
 interface LogCheckParameters {
   logName: string;
@@ -19,7 +20,7 @@ export async function getRecentCloudwatchLogs(params: {
 }): Promise<FilterLogEventsCommandOutput> {
   if (runViaLambda()) {
     return (await sendLambdaCommand(
-      "getRecentCloudwatchLogs",
+      IntTestHelpers.getRecentCloudwatchLogs,
       params
     )) as unknown as FilterLogEventsCommandOutput;
   }
@@ -39,7 +40,7 @@ async function checkGivenStringExistsInLogs(
 ): Promise<boolean> {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "checkGivenStringExistsInLogs",
+      IntTestHelpers.checkGivenStringExistsInLogs,
       params
     )) as unknown as boolean;
   const commandInput: FilterLogEventsCommandInput = {

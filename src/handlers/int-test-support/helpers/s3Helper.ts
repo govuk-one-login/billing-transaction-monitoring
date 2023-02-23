@@ -14,6 +14,7 @@ import {
 import { runViaLambda } from "./envHelper";
 import { s3Client } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
+import { IntTestHelpers } from "../handler";
 
 interface S3Object {
   bucket: string;
@@ -35,7 +36,7 @@ const listS3Objects = async (
 ): Promise<ListObjectsCommandOutput> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "listS3Objects",
+      IntTestHelpers.listS3Objects,
       params
     )) as unknown as ListObjectsCommandOutput;
 
@@ -48,7 +49,8 @@ const listS3Objects = async (
 };
 
 const getS3Object = async (object: S3Object): Promise<string | undefined> => {
-  if (runViaLambda()) return await sendLambdaCommand("getS3Object", object);
+  if (runViaLambda())
+    return await sendLambdaCommand(IntTestHelpers.getS3Object, object);
 
   const bucketParams = {
     Bucket: object.bucket,
@@ -69,7 +71,7 @@ const putS3Object = async (
 ): Promise<PutObjectCommandOutput> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "putS3Object",
+      IntTestHelpers.putS3Object,
       dataAndTarget
     )) as unknown as PutObjectCommandOutput;
 
@@ -86,7 +88,7 @@ const deleteS3Object = async (
 ): Promise<DeleteObjectCommandOutput> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "deleteS3Object",
+      IntTestHelpers.deleteS3Object,
       object
     )) as unknown as DeleteObjectCommandOutput;
 
@@ -102,7 +104,7 @@ const deleteS3Objects = async (
 ): Promise<DeleteObjectCommandOutput[]> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "deleteS3Objects",
+      IntTestHelpers.deleteS3Objects,
       params
     )) as unknown as DeleteObjectCommandOutput[];
 
@@ -134,7 +136,7 @@ const copyObject = async (
 const checkIfS3ObjectExists = async (object: S3Object): Promise<boolean> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "checkIfS3ObjectExists",
+      IntTestHelpers.checkIfS3ObjectExists,
       object
     )) as unknown as boolean;
 
@@ -155,7 +157,7 @@ const checkIfS3ObjectExists = async (object: S3Object): Promise<boolean> => {
 const getS3Objects = async (params: BucketAndPrefix): Promise<string[]> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "getS3Objects",
+      IntTestHelpers.getS3Objects,
       params
     )) as unknown as string[];
 

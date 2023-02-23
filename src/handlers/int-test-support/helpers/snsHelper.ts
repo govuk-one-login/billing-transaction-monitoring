@@ -8,6 +8,7 @@ import { resourcePrefix, runViaLambda } from "./envHelper";
 import { snsClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import NodeCache from "node-cache";
+import { IntTestHelpers } from "../handler";
 
 let snsParams: PublishInput;
 
@@ -40,7 +41,7 @@ export const publishToTestTopic = async (
 ): Promise<PublishCommandOutput> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "publishToTestTopic",
+      IntTestHelpers.publishToTestTopic,
       payload
     )) as unknown as PublishCommandOutput;
   snsParams = await snsParameters(payload);
