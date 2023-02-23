@@ -6,6 +6,7 @@ import {
   getInvoiceReceiptId,
   getItemDescription,
   getPrice,
+  getQuantity,
   getSubtotal,
   getTax,
   getTaxPayerId,
@@ -17,14 +18,39 @@ import {
   StandardisedLineItem,
 } from "./get-standardised-invoice";
 
-// To do: replace with useful invoice standardiser, and add unit tests (Jira: BTM-349)
+interface TextractLineItemGroupWithLineItems extends Textract.LineItemGroup {
+  LineItems: TextractLineItemWithFields[];
+}
+
+interface TextractLineItemWithFields extends Textract.LineItemFields {
+  LineItemExpenseFields: Textract.ExpenseField[];
+}
+
+interface TextractPageWithLineItems extends Textract.ExpenseDocument {
+  LineItemGroups: TextractLineItemGroupWithLineItems[];
+}
+
 export const getStandardisedInvoice0: StandardisationModule = (
-  textractPages: Textract.ExpenseDocument[],
+  allTextractPages: Textract.ExpenseDocument[],
   vendorServiceConfigRows: VendorServiceConfigRows
 ): StandardisedLineItem[] => {
-  const summaryFields = getSummaryFields(textractPages);
+  if (vendorServiceConfigRows.length === 0)
+    throw new Error("No vendor service config rows");
 
-  const lineItems = getLineItems(textractPages);
+  // Second page is guide to reading invoice with example data, so ignore it
+  const textractPagesToUse = [...allTextractPages];
+  textractPagesToUse.splice(1, 1);
+
+  // First page has all summary fields, and others label subtotal as total, so use only first
+  const summaryPage = textractPagesToUse[0];
+  const summaryFields = summaryPage?.SummaryFields ?? [];
+
+  // Daily transactions are sometimes shown as redundant line items and are always summed into a separate item on a different page, so just use that last page to avoid doubling
+  const lastPageWithLineItems = getLastPageWithLineItems(textractPagesToUse);
+  const lineItems =
+    lastPageWithLineItems === undefined
+      ? []
+      : getLineItems(lastPageWithLineItems);
 
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
@@ -38,7 +64,7 @@ export const getStandardisedInvoice0: StandardisationModule = (
   };
 
   return lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
-    const itemFields = item.LineItemExpenseFields ?? [];
+    const itemFields = item.LineItemExpenseFields as Textract.ExpenseField[];
     let nextAcc = [...acc];
     for (const {
       service_name: serviceName,
@@ -50,15 +76,31 @@ export const getStandardisedInvoice0: StandardisationModule = (
         continue;
       }
 
+      let quantity = getQuantity(itemFields);
+      let unitPrice = getUnitPrice(itemFields);
+
+      // Quantity and unit-price fields are sometimes wrong, and correct data are sometimes in description instead
+      if (
+        itemDescription !== undefined &&
+        quantity === 1 &&
+        unitPrice !== undefined &&
+        unitPrice >= 100
+      ) {
+        const descriptionData = getDescriptionData(itemDescription);
+
+        if (descriptionData !== undefined)
+          ({ quantity, unitPrice } = descriptionData);
+      }
+
       nextAcc = [
         ...nextAcc,
         {
           ...summary,
           item_description: itemDescription,
           price: getPrice(itemFields),
-          quantity: 9001, // to be determined in BTM-349
+          quantity,
           service_name: serviceName,
-          unit_price: getUnitPrice(itemFields),
+          unit_price: unitPrice,
         },
       ];
     }
@@ -66,16 +108,37 @@ export const getStandardisedInvoice0: StandardisationModule = (
   }, []);
 };
 
-const getLineItems = (
-  textractPages: Textract.ExpenseDocument[]
-): Textract.LineItemFields[] =>
-  textractPages
-    .map((page) => page.LineItemGroups ?? [])
-    .flat()
-    .map((group) => group.LineItems ?? [])
-    .flat();
+/** Try to get quantity and unit price from description text like "(X @ Y GBP)" */
+const getDescriptionData = (
+  description: string
+): { quantity: number; unitPrice: number } | undefined => {
+  const pattern = /\((.+)\s+@\s+(.+)\s+GBP\)/g;
+  const match = pattern.exec(description);
 
-const getSummaryFields = (
+  if (match !== null) {
+    const quantity = Number(match[1]);
+    const unitPrice = Number(match[2]);
+
+    if (!Number.isNaN(quantity) && !Number.isNaN(unitPrice))
+      return { quantity, unitPrice };
+  }
+};
+
+const getLastPageWithLineItems = (
   textractPages: Textract.ExpenseDocument[]
-): Textract.ExpenseField[] =>
-  textractPages.map((page) => page.SummaryFields ?? []).flat();
+): TextractPageWithLineItems | undefined => {
+  const pagesWithItems = textractPages.filter((page) =>
+    page.LineItemGroups?.some((group) =>
+      group.LineItems?.some((item) => item.LineItemExpenseFields?.length)
+    )
+  ) as TextractPageWithLineItems[];
+
+  return pagesWithItems[pagesWithItems.length - 1];
+};
+
+const getLineItems = (
+  textractPage: TextractPageWithLineItems
+): Textract.LineItemFields[] =>
+  textractPage.LineItemGroups.flat()
+    .map((group) => group.LineItems)
+    .flat();
