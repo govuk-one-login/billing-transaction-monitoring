@@ -76,7 +76,7 @@ Resources:
         TableType: EXTERNAL_TABLE
         Parameters:
           has_encrypted_data: true
-          storage.location.template: !Sub s3://${ConfigStackParameter.Value}/rate_tables/prices.csv
+          storage.location.template: !Sub s3://${ConfigStackParameter.Value}/rate_tables/rates.csv
         StorageDescriptor:
           Columns:
             - Name: vendor_id
