@@ -91,7 +91,7 @@ export const randomLineItem = (options?: LineItemOptions): LineItem => {
   };
 };
 
-const randomLineItems = (
+export const randomLineItems = (
   quantity: number,
   options?: LineItemOptions
 ): LineItem[] => {
