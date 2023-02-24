@@ -35,6 +35,20 @@ Parameters:
     Type: String
     Default: none
 
+  # Codes for error cases returned in response to queries from Grafana to BillingAndTransactionsCuratedView.
+  QueryMessageNoChargeForThisMonth:
+    Type: String
+    Default: -1234567.01
+  QueryMessageRateCardDataMissing:
+    Type: String
+    Default: -1234567.02
+  QueryMessageInvoiceDataMissing:
+    Type: String
+    Default: -1234567.03
+  QueryMessageTransactionDataMissing:
+    Type: String
+    Default: -1234567.04
+
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
