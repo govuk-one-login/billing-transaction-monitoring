@@ -25,8 +25,20 @@ export class Invoice {
   public dueDate;
   public lineItems;
 
-  getSubtotal(): number {
-    return this.lineItems.reduce((acc, cur) => acc + cur.subtotal, 0);
+  getQuantity(description?: string): number {
+    return this.lineItems
+      .filter((lineItem) => {
+        return description === null || lineItem.description === description
+      })
+      .reduce((acc, cur) => acc + cur.quantity, 0);
+  }
+
+  getSubtotal(description?: string): number {
+    return this.lineItems
+      .filter((lineItem) => {
+        return description === null || lineItem.description === description
+      })
+      .reduce((acc, cur) => acc + cur.subtotal, 0);
   }
 
   getTotal(): number {
