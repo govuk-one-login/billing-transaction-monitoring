@@ -5,6 +5,7 @@ import { configStackName, runViaLambda } from "../../envHelper";
 import { sendLambdaCommand } from "../../lambdaHelper";
 import { getVendorServiceConfigRow } from "../../../../../shared/utils/config-utils";
 import { InvoiceData } from "./types";
+import { IntTestHelpers } from "../../../handler";
 
 interface InvoiceDataAndFileName {
   invoiceData: InvoiceData;
@@ -16,7 +17,7 @@ export const createInvoiceInS3 = async (
 ): Promise<S3Object> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      "createInvoiceInS3",
+      IntTestHelpers.createInvoiceInS3,
       params
     )) as unknown as S3Object;
 
