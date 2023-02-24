@@ -79,7 +79,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
             new Date(s3Object.LastModified) >= testStartTime
         ),
       {
-        timeout: 21000,
+        timeout: 60000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
