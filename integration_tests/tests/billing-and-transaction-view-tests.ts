@@ -173,7 +173,6 @@ export const assertResultsWithTestData = async ({
       tableName,
       year,
     });
-  console.log(response);
   expect(response[0].price_difference).toEqual(priceDiff);
   expect(response[0].quantity_difference).toEqual(qtyDiff);
   expect(response[0].price_difference_percentage).toEqual(
