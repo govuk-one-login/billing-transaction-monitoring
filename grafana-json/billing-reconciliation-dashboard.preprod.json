@@ -23,7 +23,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": 131,
-  "iteration": 1676029803035,
+  "iteration": 1677243651604,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -262,7 +262,7 @@
         {
           "connectionArgs": {
             "catalog": "__default",
-            "database": "__default",
+            "database": "di-btm-dev-calculations",
             "region": "__default"
           },
           "datasource": {
@@ -346,8 +346,8 @@
             "region": "__default"
           },
           "format": 1,
-          "rawSQL": "SELECT DISTINCT CONCAT(year, '/', month) as yearMonth FROM \"btm_billing_curated\" ORDER BY yearMonth ASC",
-          "table": "btm_billing_curated"
+          "rawSQL": "SELECT DISTINCT CONCAT(year, '/', month) as yearMonth FROM \"btm_billing_and_transactions_curated\" ORDER BY yearMonth ASC",
+          "table": "btm_billing_and_transactions_curated"
         },
         "refresh": 1,
         "regex": "",
