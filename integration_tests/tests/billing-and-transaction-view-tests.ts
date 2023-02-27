@@ -122,7 +122,6 @@ export const createInvoice = async ({
   const filename = `raw-Invoice-${Math.random()
     .toString(36)
     .substring(2, 7)}-validFile.pdf`;
-  console.log("raw-invoice-filename:", filename);
   await createInvoiceInS3({ invoiceData: givenInvoice, filename });
 
   await poll(
