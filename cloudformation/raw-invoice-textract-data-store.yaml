@@ -14,6 +14,29 @@ Resources:
       Endpoint: !GetAtt RawInvoiceTextractDataQueue.Arn
       Protocol: sqs
       TopicArn: !Ref AmazonTextractRawInvoiceDataTopic
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue.Arn
+
+  AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-amazon-textract-raw-invoice-data-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
+            Effect: Allow
+            Principal: '*'
+            Resource: !GetAtt AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue.Arn
+      Queues:
+        - !Ref AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue
 
   RawInvoiceTextractDataBucket:
     Type: AWS::S3::Bucket
@@ -64,7 +87,8 @@ Resources:
               ArnEquals:
                 aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
             Effect: Allow
-            Principal: '*'
+            Principal:
+              Service: sns.amazonaws.com
             Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
       Queues:
         - !Ref RawInvoiceTextractDataQueue

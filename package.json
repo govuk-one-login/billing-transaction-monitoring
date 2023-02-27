@@ -52,7 +52,7 @@
   },
   "scripts": {
     "husky:install": "husky install",
-    "test": "jest",
+    "test": "jest --maxWorkers=4",
     "test:integration": "jest --config jest.integration.config.ts --runInBand",
     "test:integration:local": "jest --setupFiles=./integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --config jest.integration.config.ts",
     "build": "webpack",
