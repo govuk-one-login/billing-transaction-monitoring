@@ -29,7 +29,7 @@ export const clearVendorInvoiceStandardisationConfig = (): void => {
 export const setVendorInvoiceStandardisationConfig = (
   newConfig: VendorInvoiceStandardisationConfigItem[]
 ): void => {
-  configPromise = new Promise((resolve) => resolve(newConfig));
+  configPromise = Promise.resolve(newConfig);
 };
 
 const fetchConfig = async (
