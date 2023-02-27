@@ -169,14 +169,15 @@ Resources:
                             AND (txn.vendor_id = rates.vendor_id)
                             AND (txn.month_event_count BETWEEN rates.volumes_from AND COALESCE(rates.volumes_to, 9999999))
                             AND (txn.timestamp BETWEEN rates.effective_from AND COALESCE(rates.effective_to, "From_iso8601_timestamp"('2049-12-31')))))
-          SELECT "MAX"(vendor_name)      vendor_name,
+          SELECT "MAX"(vendor_id)        vendor_id,
+                "MAX"(vendor_name)       vendor_name,
                 "MAX"(service_name)      service_name,
                 "SUM"(transaction_price) price,
                 "COUNT"(event_id)        quantity,
                 month,
                 year
           FROM   btm_transactions_harmonised
-          GROUP  BY vendor_name,
+          GROUP  BY vendor_id,
                     service_name,
                     year,
                     month
@@ -185,7 +186,9 @@ Resources:
 
   BillingAndTransactionsCuratedView:
     Type: Custom::AthenaView
-    DependsOn: TransactionsCuratedView
+    DependsOn:
+      - InvoiceLineItemView
+      - TransactionsCuratedView
     Properties:
       ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
       View:
@@ -193,7 +196,8 @@ Resources:
         Name: btm_billing_and_transactions_curated
         Query: !Sub |
           SELECT
-            COALESCE(invoice.vendor_name, txn.vendor_name) vendor_name
+            COALESCE(invoice.vendor_id, txn.vendor_id) vendor_id
+            , COALESCE(invoice.vendor_name, txn.vendor_name) vendor_name
             , COALESCE(invoice.service_name, txn.service_name) service_name
             , COALESCE(invoice.year, txn.year) year
             , COALESCE(invoice.month, txn.month) month
@@ -215,7 +219,7 @@ Resources:
                 ELSE (CASE WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE null END) ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price) END) END) Difference
           FROM
             (btm_transactions_curated txn
-            FULL JOIN btm_billing_curated invoice ON ((((txn.vendor_name = invoice.vendor_name) AND (txn.service_name = invoice.service_name)) AND (txn.year = invoice.year)) AND (txn.month = invoice.month)))
+            FULL JOIN btm_billing_curated invoice ON ((((txn.vendor_id = invoice.vendor_id) AND (txn.service_name = invoice.service_name)) AND (txn.year = invoice.year)) AND (txn.month = invoice.month)))
         Workgroup: !Ref AthenaTransactionWorkgroup
 
   AthenaTransactionWorkgroup:

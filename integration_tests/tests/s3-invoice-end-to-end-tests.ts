@@ -87,7 +87,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
 
     // Check the view results match the invoice.
     const queryString =
-      'SELECT * FROM "btm_billing_curated" ORDER BY vendor_name DESC, year DESC';
+      'SELECT * FROM "btm_billing_curated" ORDER BY vendor_id DESC, year DESC';
     const queryId = await startQueryExecutionCommand({
       databaseName,
       queryString,
@@ -98,6 +98,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       return q0.service_name.localeCompare(q1.service_name);
     });
     for (let i = 0; i < queryObjects.length; i++) {
+      expect(invoice.vendor.id).toEqual(queryObjects[i].vendor_id);
       expect(invoice.vendor.name).toEqual(queryObjects[i].vendor_name);
       expect(expectedServices[i]).toEqual(queryObjects[i].service_name);
       expect(invoice.date.getFullYear()).toEqual(+queryObjects[i].year);
@@ -135,6 +136,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
 });
 
 interface BillingCurated {
+  vendor_id: string;
   vendor_name: string;
   service_name: string;
   quantity: number;

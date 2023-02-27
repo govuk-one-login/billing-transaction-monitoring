@@ -29,6 +29,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
 
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
+    vendor_id: vendorServiceConfigRows[0].vendor_id,
     vendor_name: vendorServiceConfigRows[0].vendor_name,
     total: getTotal(summaryFields),
     invoice_receipt_date: getInvoiceReceiptDate(summaryFields),

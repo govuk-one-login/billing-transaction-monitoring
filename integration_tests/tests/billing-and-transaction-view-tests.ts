@@ -102,6 +102,7 @@ export const createInvoice = async ({
 
   const givenInvoice = randomInvoice({
     vendor: {
+      id: vendorId,
       name: prettyVendorNameMap[vendorId],
     },
     date: new Date(eventTimeStamp[eventTime] * 1000),
@@ -176,6 +177,7 @@ export const assertResultsWithTestData = async ({
 };
 
 type BillingTransactionCurated = Array<{
+  vendor_id: string;
   vendor_name: string;
   service_name: string;
   year: string;

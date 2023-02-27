@@ -369,6 +369,7 @@ describe("Standardised invoice default getter", () => {
         total: "mocked total",
         unit_price: "mocked unit price",
         vendor_name: "Billy Mitchell LLC",
+        vendor_id: "vendor_billy",
       },
     ]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);

@@ -52,6 +52,8 @@ Resources:
           Columns:
             - Name: invoice_receipt_id
               Type: string
+            - Name: vendor_id
+              Type: string
             - Name: vendor_name
               Type: string
             - Name: total
@@ -99,6 +101,7 @@ Resources:
         Name: btm_billing_curated
         Query: |
           SELECT 
+            vendor_id,
             vendor_name,
             service_name,
             sum(quantity) AS quantity,
@@ -113,5 +116,5 @@ Resources:
               date_format(invoice_receipt_date,'%Y') AS year
             FROM btm_billing_standardised
           )
-          GROUP BY vendor_name,service_name,year,month
+          GROUP BY vendor_id,vendor_name,service_name,year,month
         Workgroup: !Ref AthenaInvoiceWorkgroup
