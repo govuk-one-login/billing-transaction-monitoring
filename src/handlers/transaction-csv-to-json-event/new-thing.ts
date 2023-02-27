@@ -1,14 +1,11 @@
 import csvToJson from "csvtojson";
 
-interface ConvertOptions {
-  renamingMap: Map<string, string>;
-}
 type Convert = <TObject>(
   csv: string,
-  options: ConvertOptions
+  renamingMap: Map<string, string>
 ) => Promise<TObject[]>;
 
-export const convert: Convert = async (csv, { renamingMap }) => {
+export const convert: Convert = async (csv, renamingMap) => {
   const firstNewLinePosition = csv.match(/\r\n|\r|\n/)?.index;
 
   if (firstNewLinePosition === undefined)
@@ -77,4 +74,24 @@ export const infer: Infer = <
       entry as TObject & TFields
     );
   });
+};
+
+export interface CsvOptions<
+  TObject extends Record<string, unknown>,
+  TFields extends Record<string, unknown>
+> {
+  renamingMap: Map<string, string>; // renaming header row
+  inferences: Array<Inference<TObject, TFields>>; // rules to infer additional fields
+}
+
+export const orchestrate = async <
+  TObject extends Record<string, unknown>,
+  TFields extends Record<string, unknown>
+>(
+  csv: string,
+  options: CsvOptions<TObject, TFields>
+): Promise<Array<TObject & TFields>> => {
+  const originalObjects = await convert<TObject>(csv, options.renamingMap);
+
+  return infer(originalObjects, options.inferences);
 };
