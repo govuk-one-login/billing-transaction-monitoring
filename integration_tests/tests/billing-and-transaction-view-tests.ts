@@ -125,7 +125,7 @@ export const createInvoice = async ({
   console.log("raw-invoice-filename:", filename);
   await createInvoiceInS3({ invoiceData: givenInvoice, filename });
 
-  await poll(
+  const res = await poll(
     async () =>
       await listS3Objects({
         bucketName,
@@ -138,11 +138,12 @@ export const createInvoice = async ({
           new Date(s3Object.LastModified) >= testStartTime
       ),
     {
-      timeout: 60000,
+      timeout: 50000,
       nonCompleteErrorMessage:
         "Invoice data never appeared in standardised folder",
     }
   );
+  console.log("**********", res);
 };
 export const assertResultsWithTestData = async ({
   eventName,
