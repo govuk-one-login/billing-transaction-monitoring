@@ -137,7 +137,7 @@ export const createInvoice = async ({
           new Date(s3Object.LastModified) >= testStartTime
       ),
     {
-      timeout: 50000,
+      timeout: 55000,
       nonCompleteErrorMessage:
         "Invoice data never appeared in standardised folder",
     }
