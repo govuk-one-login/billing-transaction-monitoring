@@ -33,10 +33,19 @@ const checkS3BucketForEventId = async (
       return false;
     }
   };
-
-  return await poll(pollS3BucketForEventIdString, (result: boolean) => result, {
-    timeout: timeoutMs,
-  });
+  try {
+    return await poll(
+      pollS3BucketForEventIdString,
+      (result: boolean) => result,
+      {
+        timeout: timeoutMs,
+        nonCompleteErrorMessage: `Polling timeout after${timeoutMs}ms`,
+      }
+    );
+  } catch (error) {
+    console.log(`Polling error: ${error}`);
+    return false;
+  }
 };
 
 describe(
