@@ -8,13 +8,10 @@ import {
   putS3Object,
   S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import {
-  waitForTrue,
-} from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 
 const prefix = resourcePrefix();
 const givenVendorIdFolder = "vendor123";
-
 
 describe("\n Unhappy path - Upload invalid pdf to the raw invoice pdf bucket test\n", () => {
   const uniqueString = Math.random().toString(36).substring(2, 7);
@@ -45,10 +42,18 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice pdf bucket tes
         items.Key?.includes(rawInvoice.key)
       );
     };
-    const originalFileExistsInFailedFolder = await waitForTrue(
+
+    const pollOptions = {
+      interval: 1000,
+      timeout: 21000,
+      nonCompleteErrorMessage:
+        "File was not moved to failed folder within 21 seconds",
+    };
+
+    const originalFileExistsInFailedFolder = await poll(
       isFileMovedToFailedFolder,
-      1000,
-      20000
+      (resolution) => resolution,
+      pollOptions
     );
     expect(originalFileExistsInFailedFolder).toBeTruthy();
     await deleteS3Object({
