@@ -245,7 +245,7 @@ Resources:
         PublishCloudWatchMetricsEnabled: false
         ResultConfiguration:
           EncryptionConfiguration:
-            EncryptionOption: 'SSE_KMS'
+            EncryptionOption: SSE_KMS
             KmsKey: !GetAtt KmsKey.Arn
           OutputLocation:
             !Join ['', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
@@ -255,7 +255,7 @@ Resources:
     Properties:
       BucketName: !Sub ${AWS::StackName}-athena-query-results
       VersioningConfiguration:
-        Status: 'Enabled'
+        Status: Enabled
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
