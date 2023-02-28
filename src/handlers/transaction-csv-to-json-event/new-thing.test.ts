@@ -131,7 +131,7 @@ describe("infer", () => {
 
 describe("transform", () => {
   describe("given an array of objects and a set of transformations", () => {
-    it("performs the transformations", () => {
+    it("performs the transformations to timestampOfManufacture when given dateOfManufacture in human readable time", () => {
       type AugmentedHoover = RawHoover & {
         eyelashLength: number;
         isOriginal: boolean;
@@ -156,24 +156,6 @@ describe("transform", () => {
           eyelashLength: 16,
           dateOfManufacture: "2022-11-01T00:27:41.186Z",
         },
-        {
-          id: "3",
-          name: "clive",
-          suction: "135000",
-          color: "red",
-          isOriginal: false,
-          eyelashLength: 12,
-          dateOfManufacture: "1667262461186",
-        },
-        {
-          id: "4",
-          name: "sonny",
-          suction: "145000",
-          color: "blue",
-          isOriginal: false,
-          eyelashLength: 6,
-          dateOfManufacture: "1667262461",
-        },
       ];
 
       const givenTransformations: Transformations<
@@ -195,35 +177,6 @@ describe("transform", () => {
             },
             {
               operation: Operations.floor,
-            },
-          ],
-        },
-        {
-          inputKey: "dateOfManufacture",
-          outputKey: "timestampOfManufacture",
-          condition: /^\d{13}$/,
-          operations: [
-            {
-              operation: Operations.construct,
-              parameter: Constructables.number,
-            },
-            {
-              operation: Operations.multiply,
-              parameter: 0.001,
-            },
-            {
-              operation: Operations.floor,
-            },
-          ],
-        },
-        {
-          inputKey: "dateOfManufacture",
-          outputKey: "timestampOfManufacture",
-          condition: /^\d{10}$/,
-          operations: [
-            {
-              operation: Operations.construct,
-              parameter: Constructables.number,
             },
           ],
         },
@@ -252,6 +205,62 @@ describe("transform", () => {
           dateOfManufacture: "2022-11-01T00:27:41.186Z",
           timestampOfManufacture: 1667262461,
         },
+      ]);
+    });
+    it("performs the transformations to timestampOfManufacture when given dateOfManufacture as milliseconds", () => {
+      type AugmentedHoover = RawHoover & {
+        eyelashLength: number;
+        isOriginal: boolean;
+        dateOfManufacture: string | number;
+      };
+      const givenArray: AugmentedHoover[] = [
+        {
+          id: "3",
+          name: "clive",
+          suction: "135000",
+          color: "red",
+          isOriginal: false,
+          eyelashLength: 12,
+          dateOfManufacture: "1667262461186",
+        },
+        {
+          id: "4",
+          name: "sonny",
+          suction: "145000",
+          color: "blue",
+          isOriginal: false,
+          eyelashLength: 6,
+          dateOfManufacture: "1677601086489",
+        },
+      ];
+
+      const givenTransformations: Transformations<
+        AugmentedHoover,
+        { timestampOfManufacture: number }
+      > = [
+        {
+          inputKey: "dateOfManufacture",
+          outputKey: "timestampOfManufacture",
+          condition: /^\d{13}$/,
+          operations: [
+            {
+              operation: Operations.construct,
+              parameter: Constructables.number,
+            },
+            {
+              operation: Operations.multiply,
+              parameter: 0.001,
+            },
+            {
+              operation: Operations.floor,
+            },
+          ],
+        },
+      ];
+
+      const result = transform(givenArray, givenTransformations);
+
+      expect(result).toEqual([
         {
           id: "3",
           name: "clive",
@@ -265,6 +274,75 @@ describe("transform", () => {
         {
           id: "4",
           name: "sonny",
+          suction: "145000",
+          color: "blue",
+          isOriginal: false,
+          eyelashLength: 6,
+          dateOfManufacture: "1677601086489",
+          timestampOfManufacture: 1677601086,
+        },
+      ]);
+    });
+    it("performs the transformations to timestampOfManufacture when given dateOfManufacture as seconds", () => {
+      type AugmentedHoover = RawHoover & {
+        eyelashLength: number;
+        isOriginal: boolean;
+        dateOfManufacture: string | number;
+      };
+      const givenArray: AugmentedHoover[] = [
+        {
+          id: "5",
+          name: "thelma",
+          suction: "135000",
+          color: "red",
+          isOriginal: false,
+          eyelashLength: 12,
+          dateOfManufacture: "1677601086",
+        },
+        {
+          id: "6",
+          name: "louise",
+          suction: "145000",
+          color: "blue",
+          isOriginal: false,
+          eyelashLength: 6,
+          dateOfManufacture: "1667262461",
+        },
+      ];
+
+      const givenTransformations: Transformations<
+        AugmentedHoover,
+        { timestampOfManufacture: number }
+      > = [
+        {
+          inputKey: "dateOfManufacture",
+          outputKey: "timestampOfManufacture",
+          condition: /^\d{10}$/,
+          operations: [
+            {
+              operation: Operations.construct,
+              parameter: Constructables.number,
+            },
+          ],
+        },
+      ];
+
+      const result = transform(givenArray, givenTransformations);
+
+      expect(result).toEqual([
+        {
+          id: "5",
+          name: "thelma",
+          suction: "135000",
+          color: "red",
+          isOriginal: false,
+          eyelashLength: 12,
+          dateOfManufacture: "1677601086",
+          timestampOfManufacture: 1677601086,
+        },
+        {
+          id: "6",
+          name: "louise",
           suction: "145000",
           color: "blue",
           isOriginal: false,
