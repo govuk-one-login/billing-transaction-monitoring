@@ -283,11 +283,11 @@ describe("transform", () => {
         },
       ]);
     });
-    it("performs the transformations to timestampOfManufacture when given dateOfManufacture as seconds", () => {
+    it("performs the transformations of timestampOfManufacture from string to number when given timestampOfManufacture as seconds", () => {
       type AugmentedHoover = RawHoover & {
         eyelashLength: number;
         isOriginal: boolean;
-        dateOfManufacture: string | number;
+        timestampOfManufacture: string | number;
       };
       const givenArray: AugmentedHoover[] = [
         {
@@ -297,7 +297,7 @@ describe("transform", () => {
           color: "red",
           isOriginal: false,
           eyelashLength: 12,
-          dateOfManufacture: "1677601086",
+          timestampOfManufacture: "1677601086",
         },
         {
           id: "6",
@@ -306,7 +306,7 @@ describe("transform", () => {
           color: "blue",
           isOriginal: false,
           eyelashLength: 6,
-          dateOfManufacture: "1667262461",
+          timestampOfManufacture: "1667262461",
         },
       ];
 
@@ -315,7 +315,7 @@ describe("transform", () => {
         { timestampOfManufacture: number }
       > = [
         {
-          inputKey: "dateOfManufacture",
+          inputKey: "timestampOfManufacture",
           outputKey: "timestampOfManufacture",
           condition: /^\d{10}$/,
           operations: [
@@ -337,7 +337,6 @@ describe("transform", () => {
           color: "red",
           isOriginal: false,
           eyelashLength: 12,
-          dateOfManufacture: "1677601086",
           timestampOfManufacture: 1677601086,
         },
         {
@@ -347,7 +346,6 @@ describe("transform", () => {
           color: "blue",
           isOriginal: false,
           eyelashLength: 6,
-          dateOfManufacture: "1667262461",
           timestampOfManufacture: 1667262461,
         },
       ]);

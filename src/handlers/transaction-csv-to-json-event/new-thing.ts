@@ -253,7 +253,7 @@ export interface CsvOptions<
 > {
   renamingMap: Map<string, string>; // renaming header row
   inferences: Array<Inference<TObject, TFields>>; // rules to infer additional fields
-  transformations: Transformations<TObject, TFields>; // operations to transform invalid fields
+  transformations: Transformations<TObject, TFields>; // operations to transform fields
 }
 
 export const orchestrate = async <
