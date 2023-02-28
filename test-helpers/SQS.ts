@@ -4,15 +4,15 @@ export const createEvent = (records: SQSRecord[]): SQSEvent => ({
   Records: records,
 });
 
-export const createRecord = (body: String, messageId?: string): SQSRecord =>
+export const createRecord = (body: string, messageId?: string): SQSRecord =>
   ({
     body,
     messageId,
   } as any);
 
 export const createEventRecordWithName = (
-  name: String,
-  messageId: Number
+  name: string,
+  messageId: number
 ): SQSRecord =>
   ({
     body: JSON.stringify({
@@ -24,8 +24,8 @@ export const createEventRecordWithName = (
   } as any);
 
 export const createEventRecordWithS3Body = (
-  bucketName: String,
-  fileName: String,
+  bucketName: string,
+  fileName: string,
   messageId: string
 ): SQSRecord =>
   ({

@@ -81,7 +81,7 @@ const waitAndGetQueryResults = async (
 ): Promise<GetQueryResultsCommandOutput | undefined> => {
   const checkState = async (): Promise<boolean> => {
     const result = await getQueryExecutionStatus(queryId);
-    return !(result?.State?.match("SUCCEEDED") == null);
+    return result?.State?.match("SUCCEEDED") !== null;
   };
   const queryStatusSuccess = await waitForTrue(checkState, 1000, 10000);
   if (queryStatusSuccess) {
