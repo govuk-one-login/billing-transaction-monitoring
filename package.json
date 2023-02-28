@@ -60,7 +60,7 @@
     "build:template": "node ./src/tools/yaml-import.js",
     "checkov": "checkov --quiet -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies",
     "sam:build": "npm run build && npm run build:template && npm run checkov && sam build",
-    "sam:deploy": "sam deploy --no-fail-on-empty-changeset --stack-name di-btm-${ENV_NAME} --parameter-overrides Environment=dev PrivateConfigStack=${CONFIG_NAME:-none} TestRoleArn=${TEST_ROLE_ARN:-none} EnableAlerting=${ENABLE_ALERTING:-false} --s3-prefix ${ENV_NAME}",
+    "sam:deploy": "sam deploy --disable-rollback --no-fail-on-empty-changeset --stack-name di-btm-${ENV_NAME} --parameter-overrides Environment=dev PrivateConfigStack=${CONFIG_NAME:-none} TestRoleArn=${TEST_ROLE_ARN:-none} EnableAlerting=${ENABLE_ALERTING:-false} --s3-prefix ${ENV_NAME}",
     "sam:teardown": "ts-node --esm src/tools/teardown-cf-stack.ts",
     "typecheck": "tsc --noEmit"
   },
