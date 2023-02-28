@@ -356,8 +356,11 @@ describe("transform", () => {
 });
 
 describe("orchestrator", () => {
-  describe("given an array of objects, a map to rename the header row and a set of rule", () => {
-    it("renames and infers details about the objects", async () => {
+  describe("given an array of objects, a map to rename the header row,  a set of rules and operations to transform", () => {
+    it("renames, infers additional details and transforms specified fields about the objects", async () => {
+      type AugmentedHoover = RawHoover & {
+        dateOfManufacture: string | number;
+      };
       const givenCsv = `a,b,c,color\n1,henry,135000,red\n2,henrietta,155000,pink\n3,clive,135000,red`;
       const givenRenamingMap = new Map([
         ["a", "id"],
@@ -365,29 +368,49 @@ describe("orchestrator", () => {
         ["c", "suction"],
       ]);
       const givenInferences: Array<
-        Inference<RawHoover, { eyelashLength: number; isOriginal: boolean }>
+        Inference<RawHoover, { dateOfManufacture: string }>
       > = [
         {
-          field: "isOriginal",
-          rules: [{ given: { name: "henry", color: "red" }, inferValue: true }],
-          defaultValue: false,
-        },
-        {
-          field: "eyelashLength",
+          field: "dateOfManufacture",
           rules: [
-            { given: { suction: "135000" }, inferValue: 12 },
-            { given: { suction: "155000" }, inferValue: 16 },
+            {
+              given: { name: "henry", color: "red" },
+              inferValue: "2023-01-29T15:55:55.186Z",
+            },
           ],
-          defaultValue: 6,
+          defaultValue: "2023-01-01T15:55:55.186Z",
         },
       ];
-
+      const givenTransformations: Transformations<
+        AugmentedHoover,
+        { timestampOfManufacture: number }
+      > = [
+        {
+          inputKey: "dateOfManufacture",
+          outputKey: "timestampOfManufacture",
+          condition: /\d+-\d+-\d+T\d+:\d+:\d+.\d+Z/,
+          operations: [
+            {
+              operation: Operations.construct,
+              parameter: Constructables.date,
+            },
+            {
+              operation: Operations.multiply,
+              parameter: 0.001,
+            },
+            {
+              operation: Operations.floor,
+            },
+          ],
+        },
+      ];
       const result = await orchestrate<
-        RawHoover,
-        { eyelashLength: number; isOriginal: boolean }
+        AugmentedHoover,
+        { dateOfManufacture: string; timestampOfManufacture: number }
       >(givenCsv, {
         renamingMap: givenRenamingMap,
         inferences: givenInferences,
+        transformations: givenTransformations,
       });
       expect(result).toEqual([
         {
@@ -395,24 +418,24 @@ describe("orchestrator", () => {
           name: "henry",
           suction: "135000",
           color: "red",
-          isOriginal: true,
-          eyelashLength: 12,
+          dateOfManufacture: "2023-01-29T15:55:55.186Z",
+          timestampOfManufacture: 1675007755,
         },
         {
           id: "2",
           name: "henrietta",
           suction: "155000",
           color: "pink",
-          isOriginal: false,
-          eyelashLength: 16,
+          dateOfManufacture: "2023-01-01T15:55:55.186Z",
+          timestampOfManufacture: 1672588555,
         },
         {
           id: "3",
           name: "clive",
           suction: "135000",
           color: "red",
-          isOriginal: false,
-          eyelashLength: 12,
+          dateOfManufacture: "2023-01-01T15:55:55.186Z",
+          timestampOfManufacture: 1672588555,
         },
       ]);
     });

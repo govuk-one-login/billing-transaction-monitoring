@@ -253,6 +253,7 @@ export interface CsvOptions<
 > {
   renamingMap: Map<string, string>; // renaming header row
   inferences: Array<Inference<TObject, TFields>>; // rules to infer additional fields
+  transformations: Transformations<TObject, TFields>; // operations to transform invalid fields
 }
 
 export const orchestrate = async <
@@ -264,5 +265,7 @@ export const orchestrate = async <
 ): Promise<Array<TObject & TFields>> => {
   const originalObjects = await convert<TObject>(csv, options.renamingMap);
 
-  return infer(originalObjects, options.inferences);
+  const augmentedObjects = infer(originalObjects, options.inferences);
+
+  return transform(augmentedObjects, options.transformations);
 };
