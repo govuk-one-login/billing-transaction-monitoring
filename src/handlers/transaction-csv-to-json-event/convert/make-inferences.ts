@@ -60,3 +60,27 @@ export const makeInferences = <
   inferenceSpecifications: InferenceSpecifications<TObject, TInferredFields>
 ): Array<TObject & TInferredFields> =>
   entries.map((entry) => makeInference(entry, inferenceSpecifications));
+
+export const isValidInferencesConfig = <
+  TObject extends Record<string, unknown>,
+  TInferredFields extends Record<string, unknown>
+>(
+  inferences: any
+): inferences is InferenceSpecifications<TObject, TInferredFields> => {
+  return (
+    Array.isArray(inferences) &&
+    inferences.every(
+      (inference) =>
+        typeof inference.field === "string" &&
+        Array.isArray(inference.rules) &&
+        inference.rules.every(
+          (rule: any) =>
+            (typeof rule.given === "object" &&
+              typeof rule.inferValue === "string") ||
+            "number" ||
+            "boolean"
+        ) &&
+        typeof inference.defaultValue === typeof inference.rules[0].inferValue
+    )
+  );
+};

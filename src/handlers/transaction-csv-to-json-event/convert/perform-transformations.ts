@@ -83,3 +83,26 @@ export const performTransformations = <
   entries.map<TObject & TFields>((entry) =>
     performTransformation(entry, transformations)
   );
+
+export const isTransformations = <
+  TObject extends Record<string, unknown>,
+  TFields extends Record<string, unknown>
+>(
+  maybeTransformations: unknown
+): maybeTransformations is Transformations<TObject, TFields> =>
+  Array.isArray(maybeTransformations) &&
+  maybeTransformations.every(
+    (maybeTransformation) =>
+      typeof maybeTransformation === "object" &&
+      typeof maybeTransformation.inputKey === "string" &&
+      typeof maybeTransformation.outputKey === "string" &&
+      typeof maybeTransformation.condition === "string" &&
+      Array.isArray(maybeTransformation.steps) &&
+      maybeTransformation.steps.every(
+        (maybeStep: any) =>
+          typeof maybeStep === "object" &&
+          maybeStep.operation in Operations &&
+          (typeof maybeStep?.parameter === "number" ||
+            maybeStep.parameter in Constructables)
+      )
+  );
