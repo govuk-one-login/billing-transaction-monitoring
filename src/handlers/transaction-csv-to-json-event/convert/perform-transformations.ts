@@ -84,7 +84,7 @@ export const performTransformations = <
     performTransformation(entry, transformations)
   );
 
-export const isTransformations = <
+export const isValidTransformationsConfig = <
   TObject extends Record<string, unknown>,
   TFields extends Record<string, unknown>
 >(

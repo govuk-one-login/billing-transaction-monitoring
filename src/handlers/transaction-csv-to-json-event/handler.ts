@@ -1,6 +1,9 @@
 import { S3Event } from "aws-lambda";
 import { fetchS3, sendRecord } from "../../shared/utils";
 import { convert } from "./convert";
+import { isValidRenamingConfig } from "./convert/csv-to-json";
+import { isValidInferencesConfig } from "./convert/make-inferences";
+import { isValidTransformationsConfig } from "./convert/perform-transformations";
 
 export const handler = async (event: S3Event): Promise<void> => {
   const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
@@ -15,18 +18,42 @@ export const handler = async (event: S3Event): Promise<void> => {
   }
 
   try {
-    const [csv, renamingMap, inferences, transformations] = await Promise.all([
-      fetchS3(event.Records[0].s3.bucket.name, event.Records[0].s3.object.key), // should we we getting all the records or is the zeroth one ok?
-      fetchS3(configBucket, "csv_transactions/renaming-map.json"),
-      fetchS3(configBucket, "csv_transactions/inferences.json"),
-      fetchS3(configBucket, "csv_transactions/transformations.json"),
+    const [renamingMap, inferences, transformations] = await Promise.all([
+      fetchS3(configBucket, "csv_transactions/header-row-renaming-map.json"),
+      fetchS3(configBucket, "csv_transactions/event-inferences.json"),
+      fetchS3(configBucket, "csv_transactions/event-transformation.json"),
     ]).then((results) => results.map((result) => JSON.parse(result)));
+
+    console.log(renamingMap);
+    if (!isValidRenamingConfig(renamingMap)) {
+      console.error("header-row-renaming-map.json is invalid.");
+      throw new Error("header-row-renaming-map.json is invalid.");
+    }
+
+    console.log(inferences);
+    if (!isValidInferencesConfig(inferences)) {
+      console.error("event-inferences.json is invalid.");
+      throw new Error("event-inferences.json is invalid.");
+    }
+
+    console.log(transformations);
+    if (!isValidTransformationsConfig(transformations)) {
+      console.error("event-transformation.json is invalid.");
+      throw new Error("event-transformation.json is invalid.");
+    }
+
+    const csv = await fetchS3(
+      event.Records[0].s3.bucket.name,
+      event.Records[0].s3.object.key
+    ); // should we we getting all the records or is the zeroth one ok?
+    console.log(csv);
 
     const transactions = await convert(csv, {
       renamingMap,
       inferences,
       transformations,
     });
+    console.log(transactions);
 
     const sendRecordPromises = transactions.map(
       async (transaction) =>

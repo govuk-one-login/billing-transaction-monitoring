@@ -1,18 +1,15 @@
 import { handler } from "./handler";
-import { transformCsvToJson } from "./transform-csv-to-json";
-import { createEvent } from "../../../test-helpers/S3";
 import { S3Event } from "aws-lambda";
-import { buildRow } from "../../../test-helpers/build-rows";
 import { fetchS3, sendRecord } from "../../shared/utils";
+import { convert } from "./convert";
+import { Constructables, Operations } from "./convert/transform-dicts";
 
 jest.mock("../../shared/utils");
-const mockedFetchS3 = fetchS3 as jest.MockedFunction<typeof fetchS3>;
-const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>;
+const mockedFetchS3 = fetchS3 as jest.Mock;
+const mockedSendRecord = sendRecord as jest.Mock;
 
-jest.mock("./transform-csv-to-json");
-const mockedTransformCsvToJson = transformCsvToJson as jest.MockedFunction<
-  typeof transformCsvToJson
->;
+jest.mock("./convert");
+const mockedConvert = convert as jest.MockedFunction<typeof convert>;
 
 describe("Transaction CSV To JSON Event handler test", () => {
   const OLD_ENV = process.env;
@@ -35,18 +32,28 @@ describe("Transaction CSV To JSON Event handler test", () => {
     console.error = oldConsoleError;
   });
 
-  const vendor1 = "https://a.vendor1.eu";
-  const timestamp = "2022-10-01T00:27:41.186Z";
-  const idpVendorLookUp = {
-    [vendor1]: "vendor1",
-  };
-  const eventNameRules = {
-    [vendor1]: [
-      {
-        "rule name": "rule value",
-      },
-    ],
-  };
+  const givenRenamingConfig = [["a", "id"]];
+  const givenInferences = [
+    {
+      field: "event_name",
+      rules: [{ given: { id: "one", color: "red" }, inferValue: "TEST_EVENT" }],
+      defaultValue: "Unknown",
+    },
+  ];
+  const givenTransformations = [
+    {
+      inputKey: "timestamp",
+      outputKey: "timestamp",
+      condition: /^\d{10}$/,
+      steps: [
+        {
+          operation: Operations.construct,
+          parameter: Constructables.number,
+        },
+      ],
+    },
+  ];
+  const givenCsv = `a,color,timestamp\none,red,1667262461\ntwo,pink,1667262461`;
 
   test("should throw error if no output queue set", async () => {
     delete process.env.OUTPUT_QUEUE_URL;
@@ -58,77 +65,68 @@ describe("Transaction CSV To JSON Event handler test", () => {
     await expect(handler(givenEvent)).rejects.toThrowError("Config Bucket");
   });
 
-  test("should throw error with failing idpVendor or eventNameRules Lookup", async () => {
+  test("should throw error with failing config lookup", async () => {
     mockedFetchS3.mockRejectedValue("Error reading from S3");
     await expect(handler(givenEvent)).rejects.toThrowError(
       "Transaction CSV to Json Event Handler error"
     );
     expect(mockedFetchS3).toHaveBeenCalled();
-    expect(mockedTransformCsvToJson).not.toHaveBeenCalled();
+    expect(mockedConvert).not.toHaveBeenCalled();
   });
 
-  test("should throw error with failing transformCsvToJson", async () => {
-    mockedFetchS3.mockResolvedValueOnce(JSON.stringify(idpVendorLookUp));
-    mockedFetchS3.mockResolvedValueOnce(JSON.stringify(eventNameRules));
-    mockedTransformCsvToJson.mockRejectedValue("Error transforming data");
+  test("should throw error if config is not valid", async () => {
+    mockedFetchS3
+      .mockReturnValueOnce("Invalid header-row-renaming-map")
+      .mockReturnValueOnce("Invalid event-inferences")
+      .mockReturnValueOnce("Invalid event-transformation");
     await expect(handler(givenEvent)).rejects.toThrowError(
       "Transaction CSV to Json Event Handler error"
     );
-    expect(mockedFetchS3).toHaveBeenCalled();
-    expect(mockedTransformCsvToJson).toHaveBeenCalled();
+    expect(mockedConvert).not.toHaveBeenCalled();
   });
 
-  test("should call processRow with the expected parameters", async () => {
-    mockedFetchS3.mockResolvedValueOnce(
-      JSON.stringify({
-        "https://a.vendor3.eu": "vendor3",
-        "https://a.vendor4.co.uk": "vendor4",
-      })
+  test("should throw error with failing convert", async () => {
+    mockedFetchS3
+      .mockResolvedValueOnce(givenRenamingConfig)
+      .mockResolvedValueOnce(givenInferences)
+      .mockResolvedValueOnce(givenTransformations)
+      .mockResolvedValueOnce(givenCsv);
+
+    mockedConvert.mockRejectedValue("Error");
+    await expect(handler(givenEvent)).rejects.toThrowError(
+      "Transaction CSV to Json Event Handler error"
     );
-    mockedFetchS3.mockResolvedValueOnce(
-      JSON.stringify({
-        "https://a.vendor3.eu": [
-          {
-            "Minimum Level Of Assurance": "LEVEL_1",
-            "Billable Status": "BILLABLE",
-            "Event Name": "IPV_C3_TEST1",
-          },
-        ],
-        "https://a.vendor4.co.uk": [
-          {
-            "Minimum Level Of Assurance": "LEVEL_1",
-            "Billable Status": "BILLABLE",
-            "Event Name": "IPV_C4_TEST1",
-          },
-        ],
-      })
-    );
-    mockedTransformCsvToJson.mockResolvedValue([
-      buildRow(
-        "https://a.vendor3.eu",
-        timestamp,
-        "some request id",
-        "LEVEL_1",
-        "BILLABLE",
-        "some entity id 1"
-      ),
-      buildRow(
-        "https://a.vendor4.co.uk",
-        timestamp,
-        "another request id 2",
-        "LEVEL_1",
-        "BILLABLE",
-        "another entity 2"
-      ),
+    expect(mockedSendRecord).not.toHaveBeenCalled();
+  });
+
+  test("should send record if given a valid event and config", async () => {
+    mockedFetchS3
+      .mockResolvedValueOnce(givenRenamingConfig)
+      .mockResolvedValueOnce(givenInferences)
+      .mockResolvedValueOnce(givenTransformations)
+      .mockResolvedValueOnce(givenCsv);
+    mockedConvert.mockResolvedValueOnce([
+      {
+        id: "one",
+        color: "red",
+        timestamp: "1667262461",
+        event_name: "TEST_EVENT",
+      },
+      {
+        id: "two",
+        color: "pink",
+        timestamp: "1667262461",
+        event_name: "Unknown",
+      },
     ]);
-    await handler(createEvent([]));
+    await handler(givenEvent);
     expect(mockedSendRecord).toHaveBeenCalledWith(
       "output queue url",
-      '{"event_id":"some request id","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C3_TEST1","component_id":"some entity id 1","vendor_id":"vendor3"}'
+      '{"id":"one","color":"red","timestamp":1667262461,"event_name":"TEST_EVENT"}'
     );
     expect(mockedSendRecord).toHaveBeenCalledWith(
       "output queue url",
-      '{"event_id":"another request id 2","timestamp":1664584061,"timestamp_formatted":"2022-10-01T00:27:41.186Z","event_name":"IPV_C4_TEST1","component_id":"another entity 2","vendor_id":"vendor4"}'
+      '{"id":"two","color":"pink","timestamp":1667262461,"event_name":"Unknown"}'
     );
   });
 });
