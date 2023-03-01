@@ -18,18 +18,18 @@ describe("csvToJson", () => {
           color: "pink",
         },
       ];
-      const givenRenamingMap = new Map([
+      const givenRenamingConfig: Array<[string, string]> = [
         ["a", "id"],
         ["b", "name"],
         ["c", "suction"],
-      ]);
-      const result = await csvToJson(givenCsv, givenRenamingMap);
+      ];
+      const result = await csvToJson(givenCsv, givenRenamingConfig);
       expect(result).toEqual(expectedResult);
     });
     describe("given an invalid csv", () => {
       it("throws an error", async () => {
         const givenInvalidCsv = `an invalid csv`;
-        await expect(csvToJson(givenInvalidCsv, new Map())).rejects.toThrow("");
+        await expect(csvToJson(givenInvalidCsv, [])).rejects.toThrow("");
       });
     });
   });

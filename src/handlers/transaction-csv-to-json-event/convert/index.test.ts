@@ -20,11 +20,11 @@ describe("convert", () => {
         dateOfManufacture: string | number;
       };
       const givenCsv = `a,b,c,color\n1,henry,135000,red\n2,henrietta,155000,pink\n3,clive,135000,red`;
-      const givenRenamingMap = new Map([
+      const givenRenamingConfig: Array<[string, string]> = [
         ["a", "id"],
         ["b", "name"],
         ["c", "suction"],
-      ]);
+      ];
       const givenInferences: InferenceSpecifications<
         RawHoover,
         { dateOfManufacture: string }
@@ -67,7 +67,7 @@ describe("convert", () => {
         AugmentedHoover,
         { dateOfManufacture: string; timestampOfManufacture: number }
       >(givenCsv, {
-        renamingMap: givenRenamingMap,
+        renamingMap: givenRenamingConfig,
         inferences: givenInferences,
         transformations: givenTransformations,
       });

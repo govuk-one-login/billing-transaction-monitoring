@@ -73,13 +73,7 @@ export const isValidInferencesConfig = <
       (inference) =>
         typeof inference.field === "string" &&
         Array.isArray(inference.rules) &&
-        inference.rules.every(
-          (rule: any) =>
-            (typeof rule.given === "object" &&
-              typeof rule.inferValue === "string") ||
-            "number" ||
-            "boolean"
-        ) &&
+        inference.rules.every((rule: any) => typeof rule.given === "object") &&
         typeof inference.defaultValue === typeof inference.rules[0].inferValue
     )
   );

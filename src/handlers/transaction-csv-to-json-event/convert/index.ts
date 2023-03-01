@@ -9,7 +9,7 @@ export interface Options<
   TObject extends Record<string, unknown>,
   TFields extends Record<string, unknown>
 > {
-  renamingMap: Map<string, string>; // renaming header row
+  renamingMap: Array<[string, string]>; // renaming header row
   inferences: InferenceSpecifications<TObject, TFields>; // rules to infer additional fields
   transformations: Transformations<TObject, TFields>; // operations to transform fields
 }
