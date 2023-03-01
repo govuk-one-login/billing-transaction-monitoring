@@ -213,20 +213,20 @@ const operate = <
     };
   }
 
-  let outputValueV2: InteroperablyTransformable = inputValue;
-  for (const { operation, parameter } of operations) {
-    outputValueV2 = operationsDict[operation](outputValueV2, parameter);
-  }
+  // let outputValueV2: InteroperablyTransformable = inputValue;
+  // for (const { operation, parameter } of operations) {
+  //   outputValueV2 = operationsDict[operation](outputValueV2, parameter);
+  // }
 
-  // const outputValue = operations.reduce<InteroperablyTransformable>(
-  //   (transformedValue, { operation, parameter }) => {
-  //     return operationsDict[operation](transformedValue, parameter);
-  //   },
-  //   inputValue
-  // );
+  const outputValue = operations.reduce<InteroperablyTransformable>(
+    (transformedValue, { operation, parameter }) => {
+      return operationsDict[operation](transformedValue, parameter);
+    },
+    inputValue
+  );
   return {
     ...entry,
-    [outputKey]: outputValueV2,
+    [outputKey]: outputValue,
   };
 };
 
