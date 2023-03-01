@@ -19,7 +19,7 @@ Resources:
           - Action: SQS:SendMessage
             Condition:
               ArnLike:
-                aws:SourceArn: !Sub arn:aws:s3:*:*:${RawInvoiceTextractDataBucket}
+                aws:SourceArn: !Sub arn:aws:s3:*:*:${AWS::StackName}-raw-invoice-textract-data # no reference as this needs be created before the bucket
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
             Effect: Allow

@@ -45,10 +45,10 @@ describe("Process Row test", () => {
     [idpEntityId2]: vendorId2,
   };
 
-  test("should send record with csv data transformed to event data if no getEventNameFromRules failure", async () => {
+  test("should send record with csv data transformed to event data if no getEventNameFromRules failure", () => {
     mockedGetEventNameFromRules.mockReturnValue(eventName1);
 
-    const processedRow = await processRow(row, idpVendorLookUp, eventNameRules);
+    const processedRow = processRow(row, idpVendorLookUp, eventNameRules);
 
     expect(mockedGetEventNameFromRules).toHaveBeenCalledTimes(1);
     expect(mockedGetEventNameFromRules).toHaveBeenCalledWith(

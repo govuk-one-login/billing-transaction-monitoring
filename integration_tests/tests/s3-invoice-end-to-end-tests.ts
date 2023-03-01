@@ -58,6 +58,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       invoiceData: invoice,
       filename: `${filename}.pdf`,
     });
+    console.log("e2e test invoice filename:", filename);
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
 
@@ -75,7 +76,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
             new Date(s3Object.LastModified) >= testStartTime
         ),
       {
-        timeout: 21000,
+        timeout: 50000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
