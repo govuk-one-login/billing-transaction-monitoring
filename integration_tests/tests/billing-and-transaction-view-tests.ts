@@ -1,7 +1,4 @@
-import {
-  configStackName,
-  resourcePrefix,
-} from "../../src/handlers/int-test-support/helpers/envHelper";
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   eventTimeStamp,
   generatePublishAndValidateEvents,
@@ -15,6 +12,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import {
   EventName,
+  prettyVendorNameMap,
   VendorId,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryResponseFilterByVendorServiceNameYear } from "../../src/handlers/int-test-support/helpers/queryHelper";
@@ -22,14 +20,13 @@ import {
   randomLineItem,
   randomInvoice,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/random";
-import { getVendorServiceConfigRow } from "../../src/shared/utils/config-utils";
 import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 
 const prefix = resourcePrefix();
 const bucketName = `${prefix}-storage`;
 const testStartTime = new Date();
 
-describe("\nUpload invoice to standardised folder and verify billing and transaction_curated view query results matches with expected data \n", () => {
+describe("\nUpload invoice to raw invoice pdf bucket and verify billing and transaction_curated view query results matches with expected data \n", () => {
   beforeEach(async () => {
     // tests are enabled to run sequentially as we are deleting the S3 directory in view tests so when running the test
     // in parallel other tests will be interrupted(e.g. sns-s3 tests generate and checks eventId). We can enable to run in parallel
@@ -57,7 +54,7 @@ describe("\nUpload invoice to standardised folder and verify billing and transac
   );
 });
 
-describe("\n no invoice uploaded to standardised folder and verify billing and transaction_curated view query results matches with expected data    \n", () => {
+describe("\n no invoice uploaded to raw invoice pdf bucket and verify billing and transaction_curated view query results matches with expected data    \n", () => {
   beforeAll(async () => {
     await deleteS3Objects({ bucketName, prefix: "btm_billing_standardised" });
     await deleteS3Objects({ bucketName, prefix: "btm_transactions" });
@@ -90,14 +87,11 @@ interface TestData {
 }
 
 export const createInvoice = async ({
-  eventName,
   vendorId,
   eventTime,
   unitPrice,
   billingQty,
 }: TestData): Promise<void> => {
-  const givenVendorId = vendorId;
-  const givenEventName = eventName;
   const givenBillingQty = billingQty;
 
   const lineItems = randomLineItem({
@@ -106,14 +100,9 @@ export const createInvoice = async ({
     unitPrice,
   });
 
-  const vendorServiceConfigRow = await getVendorServiceConfigRow(
-    configStackName(),
-    { vendor_id: givenVendorId, event_name: givenEventName }
-  );
-
   const givenInvoice = randomInvoice({
     vendor: {
-      name: vendorServiceConfigRow.vendor_name,
+      name: prettyVendorNameMap[vendorId],
     },
     date: new Date(eventTimeStamp[eventTime] * 1000),
     lineItems: [lineItems],
