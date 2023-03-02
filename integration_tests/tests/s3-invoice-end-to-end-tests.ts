@@ -6,10 +6,7 @@ import {
   deleteS3Objects,
   listS3Objects,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import {
-  poll,
-  waitForTrue,
-} from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
   randomInvoice,
   randomLineItems,
@@ -121,11 +118,17 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       return result.Contents.some((t) => t.Key?.includes(s3Object.key));
     };
 
-    const originalFileExistsInSuccessfulFolder = await waitForTrue(
+    const pollOptions = {
+      nonCompleteErrorMessage:
+        "File was not moved to successful folder within the timeout",
+    };
+
+    const originalFileExistsInSuccessfulFolder = await poll(
       isFileMovedToSuccessfulFolder,
-      1000,
-      21000
+      (resolution) => resolution,
+      pollOptions
     );
+
     expect(originalFileExistsInSuccessfulFolder).toBeTruthy();
     await deleteS3Object({
       bucket: s3Object.bucket,

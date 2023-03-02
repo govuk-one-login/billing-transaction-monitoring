@@ -6,7 +6,7 @@ import {
   QueryExecutionStatus,
   StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
-import { waitForTrue } from "./commonHelpers";
+import { poll } from "./commonHelpers";
 import { resourcePrefix, runViaLambda } from "./envHelper";
 import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
@@ -83,7 +83,11 @@ const waitAndGetQueryResults = async (
     const result = await getQueryExecutionStatus(queryId);
     return result?.State?.match("SUCCEEDED") !== null;
   };
-  const queryStatusSuccess = await waitForTrue(checkState, 1000, 10000);
+  const queryStatusSuccess = await poll(checkState, (state) => state, {
+    interval: 1000,
+    timeout: 10000,
+    nonCompleteErrorMessage: "Query did not succeed within the given timeout",
+  });
   if (queryStatusSuccess) {
     return await getQueryResults(queryId);
   }

@@ -32,28 +32,6 @@ export const eventTimeStamp = {
   [TimeStamps.CURRENT_TIME]: validTimestamp(),
 };
 
-export const waitForTrue = async (
-  predicate: () => Promise<boolean | undefined | Object[]>,
-  delayMS: number,
-  timeoutMS: number
-): Promise<boolean> => {
-  let intervalHandle: any;
-  return await new Promise((resolve) => {
-    const complete = (result: boolean): void => {
-      clearInterval(intervalHandle);
-      resolve(result);
-    };
-
-    const callPredicateAndComplete = async (): Promise<void> => {
-      ((await predicate()) as boolean) && complete(true);
-    };
-    intervalHandle = setInterval(() => {
-      void callPredicateAndComplete();
-    }, delayMS);
-    setTimeout(() => complete(false), timeoutMS);
-  });
-};
-
 export const poll = async <Resolution>(
   promise: () => Promise<Resolution>,
   completionCondition: (resolution: Resolution) => boolean,

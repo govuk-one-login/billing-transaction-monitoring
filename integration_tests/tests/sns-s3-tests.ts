@@ -9,7 +9,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import { waitForTrue } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 
 let snsResponse: PublishResponse;
@@ -20,7 +20,7 @@ const checkS3BucketForEventId = async (
   eventIdString: string,
   timeoutMs: number
 ): Promise<boolean> => {
-  const checkS3BucketForEventIdString = async (): Promise<boolean> => {
+  const pollS3BucketForEventIdString = async (): Promise<boolean> => {
     const result = await listS3Objects({
       bucketName: storageBucket,
       prefix: objectsPrefix,
@@ -33,7 +33,14 @@ const checkS3BucketForEventId = async (
       return false;
     }
   };
-  return await waitForTrue(checkS3BucketForEventIdString, 1000, timeoutMs);
+  try {
+    return await poll(pollS3BucketForEventIdString, (result) => result, {
+      timeout: timeoutMs,
+      nonCompleteErrorMessage: "EventId not exists within the timeout",
+    });
+  } catch (error) {
+    return false;
+  }
 };
 
 describe(
