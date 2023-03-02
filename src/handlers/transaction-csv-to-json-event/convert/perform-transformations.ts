@@ -93,18 +93,22 @@ export const isValidTransformationsConfig = <
   maybeTransformations: unknown
 ): maybeTransformations is Transformations<TObject, TFields> =>
   Array.isArray(maybeTransformations) &&
-  maybeTransformations.every(
-    (maybeTransformation) =>
+  maybeTransformations.every((maybeTransformation) => {
+    return (
       typeof maybeTransformation === "object" &&
       typeof maybeTransformation.inputKey === "string" &&
       typeof maybeTransformation.outputKey === "string" &&
       typeof maybeTransformation.condition === "string" &&
       Array.isArray(maybeTransformation.steps) &&
-      maybeTransformation.steps.every(
-        (maybeStep: any) =>
+      maybeTransformation.steps.every((maybeStep: any) => {
+        return (
           typeof maybeStep === "object" &&
           maybeStep.operation in Operations &&
-          (typeof maybeStep?.parameter === "number" ||
+          (maybeStep.parameter === undefined ||
+            typeof maybeStep?.parameter === "number" ||
+            typeof maybeStep?.parameter === "string" ||
             maybeStep.parameter in Constructables)
-      )
-  );
+        );
+      })
+    );
+  });
