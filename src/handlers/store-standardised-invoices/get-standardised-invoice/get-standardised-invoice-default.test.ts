@@ -94,7 +94,6 @@ describe("Standardised invoice default getter", () => {
     givenVendorServiceConfigRows = [
       {
         vendor_name: "Billy Mitchell LLC",
-        vendor_regex: "billy mitchell",
         vendor_id: "vendor_billy",
         service_name: "Lying About Speedruns",
         service_regex: "lying about speedruns",
@@ -102,7 +101,6 @@ describe("Standardised invoice default getter", () => {
       },
       {
         vendor_name: "Billy Mitchell LLC",
-        vendor_regex: "billy mitchell",
         vendor_id: "vendor_billy",
         service_name: "Making fake Donkey Kong cabinets",
         service_regex: "fake Donkey",
