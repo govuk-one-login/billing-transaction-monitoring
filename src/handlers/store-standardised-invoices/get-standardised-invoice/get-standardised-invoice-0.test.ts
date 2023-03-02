@@ -379,6 +379,7 @@ describe("Standardised invoice getter 0", () => {
         total: "mocked total",
         unit_price: "mocked unit price",
         vendor_name: "Billy Mitchell LLC",
+        vendor_id: "vendor_billy",
       },
     ]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -483,6 +484,7 @@ describe("Standardised invoice getter 0", () => {
         total: "mocked total",
         unit_price: "mocked unit price",
         vendor_name: "Billy Mitchell LLC",
+        vendor_id: "vendor_billy",
       },
     ]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -591,6 +593,7 @@ describe("Standardised invoice getter 0", () => {
         total: "mocked total",
         unit_price: "mocked unit price",
         vendor_name: "Billy Mitchell LLC",
+        vendor_id: "vendor_billy",
       },
     ]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -666,6 +669,7 @@ describe("Standardised invoice getter 0", () => {
         total: "mocked total",
         unit_price: mockedUnitPrice,
         vendor_name: "Billy Mitchell LLC",
+        vendor_id: "vendor_billy",
       },
     ]);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);

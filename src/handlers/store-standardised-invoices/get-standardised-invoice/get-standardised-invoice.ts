@@ -9,6 +9,7 @@ import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-defaul
 
 export interface StandardisedLineItem {
   invoice_receipt_id: string;
+  vendor_id?: string;
   vendor_name?: string;
   total: number;
   invoice_receipt_date: string;

@@ -1,9 +1,4 @@
-import {
-  VendorId,
-  EventName,
-  prettyVendorNameMap,
-  prettyEventNameMap,
-} from "./payloadHelper";
+import { VendorId, EventName, prettyEventNameMap } from "./payloadHelper";
 import { queryObject, startQueryExecutionCommand } from "./athenaHelper";
 import { TableNames } from "./commonHelpers";
 import { resourcePrefix } from "./envHelper";
@@ -22,11 +17,10 @@ export const queryResponseFilterByVendorServiceNameYear = async ({
   tableName: TableNames;
   year: number;
 }): Promise<[]> => {
-  const prettyVendorName = prettyVendorNameMap[vendorId];
   const prettyEventName = prettyEventNameMap[eventName];
 
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_name='${prettyVendorName}' AND service_name='${prettyEventName}' AND year='${year}'`;
+  const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_id='${vendorId}' AND service_name='${prettyEventName}' AND year='${year}'`;
   const queryId = await startQueryExecutionCommand({
     databaseName,
     queryString: curatedQueryString,
