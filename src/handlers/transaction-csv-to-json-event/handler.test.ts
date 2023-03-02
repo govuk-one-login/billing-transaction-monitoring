@@ -54,7 +54,7 @@ describe("Transaction CSV To JSON Event handler test", () => {
     {
       inputKey: "timestamp",
       outputKey: "timestamp",
-      condition: "/^\\d{10}$/",
+      condition: "^\\d{10}$",
       steps: [
         {
           operation: Operations.construct,
@@ -136,12 +136,12 @@ describe("Transaction CSV To JSON Event handler test", () => {
     expect(mockedSendRecord).toHaveBeenNthCalledWith(
       1,
       "output queue url",
-      '{"id":"one","color":"red","timestamp":"1667262461","event_name":"TEST_EVENT"}'
+      '{"id":"one","color":"red","timestamp":1667262461,"event_name":"TEST_EVENT"}'
     );
     expect(mockedSendRecord).toHaveBeenNthCalledWith(
       2,
       "output queue url",
-      '{"id":"two","color":"pink","timestamp":"1667262461","event_name":"Unknown"}'
+      '{"id":"two","color":"pink","timestamp":1667262461,"event_name":"Unknown"}'
     );
   });
 });

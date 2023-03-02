@@ -13,7 +13,7 @@ interface Transformation<
 > {
   inputKey: keyof TObject;
   outputKey: keyof TFields;
-  condition: RegExp;
+  condition: string;
   steps: TransformationSteps;
 }
 
@@ -24,8 +24,8 @@ export type Transformations<
 
 const shouldNotTransform = <TObject extends Record<string, unknown>>(
   value: TObject[keyof TObject],
-  condition: RegExp
-): boolean => !String(value).match(condition);
+  condition: string
+): boolean => !String(value).match(new RegExp(condition));
 
 const performTransformationSteps = (
   initialValue: InteroperablyTransformable,
@@ -46,7 +46,9 @@ const transform = <
   { inputKey, outputKey, condition, steps }: Transformation<TObject, TFields>
 ): TObject & { [outputKey: string]: InteroperablyTransformable } => {
   const initialValue = entry[inputKey] as unknown as InteroperablyTransformable;
-  if (shouldNotTransform(entry[inputKey], condition)) {
+  console.log(initialValue, condition);
+  console.log(shouldNotTransform(initialValue, condition));
+  if (shouldNotTransform(initialValue, condition)) {
     return {
       ...entry,
       [outputKey]: initialValue,
