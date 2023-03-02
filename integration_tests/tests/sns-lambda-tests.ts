@@ -3,7 +3,6 @@ import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envH
 import { getRecentCloudwatchLogs } from "../../src/handlers/int-test-support/helpers/cloudWatchHelper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
-// import { FilterLogEventsCommandOutput } from "@aws-sdk/client-cloudwatch-logs";
 
 const logNamePrefix = resourcePrefix();
 

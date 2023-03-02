@@ -31,7 +31,7 @@ Resources:
               Resource: !GetAtt ExtractQueue.Arn
             - Effect: Allow
               Action:
-                - 'textract:StartExpenseAnalysis' # https://docs.aws.amazon.com/textract/latest/dg/security_iam_id-based-policy-examples.html
+                - textract:StartExpenseAnalysis
               Resource: '*'
             - Effect: Allow
               Action:
@@ -78,12 +78,13 @@ Resources:
           - Action: SQS:SendMessage
             Condition:
               ArnLike:
-                aws:SourceArn: arn:aws:s3:::*
+                aws:SourceArn: !Sub arn:aws:s3:*:*:${AWS::StackName}-raw-invoice-pdf # no reference as this needs be created before the bucket
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
             Effect: Allow
-            Principal: '*'
-            Resource: '*'
+            Principal:
+              Service: s3.amazonaws.com
+            Resource: !GetAtt ExtractQueue.Arn
       Queues:
         - !Ref ExtractQueue
 
@@ -124,24 +125,24 @@ Resources:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Effect: 'Allow'
+          - Effect: Allow
             Principal:
               Service:
-                - 'textract.amazonaws.com'
+                - textract.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - sts:AssumeRole
       Policies:
-        - PolicyName: 'TextractRoleAccess'
+        - PolicyName: TextractRoleAccess
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - 's3:GetObject*'
+                  - s3:GetObject*
                 Resource: !GetAtt RawInvoicePdfBucket.Arn
               - Effect: Allow
                 Action:
-                  - 'sns:Publish'
+                  - sns:Publish
                 Resource: !Ref AmazonTextractRawInvoiceDataTopic
               - Effect: Allow
                 Action:

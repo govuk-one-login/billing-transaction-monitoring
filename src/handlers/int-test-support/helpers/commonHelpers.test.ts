@@ -3,18 +3,16 @@ import { poll } from "./commonHelpers";
 describe("poll", () => {
   describe("given a promise that rejects", () => {
     it("rejects", async () => {
+      const err = new Error("oops");
       try {
         await poll(
           async () =>
             // eslint-disable-next-line @typescript-eslint/return-await
-            new Promise((_resolve, reject) => {
-              // eslint-disable-next-line prefer-promise-reject-errors
-              reject("oops");
-            }),
+            Promise.reject(err),
           () => true
         );
       } catch (error) {
-        expect(error).toBe("oops");
+        expect(error).toBe(err);
       }
       expect.hasAssertions();
     });
@@ -26,9 +24,7 @@ describe("poll", () => {
         await poll(
           async () =>
             // eslint-disable-next-line @typescript-eslint/return-await
-            new Promise((resolve) => {
-              resolve("a");
-            }),
+            Promise.resolve("a"),
           (response) => response === "b",
           { interval: 100, timeout: 1_000 }
         );

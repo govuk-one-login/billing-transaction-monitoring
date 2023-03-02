@@ -28,7 +28,7 @@ export class Invoice {
   getQuantity(description?: string): number {
     return this.lineItems
       .filter((lineItem) => {
-        return description === null || lineItem.description === description
+        return description === null || lineItem.description === description;
       })
       .reduce((acc, cur) => acc + cur.quantity, 0);
   }
@@ -36,7 +36,9 @@ export class Invoice {
   getSubtotal(description?: string): number {
     return this.lineItems
       .filter((lineItem) => {
-        return description === null || lineItem.description === description
+        return (
+          description === undefined || lineItem.description === description
+        );
       })
       .reduce((acc, cur) => acc + cur.subtotal, 0);
   }

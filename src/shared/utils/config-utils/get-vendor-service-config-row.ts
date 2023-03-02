@@ -38,5 +38,5 @@ export const clearVendorServiceConfig = (): void => {
 export const setVendorServiceConfig = (
   newConfig: VendorServiceConfigRow[]
 ): void => {
-  vendorServiceConfigPromise = new Promise((resolve) => resolve(newConfig));
+  vendorServiceConfigPromise = Promise.resolve(newConfig);
 };

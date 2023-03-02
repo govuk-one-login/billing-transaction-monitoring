@@ -19,12 +19,13 @@ Resources:
           - Action: SQS:SendMessage
             Condition:
               ArnLike:
-                aws:SourceArn: arn:aws:s3:::*
+                aws:SourceArn: !Sub arn:aws:s3:*:*:${AWS::StackName}-raw-invoice-textract-data # no reference as this needs be created before the bucket
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
             Effect: Allow
-            Principal: '*'
-            Resource: '*'
+            Principal:
+              Service: s3.amazonaws.com
+            Resource: !GetAtt StandardisedInvoiceStorageQueue.Arn
       Queues:
         - !Ref StandardisedInvoiceStorageQueue
 
