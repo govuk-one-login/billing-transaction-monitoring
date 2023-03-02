@@ -63,8 +63,7 @@ Resources:
               Action: s3:GetObject
               Resource:
                 - !Sub arn:aws:s3:::${AWS::StackName}-transaction-csv/*
-                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/idp_vendors/*
-                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/idp_event_name_rules/*
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/csv_transactions/*
             - Effect: Allow
               Action:
                 - sqs:SendMessage
