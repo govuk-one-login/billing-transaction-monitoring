@@ -138,10 +138,5 @@ describe("Transaction CSV To JSON Event handler test", () => {
       "output queue url",
       '{"id":"one","color":"red","timestamp":1667262461,"event_name":"TEST_EVENT"}'
     );
-    expect(mockedSendRecord).toHaveBeenNthCalledWith(
-      2,
-      "output queue url",
-      '{"id":"two","color":"pink","timestamp":1667262461,"event_name":"Unknown"}'
-    );
   });
 });

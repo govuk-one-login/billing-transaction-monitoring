@@ -38,6 +38,7 @@ describe("Clean handler tests", () => {
       ...validRecordBodyObject,
       timestamp: 1000 * TIMESTAMP_SECONDS,
       vendor_id: "vendor_testvendor1",
+      user: {},
     };
   });
 

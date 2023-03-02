@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { S3Event } from "aws-lambda";
 import { fetchS3, sendRecord } from "../../shared/utils";
 import { convert } from "./convert";
@@ -65,10 +66,12 @@ export const handler = async (event: S3Event): Promise<void> => {
     transformations,
   });
 
-  const sendRecordPromises = transactions.map(
-    async (transaction) =>
-      await sendRecord(outputQueueUrl, JSON.stringify(transaction))
-  );
+  const sendRecordPromises = transactions
+    .filter(({ event_name }) => event_name !== "Unknown")
+    .map(
+      async (transaction) =>
+        await sendRecord(outputQueueUrl, JSON.stringify(transaction))
+    );
 
   const results = await Promise.allSettled(sendRecordPromises);
   for (const result of results) {
