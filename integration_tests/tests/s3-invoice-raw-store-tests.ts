@@ -44,10 +44,8 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice pdf bucket tes
     };
 
     const pollOptions = {
-      interval: 1000,
-      timeout: 21000,
       nonCompleteErrorMessage:
-        "File was not moved to failed folder within 21 seconds",
+        "File was not moved to failed folder within the specified timeout",
     };
 
     const originalFileExistsInFailedFolder = await poll(

@@ -39,11 +39,10 @@ const checkS3BucketForEventId = async (
       (result: boolean) => result,
       {
         timeout: timeoutMs,
-        nonCompleteErrorMessage: `Polling timeout after${timeoutMs}ms`,
+        nonCompleteErrorMessage: "EventId not exists within the timeout",
       }
     );
   } catch (error) {
-    console.log(`Polling error: ${error}`);
     return false;
   }
 };

@@ -31,8 +31,6 @@ describe("\nPublish valid sns message and execute athena query\n", () => {
       checkEventId,
       (result: boolean) => result,
       {
-        interval: 1000,
-        timeout: 10000,
         nonCompleteErrorMessage:
           "Event Id check was not successful within the specified timeout",
       }

@@ -119,10 +119,8 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     };
 
     const pollOptions = {
-      interval: 1000,
-      timeout: 21000,
       nonCompleteErrorMessage:
-        "File was not moved to successful folder within 21 seconds",
+        "File was not moved to successful folder within the timeout",
     };
 
     const originalFileExistsInSuccessfulFolder = await poll(
