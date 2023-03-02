@@ -2,7 +2,7 @@ import { csvToJson } from "./csv-to-json";
 
 describe("csvToJson", () => {
   describe("given a valid csv", () => {
-    it("converts to it a json with modified keys", async () => {
+    it("converts it to a json with modified header row keys", async () => {
       const givenCsv = `a,b,c,color\n1,henry,135000,red\n2,henrietta,155000,pink`;
       const expectedResult = [
         {
