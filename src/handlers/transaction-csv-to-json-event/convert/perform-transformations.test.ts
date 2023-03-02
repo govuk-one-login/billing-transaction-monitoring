@@ -50,7 +50,7 @@ describe("transform", () => {
         {
           inputKey: "dateOfManufacture",
           outputKey: "timestampOfManufacture",
-          condition: /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
+          condition: "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z",
           steps: [
             {
               operation: Operations.construct,
@@ -126,7 +126,7 @@ describe("transform", () => {
         {
           inputKey: "dateOfManufacture",
           outputKey: "timestampOfManufacture",
-          condition: /^\d{13}$/,
+          condition: "^\\d{13}$",
           steps: [
             {
               operation: Operations.construct,
@@ -202,7 +202,7 @@ describe("transform", () => {
         {
           inputKey: "timestampOfManufacture",
           outputKey: "timestampOfManufacture",
-          condition: /^\d{10}$/,
+          condition: "^\\d{10}$",
           steps: [
             {
               operation: Operations.construct,
