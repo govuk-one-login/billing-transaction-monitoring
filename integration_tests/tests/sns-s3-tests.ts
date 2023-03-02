@@ -34,14 +34,10 @@ const checkS3BucketForEventId = async (
     }
   };
   try {
-    return await poll(
-      pollS3BucketForEventIdString,
-      (result: boolean) => result,
-      {
-        timeout: timeoutMs,
-        nonCompleteErrorMessage: "EventId not exists within the timeout",
-      }
-    );
+    return await poll(pollS3BucketForEventIdString, (result) => result, {
+      timeout: timeoutMs,
+      nonCompleteErrorMessage: "EventId not exists within the timeout",
+    });
   } catch (error) {
     return false;
   }
@@ -74,7 +70,6 @@ describe(
         snsInvalidEventPayloadEventName.event_id,
         3000
       );
-      console.log(eventIdExists);
       expect(eventIdExists).toBeFalsy();
     });
 
