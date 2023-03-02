@@ -41,13 +41,18 @@ const makeInference = <
   inferenceSpecifications: InferenceSpecifications<TObject, TInferredFields>
 ): TObject & TInferredFields =>
   inferenceSpecifications.reduce<TObject & TInferredFields>(
-    (augmentedEntry: TObject & TInferredFields, inferenceSpecifications) => ({
-      ...augmentedEntry,
-      [inferenceSpecifications.field]: getInferredValue(
-        entry,
-        inferenceSpecifications
-      ),
-    }),
+    (augmentedEntry: TObject & TInferredFields, inferenceSpecifications) => {
+      if (augmentedEntry[inferenceSpecifications.field] !== undefined) {
+        return augmentedEntry;
+      }
+      return {
+        ...augmentedEntry,
+        [inferenceSpecifications.field]: getInferredValue(
+          entry,
+          inferenceSpecifications
+        ),
+      };
+    },
     // eslint-disable-next-line @typescript-eslint/prefer-reduce-type-parameter
     entry as TObject & TInferredFields
   );

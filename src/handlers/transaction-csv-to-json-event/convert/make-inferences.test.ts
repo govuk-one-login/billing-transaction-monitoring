@@ -12,7 +12,7 @@ type RawHoover = {
 };
 
 describe("infer", () => {
-  describe("given and array of objects and a set of rules", () => {
+  describe("given an array of objects and a set of rules", () => {
     it("infers things about the objects", () => {
       const givenArray: RawHoover[] = [
         {
@@ -81,6 +81,60 @@ describe("infer", () => {
           color: "red",
           isOriginal: false,
           eyelashLength: 12,
+        },
+      ]);
+    });
+  });
+
+  describe("given a request to infer something about a field that already exists", () => {
+    it("does not destroy the information in that field", () => {
+      const givenArray: RawHoover[] = [
+        {
+          id: "1",
+          name: "henry",
+          suction: "135000",
+          color: "red",
+        },
+        {
+          id: "2",
+          name: "henrietta",
+          color: "pink",
+        } as unknown as RawHoover,
+      ];
+
+      const givenInferences: InferenceSpecifications<
+        RawHoover,
+        { suction: number }
+      > = [
+        {
+          field: "suction",
+          rules: [
+            {
+              given: { name: "henrietta", suction: "155000" },
+              inferValue: true,
+            },
+          ],
+          defaultValue: "125000",
+        },
+      ];
+
+      const result = makeInferences<RawHoover, { suction: number }>(
+        givenArray,
+        givenInferences
+      );
+
+      expect(result).toEqual([
+        {
+          id: "1",
+          name: "henry",
+          suction: "135000",
+          color: "red",
+        },
+        {
+          id: "2",
+          name: "henrietta",
+          suction: "125000",
+          color: "pink",
         },
       ]);
     });
