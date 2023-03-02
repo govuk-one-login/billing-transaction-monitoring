@@ -31,6 +31,10 @@ Resources:
                   - Name: suffix
                     Value: '.csv'
             Function: !GetAtt TransactionCsvToJsonEventFunction.Arn
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825  # Five years
+            Status: Enabled
 
   TransactionCsvToJsonEventFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
