@@ -46,8 +46,6 @@ const transform = <
   { inputKey, outputKey, condition, steps }: Transformation<TObject, TFields>
 ): TObject & { [outputKey: string]: InteroperablyTransformable } => {
   const initialValue = entry[inputKey] as unknown as InteroperablyTransformable;
-  console.log(initialValue, condition);
-  console.log(shouldNotTransform(initialValue, condition));
   if (shouldNotTransform(initialValue, condition)) {
     return {
       ...entry,

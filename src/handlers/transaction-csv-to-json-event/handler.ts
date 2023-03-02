@@ -32,18 +32,26 @@ export const handler = async (event: S3Event): Promise<void> => {
   );
 
   if (!isValidRenamingConfig(renamingMap)) {
-    console.error("header-row-renaming-map.json is invalid.");
-    throw new Error("header-row-renaming-map.json is invalid.");
+    console.error(
+      `header-row-renaming-map.json is invalid.  Received ${renamingMap}`
+    );
+    throw new Error(
+      `header-row-renaming-map.json is invalid.  Received ${renamingMap}`
+    );
   }
 
   if (!isValidInferencesConfig(inferences)) {
-    console.error("event-inferences.json is invalid.");
-    throw new Error("event-inferences.json is invalid.");
+    console.error(`event-inferences.json is invalid. Received ${inferences}`);
+    throw new Error(`event-inferences.json is invalid. Received ${inferences}`);
   }
 
   if (!isValidTransformationsConfig(transformations)) {
-    console.error("event-transformation.json is invalid.");
-    throw new Error("event-transformation.json is invalid.");
+    console.error(
+      `event-transformation.json is invalid. Received ${transformations}`
+    );
+    throw new Error(
+      `event-transformation.json is invalid. Received ${transformations}`
+    );
   }
 
   const csv = await fetchS3(
