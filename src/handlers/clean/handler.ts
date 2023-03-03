@@ -56,6 +56,7 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
     vendor_id: vendorId,
   };
 
+  console.log("Cleaned event ", cleanedBodyObject.event_id);
   await sendRecord(outputQueueUrl, JSON.stringify(cleanedBodyObject));
 }
 

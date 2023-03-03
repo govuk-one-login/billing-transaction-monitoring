@@ -50,6 +50,7 @@ async function storeRecord(record: SQSRecord): Promise<void> {
 
   const key = `${formattedDate}/${eventId}.json`;
 
+  console.log("Storing event " + eventId);
   await putS3(
     process.env.STORAGE_BUCKET,
     process.env.TRANSACTIONS_FOLDER + "/" + key,

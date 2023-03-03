@@ -9,6 +9,13 @@ export async function sendRecord(
   queueUrl: string,
   messageBody: string
 ): Promise<void> {
+  const parsedBody = JSON.parse(messageBody);
+  if (typeof parsedBody.event_id === "string") {
+    console.log(
+      `Sending event ${parsedBody.event_id} to SQS queue at ${queueUrl}`
+    );
+  }
+
   const params = new SendMessageCommand({
     MessageBody: messageBody,
     QueueUrl: queueUrl,
