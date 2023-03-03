@@ -13,14 +13,14 @@ import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers"
 const prefix = resourcePrefix();
 const givenVendorIdFolder = "vendor123";
 
-describe("\n Unhappy path - Upload invalid pdf to the raw invoice pdf bucket test\n", () => {
+describe("\n Unhappy path - Upload invalid pdf to the raw invoice bucket test\n", () => {
   const uniqueString = Math.random().toString(36).substring(2, 7);
   const rawInvoice: S3Object = {
-    bucket: `${prefix}-raw-invoice-pdf`,
+    bucket: `${prefix}-raw-invoice`,
     key: `${givenVendorIdFolder}/raw-Invoice-${uniqueString}-validFile.pdf`,
   };
 
-  test("should move the original raw invoice to failed folder in s3 raw-invoice-pdf bucket upon uploading the invalid pdf file ", async () => {
+  test("should move the original raw invoice to failed folder in s3 raw-invoice bucket upon uploading the invalid pdf file ", async () => {
     const file = "../payloads/invalidFileToTestTextractFailure.pdf";
     const filename = path.join(__dirname, file);
     const fileData = fs.readFileSync(filename);

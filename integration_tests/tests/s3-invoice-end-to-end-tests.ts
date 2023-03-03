@@ -32,7 +32,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     });
   });
 
-  test("upload valid pdf file in raw-invoice-pdf bucket and see that we can see the data in the view", async () => {
+  test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
     const passportCheckItems = randomLineItems(8, {
       description: "passport check",
     });
