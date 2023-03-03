@@ -22,10 +22,10 @@ export type Transformations<
   TFields extends Record<string, unknown>
 > = Array<Transformation<TObject, TFields>>;
 
-const shouldNotTransform = <TObject extends Record<string, unknown>>(
+const shouldTransform = <TObject extends Record<string, unknown>>(
   value: TObject[keyof TObject],
   condition: string
-): boolean => !String(value).match(new RegExp(condition));
+): boolean => !!String(value).match(new RegExp(condition));
 
 const performTransformationSteps = (
   initialValue: InteroperablyTransformable,
@@ -46,16 +46,12 @@ const transform = <
   { inputKey, outputKey, condition, steps }: Transformation<TObject, TFields>
 ): TObject & { [outputKey: string]: InteroperablyTransformable } => {
   const initialValue = entry[inputKey] as unknown as InteroperablyTransformable;
-  if (shouldNotTransform(initialValue, condition)) {
-    return {
-      ...entry,
-      [outputKey]: initialValue,
-    };
-  }
 
   return {
     ...entry,
-    [outputKey]: performTransformationSteps(initialValue, steps),
+    [outputKey]: shouldTransform(initialValue, condition)
+      ? performTransformationSteps(initialValue, steps)
+      : initialValue,
   };
 };
 
@@ -67,8 +63,7 @@ const performTransformation = <
   transformations: Transformations<TObject, TFields>
 ): TObject & TFields =>
   transformations.reduce<TObject & TFields>(
-    (transformedEntry, transformation) =>
-      transform(transformedEntry, transformation),
+    transform,
     // eslint-disable-next-line @typescript-eslint/prefer-reduce-type-parameter
     entry as TObject & TFields
   );
@@ -91,22 +86,20 @@ export const isValidTransformationsConfig = <
   maybeTransformations: unknown
 ): maybeTransformations is Transformations<TObject, TFields> =>
   Array.isArray(maybeTransformations) &&
-  maybeTransformations.every((maybeTransformation) => {
-    return (
+  maybeTransformations.every(
+    (maybeTransformation) =>
       typeof maybeTransformation === "object" &&
       typeof maybeTransformation.inputKey === "string" &&
       typeof maybeTransformation.outputKey === "string" &&
       typeof maybeTransformation.condition === "string" &&
       Array.isArray(maybeTransformation.steps) &&
-      maybeTransformation.steps.every((maybeStep: any) => {
-        return (
+      maybeTransformation.steps.every(
+        (maybeStep: any) =>
           typeof maybeStep === "object" &&
           maybeStep.operation in Operations &&
           (maybeStep.parameter === undefined ||
             typeof maybeStep?.parameter === "number" ||
             typeof maybeStep?.parameter === "string" ||
             maybeStep.parameter in Constructables)
-        );
-      })
-    );
-  });
+      )
+  );
