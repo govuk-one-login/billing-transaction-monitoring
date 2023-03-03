@@ -39,7 +39,6 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
 
   if (!isValidBodyObject(bodyObject)) {
     console.error("Event record body is invalid.");
-    console.log(bodyObject);
     throw new Error("Event record body is invalid.");
   }
 
@@ -56,8 +55,6 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
     timestamp: bodyObject.timestamp * 1000,
     vendor_id: vendorId,
   };
-
-  console.log("Cleaned Body Object:", cleanedBodyObject);
 
   await sendRecord(outputQueueUrl, JSON.stringify(cleanedBodyObject));
 }

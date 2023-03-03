@@ -9,8 +9,6 @@ export async function sendRecord(
   queueUrl: string,
   messageBody: string
 ): Promise<void> {
-  console.log("sending messageBody " + messageBody);
-
   const params = new SendMessageCommand({
     MessageBody: messageBody,
     QueueUrl: queueUrl,
