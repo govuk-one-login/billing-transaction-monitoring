@@ -15,7 +15,7 @@ export const csvToJson: CsvToJson = async (csv, renamingConfig) => {
   const originalColumnNames = headerRow.split(",");
   const renamingMap = new Map(renamingConfig);
   const renamedColumnNames = originalColumnNames.map((originalName) =>
-    renamingMap.has(originalName) ? renamingMap.get(originalName) : originalName
+    renamingMap.get(originalName) ?? originalName
   );
   const renamedHeaderRow = renamedColumnNames.join(",");
   const renamedCsv = renamedHeaderRow + csv.slice(firstNewLinePosition);
