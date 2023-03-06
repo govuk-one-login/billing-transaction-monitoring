@@ -39,10 +39,16 @@ export const getStandardisedInvoice = async (
   vendorId: string,
   configBucket: string
 ): Promise<StandardisedLineItem[]> => {
-  const [standardisationModuleId, vendorServiceConfigRows] = await Promise.all([
-    getVendorInvoiceStandardisationModuleId(configBucket, vendorId),
-    getVendorServiceConfigRows(configBucket, { vendor_id: vendorId }),
-  ]);
+  console.log("fetching standardisation module");
+  const standardisationModuleId = await getVendorInvoiceStandardisationModuleId(
+    configBucket,
+    vendorId
+  );
+  console.log("fetching vendor service config");
+  const vendorServiceConfigRows = await getVendorServiceConfigRows(
+    configBucket,
+    { vendor_id: vendorId }
+  );
 
   const standardisationModule =
     standardisationModuleId !== undefined &&
