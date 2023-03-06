@@ -1,4 +1,8 @@
-import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
+import {
+  InvocationResponse,
+  InvokeCommand,
+  InvokeCommandInput,
+} from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
 import { HelperDict, IntTestHelpers } from "../handler";
@@ -30,5 +34,29 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
     return JSON.parse(toUtf8(result.Payload)).successObject;
   } else {
     return "Error";
+  }
+};
+
+export const invokeLambda = async (
+  parameters: object
+): Promise<InvocationResponse> => {
+  const params = {
+    FunctionName: "di-btm-nk-446-test-filter-function",
+
+    Payload: fromUtf8(
+      JSON.stringify({
+        parameters,
+      })
+    ),
+  };
+
+  const command: InvokeCommandInput = params;
+  try {
+    const response = await lambdaClient.send(new InvokeCommand(command));
+    console.log(response);
+    return response;
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
 };
