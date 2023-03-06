@@ -52,9 +52,15 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
     : await fetchVendorId(bodyObject.event_name);
 
   const cleanedBodyObject: CleanedEventBodyObject = {
-    ...bodyObject,
+    component_id: bodyObject.component_id,
+    event_name: bodyObject.event_name,
     timestamp: bodyObject.timestamp * 1000,
+    event_id: bodyObject.event_id,
+    timestamp_formatted: bodyObject.timestamp_formatted,
     vendor_id: vendorId,
+    user: {
+      transaction_id: bodyObject?.user?.transaction_id,
+    },
   };
 
   console.log("Cleaned Body Object:", cleanedBodyObject);

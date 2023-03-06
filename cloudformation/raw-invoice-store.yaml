@@ -1,11 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  StorageBucket:
+  RawInvoiceBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${AWS::StackName}-storage
+      BucketName: !Sub ${AWS::StackName}-raw-invoice
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -21,8 +20,13 @@ Resources:
         Status: Enabled
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: storage-bucket/log
-      LifecycleConfiguration:
-        Rules:
-          - ExpirationInDays: 1825  # Five years
-            Status: Enabled
+        LogFilePrefix: raw-invoice-bucket/log
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.pdf'
+            Queue: !GetAtt ExtractQueue.Arn

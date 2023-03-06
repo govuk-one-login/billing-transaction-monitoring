@@ -31,6 +31,10 @@ Resources:
                   - Name: suffix
                     Value: '.csv'
             Function: !GetAtt TransactionCsvToJsonEventFunction.Arn
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825  # Five years
+            Status: Enabled
 
   TransactionCsvToJsonEventFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
@@ -63,8 +67,7 @@ Resources:
               Action: s3:GetObject
               Resource:
                 - !Sub arn:aws:s3:::${AWS::StackName}-transaction-csv/*
-                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/idp_vendors/*
-                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/idp_event_name_rules/*
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/csv_transactions/*
             - Effect: Allow
               Action:
                 - sqs:SendMessage

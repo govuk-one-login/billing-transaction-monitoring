@@ -67,6 +67,10 @@ Resources:
                   - Name: suffix
                     Value: '.json'
             Queue: !GetAtt StandardisedInvoiceStorageQueue.Arn
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825  # Five years
+            Status: Enabled
 
   RawInvoiceTextractDataQueue:
     Type: AWS::SQS::Queue
@@ -159,8 +163,8 @@ Resources:
                 - s3:ListBucket
                 - s3:PutObject
               Resource:
-                - !GetAtt RawInvoicePdfBucket.Arn
-                - !Join ['/', [!GetAtt RawInvoicePdfBucket.Arn, '*']]
+                - !GetAtt RawInvoiceBucket.Arn
+                - !Join ['/', [!GetAtt RawInvoiceBucket.Arn, '*']]
             - Effect: Allow
               Action:
                 - s3:PutObject

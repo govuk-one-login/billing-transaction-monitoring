@@ -2,7 +2,7 @@ import { augmentTestCases, TestCases } from "./augmentTestCases";
 import { objectsToCSV } from "./objectsToCsv";
 import { testCases } from "./transformCSV-to-event-test-data";
 
-export const mockIdpCsvData = (): {
+export const mockCsvData = (): {
   csv: Buffer;
   happyPathCount: number;
   testCases: TestCases;

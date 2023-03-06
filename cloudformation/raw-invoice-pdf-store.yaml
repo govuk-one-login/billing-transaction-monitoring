@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-
+# This will be deleted and replaced with RawInvoiceBucket
 Resources:
   RawInvoicePdfBucket:
     Type: AWS::S3::Bucket
@@ -30,3 +30,7 @@ Resources:
                   - Name: suffix
                     Value: '.pdf'
             Queue: !GetAtt ExtractQueue.Arn
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825  # Five years
+            Status: Enabled
