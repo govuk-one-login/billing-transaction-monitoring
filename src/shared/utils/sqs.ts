@@ -1,6 +1,6 @@
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
-const sqs = new SQSClient({
+const _sqsDeprecated = new SQSClient({
   region: "eu-west-2",
   endpoint: process.env.LOCAL_ENDPOINT,
 });
@@ -16,7 +16,7 @@ export async function sendRecord(
     QueueUrl: queueUrl,
   });
 
-  return await sqs
+  return await _sqsDeprecated
     .send(params)
     .then((data) => {
       console.log("SQS data", data.$metadata);

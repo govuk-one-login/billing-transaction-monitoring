@@ -1,13 +1,17 @@
 import { createEvent, createRecord } from "../../../test-helpers/SQS";
-import { sendRecord } from "../../shared/utils";
-import { handler } from "./handler";
+import { SqsQueue } from "../../driven/sqs-queue";
+import { VendorServiceConfigStore } from "../../driven/vendor-service-config";
+import { cleanEventAdapter } from "../../driving/clean-event-adapter";
 
-jest.mock("../../shared/utils");
-const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>;
+const mockedSendRecord = jest.fn();
 
-jest.mock("../../shared/utils/config-utils/fetch-vendor-id", () => ({
-  fetchVendorId: () => "vendor_testvendor1",
-}));
+const handler = cleanEventAdapter({
+  vendorServiceConfigStore: {
+    getVendorIdByEventName: async () =>
+      await new Promise((resolve) => resolve("vendor_testvendor1")),
+  } as unknown as VendorServiceConfigStore,
+  sqsQueue: { sendRecord: mockedSendRecord } as unknown as SqsQueue,
+});
 
 describe("Clean handler tests", () => {
   const OLD_ENV = process.env;
@@ -157,15 +161,8 @@ describe("Clean handler tests", () => {
     const record = createRecord(recordBody, messageId);
     const event = createEvent([record]);
 
-    const result = await handler(event);
-
-    expect(result).toEqual({
-      batchItemFailures: expect.any(Array),
-    });
-    expect(result.batchItemFailures).toHaveLength(1);
-    expect(result.batchItemFailures[0]).toEqual({
-      itemIdentifier: messageId,
-    });
-    expect(mockedSendRecord).not.toHaveBeenCalled();
+    await expect(handler(event)).rejects.toThrowError(
+      "No OUTPUT_QUEUE_URL defined in this environment"
+    );
   });
 });
