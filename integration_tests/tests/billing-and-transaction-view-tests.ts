@@ -26,7 +26,7 @@ const prefix = resourcePrefix();
 const bucketName = `${prefix}-storage`;
 const testStartTime = new Date();
 
-describe("\nUpload invoice to raw invoice pdf bucket and verify billing and transaction_curated view query results matches with expected data \n", () => {
+describe("\nUpload invoice to raw invoice bucket and verify billing and transaction_curated view query results matches with expected data \n", () => {
   beforeEach(async () => {
     // tests are enabled to run sequentially as we are deleting the S3 directory in view tests so when running the test
     // in parallel other tests will be interrupted(e.g. sns-s3 tests generate and checks eventId). We can enable to run in parallel
@@ -54,7 +54,7 @@ describe("\nUpload invoice to raw invoice pdf bucket and verify billing and tran
   );
 });
 
-describe("\n no invoice uploaded to raw invoice pdf bucket and verify billing and transaction_curated view query results matches with expected data    \n", () => {
+describe("\n no invoice uploaded to raw invoice bucket and verify billing and transaction_curated view query results matches with expected data    \n", () => {
   beforeAll(async () => {
     await deleteS3Objects({ bucketName, prefix: "btm_billing_standardised" });
     await deleteS3Objects({ bucketName, prefix: "btm_transactions" });
@@ -102,6 +102,7 @@ export const createInvoice = async ({
 
   const givenInvoice = randomInvoice({
     vendor: {
+      id: vendorId,
       name: prettyVendorNameMap[vendorId],
     },
     date: new Date(eventTimeStamp[eventTime] * 1000),
@@ -176,6 +177,7 @@ export const assertResultsWithTestData = async ({
 };
 
 type BillingTransactionCurated = Array<{
+  vendor_id: string;
   vendor_name: string;
   service_name: string;
   year: string;
