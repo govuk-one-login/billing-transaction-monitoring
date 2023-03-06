@@ -7,13 +7,12 @@ const mockedFetchS3 = fetchS3 as jest.Mock;
 describe("fetchVendorServiceConfig", () => {
   it("Returns the vendor service config as json", async () => {
     mockedFetchS3.mockReturnValueOnce(
-      "vendor_name,vendor_regex,vendor_id,service_name,service_regex,event_name\nBilly Mitchell LLC,billy mitchell,vendor_billy,Lying About Speedruns,lying about speedruns,donkey_kong\nNito's Bone Zone,bone zone,vendor_nito,Sword dances,sword dance,sword_dance"
+      "vendor_name,vendor_id,service_name,service_regex,event_name\nBilly Mitchell LLC,vendor_billy,Lying About Speedruns,lying about speedruns,donkey_kong\nNito's Bone Zone,vendor_nito,Sword dances,sword dance,sword_dance"
     );
     const vendorServiceConfig = await fetchVendorServiceConfig("bucket");
     expect(vendorServiceConfig).toEqual([
       {
         vendor_name: "Billy Mitchell LLC",
-        vendor_regex: "billy mitchell",
         vendor_id: "vendor_billy",
         service_name: "Lying About Speedruns",
         service_regex: "lying about speedruns",
@@ -21,7 +20,6 @@ describe("fetchVendorServiceConfig", () => {
       },
       {
         vendor_name: "Nito's Bone Zone",
-        vendor_regex: "bone zone",
         vendor_id: "vendor_nito",
         service_name: "Sword dances",
         service_regex: "sword dance",
@@ -44,7 +42,7 @@ describe("fetchVendorServiceConfig", () => {
   describe("If vendor service config is not valid", () => {
     it("Throws an error", async () => {
       mockedFetchS3.mockReturnValueOnce(
-        "vendor_name,vendor_regex,vendor_id,service_shame,service_regex,event_name\nBilly Mitchell LLC,billy mitchell,vendor_billy,Lying About Speedruns,lying about speedruns,donkey_kong\nNito's Bone Zone,bone zone,vendor_nito,Sword dances,sword dance,sword_dance"
+        "vendor_name,vendor_id,service_shame,service_regex,event_name\nBilly Mitchell LLC,vendor_billy,Lying About Speedruns,lying about speedruns,donkey_kong\nNito's Bone Zone,vendor_nito,Sword dances,sword dance,sword_dance"
       );
       try {
         await fetchVendorServiceConfig("bucket");
