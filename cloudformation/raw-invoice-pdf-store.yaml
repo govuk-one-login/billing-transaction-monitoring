@@ -30,3 +30,7 @@ Resources:
                   - Name: suffix
                     Value: '.pdf'
             Queue: !GetAtt ExtractQueue.Arn
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825  # Five years
+            Status: Enabled
