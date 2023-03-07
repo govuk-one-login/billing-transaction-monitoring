@@ -110,17 +110,14 @@ const generateTransactionEvent = async ({
   transactionQty,
 }: TestData): Promise<void> => {
   for (let i = 0; i < transactionQty; i++) {
-    await updateFilterFunctionPayloadBody(eventTime);
-
-    // read the updated payload.json file and send it to lambda
-    const updatedFilterFunctionPayload = fs.readFileSync(filePath, "utf-8");
-    await invokeLambda(updatedFilterFunctionPayload);
+    const updatedPayload = await updateFilterFunctionPayloadBody(eventTime);
+    await invokeLambda(updatedPayload);
   }
 };
 
 const updateFilterFunctionPayloadBody = async (
   eventTime: string
-): Promise<void> => {
+): Promise<string> => {
   // convert eventPayload to json
 
   const eventPayload = {
@@ -139,8 +136,10 @@ const updateFilterFunctionPayloadBody = async (
   filterFunctionPayloadJSON.Records[0].eventSourceARN = eventSource;
 
   // escape  characters in json and write the updated upload to payload.json file
-  const updatedJsonString = JSON.stringify(filterFunctionPayloadJSON);
-  fs.writeFileSync(filePath, updatedJsonString);
+  const updatedFilterFunctionPayload = JSON.stringify(
+    filterFunctionPayloadJSON
+  );
+  return updatedFilterFunctionPayload;
 };
 
 export const createInvoice = async ({
