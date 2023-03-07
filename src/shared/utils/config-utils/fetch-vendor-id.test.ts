@@ -4,7 +4,6 @@ jest.mock("./fetch-vendor-service-config", () => ({
   fetchVendorServiceConfig: () => [
     {
       vendor_name: "Vendor One",
-      vendor_regex: "Vendor.*[One|1]",
       vendor_id: "vendor_testvendor1",
       service_name: "Passport check",
       service_regex: "Passport.*check",
@@ -12,7 +11,6 @@ jest.mock("./fetch-vendor-service-config", () => ({
     },
     {
       vendor_name: "Vendor Two",
-      vendor_regex: "Vendor.*[Two|2]",
       vendor_id: "vendor_testvendor2",
       service_name: "Kbv check",
       service_regex: "Kbv.*check",
