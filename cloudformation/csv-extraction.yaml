@@ -22,6 +22,7 @@ Resources:
               - ReportBatchItemFailures
             Queue: !GetAtt CsvExtractQueue.Arn
       Handler: csvExtract.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
