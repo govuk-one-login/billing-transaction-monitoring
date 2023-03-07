@@ -70,7 +70,9 @@ export const handler = async (event: S3Event): Promise<void> => {
     .filter(({ event_name }) => event_name !== "Unknown")
     .map(
       async (transaction) =>
-        await sendRecord(outputQueueUrl, JSON.stringify(transaction))
+        await sendRecord(outputQueueUrl, JSON.stringify(transaction), {
+          shouldLog: false,
+        })
     );
 
   const results = await Promise.allSettled(sendRecordPromises);
