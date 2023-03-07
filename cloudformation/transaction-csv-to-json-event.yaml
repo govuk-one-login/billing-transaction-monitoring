@@ -90,7 +90,6 @@ Resources:
       ReservedConcurrentExecutions: 1
       MemorySize: 256
 
-
   TransactionCsvToJsonEventFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
