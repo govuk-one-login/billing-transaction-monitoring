@@ -37,3 +37,7 @@ Resources:
                   - Name: suffix
                     Value: '.csv'
             Queue: !GetAtt CsvExtractQueue.Arn
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825 # Five years
+            Status: Enabled
