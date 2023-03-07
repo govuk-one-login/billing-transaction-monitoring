@@ -23,6 +23,8 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
   vendorServiceConfigRows: VendorServiceConfigRows,
   parserVersion: string
 ): StandardisedLineItem[] => {
+  // If you update this, please increment its version! See `README.md`.
+
   const summaryFields = getSummaryFields(textractPages);
 
   // To do: get line items another way, at least when not found this way (Jira: BTM-161)

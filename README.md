@@ -211,3 +211,12 @@ The might be some manual interaction needed, the script will tell you what to do
 ## Licence
 
 [MIT License](LICENCE)
+
+## PDF invoice data parsers
+
+Depending on a PDF invoice's vendor, we can use a specific code module to parse data extracted from the PDF. Each
+parser module has its own numeric version, which is saved in the standardised invoice data that the parser generates,
+so that the parser can be re-run on specific data after the parser is updated. These versions are defined in
+`cloudformation/standardised-invoice-storage.yaml`.
+
+If you update a parser, please increment its version!

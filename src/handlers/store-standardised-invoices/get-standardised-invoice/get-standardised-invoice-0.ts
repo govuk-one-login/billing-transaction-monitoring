@@ -35,6 +35,8 @@ export const getStandardisedInvoice0: StandardisationModule = (
   vendorServiceConfigRows: VendorServiceConfigRows,
   parserVersion: string
 ): StandardisedLineItem[] => {
+  // If you update this, please increment its version! See `README.md`.
+
   if (vendorServiceConfigRows.length === 0)
     throw new Error("No vendor service config rows");
 
