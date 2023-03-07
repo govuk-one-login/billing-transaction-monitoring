@@ -22,3 +22,7 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
         LogFilePrefix: storage-bucket/log
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825  # Five years
+            Status: Enabled

@@ -113,8 +113,6 @@ Resources:
           Columns:
             - Name: vendor_name
               Type: string
-            - Name: vendor_regex
-              Type: string
             - Name: vendor_id
               Type: string
             - Name: service_name
