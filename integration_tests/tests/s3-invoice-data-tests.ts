@@ -4,9 +4,9 @@ import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Hel
 const prefix = resourcePrefix();
 
 describe("\n Invoice data buckets exists in S3\n", () => {
-  test("Raw pdf bucket should exists in S3", async () => {
+  test("Raw invoice bucket should exists in S3", async () => {
     const response = await listS3Objects({
-      bucketName: `${prefix}-raw-invoice-pdf`,
+      bucketName: `${prefix}-raw-invoice`,
     });
     expect(response).toBeTruthy();
   });

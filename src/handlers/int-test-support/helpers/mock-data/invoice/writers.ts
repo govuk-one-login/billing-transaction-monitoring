@@ -10,7 +10,7 @@ export const writeInvoiceToS3 = async (
   filename: string
 ): Promise<S3Object> => {
   const s3Object = {
-    bucket: `${resourcePrefix()}-raw-invoice-pdf`,
+    bucket: `${resourcePrefix()}-raw-invoice`,
     key: `${directory}/${filename}`,
   };
   await putS3Object({ data: file, target: s3Object });

@@ -12,6 +12,7 @@ jest.mock("../../shared/utils/config-utils/fetch-vendor-id", () => ({
 describe("Clean handler tests", () => {
   const OLD_ENV = process.env;
   const oldConsoleError = console.error;
+  const oldConsoleLog = console.log;
   let validRecordBodyObject: Object;
   let sentRecordBodyObject: Object;
   const TIMESTAMP_SECONDS = 123;
@@ -23,6 +24,7 @@ describe("Clean handler tests", () => {
     process.env.OUTPUT_QUEUE_URL = "output-queue-url";
 
     console.error = jest.fn();
+    console.log = jest.fn();
 
     validRecordBodyObject = {
       component_id: "some component ID",
@@ -36,12 +38,14 @@ describe("Clean handler tests", () => {
       ...validRecordBodyObject,
       timestamp: 1000 * TIMESTAMP_SECONDS,
       vendor_id: "vendor_testvendor1",
+      user: {},
     };
   });
 
   afterAll(() => {
     process.env = OLD_ENV;
     console.error = oldConsoleError;
+    console.log = oldConsoleLog;
   });
 
   test("Clean handler with empty event batch", async () => {

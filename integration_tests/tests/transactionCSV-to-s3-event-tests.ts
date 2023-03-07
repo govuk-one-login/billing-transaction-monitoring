@@ -1,6 +1,6 @@
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import { mockIdpCsvData } from "../../src/handlers/int-test-support/helpers/mock-data/csv";
+import { mockCsvData } from "../../src/handlers/int-test-support/helpers/mock-data/csv";
 import {
   deleteS3Objects,
   getS3Object,
@@ -12,7 +12,7 @@ const transactionsDirectory = "btm_transactions";
 const outputBucket = `${resourcePrefix()}-storage`;
 const inputBucket = `${resourcePrefix()}-transaction-csv`;
 
-const { csv, happyPathCount, testCases } = mockIdpCsvData();
+const { csv, happyPathCount, testCases } = mockCsvData();
 
 describe("Given a csv with event data is uploaded to the transaction csv bucket", () => {
   beforeAll(async () => {

@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-  RawInvoicePdfBucket:
+  RawInvoiceBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${AWS::StackName}-raw-invoice-pdf
+      BucketName: !Sub ${AWS::StackName}-raw-invoice
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -20,7 +20,7 @@ Resources:
         Status: Enabled
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: raw-invoice-pdf-bucket/log
+        LogFilePrefix: raw-invoice-bucket/log
       NotificationConfiguration:
         QueueConfigurations:
           - Event: s3:ObjectCreated:*
@@ -30,3 +30,7 @@ Resources:
                   - Name: suffix
                     Value: '.pdf'
             Queue: !GetAtt ExtractQueue.Arn
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825  # Five years
+            Status: Enabled

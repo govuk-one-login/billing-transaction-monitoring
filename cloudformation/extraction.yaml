@@ -41,7 +41,7 @@ Resources:
               Resource: !GetAtt KmsKey.Arn
             - Effect: Allow
               Action: s3:GetObject
-              Resource: !Join ['/', [!GetAtt RawInvoicePdfBucket.Arn, '*']]
+              Resource: !Join ['/', [!GetAtt RawInvoiceBucket.Arn, '*']]
       ReservedConcurrentExecutions: 1
 
   ExtractFunctionAlarm:
@@ -78,7 +78,7 @@ Resources:
           - Action: SQS:SendMessage
             Condition:
               ArnLike:
-                aws:SourceArn: !Sub arn:aws:s3:*:*:${AWS::StackName}-raw-invoice-pdf # no reference as this needs be created before the bucket
+                aws:SourceArn: !Sub arn:aws:s3:*:*:${AWS::StackName}-raw-invoice # no reference as this needs be created before the bucket
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
             Effect: Allow
@@ -139,7 +139,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:GetObject*
-                Resource: !GetAtt RawInvoicePdfBucket.Arn
+                Resource: !GetAtt RawInvoiceBucket.Arn
               - Effect: Allow
                 Action:
                   - sns:Publish
