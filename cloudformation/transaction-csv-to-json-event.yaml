@@ -88,6 +88,7 @@ Resources:
                 ForAnyValue:StringEquals:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
       ReservedConcurrentExecutions: 1
+      MemorySize: 256
 
   TransactionCsvToJsonEventFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
