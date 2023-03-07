@@ -31,6 +31,26 @@ Resources:
       Queues:
         - !Ref CsvExtractQueue
 
-  # CsvExtractQueueDeadLetterQueue:
+  CsvExtractQueueDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-csv-extract-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-  # CsvExtractQueueDeadLetterQueueAlarm:
+  CsvExtractQueueDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-csv-extract-dlq-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt CsvExtractQueueDeadLetterQueue.QueueName
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
+      Period: 60
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
