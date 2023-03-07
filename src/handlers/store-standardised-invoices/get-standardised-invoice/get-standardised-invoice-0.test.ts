@@ -28,6 +28,7 @@ const mockedGetTotal = getTotal as jest.Mock;
 const mockedGetUnitPrice = getUnitPrice as jest.Mock;
 
 describe("Standardised invoice getter 0", () => {
+  let givenParserVersion: string;
   let givenTextractPage: any;
   let givenTextractPages: any;
   let givenTextractPagesLineItemFields: any;
@@ -50,6 +51,8 @@ describe("Standardised invoice getter 0", () => {
     mockedGetTaxPayerId.mockReturnValue("mocked taxPayerId");
     mockedGetTotal.mockReturnValue("mocked total");
     mockedGetUnitPrice.mockReturnValue("mocked unit price");
+
+    givenParserVersion = "123_4.5.6";
 
     givenTextractPagesLineItemFields = [
       {
@@ -114,7 +117,11 @@ describe("Standardised invoice getter 0", () => {
     givenVendorServiceConfigRows = [];
 
     expect(() =>
-      getStandardisedInvoice0(givenTextractPages, givenVendorServiceConfigRows)
+      getStandardisedInvoice0(
+        givenTextractPages,
+        givenVendorServiceConfigRows,
+        givenParserVersion
+      )
     ).toThrowError("vendor service config");
     expect(mockedGetInvoiceReceiptId).not.toHaveBeenCalled();
     expect(mockedGetTotal).not.toHaveBeenCalled();
@@ -134,7 +141,8 @@ describe("Standardised invoice getter 0", () => {
 
     const result = getStandardisedInvoice0(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([]);
@@ -161,7 +169,11 @@ describe("Standardised invoice getter 0", () => {
   test("Standardised invoice getter 0 with undefined summary fields", () => {
     givenTextractPages[0].SummaryFields = undefined;
 
-    getStandardisedInvoice0(givenTextractPages, givenVendorServiceConfigRows);
+    getStandardisedInvoice0(
+      givenTextractPages,
+      givenVendorServiceConfigRows,
+      givenParserVersion
+    );
 
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledWith([]);
@@ -200,7 +212,8 @@ describe("Standardised invoice getter 0", () => {
 
     const result = getStandardisedInvoice0(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([]);
@@ -241,7 +254,8 @@ describe("Standardised invoice getter 0", () => {
 
     const result = getStandardisedInvoice0(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([]);
@@ -282,7 +296,8 @@ describe("Standardised invoice getter 0", () => {
 
     const result = getStandardisedInvoice0(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([]);
@@ -322,7 +337,11 @@ describe("Standardised invoice getter 0", () => {
     givenTextractPages[0].LineItemGroups[0].LineItems[0].LineItemExpenseFields =
       undefined;
 
-    getStandardisedInvoice0(givenTextractPages, givenVendorServiceConfigRows);
+    getStandardisedInvoice0(
+      givenTextractPages,
+      givenVendorServiceConfigRows,
+      givenParserVersion
+    );
 
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledWith(
@@ -359,7 +378,8 @@ describe("Standardised invoice getter 0", () => {
   test("Standardised invoice getter 0 with a line item", () => {
     const result = getStandardisedInvoice0(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([
@@ -368,6 +388,7 @@ describe("Standardised invoice getter 0", () => {
         invoice_receipt_date: "mocked invoice receipt date",
         invoice_receipt_id: "mocked invoice receipt ID",
         item_description: "Lying about speedruns to seem cool on the internet",
+        parser_version: givenParserVersion,
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
@@ -464,7 +485,8 @@ describe("Standardised invoice getter 0", () => {
 
     const result = getStandardisedInvoice0(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([
@@ -473,6 +495,7 @@ describe("Standardised invoice getter 0", () => {
         invoice_receipt_date: "mocked invoice receipt date",
         invoice_receipt_id: "mocked invoice receipt ID",
         item_description: "Lying about speedruns to seem cool on the internet",
+        parser_version: givenParserVersion,
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
@@ -573,7 +596,8 @@ describe("Standardised invoice getter 0", () => {
 
     const result = getStandardisedInvoice0(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([
@@ -582,6 +606,7 @@ describe("Standardised invoice getter 0", () => {
         invoice_receipt_date: "mocked invoice receipt date",
         invoice_receipt_id: "mocked invoice receipt ID",
         item_description: "Lying about speedruns to seem cool on the internet",
+        parser_version: givenParserVersion,
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
@@ -649,7 +674,8 @@ describe("Standardised invoice getter 0", () => {
 
     const result = getStandardisedInvoice0(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([
@@ -658,6 +684,7 @@ describe("Standardised invoice getter 0", () => {
         invoice_receipt_date: "mocked invoice receipt date",
         invoice_receipt_id: "mocked invoice receipt ID",
         item_description: mockedDescription,
+        parser_version: givenParserVersion,
         price: "mocked price",
         quantity: mockedQuantity,
         service_name: "Lying About Speedruns",
