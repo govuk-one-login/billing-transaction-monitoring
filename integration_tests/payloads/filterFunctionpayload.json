@@ -3,7 +3,6 @@
     {
       "messageId": "a81a7828-579c-4958-b67a-63f81b997f61",
       "receiptHandle": "AQEBR9preCLGnSoKG64NF+pQ6xkVsST+g3cHYz1MQvP0Xu+0BWv466jrMIVkoMf1eBICI0nBz2eTZaqoxoearK7/3+Nkktgc3Dgo9u7l4r4yRgKHEx6htKHuaOZInpRejZoEjBxWz2sH2B1FONLmo16V6r+8qqCmCeXbfhxKqirpUymb1mTgnTRtQvyAgvexHy+88RQbCxOC2Pcjkg4+qjmaJrW085pyTgtMIdtPAKeFVmxek5PvkgzpYj+vcemBjhJJQQTd1magk2XS4uQvhxe0+vRx6pmFIsCnGjaZHZgWLVDcY6ibA4NA0qxLcgBPt5QAVC5DIg35feTOraAWFD1cHxC3VDfhnAIoSs+HvI6LPljfKK+5C1/c8t2EZYVAyOAIHznQkFpyym0ktEa3/jNHiQ==",
-      "body": "{\"event_name\":\"VENDOR_1_EVENT_1\",\"event_id\":\"7316523\",\"component_id\":\"TEST_COMP\",\"timestamp\":1678100513,\"timestamp_formatted\":\"\\\"1970-01-20T10:08:20.513Z\\\"\"}",
       "attributes": {
         "ApproximateReceiveCount": "1",
         "AWSTraceHeader": "Root=1-6405c821-79979431377bd7a057991eda;Parent=399a3c451ef03d00;Sampled=0",
@@ -14,8 +13,9 @@
       "messageAttributes": {},
       "md5OfBody": "85ad2f0e387ac27dfb12fe5010018e4e",
       "eventSource": "aws:sqs",
-      "eventSourceARN": "arn:aws:sqs:eu-west-2:582874090139:di-btm-nk-446-test-filter-queue",
-      "awsRegion": "eu-west-2"
+      "eventSourceARN": "di-btm-nk-446-test-filter-queue",
+      "awsRegion": "eu-west-2",
+      "body": "{\"component_id\":\"Test_COMP\",\"event_id\":\"intTestEvents_3387630\",\"timestamp\":1677628800,\"event_name\":\"VENDOR_1_EVENT_1\",\"timestamp_formatted\":\"2023/03/01\"}"
     }
   ]
 }

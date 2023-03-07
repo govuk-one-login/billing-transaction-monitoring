@@ -38,22 +38,16 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
 };
 
 export const invokeLambda = async (
-  parameters: object
+  payLoad: string
 ): Promise<InvocationResponse> => {
   const params = {
-    FunctionName: "di-btm-nk-446-test-filter-function",
-
-    Payload: fromUtf8(
-      JSON.stringify({
-        parameters,
-      })
-    ),
+    FunctionName: `${resourcePrefix()}-filter-function`,
+    InvocationType: "RequestResponse",
+    Payload: fromUtf8(payLoad),
   };
-
   const command: InvokeCommandInput = params;
   try {
     const response = await lambdaClient.send(new InvokeCommand(command));
-    console.log(response);
     return response;
   } catch (err) {
     console.error(err);
