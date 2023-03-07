@@ -52,24 +52,24 @@ describe("\n generate events\n", () => {
     await deleteS3Objects({ bucketName, prefix: "btm_billing_standardised" });
     await deleteS3Objects({
       bucketName,
-      prefix: "btm_transactions/2023-01-01",
+      prefix: "btm_transactions/2022/11/30",
     });
     await deleteS3Objects({
       bucketName,
-      prefix: "btm_transactions/2023-02-01",
+      prefix: "btm_transactions/2023/12/01",
     });
     await deleteS3Objects({
       bucketName,
-      prefix: "btm_transactions/2022-12-01",
+      prefix: "btm_transactions/2023/01/01",
     });
     retrieveVendorServiceDetails = await convertVendorServiceCSVtoJson();
   });
   test.each`
-    testCase                                                                              | eventTime       | unitPrice | transactionQty | billingQty | transactionPrice | billingPrice | priceDiff    | qtyDiff | priceDifferencePercent | qtyDifferencePercent
-    ${"No TransactionQty No TransactionPrice(no events) but has BillingQty BillingPrice"} | ${"2022/11/30"} | ${"3.33"} | ${undefined}   | ${"2"}     | ${undefined}     | ${"6.6600"}  | ${"6.6600"}  | ${"2"}  | ${undefined}           | ${undefined}
-    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}               | ${"2022/12/01"} | ${"3.33"} | ${"2"}         | ${"2"}     | ${"6.6600"}      | ${"6.6600"}  | ${"0.0000"}  | ${"0"}  | ${"0.0000"}            | ${"0"}
-    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}         | ${"2023/01/01"} | ${"3.33"} | ${"1"}         | ${"2"}     | ${"3.3300"}      | ${"6.6600"}  | ${"3.3300"}  | ${"1"}  | ${"100.0000"}          | ${"100"}
-    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}          | ${"2023/02/01"} | ${"3.33"} | ${"2"}         | ${"1"}     | ${"6.6600"}      | ${"3.3300"}  | ${"-3.3300"} | ${"-1"} | ${"-50.0000"}          | ${"-50"}
+    testCase                                                                              | eventTime       | unitPrice | transactionQty | billingQty | transactionPrice | billingPrice | priceDiff    | qtyDiff  | priceDifferencePercent | qtyDifferencePercent
+    ${"No TransactionQty No TransactionPrice(no events) but has BillingQty BillingPrice"} | ${"2022/10/30"} | ${"0.34"} | ${undefined}   | ${"100"}   | ${undefined}     | ${"34.0000"} | ${"34.0000"} | ${"100"} | ${undefined}           | ${undefined}
+    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}               | ${"2022/11/30"} | ${"0.34"} | ${"10"}        | ${"10"}    | ${"3.4000"}      | ${"3.4000"}  | ${"0.0000"}  | ${"0"}   | ${"0.0000"}            | ${"0"}
+    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}         | ${"2023/12/01"} | ${"0.34"} | ${"20"}        | ${"21"}    | ${"6.8000"}      | ${"7.1400"}  | ${"0.3400"}  | ${"1"}   | ${"5.0000"}            | ${"5"}
+    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}          | ${"2023/01/01"} | ${"0.34"} | ${"2"}         | ${"1"}     | ${"0.6800"}      | ${"0.3400"}  | ${"-0.34"}   | ${"-1"}  | ${"-100.00"}           | ${"-100"}
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
@@ -85,12 +85,12 @@ describe("\n no invoice uploaded to raw invoice bucket and verify billing and tr
     retrieveVendorServiceDetails = await convertVendorServiceCSVtoJson();
     await deleteS3Objects({
       bucketName,
-      prefix: "btm_transactions/2023-03-01",
+      prefix: "btm_transactions/2023/02/01",
     });
   });
   test.each`
     testCase                                                                                 | eventTime       | transactionQty | billingQty   | transactionPrice | billingPrice | priceDiff    | qtyDiff | priceDifferencePercent | qtyDifferencePercent
-    ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2023/03/01"} | ${"1"}         | ${undefined} | ${"3.3300"}      | ${undefined} | ${"-3.3300"} | ${"-1"} | ${"-100.0000"}         | ${"-100"}
+    ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2023/02/01"} | ${"1"}         | ${undefined} | ${"0.34"}        | ${undefined} | ${"-0.3400"} | ${"-1"} | ${"-100.0000"}         | ${"-100"}
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
