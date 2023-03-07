@@ -21,6 +21,8 @@ describe("Store Standardised Invoices handler tests", () => {
       CONFIG_BUCKET: "given config bucket",
       DESTINATION_BUCKET: "given destination bucket",
       DESTINATION_FOLDER: "given destination folder",
+      PARSER_0_VERSION: "1.2.3",
+      PARSER_DEFAULT_VERSION: "4.5.6",
     };
 
     givenEvent = { Records: [] };
@@ -48,6 +50,18 @@ describe("Store Standardised Invoices handler tests", () => {
     await expect(handler(givenEvent)).rejects.toThrowError("folder");
   });
 
+  test("Store Standardised Invoices handler with no parser 0 version set", async () => {
+    delete process.env.PARSER_0_VERSION;
+    await expect(handler(givenEvent)).rejects.toThrowError("Parser 0 version");
+  });
+
+  test("Store Standardised Invoices handler with no default parser version set", async () => {
+    delete process.env.PARSER_DEFAULT_VERSION;
+    await expect(handler(givenEvent)).rejects.toThrowError(
+      "Default parser version"
+    );
+  });
+
   test("Store Standardised Invoices handler with two failing records", async () => {
     mockedStoreStandardisedInvoices.mockRejectedValue(undefined);
 
@@ -66,13 +80,21 @@ describe("Store Standardised Invoices handler tests", () => {
       givenRecord1,
       process.env.DESTINATION_BUCKET,
       process.env.DESTINATION_FOLDER,
-      process.env.CONFIG_BUCKET
+      process.env.CONFIG_BUCKET,
+      {
+        0: `0_${process.env.PARSER_0_VERSION}`,
+        default: `default_${process.env.PARSER_DEFAULT_VERSION}`,
+      }
     );
     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledWith(
       givenRecord2,
       process.env.DESTINATION_BUCKET,
       process.env.DESTINATION_FOLDER,
-      process.env.CONFIG_BUCKET
+      process.env.CONFIG_BUCKET,
+      {
+        0: `0_${process.env.PARSER_0_VERSION}`,
+        default: `default_${process.env.PARSER_DEFAULT_VERSION}`,
+      }
     );
     expect(result).toEqual({
       batchItemFailures: [
@@ -100,13 +122,21 @@ describe("Store Standardised Invoices handler tests", () => {
       givenRecord1,
       process.env.DESTINATION_BUCKET,
       process.env.DESTINATION_FOLDER,
-      process.env.CONFIG_BUCKET
+      process.env.CONFIG_BUCKET,
+      {
+        0: `0_${process.env.PARSER_0_VERSION}`,
+        default: `default_${process.env.PARSER_DEFAULT_VERSION}`,
+      }
     );
     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledWith(
       givenRecord2,
       process.env.DESTINATION_BUCKET,
       process.env.DESTINATION_FOLDER,
-      process.env.CONFIG_BUCKET
+      process.env.CONFIG_BUCKET,
+      {
+        0: `0_${process.env.PARSER_0_VERSION}`,
+        default: `default_${process.env.PARSER_DEFAULT_VERSION}`,
+      }
     );
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given record 1 message ID" }],

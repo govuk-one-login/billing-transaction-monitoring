@@ -18,6 +18,16 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   if (destinationFolder === undefined || destinationFolder.length === 0)
     throw new Error("Destination folder not set.");
 
+  const parser0Version = process.env.PARSER_0_VERSION;
+
+  if (parser0Version === undefined || parser0Version.length === 0)
+    throw new Error("Parser 0 version not set.");
+
+  const defaultParserVersion = process.env.PARSER_DEFAULT_VERSION;
+
+  if (defaultParserVersion === undefined || defaultParserVersion.length === 0)
+    throw new Error("Default parser version not set.");
+
   const response: Response = { batchItemFailures: [] };
 
   const promises = event.Records.map(async (record) => {
@@ -26,7 +36,11 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         record,
         destinationBucket,
         destinationFolder,
-        configBucket
+        configBucket,
+        {
+          0: `0_${parser0Version}`,
+          default: `default_${defaultParserVersion}`,
+        }
       );
     } catch (e) {
       console.error(e);

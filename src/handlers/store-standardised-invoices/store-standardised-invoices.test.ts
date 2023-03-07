@@ -27,6 +27,7 @@ describe("Standardised invoice storer", () => {
   let givenConfigBucket: string;
   let givenDestinationBucket: string;
   let givenDestinationFolder: string;
+  let givenParserVersions: Record<string, string>;
   let givenQueueRecord: SQSRecord;
 
   beforeEach(() => {
@@ -81,6 +82,11 @@ describe("Standardised invoice storer", () => {
     givenDestinationBucket = "given destination bucket";
     givenDestinationFolder = "given destination folder";
     givenQueueRecord = "given record" as any;
+
+    givenParserVersions = {
+      0: "0_1.2.3",
+      default: "default_4.5.6",
+    };
   });
 
   test("Standardised invoice storer with invalid queue record", async () => {
@@ -95,7 +101,8 @@ describe("Standardised invoice storer", () => {
         givenQueueRecord,
         givenDestinationBucket,
         givenDestinationFolder,
-        givenConfigBucket
+        givenConfigBucket,
+        givenParserVersions
       )
     ).rejects.toThrowError(mockedErrorText);
     expect(mockedGetS3EventRecordsFromSQS).toHaveBeenCalledTimes(1);
@@ -114,7 +121,8 @@ describe("Standardised invoice storer", () => {
       givenQueueRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenConfigBucket
+      givenConfigBucket,
+      givenParserVersions
     );
 
     expect(mockedFetchS3TextractData).not.toHaveBeenCalled();
@@ -141,7 +149,8 @@ describe("Standardised invoice storer", () => {
         givenQueueRecord,
         givenDestinationBucket,
         givenDestinationFolder,
-        givenConfigBucket
+        givenConfigBucket,
+        givenParserVersions
       )
     ).rejects.toThrowError("folder");
     expect(mockedFetchS3TextractData).not.toHaveBeenCalled();
@@ -161,7 +170,8 @@ describe("Standardised invoice storer", () => {
         givenQueueRecord,
         givenDestinationBucket,
         givenDestinationFolder,
-        givenConfigBucket
+        givenConfigBucket,
+        givenParserVersions
       )
     ).rejects.toThrowError(mockedErrorText);
     expect(mockedFetchS3TextractData).toHaveBeenCalledTimes(2);
@@ -189,14 +199,16 @@ describe("Standardised invoice storer", () => {
         givenQueueRecord,
         givenDestinationBucket,
         givenDestinationFolder,
-        givenConfigBucket
+        givenConfigBucket,
+        givenParserVersions
       )
     ).rejects.toThrowError(mockedErrorText);
     expect(mockedGetStandardisedInvoice).toHaveBeenCalledTimes(2);
     expect(mockedGetStandardisedInvoice).toHaveBeenCalledWith(
       mockedTextractData,
       mockedS3EventRecord2Folder,
-      givenConfigBucket
+      givenConfigBucket,
+      givenParserVersions
     );
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });
@@ -211,7 +223,8 @@ describe("Standardised invoice storer", () => {
         givenQueueRecord,
         givenDestinationBucket,
         givenDestinationFolder,
-        givenConfigBucket
+        givenConfigBucket,
+        givenParserVersions
       )
     ).rejects.toThrowError(mockedErrorText);
     expect(mockedPutTextS3).toHaveBeenCalledTimes(2);
@@ -234,7 +247,8 @@ describe("Standardised invoice storer", () => {
       givenQueueRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenConfigBucket
+      givenConfigBucket,
+      givenParserVersions
     );
 
     expect(result).toBeUndefined();

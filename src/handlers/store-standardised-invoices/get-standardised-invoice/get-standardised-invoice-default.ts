@@ -20,7 +20,8 @@ import {
 
 export const getStandardisedInvoiceDefault: StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  vendorServiceConfigRows: VendorServiceConfigRows
+  vendorServiceConfigRows: VendorServiceConfigRows,
+  parserVersion: string
 ): StandardisedLineItem[] => {
   const summaryFields = getSummaryFields(textractPages);
 
@@ -37,6 +38,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
     due_date: getDueDate(summaryFields),
     tax: getTax(summaryFields),
     tax_payer_id: getTaxPayerId(summaryFields),
+    parser_version: parserVersion,
   };
 
   return lineItems.reduce<StandardisedLineItem[]>((acc, item) => {

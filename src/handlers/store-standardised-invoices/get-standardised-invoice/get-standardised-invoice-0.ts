@@ -32,7 +32,8 @@ interface TextractPageWithLineItems extends Textract.ExpenseDocument {
 
 export const getStandardisedInvoice0: StandardisationModule = (
   allTextractPages: Textract.ExpenseDocument[],
-  vendorServiceConfigRows: VendorServiceConfigRows
+  vendorServiceConfigRows: VendorServiceConfigRows,
+  parserVersion: string
 ): StandardisedLineItem[] => {
   if (vendorServiceConfigRows.length === 0)
     throw new Error("No vendor service config rows");
@@ -62,6 +63,7 @@ export const getStandardisedInvoice0: StandardisationModule = (
     due_date: getDueDate(summaryFields),
     tax: getTax(summaryFields),
     tax_payer_id: getTaxPayerId(summaryFields),
+    parser_version: parserVersion,
   };
 
   return lineItems.reduce<StandardisedLineItem[]>((acc, item) => {

@@ -23,11 +23,13 @@ export interface StandardisedLineItem {
   unit_price?: number;
   quantity?: number;
   price?: number;
+  parser_version: string; // may not be present in old items, but required here to ensure it is added to new ones
 }
 
 export type StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  vendorServiceConfigRows: VendorServiceConfigRows
+  vendorServiceConfigRows: VendorServiceConfigRows,
+  parserVersion: string
 ) => StandardisedLineItem[];
 
 const standardisationModuleMap: Record<number, StandardisationModule> = {
@@ -37,7 +39,8 @@ const standardisationModuleMap: Record<number, StandardisationModule> = {
 export const getStandardisedInvoice = async (
   textractPages: Textract.ExpenseDocument[],
   vendorId: string,
-  configBucket: string
+  configBucket: string,
+  parserVersions: Record<string, string>
 ): Promise<StandardisedLineItem[]> => {
   console.log("fetching vendor service config");
   const vendorServiceConfigRows = await getVendorServiceConfigRows(
@@ -56,5 +59,15 @@ export const getStandardisedInvoice = async (
       ? standardisationModuleMap[standardisationModuleId]
       : getStandardisedInvoiceDefault;
 
-  return standardisationModule(textractPages, vendorServiceConfigRows);
+  const parserVersion =
+    standardisationModuleId !== undefined &&
+    standardisationModuleId in parserVersions
+      ? parserVersions[standardisationModuleId]
+      : parserVersions.default;
+
+  return standardisationModule(
+    textractPages,
+    vendorServiceConfigRows,
+    parserVersion
+  );
 };
