@@ -28,6 +28,7 @@ const mockedGetTotal = getTotal as jest.Mock;
 const mockedGetUnitPrice = getUnitPrice as jest.Mock;
 
 describe("Standardised invoice default getter", () => {
+  let givenParserVersion: string;
   let givenTextractPages: any;
   let givenTextractPagesLineItemFields: any;
   let givenTextractPagesSummaryFields: any;
@@ -49,6 +50,8 @@ describe("Standardised invoice default getter", () => {
     mockedGetTaxPayerId.mockReturnValue("mocked taxPayerId");
     mockedGetTotal.mockReturnValue("mocked total");
     mockedGetUnitPrice.mockReturnValue("mocked unit price");
+
+    givenParserVersion = "123_4.5.6";
 
     givenTextractPagesLineItemFields = [
       {
@@ -114,7 +117,8 @@ describe("Standardised invoice default getter", () => {
 
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([]);
@@ -143,7 +147,8 @@ describe("Standardised invoice default getter", () => {
 
     getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -183,7 +188,8 @@ describe("Standardised invoice default getter", () => {
 
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([]);
@@ -224,7 +230,8 @@ describe("Standardised invoice default getter", () => {
 
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([]);
@@ -265,7 +272,8 @@ describe("Standardised invoice default getter", () => {
 
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([]);
@@ -307,7 +315,8 @@ describe("Standardised invoice default getter", () => {
 
     getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -349,7 +358,8 @@ describe("Standardised invoice default getter", () => {
   test("Standardised invoice default getter with a line item", () => {
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenParserVersion
     );
 
     expect(result).toEqual([
@@ -358,6 +368,7 @@ describe("Standardised invoice default getter", () => {
         invoice_receipt_date: "mocked invoice receipt date",
         invoice_receipt_id: "mocked invoice receipt ID",
         item_description: "Lying about speedruns to seem cool on the internet",
+        parser_version: givenParserVersion,
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
