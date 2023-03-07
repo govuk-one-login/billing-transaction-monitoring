@@ -10,6 +10,7 @@ export default {
       "./src/handlers/custom-athena-view-resource/handler.ts",
     intTestSupport: "./src/handlers/int-test-support/handler.ts",
     extract: "./src/handlers/extract/handler.ts",
+    csvExtract: "./src/handlers/csv-extract/handler.ts",
     filter: "./src/handlers/filter/handler.ts",
     storeRawInvoiceTextractData:
       "./src/handlers/store-raw-invoice-textract-data/handler.ts",
