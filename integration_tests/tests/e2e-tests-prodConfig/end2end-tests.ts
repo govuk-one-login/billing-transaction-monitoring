@@ -212,7 +212,6 @@ const assertResultsWithTestData = async ({
   });
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_id='${retrieveVendorServiceDetails[0].vendor_id}' AND service_name='${retrieveVendorServiceDetails[0].service_name}' AND year='${year}' AND month='${month}'`;
-  console.log(curatedQueryString);
   const queryId = await startQueryExecutionCommand({
     databaseName,
     queryString: curatedQueryString,
