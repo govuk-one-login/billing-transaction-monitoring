@@ -17,7 +17,6 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     console.log(body.event_name);
     return Boolean(body?.event_name) && validEventNames.has(body.event_name);
   }).map(async (record) => {
-    console.log(`record ${JSON.stringify(record)}`);
     try {
       await sendRecord(outputQueueUrl, record.body);
     } catch (e) {

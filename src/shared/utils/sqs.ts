@@ -7,9 +7,19 @@ const sqs = new SQSClient({
 
 export async function sendRecord(
   queueUrl: string,
-  messageBody: string
+  messageBody: string,
+  options: {
+    shouldLog?: boolean;
+  } = {
+    shouldLog: true,
+  }
 ): Promise<void> {
-  console.log("sending messageBody " + messageBody);
+  const parsedBody = JSON.parse(messageBody);
+  if (options.shouldLog && typeof parsedBody.event_id === "string") {
+    console.log(
+      `Sending event ${parsedBody.event_id} to SQS queue at ${queueUrl}`
+    );
+  }
 
   const params = new SendMessageCommand({
     MessageBody: messageBody,
