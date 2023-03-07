@@ -30,3 +30,10 @@ Resources:
                   - Name: suffix
                     Value: '.pdf'
             Queue: !GetAtt ExtractQueue.Arn
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.csv'
+            Queue: !GetAtt CsvExtractQueue.Arn

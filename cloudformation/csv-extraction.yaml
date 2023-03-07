@@ -15,7 +15,7 @@ Resources:
           LOCAL_ENDPOINT:
             !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
       Events:
-        ExtractEvent:
+        CsvExtractEvent:
           Type: SQS
           Properties:
             FunctionResponseTypes:
@@ -48,6 +48,23 @@ Resources:
               Resource:
                 - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
       ReservedConcurrentExecutions: 1
+
+  CsvExtractFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-csv-extract-function-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref CsvExtractFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
 
   CsvExtractQueue:
     Type: AWS::SQS::Queue
