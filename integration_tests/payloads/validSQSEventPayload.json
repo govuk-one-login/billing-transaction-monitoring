@@ -1,7 +1,7 @@
 {
   "Records": [
     {
-      "messageId": "a81a7828-579c-4958-b67a-63f81b997f61",
+      "messageId": "a81a7828-579c-4958-b67a",
       "receiptHandle": "test",
       "attributes": {
         "ApproximateReceiveCount": "1",

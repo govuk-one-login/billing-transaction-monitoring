@@ -70,7 +70,7 @@ describe("\n generate events\n", () => {
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
-      await generateTransactionEvent(data);
+      await generateTransactionEvents(data);
       await createInvoice(data);
       await assertResultsWithTestData(data);
     }
@@ -91,23 +91,23 @@ describe("\n no invoice uploaded to raw invoice bucket and verify billing and tr
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
-      await generateTransactionEvent(data);
+      await generateTransactionEvents(data);
       await assertResultsWithTestData(data);
     }
   );
 });
 
-const generateTransactionEvent = async ({
+const generateTransactionEvents = async ({
   eventTime,
   transactionQty,
 }: TestData): Promise<void> => {
   for (let i = 0; i < transactionQty; i++) {
-    const updatedPayload = await updateFilterFunctionPayloadBody(eventTime);
-    await invokeLambda(updatedPayload);
+    const updatedSQSEventPayload = await updateSQSEventPayloadBody(eventTime);
+    await invokeLambda(updatedSQSEventPayload);
   }
 };
 
-const updateFilterFunctionPayloadBody = async (
+const updateSQSEventPayloadBody = async (
   eventTime: string
 ): Promise<string> => {
   const eventPayload = {
@@ -118,20 +118,16 @@ const updateFilterFunctionPayloadBody = async (
     timestamp_formatted: eventTime,
   };
 
-  // update filterFunctionPayload body value with eventPayload
-  const filePath = path.join(
+  // update SQS Event body value with eventPayload
+  const sqsEventFilePath = path.join(
     __dirname,
-    "../../payloads/filterFunctionPayload.json"
+    "../../payloads/validSQSEventPayload.json"
   );
-  const filterFunctionPayload = fs.readFileSync(filePath, "utf-8");
-  const filterFunctionPayloadJSON = JSON.parse(filterFunctionPayload);
-  filterFunctionPayloadJSON.Records[0].body = JSON.stringify(eventPayload);
-
-  // escape  characters in json
-  const updatedFilterFunctionPayload = JSON.stringify(
-    filterFunctionPayloadJSON
-  );
-  return updatedFilterFunctionPayload;
+  const sqsEventPayloadFileContent = fs.readFileSync(sqsEventFilePath, "utf-8");
+  const sqsEventPayload = JSON.parse(sqsEventPayloadFileContent);
+  sqsEventPayload.Records[0].body = JSON.stringify(eventPayload);
+  const updatedSQSEventPayload = JSON.stringify(sqsEventPayload);
+  return updatedSQSEventPayload;
 };
 
 export const createInvoice = async ({

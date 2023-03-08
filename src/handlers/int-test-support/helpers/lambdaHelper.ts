@@ -38,12 +38,12 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
 };
 
 export const invokeLambda = async (
-  payLoad: string
+  payload: string
 ): Promise<InvocationResponse> => {
   const params = {
     FunctionName: `${resourcePrefix()}-filter-function`,
     InvocationType: "RequestResponse",
-    Payload: fromUtf8(payLoad),
+    Payload: fromUtf8(payload),
   };
   const command: InvokeCommandInput = params;
   try {
