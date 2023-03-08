@@ -103,7 +103,8 @@ const generateTransactionEvents = async ({
 }: TestData): Promise<void> => {
   for (let i = 0; i < transactionQty; i++) {
     const updatedSQSEventPayload = await updateSQSEventPayloadBody(eventTime);
-    await invokeLambda(updatedSQSEventPayload);
+    const functionName = `${resourcePrefix()}-filter-function`;
+    await invokeLambda(functionName, updatedSQSEventPayload);
   }
 };
 
