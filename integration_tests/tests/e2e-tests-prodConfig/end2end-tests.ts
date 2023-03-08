@@ -44,7 +44,7 @@ const convertVendorServiceCSVtoJson = async (): Promise<
   return vendorServiceDetails;
 };
 
-describe("\n generate events\n", () => {
+describe("\n Upload invoice to raw invoice bucket and verify billing and transaction_curated view query results matches with expected data \n", () => {
   beforeAll(async () => {
     await deleteS3Objects({ bucketName, prefix: "btm_billing_standardised" });
     await deleteS3Objects({
