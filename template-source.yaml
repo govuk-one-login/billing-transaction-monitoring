@@ -88,6 +88,9 @@ Globals:
     Runtime: nodejs16.x
     Timeout: 30
     CodeUri: dist/
+    Environment:
+      Variables:
+        NODE_OPTIONS: --enable-source-maps
 
 Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/test-only.yaml,
