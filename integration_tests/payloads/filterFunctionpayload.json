@@ -13,7 +13,7 @@
       "messageAttributes": {},
       "md5OfBody": "85ad2f0e387ac27dfb12fe5010018e4e",
       "eventSource": "aws:sqs",
-      "eventSourceARN": "filter-queue",
+      "eventSourceARN": "testPayload",
       "awsRegion": "eu-west-2",
       "body": "{\"component_id\":\"Test_COMP\",\"event_id\":\"intTestEvents_8972459\",\"timestamp\":1677628800,\"event_name\":\"VENDOR_1_EVENT_1\",\"timestamp_formatted\":\"2023/03/01\"}"
     }

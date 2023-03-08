@@ -27,7 +27,7 @@ import {
   startQueryExecutionCommand,
 } from "../../../src/handlers/int-test-support/helpers/athenaHelper";
 
-let retrieveVendorServiceDetails: VendorServiceConfigRow[] = [];
+let vendorServiceDetails: VendorServiceConfigRow[] = [];
 const prefix = resourcePrefix();
 const bucketName = `${prefix}-storage`;
 
@@ -35,16 +35,13 @@ const convertVendorServiceCSVtoJson = async (): Promise<
   VendorServiceConfigRow[]
 > => {
   const configBucket = configStackName();
-  console.log(configBucket);
 
   const vendorServiceCSV = await getS3Object({
     bucket: configBucket,
     key: "vendor_services/vendor-services.csv",
   });
-  retrieveVendorServiceDetails = await csvtojson().fromString(
-    vendorServiceCSV ?? ""
-  );
-  return retrieveVendorServiceDetails;
+  vendorServiceDetails = await csvtojson().fromString(vendorServiceCSV ?? "");
+  return vendorServiceDetails;
 };
 
 describe("\n generate events\n", () => {
@@ -52,24 +49,24 @@ describe("\n generate events\n", () => {
     await deleteS3Objects({ bucketName, prefix: "btm_billing_standardised" });
     await deleteS3Objects({
       bucketName,
-      prefix: "btm_transactions/2022/11/30",
+      prefix: "btm_transactions/2022-11-30",
     });
     await deleteS3Objects({
       bucketName,
-      prefix: "btm_transactions/2023/12/01",
+      prefix: "btm_transactions/2022-12-01",
     });
     await deleteS3Objects({
       bucketName,
-      prefix: "btm_transactions/2023/01/01",
+      prefix: "btm_transactions/2023-01-01",
     });
-    retrieveVendorServiceDetails = await convertVendorServiceCSVtoJson();
+    vendorServiceDetails = await convertVendorServiceCSVtoJson();
   });
   test.each`
     testCase                                                                              | eventTime       | unitPrice | transactionQty | billingQty | transactionPrice | billingPrice | priceDiff    | qtyDiff  | priceDifferencePercent | qtyDifferencePercent
     ${"No TransactionQty No TransactionPrice(no events) but has BillingQty BillingPrice"} | ${"2022/10/30"} | ${"0.34"} | ${undefined}   | ${"100"}   | ${undefined}     | ${"34.0000"} | ${"34.0000"} | ${"100"} | ${undefined}           | ${undefined}
     ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}               | ${"2022/11/30"} | ${"0.34"} | ${"10"}        | ${"10"}    | ${"3.4000"}      | ${"3.4000"}  | ${"0.0000"}  | ${"0"}   | ${"0.0000"}            | ${"0"}
-    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}         | ${"2023/12/01"} | ${"0.34"} | ${"20"}        | ${"21"}    | ${"6.8000"}      | ${"7.1400"}  | ${"0.3400"}  | ${"1"}   | ${"5.0000"}            | ${"5"}
-    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}          | ${"2023/01/01"} | ${"0.34"} | ${"2"}         | ${"1"}     | ${"0.6800"}      | ${"0.3400"}  | ${"-0.34"}   | ${"-1"}  | ${"-100.00"}           | ${"-100"}
+    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}         | ${"2022/12/01"} | ${"0.34"} | ${"20"}        | ${"21"}    | ${"6.8000"}      | ${"7.1400"}  | ${"0.3400"}  | ${"1"}   | ${"5.0000"}            | ${"5"}
+    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}          | ${"2023/01/01"} | ${"0.34"} | ${"10"}        | ${"5"}     | ${"3.4000"}      | ${"1.7000"}  | ${"-1.7000"} | ${"-5"}  | ${"-50.0000"}          | ${"-50"}
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
@@ -82,15 +79,15 @@ describe("\n generate events\n", () => {
 
 describe("\n no invoice uploaded to raw invoice bucket and verify billing and transaction_curated view query results matches with expected data\n", () => {
   beforeAll(async () => {
-    retrieveVendorServiceDetails = await convertVendorServiceCSVtoJson();
+    vendorServiceDetails = await convertVendorServiceCSVtoJson();
     await deleteS3Objects({
       bucketName,
-      prefix: "btm_transactions/2023/02/01",
+      prefix: "btm_transactions/2023-02-28",
     });
   });
   test.each`
     testCase                                                                                 | eventTime       | transactionQty | billingQty   | transactionPrice | billingPrice | priceDiff    | qtyDiff | priceDifferencePercent | qtyDifferencePercent
-    ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2023/02/01"} | ${"1"}         | ${undefined} | ${"0.34"}        | ${undefined} | ${"-0.3400"} | ${"-1"} | ${"-100.0000"}         | ${"-100"}
+    ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2023/02/28"} | ${"1"}         | ${undefined} | ${"0.3400"}      | ${undefined} | ${"-0.3400"} | ${"-1"} | ${"-100.0000"}         | ${"-100"}
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
@@ -99,11 +96,6 @@ describe("\n no invoice uploaded to raw invoice bucket and verify billing and tr
     }
   );
 });
-
-const filePath = path.join(
-  __dirname,
-  "../../payloads/filterFunctionPayload.json"
-);
 
 const generateTransactionEvent = async ({
   eventTime,
@@ -118,24 +110,24 @@ const generateTransactionEvent = async ({
 const updateFilterFunctionPayloadBody = async (
   eventTime: string
 ): Promise<string> => {
-  // convert eventPayload to json
-
   const eventPayload = {
     component_id: "Test_COMP",
-    event_id: `intTestEvents_${generateRandomId()}`,
+    event_id: `e2eTestEvents_${generateRandomId()}`,
     timestamp: new Date(eventTime).getTime() / 1000,
-    event_name: retrieveVendorServiceDetails[0].event_name,
+    event_name: vendorServiceDetails[0].event_name,
     timestamp_formatted: eventTime,
   };
 
-  // update body value with eventPayload and eventSourceARN value
+  // update filterFunctionPayload body value with eventPayload
+  const filePath = path.join(
+    __dirname,
+    "../../payloads/filterFunctionPayload.json"
+  );
   const filterFunctionPayload = fs.readFileSync(filePath, "utf-8");
   const filterFunctionPayloadJSON = JSON.parse(filterFunctionPayload);
   filterFunctionPayloadJSON.Records[0].body = JSON.stringify(eventPayload);
-  const eventSource = `${resourcePrefix()}-filter-queue`;
-  filterFunctionPayloadJSON.Records[0].eventSourceARN = eventSource;
 
-  // escape  characters in json and write the updated upload to payload.json file
+  // escape  characters in json
   const updatedFilterFunctionPayload = JSON.stringify(
     filterFunctionPayloadJSON
   );
@@ -150,15 +142,15 @@ export const createInvoice = async ({
   const givenBillingQty = billingQty;
 
   const lineItems = randomLineItem({
-    description: retrieveVendorServiceDetails[0].service_name,
+    description: vendorServiceDetails[0].service_regex,
     quantity: givenBillingQty,
     unitPrice,
   });
 
   const givenInvoice = randomInvoice({
     vendor: {
-      id: retrieveVendorServiceDetails[0].vendor_id,
-      name: retrieveVendorServiceDetails[0].vendor_name,
+      id: vendorServiceDetails[0].vendor_id,
+      name: vendorServiceDetails[0].vendor_name,
     },
     date: new Date(eventTime),
     lineItems: [lineItems],
@@ -185,7 +177,7 @@ export const createInvoice = async ({
           new Date(s3Object.LastModified) >= invoiceCreationTime
       ),
     {
-      timeout: 59000,
+      timeout: 60000,
       nonCompleteErrorMessage:
         "Invoice data never appeared in standardised folder",
     }
@@ -210,7 +202,7 @@ const assertResultsWithTestData = async ({
     month: "2-digit",
   });
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_id='${retrieveVendorServiceDetails[0].vendor_id}' AND service_name='${retrieveVendorServiceDetails[0].service_name}' AND year='${year}' AND month='${month}'`;
+  const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_id='${vendorServiceDetails[0].vendor_id}' AND service_name='${vendorServiceDetails[0].service_name}' AND year='${year}' AND month='${month}'`;
   const queryId = await startQueryExecutionCommand({
     databaseName,
     queryString: curatedQueryString,
