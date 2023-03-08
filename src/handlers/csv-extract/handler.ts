@@ -1,7 +1,8 @@
 import { SQSEvent } from "aws-lambda";
 import {getS3EventRecordsFromSqs} from "../../shared/utils";
-import * as AWS from "aws-sdk";
+import { fetchS3 } from "../s3";
 import {Response} from "../../shared/types";
+import {VENDOR_SERVICE_CONFIG_PATH} from "../../shared/constants";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
 
@@ -33,14 +34,17 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
         // File must be in folder, which determines vendor ID. Throw error otherwise.
         const filePathParts = filePath.split("/");
-        if (filePathParts.length < 2)
+        if (filePathParts.length < 2) {
           throw Error(`File not in vendor ID folder: ${bucket}/${filePath}`);
+        }
 
+        const invoiceCsvText = await fetchS3(bucket, filePath);
 
-        // Do all the things
-        
+        if (invoiceCsvText === "") {
+          throw new Error("Error reading invoice CSV");
+        }
 
-
+        // TODO finish
       }
     } catch (e) {
       console.log(e);
