@@ -10,6 +10,8 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}-csv-extract-function
       Environment:
         Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           DESTINATION_BUCKET: !Ref StorageBucket
           DESTINATION_FOLDER: btm_billing_standardised
           LOCAL_ENDPOINT:
