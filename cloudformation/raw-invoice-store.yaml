@@ -30,7 +30,14 @@ Resources:
                   - Name: suffix
                     Value: '.pdf'
             Queue: !GetAtt ExtractQueue.Arn
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.csv'
+            Queue: !GetAtt CsvExtractQueue.Arn
       LifecycleConfiguration:
         Rules:
-          - ExpirationInDays: 1825  # Five years
+          - ExpirationInDays: 1825 # Five years
             Status: Enabled

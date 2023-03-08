@@ -7,7 +7,8 @@ export async function storeStandardisedInvoices(
   queueRecord: SQSRecord,
   destinationBucket: string,
   destinationFolder: string,
-  configBucket: string
+  configBucket: string,
+  parserVersions: Record<string, string>
 ): Promise<void> {
   const storageRecords = getS3EventRecordsFromSqs(queueRecord);
 
@@ -38,7 +39,8 @@ export async function storeStandardisedInvoices(
     const standardisedInvoice = await getStandardisedInvoice(
       textractData,
       vendorId,
-      configBucket
+      configBucket,
+      parserVersions
     );
     console.log(`Standardised invoice successfully`);
 

@@ -20,8 +20,11 @@ import {
 
 export const getStandardisedInvoiceDefault: StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  vendorServiceConfigRows: VendorServiceConfigRows
+  vendorServiceConfigRows: VendorServiceConfigRows,
+  parserVersion: string
 ): StandardisedLineItem[] => {
+  // If you update this, please increment its version! See `README.md`.
+
   const summaryFields = getSummaryFields(textractPages);
 
   // To do: get line items another way, at least when not found this way (Jira: BTM-161)
@@ -37,6 +40,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
     due_date: getDueDate(summaryFields),
     tax: getTax(summaryFields),
     tax_payer_id: getTaxPayerId(summaryFields),
+    parser_version: parserVersion,
   };
 
   return lineItems.reduce<StandardisedLineItem[]>((acc, item) => {

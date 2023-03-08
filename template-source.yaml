@@ -88,6 +88,9 @@ Globals:
     Runtime: nodejs16.x
     Timeout: 30
     CodeUri: dist/
+    Environment:
+      Variables:
+        NODE_OPTIONS: --enable-source-maps
 
 Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/test-only.yaml,
@@ -100,6 +103,7 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/raw-invoice-store.yaml,
   ./cloudformation/standardised-invoice-storage.yaml,
   ./cloudformation/extraction.yaml,
+  ./cloudformation/csv-extraction.yaml,
   ./cloudformation/calculation-s3.yaml,
   ./cloudformation/calculation-athena.yaml#NO_LOCAL,
   ./cloudformation/custom-athena-view-resource.yaml#NO_LOCAL,
