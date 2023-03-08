@@ -56,6 +56,7 @@ Resources:
           TRANSACTIONS_FOLDER: 'btm_transactions'
           LOCAL_ENDPOINT:
             !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-storage-function
       Handler: storeTransactions.handler
       Policies:
         - AWSLambdaBasicExecutionRole

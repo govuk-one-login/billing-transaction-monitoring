@@ -69,6 +69,7 @@ Resources:
           PARSER_DEFAULT_VERSION: '1.0.0'
           LOCAL_ENDPOINT:
             !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-standardised-invoice-storage-function
       Events:
         InvoiceStorageEvent:
           Type: SQS

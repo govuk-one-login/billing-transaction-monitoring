@@ -1,21 +1,16 @@
 import { mockClient } from "aws-sdk-client-mock";
 import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import { sendRecord } from "./sqs";
+import { logger } from "./logger";
+
+jest.mock("./logger");
+const mockedLogger = logger as jest.MockedObject<typeof logger>;
 
 const sqsMock = mockClient(SQSClient);
 
 describe("Record sender tests", () => {
-  const oldConsoleLog = console.log;
   const queueUrl = "given queue URL";
   let record = '{"some": "things"}';
-
-  beforeEach(() => {
-    console.log = jest.fn();
-  });
-
-  afterAll(() => {
-    console.log = oldConsoleLog;
-  });
 
   test("Record sender with callback error", async () => {
     sqsMock.on(SendMessageCommand).rejects("An error");
@@ -45,8 +40,10 @@ describe("Record sender tests", () => {
     record = '{"event_id": "abc_123", "something": "else"}';
     await sendRecord(queueUrl, record);
 
-    expect(console.log).toHaveBeenCalledWith(expect.stringMatching("abc_123"));
-    expect(console.log).not.toHaveBeenCalledWith(
+    expect(mockedLogger.info).toHaveBeenCalledWith(
+      expect.stringMatching("abc_123")
+    );
+    expect(mockedLogger.info).not.toHaveBeenCalledWith(
       expect.stringMatching("something")
     );
 

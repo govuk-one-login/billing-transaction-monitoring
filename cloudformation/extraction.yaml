@@ -10,6 +10,7 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}-extract-function
       Environment:
         Variables:
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-extract-function
           TEXTRACT_ROLE: !GetAtt TextractRole.Arn
           TEXTRACT_SNS_TOPIC: !Ref AmazonTextractRawInvoiceDataTopic
       Events:

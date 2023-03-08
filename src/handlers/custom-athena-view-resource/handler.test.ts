@@ -25,7 +25,6 @@ describe("Custom Athena view resource handler", () => {
   let mockedAthena: any;
   let mockedAthenaStartQueryExecution: jest.Mock;
   let mockedAthenaStartQueryExecutionPromise: jest.Mock;
-  let mockedConsoleError: jest.Mock;
   let mockedDatabase: string;
   let mockedName: string;
   let mockedQuery: string;
@@ -33,7 +32,6 @@ describe("Custom Athena view resource handler", () => {
   let mockedQueryExecutionValidatorValidate: jest.Mock;
   let mockedWorkgroup: string;
   let givenContext: Context;
-  const oldConsoleError = console.error;
   const oldSetTimeout = setTimeout;
   let validEvent: CloudFormationCustomResourceEvent;
 
@@ -41,9 +39,6 @@ describe("Custom Athena view resource handler", () => {
     jest.resetAllMocks();
 
     global.setTimeout = ((callback: Function) => callback()) as any;
-
-    mockedConsoleError = jest.fn();
-    console.error = mockedConsoleError;
 
     mockedQueryExecutionId = "mocked query execution ID";
 
@@ -83,7 +78,6 @@ describe("Custom Athena view resource handler", () => {
   });
 
   afterAll(() => {
-    console.error = oldConsoleError;
     global.setTimeout = oldSetTimeout;
   });
 

@@ -1,4 +1,5 @@
 import { Textract } from "aws-sdk";
+import { logger } from "../../../shared/utils";
 import { getHighestConfidenceTextractValue } from "./get-highest-confidence-textract-value";
 import { getStandardisedDateText } from "./get-standardised-date-text";
 
@@ -12,6 +13,6 @@ export const getDueDate = (
   try {
     return getStandardisedDateText(rawDateText);
   } catch (error) {
-    console.warn(error);
+    logger.warn("Ignored due date standardisation error", { error });
   }
 };

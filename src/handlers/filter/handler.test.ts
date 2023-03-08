@@ -14,20 +14,14 @@ jest.mock("../../shared/utils/config-utils/fetch-event-names", () => ({
 
 describe("Filter handler tests", () => {
   const OLD_ENV = process.env;
-  const oldConsoleError = console.error;
-  const oldConsoleLog = console.log;
 
   beforeEach(() => {
-    console.error = jest.fn();
-    console.log = jest.fn();
     mockedSendRecord.mockClear();
     process.env.OUTPUT_QUEUE_URL = "output-queue-url";
   });
 
   afterAll(() => {
     process.env = OLD_ENV;
-    console.error = oldConsoleError;
-    console.log = oldConsoleLog;
   });
 
   test("Filter handler with empty event batch", async () => {

@@ -3,6 +3,7 @@ import {
   RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE,
   RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS,
 } from "../../shared/constants";
+import { logger } from "../../shared/utils";
 import { fetchExpenseDocuments } from "./fetch-expense-documents";
 import { getQueuedExpenseAnalysisNotificationData } from "./get-queued-expense-analysis-notification-data";
 import { handleTextractFailure } from "./handle-textract-failure";
@@ -37,7 +38,7 @@ export async function storeExpenseDocuments(
   try {
     documents = await fetchExpenseDocuments(jobId);
   } catch (error) {
-    console.error(error);
+    logger.error("Document fetch error", { error });
     return await handleTextractFailure(sourceBucket, sourceFilePath);
   }
 

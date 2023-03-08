@@ -2,6 +2,8 @@ import { getHighestConfidenceTextractValue } from "./get-highest-confidence-text
 import { getNumberFromMoneyText } from "./get-number-from-money-text";
 import { getUnitPrice } from "./get-unit-price";
 
+jest.mock("../../../shared/utils");
+
 jest.mock("./get-highest-confidence-textract-value");
 const mockedGetHighestConfidenceTextractValue =
   getHighestConfidenceTextractValue as jest.Mock;
@@ -9,16 +11,9 @@ const mockedGetHighestConfidenceTextractValue =
 jest.mock("./get-number-from-money-text");
 const mockedGetNumberFromMoneyText = getNumberFromMoneyText as jest.Mock;
 
-const oldConsoleWarn = console.warn;
-
 describe("Unit price getter", () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    console.warn = jest.fn();
-  });
-
-  afterAll(() => {
-    console.warn = oldConsoleWarn;
   });
 
   test("Unit price getter with no Textract value", () => {

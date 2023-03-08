@@ -2,6 +2,8 @@ import { getDueDate } from "./get-due-date";
 import { getHighestConfidenceTextractValue } from "./get-highest-confidence-textract-value";
 import { getStandardisedDateText } from "./get-standardised-date-text";
 
+jest.mock("../../../shared/utils");
+
 jest.mock("./get-highest-confidence-textract-value");
 const mockedGetHighestConfidenceTextractValue =
   getHighestConfidenceTextractValue as jest.Mock;
@@ -9,16 +11,9 @@ const mockedGetHighestConfidenceTextractValue =
 jest.mock("./get-standardised-date-text");
 const mockedGetStandardisedDateText = getStandardisedDateText as jest.Mock;
 
-const oldConsoleWarn = console.warn;
-
 describe("Due date getter", () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    console.warn = jest.fn();
-  });
-
-  afterAll(() => {
-    console.warn = oldConsoleWarn;
   });
 
   test("Due date getter with no Textract value", () => {
