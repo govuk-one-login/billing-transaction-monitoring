@@ -2,16 +2,16 @@
   "Records": [
     {
       "messageId": "a81a7828-579c-4958-b67a-63f81b997f61",
-      "receiptHandle": "AQEBR9preCLGnSoKG64NF+pQ6xkVsST+g3cHYz1MQvP0Xu+0BWv466jrMIVkoMf1eBICI0nBz2eTZaqoxoearK7/3+Nkktgc3Dgo9u7l4r4yRgKHEx6htKHuaOZInpRejZoEjBxWz2sH2B1FONLmo16V6r+8qqCmCeXbfhxKqirpUymb1mTgnTRtQvyAgvexHy+88RQbCxOC2Pcjkg4+qjmaJrW085pyTgtMIdtPAKeFVmxek5PvkgzpYj+vcemBjhJJQQTd1magk2XS4uQvhxe0+vRx6pmFIsCnGjaZHZgWLVDcY6ibA4NA0qxLcgBPt5QAVC5DIg35feTOraAWFD1cHxC3VDfhnAIoSs+HvI6LPljfKK+5C1/c8t2EZYVAyOAIHznQkFpyym0ktEa3/jNHiQ==",
+      "receiptHandle": "test",
       "attributes": {
         "ApproximateReceiveCount": "1",
-        "AWSTraceHeader": "Root=1-6405c821-79979431377bd7a057991eda;Parent=399a3c451ef03d00;Sampled=0",
+        "AWSTraceHeader": "Root=1;Parent=399a;Sampled=0",
         "SentTimestamp": "1678100513623",
-        "SenderId": "AIDAIVEA3AGEU7NF6DRAG",
+        "SenderId": "AAAA",
         "ApproximateFirstReceiveTimestamp": "1678100513624"
       },
       "messageAttributes": {},
-      "md5OfBody": "85ad2f0e387ac27dfb12fe5010018e4e",
+      "md5OfBody": "85ad2f0e387ac27df",
       "eventSource": "aws:sqs",
       "eventSourceARN": "testPayload",
       "awsRegion": "eu-west-2",
