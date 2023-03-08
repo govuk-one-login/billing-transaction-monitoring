@@ -1,5 +1,9 @@
 import { SQSEvent } from "aws-lambda";
+import { fetchS3 } from "../../shared/utils";
 import { handler } from "./handler";
+
+jest.mock("../../shared/utils");
+const mockedFetchS3 = fetchS3 as jest.Mock;
 
 describe("CSV Extract handler tests", () => {
   const OLD_ENV = process.env;
@@ -103,68 +107,68 @@ describe("CSV Extract handler tests", () => {
     });
   });
 
-  //   test("Store Standardised Invoices handler with two failing records", async () => {
-  //     mockedStoreStandardisedInvoices.mockRejectedValue(undefined);
+  test("should throw error with event record that has a valid S3 event in body with no vendor ID folder", async () => {
+    const givenEventWithNoFolder = {
+      Records: [
+        {
+          body: JSON.stringify({
+            Records: [
+              {
+                s3: {
+                  bucket: {
+                    name: "given bucket name",
+                  },
+                  object: {
+                    key: "given-file-path-with-no-folder",
+                  },
+                },
+              },
+            ],
+          }),
+          messageId: "given message ID",
+        },
+      ],
+    };
 
-  //     const givenRecord1 = {
-  //       messageId: "given record 1 message ID",
-  //     } as unknown as SQSRecord;
-  //     const givenRecord2 = {
-  //       messageId: "given record 2 message ID",
-  //     } as unknown as SQSRecord;
-  //     givenEvent.Records.push(givenRecord1, givenRecord2);
+    const result = await handler(givenEventWithNoFolder as SQSEvent);
 
-  //     const result = await handler(givenEvent);
+    expect(result).toEqual({
+      batchItemFailures: [{ itemIdentifier: "given message ID" }],
+    });
+  });
 
-  //     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledTimes(2);
-  //     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledWith(
-  //       givenRecord1,
-  //       process.env.DESTINATION_BUCKET,
-  //       process.env.DESTINATION_FOLDER,
-  //       process.env.CONFIG_BUCKET
-  //     );
-  //     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledWith(
-  //       givenRecord2,
-  //       process.env.DESTINATION_BUCKET,
-  //       process.env.DESTINATION_FOLDER,
-  //       process.env.CONFIG_BUCKET
-  //     );
-  //     expect(result).toEqual({
-  //       batchItemFailures: [
-  //         { itemIdentifier: "given record 1 message ID" },
-  //         { itemIdentifier: "given record 2 message ID" },
-  //       ],
-  //     });
-  //   });
+  test("should fetch the csv if given a valid S3 event", async () => {
+    const givenBucketName = "some bucket name";
+    const givenObjectKey1 = "vendor123/some object key";
 
-  //   test("Store Standardised Invoices handler with one failing and one passing record", async () => {
-  //     mockedStoreStandardisedInvoices.mockRejectedValueOnce(undefined);
+    const givenEvent = {
+      Records: [
+        {
+          body: JSON.stringify({
+            Records: [
+              {
+                s3: {
+                  bucket: {
+                    name: givenBucketName,
+                  },
+                  object: {
+                    key: givenObjectKey1,
+                  },
+                },
+              },
+            ],
+          }),
+          messageId: "given message ID",
+        },
+      ],
+    };
 
-  //     const givenRecord1 = {
-  //       messageId: "given record 1 message ID",
-  //     } as unknown as SQSRecord;
-  //     const givenRecord2 = {
-  //       messageId: "given record 2 message ID",
-  //     } as unknown as SQSRecord;
-  //     givenEvent.Records.push(givenRecord1, givenRecord2);
-
-  //     const result = await handler(givenEvent);
-
-  //     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledTimes(2);
-  //     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledWith(
-  //       givenRecord1,
-  //       process.env.DESTINATION_BUCKET,
-  //       process.env.DESTINATION_FOLDER,
-  //       process.env.CONFIG_BUCKET
-  //     );
-  //     expect(mockedStoreStandardisedInvoices).toHaveBeenCalledWith(
-  //       givenRecord2,
-  //       process.env.DESTINATION_BUCKET,
-  //       process.env.DESTINATION_FOLDER,
-  //       process.env.CONFIG_BUCKET
-  //     );
-  //     expect(result).toEqual({
-  //       batchItemFailures: [{ itemIdentifier: "given record 1 message ID" }],
-  //     });
-  //   });
+    const result = await handler(givenEvent as SQSEvent);
+    expect(result).toEqual({ batchItemFailures: [] });
+    expect(mockedFetchS3).toHaveBeenCalledTimes(2);
+    expect(mockedFetchS3).toHaveBeenCalledWith({
+      bucket: givenBucketName,
+      key: givenObjectKey1,
+    });
+  });
 });
