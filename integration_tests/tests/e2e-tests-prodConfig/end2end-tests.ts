@@ -141,8 +141,15 @@ export const createInvoice = async ({
 }: TestData): Promise<void> => {
   const givenBillingQty = billingQty;
 
+  const response = await getS3Object({
+    bucket: configStackName(),
+    key: "e2e-test.json",
+  });
+
+  const getServiceDescription = JSON.parse(response ?? "");
+
   const lineItems = randomLineItem({
-    description: vendorServiceDetails[0].service_regex,
+    description: getServiceDescription.parser_0_service_description,
     quantity: givenBillingQty,
     unitPrice,
   });
