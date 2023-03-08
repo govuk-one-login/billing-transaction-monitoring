@@ -2,12 +2,12 @@
   "Records": [
     {
       "messageId": "a81a7828-579c-4958-b67a",
-      "receiptHandle": "test",
+      "receiptHandle": "some internal handle",
       "attributes": {
         "ApproximateReceiveCount": "1",
         "AWSTraceHeader": "Root=1;Parent=399a;Sampled=0",
         "SentTimestamp": "1678100513623",
-        "SenderId": "AAAA",
+        "SenderId": "some",
         "ApproximateFirstReceiveTimestamp": "1678100513624"
       },
       "messageAttributes": {},
