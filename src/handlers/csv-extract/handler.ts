@@ -2,19 +2,18 @@ import { SQSEvent } from "aws-lambda";
 import {getS3EventRecordsFromSqs} from "../../shared/utils";
 import { fetchS3 } from "../s3";
 import {Response} from "../../shared/types";
-import {VENDOR_SERVICE_CONFIG_PATH} from "../../shared/constants";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
 
   console.log(event.Records[0].body);
 
-  const configBucket = process.env.CONFIG_BUCKET;
+  const destinationBucket = process.env.DESTINATION_BUCKET;
 
-  if (configBucket === undefined || configBucket.length === 0) {
-    throw new Error("Config Bucket not set.");
+  if (destinationBucket === undefined || destinationBucket.length === 0) {
+    throw new Error("Destination bucket not set.");
   }
 
-  const destinationBucket = process.env.DESTINATION_BUCKET;
+  const destinationFolder = process.env.DESTINATION_FOLDER;
 
   if (destinationBucket === undefined || destinationBucket.length === 0) {
     throw new Error("Destination bucket not set.");
