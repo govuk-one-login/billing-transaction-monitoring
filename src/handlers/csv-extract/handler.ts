@@ -1,15 +1,15 @@
 import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { getS3EventRecordsFromSqs } from "../../shared/utils";
-import { fetchS3CsvData } from "./fetch-s3-csv-data";
+import { fetchS3, getS3EventRecordsFromSqs } from "../../shared/utils";
+import { parseCsv } from "./parsing-utils/parse-csv";
 
 // TODO
 // 1. Set up the dependencies
 // 2. Write handler function to loop through each record, extract the bucket/file name, handle errors.
-// 3. Write the handler 'fetch' function:
-// 3a. Read the file from S3
-// 3b. Parse it using MarkP's example code
-// 4. Write the handler 'store' function that will put the invoice data into the storage bucket
+// 3. Add the fetchS3 function
+// 3a. Add the parseCsv function
+// 4. Write the handler 'getCsvStandardised' function that will standardise the invoice
+// 5. Add the 'putTextS3' function that will put the invoice data into the storage bucket (.txt)
 // 5. Handle errors with batchItemFailures
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
@@ -43,8 +43,9 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         if (filePathParts.length < 2)
           throw Error(`File not in vendor ID folder: ${bucket}/${filePath}`);
 
-        const invoiceCsvText = await fetchS3CsvData(bucket, filePath);
-        console.log(invoiceCsvText);
+        const csv = await fetchS3(bucket, filePath);
+        const parsedCsv = parseCsv(csv);
+        console.log(parsedCsv);
       }
     } catch (error) {
       console.log(error);
