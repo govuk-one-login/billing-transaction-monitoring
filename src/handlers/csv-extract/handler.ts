@@ -37,6 +37,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
       for (const record of eventRecords) {
         const bucket = record.s3.bucket.name;
         const filePath = record.s3.object.key;
+        console.log("bucket", bucket, filePath);
 
         // File must be in folder, which determines vendor ID. Throw error otherwise.
         const filePathParts = filePath.split("/");
@@ -44,6 +45,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           throw Error(`File not in vendor ID folder: ${bucket}/${filePath}`);
 
         const csv = await fetchS3(bucket, filePath);
+        console.log(csv);
         const parsedCsv = parseCsv(csv);
         console.log(parsedCsv);
       }
