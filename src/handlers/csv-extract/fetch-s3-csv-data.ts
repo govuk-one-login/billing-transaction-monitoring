@@ -1,10 +1,9 @@
-import { Textract } from "aws-sdk";
 import { fetchS3 } from "../../shared/utils";
 
 export const fetchS3CsvData = async (
   bucket: string,
   key: string
-): Promise<Textract.ExpenseDocument[]> => {
+): Promise<object> => {
   const text = await fetchS3(bucket, key);
 
   let documents;
@@ -13,7 +12,6 @@ export const fetchS3CsvData = async (
   } catch {
     throw new Error("Textract data not valid JSON.");
   }
-
 
   return documents;
 };
