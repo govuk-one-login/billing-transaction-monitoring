@@ -48,7 +48,6 @@ export async function fetchS3(bucket: string, key: string): Promise<string> {
     Bucket: bucket,
     Key: key,
   });
-  console.log("i am called");
 
   const response = await send(getCommand);
   const data = await response.Body?.transformToString();

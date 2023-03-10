@@ -22,6 +22,10 @@ import {
 // 6. Handle errors with batchItemFailures
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
+  const configBucket = process.env.CONFIG_BUCKET;
+  if (configBucket === undefined || configBucket.length === 0)
+    throw new Error("Config bucket not set.");
+
   const destinationBucket = process.env.DESTINATION_BUCKET;
   if (destinationBucket === undefined || destinationBucket.length === 0) {
     throw new Error("Destination bucket not set.");
@@ -55,11 +59,14 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         const csv = await fetchS3(bucket, filePath);
 
         const parsedCsv = parseCsv(csv);
+        console.log("parsedCsv", parsedCsv);
 
         const standardisedInvoice = await getCsvStandardisedInvoice(
           parsedCsv as CsvObject,
-          vendorId
+          vendorId,
+          configBucket
         );
+        console.log("standardisedInvoice", standardisedInvoice);
 
         // Convert line items to new-line-separated JSON object text, to work with Glue/Athena.
         const standardisedInvoiceText = standardisedInvoice
@@ -68,6 +75,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
         // Since that text block is not valid JSON, use a file extension that is not `.json`.
         const destinationFileName = sourceFileName.replace(/\.json$/g, ".txt");
+        console.log("destinationFileName", destinationFileName);
 
         await putTextS3(
           destinationBucket,
