@@ -61,7 +61,6 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
   );
 
   afterEach(async () => {
-    console.log(eventTimestamp);
     await deleteS3Events(eventIds, eventTimestamp);
   });
 });

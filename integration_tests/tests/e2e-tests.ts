@@ -25,7 +25,6 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
   beforeAll(async () => {
     dataRetrievedFromConfig = await retrieveMoreTestDataFromConfig();
     eventName = dataRetrievedFromConfig.eventName;
-    console.log(eventName);
   });
   let eventTime: string;
   let eventIds: string[];
@@ -99,7 +98,6 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
   );
 
   afterEach(async () => {
-    console.log(eventTime);
     await deleteS3Events(eventIds, eventTime);
   });
 });

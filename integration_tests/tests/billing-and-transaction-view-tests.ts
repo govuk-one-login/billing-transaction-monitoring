@@ -66,10 +66,6 @@ describe("\nUpload invoice to raw invoice bucket and verify billing and transact
       bucket: storageBucket,
       key: `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`,
     });
-    console.log(
-      `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt` +
-        "biiling view"
-    );
   });
 });
 
