@@ -1,7 +1,8 @@
 import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { fetchS3, getS3EventRecordsFromSqs } from "../../shared/utils";
+import {fetchS3, getS3EventRecordsFromSqs, putTextS3} from "../../shared/utils";
 import { parseCsv } from "./parsing-utils/parse-csv";
+import {getStandardisedInvoice} from "../store-standardised-invoices/get-standardised-invoice";
 
 // TODO
 // 1. Set up the dependencies
@@ -44,10 +45,29 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         if (filePathParts.length < 2)
           throw Error(`File not in vendor ID folder: ${bucket}/${filePath}`);
 
+        const vendorId = filePathParts[0];
+        const sourceFileName = filePathParts[filePathParts.length - 1];
+
         const csv = await fetchS3(bucket, filePath);
         console.log(csv);
         const parsedCsv = parseCsv(csv);
         console.log(parsedCsv);
+
+        const standardisedInvoice = await getStandardisedInvoice(parsedCsv);
+        console.log(`Standardised invoice successfully`);
+
+        // Since that text block is not valid JSON, use a file extension that is not `.json`.
+        const destinationFileName = sourceFileName.replace(/\.json$/g, ".txt");
+
+        console.log(
+          `putting standardised invoice to S3 at ${destinationFolder}/${destinationFileName}`
+        );
+        await putTextS3(
+          destinationBucket,
+          `${destinationFolder}/${destinationFileName}`,
+          standardisedInvoiceText
+        );
+        console.log(`put ${destinationFolder}/${destinationFileName} successfully`);
       }
     } catch (error) {
       console.log(error);

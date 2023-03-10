@@ -1,6 +1,7 @@
 import { SQSEvent } from "aws-lambda";
 import { fetchS3 } from "../../shared/utils";
 import { handler } from "./handler";
+import {parseCsv} from "./parsing-utils/parse-csv";
 
 jest.mock("../../shared/utils", () => {
   const original = jest.requireActual("../../shared/utils");
@@ -142,7 +143,8 @@ describe("CSV Extract handler tests", () => {
     });
   });
 
-  test("should fetch the csv if given a valid S3 event", async () => {
+  test("should throw error when valid bucket and key but fetchS3 throws error", async () => {
+
     const givenBucketName = "some bucket name";
     const givenObjectKey1 = "vendor123/some object key";
 
@@ -168,16 +170,51 @@ describe("CSV Extract handler tests", () => {
       ],
     };
 
-    try {
-      await handler(givenEvent as SQSEvent);
-    } catch (error) {
-      console.log(error);
-    }
-    // expect(result).toEqual({ batchItemFailures: [] });
+    const mockedErrorText = "mocked error";
+    const mockedError = new Error(mockedErrorText);
+    mockedFetchS3.mockRejectedValue(mockedError);
+
+    const result = await handler(givenEvent as SQSEvent);
+    expect(result).toEqual({ batchItemFailures: [{"itemIdentifier": "given message ID"}] });
+  });
+
+  test("should parse the csv if given a valid S3 event and a valid csv", async () => {
+    const givenBucketName = "some bucket name";
+    const givenObjectKey1 = "vendor123/some object key";
+
+    const givenEvent = {
+      Records: [
+        {
+          body: JSON.stringify({
+            Records: [
+              {
+                s3: {
+                  bucket: {
+                    name: givenBucketName,
+                  },
+                  object: {
+                    key: givenObjectKey1,
+                  },
+                },
+              },
+            ],
+          }),
+          messageId: "given message ID",
+        },
+      ],
+    };
+
+    const fileData =
+      "Vendor,Skippy’s Everything Shop,,,,,\n" +
+      ",,,,,,\n" +
+      "Service Name,Unit Price,Quantity,Tax,Subtotal,Total,\n" +
+      "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32,\n";
+    mockedFetchS3.mockReturnValue(fileData);
+
+    const result = await handler(givenEvent as SQSEvent);
+    expect(result).toEqual({ batchItemFailures: [] });
     expect(mockedFetchS3).toHaveBeenCalledTimes(1);
-    expect(mockedFetchS3).toHaveBeenCalledWith({
-      bucket: givenBucketName,
-      key: givenObjectKey1,
-    });
+    expect(mockedFetchS3).toHaveBeenCalledWith(givenBucketName, givenObjectKey1);
+    expect(parseCsv).toHaveBeenCalledTimes(1);
   });
 });
