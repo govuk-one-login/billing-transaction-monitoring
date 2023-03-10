@@ -3,7 +3,6 @@ import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envH
 import {
   checkIfS3ObjectExists,
   deleteS3Object,
-  deleteS3Objects,
   listS3Objects,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
@@ -18,21 +17,15 @@ import {
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
 
 const prefix = resourcePrefix();
-const testStartTime = new Date();
 
 describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view\n", () => {
   const storageBucket = `${prefix}-storage`;
   const standardisedFolderPrefix = "btm_billing_standardised";
   const databaseName = `${prefix}-calculations`;
-
-  beforeAll(async () => {
-    await deleteS3Objects({
-      bucketName: storageBucket,
-      prefix: standardisedFolderPrefix,
-    });
-  });
+  let filename: string;
 
   test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
+    const testStartTime = new Date();
     const passportCheckItems = randomLineItems(8, {
       description: "passport check",
     });
@@ -51,7 +44,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       invoice.getQuantity("passport check"),
     ];
     const expectedServices = ["Address check", "Passport check"];
-    const filename = `raw-Invoice-${Math.random()
+    filename = `raw-Invoice-${Math.random()
       .toString(36)
       .substring(2, 7)}-validFile`;
     const s3Object = await createInvoiceInS3({
@@ -120,6 +113,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     };
 
     const pollOptions = {
+      timeout: 60000,
       nonCompleteErrorMessage:
         "File was not moved to successful folder within the timeout",
     };
@@ -134,6 +128,13 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     await deleteS3Object({
       bucket: s3Object.bucket,
       key: `successful/${String(path)}`,
+    });
+  });
+
+  afterEach(async () => {
+    await deleteS3Object({
+      bucket: storageBucket,
+      key: `${standardisedFolderPrefix}/${filename.slice(0, 27)}.txt`,
     });
   });
 });

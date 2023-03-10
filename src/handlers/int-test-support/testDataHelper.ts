@@ -34,7 +34,6 @@ export const retrieveMoreTestDataFromConfig =
       configStackName(),
       {}
     );
-    console.log("vendorDetails", vendorServiceDetails);
     rateDetails = await convertRateCSVtoJSON();
     const testDataRetrievedFromConfig = {
       unitPrice: rateDetails[2].unit_price,
@@ -65,7 +64,8 @@ export const generateTransactionEventsViaFilterLambda = async (
   eventTime: string,
   transactionQty: number,
   eventName: string
-): Promise<void> => {
+): Promise<string[]> => {
+  const eventIds: string[] = [];
   for (let i = 0; i < transactionQty; i++) {
     const updatedSQSEventPayload = await updateSQSEventPayloadBody(
       eventTime,
@@ -73,7 +73,11 @@ export const generateTransactionEventsViaFilterLambda = async (
     );
     const functionName = `${resourcePrefix()}-filter-function`;
     await invokeLambda(functionName, updatedSQSEventPayload);
+    const json = JSON.parse(updatedSQSEventPayload);
+    const eventId = JSON.parse(json.Records[0].body).event_id;
+    eventIds.push(eventId);
   }
+  return eventIds;
 };
 
 export interface TestDataRetrievedFromConfig {

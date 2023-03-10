@@ -1,7 +1,11 @@
+import {
+  deleteS3Events,
+  TableNames,
+} from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { createInvoiceWithGivenData } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { deleteS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { deleteS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
   generateTransactionEventsViaFilterLambda,
@@ -9,36 +13,23 @@ import {
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/testDataHelper";
+import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 
 const prefix = resourcePrefix();
-const bucketName = `${prefix}-storage`;
-
+const storageBucket = `${prefix}-storage`;
+const standardisedFolderPrefix = "btm_billing_standardised";
 let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 describe("\n Upload invoice to raw invoice bucket and verify billing and transaction_curated view query results matches with expected data \n", () => {
   beforeAll(async () => {
-    await deleteS3Objects({ bucketName, prefix: "btm_billing_standardised" });
-    await deleteS3Objects({
-      bucketName,
-      prefix: "btm_transactions/2022-11-30",
-    });
-    await deleteS3Objects({
-      bucketName,
-      prefix: "btm_transactions/2022-12-01",
-    });
-    await deleteS3Objects({
-      bucketName,
-      prefix: "btm_transactions/2023-01-01",
-    });
-    await deleteS3Objects({
-      bucketName,
-      prefix: "btm_transactions/2023-02-28",
-    });
     dataRetrievedFromConfig = await retrieveMoreTestDataFromConfig();
     eventName = dataRetrievedFromConfig.eventName;
     console.log(eventName);
   });
+  let eventTime: string;
+  let eventIds: string[];
+  let invoiceFileName: string;
 
   test.each`
     testCase                                                                               | eventTime       | transactionQty | billingQty
@@ -49,13 +40,14 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
-      await generateTransactionEventsViaFilterLambda(
+      eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         eventName
       );
+      eventTime = data.eventTime;
       const testStartTime = new Date();
-      await createInvoiceWithGivenData(
+      invoiceFileName = await createInvoiceWithGivenData(
         data,
         dataRetrievedFromConfig.description,
         dataRetrievedFromConfig.unitPrice,
@@ -67,10 +59,22 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
         data,
         dataRetrievedFromConfig.unitPrice,
         dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.serviceName
+        dataRetrievedFromConfig.serviceName,
+        eventIds
       );
     }
   );
+
+  afterEach(async () => {
+    await deleteS3Events(eventIds, eventTime);
+    await deleteS3Object({
+      bucket: storageBucket,
+      key: `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`,
+    });
+    console.log(
+      `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`
+    );
+  });
 
   test.each`
     testCase                                                                                 | eventTime       | transactionQty | billingQty
@@ -78,7 +82,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
-      await generateTransactionEventsViaFilterLambda(
+      const eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         eventName
@@ -88,63 +92,69 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
         data,
         dataRetrievedFromConfig.unitPrice,
         dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.serviceName
+        dataRetrievedFromConfig.serviceName,
+        eventIds
       );
     }
   );
+
+  afterEach(async () => {
+    console.log(eventTime);
+    await deleteS3Events(eventIds, eventTime);
+  });
 });
 
 export const assertQueryResultWithTestData = async (
   { billingQty, transactionQty, eventTime }: TestData,
   unitPrice: number,
   vendorId: string,
-  serviceName: string
+  serviceName: string,
+  eventIds: string[]
 ): Promise<void> => {
-  const response = await queryResponseFilterByVendorServiceNameYearMonth(
-    eventTime,
-    vendorId,
-    serviceName
-  );
+  const tableName = TableNames.BILLING_TRANSACTION_CURATED;
+  const response: BillingTransactionCurated =
+    await queryResponseFilterByVendorServiceNameYearMonth(
+      vendorId,
+      serviceName,
+      tableName,
+      eventTime
+    );
 
-  console.log(unitPrice);
-  console.log(billingQty);
   const billingPrice = unitPrice * billingQty;
-  console.log(billingPrice);
-  console.log(transactionQty);
   const transactionPrice = unitPrice * transactionQty;
-  console.log(response[0].billing_price);
-  console.log(transactionPrice.toFixed(4));
+  await deleteS3Events(eventIds, eventTime);
 
   if (
     transactionPrice !== undefined &&
+    !isNaN(response[0].transaction_price) &&
     billingPrice !== undefined &&
-    !isNaN(response[0].billing_price) &&
-    !isNaN(response[0].transaction_price)
+    !isNaN(response[0].billing_price)
   ) {
     expect(response[0].transaction_price).toEqual(transactionPrice.toFixed(4));
+
+    const priceDifference = billingPrice - transactionPrice;
+    expect(response[0].price_difference).toEqual(priceDifference.toFixed(4));
     expect(response[0].billing_price).toEqual(billingPrice.toFixed(4));
+
     const priceDifferencePercentage =
-      (billingPrice - transactionPrice / billingPrice) * 100;
+      (priceDifference / transactionPrice) * 100;
     expect(response[0].price_difference_percentage).toEqual(
       priceDifferencePercentage.toFixed(4)
     );
-    const priceDifference = billingPrice - transactionPrice;
-    expect(response[0].price_difference).toEqual(priceDifference.toFixed(4));
-  }
 
-  if (
-    !isNaN(response[0].billing_quantity) &&
-    !isNaN(response[0].transaction_quantity)
-  ) {
-    console.log(transactionPrice);
-    expect(response[0].billing_quantity).toEqual(billingQty);
-    expect(response[0].transaction_quantity).toEqual(transactionQty);
-    const qtyDifference = billingQty - transactionQty;
-    expect(response[0].quantity_difference).toEqual(String(qtyDifference));
+    if (
+      !isNaN(response[0].billing_quantity) &&
+      !isNaN(response[0].transaction_quantity)
+    ) {
+      expect(response[0].billing_quantity).toEqual(billingQty);
+      expect(response[0].transaction_quantity).toEqual(transactionQty);
+      const qtyDifference = billingQty - transactionQty;
+      expect(response[0].quantity_difference).toEqual(String(qtyDifference));
 
-    const qtyDifferencePercentage = (qtyDifference / billingQty) * 100;
-    expect(response[0].quantity_difference_percentage).toEqual(
-      qtyDifferencePercentage
-    );
+      const qtyDifferencePercentage = (qtyDifference / transactionQty) * 100;
+      expect(response[0].quantity_difference_percentage).toEqual(
+        String(qtyDifferencePercentage)
+      );
+    }
   }
 };

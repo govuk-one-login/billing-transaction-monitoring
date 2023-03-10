@@ -1,5 +1,4 @@
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import { deleteS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import { createInvoiceWithGivenData } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 
@@ -12,34 +11,20 @@ import {
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import {
+  deleteS3Events,
+  TableNames,
+} from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { deleteS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 const prefix = resourcePrefix();
-const bucketName = `${prefix}-storage`;
+const storageBucket = `${prefix}-storage`;
+const standardisedFolderPrefix = "btm_billing_standardised";
 
 describe("\nUpload invoice to raw invoice bucket and verify billing and transaction_curated view query results matches with expected data \n", () => {
-  beforeAll(async () => {
-    // tests are enabled to run sequentially as we are deleting the S3 directory in view tests so when running the test
-    // in parallel other tests will be interrupted(e.g. sns-s3 tests generate and checks eventId). We can enable to run in parallel
-    // once we implement BTM-340 to clean up after each test
-    await deleteS3Objects({ bucketName, prefix: "btm_billing_standardised" });
-    await deleteS3Objects({
-      bucketName,
-      prefix: "btm_transactions/2022-02-28",
-    });
-    await deleteS3Objects({
-      bucketName,
-      prefix: "btm_transactions/2022-03-30",
-    });
-    await deleteS3Objects({
-      bucketName,
-      prefix: "btm_transactions/2022-04-30",
-    });
-    await deleteS3Objects({
-      bucketName,
-      prefix: "btm_transactions/2022-05-30",
-    });
-  });
-
+  let eventTime: string;
+  let eventIds: string[];
+  let invoiceFileName: string;
   test.each`
     testCase                                                                                 | eventName             | vendorId                | eventTime             | unitPrice | numberOfTestEvents | priceDiff     | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty | transactionPrice | transactionQty
     ${"BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice "}   | ${"VENDOR_4_EVENT_5"} | ${"vendor_testvendor4"} | ${"2022/02/28 10:00"} | ${"0.00"} | ${11}              | ${"-27.5000"} | ${"-9"} | ${"-100.0000"}         | ${"-81"}             | ${"0.0000"}  | ${"2"}     | ${"27.5000"}     | ${"11"}
@@ -49,13 +34,14 @@ describe("\nUpload invoice to raw invoice bucket and verify billing and transact
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPrice,$transactionQty,$transactionPrice,$qtyDiff,$priceDiff,$qtyDifferencePercent,$priceDifferencePercent",
     async ({ ...data }) => {
-      await generateTransactionEventsViaFilterLambda(
+      eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         data.eventName
       );
+      eventTime = data.eventTime;
       const testStartTime = new Date();
-      await createInvoiceWithGivenData(
+      invoiceFileName = await createInvoiceWithGivenData(
         data,
         "Passport Check",
         data.unitPrice,
@@ -74,6 +60,17 @@ describe("\nUpload invoice to raw invoice bucket and verify billing and transact
       );
     }
   );
+  afterEach(async () => {
+    await deleteS3Events(eventIds, eventTime);
+    await deleteS3Object({
+      bucket: storageBucket,
+      key: `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`,
+    });
+    console.log(
+      `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt` +
+        "biiling view"
+    );
+  });
 });
 
 export const assertQueryResultWithTestData = async (
@@ -91,11 +88,15 @@ export const assertQueryResultWithTestData = async (
   vendorId: string,
   serviceName: string
 ): Promise<void> => {
-  const response = await queryResponseFilterByVendorServiceNameYearMonth(
-    eventTime,
-    vendorId,
-    serviceName
-  );
+  const tableName = TableNames.BILLING_TRANSACTION_CURATED;
+  const response: BillingTransactionCurated =
+    await queryResponseFilterByVendorServiceNameYearMonth(
+      vendorId,
+      serviceName,
+      tableName,
+      eventTime
+    );
+
   expect(response[0].price_difference).toEqual(priceDiff);
   expect(response[0].quantity_difference).toEqual(qtyDiff);
   expect(response[0].price_difference_percentage).toEqual(
@@ -109,3 +110,19 @@ export const assertQueryResultWithTestData = async (
   expect(response[0].transaction_price).toEqual(transactionPrice);
   expect(response[0].transaction_quantity).toEqual(transactionQty);
 };
+
+export type BillingTransactionCurated = Array<{
+  vendor_id: string;
+  vendor_name: string;
+  service_name: string;
+  year: string;
+  month: string;
+  price_difference: number;
+  quantity_difference: number;
+  price_difference_percentage: number;
+  quantity_difference_percentage: number;
+  billing_price: number;
+  billing_quantity: number;
+  transaction_price: number;
+  transaction_quantity: number;
+}>;

@@ -100,7 +100,6 @@ export const updateSQSEventPayloadBody = async (
     event_name: eventName,
     timestamp_formatted: eventTime,
   };
-  console.log(eventPayload);
 
   // update SQS Event body value with eventPayload
   const sqsEventFilePath = path.join(

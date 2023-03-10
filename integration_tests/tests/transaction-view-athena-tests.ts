@@ -11,10 +11,13 @@ import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handl
 import { generateTransactionEventsViaFilterLambda } from "../../src/handlers/int-test-support/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
+  let eventIds: string[];
+  let eventTimestamp: string;
+
   test.each`
     eventName             | vendorId                | numberOfTestEvents | unitPrice | eventTime
     ${"VENDOR_1_EVENT_1"} | ${"vendor_testvendor1"} | ${2}               | ${1.23}   | ${"2022/06/30 10:00"}
-    ${"VENDOR_2_EVENT_2"} | ${"vendor_testvendor2"} | ${2}               | ${2.5}    | ${"2023/03/10 10:00"}
+    ${"VENDOR_2_EVENT_2"} | ${"vendor_testvendor2"} | ${2}               | ${2.5}    | ${"2023/02/10 10:00"}
     ${"VENDOR_3_EVENT_4"} | ${"vendor_testvendor3"} | ${7}               | ${4.0}    | ${"2022/08/10 10:00"}
     ${"VENDOR_3_EVENT_6"} | ${"vendor_testvendor3"} | ${14}              | ${8.88}   | ${"2022/09/10 10:00"}
   `(
@@ -30,12 +33,13 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       eventName: EventName;
       numberOfTestEvents: number;
       unitPrice: number;
-      eventTime: string;
       year: number;
+      eventTime: string;
     }) => {
+      eventTimestamp = eventTime;
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
 
-      const eventIds = await generateTransactionEventsViaFilterLambda(
+      eventIds = await generateTransactionEventsViaFilterLambda(
         eventTime,
         numberOfTestEvents,
         eventName
@@ -51,10 +55,15 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
           tableName,
           eventTime
         );
-      await deleteS3Events(eventIds, eventTime);
+
       expect(response[0].price).toEqual(expectedPrice);
     }
   );
+
+  afterEach(async () => {
+    console.log(eventTimestamp);
+    await deleteS3Events(eventIds, eventTimestamp);
+  });
 });
 
 interface TransactionCuratedView {

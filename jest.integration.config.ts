@@ -7,7 +7,7 @@ const config: Config.InitialOptions = {
   preset: "ts-jest",
   testRunner: "jasmine2",
   verbose: true,
-  testTimeout: 60000,
+  testTimeout: 120000,
   reporters: [
     "default",
     [

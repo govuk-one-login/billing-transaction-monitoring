@@ -1,7 +1,10 @@
 import { snsValidEventPayload } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { getRecentCloudwatchLogs } from "../../src/handlers/int-test-support/helpers/cloudWatchHelper";
-import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import {
+  deleteS3Event,
+  poll,
+} from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 
 const logNamePrefix = resourcePrefix();
@@ -39,6 +42,10 @@ describe(
         "-filter-function",
         snsValidEventPayload.event_id
       );
+      const eventTime = new Date(
+        snsValidEventPayload.timestamp * 1000
+      ).toISOString();
+      await deleteS3Event(snsValidEventPayload.event_id, eventTime);
     });
 
     test("Clean function cloud watch logs should contain eventid", async () => {
@@ -46,6 +53,10 @@ describe(
         "-clean-function",
         snsValidEventPayload.event_id
       );
+      const eventTime = new Date(
+        snsValidEventPayload.timestamp * 1000
+      ).toISOString();
+      await deleteS3Event(snsValidEventPayload.event_id, eventTime);
     });
 
     test("Store Transactions function cloud watch logs should contain eventid", async () => {
@@ -53,6 +64,16 @@ describe(
         "-storage-function",
         snsValidEventPayload.event_id
       );
+      const eventTime = new Date(
+        snsValidEventPayload.timestamp * 1000
+      ).toISOString();
+      await deleteS3Event(snsValidEventPayload.event_id, eventTime);
+    });
+    afterEach(async () => {
+      const eventTime = new Date(
+        snsValidEventPayload.timestamp * 1000
+      ).toISOString();
+      await deleteS3Event(snsValidEventPayload.event_id, eventTime);
     });
   }
 );

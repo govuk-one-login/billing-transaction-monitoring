@@ -39,7 +39,7 @@ export const createInvoiceWithGivenData = async (
   vendorId: string,
   vendorName: string,
   testStartTime: Date
-): Promise<void> => {
+): Promise<string> => {
   const givenBillingQty = billingQty;
   const lineItems = randomLineItem({
     description,
@@ -82,4 +82,6 @@ export const createInvoiceWithGivenData = async (
         "Invoice data never appeared in standardised folder",
     }
   );
+
+  return filename;
 };
