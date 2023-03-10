@@ -3,6 +3,7 @@ import { Response } from "../../shared/types";
 import {
   fetchS3,
   getS3EventRecordsFromSqs,
+  getVendorServiceConfigRows,
   putTextS3,
 } from "../../shared/utils";
 import { parseCsv } from "./parsing-utils/parse-csv";
@@ -12,10 +13,11 @@ import {
 } from "./get-csv-standardised-invoice";
 
 // TODO
-// 1. Set up the dependencies
+// 1. Set up the dependencies - check for env vars
 // 2. Write handler function to loop through each record, extract the bucket/file name, handle errors.
 // 3. Add the fetchS3 function
 // 3a. Add the parseCsv function
+// 3b. Add the type guard for the CsvObject
 // 4. Write the handler 'getCsvStandardised' function that will standardise the invoice
 // 5. Add the 'putTextS3' function that will put the invoice data into the storage bucket (.txt)
 // Note: Do not need to move the original invoice csv to the successful folder in the raw invoice bucket.
@@ -61,10 +63,15 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         const parsedCsv = parseCsv(csv);
         console.log("parsedCsv", parsedCsv);
 
-        const standardisedInvoice = await getCsvStandardisedInvoice(
+        const vendorServiceConfigRows = await getVendorServiceConfigRows(
+          configBucket,
+          { vendor_id: vendorId }
+        );
+
+        const standardisedInvoice = getCsvStandardisedInvoice(
           parsedCsv as CsvObject,
           vendorId,
-          configBucket
+          vendorServiceConfigRows
         );
         console.log("standardisedInvoice", standardisedInvoice);
 
@@ -72,10 +79,9 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         const standardisedInvoiceText = standardisedInvoice
           .map((lineItem) => JSON.stringify(lineItem))
           .join("\n");
-
+        console.log("standardisedInvoiceText", standardisedInvoiceText);
         // Since that text block is not valid JSON, use a file extension that is not `.json`.
-        const destinationFileName = sourceFileName.replace(/\.json$/g, ".txt");
-        console.log("destinationFileName", destinationFileName);
+        const destinationFileName = sourceFileName.replace(/\.csv$/g, ".txt");
 
         await putTextS3(
           destinationBucket,

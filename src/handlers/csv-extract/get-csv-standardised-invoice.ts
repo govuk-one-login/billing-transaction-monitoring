@@ -1,4 +1,6 @@
-import { getVendorServiceConfigRows } from "../../shared/utils";
+import { VendorServiceConfigRows } from "../../shared/utils";
+import { getNumberFromMoneyText } from "../store-standardised-invoices/field-utils/get-number-from-money-text";
+import { getStandardisedDateText } from "../store-standardised-invoices/field-utils/get-standardised-date-text";
 import { StandardisedLineItem } from "../store-standardised-invoices/get-standardised-invoice";
 
 export interface LineItem {
@@ -20,34 +22,32 @@ export interface CsvObject {
   lineItems: LineItem[];
 }
 
-export const getCsvStandardisedInvoice = async (
+export const getCsvStandardisedInvoice = (
   csvObject: CsvObject,
   vendorId: string,
-  configBucket: string
-): Promise<StandardisedLineItem[]> => {
+  vendorServiceConfigRows: VendorServiceConfigRows
+): StandardisedLineItem[] => {
   const summary = {
     invoice_receipt_id: csvObject["PO Number"],
     vendor_id: vendorId,
     vendor_name: csvObject.Vendor,
-    invoice_receipt_date: csvObject["Invoice Date"],
-    due_date: csvObject["Due Date"],
+    invoice_receipt_date: getStandardisedDateText(csvObject["Invoice Date"]),
+    due_date: getStandardisedDateText(csvObject["Due Date"]),
     tax_payer_id: csvObject["VAT Number"],
     parser_version: csvObject.Version,
   };
-  console.log(summary);
 
-  const vendorServiceConfigRows = await getVendorServiceConfigRows(
-    configBucket,
-    { vendor_id: vendorId }
-  );
   return csvObject.lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
     const itemDescription = item["Service Name"];
+
     let nextAcc = [...acc];
+
     for (const {
       service_name: serviceName,
       service_regex: serviceRegexPattern,
     } of vendorServiceConfigRows) {
       const serviceRegex = new RegExp(serviceRegexPattern, "i");
+
       if (!itemDescription?.match(serviceRegex)) {
         continue;
       }
@@ -57,15 +57,15 @@ export const getCsvStandardisedInvoice = async (
         {
           ...summary,
           item_description: itemDescription,
-          subtotal: +item.Subtotal,
-          quantity: +item.Quantity,
+          subtotal: getNumberFromMoneyText(item.Subtotal),
+          quantity: Number(item.Quantity),
           service_name: serviceName,
-          unit_price: +item["Unit Price"],
-          total: +item.Total,
+          unit_price: getNumberFromMoneyText(item["Unit Price"]),
+          total: getNumberFromMoneyText(item.Total),
         },
       ];
-      console.log("nextAcc", nextAcc);
     }
+
     return nextAcc;
   }, []);
 };
