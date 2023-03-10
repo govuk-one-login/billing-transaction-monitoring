@@ -63,13 +63,18 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         const parsedCsv = parseCsv(csv);
         console.log("parsedCsv", parsedCsv);
 
+        if (!isValidCsvObject(parsedCsv)) {
+          console.error("Csv is invalid.");
+          throw new Error("Csv is invalid.");
+        }
+
         const vendorServiceConfigRows = await getVendorServiceConfigRows(
           configBucket,
           { vendor_id: vendorId }
         );
 
         const standardisedInvoice = getCsvStandardisedInvoice(
-          parsedCsv as CsvObject,
+          parsedCsv,
           vendorId,
           vendorServiceConfigRows
         );
@@ -100,3 +105,22 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
   return response;
 };
+
+const isValidCsvObject = (x: any): x is CsvObject =>
+  typeof x === "object" &&
+  typeof x.Vendor === "string" &&
+  typeof x["Invoice Date"] === "string" &&
+  typeof x["Due Date"] === "string" &&
+  typeof x["VAT Number"] === "string" &&
+  typeof x["PO Number"] === "string" &&
+  typeof x.Version === "string" &&
+  Object.prototype.toString.call(x.lineItems) === "[object Array]" &&
+  x.lineItems.every((lineItem: any) => isValidLineItem(lineItem));
+
+const isValidLineItem = (x: any): x is CsvObject =>
+  typeof x === "object" &&
+  typeof x["Service Name"] === "string" &&
+  typeof x["Unit Price"] === "string" &&
+  typeof x.Quantity === "string" &&
+  typeof x.Tax === "string" &&
+  typeof x.Subtotal === "string";
