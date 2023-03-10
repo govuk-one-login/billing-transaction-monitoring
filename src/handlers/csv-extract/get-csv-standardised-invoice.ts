@@ -1,6 +1,4 @@
 import { VendorServiceConfigRows } from "../../shared/utils";
-import { getNumberFromMoneyText } from "../store-standardised-invoices/field-utils/get-number-from-money-text";
-import { getStandardisedDateText } from "../store-standardised-invoices/field-utils/get-standardised-date-text";
 import { StandardisedLineItem } from "../store-standardised-invoices/get-standardised-invoice";
 
 export interface LineItem {
@@ -31,15 +29,14 @@ export const getCsvStandardisedInvoice = (
     invoice_receipt_id: csvObject["PO Number"],
     vendor_id: vendorId,
     vendor_name: csvObject.Vendor,
-    invoice_receipt_date: getStandardisedDateText(csvObject["Invoice Date"]),
-    due_date: getStandardisedDateText(csvObject["Due Date"]),
+    invoice_receipt_date: formatDate(csvObject["Invoice Date"]),
+    due_date: formatDate(csvObject["Due Date"]),
     tax_payer_id: csvObject["VAT Number"],
     parser_version: csvObject.Version,
   };
 
   return csvObject.lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
     const itemDescription = item["Service Name"];
-
     let nextAcc = [...acc];
 
     for (const {
@@ -47,7 +44,7 @@ export const getCsvStandardisedInvoice = (
       service_regex: serviceRegexPattern,
     } of vendorServiceConfigRows) {
       const serviceRegex = new RegExp(serviceRegexPattern, "i");
-
+      console.log(serviceRegex);
       if (!itemDescription?.match(serviceRegex)) {
         continue;
       }
@@ -57,15 +54,22 @@ export const getCsvStandardisedInvoice = (
         {
           ...summary,
           item_description: itemDescription,
-          subtotal: getNumberFromMoneyText(item.Subtotal),
+          subtotal: Number(item.Subtotal),
           quantity: Number(item.Quantity),
           service_name: serviceName,
-          unit_price: getNumberFromMoneyText(item["Unit Price"]),
-          total: getNumberFromMoneyText(item.Total),
+          unit_price: Number(item["Unit Price"]),
+          total: Number(item.Total),
         },
       ];
     }
-
     return nextAcc;
   }, []);
 };
+
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = `${(date.getMonth() + 1).toString().padStart(2, "0")}`; // Add leading zero if necessary
+  const day = `${date.getDate().toString().padStart(2, "0")}`; // Add leading zero if necessary
+  return `${year}-${month}-${day}`;
+}
