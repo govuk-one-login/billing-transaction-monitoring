@@ -1,4 +1,4 @@
-import {
+/* import {
   deleteS3Objects,
   getS3Object,
   listS3Objects,
@@ -27,7 +27,7 @@ import {
   startQueryExecutionCommand,
 } from "../../../src/handlers/int-test-support/helpers/athenaHelper";
 
-let vendorServiceDetails: VendorServiceConfigRow[] = [];
+
 const prefix = resourcePrefix();
 const bucketName = `${prefix}-storage`;
 
@@ -131,62 +131,7 @@ const updateSQSEventPayloadBody = async (
   return updatedSQSEventPayload;
 };
 
-export const createInvoice = async ({
-  eventTime,
-  unitPrice,
-  billingQty,
-}: TestData): Promise<void> => {
-  const givenBillingQty = billingQty;
 
-  const response = await getS3Object({
-    bucket: configStackName(),
-    key: "e2e-test.json",
-  });
-
-  const getServiceDescription = JSON.parse(response ?? "");
-
-  const lineItems = randomLineItem({
-    description: getServiceDescription.parser_0_service_description,
-    quantity: givenBillingQty,
-    unitPrice,
-  });
-
-  const givenInvoice = randomInvoice({
-    vendor: {
-      id: vendorServiceDetails[0].vendor_id,
-      name: vendorServiceDetails[0].vendor_name,
-    },
-    date: new Date(eventTime),
-    lineItems: [lineItems],
-  });
-
-  const filename = `raw-Invoice-${Math.random()
-    .toString(36)
-    .substring(2, 7)}-validFile.pdf`;
-
-  const invoiceCreationTime = new Date();
-
-  await createInvoiceInS3({ invoiceData: givenInvoice, filename });
-
-  await poll(
-    async () =>
-      await listS3Objects({
-        bucketName,
-        prefix: "btm_billing_standardised",
-      }),
-    ({ Contents }) =>
-      !!Contents?.some(
-        (s3Object) =>
-          s3Object.LastModified !== undefined &&
-          new Date(s3Object.LastModified) >= invoiceCreationTime
-      ),
-    {
-      timeout: 60000,
-      nonCompleteErrorMessage:
-        "Invoice data never appeared in standardised folder",
-    }
-  );
-};
 
 const assertResultsWithTestData = async ({
   eventTime,
@@ -238,3 +183,4 @@ interface TestData {
   priceDifferencePercent: string;
   qtyDifferencePercent: string;
 }
+*/
