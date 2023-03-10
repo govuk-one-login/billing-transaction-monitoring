@@ -1,16 +1,24 @@
 import { SQSEvent } from "aws-lambda";
 import { fetchS3 } from "../../shared/utils";
 import { handler } from "./handler";
-import {parseCsv} from "./parsing-utils/parse-csv";
+import { parseCsv } from "./parsing-utils/parse-csv";
+import { getCsvStandardisedInvoice } from "./get-csv-standardised-invoice";
 
 jest.mock("../../shared/utils", () => {
   const original = jest.requireActual("../../shared/utils");
   return {
     ...original,
     fetchS3: jest.fn(),
+    parseCsv: jest.fn(),
+    getCsvStandardisedInvoice: jest.fn(),
   };
 });
 const mockedFetchS3 = fetchS3 as jest.Mock;
+const mockedParseCsv = parseCsv as jest.Mock;
+// TODO Delete this typescript disabled lines
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockedGetCsvStandardisedInvoice = getCsvStandardisedInvoice as jest.Mock;
+
 describe("CSV Extract handler tests", () => {
   const OLD_ENV = process.env;
   const oldConsoleError = console.error;
@@ -144,7 +152,6 @@ describe("CSV Extract handler tests", () => {
   });
 
   test("should throw error when valid bucket and key but fetchS3 throws error", async () => {
-
     const givenBucketName = "some bucket name";
     const givenObjectKey1 = "vendor123/some object key";
 
@@ -175,9 +182,12 @@ describe("CSV Extract handler tests", () => {
     mockedFetchS3.mockRejectedValue(mockedError);
 
     const result = await handler(givenEvent as SQSEvent);
-    expect(result).toEqual({ batchItemFailures: [{"itemIdentifier": "given message ID"}] });
+    expect(result).toEqual({
+      batchItemFailures: [{ itemIdentifier: "given message ID" }],
+    });
   });
 
+  // TODO Happy path can be captured with the last test below, e2e. So this test could be deleted?
   test("should parse the csv if given a valid S3 event and a valid csv", async () => {
     const givenBucketName = "some bucket name";
     const givenObjectKey1 = "vendor123/some object key";
@@ -214,7 +224,19 @@ describe("CSV Extract handler tests", () => {
     const result = await handler(givenEvent as SQSEvent);
     expect(result).toEqual({ batchItemFailures: [] });
     expect(mockedFetchS3).toHaveBeenCalledTimes(1);
-    expect(mockedFetchS3).toHaveBeenCalledWith(givenBucketName, givenObjectKey1);
-    expect(parseCsv).toHaveBeenCalledTimes(1);
+    expect(mockedFetchS3).toHaveBeenCalledWith(
+      givenBucketName,
+      givenObjectKey1
+    );
+    expect(mockedParseCsv).toHaveBeenCalledTimes(1);
+    expect(mockedParseCsv).toHaveBeenCalledWith(fileData);
   });
+
+  test("should throw error if given a valid S3 event and an invalid csv", () => {});
+
+  test("should throw error with get Csv standardised invoice failure", () => {});
+
+  test("should throw error with s3 storing failure", () => {});
+
+  test("should store the standardised invoice if no errors", () => {});
 });
