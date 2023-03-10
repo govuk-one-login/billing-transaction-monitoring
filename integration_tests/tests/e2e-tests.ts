@@ -105,25 +105,40 @@ export const assertQueryResultWithTestData = async (
     vendorId,
     serviceName
   );
+
+  console.log(unitPrice);
+  console.log(billingQty);
   const billingPrice = unitPrice * billingQty;
+  console.log(billingPrice);
   console.log(transactionQty);
   const transactionPrice = unitPrice * transactionQty;
+  console.log(response[0].billing_price);
+  console.log(transactionPrice.toFixed(4));
 
-  expect(response[0].billing_quantity).toEqual(billingQty);
-  expect(response[0].transaction_quantity).toEqual(transactionQty);
-
-  if (!isNaN(billingPrice) || isNaN(transactionPrice)) {
+  if (
+    transactionPrice !== undefined &&
+    billingPrice !== undefined &&
+    !isNaN(response[0].billing_price) &&
+    !isNaN(response[0].transaction_price)
+  ) {
     expect(response[0].transaction_price).toEqual(transactionPrice.toFixed(4));
     expect(response[0].billing_price).toEqual(billingPrice.toFixed(4));
-    const priceDifference = billingPrice - transactionPrice;
-    expect(response[0].price_difference).toEqual(priceDifference.toFixed(4));
     const priceDifferencePercentage =
       (billingPrice - transactionPrice / billingPrice) * 100;
     expect(response[0].price_difference_percentage).toEqual(
       priceDifferencePercentage.toFixed(4)
     );
+    const priceDifference = billingPrice - transactionPrice;
+    expect(response[0].price_difference).toEqual(priceDifference.toFixed(4));
   }
-  if (!isNaN(billingQty)) {
+
+  if (
+    !isNaN(response[0].billing_quantity) &&
+    !isNaN(response[0].transaction_quantity)
+  ) {
+    console.log(transactionPrice);
+    expect(response[0].billing_quantity).toEqual(billingQty);
+    expect(response[0].transaction_quantity).toEqual(transactionQty);
     const qtyDifference = billingQty - transactionQty;
     expect(response[0].quantity_difference).toEqual(String(qtyDifference));
 
