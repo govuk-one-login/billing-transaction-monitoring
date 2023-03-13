@@ -1,29 +1,28 @@
 import { SQSEvent } from "aws-lambda";
-import { fetchS3, putTextS3 } from "../../shared/utils";
+import {
+  fetchS3,
+  getVendorServiceConfigRows,
+  putTextS3,
+} from "../../shared/utils";
 import { handler } from "./handler";
 
 jest.mock("../../shared/utils", () => {
   const original = jest.requireActual("../../shared/utils");
   return {
     ...original,
-    getCsvStandardisedInvoice: jest.fn(),
-  };
-});
-jest.mock("../../shared/utils/s3", () => {
-  const original = jest.requireActual("../../shared/utils/s3");
-  return {
-    ...original,
     fetchS3: jest.fn(),
     putTextS3: jest.fn(),
+    getVendorServiceConfigRows: jest.fn(),
   };
 });
 const mockedFetchS3 = fetchS3 as jest.Mock;
 const mockedPutTextS3 = putTextS3 as jest.Mock;
+const mockedGetVendorServiceConfigRows =
+  getVendorServiceConfigRows as jest.Mock;
 
 describe("CSV Extract handler tests", () => {
   const OLD_ENV = process.env;
   const oldConsoleError = console.error;
-  let givenEvent: SQSEvent;
   const givenBucketName = "some bucket name";
   const givenObjectKey1 = "vendor123/some object key";
   const validEvent = {
@@ -46,7 +45,7 @@ describe("CSV Extract handler tests", () => {
         messageId: "given message ID",
       },
     ],
-  };
+  } as unknown as SQSEvent;
   const validInvoiceData =
     "Vendor,Skippy’s Everything Shop,,,,,\n" +
     "Invoice Date,2022/1/1,,,,,\n" +
@@ -57,10 +56,16 @@ describe("CSV Extract handler tests", () => {
     ",,,,,,\n" +
     "Service Name,Unit Price,Quantity,Tax,Subtotal,Total,\n" +
     "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32,\n";
-  const validVendorServiceData =
-    "vendor_name,vendor_id,service_name,service_regex,event_name\n" +
-    "Billy Mitchell LLC,vendor123,Lying About Speedruns,Whittling,donkey_kong\n" +
-    "Nito's Bone Zone,vendor_nito,Sword dances,sword dance,sword_dance";
+
+  const vendorServiceConfigRows = [
+    {
+      vendor_name: "Skippy’s Everything Shop",
+      vendor_id: "vendor123",
+      service_name: "Horse Hoof Whittling",
+      service_regex: "Horse Hoof Whittling",
+      event_name: "VENDOR_1_EVENT_1",
+    },
+  ];
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -73,8 +78,6 @@ describe("CSV Extract handler tests", () => {
       DESTINATION_BUCKET: "given destination bucket",
       DESTINATION_FOLDER: "given destination folder",
     };
-
-    givenEvent = { Records: [] };
   });
 
   afterAll(() => {
@@ -84,21 +87,21 @@ describe("CSV Extract handler tests", () => {
 
   test("should throw an error if the config bucket is not set", async () => {
     delete process.env.CONFIG_BUCKET;
-    await expect(handler(givenEvent)).rejects.toThrowError(
+    await expect(handler(validEvent)).rejects.toThrowError(
       "Config bucket not set."
     );
   });
 
   test("should throw an error if the destination bucket is not set", async () => {
     delete process.env.DESTINATION_BUCKET;
-    await expect(handler(givenEvent)).rejects.toThrowError(
+    await expect(handler(validEvent)).rejects.toThrowError(
       "Destination bucket"
     );
   });
 
   test("should throw an error if the destination folder is not set", async () => {
     delete process.env.DESTINATION_FOLDER;
-    await expect(handler(givenEvent)).rejects.toThrowError(
+    await expect(handler(validEvent)).rejects.toThrowError(
       "Destination folder"
     );
   });
@@ -137,7 +140,7 @@ describe("CSV Extract handler tests", () => {
     });
   });
 
-  test("should throw error if event record has invalid S3 event in body", async () => {
+  test("should throw error if event record has invalid S3 event record in body", async () => {
     const eventWithInvalidRecordBody = {
       Records: [
         {
@@ -197,37 +200,30 @@ describe("CSV Extract handler tests", () => {
     });
   });
 
-  test("should throw error when valid bucket and key but fetchS3 throws error when fetching invoice", async () => {
-    const givenEvent = validEvent;
-    const invoiceData = validInvoiceData;
-    const mockedErrorText = "mocked error";
-    const mockedError = new Error(mockedErrorText);
-    mockedFetchS3
-      .mockReturnValueOnce(invoiceData)
-      .mockRejectedValue(mockedError);
-
-    const result = await handler(givenEvent as SQSEvent);
-    expect(result).toEqual({
-      batchItemFailures: [{ itemIdentifier: "given message ID" }],
-    });
-  });
-
-  test("should throw error when valid bucket and key but fetchS3 throws error when fetching vendor config", async () => {
-    const givenEvent = validEvent;
-
-    const mockedErrorText = "mocked error";
+  test("should throw error when given a valid bucket and key but fetchS3 throws error when fetching invoice", async () => {
+    const mockedErrorText = "mocked fetchS3 error";
     const mockedError = new Error(mockedErrorText);
     mockedFetchS3.mockRejectedValue(mockedError);
 
-    const result = await handler(givenEvent as SQSEvent);
+    const result = await handler(validEvent);
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given message ID" }],
     });
   });
 
-  test("should throw error if given a valid S3 event and an invalid csv", async () => {
-    const givenEvent = validEvent;
+  test("should throw error when given a valid bucket and key but fetching vendor config throws an error", async () => {
+    const mockedErrorText = "mocked getVendorServiceConfigRows error";
+    const mockedError = new Error(mockedErrorText);
+    mockedFetchS3.mockResolvedValue(validInvoiceData);
+    mockedGetVendorServiceConfigRows.mockRejectedValueOnce(mockedError);
 
+    const result = await handler(validEvent);
+    expect(result).toEqual({
+      batchItemFailures: [{ itemIdentifier: "given message ID" }],
+    });
+  });
+
+  test("should throw error if given an invalid csv", async () => {
     const invalidInvoiceData =
       // Test the case with 'Vendor' misspelled
       "Vender,Skippy’s Everything Shop,,,,,\n" +
@@ -241,7 +237,8 @@ describe("CSV Extract handler tests", () => {
       "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32,\n";
     mockedFetchS3.mockReturnValueOnce(invalidInvoiceData);
 
-    const result = await handler(givenEvent as SQSEvent);
+    const result = await handler(validEvent);
+    expect(mockedGetVendorServiceConfigRows).not.toBeCalled();
     expect(result).toEqual({
       batchItemFailures: [
         {
@@ -251,39 +248,47 @@ describe("CSV Extract handler tests", () => {
     });
   });
 
-  test("should throw error with s3 storing failure", async () => {
-    const givenEvent = validEvent;
-    mockedFetchS3
-      .mockReturnValueOnce(validInvoiceData)
-      .mockReturnValue(validVendorServiceData);
+  test("should throw error if getCsvStandardisedInvoice doesn't return any line items", async () => {
+    mockedFetchS3.mockReturnValueOnce(validInvoiceData);
+    mockedGetVendorServiceConfigRows.mockResolvedValueOnce([
+      {
+        vendor_name: "Skippy’s Everything Shop",
+        vendor_id: "vendor123",
+        service_name: "Horse Hoof Whittling",
+        service_regex: "Non matching regex",
+        event_name: "VENDOR_1_EVENT_1",
+      },
+    ]);
+
+    const result = await handler(validEvent);
+    expect(result).toEqual({
+      batchItemFailures: [
+        {
+          itemIdentifier: "given message ID",
+        },
+      ],
+    });
+  });
+
+  test("should throw error with putTextS3 storing failure", async () => {
+    mockedFetchS3.mockReturnValueOnce(validInvoiceData);
+    mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
     const mockedErrorText = "mocked put text error";
     const mockedError = new Error(mockedErrorText);
     mockedPutTextS3.mockRejectedValue(mockedError);
 
-    const result = await handler(givenEvent as SQSEvent);
+    const result = await handler(validEvent);
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given message ID" }],
     });
   });
 
   test("should store the standardised invoice if no errors", async () => {
-    const givenEvent = validEvent;
-    mockedFetchS3
-      .mockReset()
-      .mockReturnValueOnce(validInvoiceData)
-      .mockReturnValue(validVendorServiceData);
+    mockedFetchS3.mockReturnValueOnce(validInvoiceData);
+    mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
 
-    const result = await handler(givenEvent as SQSEvent);
+    const result = await handler(validEvent);
     expect(result).toEqual({ batchItemFailures: [] });
-    expect(mockedFetchS3).toHaveBeenCalledTimes(2);
-    expect(mockedFetchS3).toHaveBeenCalledWith(
-      givenBucketName,
-      givenObjectKey1
-    );
-    expect(mockedFetchS3).toHaveBeenCalledWith(
-      "given config bucket",
-      "vendor_services/vendor-services.csv"
-    );
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       "given destination bucket",
@@ -298,8 +303,9 @@ describe("CSV Extract handler tests", () => {
         parser_version: "1.0.0",
         item_description: "Horse Hoof Whittling",
         subtotal: 348.6,
+        price: 348.6,
         quantity: 28,
-        service_name: "Lying About Speedruns",
+        service_name: "Horse Hoof Whittling",
         unit_price: 12.45,
         total: 418.32,
       })
