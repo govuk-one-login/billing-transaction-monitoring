@@ -26,8 +26,6 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
     dataRetrievedFromConfig = await retrieveMoreTestDataFromConfig();
     eventName = dataRetrievedFromConfig.eventName;
   });
-  let eventTime: string;
-  let eventIds: string[];
   let invoiceFileName: string;
 
   test.each`
@@ -39,20 +37,18 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
-      eventIds = await generateTransactionEventsViaFilterLambda(
+      const eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         eventName
       );
-      eventTime = data.eventTime;
-      const testStartTime = new Date();
+
       invoiceFileName = await createInvoiceWithGivenData(
         data,
         dataRetrievedFromConfig.description,
         dataRetrievedFromConfig.unitPrice,
         dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.vendorName,
-        testStartTime
+        dataRetrievedFromConfig.vendorName
       );
       await assertQueryResultWithTestData(
         data,
@@ -65,7 +61,6 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
   );
 
   afterEach(async () => {
-    await deleteS3Events(eventIds, eventTime);
     await deleteS3Object({
       bucket: storageBucket,
       key: `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`,
@@ -96,10 +91,6 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
       );
     }
   );
-
-  afterEach(async () => {
-    await deleteS3Events(eventIds, eventTime);
-  });
 });
 
 export const assertQueryResultWithTestData = async (

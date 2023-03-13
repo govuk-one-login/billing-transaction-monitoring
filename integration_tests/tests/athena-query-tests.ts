@@ -52,12 +52,12 @@ describe("\nPublish valid sns message and execute athena query\n", () => {
     expect(JSON.stringify(queryResult?.ResultSet?.Rows)).toContain(
       snsValidEventPayload.event_id
     );
-    afterAll(async () => {
-      const eventTime = new Date(
-        snsValidEventPayload.timestamp * 1000
-      ).toISOString();
-      await deleteS3Event(snsValidEventPayload.event_id, eventTime);
-    });
+  });
+  afterAll(async () => {
+    const eventTime = new Date(
+      snsValidEventPayload.timestamp * 1000
+    ).toISOString();
+    await deleteS3Event(snsValidEventPayload.event_id, eventTime);
   });
 });
 

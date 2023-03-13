@@ -25,7 +25,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
   let filename: string;
 
   test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
-    const testStartTime = new Date();
     const passportCheckItems = randomLineItems(8, {
       description: "passport check",
     });
@@ -47,6 +46,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     filename = `raw-Invoice-${Math.random()
       .toString(36)
       .substring(2, 7)}-validFile`;
+
     const s3Object = await createInvoiceInS3({
       invoiceData: invoice,
       filename: `${filename}.pdf`,
@@ -65,19 +65,19 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       ({ Contents }) =>
         !!Contents?.some(
           (s3Object) =>
-            s3Object.LastModified !== undefined &&
-            new Date(s3Object.LastModified) >= testStartTime
+            s3Object.Key !== undefined &&
+            s3Object.Key ===
+              `btm_billing_standardised/${filename.slice(0, 27)}.txt`
         ),
       {
-        timeout: 50000,
+        timeout: 60000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
     );
 
     // Check the view results match the invoice.
-    const queryString =
-      'SELECT * FROM "btm_billing_curated" ORDER BY vendor_id DESC, year DESC';
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3'`;
     const queryId = await startQueryExecutionCommand({
       databaseName,
       queryString,

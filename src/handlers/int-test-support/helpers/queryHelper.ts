@@ -17,7 +17,6 @@ export const queryResponseFilterByVendorServiceNameYearMonth = async (
 
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_id='${vendorId}' AND service_name='${serviceName}' AND year='${year}' AND month='${month}'`;
-  console.log(curatedQueryString);
   const queryId = await startQueryExecutionCommand({
     databaseName,
     queryString: curatedQueryString,

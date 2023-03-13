@@ -20,11 +20,11 @@ import { deleteS3Object } from "../../src/handlers/int-test-support/helpers/s3He
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
 const standardisedFolderPrefix = "btm_billing_standardised";
+let invoiceFilename: string;
+let eventIds: string[];
+let eventTime: string;
 
 describe("\nUpload invoice to raw invoice bucket and verify billing and transaction_curated view query results matches with expected data \n", () => {
-  let eventTime: string;
-  let eventIds: string[];
-  let invoiceFileName: string;
   test.each`
     testCase                                                                                 | eventName             | vendorId                | eventTime             | unitPrice | numberOfTestEvents | priceDiff     | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty | transactionPrice | transactionQty
     ${"BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice "}   | ${"VENDOR_4_EVENT_5"} | ${"vendor_testvendor4"} | ${"2022/02/28 10:00"} | ${"0.00"} | ${11}              | ${"-27.5000"} | ${"-9"} | ${"-100.0000"}         | ${"-81"}             | ${"0.0000"}  | ${"2"}     | ${"27.5000"}     | ${"11"}
@@ -34,20 +34,18 @@ describe("\nUpload invoice to raw invoice bucket and verify billing and transact
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPrice,$transactionQty,$transactionPrice,$qtyDiff,$priceDiff,$qtyDifferencePercent,$priceDifferencePercent",
     async ({ ...data }) => {
+      eventTime = data.eventTime;
       eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         data.eventName
       );
-      eventTime = data.eventTime;
-      const testStartTime = new Date();
-      invoiceFileName = await createInvoiceWithGivenData(
+      invoiceFilename = await createInvoiceWithGivenData(
         data,
         "Passport Check",
         data.unitPrice,
         data.vendorId,
-        data.vendorName,
-        testStartTime
+        data.vendorName
       );
       const eventName: EventName = data.eventName;
       const prettyEventName = prettyEventNameMap[eventName];
@@ -60,11 +58,12 @@ describe("\nUpload invoice to raw invoice bucket and verify billing and transact
       );
     }
   );
+
   afterEach(async () => {
     await deleteS3Events(eventIds, eventTime);
     await deleteS3Object({
       bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`,
+      key: `${standardisedFolderPrefix}/${invoiceFilename.slice(0, 27)}.txt`,
     });
   });
 });
@@ -92,6 +91,7 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
+  console.log("billing view", response);
 
   expect(response[0].price_difference).toEqual(priceDiff);
   expect(response[0].quantity_difference).toEqual(qtyDiff);

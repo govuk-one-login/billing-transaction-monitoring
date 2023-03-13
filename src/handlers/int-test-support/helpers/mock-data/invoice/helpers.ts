@@ -37,8 +37,7 @@ export const createInvoiceWithGivenData = async (
   description: string,
   unitPrice: number,
   vendorId: string,
-  vendorName: string,
-  testStartTime: Date
+  vendorName: string
 ): Promise<string> => {
   const givenBillingQty = billingQty;
   const lineItems = randomLineItem({
@@ -73,8 +72,9 @@ export const createInvoiceWithGivenData = async (
     ({ Contents }) =>
       !!Contents?.some(
         (s3Object) =>
-          s3Object.LastModified !== undefined &&
-          new Date(s3Object.LastModified) >= testStartTime
+          s3Object.Key !== undefined &&
+          s3Object.Key ===
+            `btm_billing_standardised/${filename.slice(0, 27)}.txt`
       ),
     {
       timeout: 60000,
