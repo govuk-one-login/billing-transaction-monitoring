@@ -45,7 +45,7 @@ export const retrieveMoreTestDataFromConfig =
     };
 
     if (configBucket.includes("staging" || "integration")) {
-      void getServiceDescriptionFromConfig().then((result) => {
+      await getServiceDescriptionFromConfig().then((result) => {
         testDataRetrievedFromConfig.description = result;
       });
       testDataRetrievedFromConfig.unitPrice = rateDetails[0].unit_price;
