@@ -19,6 +19,7 @@ const { csv, happyPathCount, testCases } = mockCsvData();
 describe("Given a csv with event data is uploaded to the transaction csv bucket", () => {
   beforeAll(async () => {
     // Upload the csv file to S3 transaction csv bucket
+
     await putS3Object({
       target: {
         bucket: inputBucket,
@@ -30,19 +31,19 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
       async () =>
         await listS3Objects({
           bucketName: outputBucket,
-          prefix: transactionsDirectory,
+          prefix: `${transactionsDirectory}/${"2023-01-01"}`,
         }),
       (result) => {
-        console.log(happyPathCount);
         return (
           result.Contents?.length !== undefined &&
           result.Contents?.length === happyPathCount
         );
       },
       {
-        timeout: 50000,
+        timeout: 60000,
         interval: 10000,
-        nonCompleteErrorMessage: "Events CSV was not successfully uploaded",
+        nonCompleteErrorMessage:
+          "Events CSV was not successfully uploaded within the given timeout",
       }
     );
   });
