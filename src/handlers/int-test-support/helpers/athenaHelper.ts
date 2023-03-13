@@ -84,8 +84,7 @@ const waitAndGetQueryResults = async (
     return result?.State?.match("SUCCEEDED") !== null;
   };
   const queryStatusSuccess = await poll(checkState, (state) => state, {
-    interval: 4000,
-    timeout: 20000,
+    timeout: 30000,
     nonCompleteErrorMessage: "Query did not succeed within the given timeout",
   });
   if (queryStatusSuccess) {
