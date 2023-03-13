@@ -27,6 +27,8 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
     eventName = dataRetrievedFromConfig.eventName;
   });
   let invoiceFileName: string;
+  let eventIds: string[];
+  let eventTime: string;
 
   test.each`
     testCase                                                                               | eventTime       | transactionQty | billingQty
@@ -37,11 +39,12 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
-      const eventIds = await generateTransactionEventsViaFilterLambda(
+      eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         eventName
       );
+      eventTime = data.eventTime;
 
       invoiceFileName = await createInvoiceWithGivenData(
         data,
@@ -54,18 +57,10 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
         data,
         dataRetrievedFromConfig.unitPrice,
         dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.serviceName,
-        eventIds
+        dataRetrievedFromConfig.serviceName
       );
     }
   );
-
-  afterEach(async () => {
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`,
-    });
-  });
 
   test.each`
     testCase                                                                                 | eventTime       | transactionQty | billingQty
@@ -73,29 +68,35 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
-      const eventIds = await generateTransactionEventsViaFilterLambda(
+      eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         eventName
       );
-
+      eventTime = data.eventTime;
       await assertQueryResultWithTestData(
         data,
         dataRetrievedFromConfig.unitPrice,
         dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.serviceName,
-        eventIds
+        dataRetrievedFromConfig.serviceName
       );
     }
   );
+
+  afterEach(async () => {
+    await deleteS3Events(eventIds, eventTime);
+    await deleteS3Object({
+      bucket: storageBucket,
+      key: `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`,
+    });
+  });
 });
 
 export const assertQueryResultWithTestData = async (
   { billingQty, transactionQty, eventTime }: TestData,
   unitPrice: number,
   vendorId: string,
-  serviceName: string,
-  eventIds: string[]
+  serviceName: string
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
   const response: BillingTransactionCurated =
@@ -108,7 +109,6 @@ export const assertQueryResultWithTestData = async (
 
   const billingPrice = unitPrice * billingQty;
   const transactionPrice = unitPrice * transactionQty;
-  await deleteS3Events(eventIds, eventTime);
 
   if (
     transactionPrice !== undefined &&
