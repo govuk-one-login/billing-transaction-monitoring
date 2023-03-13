@@ -5,6 +5,7 @@ import {
 } from "aws-lambda";
 import https from "https";
 import url from "url";
+import { logger } from "./logger";
 
 interface ResultArguments {
   context: Context;
@@ -50,13 +51,13 @@ export const sendCustomResourceResult = async ({
       response.on("end", resolve);
 
       response.on("error", (error) => {
-        console.error("Response error:", error);
+        logger.error("Response error", error);
         reject(error);
       });
     });
 
     request.on("error", (error) => {
-      console.error("Request error:", error);
+      logger.error("Request error", error);
       reject(error);
     });
 

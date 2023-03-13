@@ -12,6 +12,8 @@ import { sendCustomResourceResult } from "./custom-resource-utils";
 jest.mock("https");
 const mockedRequestFunction = request as jest.MockedFunction<typeof request>;
 
+jest.mock("./logger");
+
 let givenContext: Context;
 let givenEvent: CloudFormationCustomResourceEvent;
 let givenReason: string;
@@ -22,12 +24,9 @@ let mockedRequestOn: jest.Mock;
 let mockedRequestWrite: jest.Mock;
 let mockedResponseObject: IncomingMessage;
 let mockedResponseOn: jest.Mock;
-const oldConsoleError = console.error;
 
 beforeEach(() => {
   jest.resetAllMocks();
-
-  console.error = jest.fn();
 
   mockedRequestEnd = jest.fn();
   mockedRequestOn = jest.fn();
@@ -59,10 +58,6 @@ beforeEach(() => {
 
   givenStatus =
     "given status" as CloudFormationCustomResourceResponse["Status"];
-});
-
-afterAll(() => {
-  console.error = oldConsoleError;
 });
 
 test("Result sender with creation event", async () => {

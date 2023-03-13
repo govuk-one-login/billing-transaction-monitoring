@@ -12,7 +12,6 @@ jest.mock("./handle-textract-failure");
 const mockedHandleTextractFailure = handleTextractFailure as jest.Mock;
 
 describe("Textract success handler", () => {
-  const oldConsoleError = console.error;
   let givenResults: Textract.ExpenseDocument[];
   let givenResultsBucket: string;
   let givenResultsFileName: string;
@@ -21,16 +20,11 @@ describe("Textract success handler", () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    console.error = jest.fn();
     givenResults = ["given result" as Textract.ExpenseDocument];
     givenResultsBucket = "given results bucket";
     givenResultsFileName = "given results file name";
     givenSourceBucket = "given source bucket";
     givenSourceFileName = "given source file name";
-  });
-
-  afterAll(() => {
-    console.error = oldConsoleError;
   });
 
   test("Textract success handler with S3 put error", async () => {
