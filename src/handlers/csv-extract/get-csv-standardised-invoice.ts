@@ -54,11 +54,11 @@ export const getCsvStandardisedInvoice = (
         {
           ...summary,
           item_description: itemDescription,
-          subtotal: Number(item.Subtotal),
-          quantity: Number(item.Quantity),
+          subtotal: formatNumber(item.Subtotal),
+          quantity: formatNumber(item.Quantity),
           service_name: serviceName,
-          unit_price: Number(item["Unit Price"]),
-          total: Number(item.Total),
+          unit_price: formatNumber(item["Unit Price"]),
+          total: formatNumber(item.Total),
         },
       ];
     }
@@ -68,8 +68,17 @@ export const getCsvStandardisedInvoice = (
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
+  if (date === null) {
+    throw new Error(`Unsupported date format: ${dateStr}`);
+  }
   const year = date.getFullYear();
   const month = `${(date.getMonth() + 1).toString().padStart(2, "0")}`; // Add leading zero if necessary
   const day = `${date.getDate().toString().padStart(2, "0")}`; // Add leading zero if necessary
   return `${year}-${month}-${day}`;
+}
+
+function formatNumber(str: string): number {
+  if (isNaN(Number(str))) {
+    throw new Error(`Unsupported money format: ${str}`);
+  } else return Number(str);
 }

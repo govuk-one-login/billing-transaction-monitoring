@@ -9,8 +9,6 @@ describe("CSV Standardised invoice getter", () => {
   let givenVendorServiceConfigRows: VendorServiceConfigRows;
 
   beforeEach(() => {
-    jest.resetAllMocks();
-
     givenCsvObject = {
       Vendor: "Vendor One",
       "Invoice Date": "2023/02/28",
