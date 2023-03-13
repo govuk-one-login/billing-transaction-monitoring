@@ -1,4 +1,5 @@
 import { Textract } from "aws-sdk";
+import { logger } from "../../shared/utils";
 
 export const logTextractWarnings = (warnings: Textract.Warnings): void => {
   for (const { ErrorCode: code, Pages: pageNumbers } of warnings) {
@@ -11,6 +12,6 @@ export const logTextractWarnings = (warnings: Textract.Warnings): void => {
       message = `${message} for pages ${pagesText}`;
     }
 
-    console.warn(message);
+    logger.warn(message);
   }
 };

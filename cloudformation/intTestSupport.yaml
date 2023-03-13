@@ -9,6 +9,9 @@ Resources:
     Condition: IsEnvWithAutoTests
     Properties:
       FunctionName: !Sub ${AWS::StackName}-int-test-support-function
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-int-test-support-function
       Handler: intTestSupport.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:

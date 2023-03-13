@@ -1,6 +1,6 @@
 import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { sendRecord } from "../../shared/utils";
+import { logger, sendRecord } from "../../shared/utils";
 import { fetchEventNames } from "../../shared/utils/config-utils/fetch-event-names";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
@@ -14,7 +14,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
   const promises = event.Records.filter((record) => {
     const body = JSON.parse(record.body);
-    console.log(body.event_name);
+    logger.info(String(body.event_name));
     return Boolean(body?.event_name) && validEventNames.has(body.event_name);
   }).map(async (record) => {
     try {

@@ -1,5 +1,6 @@
 import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
+import { logger } from "../../shared/utils";
 import { storeStandardisedInvoices } from "./store-standardised-invoices";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
@@ -42,8 +43,8 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           default: `default_${defaultParserVersion}`,
         }
       );
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      logger.error("Handler failure", { error });
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
     }
   });

@@ -12,20 +12,13 @@ const mockedListS3Objects = listS3Objects as jest.MockedFunction<
 
 let givenContext: Context;
 let inputEvent: TestSupportEvent;
-const oldConsoleError = console.error;
 
 beforeEach(() => {
   jest.resetAllMocks();
 
-  console.error = jest.fn();
-
   givenContext = {
     someContextItem: "some context item",
   } as any;
-});
-
-afterAll(() => {
-  console.error = oldConsoleError;
 });
 
 describe("Handler test for integration test support function", () => {

@@ -1,6 +1,6 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { formatDate, putS3 } from "../../shared/utils";
+import { formatDate, logger, putS3 } from "../../shared/utils";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   const response: Response = { batchItemFailures: [] };
@@ -23,7 +23,7 @@ async function storeRecord(record: SQSRecord): Promise<void> {
 
   if (typeof eventId !== "string") {
     const message = "No valid event ID in record.";
-    console.error(message);
+    logger.error(message);
     throw new Error(message);
   }
 
@@ -32,7 +32,7 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     process.env.STORAGE_BUCKET.length === 0
   ) {
     const message = "Storage bucket name not set.";
-    console.error(message);
+    logger.error(message);
     throw new Error(message);
   }
 
@@ -41,7 +41,7 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     process.env.TRANSACTIONS_FOLDER.length === 0
   ) {
     const message = "Transactions folder name not set.";
-    console.error(message);
+    logger.error(message);
     throw new Error(message);
   }
 
@@ -50,7 +50,7 @@ async function storeRecord(record: SQSRecord): Promise<void> {
 
   const key = `${formattedDate}/${eventId}.json`;
 
-  console.log("Storing event " + eventId);
+  logger.info("Storing event " + eventId);
   await putS3(
     process.env.STORAGE_BUCKET,
     process.env.TRANSACTIONS_FOLDER + "/" + key,

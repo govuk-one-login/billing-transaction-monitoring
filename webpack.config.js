@@ -21,7 +21,7 @@ export default {
     transactionCsvToJsonEvent:
       "./src/handlers/transaction-csv-to-json-event/handler.ts",
   },
-  externals: "aws-sdk",
+  externals: ["@aws-lambda-powertools/logger", "aws-sdk"],
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
   module: {
     rules: [{ test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ }],

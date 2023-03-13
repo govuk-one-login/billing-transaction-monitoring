@@ -19,12 +19,12 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
     parameters,
   });
 
-  // console.log(toUtf8(commandInput.Payload as Uint8Array));
+  // logger.info(toUtf8(commandInput.Payload as Uint8Array));
   const result = await invokeLambda(
     `${resourcePrefix()}-int-test-support-function`,
     payload
   );
-  // console.log(toUtf8(result.Payload as Uint8Array));
+  // logger.info(toUtf8(result.Payload as Uint8Array));
 
   if (result.StatusCode === 200 && result.Payload != null) {
     return JSON.parse(toUtf8(result.Payload)).successObject;

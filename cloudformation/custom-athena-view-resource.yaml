@@ -7,6 +7,9 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-custom-athena-view-resource-function
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-custom-athena-view-resource-function
       DeadLetterQueue:
         TargetArn: !GetAtt CustomAthenaViewResourceFunctionDeadLetterQueue.Arn
         Type: SQS

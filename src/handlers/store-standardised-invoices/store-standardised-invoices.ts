@@ -1,5 +1,9 @@
 import { SQSRecord } from "aws-lambda";
-import { getS3EventRecordsFromSqs, putTextS3 } from "../../shared/utils";
+import {
+  getS3EventRecordsFromSqs,
+  logger,
+  putTextS3,
+} from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 
@@ -26,23 +30,23 @@ export async function storeStandardisedInvoices(
     const vendorId = sourcePathParts[0];
     const sourceFileName = sourcePathParts[sourcePathParts.length - 1];
 
-    console.log(
+    logger.info(
       `fetching Textract Data from  ${sourceBucket}/${sourceFilePath}`
     );
     const textractData = await fetchS3TextractData(
       sourceBucket,
       sourceFilePath
     );
-    console.log("fetched Textract data successfully");
+    logger.info("fetched Textract data successfully");
 
-    console.log(`Standardising invoice`);
+    logger.info(`Standardising invoice`);
     const standardisedInvoice = await getStandardisedInvoice(
       textractData,
       vendorId,
       configBucket,
       parserVersions
     );
-    console.log(`Standardised invoice successfully`);
+    logger.info(`Standardised invoice successfully`);
 
     // Convert line items to new-line-separated JSON object text, to work with Glue/Athena.
     const standardisedInvoiceText = standardisedInvoice
@@ -52,7 +56,7 @@ export async function storeStandardisedInvoices(
     // Since that text block is not valid JSON, use a file extension that is not `.json`.
     const destinationFileName = sourceFileName.replace(/\.json$/g, ".txt");
 
-    console.log(
+    logger.info(
       `putting standardised invoice to S3 at ${destinationFolder}/${destinationFileName}`
     );
     await putTextS3(
@@ -60,7 +64,7 @@ export async function storeStandardisedInvoices(
       `${destinationFolder}/${destinationFileName}`,
       standardisedInvoiceText
     );
-    console.log(`put ${destinationFolder}/${destinationFileName} successfully`);
+    logger.info(`put ${destinationFolder}/${destinationFileName} successfully`);
   });
 
   await Promise.all(promises);
