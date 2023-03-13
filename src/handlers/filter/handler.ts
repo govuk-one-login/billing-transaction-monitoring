@@ -1,29 +1,44 @@
-import { SQSEvent } from "aws-lambda";
-import { Response } from "../../shared/types";
+import { buildHandler } from "../../handler-context";
+import { ConfigFileNames } from "../../handler-context/Config";
 import { sendRecord } from "../../shared/utils";
-import { fetchEventNames } from "../../shared/utils/config-utils/fetch-event-names";
 
-export const handler = async (event: SQSEvent): Promise<Response> => {
-  const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
-  if (outputQueueUrl === undefined || outputQueueUrl.length === 0)
-    throw new Error("No OUTPUT_QUEUE_URL defined in this environment");
+enum FilterEnv {
+  OUTPUT_QUEUE_URL = "OUTPUT_QUEUE_URL",
+}
 
-  const response: Response = { batchItemFailures: [] };
+interface FilterableMessage {
+  event_name: string;
+}
 
-  const validEventNames = await fetchEventNames();
+type FilterConfigFiles = ConfigFileNames.services | ConfigFileNames.e2eTest;
 
-  const promises = event.Records.filter((record) => {
-    const body = JSON.parse(record.body);
-    console.log(body.event_name);
-    return Boolean(body?.event_name) && validEventNames.has(body.event_name);
-  }).map(async (record) => {
-    try {
-      await sendRecord(outputQueueUrl, record.body);
-    } catch (e) {
-      response.batchItemFailures.push({ itemIdentifier: record.messageId });
-    }
-  });
+const envVars = [FilterEnv.OUTPUT_QUEUE_URL];
 
-  await Promise.all(promises);
-  return response;
-};
+const messageTypeGuard = (
+  maybeMessage: any
+): maybeMessage is FilterableMessage => !!maybeMessage?.event_name;
+
+const outputs = [
+  { destination: FilterEnv.OUTPUT_QUEUE_URL, store: sendRecord },
+];
+
+const configFiles = [ConfigFileNames.services, ConfigFileNames.e2eTest];
+
+export const handler = buildHandler<
+  FilterableMessage,
+  FilterEnv,
+  FilterConfigFiles
+>({
+  envVars,
+  messageTypeGuard,
+  outputs,
+  configFiles,
+})(async ({ messages, config: { services } }) => {
+  const validEventNames = new Set<string>(
+    (services as Array<{ event_name: string }>).map(
+      ({ event_name }) => event_name
+    )
+  );
+
+  return messages.filter(({ event_name }) => validEventNames.has(event_name));
+});

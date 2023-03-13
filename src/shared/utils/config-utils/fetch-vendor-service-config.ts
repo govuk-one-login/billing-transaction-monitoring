@@ -35,7 +35,7 @@ export const fetchVendorServiceConfig = async (
   return vendorServiceConfig;
 };
 
-const isVendorServiceConfigRow = (x: any): x is VendorServiceConfigRow =>
+export const isVendorServiceConfigRow = (x: any): x is VendorServiceConfigRow =>
   typeof x === "object" &&
   typeof x.vendor_name === "string" &&
   typeof x.vendor_id === "string" &&

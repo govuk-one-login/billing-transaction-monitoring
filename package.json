@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "devDependencies": {
+    "@aws-lambda-powertools/logger": "^1.6.0",
     "@aws-sdk/client-athena": "^3.188.0",
     "@aws-sdk/client-cloudformation": "^3.188.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.188.0",
