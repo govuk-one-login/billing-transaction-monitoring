@@ -77,8 +77,7 @@ export const createInvoiceWithGivenData = async (
             `btm_billing_standardised/${filename.slice(0, 27)}.txt`
       ),
     {
-      timeout: 80000,
-      interval: 8000,
+      timeout: 60000,
       nonCompleteErrorMessage:
         "Invoice data never appeared in standardised folder",
     }
