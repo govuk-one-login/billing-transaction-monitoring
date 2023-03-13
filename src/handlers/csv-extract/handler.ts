@@ -80,6 +80,11 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         );
         console.log("standardisedInvoice", standardisedInvoice);
 
+        if (standardisedInvoice.length === 0) {
+          console.error("No matching line items in csv invoice.");
+          throw new Error("No matching line items in csv invoice.");
+        }
+
         // Convert line items to new-line-separated JSON object text, to work with Glue/Athena.
         const standardisedInvoiceText = standardisedInvoice
           .map((lineItem) => JSON.stringify(lineItem))
