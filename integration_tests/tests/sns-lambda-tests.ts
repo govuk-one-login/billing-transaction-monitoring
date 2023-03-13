@@ -33,6 +33,11 @@ describe(
   "\n Happy path tests \n" +
     "\n publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId\n",
   () => {
+    const eventTime = new Date(
+      snsValidEventPayload.timestamp * 1000
+    ).toISOString();
+    const eventId = snsValidEventPayload.event_id;
+
     beforeAll(async () => {
       await publishToTestTopic(snsValidEventPayload);
     });
@@ -42,10 +47,6 @@ describe(
         "-filter-function",
         snsValidEventPayload.event_id
       );
-      const eventTime = new Date(
-        snsValidEventPayload.timestamp * 1000
-      ).toISOString();
-      await deleteS3Event(snsValidEventPayload.event_id, eventTime);
     });
 
     test("Clean function cloud watch logs should contain eventid", async () => {
@@ -53,10 +54,6 @@ describe(
         "-clean-function",
         snsValidEventPayload.event_id
       );
-      const eventTime = new Date(
-        snsValidEventPayload.timestamp * 1000
-      ).toISOString();
-      await deleteS3Event(snsValidEventPayload.event_id, eventTime);
     });
 
     test("Store Transactions function cloud watch logs should contain eventid", async () => {
@@ -64,16 +61,9 @@ describe(
         "-storage-function",
         snsValidEventPayload.event_id
       );
-      const eventTime = new Date(
-        snsValidEventPayload.timestamp * 1000
-      ).toISOString();
-      await deleteS3Event(snsValidEventPayload.event_id, eventTime);
     });
     afterEach(async () => {
-      const eventTime = new Date(
-        snsValidEventPayload.timestamp * 1000
-      ).toISOString();
-      await deleteS3Event(snsValidEventPayload.event_id, eventTime);
+      await deleteS3Event(eventId, eventTime);
     });
   }
 );
