@@ -53,7 +53,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         const parsedCsv = parseCsv(csv);
 
         if (!isValidCsvObject(parsedCsv)) {
-          console.error("Csv is invalid.");
+          logger.error("Csv is invalid.");
           throw new Error("Csv is invalid.");
         }
 
@@ -69,7 +69,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         );
 
         if (standardisedInvoice.length === 0) {
-          console.error("No matching line items in csv invoice.");
+          logger.error("No matching line items in csv invoice.");
           throw new Error("No matching line items in csv invoice.");
         }
 
@@ -87,7 +87,6 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         );
       }
     } catch (error) {
-      logger.info(error);
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
     }
   });

@@ -22,7 +22,6 @@ const mockedGetVendorServiceConfigRows =
 
 describe("CSV Extract handler tests", () => {
   const OLD_ENV = process.env;
-  const oldConsoleError = console.error;
   const givenBucketName = "some bucket name";
   const givenObjectKey1 = "vendor123/some object key";
   const validEvent = {
@@ -70,8 +69,6 @@ describe("CSV Extract handler tests", () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    console.error = jest.fn();
-
     process.env = {
       ...OLD_ENV,
       CONFIG_BUCKET: "given config bucket",
@@ -82,7 +79,6 @@ describe("CSV Extract handler tests", () => {
 
   afterAll(() => {
     process.env = OLD_ENV;
-    console.error = oldConsoleError;
   });
 
   test("should throw an error if the config bucket is not set", async () => {
