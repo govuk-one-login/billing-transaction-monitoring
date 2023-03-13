@@ -44,7 +44,6 @@ export const getCsvStandardisedInvoice = (
       service_regex: serviceRegexPattern,
     } of vendorServiceConfigRows) {
       const serviceRegex = new RegExp(serviceRegexPattern, "i");
-      console.log(serviceRegex);
       if (!itemDescription?.match(serviceRegex)) {
         continue;
       }

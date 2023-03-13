@@ -42,12 +42,10 @@ export const getStandardisedInvoice = async (
   configBucket: string,
   parserVersions: Record<string, string>
 ): Promise<StandardisedLineItem[]> => {
-  console.log("fetching vendor service config");
   const vendorServiceConfigRows = await getVendorServiceConfigRows(
     configBucket,
     { vendor_id: vendorId }
   );
-  console.log("fetching standardisation module");
   const standardisationModuleId = await getVendorInvoiceStandardisationModuleId(
     configBucket,
     vendorId
