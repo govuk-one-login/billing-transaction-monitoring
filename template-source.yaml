@@ -91,8 +91,6 @@ Globals:
     Environment:
       Variables:
         NODE_OPTIONS: --enable-source-maps
-    Layers:
-      - arn:aws:lambda:eu-west-2:094274105915:layer:AWSLambdaPowertoolsTypeScript:6
 
 Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/test-only.yaml,
