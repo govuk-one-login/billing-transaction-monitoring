@@ -55,6 +55,7 @@ export const getCsvStandardisedInvoice = (
           ...summary,
           item_description: itemDescription,
           subtotal: formatNumber(item.Subtotal),
+          price: formatNumber(item.Subtotal),
           quantity: formatNumber(item.Quantity),
           service_name: serviceName,
           unit_price: formatNumber(item["Unit Price"]),
