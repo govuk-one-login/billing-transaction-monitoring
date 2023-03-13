@@ -16,6 +16,7 @@ Resources:
           DESTINATION_FOLDER: btm_billing_standardised
           LOCAL_ENDPOINT:
             !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-csv-extract-function
       Events:
         CsvExtractEvent:
           Type: SQS

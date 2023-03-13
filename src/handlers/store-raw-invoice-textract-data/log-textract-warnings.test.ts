@@ -1,22 +1,18 @@
+import { logger } from "../../shared/utils";
 import { logTextractWarnings } from "./log-textract-warnings";
 
+jest.mock("../../shared/utils");
+const mockedLogger = logger as jest.MockedObject<typeof logger>;
+
 describe("Textract warnings logger", () => {
-  const oldConsoleWarn = console.warn;
-  let mockedConsoleWarn: jest.Mock;
-
   beforeEach(() => {
-    mockedConsoleWarn = jest.fn();
-    console.warn = mockedConsoleWarn;
-  });
-
-  afterEach(() => {
-    console.warn = oldConsoleWarn;
+    jest.resetAllMocks();
   });
 
   test("Textract warnings logger with empty array", () => {
     const givenWarnings: any = [];
     logTextractWarnings(givenWarnings);
-    expect(mockedConsoleWarn).not.toHaveBeenCalled();
+    expect(mockedLogger.warn).not.toHaveBeenCalled();
   });
 
   test("Textract warnings logger with single warning with no code or pages", () => {
@@ -25,8 +21,8 @@ describe("Textract warnings logger", () => {
 
     logTextractWarnings(givenWarnings);
 
-    expect(mockedConsoleWarn).toHaveBeenCalledTimes(1);
-    expect(mockedConsoleWarn).toHaveBeenCalledWith("Warning");
+    expect(mockedLogger.warn).toHaveBeenCalledTimes(1);
+    expect(mockedLogger.warn).toHaveBeenCalledWith("Warning");
   });
 
   test("Textract warnings logger with single warning with code and no pages", () => {
@@ -36,8 +32,8 @@ describe("Textract warnings logger", () => {
 
     logTextractWarnings(givenWarnings);
 
-    expect(mockedConsoleWarn).toHaveBeenCalledTimes(1);
-    expect(mockedConsoleWarn).toHaveBeenCalledWith(`Warning code ${givenCode}`);
+    expect(mockedLogger.warn).toHaveBeenCalledTimes(1);
+    expect(mockedLogger.warn).toHaveBeenCalledWith(`Warning code ${givenCode}`);
   });
 
   test("Textract warnings logger with single warning with pages and no code", () => {
@@ -47,8 +43,8 @@ describe("Textract warnings logger", () => {
 
     logTextractWarnings(givenWarnings);
 
-    expect(mockedConsoleWarn).toHaveBeenCalledTimes(1);
-    expect(mockedConsoleWarn).toHaveBeenCalledWith("Warning for pages 1, 2, 3");
+    expect(mockedLogger.warn).toHaveBeenCalledTimes(1);
+    expect(mockedLogger.warn).toHaveBeenCalledWith("Warning for pages 1, 2, 3");
   });
 
   test("Textract warnings logger with single warning with code and pages", () => {
@@ -62,8 +58,8 @@ describe("Textract warnings logger", () => {
 
     logTextractWarnings(givenWarnings);
 
-    expect(mockedConsoleWarn).toHaveBeenCalledTimes(1);
-    expect(mockedConsoleWarn).toHaveBeenCalledWith(
+    expect(mockedLogger.warn).toHaveBeenCalledTimes(1);
+    expect(mockedLogger.warn).toHaveBeenCalledWith(
       `Warning code ${givenCode} for pages 1, 2, 3`
     );
   });
@@ -74,6 +70,6 @@ describe("Textract warnings logger", () => {
 
     logTextractWarnings(givenWarnings);
 
-    expect(mockedConsoleWarn).toHaveBeenCalledTimes(2);
+    expect(mockedLogger.warn).toHaveBeenCalledTimes(2);
   });
 });

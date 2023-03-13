@@ -5,6 +5,7 @@ import {
   getS3EventRecordsFromSqs,
   getVendorServiceConfigRows,
   putTextS3,
+  logger,
 } from "../../shared/utils";
 import { parseCsv } from "./parsing-utils/parse-csv";
 import {
@@ -86,6 +87,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         );
       }
     } catch (error) {
+      logger.info(error);
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
     }
   });

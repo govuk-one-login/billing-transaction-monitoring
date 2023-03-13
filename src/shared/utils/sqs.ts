@@ -1,4 +1,5 @@
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { logger } from "./logger";
 
 const sqs = new SQSClient({
   region: "eu-west-2",
@@ -16,7 +17,7 @@ export async function sendRecord(
 ): Promise<void> {
   const parsedBody = JSON.parse(messageBody);
   if (options.shouldLog && typeof parsedBody.event_id === "string") {
-    console.log(
+    logger.info(
       `Sending event ${parsedBody.event_id} to SQS queue at ${queueUrl}`
     );
   }
@@ -29,10 +30,10 @@ export async function sendRecord(
   return await sqs
     .send(params)
     .then((data) => {
-      console.log("SQS data", data.$metadata);
+      logger.info("Sent SQS command", { metadata: data.$metadata });
     })
     .catch((err) => {
-      console.log(err, err.stack);
+      logger.error("SQS command send error", { error: err });
       throw err;
     });
 }

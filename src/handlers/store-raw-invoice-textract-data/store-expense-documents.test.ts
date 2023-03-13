@@ -10,6 +10,8 @@ import { handleTextractFailure } from "./handle-textract-failure";
 import { handleTextractSuccess } from "./handle-textract-success";
 import { storeExpenseDocuments } from "./store-expense-documents";
 
+jest.mock("../../shared/utils/logger");
+
 jest.mock("./fetch-expense-documents");
 const mockedFetchExpenseDocuments = fetchExpenseDocuments as jest.Mock;
 
@@ -24,7 +26,6 @@ jest.mock("./handle-textract-success");
 const mockedHandleTextractSuccess = handleTextractSuccess as jest.Mock;
 
 describe("Expense documents storer", () => {
-  const oldConsoleError = console.error;
   let mockedDocuments: Textract.ExpenseDocument[];
   let mockedExpenseAnalysisNotificationData: any;
   let mockedJobId: string;
@@ -37,8 +38,6 @@ describe("Expense documents storer", () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-
-    console.error = jest.fn();
 
     mockedJobId = "mocked job ID";
     mockedSourceBucket = "mocked source bucket";
@@ -60,10 +59,6 @@ describe("Expense documents storer", () => {
 
     givenDestinationBucket = "given destination bucket";
     givenRecord = "given record" as any;
-  });
-
-  afterAll(() => {
-    console.error = oldConsoleError;
   });
 
   test("Expense documents storer with invalid record", async () => {

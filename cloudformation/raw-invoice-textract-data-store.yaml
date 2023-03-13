@@ -69,7 +69,7 @@ Resources:
             Queue: !GetAtt StandardisedInvoiceStorageQueue.Arn
       LifecycleConfiguration:
         Rules:
-          - ExpirationInDays: 1825  # Five years
+          - ExpirationInDays: 1825 # Five years
             Status: Enabled
 
   RawInvoiceTextractDataQueue:
@@ -130,6 +130,7 @@ Resources:
       Environment:
         Variables:
           DESTINATION_BUCKET: !Ref RawInvoiceTextractDataBucket
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-raw-textract-storage-function
       Events:
         RawInvoiceTextractDataEvent:
           Type: SQS

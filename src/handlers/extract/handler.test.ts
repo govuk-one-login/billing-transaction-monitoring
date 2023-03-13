@@ -9,9 +9,10 @@ import { handler } from "./handler";
 jest.mock("aws-sdk");
 const MockTextract = AWS.Textract as jest.MockedClass<typeof AWS.Textract>;
 
+jest.mock("../../shared/utils/logger");
+
 describe("Extract handler test", () => {
   const OLD_ENV = process.env;
-  const oldConsoleLog = console.log;
 
   let mockStartExpenseAnalysis: jest.Mock;
 
@@ -40,12 +41,10 @@ describe("Extract handler test", () => {
     MockTextract.mockReturnValue({
       startExpenseAnalysis: mockStartExpenseAnalysis,
     } as any);
-    console.log = jest.fn();
   });
 
   afterAll(() => {
     process.env = OLD_ENV;
-    console.log = oldConsoleLog;
   });
 
   test("Extract handler with valid event record calls textract function startExpenseAnalysis", async () => {

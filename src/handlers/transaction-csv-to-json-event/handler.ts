@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { S3Event } from "aws-lambda";
-import { fetchS3, sendRecord } from "../../shared/utils";
+import { fetchS3, logger, sendRecord } from "../../shared/utils";
 import { convert } from "./convert";
 import { isValidRenamingConfig } from "./convert/csv-to-json";
 import { isValidInferencesConfig } from "./convert/make-inferences";
@@ -33,7 +33,7 @@ export const handler = async (event: S3Event): Promise<void> => {
   );
 
   if (!isValidRenamingConfig(renamingMap)) {
-    console.error(
+    logger.error(
       `header-row-renaming-map.json is invalid.  Received ${renamingMap}`
     );
     throw new Error(
@@ -42,12 +42,12 @@ export const handler = async (event: S3Event): Promise<void> => {
   }
 
   if (!isValidInferencesConfig(inferences)) {
-    console.error(`event-inferences.json is invalid. Received ${inferences}`);
+    logger.error(`event-inferences.json is invalid. Received ${inferences}`);
     throw new Error(`event-inferences.json is invalid. Received ${inferences}`);
   }
 
   if (!isValidTransformationsConfig(transformations)) {
-    console.error(
+    logger.error(
       `event-transformation.json is invalid. Received ${transformations}`
     );
     throw new Error(

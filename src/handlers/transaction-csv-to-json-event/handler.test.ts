@@ -9,12 +9,10 @@ const mockedSendRecord = sendRecord as jest.Mock;
 
 describe("Transaction CSV To JSON Event handler test", () => {
   const OLD_ENV = process.env;
-  const oldConsoleError = console.error;
   let givenEvent: S3Event;
 
   beforeEach(() => {
     jest.resetAllMocks();
-    console.error = jest.fn();
     process.env = {
       ...OLD_ENV,
       OUTPUT_QUEUE_URL: "output queue url",
@@ -39,7 +37,6 @@ describe("Transaction CSV To JSON Event handler test", () => {
 
   afterAll(() => {
     process.env = OLD_ENV;
-    console.error = oldConsoleError;
   });
 
   const givenRenamingConfig = JSON.stringify([["a", "id"]]);

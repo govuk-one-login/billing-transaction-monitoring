@@ -9,13 +9,9 @@ jest.mock("../../shared/utils");
 const mockPutS3 = putS3 as jest.MockedFunction<typeof putS3>;
 
 const OLD_ENV = process.env;
-const oldConsoleError = console.error;
-const oldConsoleLog = console.log;
 
 beforeEach(() => {
   process.env = { ...OLD_ENV };
-  console.error = jest.fn();
-  console.log = jest.fn();
   mockPutS3.mockClear();
   process.env.STORAGE_BUCKET = "store";
   process.env.TRANSACTIONS_FOLDER = "btm_transactions";
@@ -23,8 +19,6 @@ beforeEach(() => {
 
 afterAll(() => {
   process.env = OLD_ENV;
-  console.error = oldConsoleError;
-  console.log = oldConsoleLog;
 });
 
 test("Store Transactions handler with empty event batch", async () => {
@@ -36,14 +30,8 @@ test("Store Transactions handler with empty event batch", async () => {
 });
 
 test("Store Transactions handler with some valid events calls s3", async () => {
-  const validRecord1 = createEventRecordWithName(
-    "EVENT_1",
-    1
-  );
-  const validRecord2 = createEventRecordWithName(
-    "EVENT_5",
-    2
-  );
+  const validRecord1 = createEventRecordWithName("EVENT_1", 1);
+  const validRecord2 = createEventRecordWithName("EVENT_5", 2);
   const event = createEvent([validRecord1, validRecord2]);
 
   await handler(event);
@@ -80,10 +68,7 @@ test("Store Transactions handler with some valid events calls s3", async () => {
 test("Bucket name not defined", async () => {
   process.env.STORAGE_BUCKET = undefined;
 
-  const validRecord = createEventRecordWithName(
-    "EVENT_1",
-    1
-  );
+  const validRecord = createEventRecordWithName("EVENT_1", 1);
 
   const event = createEvent([validRecord]);
 
@@ -96,10 +81,7 @@ test("Bucket name not defined", async () => {
 test("Transactions folder name not defined", async () => {
   process.env.TRANSACTIONS_FOLDER = undefined;
 
-  const validRecord = createEventRecordWithName(
-    "EVENT_1",
-    1
-  );
+  const validRecord = createEventRecordWithName("EVENT_1", 1);
 
   const event = createEvent([validRecord]);
 
@@ -110,14 +92,8 @@ test("Transactions folder name not defined", async () => {
 });
 
 test("Failing puts to S3", async () => {
-  const validRecord = createEventRecordWithName(
-    "EVENT_1",
-    1
-  );
-  const invalidRecord = createEventRecordWithName(
-    "EVENT_5",
-    2
-  );
+  const validRecord = createEventRecordWithName("EVENT_1", 1);
+  const invalidRecord = createEventRecordWithName("EVENT_5", 2);
 
   const event = createEvent([validRecord, invalidRecord]);
 

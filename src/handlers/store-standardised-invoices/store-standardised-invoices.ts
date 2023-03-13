@@ -30,7 +30,6 @@ export async function storeStandardisedInvoices(
       sourceBucket,
       sourceFilePath
     );
-
     const standardisedInvoice = await getStandardisedInvoice(
       textractData,
       vendorId,

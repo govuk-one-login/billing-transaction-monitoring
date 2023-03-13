@@ -1,6 +1,6 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
 import { Athena } from "aws-sdk";
-import { sendCustomResourceResult } from "../../shared/utils";
+import { logger, sendCustomResourceResult } from "../../shared/utils";
 import { getAthenaViewResourceData } from "./get-athena-view-resource-data";
 import { QueryExecutionValidator } from "./query-execution-validator";
 
@@ -40,7 +40,7 @@ export const handler = async (
       status: "SUCCESS",
     });
   } catch (error) {
-    console.error("Handler error:", error);
+    logger.error("Handler failure", { error });
 
     await sendCustomResourceResult({
       context,
