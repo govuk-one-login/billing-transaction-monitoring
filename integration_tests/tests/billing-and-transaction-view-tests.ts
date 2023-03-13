@@ -91,7 +91,6 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
-  console.log("billing view", response);
 
   expect(response[0].price_difference).toEqual(priceDiff);
   expect(response[0].quantity_difference).toEqual(qtyDiff);

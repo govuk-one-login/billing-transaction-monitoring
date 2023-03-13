@@ -33,12 +33,15 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
           prefix: transactionsDirectory,
         }),
       (result) => {
+        console.log(happyPathCount);
         return (
           result.Contents?.length !== undefined &&
           result.Contents?.length === happyPathCount
         );
       },
       {
+        timeout: 50000,
+        interval: 10000,
         nonCompleteErrorMessage: "Events CSV was not successfully uploaded",
       }
     );

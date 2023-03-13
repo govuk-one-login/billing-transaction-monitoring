@@ -33,7 +33,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
     ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2022/10/30"} | ${undefined}   | ${"100"}
     ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                | ${"2022/11/30"} | ${"10"}        | ${"10"}
     ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}          | ${"2022/12/01"} | ${"10"}        | ${"12"}
-    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}           | ${"2023/01/01"} | ${"10"}        | ${"6"}
+    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}           | ${"2023/01/02"} | ${"10"}        | ${"6"}
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
@@ -65,9 +65,6 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
       bucket: storageBucket,
       key: `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`,
     });
-    console.log(
-      `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`
-    );
   });
 
   test.each`
