@@ -12,17 +12,6 @@ import {
   getCsvStandardisedInvoice,
 } from "./get-csv-standardised-invoice";
 
-// TODO
-// 1. Set up the dependencies - check for env vars
-// 2. Write handler function to loop through each record, extract the bucket/file name, handle errors.
-// 3. Add the fetchS3 function
-// 3a. Add the parseCsv function
-// 3b. Add the type guard for the CsvObject
-// 4. Write the handler 'getCsvStandardised' function that will standardise the invoice
-// 5. Add the 'putTextS3' function that will put the invoice data into the storage bucket (.txt)
-// Note: Do not need to move the original invoice csv to the successful folder in the raw invoice bucket.
-// 6. Handle errors with batchItemFailures
-
 export const handler = async (event: SQSEvent): Promise<Response> => {
   const configBucket = process.env.CONFIG_BUCKET;
   if (configBucket === undefined || configBucket.length === 0)
@@ -61,7 +50,6 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         const csv = await fetchS3(bucket, filePath);
 
         const parsedCsv = parseCsv(csv);
-        console.log("parsedCsv", parsedCsv);
 
         if (!isValidCsvObject(parsedCsv)) {
           console.error("Csv is invalid.");
@@ -78,7 +66,6 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           vendorId,
           vendorServiceConfigRows
         );
-        console.log("standardisedInvoice", standardisedInvoice);
 
         if (standardisedInvoice.length === 0) {
           console.error("No matching line items in csv invoice.");
@@ -89,7 +76,6 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         const standardisedInvoiceText = standardisedInvoice
           .map((lineItem) => JSON.stringify(lineItem))
           .join("\n");
-        console.log("standardisedInvoiceText", standardisedInvoiceText);
         // Since that text block is not valid JSON, use a file extension that is not `.json`.
         const destinationFileName = sourceFileName.replace(/\.csv$/g, ".txt");
 
@@ -100,14 +86,11 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         );
       }
     } catch (error) {
-      console.log(error);
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
     }
   });
 
   await Promise.all(promises);
-  // TODO Look into promise.allSettled
-
   return response;
 };
 
