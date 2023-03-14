@@ -110,12 +110,16 @@ export const assertQueryResultWithTestData = async (
   const billingPrice = unitPrice * billingQty;
   const transactionPrice = unitPrice * transactionQty;
 
-  if (
-    transactionPrice !== undefined &&
-    !isNaN(response[0].transaction_price) &&
-    billingPrice !== undefined &&
-    !isNaN(response[0].billing_price)
-  ) {
+  if (billingQty !== undefined && transactionQty !== undefined) {
+    expect(response[0].billing_quantity).toEqual(billingQty);
+    expect(response[0].transaction_quantity).toEqual(transactionQty);
+    const qtyDifference = billingQty - transactionQty;
+    expect(response[0].quantity_difference).toEqual(String(qtyDifference));
+
+    const qtyDifferencePercentage = (qtyDifference / transactionQty) * 100;
+    expect(response[0].quantity_difference_percentage).toEqual(
+      String(qtyDifferencePercentage)
+    );
     expect(response[0].transaction_price).toEqual(transactionPrice.toFixed(4));
 
     const priceDifference = billingPrice - transactionPrice;
@@ -127,20 +131,5 @@ export const assertQueryResultWithTestData = async (
     expect(response[0].price_difference_percentage).toEqual(
       priceDifferencePercentage.toFixed(4)
     );
-
-    if (
-      !isNaN(response[0].billing_quantity) &&
-      !isNaN(response[0].transaction_quantity)
-    ) {
-      expect(response[0].billing_quantity).toEqual(billingQty);
-      expect(response[0].transaction_quantity).toEqual(transactionQty);
-      const qtyDifference = billingQty - transactionQty;
-      expect(response[0].quantity_difference).toEqual(String(qtyDifference));
-
-      const qtyDifferencePercentage = (qtyDifference / transactionQty) * 100;
-      expect(response[0].quantity_difference_percentage).toEqual(
-        String(qtyDifferencePercentage)
-      );
-    }
   }
 };
