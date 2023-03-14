@@ -17,6 +17,7 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
