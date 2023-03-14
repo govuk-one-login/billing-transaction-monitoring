@@ -21,7 +21,6 @@ import {
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
 
 const prefix = resourcePrefix();
-const testStartTime = new Date();
 
 describe("\n Happy path - Upload valid mock invoice and verify data is seen in the billing view\n", () => {
   const storageBucket = `${prefix}-storage`;
@@ -75,8 +74,9 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
       ({ Contents }) =>
         !!Contents?.some(
           (s3Object) =>
-            s3Object.LastModified !== undefined &&
-            new Date(s3Object.LastModified) >= testStartTime
+            s3Object.Key !== undefined &&
+            s3Object.Key ===
+              `btm_billing_standardised/${filename.slice(0, 27)}.txt`
         ),
       {
         timeout: 50000,
@@ -179,7 +179,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
     );
 
     // Step 3: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
-    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1'`;
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' ORDER BY service_name ASC`;
     const queryId = await startQueryExecutionCommand({
       databaseName,
       queryString,
@@ -188,18 +188,23 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
     expect(queryObjects.length).toEqual(2);
 
     expect(queryObjects[0].vendor_name).toEqual("Vendor One");
-    expect(queryObjects[0].service_name).toEqual("Passport check");
-    expect(queryObjects[0].quantity).toEqual("13788");
-    expect(queryObjects[0].price).toEqual("4687.9200");
+    expect(queryObjects[0].service_name).toEqual("Fraud check");
+    expect(queryObjects[0].quantity).toEqual("83");
+    expect(queryObjects[0].price).toEqual("327.8500");
     expect(queryObjects[0].year).toEqual("2023");
     expect(queryObjects[0].month).toEqual("02");
 
     expect(queryObjects[1].vendor_name).toEqual("Vendor One");
-    expect(queryObjects[1].service_name).toEqual("Fraud check");
-    expect(queryObjects[1].quantity).toEqual("83");
-    expect(queryObjects[1].price).toEqual("327.8500");
+    expect(queryObjects[1].service_name).toEqual("Passport check");
+    expect(queryObjects[1].quantity).toEqual("13788");
+    expect(queryObjects[1].price).toEqual("4687.9200");
     expect(queryObjects[1].year).toEqual("2023");
     expect(queryObjects[1].month).toEqual("02");
+
+    await deleteS3Object({
+      bucket: storageBucket,
+      key: `${standardisedFolderPrefix}/valid-invoice.txt`,
+    });
   });
 });
 
