@@ -102,7 +102,7 @@ const isValidCsvObject = (x: any): x is CsvObject =>
   typeof x["VAT Number"] === "string" &&
   typeof x["PO Number"] === "string" &&
   typeof x.Version === "string" &&
-  Object.prototype.toString.call(x.lineItems) === "[object Array]" &&
+  Array.isArray(x.lineItems) &&
   x.lineItems.every((lineItem: any) => isValidLineItem(lineItem));
 
 const isValidLineItem = (x: any): x is CsvObject =>
