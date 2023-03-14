@@ -2,10 +2,18 @@ import { SQSEvent } from "aws-lambda";
 import {
   fetchS3,
   getVendorServiceConfigRows,
+  logger,
   putTextS3,
 } from "../../shared/utils";
 import { handler } from "./handler";
 
+jest.mock("../../shared/utils/logger", () => {
+  const original = jest.requireActual("../../shared/utils/logger");
+  return {
+    ...original,
+    logger: { error: jest.fn() },
+  };
+});
 jest.mock("../../shared/utils", () => {
   const original = jest.requireActual("../../shared/utils");
   return {
@@ -19,6 +27,7 @@ const mockedFetchS3 = fetchS3 as jest.Mock;
 const mockedPutTextS3 = putTextS3 as jest.Mock;
 const mockedGetVendorServiceConfigRows =
   getVendorServiceConfigRows as jest.Mock;
+// const mockedLogger = logger as jest.MockedObject<typeof logger>;
 
 describe("CSV Extract handler tests", () => {
   const OLD_ENV = process.env;
@@ -81,6 +90,17 @@ describe("CSV Extract handler tests", () => {
     process.env = OLD_ENV;
   });
 
+  function expectHandlerFailure(errorMessage: string): void {
+    expect(logger.error).toHaveBeenCalledWith(
+      "Handler failure",
+      expect.objectContaining({
+        error: expect.objectContaining({
+          message: errorMessage,
+        }),
+      })
+    );
+  }
+
   test("should throw an error if the config bucket is not set", async () => {
     delete process.env.CONFIG_BUCKET;
     await expect(handler(validEvent)).rejects.toThrowError(
@@ -117,6 +137,9 @@ describe("CSV Extract handler tests", () => {
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given message ID" }],
     });
+    expectHandlerFailure("Record body not valid JSON.");
+    expect(mockedFetchS3).not.toBeCalled();
+    expect(mockedGetVendorServiceConfigRows).not.toBeCalled();
   });
 
   test("should throw error if event record has body that does not serialise to object", async () => {
@@ -134,6 +157,9 @@ describe("CSV Extract handler tests", () => {
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given message ID" }],
     });
+    expectHandlerFailure("Record body not object.");
+    expect(mockedFetchS3).not.toBeCalled();
+    expect(mockedGetVendorServiceConfigRows).not.toBeCalled();
   });
 
   test("should throw error if event record has invalid S3 event record in body", async () => {
@@ -164,6 +190,9 @@ describe("CSV Extract handler tests", () => {
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given message ID" }],
     });
+    expectHandlerFailure("Event record body not valid S3 event.");
+    expect(mockedFetchS3).not.toBeCalled();
+    expect(mockedGetVendorServiceConfigRows).not.toBeCalled();
   });
 
   test("should throw error with event record that has a valid S3 event in body with no vendor ID folder", async () => {
@@ -194,6 +223,11 @@ describe("CSV Extract handler tests", () => {
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given message ID" }],
     });
+    expectHandlerFailure(
+      "File not in vendor ID folder: given bucket name/given-file-path-with-no-folder"
+    );
+    expect(mockedFetchS3).not.toBeCalled();
+    expect(mockedGetVendorServiceConfigRows).not.toBeCalled();
   });
 
   test("should throw error when given a valid bucket and key but fetchS3 throws error when fetching invoice", async () => {
@@ -205,6 +239,9 @@ describe("CSV Extract handler tests", () => {
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given message ID" }],
     });
+    expectHandlerFailure(mockedErrorText);
+    expect(mockedFetchS3).toBeCalled();
+    expect(mockedGetVendorServiceConfigRows).not.toBeCalled();
   });
 
   test("should throw error when given a valid bucket and key but fetching vendor config throws an error", async () => {
@@ -217,6 +254,9 @@ describe("CSV Extract handler tests", () => {
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given message ID" }],
     });
+    expectHandlerFailure(mockedErrorText);
+    expect(mockedFetchS3).toBeCalled();
+    expect(mockedGetVendorServiceConfigRows).toBeCalled();
   });
 
   test("should throw error if given an invalid csv", async () => {
@@ -242,6 +282,7 @@ describe("CSV Extract handler tests", () => {
         },
       ],
     });
+    expectHandlerFailure("Csv is invalid.");
   });
 
   test("should throw error if getCsvStandardisedInvoice doesn't return any line items", async () => {
@@ -264,6 +305,7 @@ describe("CSV Extract handler tests", () => {
         },
       ],
     });
+    expectHandlerFailure("No matching line items in csv invoice.");
   });
 
   test("should throw error with putTextS3 storing failure", async () => {
@@ -277,6 +319,7 @@ describe("CSV Extract handler tests", () => {
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given message ID" }],
     });
+    expectHandlerFailure(mockedErrorText);
   });
 
   test("should store the standardised invoice if no errors", async () => {

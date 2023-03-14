@@ -1,10 +1,3 @@
-export interface InvoiceData {
-  vendor: string;
-  invoiceDate: string;
-  dueDate: string;
-  vatNumber: string;
-}
-
 const isKvpRow = (row: string[]): boolean => {
   return (
     !!row[0] &&
