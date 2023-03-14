@@ -1,4 +1,4 @@
-import { VendorServiceConfigRows } from "../../shared/utils";
+import { formatDate, VendorServiceConfigRows } from "../../shared/utils";
 import { StandardisedLineItem } from "../store-standardised-invoices/get-standardised-invoice";
 
 export interface LineItem {
@@ -29,8 +29,8 @@ export const getCsvStandardisedInvoice = (
     invoice_receipt_id: csvObject["PO Number"],
     vendor_id: vendorId,
     vendor_name: csvObject.Vendor,
-    invoice_receipt_date: formatDate(csvObject["Invoice Date"]),
-    due_date: formatDate(csvObject["Due Date"]),
+    invoice_receipt_date: formatDate(new Date(csvObject["Invoice Date"])),
+    due_date: formatDate(new Date(csvObject["Due Date"])),
     tax_payer_id: csvObject["VAT Number"],
     parser_version: csvObject.Version,
   };
@@ -66,19 +66,8 @@ export const getCsvStandardisedInvoice = (
   }, []);
 };
 
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  if (date === null) {
-    throw new Error(`Unsupported date format: ${dateStr}`);
-  }
-  const year = date.getFullYear();
-  const month = `${(date.getMonth() + 1).toString().padStart(2, "0")}`; // Add leading zero if necessary
-  const day = `${date.getDate().toString().padStart(2, "0")}`; // Add leading zero if necessary
-  return `${year}-${month}-${day}`;
-}
-
 function formatNumber(str: string): number {
   if (isNaN(Number(str))) {
-    throw new Error(`Unsupported money format: ${str}`);
+    throw new Error(`Unsupported number format: ${str}`);
   } else return Number(str);
 }

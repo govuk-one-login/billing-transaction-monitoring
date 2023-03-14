@@ -1,9 +1,5 @@
 export const formatDate = (date: Date): string =>
-  formatYearMonthDay(
-    date.getUTCFullYear(),
-    date.getUTCMonth() + 1,
-    date.getUTCDate()
-  );
+  formatYearMonthDay(date.getFullYear(), date.getMonth() + 1, date.getDate());
 
 export const formatYearMonthDay = (
   year: number,
