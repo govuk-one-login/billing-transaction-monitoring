@@ -32,7 +32,7 @@ const mockedGetVendorServiceConfigRows =
 describe("CSV Extract handler tests", () => {
   const OLD_ENV = process.env;
   const givenBucketName = "some bucket name";
-  const givenObjectKey1 = "vendor123/some object key";
+  const givenObjectKey1 = "vendor123/some object key.csv";
   const validEvent = {
     Records: [
       {
@@ -331,7 +331,7 @@ describe("CSV Extract handler tests", () => {
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       "given destination bucket",
-      "given destination folder/some object key",
+      "given destination folder/some object key.txt",
       JSON.stringify({
         invoice_receipt_id: "123 4567 89",
         vendor_id: "vendor123",
