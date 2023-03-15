@@ -69,5 +69,7 @@ export const getCsvStandardisedInvoice = (
 function formatNumber(str: string): number {
   if (isNaN(Number(str))) {
     throw new Error(`Unsupported number format: ${str}`);
+  } else if (!str) {
+    throw new Error(`Empty number field in csv: ${str}`);
   } else return Number(str);
 }

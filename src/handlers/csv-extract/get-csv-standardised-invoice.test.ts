@@ -162,4 +162,32 @@ describe("CSV Standardised invoice getter", () => {
       )
     ).toThrowError("Unsupported number format: x");
   });
+
+  test("should throw error when given a valid CsvObject that has an empty number field", () => {
+    givenCsvObjectWithInvalidNumber = {
+      Vendor: "Vendor One",
+      "Invoice Date": "2023/02/28",
+      "Due Date": "2023/03/28",
+      "VAT Number": "123 4567 89",
+      "PO Number": "370 000",
+      Version: "1.0.0",
+      lineItems: [
+        {
+          "Service Name": "Check one",
+          "Unit Price": "", // <- empty field
+          Quantity: "13788",
+          Tax: "937.584",
+          Subtotal: "4687.92",
+          Total: "5625.504",
+        },
+      ],
+    };
+    expect(() =>
+      getCsvStandardisedInvoice(
+        givenCsvObjectWithInvalidNumber,
+        "vendor_testvendor1",
+        givenVendorServiceConfigRows
+      )
+    ).toThrowError("Empty number field in csv: ");
+  });
 });
