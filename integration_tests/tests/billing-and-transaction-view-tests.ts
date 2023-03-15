@@ -51,7 +51,7 @@ describe("\nUpload invoice to raw invoice bucket and verify billing and transact
         .toString(36)
         .substring(2, 7)}-validFile.pdf`;
 
-      const invoiceData = await createInvoiceWithGivenData(
+      const invoiceData = createInvoiceWithGivenData(
         data,
         "Passport Check",
         data.unitPrice,
