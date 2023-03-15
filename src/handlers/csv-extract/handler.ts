@@ -11,6 +11,7 @@ import { parseCsv } from "./parsing-utils/parse-csv";
 import {
   CsvObject,
   getCsvStandardisedInvoice,
+  LineItem,
 } from "./get-csv-standardised-invoice";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
@@ -107,7 +108,7 @@ const isValidCsvObject = (x: any): x is CsvObject =>
   Array.isArray(x.lineItems) &&
   x.lineItems.every((lineItem: any) => isValidLineItem(lineItem));
 
-const isValidLineItem = (x: any): x is CsvObject =>
+const isValidLineItem = (x: any): x is LineItem =>
   typeof x === "object" &&
   typeof x["Service Name"] === "string" &&
   typeof x["Unit Price"] === "string" &&

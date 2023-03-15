@@ -26,20 +26,54 @@ describe("Parse CSV tests", () => {
     expect(result).toEqual(expected);
   });
 
-  test("should reject key/values with extra columns", async () => {
-    const fileData = "key1,value1,EXTRA DATA,,,\n";
-
-    const result = parseCsv(fileData);
-    expect(result).toEqual({ lineItems: [] });
-  });
-
-  test("should ignore extra columns in line items", async () => {
+  test("should ignore trailing blank columns in line items header", async () => {
     const fileData =
-      "column1,column2,column3,\n" + "value1,value2,value3,EXTRA DATA,\n";
+      "column1,column2,column3,,,,,\n" + "value1,value2,value3,,,,,\n";
 
     const result = parseCsv(fileData);
     expect(result).toEqual({
       lineItems: [{ column1: "value1", column2: "value2", column3: "value3" }],
     });
+  });
+
+  test("should fail if extra columns in line items", async () => {
+    const fileData =
+      "column1,column2,column3,,,,,\n" + "value1,value2,value3,value4,,,,\n";
+
+    expect(() => parseCsv(fileData)).toThrowError(
+      "Wrong number of columns in line item"
+    );
+  });
+
+  test("should fail if line item has fewer columns than header row", async () => {
+    const fileData = "column1,column2,column3,,,,,\n" + "value1,value2,,,,\n";
+
+    expect(() => parseCsv(fileData)).toThrowError(
+      "Wrong number of columns in line item"
+    );
+  });
+
+  test("should parse correctly with \\r\\n line delimiters", async () => {
+    const fileData =
+      "Vendor,Skippy’s Everything Shop,,,,,\r\n" +
+      ",,,,,,\r\n" +
+      "Service Name,Unit Price,Quantity,Tax,Subtotal,Total,\r\n" +
+      "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32,\r\n";
+    const expected = {
+      Vendor: "Skippy’s Everything Shop",
+      lineItems: [
+        {
+          "Service Name": "Horse Hoof Whittling",
+          "Unit Price": "12.45",
+          Quantity: "28",
+          Tax: "69.72",
+          Subtotal: "348.6",
+          Total: "418.32",
+        },
+      ],
+    };
+    const result = parseCsv(fileData);
+
+    expect(result).toEqual(expected);
   });
 });

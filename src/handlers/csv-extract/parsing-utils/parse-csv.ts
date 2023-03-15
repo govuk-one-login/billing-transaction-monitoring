@@ -36,6 +36,14 @@ const objectifyLineItemRow = (
   );
 };
 
+const trimTrailingBlankColumns = (row: string[]): string[] => {
+  let trimmedRow = row;
+  while (trimmedRow.length > 0 && !trimmedRow[trimmedRow.length - 1]) {
+    trimmedRow = trimmedRow.slice(0, -1);
+  }
+  return trimmedRow;
+};
+
 const applyStructure = (
   cells: string[][]
 ): {
@@ -51,18 +59,19 @@ const applyStructure = (
           kvps: { ...acc.kvps, [row[0]]: row[1] },
         };
       }
-      if (isFullRow(row) && !tableHeader) {
-        tableHeader = row;
-        return acc;
-      }
       if (isTotalRow(row)) {
         return acc;
       }
-      if (isFullRow(row)) {
+      const trimmedRow = trimTrailingBlankColumns(row);
+      if (isFullRow(trimmedRow)) {
         if (!tableHeader) {
-          throw new Error("Encountered a line item before finding a header.");
+          tableHeader = trimmedRow;
+          return acc;
         }
-        const lineItem = objectifyLineItemRow(tableHeader, row);
+        if (trimmedRow.length !== tableHeader.length) {
+          throw new Error("Wrong number of columns in line item");
+        }
+        const lineItem = objectifyLineItemRow(tableHeader, trimmedRow);
         return {
           ...acc,
           lineItems: [...acc.lineItems, lineItem],
@@ -78,9 +87,8 @@ const applyStructure = (
 };
 
 export const parseCsv = (csv: string): object => {
-  const newLineDelimiter = csv.search("\r\n") !== -1 ? "\r\n" : "\n";
-  const rows = csv.split(newLineDelimiter);
-  const cells = rows.map((row) => row.split(",").slice(0, -1));
+  const rows = csv.split(/\r?\n/);
+  const cells = rows.map((row) => row.split(","));
   const { kvps, lineItems } = applyStructure(cells);
   return { ...kvps, lineItems };
 };
