@@ -1,5 +1,13 @@
-export const formatDate = (date: Date): string =>
-  formatYearMonthDay(date.getFullYear(), date.getMonth() + 1, date.getDate());
+export function formatDate(date: Date): string {
+  if (date.toString() === "Invalid Date") {
+    throw new Error(`Unsupported date format`);
+  }
+  return formatYearMonthDay(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate()
+  );
+}
 
 export const formatYearMonthDay = (
   year: number,

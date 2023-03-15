@@ -5,11 +5,32 @@ import {
 } from "./get-csv-standardised-invoice";
 
 describe("CSV Standardised invoice getter", () => {
-  let givenCsvObject: CsvObject;
+  let givenValidCsvObject: CsvObject;
+  let givenCsvObjectWithInvalidDate: CsvObject;
+  let givenCsvObjectWithInvalidNumber: CsvObject;
   let givenVendorServiceConfigRows: VendorServiceConfigRows;
 
   beforeEach(() => {
-    givenCsvObject = {
+    givenVendorServiceConfigRows = [
+      {
+        vendor_name: "Vendor One",
+        vendor_id: "vendor_testvendor1",
+        service_name: "Check one",
+        service_regex: "Check one",
+        event_name: "VENDOR_1_EVENT_1",
+      },
+      {
+        vendor_name: "Vendor One",
+        vendor_id: "vendor_testvendor1",
+        service_name: "Check two",
+        service_regex: "Check two",
+        event_name: "VENDOR_1_EVENT_3",
+      },
+    ];
+  });
+
+  test("should return StandardisedLineItems when given a valid CsvObject that has 3 line items, with two that have service_names in the vendor service config", () => {
+    givenValidCsvObject = {
       Vendor: "Vendor One",
       "Invoice Date": "2023/02/28",
       "Due Date": "2023/03/28",
@@ -43,28 +64,8 @@ describe("CSV Standardised invoice getter", () => {
         },
       ],
     };
-
-    givenVendorServiceConfigRows = [
-      {
-        vendor_name: "Vendor One",
-        vendor_id: "vendor_testvendor1",
-        service_name: "Check one",
-        service_regex: "Check one",
-        event_name: "VENDOR_1_EVENT_1",
-      },
-      {
-        vendor_name: "Vendor One",
-        vendor_id: "vendor_testvendor1",
-        service_name: "Check two",
-        service_regex: "Check two",
-        event_name: "VENDOR_1_EVENT_3",
-      },
-    ];
-  });
-
-  test("should return StandardisedLineItems when given a valid CsvObject that has 3 line items, with two that have service_names in the vendor service config", () => {
     const result = getCsvStandardisedInvoice(
-      givenCsvObject,
+      givenValidCsvObject,
       "vendor_testvendor1",
       givenVendorServiceConfigRows
     );
@@ -103,5 +104,62 @@ describe("CSV Standardised invoice getter", () => {
         total: 393.42,
       },
     ]);
+  });
+
+  test("should throw error when given a valid CsvObject that has an invalid date", () => {
+    givenCsvObjectWithInvalidDate = {
+      Vendor: "Vendor One",
+      "Invoice Date": "2023/02/28",
+      "Due Date": "an invalid date", // <- invalid date
+      "VAT Number": "123 4567 89",
+      "PO Number": "370 000",
+      Version: "1.1.1",
+      lineItems: [
+        {
+          "Service Name": "Check one",
+          "Unit Price": "0.34",
+          Quantity: "13788",
+          Tax: "937.584",
+          Subtotal: "4687.92",
+          Total: "5625.504",
+        },
+      ],
+    };
+
+    expect(() =>
+      getCsvStandardisedInvoice(
+        givenCsvObjectWithInvalidDate,
+        "vendor_testvendor1",
+        givenVendorServiceConfigRows
+      )
+    ).toThrowError("Unsupported date format");
+  });
+
+  test("should throw error when given a valid CsvObject that has an invalid number", () => {
+    givenCsvObjectWithInvalidNumber = {
+      Vendor: "Vendor One",
+      "Invoice Date": "2023/02/28",
+      "Due Date": "2023/03/28",
+      "VAT Number": "123 4567 89",
+      "PO Number": "370 000",
+      Version: "1.1.1",
+      lineItems: [
+        {
+          "Service Name": "Check one",
+          "Unit Price": "x", // <- invalid number
+          Quantity: "13788",
+          Tax: "937.584",
+          Subtotal: "4687.92",
+          Total: "5625.504",
+        },
+      ],
+    };
+    expect(() =>
+      getCsvStandardisedInvoice(
+        givenCsvObjectWithInvalidNumber,
+        "vendor_testvendor1",
+        givenVendorServiceConfigRows
+      )
+    ).toThrowError("Unsupported number format: x");
   });
 });
