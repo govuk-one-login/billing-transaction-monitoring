@@ -53,9 +53,14 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
         dataRetrievedFromConfig.vendorId,
         dataRetrievedFromConfig.vendorName
       );
-      await assertQueryResultWithTestData(
+
+      const expectedResults = calculateExpectedResults(
         data,
-        dataRetrievedFromConfig.unitPrice,
+        dataRetrievedFromConfig.unitPrice
+      );
+      await assertQueryResultWithTestData(
+        expectedResults,
+        eventTime,
         dataRetrievedFromConfig.vendorId,
         dataRetrievedFromConfig.serviceName
       );
@@ -74,9 +79,13 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
         eventName
       );
       eventTime = data.eventTime;
-      await assertQueryResultWithTestData(
+      const expectedResults = calculateExpectedResults(
         data,
-        dataRetrievedFromConfig.unitPrice,
+        dataRetrievedFromConfig.unitPrice
+      );
+      await assertQueryResultWithTestData(
+        expectedResults,
+        eventTime,
         dataRetrievedFromConfig.vendorId,
         dataRetrievedFromConfig.serviceName
       );
@@ -93,8 +102,8 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
 });
 
 export const assertQueryResultWithTestData = async (
-  { billingQty, transactionQty, eventTime }: TestData,
-  unitPrice: number,
+  expectedResults: Record<string, any>,
+  eventTime: string,
   vendorId: string,
   serviceName: string
 ): Promise<void> => {
@@ -106,56 +115,81 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
+  expect(response[0].billing_quantity).toEqual(expectedResults.billingQty);
+  expect(response[0].transaction_quantity).toEqual(
+    expectedResults.transactionQty
+  );
+  expect(response[0].quantity_difference).toEqual(
+    expectedResults.qtyDifference
+  );
+  expect(response[0].quantity_difference_percentage).toEqual(
+    expectedResults.qtyDifferencePercentage
+  );
+  expect(response[0].billing_price).toEqual(expectedResults.billingPrice);
+  expect(response[0].transaction_price).toEqual(
+    expectedResults.transactionPrice
+  );
+  expect(response[0].price_difference).toEqual(expectedResults.priceDifference);
+  expect(response[0].price_difference_percentage).toEqual(
+    expectedResults.priceDifferencePercentage
+  );
+};
 
+const calculateExpectedResults = (
+  { billingQty, transactionQty }: TestData,
+  unitPrice: number
+): ExpectedResults => {
   const billingPrice = unitPrice * billingQty;
   const transactionPrice = unitPrice * transactionQty;
   const qtyDifference = billingQty - transactionQty;
   const priceDifference = billingPrice - transactionPrice;
-  const priceDifferencePercentage = (
-    (priceDifference / transactionPrice) *
-    100
-  ).toFixed(4);
+  const priceDifferencePercentage = (priceDifference / transactionPrice) * 100;
   const qtyDifferencePercentage = (qtyDifference / transactionQty) * 100;
 
-  if (billingQty !== undefined && transactionQty !== undefined) {
-    expect(response[0].billing_quantity).toEqual(billingQty);
-    expect(response[0].transaction_quantity).toEqual(transactionQty);
-    expect(response[0].quantity_difference).toEqual(qtyDifference.toString());
-    expect(response[0].quantity_difference_percentage).toEqual(
-      String(qtyDifferencePercentage)
-    );
-    expect(response[0].transaction_price).toEqual(transactionPrice.toFixed(4));
-    expect(response[0].price_difference).toEqual(priceDifference.toFixed(4));
-    expect(response[0].billing_price).toEqual(billingPrice.toFixed(4));
-    expect(response[0].price_difference_percentage).toEqual(
-      priceDifferencePercentage
-    );
-  } else if (billingQty !== undefined && transactionQty === undefined) {
-    expect(response[0].billing_quantity).toEqual(billingQty);
-    expect(response[0].billing_price).toEqual(billingPrice.toFixed(4));
-
-    expect(response[0].quantity_difference).toEqual(
-      (billingQty - 0).toString()
-    );
-    expect(response[0].quantity_difference_percentage).toEqual(undefined);
-
-    expect(response[0].price_difference).toEqual((billingPrice - 0).toFixed(4));
-    expect(response[0].price_difference_percentage).toEqual(undefined);
-  } else if (transactionQty !== undefined && billingQty === undefined) {
-    expect(response[0].transaction_quantity).toEqual(transactionQty);
-    expect(response[0].transaction_price).toEqual(transactionPrice.toFixed(4));
-
-    expect(response[0].quantity_difference_percentage).toEqual(
-      String(0 - transactionQty * 100)
-    );
-    expect(response[0].quantity_difference).toEqual(
-      (-transactionQty).toString()
-    );
-    expect(response[0].price_difference).toEqual(
-      String((0 - transactionPrice).toFixed(4))
-    );
-    expect(response[0].price_difference_percentage).toEqual(
-      String((((0 - transactionPrice) / transactionPrice) * 100).toFixed(4))
-    );
+  if (billingQty === undefined) {
+    return {
+      transactionQty,
+      qtyDifference: (-transactionQty).toString(),
+      qtyDifferencePercentage: (-transactionQty * 100).toString(),
+      transactionPrice: transactionPrice.toFixed(4),
+      priceDifference: (-transactionPrice).toFixed(4).toString(),
+      priceDifferencePercentage: (-100).toFixed(4),
+      billingQty: undefined,
+      billingPrice: undefined,
+    };
+  }
+  if (transactionQty === undefined) {
+    return {
+      billingQty,
+      qtyDifference: billingQty.toString(),
+      qtyDifferencePercentage: undefined,
+      billingPrice: billingPrice.toFixed(4),
+      priceDifference: billingPrice.toFixed(4),
+      priceDifferencePercentage: undefined,
+      transactionQty: undefined,
+      transactionPrice: undefined,
+    };
+  } else {
+    return {
+      billingQty,
+      transactionQty,
+      qtyDifference: qtyDifference.toString(),
+      qtyDifferencePercentage: qtyDifferencePercentage.toString(),
+      transactionPrice: transactionPrice.toFixed(4),
+      priceDifference: priceDifference.toFixed(4).toString(),
+      billingPrice: billingPrice.toFixed(4),
+      priceDifferencePercentage: priceDifferencePercentage.toFixed(4),
+    };
   }
 };
+
+interface ExpectedResults {
+  billingQty: number | undefined;
+  transactionQty: number | undefined;
+  qtyDifference: number | string;
+  qtyDifferencePercentage: string | undefined;
+  transactionPrice: string | undefined;
+  priceDifference: number | string;
+  billingPrice: number | undefined | string;
+  priceDifferencePercentage: string | undefined;
+}
