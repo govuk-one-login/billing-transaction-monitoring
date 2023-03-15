@@ -22,7 +22,7 @@ const outputs = [
   { destination: FilterEnv.OUTPUT_QUEUE_URL, store: sendRecord },
 ];
 
-const configFiles = [ConfigFileNames.services];
+const configFiles: FilterConfigFiles[] = [ConfigFileNames.services];
 
 export const handler = buildHandler<
   FilterableMessage,
