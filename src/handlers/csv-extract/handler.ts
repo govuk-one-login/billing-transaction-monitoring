@@ -36,9 +36,9 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     try {
       const eventRecords = getS3EventRecordsFromSqs(record);
 
-      for (const record of eventRecords) {
-        const bucket = record.s3.bucket.name;
-        const filePath = record.s3.object.key;
+      const recordPromises = eventRecords.map(async (eventRecord) => {
+        const bucket = eventRecord.s3.bucket.name;
+        const filePath = eventRecord.s3.object.key;
 
         // File must be in folder, which determines vendor ID. Throw error otherwise.
         const filePathParts = filePath.split("/");
@@ -83,7 +83,9 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           `${destinationFolder}/${destinationFileName}`,
           standardisedInvoiceText
         );
-      }
+      });
+
+      await Promise.all(recordPromises);
     } catch (error) {
       logger.error("Handler failure", { error });
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
