@@ -111,13 +111,16 @@ export const assertQueryResultWithTestData = async (
   const transactionPrice = unitPrice * transactionQty;
   const qtyDifference = billingQty - transactionQty;
   const priceDifference = billingPrice - transactionPrice;
-  const priceDifferencePercentage = (priceDifference / transactionPrice) * 100;
+  const priceDifferencePercentage = (
+    (priceDifference / transactionPrice) *
+    100
+  ).toFixed(4);
   const qtyDifferencePercentage = (qtyDifference / transactionQty) * 100;
 
   if (billingQty !== undefined && transactionQty !== undefined) {
     expect(response[0].billing_quantity).toEqual(billingQty);
     expect(response[0].transaction_quantity).toEqual(transactionQty);
-    expect(response[0].quantity_difference).toEqual(String(qtyDifference));
+    expect(response[0].quantity_difference).toEqual(qtyDifference.toString());
     expect(response[0].quantity_difference_percentage).toEqual(
       String(qtyDifferencePercentage)
     );
@@ -125,13 +128,15 @@ export const assertQueryResultWithTestData = async (
     expect(response[0].price_difference).toEqual(priceDifference.toFixed(4));
     expect(response[0].billing_price).toEqual(billingPrice.toFixed(4));
     expect(response[0].price_difference_percentage).toEqual(
-      priceDifferencePercentage.toFixed(4)
+      priceDifferencePercentage
     );
   } else if (billingQty !== undefined && transactionQty === undefined) {
     expect(response[0].billing_quantity).toEqual(billingQty);
     expect(response[0].billing_price).toEqual(billingPrice.toFixed(4));
 
-    expect(response[0].quantity_difference).toEqual(String(billingQty - 0));
+    expect(response[0].quantity_difference).toEqual(
+      (billingQty - 0).toString()
+    );
     expect(response[0].quantity_difference_percentage).toEqual(undefined);
 
     expect(response[0].price_difference).toEqual((billingPrice - 0).toFixed(4));
@@ -143,12 +148,14 @@ export const assertQueryResultWithTestData = async (
     expect(response[0].quantity_difference_percentage).toEqual(
       String(0 - transactionQty * 100)
     );
-    expect(response[0].quantity_difference).toEqual(String(-transactionQty));
+    expect(response[0].quantity_difference).toEqual(
+      (-transactionQty).toString()
+    );
     expect(response[0].price_difference).toEqual(
       String((0 - transactionPrice).toFixed(4))
     );
     expect(response[0].price_difference_percentage).toEqual(
-      String(((0 - transactionPrice / transactionPrice) * 100).toFixed(4))
+      String((((0 - transactionPrice) / transactionPrice) * 100).toFixed(4))
     );
   }
 };
