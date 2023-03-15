@@ -1,11 +1,10 @@
-import { listS3Objects, S3Object } from "../../s3Helper";
+import { S3Object } from "../../s3Helper";
 import { Invoice, makeMockInvoicePDF } from "./invoice";
 import { writeInvoiceToS3 } from "./writers";
-import { resourcePrefix, runViaLambda } from "../../envHelper";
+import { runViaLambda } from "../../envHelper";
 import { sendLambdaCommand } from "../../lambdaHelper";
 import { InvoiceData } from "./types";
 import { IntTestHelpers } from "../../../handler";
-import { poll } from "../../commonHelpers";
 import { randomLineItem, randomInvoice } from "./random";
 import { TestData } from "../../../testDataHelper";
 
@@ -32,13 +31,13 @@ export const createInvoiceInS3 = async (
   );
 };
 
-export const createInvoiceWithGivenData = async (
+export const createInvoiceWithGivenData = (
   { eventTime, billingQty }: TestData,
   description: string,
   unitPrice: number,
   vendorId: string,
   vendorName: string
-): Promise<string> => {
+): InvoiceData => {
   const givenBillingQty = billingQty;
   const lineItems = randomLineItem({
     description,
@@ -54,34 +53,5 @@ export const createInvoiceWithGivenData = async (
     date: new Date(eventTime),
     lineItems: [lineItems],
   });
-
-  const filename = `raw-Invoice-${Math.random()
-    .toString(36)
-    .substring(2, 7)}-validFile.pdf`;
-
-  await createInvoiceInS3({ invoiceData: givenInvoice, filename });
-
-  const prefix = resourcePrefix();
-  const bucketName = `${prefix}-storage`;
-  await poll(
-    async () =>
-      await listS3Objects({
-        bucketName,
-        prefix: "btm_billing_standardised",
-      }),
-    ({ Contents }) =>
-      !!Contents?.some(
-        (s3Object) =>
-          s3Object.Key !== undefined &&
-          s3Object.Key ===
-            `btm_billing_standardised/${filename.slice(0, 27)}.txt`
-      ),
-    {
-      timeout: 60000,
-      nonCompleteErrorMessage:
-        "Invoice data never appeared in standardised folder",
-    }
-  );
-
-  return filename;
+  return givenInvoice;
 };

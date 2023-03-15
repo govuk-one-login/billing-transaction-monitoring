@@ -1,11 +1,18 @@
 import {
   deleteS3Events,
+  poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import { createInvoiceWithGivenData } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
+import {
+  createInvoiceInS3,
+  createInvoiceWithGivenData,
+} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { deleteS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
+import {
+  deleteS3Object,
+  listS3Objects,
+} from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
   generateTransactionEventsViaFilterLambda,
@@ -26,7 +33,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
     dataRetrievedFromConfig = await retrieveMoreTestDataFromConfig();
     eventName = dataRetrievedFromConfig.eventName;
   });
-  let invoiceFileName: string;
+  let filename: string;
   let eventIds: string[];
   let eventTime: string;
 
@@ -46,12 +53,38 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
       );
       eventTime = data.eventTime;
 
-      invoiceFileName = await createInvoiceWithGivenData(
+      filename = `raw-Invoice-${Math.random()
+        .toString(36)
+        .substring(2, 7)}-validFile.pdf`;
+
+      const invoiceData = createInvoiceWithGivenData(
         data,
         dataRetrievedFromConfig.description,
         dataRetrievedFromConfig.unitPrice,
         dataRetrievedFromConfig.vendorId,
         dataRetrievedFromConfig.vendorName
+      );
+      await createInvoiceInS3({ invoiceData, filename });
+
+      // Wait for the invoice data to have been written, to some file in the standardised folder.
+      await poll(
+        async () =>
+          await listS3Objects({
+            bucketName: storageBucket,
+            prefix: standardisedFolderPrefix,
+          }),
+        ({ Contents }) =>
+          !!Contents?.some(
+            (s3Object) =>
+              s3Object.Key !== undefined &&
+              s3Object.Key ===
+                `btm_billing_standardised/${filename.slice(0, 27)}.txt`
+          ),
+        {
+          timeout: 60000,
+          nonCompleteErrorMessage:
+            "Invoice data never appeared in standardised folder",
+        }
       );
 
       const expectedResults = calculateExpectedResults(
@@ -96,7 +129,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
     await deleteS3Events(eventIds, eventTime);
     await deleteS3Object({
       bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${invoiceFileName.slice(0, 27)}.txt`,
+      key: `${standardisedFolderPrefix}/${filename.slice(0, 27)}.txt`,
     });
   });
 });
