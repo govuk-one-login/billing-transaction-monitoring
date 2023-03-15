@@ -55,7 +55,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
 
       filename = `raw-Invoice-${Math.random()
         .toString(36)
-        .substring(2, 7)}-validFile.pdf`;
+        .substring(2, 7)}-validFile`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,
@@ -64,7 +64,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
         dataRetrievedFromConfig.vendorId,
         dataRetrievedFromConfig.vendorName
       );
-      await createInvoiceInS3({ invoiceData, filename });
+      await createInvoiceInS3({ invoiceData, filename: `${filename}.pdf` });
 
       // Wait for the invoice data to have been written, to some file in the standardised folder.
       await poll(
@@ -77,8 +77,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
           !!Contents?.some(
             (s3Object) =>
               s3Object.Key !== undefined &&
-              s3Object.Key ===
-                `btm_billing_standardised/${filename.slice(0, 27)}.txt`
+              s3Object.Key === `btm_billing_standardised/${filename}.txt`
           ),
         {
           timeout: 60000,
@@ -129,7 +128,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
     await deleteS3Events(eventIds, eventTime);
     await deleteS3Object({
       bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename.slice(0, 27)}.txt`,
+      key: `${standardisedFolderPrefix}/${filename}.txt`,
     });
   });
 });

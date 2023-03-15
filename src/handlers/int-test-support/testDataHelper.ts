@@ -1,10 +1,11 @@
 import { VendorServiceConfigRow } from "../../shared/utils/config-utils/fetch-vendor-service-config";
 import { configStackName, resourcePrefix } from "./helpers/envHelper";
-import { getS3Object } from "./helpers/s3Helper";
+import { getS3Object, listS3Objects } from "./helpers/s3Helper";
 import csvtojson from "csvtojson";
 import { invokeLambda } from "./helpers/lambdaHelper";
 import { updateSQSEventPayloadBody } from "./helpers/payloadHelper";
 import { getVendorServiceConfigRows } from "../../shared/utils";
+import { poll } from "./helpers/commonHelpers";
 
 let vendorServiceDetails: VendorServiceConfigRow[] = [];
 const configBucket = configStackName();
@@ -75,6 +76,14 @@ export const generateTransactionEventsViaFilterLambda = async (
     await invokeLambda(functionName, updatedSQSEventPayload);
     const json = JSON.parse(updatedSQSEventPayload);
     const eventId = JSON.parse(json.Records[0].body).event_id;
+    await poll(
+      async () =>
+        await listS3Objects({
+          bucketName: `${resourcePrefix()}-storage`,
+          prefix: `btm_transactions`,
+        }),
+      (result) => !!result?.Contents?.some((data) => data.Key?.match(eventId))
+    );
     eventIds.push(eventId);
   }
   return eventIds;

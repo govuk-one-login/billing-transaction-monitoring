@@ -66,8 +66,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
         !!Contents?.some(
           (s3Object) =>
             s3Object.Key !== undefined &&
-            s3Object.Key ===
-              `btm_billing_standardised/${filename.slice(0, 27)}.txt`
+            s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
         ),
       {
         timeout: 60000,
@@ -134,7 +133,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
   afterAll(async () => {
     await deleteS3Object({
       bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename.slice(0, 27)}.txt`,
+      key: `${standardisedFolderPrefix}/${filename}.txt`,
     });
   });
 });
