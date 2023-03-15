@@ -351,8 +351,8 @@ describe("CSV Extract handler tests", () => {
     );
   });
 
-  test("should store the standardised invoice if no errors and trailing comma missing from table", async () => {
-    const maybeValidInvoiceData =
+  test("should store the standardised invoice if no errors and no trailing commas table", async () => {
+    const validInvoiceData =
       "Vendor,Skippy’s Everything Shop,,,,,\n" +
       "Invoice Date,2022/1/1,,,,,\n" +
       "Due Date,2022/2/1,,,,,\n" +
@@ -362,7 +362,7 @@ describe("CSV Extract handler tests", () => {
       ",,,,,,\n" +
       "Service Name,Unit Price,Quantity,Tax,Subtotal,Total\n" +
       "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32\n";
-    mockedFetchS3.mockReturnValueOnce(maybeValidInvoiceData);
+    mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
     const result = await handler(validEvent);
     expect(result).toEqual({ batchItemFailures: [] });

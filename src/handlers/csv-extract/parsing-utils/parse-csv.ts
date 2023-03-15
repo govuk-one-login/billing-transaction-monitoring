@@ -10,13 +10,7 @@ const isKvpRow = (row: string[]): boolean => {
 };
 
 const isFullRow = (row: string[]): boolean => {
-  return (
-    row !== undefined &&
-    row.length > 0 &&
-    row.every((cell) => {
-      return cell;
-    })
-  );
+  return row !== undefined && row.length > 2;
 };
 
 const isTotalRow = (row: string[]): boolean => {

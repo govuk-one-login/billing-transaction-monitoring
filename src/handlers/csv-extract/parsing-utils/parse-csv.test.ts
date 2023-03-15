@@ -36,7 +36,7 @@ describe("Parse CSV tests", () => {
     });
   });
 
-  test("should fail if extra columns in line items", async () => {
+  test("should fail if columns in line items are more than the header row", async () => {
     const fileData =
       "column1,column2,column3,,,,,\n" + "value1,value2,value3,value4,,,,\n";
 
@@ -45,8 +45,18 @@ describe("Parse CSV tests", () => {
     );
   });
 
+  test("should allow blank columns in the middle of line items", async () => {
+    const fileData = "column1,column2,column3,,,,,\n" + "value1,,value3,,,,,\n";
+
+    const result = parseCsv(fileData);
+    expect(result).toEqual({
+      lineItems: [{ column1: "value1", column2: "", column3: "value3" }],
+    });
+  });
+
   test("should fail if line item has fewer columns than header row", async () => {
-    const fileData = "column1,column2,column3,,,,,\n" + "value1,value2,,,,\n";
+    const fileData =
+      "column1,column2,column3,column4,,,,\n" + "value1,value2,value3,,,\n";
 
     expect(() => parseCsv(fileData)).toThrowError(
       "Wrong number of columns in line item"
