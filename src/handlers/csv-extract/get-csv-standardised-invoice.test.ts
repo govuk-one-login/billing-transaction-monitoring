@@ -36,7 +36,7 @@ describe("CSV Standardised invoice getter", () => {
       "Due Date": "2023/03/28",
       "VAT Number": "123 4567 89",
       "PO Number": "370 000",
-      Version: "1.1.1",
+      Version: "1.0.0",
       lineItems: [
         {
           "Service Name": "Check one",
@@ -113,7 +113,7 @@ describe("CSV Standardised invoice getter", () => {
       "Due Date": "an invalid date", // <- invalid date
       "VAT Number": "123 4567 89",
       "PO Number": "370 000",
-      Version: "1.1.1",
+      Version: "1.0.0",
       lineItems: [
         {
           "Service Name": "Check one",
@@ -142,7 +142,7 @@ describe("CSV Standardised invoice getter", () => {
       "Due Date": "2023/03/28",
       "VAT Number": "123 4567 89",
       "PO Number": "370 000",
-      Version: "1.1.1",
+      Version: "1.0.0",
       lineItems: [
         {
           "Service Name": "Check one",
