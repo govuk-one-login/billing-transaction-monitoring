@@ -251,17 +251,5 @@ export const buildHandler =
     };
   };
 
-// Spin up some classes that model the config repo
-// so we can have config in the context. You should
-// be able to specify which bits on config a
-// given business blob depends on to negate over-fetching
-
-// That'll solve some of the fetching but what about the
-// bits where we need to go get something from a bucket
-// when the message says that something's been put there?
-
-// I think that'll be an extension of addMessagesToCtx.
-// at the minute that's specific to SQSEvents but to
-// work with the transaction csv to json events lambda
-// it'll need to toggle to a different modality to handle
-// S3Events
+// Make an extension of addMessagesToCtx that handles S3 events
+// to work with the transaction csv to json events lambda

@@ -10,7 +10,7 @@ interface FilterableMessage {
   event_name: string;
 }
 
-type FilterConfigFiles = ConfigFileNames.services | ConfigFileNames.e2eTest;
+type FilterConfigFiles = ConfigFileNames.services;
 
 const envVars = [FilterEnv.OUTPUT_QUEUE_URL];
 
@@ -22,7 +22,7 @@ const outputs = [
   { destination: FilterEnv.OUTPUT_QUEUE_URL, store: sendRecord },
 ];
 
-const configFiles = [ConfigFileNames.services, ConfigFileNames.e2eTest];
+const configFiles = [ConfigFileNames.services];
 
 export const handler = buildHandler<
   FilterableMessage,
@@ -35,9 +35,7 @@ export const handler = buildHandler<
   configFiles,
 })(async ({ messages, config: { services } }) => {
   const validEventNames = new Set<string>(
-    (services as Array<{ event_name: string }>).map(
-      ({ event_name }) => event_name
-    )
+    services.map(({ event_name }) => event_name)
   );
 
   return messages.filter(({ event_name }) => validEventNames.has(event_name));

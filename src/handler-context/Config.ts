@@ -1,4 +1,6 @@
 import csvToJson from "csvtojson";
+import { InferenceSpecifications } from "../handlers/transaction-csv-to-json-event/convert/make-inferences";
+import { Transformations } from "../handlers/transaction-csv-to-json-event/convert/perform-transformations";
 
 export enum ConfigFileNames {
   rates = "rates",
@@ -8,43 +10,75 @@ export enum ConfigFileNames {
   transformations = "transformations",
   vat = "vat",
   standardisation = "standardisation",
-  e2eTest = "e2eTest",
 }
 
-export type ConfigFiles = Record<ConfigFileNames, unknown>;
+export interface ConfigFiles {
+  [ConfigFileNames.rates]: Array<{
+    vendor_id: string;
+    event_name: string;
+    volumes_from: string;
+    volumes_to: string;
+    unit_price: string;
+    effective_from: string;
+    effective_to: string;
+  }>;
+  [ConfigFileNames.services]: Array<{
+    vendor_name: string;
+    vendor_id: string;
+    service_name: string;
+    service_regex: string;
+    event_name: string;
+  }>;
+  [ConfigFileNames.renamingMap]: Array<[string, string]>;
+  [ConfigFileNames.inferences]: InferenceSpecifications<
+    {}, // I'm avoiding including this type as the field names are sensitive
+    { event_name: string }
+  >;
+  [ConfigFileNames.transformations]: Transformations<{}, {}>;
+  [ConfigFileNames.vat]: Array<{ rate: number; start: string }>;
+  [ConfigFileNames.standardisation]: Array<{
+    vendorId: string;
+    invoiceStandardisationModuleId: number;
+  }>;
+}
 
-enum FileTypes {
+enum FileExtensions {
   csv,
   json,
 }
 
-const fileMap: Record<ConfigFileNames, { path: string; type: FileTypes }> = {
+const fileMap: Record<
+  ConfigFileNames,
+  { path: string; fileExtension: FileExtensions }
+> = {
   [ConfigFileNames.rates]: {
     path: "rate_tables/rates.csv",
-    type: FileTypes.csv,
+    fileExtension: FileExtensions.csv,
   },
   [ConfigFileNames.services]: {
     path: "vendor_services/vendor-services.csv",
-    type: FileTypes.csv,
+    fileExtension: FileExtensions.csv,
   },
   [ConfigFileNames.renamingMap]: {
     path: "csv_transactions/header-row-renaming-map.json",
-    type: FileTypes.json,
+    fileExtension: FileExtensions.json,
   },
   [ConfigFileNames.inferences]: {
     path: "csv_transactions/event-inferences.json",
-    type: FileTypes.json,
+    fileExtension: FileExtensions.json,
   },
   [ConfigFileNames.transformations]: {
     path: "csv_transactions/event-transformation.json",
-    type: FileTypes.json,
+    fileExtension: FileExtensions.json,
   },
-  [ConfigFileNames.vat]: { path: "uk-vat.json", type: FileTypes.json },
+  [ConfigFileNames.vat]: {
+    path: "uk-vat.json",
+    fileExtension: FileExtensions.json,
+  },
   [ConfigFileNames.standardisation]: {
     path: "vendor-invoice-standardisation.json",
-    type: FileTypes.json,
+    fileExtension: FileExtensions.json,
   },
-  [ConfigFileNames.e2eTest]: { path: "e2e-test.json", type: FileTypes.json },
 };
 
 type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
@@ -62,12 +96,12 @@ const parseJsonFile = (rawFile: string): Json => {
 
 const parseConfigFile = async (
   rawFile: string,
-  type: FileTypes
+  fileExtension: FileExtensions
 ): Promise<Json> => {
-  switch (type) {
-    case FileTypes.json:
+  switch (fileExtension) {
+    case FileExtensions.json:
       return parseJsonFile(rawFile);
-    case FileTypes.csv:
+    case FileExtensions.csv:
       return await parseCsvFile(rawFile);
   }
 };
@@ -95,13 +129,13 @@ export class Config<TFileName extends ConfigFileNames> {
       throw new Error("No CONFIG_BUCKET defined in this environment");
 
     this._promises = this._files.map(async (fileName) => {
-      const { path, type } = fileMap[fileName];
+      const { path, fileExtension } = fileMap[fileName];
       const promise = (async (): Promise<{
         parsedFile: Json;
         fileName: ConfigFileNames;
       }> => {
         const rawFile = await this._client.getConfigFile(path);
-        const parsedFile = await parseConfigFile(rawFile, type);
+        const parsedFile = await parseConfigFile(rawFile, fileExtension);
         return { parsedFile, fileName };
       })();
       return await promise;
@@ -129,9 +163,3 @@ export class Config<TFileName extends ConfigFileNames> {
     keyof Omit<ConfigFiles, TFileName>
   > => this._cache;
 }
-
-// the config utils we have are actually single use thingies so honestly I'm
-// tempted to say that reshaping a specific config file to meet a given handler's
-// needs is actually business logic. I'm not gunna worry about these for now, I'll
-// just get this config cacher up, move the fetchEventNames logic into filterBusinessLogic
-// and see how it looks.

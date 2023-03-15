@@ -1,87 +1,71 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { S3Event } from "aws-lambda";
-import { fetchS3, sendRecord } from "../../shared/utils";
+import { buildHandler } from "../../handler-context";
+import { ConfigFileNames } from "../../handler-context/Config";
+import { sendRecord } from "../../shared/utils";
 import { convert } from "./convert";
-import { isValidRenamingConfig } from "./convert/csv-to-json";
-import { isValidInferencesConfig } from "./convert/make-inferences";
-import { isValidTransformationsConfig } from "./convert/perform-transformations";
 
-export const handler = async (event: S3Event): Promise<void> => {
-  const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
-  const configBucket = process.env.CONFIG_BUCKET;
+interface Message {
+  body: string;
+}
 
-  if (outputQueueUrl === undefined || outputQueueUrl.length === 0) {
-    throw new Error("Output queue URL not set.");
-  }
+enum Env {
+  OUTPUT_QUEUE_URL = "OUTPUT_QUEUE_URL",
+  CONFIG_BUCKET = "CONFIG_BUCKET",
+}
 
-  if (configBucket === undefined || configBucket.length === 0) {
-    throw new Error("Config Bucket not set.");
-  }
+type ConfigFiles =
+  | ConfigFileNames.renamingMap
+  | ConfigFileNames.inferences
+  | ConfigFileNames.transformations;
 
-  const [renamingMap, inferences, transformations] = await Promise.all([
-    fetchS3(configBucket, "csv_transactions/header-row-renaming-map.json"),
-    fetchS3(configBucket, "csv_transactions/event-inferences.json"),
-    fetchS3(configBucket, "csv_transactions/event-transformation.json"),
-  ]).then((results) =>
-    results.map((result) => {
-      try {
-        return JSON.parse(result);
-      } catch (error) {
-        throw new Error(`Config JSON could not be parsed. Received ${result}`);
-      }
-    })
+export const handler = buildHandler<Message, Env, ConfigFiles>({
+  envVars: [Env.OUTPUT_QUEUE_URL, Env.CONFIG_BUCKET],
+  messageTypeGuard: () => true, // we don't need this for the S3 ones
+  outputs: [{ destination: Env.OUTPUT_QUEUE_URL, store: sendRecord }],
+  configFiles: [
+    ConfigFileNames.renamingMap,
+    ConfigFileNames.inferences,
+    ConfigFileNames.transformations,
+  ],
+})(async ({ messages, config, logger }) => {
+  // This should come in on messages
+  // const csv = await fetchS3(
+  //   event.Records[0].s3.bucket.name,
+  //   event.Records[0].s3.object.key
+  // );
+
+  const eventPromises = await Promise.allSettled(
+    messages.map(async (message) => await convert(message.body, config))
   );
 
-  if (!isValidRenamingConfig(renamingMap)) {
-    console.error(
-      `header-row-renaming-map.json is invalid.  Received ${renamingMap}`
-    );
-    throw new Error(
-      `header-row-renaming-map.json is invalid.  Received ${renamingMap}`
-    );
-  }
-
-  if (!isValidInferencesConfig(inferences)) {
-    console.error(`event-inferences.json is invalid. Received ${inferences}`);
-    throw new Error(`event-inferences.json is invalid. Received ${inferences}`);
-  }
-
-  if (!isValidTransformationsConfig(transformations)) {
-    console.error(
-      `event-transformation.json is invalid. Received ${transformations}`
-    );
-    throw new Error(
-      `event-transformation.json is invalid. Received ${transformations}`
-    );
-  }
-
-  const csv = await fetchS3(
-    event.Records[0].s3.bucket.name,
-    event.Records[0].s3.object.key
-  ); // should we we getting all the records or is the zeroth one ok?
-
-  const transactions = await convert(csv, {
-    renamingMap,
-    inferences,
-    transformations,
+  // It might be nice to move this block into the converter.
+  // It seems to me that the responsibility for understanding
+  // this bodge around "Unknown" should not live here.
+  // Also; imagine how much simpler this would be if we had
+  // a csv converter that worked synchronously
+  let failedConversions = 0;
+  let failedEventNameInference = 0;
+  const storeableTransactions = eventPromises.filter((eventPromiseResult) => {
+    if (eventPromiseResult.status === "rejected") {
+      failedConversions++;
+      return false;
+    }
+    eventPromiseResult.value.forEach(({ event_name }) => {
+      if (event_name === "Unknown") {
+        failedEventNameInference++;
+      }
+    });
+    return true;
   });
 
-  const sendRecordPromises = transactions
-    .filter(({ event_name }) => event_name !== "Unknown")
-    .map(
-      async (transaction) =>
-        await sendRecord(outputQueueUrl, JSON.stringify(transaction), {
-          shouldLog: false,
-        })
-    );
-
-  const results = await Promise.allSettled(sendRecordPromises);
-  for (const result of results) {
-    if (result.status === "rejected")
-      throw new Error(
-        `Failed to process all rows: ${
-          results.filter((result) => result.status === "rejected").length
-        } out of ${results.length} failed`
-      );
+  if (failedConversions) {
+    logger.warn(`${failedConversions} event conversions failed`);
   }
-};
+  if (failedEventNameInference) {
+    logger.warn(
+      `${failedEventNameInference} event names could not be determined`
+    );
+  }
+
+  return storeableTransactions;
+});
