@@ -72,7 +72,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
             s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
         ),
       {
-        timeout: 80000,
+        timeout: 70000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
@@ -164,7 +164,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
             s3Object.Key === `${standardisedFolderPrefix}/valid-invoice.txt`
         ),
       {
-        timeout: 60000,
+        timeout: 50000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }

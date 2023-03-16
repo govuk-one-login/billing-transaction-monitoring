@@ -75,7 +75,7 @@ describe("\nUpload invoice to raw invoice bucket and verify billing and transact
               s3Object.Key === `btm_billing_standardised/${filename}.txt`
           ),
         {
-          timeout: 60000,
+          timeout: 50000,
           nonCompleteErrorMessage:
             "Invoice data never appeared in standardised folder",
         }
