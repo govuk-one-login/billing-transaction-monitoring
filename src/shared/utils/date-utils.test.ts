@@ -28,6 +28,16 @@ test("Year, month, and day are formatted to yyyy-mm-dd", async () => {
   expect(formattedYearMonthday).toEqual("2022-01-16");
 });
 
+test("Year, month, and day are formatted to yyyy-mm-dd even after Daylight savings", async () => {
+  const year: number = 2023;
+  const month: number = 3;
+  const day: number = 27;
+
+  const formattedYearMonthday = formatYearMonthDay(year, month, day);
+
+  expect(formattedYearMonthday).toEqual("2023-03-27");
+});
+
 test("Number is zero-padded with a number that is single digits", async () => {
   const number: number = 1;
   const zeroPaddedNumber = padZero(number);
@@ -38,4 +48,10 @@ test("Number is zero-padded with a number that is double digits", async () => {
   const number: number = 12;
   const zeroPaddedNumber = padZero(number);
   expect(zeroPaddedNumber).toEqual("12");
+});
+
+test("Throws error if not given a valid date", async () => {
+  expect(() => formatDate(new Date("abc"))).toThrowError(
+    "Unsupported date format"
+  );
 });
