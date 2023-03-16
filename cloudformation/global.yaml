@@ -91,9 +91,10 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
       LifecycleConfiguration:
         Rules:
-          - ExpirationInDays: 1825  # Five years
+          - ExpirationInDays: 1825 # Five years
             Status: Enabled
 
   GlobalAccessLogsBucketPolicy:

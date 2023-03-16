@@ -2,7 +2,6 @@ import { Textract } from "aws-sdk";
 import {
   getVendorInvoiceStandardisationModuleId,
   getVendorServiceConfigRows,
-  logger,
   VendorServiceConfigRows,
 } from "../../../shared/utils";
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
@@ -43,12 +42,10 @@ export const getStandardisedInvoice = async (
   configBucket: string,
   parserVersions: Record<string, string>
 ): Promise<StandardisedLineItem[]> => {
-  logger.info("fetching vendor service config");
   const vendorServiceConfigRows = await getVendorServiceConfigRows(
     configBucket,
     { vendor_id: vendorId }
   );
-  logger.info("fetching standardisation module");
   const standardisationModuleId = await getVendorInvoiceStandardisationModuleId(
     configBucket,
     vendorId

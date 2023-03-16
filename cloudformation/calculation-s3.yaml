@@ -17,6 +17,7 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
@@ -24,5 +25,5 @@ Resources:
         LogFilePrefix: storage-bucket/log
       LifecycleConfiguration:
         Rules:
-          - ExpirationInDays: 1825  # Five years
+          - ExpirationInDays: 1825 # Five years
             Status: Enabled
