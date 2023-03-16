@@ -1,4 +1,3 @@
-import path from "path";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkIfS3ObjectExists,
@@ -69,7 +68,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
             s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
         ),
       {
-        timeout: 60000,
+        timeout: 80000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
@@ -126,7 +125,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(originalFileExistsInSuccessfulFolder).toBeTruthy();
     await deleteS3Object({
       bucket: s3Object.bucket,
-      key: `successful/${String(path)}`,
+      key: `successful/${s3Object.key}`,
     });
   });
 
