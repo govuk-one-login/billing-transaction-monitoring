@@ -19,7 +19,6 @@ export const cloudWatchLogsClient = new CloudWatchLogsClient({
 export const s3Client = new S3Client({
   region,
   endpoint: process.env.S3_LOCALENDPOINT,
-  maxAttempts: 5,
 });
 
 export const snsClient = new SNSClient({
