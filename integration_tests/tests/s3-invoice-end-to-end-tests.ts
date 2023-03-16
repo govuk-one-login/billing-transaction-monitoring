@@ -115,7 +115,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     };
 
     const pollOptions = {
-      timeout: 60000,
       nonCompleteErrorMessage:
         "File was not moved to successful folder within the timeout",
     };
@@ -130,13 +129,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     await deleteS3Object({
       bucket: s3Object.bucket,
       key: `successful/${s3Object.key}`,
-    });
-  });
-
-  afterAll(async () => {
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
     });
   });
 
@@ -169,7 +161,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
         !!Contents?.some(
           (s3Object) =>
             s3Object.Key !== undefined &&
-            s3Object.Key === `btm_billing_standardised/valid-invoice.txt`
+            s3Object.Key === `${standardisedFolderPrefix}/valid-invoice.txt`
         ),
       {
         timeout: 60000,
@@ -200,7 +192,13 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(queryObjects[1].price).toEqual("4687.9200");
     expect(queryObjects[1].year).toEqual("2023");
     expect(queryObjects[1].month).toEqual("02");
+  });
 
+  afterAll(async () => {
+    await deleteS3Object({
+      bucket: storageBucket,
+      key: `${standardisedFolderPrefix}/${filename}.txt`,
+    });
     await deleteS3Object({
       bucket: storageBucket,
       key: `${standardisedFolderPrefix}/valid-invoice.txt`,
