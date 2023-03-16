@@ -82,7 +82,11 @@ export const generateTransactionEventsViaFilterLambda = async (
           bucketName: `${resourcePrefix()}-storage`,
           prefix: `btm_transactions`,
         }),
-      (result) => !!result?.Contents?.some((data) => data.Key?.match(eventId))
+      (result) => !!result?.Contents?.some((data) => data.Key?.match(eventId)),
+      {
+        nonCompleteErrorMessage:
+          "event id not appeared in s3 within the given timeout",
+      }
     );
     eventIds.push(eventId);
   }
