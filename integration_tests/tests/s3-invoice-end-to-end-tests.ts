@@ -171,7 +171,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     );
 
     // Step 3: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
-    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' ORDER BY service_name ASC`;
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
     const queryId = await startQueryExecutionCommand({
       databaseName,
       queryString,
@@ -184,14 +184,14 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(queryObjects[0].quantity).toEqual("83");
     expect(queryObjects[0].price).toEqual("327.8500");
     expect(queryObjects[0].year).toEqual("2023");
-    expect(queryObjects[0].month).toEqual("02");
+    expect(queryObjects[0].month).toEqual("03");
 
     expect(queryObjects[1].vendor_name).toEqual("Vendor One");
     expect(queryObjects[1].service_name).toEqual("Passport check");
     expect(queryObjects[1].quantity).toEqual("13788");
     expect(queryObjects[1].price).toEqual("4687.9200");
     expect(queryObjects[1].year).toEqual("2023");
-    expect(queryObjects[1].month).toEqual("02");
+    expect(queryObjects[1].month).toEqual("03");
   });
 
   afterAll(async () => {
