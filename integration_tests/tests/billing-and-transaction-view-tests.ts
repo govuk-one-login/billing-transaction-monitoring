@@ -8,7 +8,7 @@ import {
 import {
   generateTransactionEventsViaFilterLambda,
   TestData,
-} from "../../src/handlers/int-test-support/testDataHelper";
+} from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import {
   EventName,
   prettyEventNameMap,

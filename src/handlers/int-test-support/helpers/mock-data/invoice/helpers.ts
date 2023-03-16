@@ -6,7 +6,7 @@ import { sendLambdaCommand } from "../../lambdaHelper";
 import { InvoiceData } from "./types";
 import { IntTestHelpers } from "../../../handler";
 import { randomLineItem, randomInvoice } from "./random";
-import { TestData } from "../../../testDataHelper";
+import { TestData } from "../../testDataHelper";
 
 interface InvoiceDataAndFileName {
   invoiceData: InvoiceData;

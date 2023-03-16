@@ -8,7 +8,7 @@ import {
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { generateTransactionEventsViaFilterLambda } from "../../src/handlers/int-test-support/testDataHelper";
+import { generateTransactionEventsViaFilterLambda } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
   let eventIds: string[];

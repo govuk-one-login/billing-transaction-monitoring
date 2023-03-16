@@ -1,11 +1,11 @@
-import { VendorServiceConfigRow } from "../../shared/utils/config-utils/fetch-vendor-service-config";
-import { configStackName, resourcePrefix } from "./helpers/envHelper";
-import { getS3Object, listS3Objects } from "./helpers/s3Helper";
+import { VendorServiceConfigRow } from "../../../shared/utils/config-utils/fetch-vendor-service-config";
+import { configStackName, resourcePrefix } from "./envHelper";
+import { getS3Object, listS3Objects } from "./s3Helper";
 import csvtojson from "csvtojson";
-import { invokeLambda } from "./helpers/lambdaHelper";
-import { updateSQSEventPayloadBody } from "./helpers/payloadHelper";
-import { getVendorServiceConfigRows } from "../../shared/utils";
-import { poll } from "./helpers/commonHelpers";
+import { invokeLambda } from "./lambdaHelper";
+import { updateSQSEventPayloadBody } from "./payloadHelper";
+import { getVendorServiceConfigRows } from "../../../shared/utils";
+import { poll } from "./commonHelpers";
 
 let vendorServiceDetails: VendorServiceConfigRow[] = [];
 const configBucket = configStackName();
