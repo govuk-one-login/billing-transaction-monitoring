@@ -30,7 +30,7 @@
     {
       "gridPos": {
         "h": 4,
-        "w": 7,
+        "w": 11,
         "x": 0,
         "y": 0
       },
@@ -46,7 +46,7 @@
       "gridPos": {
         "h": 4,
         "w": 5,
-        "x": 7,
+        "x": 11,
         "y": 0
       },
       "id": 4,
@@ -120,7 +120,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 16,
         "x": 0,
         "y": 4
       },
@@ -132,9 +132,7 @@
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "/^Difference$/",
           "values": true
         },
@@ -172,8 +170,8 @@
     },
     {
       "gridPos": {
-        "h": 5,
-        "w": 12,
+        "h": 4,
+        "w": 16,
         "x": 0,
         "y": 12
       },
@@ -200,6 +198,7 @@
             "displayMode": "auto",
             "filterable": false
           },
+          "decimals": 2,
           "mappings": [
             {
               "options": {
@@ -236,23 +235,34 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "currencyGBP"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "% Discrepancy"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 5,
-        "w": 12,
+        "w": 16,
         "x": 0,
-        "y": 17
+        "y": 16
       },
       "id": 10,
       "options": {
         "footer": {
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true
@@ -270,7 +280,7 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Billing Price\",\n  transaction_price_formatted AS \"Transaction Price\",\n  Difference\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Invoiced Amount\",\n  transaction_price_formatted AS \"Expected Amount\",\n  price_difference_percentage AS \"% Discrepancy\",\n  price_difference AS \"Discrepancy in £\",\n  billing_amount_with_tax AS \"Total Invoice + VAT\"\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
           "table": "btm_billing_and_transactions_curated"
         }
@@ -287,13 +297,9 @@
       {
         "allValue": "",
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "selected": false,
+          "text": ["All"],
+          "value": ["$__all"]
         },
         "datasource": {
           "type": "grafana-athena-datasource",

@@ -58,6 +58,7 @@ export const getCsvStandardisedInvoice = (
           quantity: formatNumber(item.Quantity),
           service_name: serviceName,
           unit_price: formatNumber(item["Unit Price"]),
+          tax: formatNumber(item.Tax),
           total: formatNumber(item.Total),
         },
       ];
