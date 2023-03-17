@@ -94,7 +94,7 @@ Resources:
             BucketKeyEnabled: true
       LifecycleConfiguration:
         Rules:
-          - ExpirationInDays: 1825  # Five years
+          - ExpirationInDays: 1825 # Five years
             Status: Enabled
 
   GlobalAccessLogsBucketPolicy:

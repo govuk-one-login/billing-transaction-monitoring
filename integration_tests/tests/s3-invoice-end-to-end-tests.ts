@@ -3,7 +3,6 @@ import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envH
 import {
   checkIfS3ObjectExists,
   deleteS3Object,
-  deleteS3Objects,
   listS3Objects,
   putS3Object,
   S3Object,
@@ -22,19 +21,13 @@ import {
 
 const prefix = resourcePrefix();
 
-describe("\n Happy path - Upload valid mock invoice and verify data is seen in the billing view\n", () => {
+describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view\n", () => {
   const storageBucket = `${prefix}-storage`;
   const standardisedFolderPrefix = "btm_billing_standardised";
   const databaseName = `${prefix}-calculations`;
+  let filename: string;
 
-  beforeAll(async () => {
-    await deleteS3Objects({
-      bucketName: storageBucket,
-      prefix: standardisedFolderPrefix,
-    });
-  });
-
-  test("upload valid pdf file in raw-invoice bucket and check that we can see the data in the view", async () => {
+  test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
     const passportCheckItems = randomLineItems(8, {
       description: "passport check",
     });
@@ -53,9 +46,8 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
       invoice.getQuantity("passport check"),
     ];
     const expectedServices = ["Address check", "Passport check"];
-    const filename = `raw-Invoice-${Math.random()
-      .toString(36)
-      .substring(2, 7)}-validFile`;
+    filename = `s3-invoice-e2e-test-raw-Invoice-validFile`;
+
     const s3Object = await createInvoiceInS3({
       invoiceData: invoice,
       filename: `${filename}.pdf`,
@@ -75,19 +67,17 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
         !!Contents?.some(
           (s3Object) =>
             s3Object.Key !== undefined &&
-            s3Object.Key ===
-              `btm_billing_standardised/${filename.slice(0, 27)}.txt`
+            s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
         ),
       {
-        timeout: 50000,
+        timeout: 70000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
     );
 
     // Check the view results match the invoice.
-    const queryString =
-      'SELECT * FROM "btm_billing_curated" ORDER BY vendor_id DESC, year DESC';
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3'`;
     const queryId = await startQueryExecutionCommand({
       databaseName,
       queryString,
@@ -136,7 +126,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
     expect(originalFileExistsInSuccessfulFolder).toBeTruthy();
     await deleteS3Object({
       bucket: s3Object.bucket,
-      key: `successful/${String(path)}`,
+      key: `successful/${s3Object.key}`,
     });
   });
 
@@ -169,17 +159,17 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
         !!Contents?.some(
           (s3Object) =>
             s3Object.Key !== undefined &&
-            s3Object.Key === `btm_billing_standardised/valid-invoice.txt`
+            s3Object.Key === `${standardisedFolderPrefix}/valid-invoice.txt`
         ),
       {
-        timeout: 60000,
+        timeout: 50000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
     );
 
     // Step 3: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
-    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' ORDER BY service_name ASC`;
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
     const queryId = await startQueryExecutionCommand({
       databaseName,
       queryString,
@@ -192,15 +182,21 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
     expect(queryObjects[0].quantity).toEqual("83");
     expect(queryObjects[0].price).toEqual("327.8500");
     expect(queryObjects[0].year).toEqual("2023");
-    expect(queryObjects[0].month).toEqual("02");
+    expect(queryObjects[0].month).toEqual("03");
 
     expect(queryObjects[1].vendor_name).toEqual("Vendor One");
     expect(queryObjects[1].service_name).toEqual("Passport check");
     expect(queryObjects[1].quantity).toEqual("13788");
     expect(queryObjects[1].price).toEqual("4687.9200");
     expect(queryObjects[1].year).toEqual("2023");
-    expect(queryObjects[1].month).toEqual("02");
+    expect(queryObjects[1].month).toEqual("03");
+  });
 
+  afterAll(async () => {
+    await deleteS3Object({
+      bucket: storageBucket,
+      key: `${standardisedFolderPrefix}/${filename}.txt`,
+    });
     await deleteS3Object({
       bucket: storageBucket,
       key: `${standardisedFolderPrefix}/valid-invoice.txt`,

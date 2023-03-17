@@ -139,12 +139,10 @@ export const generatePublishAndValidateEvents = async ({
 
 export const deleteS3Event = async (
   eventId: string,
-  eventTime: TimeStamps
+  eventTime: string
 ): Promise<boolean> => {
   const bucketName = `${resourcePrefix()}-storage`;
-  const date = new Date(eventTimeStamp[eventTime] * 1000)
-    .toISOString()
-    .slice(0, 10);
+  const date = new Date(eventTime).toISOString().slice(0, 10);
   await deleteS3Object({
     bucket: bucketName,
     key: `btm_transactions/${date}/${eventId}.json`,
@@ -154,7 +152,7 @@ export const deleteS3Event = async (
 
 export const deleteS3Events = async (
   eventIds: string[],
-  eventTime: TimeStamps
+  eventTime: string
 ): Promise<boolean> => {
   for (const eventId of eventIds) {
     await deleteS3Event(eventId, eventTime);
