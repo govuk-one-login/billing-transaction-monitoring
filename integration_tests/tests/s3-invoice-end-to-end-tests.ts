@@ -46,9 +46,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       invoice.getQuantity("passport check"),
     ];
     const expectedServices = ["Address check", "Passport check"];
-    filename = `raw-Invoice-${Math.random()
-      .toString(36)
-      .substring(2, 7)}-validFile`;
+    filename = `s3-invoice-e2e-test-raw-Invoice-validFile`;
 
     const s3Object = await createInvoiceInS3({
       invoiceData: invoice,

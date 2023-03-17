@@ -31,7 +31,7 @@ let filename: string;
 let eventIds: string[];
 let eventTime: string;
 
-describe("\nUpload invoice to raw invoice bucket and verify billing and transaction_curated view query results matches with expected data \n", () => {
+describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data \n", () => {
   test.each`
     testCase                                                                                 | eventName             | vendorId                | eventTime             | unitPrice | numberOfTestEvents | priceDiff     | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty | transactionPrice | transactionQty
     ${"BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice "}   | ${"VENDOR_4_EVENT_5"} | ${"vendor_testvendor4"} | ${"2022/02/28 10:00"} | ${"0.00"} | ${11}              | ${"-27.5000"} | ${"-9"} | ${"-100.0000"}         | ${"-81"}             | ${"0.0000"}  | ${"2"}     | ${"27.5000"}     | ${"11"}
@@ -47,9 +47,7 @@ describe("\nUpload invoice to raw invoice bucket and verify billing and transact
         data.transactionQty,
         data.eventName
       );
-      filename = `raw-Invoice-${Math.random()
-        .toString(36)
-        .substring(2, 7)}-validFile.pdf`;
+      filename = `raw-Invoice-validFile.pdf`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,

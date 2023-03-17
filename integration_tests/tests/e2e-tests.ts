@@ -28,7 +28,10 @@ const standardisedFolderPrefix = "btm_billing_standardised";
 let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
-describe("\n Upload invoice to raw invoice bucket and verify billing and transaction_curated view query results matches with expected data \n", () => {
+// Below tests can be run both in lower and higher environments
+// TODO: CSV e2e test
+
+describe("\n Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
   beforeAll(async () => {
     dataRetrievedFromConfig = await retrieveMoreTestDataFromConfig();
     eventName = dataRetrievedFromConfig.eventName;
@@ -44,7 +47,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
     ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}          | ${"2022/12/01"} | ${"10"}        | ${"12"}
     ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}           | ${"2023/01/02"} | ${"10"}        | ${"6"}
   `(
-    "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
+    "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
       eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
@@ -53,9 +56,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
       );
       eventTime = data.eventTime;
 
-      filename = `raw-Invoice-${Math.random()
-        .toString(36)
-        .substring(2, 7)}-validFile`;
+      filename = `e2e-test-raw-Invoice-validFile`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,
@@ -103,7 +104,7 @@ describe("\n Upload invoice to raw invoice bucket and verify billing and transac
     testCase                                                                                 | eventTime       | transactionQty | billingQty
     ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2023/02/28"} | ${"1"}         | ${undefined}
   `(
-    "results retrieved from billing and transaction_curated view query should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
+    "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
     async (data) => {
       eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
