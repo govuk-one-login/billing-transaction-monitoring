@@ -9,35 +9,32 @@ import { poll } from "./commonHelpers";
 
 let vendorServiceDetails: VendorServiceConfigRow[] = [];
 const configBucket = configStackName();
-let rateDetails: RateConfigRow[] = [];
+let rateConfigRows: RateConfigRow[] = [];
 
-const convertRateCSVtoJSON = async (): Promise<RateConfigRow[]> => {
+const convertRatesCSVtoJSON = async (): Promise<RateConfigRow[]> => {
   const ratesCsv = await getS3Object({
     bucket: configBucket,
     key: "rate_tables/rates.csv",
   });
-  rateDetails = await csvtojson().fromString(ratesCsv ?? "");
-  return rateDetails;
+  rateConfigRows = await csvtojson().fromString(ratesCsv ?? "");
+  return rateConfigRows;
 };
 
 const getServiceDescriptionFromConfig = async (): Promise<string> => {
   const response = await getS3Object({
-    bucket: configStackName(),
+    bucket: configBucket,
     key: "e2e-test.json",
   });
   const serviceDescription = JSON.parse(response ?? "");
   return serviceDescription.parser_0_service_description;
 };
 
-export const retrieveMoreTestDataFromConfig =
+export const getVendorServiceAndRatesFromConfig =
   async (): Promise<TestDataRetrievedFromConfig> => {
-    vendorServiceDetails = await getVendorServiceConfigRows(
-      configStackName(),
-      {}
-    );
-    rateDetails = await convertRateCSVtoJSON();
+    vendorServiceDetails = await getVendorServiceConfigRows(configBucket, {});
+    rateConfigRows = await convertRatesCSVtoJSON();
     const testDataRetrievedFromConfig = {
-      unitPrice: rateDetails[2].unit_price,
+      unitPrice: rateConfigRows[2].unit_price,
       vendorId: vendorServiceDetails[1].vendor_id,
       vendorName: vendorServiceDetails[1].vendor_name,
       eventName: vendorServiceDetails[1].event_name,
@@ -49,7 +46,7 @@ export const retrieveMoreTestDataFromConfig =
       await getServiceDescriptionFromConfig().then((result) => {
         testDataRetrievedFromConfig.description = result;
       });
-      testDataRetrievedFromConfig.unitPrice = rateDetails[0].unit_price;
+      testDataRetrievedFromConfig.unitPrice = rateConfigRows[0].unit_price;
       testDataRetrievedFromConfig.vendorId = vendorServiceDetails[0].vendor_id;
       testDataRetrievedFromConfig.vendorName =
         vendorServiceDetails[0].vendor_name;

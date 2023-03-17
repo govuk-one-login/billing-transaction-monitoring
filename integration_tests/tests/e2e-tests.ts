@@ -16,7 +16,7 @@ import {
 
 import {
   generateTransactionEventsViaFilterLambda,
-  retrieveMoreTestDataFromConfig,
+  getVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
@@ -33,7 +33,7 @@ let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 describe("\n Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
   beforeAll(async () => {
-    dataRetrievedFromConfig = await retrieveMoreTestDataFromConfig();
+    dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
     eventName = dataRetrievedFromConfig.eventName;
   });
   let filename: string;
