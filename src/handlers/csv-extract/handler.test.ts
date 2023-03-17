@@ -346,6 +346,7 @@ describe("CSV Extract handler tests", () => {
         quantity: 28,
         service_name: "Horse Hoof Whittling",
         unit_price: 12.45,
+        tax: 69.72,
         total: 418.32,
       })
     );
@@ -384,6 +385,7 @@ describe("CSV Extract handler tests", () => {
         quantity: 28,
         service_name: "Horse Hoof Whittling",
         unit_price: 12.45,
+        tax: 69.72,
         total: 418.32,
       })
     );
