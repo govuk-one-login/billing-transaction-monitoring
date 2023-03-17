@@ -1,32 +1,25 @@
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import { deleteS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import {
   deleteS3Events,
-  eventTimeStamp,
-  generatePublishAndValidateEvents,
   TableNames,
-  TimeStamps,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
   VendorId,
   EventName,
+  prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-import { queryResponseFilterByVendorServiceNameYear } from "../../src/handlers/int-test-support/helpers/queryHelper";
-
-const prefix = resourcePrefix();
-const bucketName = `${prefix}-storage`;
+import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import { generateTransactionEventsViaFilterLambda } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
-  beforeAll(async () => {
-    await deleteS3Objects({ bucketName, prefix: "btm_transactions" });
-  });
+  let eventIds: string[];
+  let eventTimestamp: string;
 
   test.each`
     eventName             | vendorId                | numberOfTestEvents | unitPrice | eventTime
-    ${"VENDOR_1_EVENT_1"} | ${"vendor_testvendor1"} | ${2}               | ${1.23}   | ${TimeStamps.THIS_TIME_LAST_YEAR}
-    ${"VENDOR_2_EVENT_2"} | ${"vendor_testvendor2"} | ${2}               | ${2.5}    | ${TimeStamps.CURRENT_TIME}
-    ${"VENDOR_3_EVENT_4"} | ${"vendor_testvendor3"} | ${7}               | ${4.0}    | ${TimeStamps.CURRENT_TIME}
-    ${"VENDOR_3_EVENT_6"} | ${"vendor_testvendor3"} | ${14}              | ${8.88}   | ${TimeStamps.CURRENT_TIME}
+    ${"VENDOR_1_EVENT_1"} | ${"vendor_testvendor1"} | ${2}               | ${1.23}   | ${"2022/06/30 10:00"}
+    ${"VENDOR_2_EVENT_2"} | ${"vendor_testvendor2"} | ${2}               | ${2.5}    | ${"2023/02/10 10:00"}
+    ${"VENDOR_3_EVENT_4"} | ${"vendor_testvendor3"} | ${7}               | ${4.0}    | ${"2022/08/10 10:00"}
+    ${"VENDOR_3_EVENT_6"} | ${"vendor_testvendor3"} | ${14}              | ${8.88}   | ${"2022/09/10 10:00"}
   `(
     "price retrieved from transaction_curated athena view query should match with expected calculated price for $numberOfTestEvents",
     async ({
@@ -40,28 +33,36 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       eventName: EventName;
       numberOfTestEvents: number;
       unitPrice: number;
-      eventTime: TimeStamps;
       year: number;
+      eventTime: string;
     }) => {
+      eventTimestamp = eventTime;
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
-      const eventIds = await generatePublishAndValidateEvents({
-        numberOfTestEvents,
-        eventName,
+
+      eventIds = await generateTransactionEventsViaFilterLambda(
         eventTime,
-      });
+        numberOfTestEvents,
+        eventName
+      );
+
       const tableName = TableNames.TRANSACTION_CURATED;
-      const year = new Date(eventTimeStamp[eventTime] * 1000).getFullYear();
+      const prettyEventName = prettyEventNameMap[eventName];
+
       const response: TransactionCuratedView[] =
-        await queryResponseFilterByVendorServiceNameYear({
+        await queryResponseFilterByVendorServiceNameYearMonth(
           vendorId,
-          eventName,
+          prettyEventName,
           tableName,
-          year,
-        });
-      await deleteS3Events(eventIds, eventTime);
+          eventTime
+        );
+
       expect(response[0].price).toEqual(expectedPrice);
     }
   );
+
+  afterEach(async () => {
+    await deleteS3Events(eventIds, eventTimestamp);
+  });
 });
 
 interface TransactionCuratedView {
