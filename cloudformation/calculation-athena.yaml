@@ -193,25 +193,27 @@ Resources:
         Database: !Ref CalculationsDB
         Name: btm_billing_and_transactions_curated
         Query: !Sub |
-          CREATE OR REPLACE VIEW "btm_billing_and_transactions_curated" AS
           SELECT
-              COALESCE(invoice.vendor_id, txn.vendor_id) vendor_id
+            COALESCE(invoice.vendor_id, txn.vendor_id) vendor_id
             , COALESCE(invoice.vendor_name, txn.vendor_name) vendor_name
             , COALESCE(invoice.service_name, txn.service_name) service_name
             , COALESCE(invoice.year, txn.year) year
             , COALESCE(invoice.month, txn.month) month
-            , "concat"(U&'\00A3', "regexp_replace"(CAST(CAST(invoice.price AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
-            , "concat"(U&'\00A3', "regexp_replace"(CAST(CAST(txn.price AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) transaction_price_formatted
-            , (CASE WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN -1.23456701E6 WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN -1.23456703E6 WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN -1.23456704E6 WHEN (txn.price IS NULL) THEN -1.23456702E6 ELSE (CASE WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE null END) ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price) END) END) price_difference_percentage
-            , "concat"(U&'\00A3', "regexp_replace"(CAST(CAST((COALESCE(invoice.price, 0) - COALESCE(txn.price, 0)) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) price_difference
-            , "concat"(U&'\00A3', "regexp_replace"(CAST(CAST((COALESCE(invoice.price, 0) + COALESCE(invoice.tax, 0)) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) billing_amount_with_tax
+            , CONCAT('£', REGEXP_REPLACE(CAST(CAST(invoice.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
+            , CONCAT('£', REGEXP_REPLACE(CAST(CAST(txn.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) transaction_price_formatted
+            , (CASE
+                WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN ${QueryMessageNoChargeForThisMonth}
+                WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN ${QueryMessageInvoiceDataMissing}
+                WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN ${QueryMessageTransactionDataMissing}
+                WHEN (txn.price IS NULL) THEN ${QueryMessageRateCardDataMissing}
+                ELSE (CASE WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE null END) ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price) END) END) price_difference_percentage
           FROM
               (btm_transactions_curated txn
-          FULL JOIN btm_billing_curated invoice ON
-                ((((txn.vendor_id = invoice.vendor_id) AND
-                (txn.service_name = invoice.service_name)) AND
-                (txn.year = invoice.year)) AND
-                (txn.month = invoice.month)))
+                FULL JOIN btm_billing_curated invoice ON
+                      ((((txn.vendor_id = invoice.vendor_id) AND
+                      (txn.service_name = invoice.service_name)) AND
+                      (txn.year = invoice.year)) AND
+                      (txn.month = invoice.month)))
         Workgroup: !Ref AthenaTransactionWorkgroup
 
   AthenaTransactionWorkgroup:
