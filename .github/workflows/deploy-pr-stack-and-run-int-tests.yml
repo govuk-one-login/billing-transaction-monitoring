@@ -61,5 +61,11 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
       - name: Run integration tests
         run: npm run test:integration
