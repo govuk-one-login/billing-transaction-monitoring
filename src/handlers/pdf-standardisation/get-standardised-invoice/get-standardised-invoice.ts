@@ -7,7 +7,7 @@ import {
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
 import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-default";
 
-export interface StandardisedLineItem {
+export interface StandardisedLineItemSummary {
   invoice_receipt_id: string;
   vendor_id?: string;
   vendor_name?: string;
@@ -17,18 +17,25 @@ export interface StandardisedLineItem {
   due_date?: string;
   tax?: number;
   tax_payer_id?: string;
+  parser_version: string; // may not be present in old items, but required here to ensure it is added to new ones
+}
+
+export interface StandardisedLineItem extends StandardisedLineItemSummary {
   item_id?: number;
   item_description?: string;
   service_name?: string;
   unit_price?: number;
   quantity?: number;
   price?: number;
-  parser_version: string; // may not be present in old items, but required here to ensure it is added to new ones
 }
 
-export interface StandardisedLineItemFromPdf extends StandardisedLineItem {
+export interface StandardisedLineItemFromPdfSummary
+  extends StandardisedLineItemSummary {
   originalInvoiceFile: string; // may not be present in old items, but required here to ensure it is added to new ones
 }
+
+export type StandardisedLineItemFromPdf = StandardisedLineItem &
+  StandardisedLineItemFromPdfSummary;
 
 export type StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
