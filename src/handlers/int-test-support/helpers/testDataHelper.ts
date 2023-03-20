@@ -118,11 +118,8 @@ export interface TestData {
   unitPrice: number;
   vendorId: string;
   vendorName: string;
-  priceDiff: string;
-  qtyDiff: string;
-  priceDifferencePercent: string;
-  qtyDifferencePercent: string;
-  billingPrice: string;
-  transactionPrice: string;
   serviceName: string;
+  priceDifferencePercentage: string;
+  billingPriceFormatted: string;
+  transactionPriceFormatted: string;
 }

@@ -33,13 +33,13 @@ let eventTime: string;
 
 describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data \n", () => {
   test.each`
-    testCase                                                                                 | eventName             | vendorId                | eventTime             | unitPrice | numberOfTestEvents | priceDiff     | qtyDiff | priceDifferencePercent | qtyDifferencePercent | billingPrice | billingQty | transactionPrice | transactionQty
-    ${"BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice "}   | ${"VENDOR_4_EVENT_5"} | ${"vendor_testvendor4"} | ${"2022/02/28 10:00"} | ${"0.00"} | ${11}              | ${"-27.5000"} | ${"-9"} | ${"-100.0000"}         | ${"-81"}             | ${"0.0000"}  | ${"2"}     | ${"27.5000"}     | ${"11"}
-    ${"BillingQty equals TransactionQty and No TransactionPrice No BillingPrice "}           | ${"VENDOR_4_EVENT_5"} | ${"vendor_testvendor4"} | ${"2022/03/30 10:00"} | ${"0.00"} | ${2}               | ${"0.0000"}   | ${"0"}  | ${"0.0000"}            | ${"0"}               | ${"0.0000"}  | ${"2"}     | ${"0.0000"}      | ${"2"}
-    ${"BillingQty greater than TransactionQty and No TransactionPrice but has BillingPrice"} | ${"VENDOR_4_EVENT_5"} | ${"vendor_testvendor4"} | ${"2022/04/30 10:00"} | ${"2.50"} | ${2}               | ${"27.5000"}  | ${"9"}  | ${undefined}           | ${"450"}             | ${"27.5000"} | ${"11"}    | ${"0.0000"}      | ${"2"}
-    ${"BillingQty equals TransactionQty but BillingPrice greater than TransactionPrice"}     | ${"VENDOR_1_EVENT_1"} | ${"vendor_testvendor1"} | ${"2022/05/30 10:00"} | ${"3.33"} | ${2}               | ${"4.2000"}   | ${"0"}  | ${"170.7317"}          | ${"0"}               | ${"6.6600"}  | ${"2"}     | ${"2.4600"}      | ${"2"}
+    testCase                                                                                 | eventName             | vendorId                | eventTime             | unitPrice | numberOfTestEvents | priceDifferencePercentage | billingPriceFormatted | billingQty | transactionPriceFormatted | transactionQty
+    ${"BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice "}   | ${"VENDOR_4_EVENT_5"} | ${"vendor_testvendor4"} | ${"2022/02/28 10:00"} | ${"0.00"} | ${11}              | ${"-100.0"}               | ${"£0.00"}            | ${"2"}     | ${"£27.50"}               | ${"11"}
+    ${"BillingQty equals TransactionQty and No TransactionPrice No BillingPrice "}           | ${"VENDOR_4_EVENT_5"} | ${"vendor_testvendor4"} | ${"2022/03/30 10:00"} | ${"0.00"} | ${2}               | ${"-1234567.01"}          | ${"£0.00"}            | ${"2"}     | ${"£0.00"}                | ${"2"}
+    ${"BillingQty greater than TransactionQty and No TransactionPrice but has BillingPrice"} | ${"VENDOR_4_EVENT_5"} | ${"vendor_testvendor4"} | ${"2022/04/30 10:00"} | ${"2.50"} | ${2}               | ${undefined}              | ${"£27.50"}           | ${"11"}    | ${"£0.00"}                | ${"2"}
+    ${"BillingQty equals TransactionQty but BillingPrice greater than TransactionPrice"}     | ${"VENDOR_1_EVENT_1"} | ${"vendor_testvendor1"} | ${"2022/05/30 10:00"} | ${"3.33"} | ${2}               | ${"170.7317"}             | ${"£6.66"}            | ${"2"}     | ${"£2.46"}                | ${"2"}
   `(
-    "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPrice,$transactionQty,$transactionPrice,$qtyDiff,$priceDiff,$qtyDifferencePercent,$priceDifferencePercent",
+    "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPrice,$transactionQty,$transactionPrice,$qtyDiff,$priceDiff,$qtyDifferencePercent,$priceDifferencePercentage",
     async ({ ...data }) => {
       eventTime = data.eventTime;
       eventIds = await generateTransactionEventsViaFilterLambda(
@@ -102,14 +102,9 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
 
 export const assertQueryResultWithTestData = async (
   {
-    billingQty,
-    transactionQty,
-    priceDiff,
-    qtyDiff,
-    priceDifferencePercent,
-    qtyDifferencePercent,
-    billingPrice,
-    transactionPrice,
+    billingPriceFormatted,
+    transactionPriceFormatted,
+    priceDifferencePercentage,
   }: TestData,
   eventTime: string,
   vendorId: string,
@@ -124,18 +119,13 @@ export const assertQueryResultWithTestData = async (
       eventTime
     );
 
-  expect(response[0].price_difference).toEqual(priceDiff);
-  expect(response[0].quantity_difference).toEqual(qtyDiff);
+  expect(response[0].billing_price_formatted).toEqual(billingPriceFormatted);
+  expect(response[0].transaction_price_formatted).toEqual(
+    transactionPriceFormatted
+  );
   expect(response[0].price_difference_percentage).toEqual(
-    priceDifferencePercent
+    priceDifferencePercentage
   );
-  expect(response[0].quantity_difference_percentage).toEqual(
-    qtyDifferencePercent
-  );
-  expect(response[0].billing_price).toEqual(billingPrice);
-  expect(response[0].billing_quantity).toEqual(billingQty);
-  expect(response[0].transaction_price).toEqual(transactionPrice);
-  expect(response[0].transaction_quantity).toEqual(transactionQty);
 };
 
 export type BillingTransactionCurated = Array<{
@@ -144,12 +134,7 @@ export type BillingTransactionCurated = Array<{
   service_name: string;
   year: string;
   month: string;
-  price_difference: number;
-  quantity_difference: number;
-  price_difference_percentage: number;
-  quantity_difference_percentage: number;
-  billing_price: number;
-  billing_quantity: number;
-  transaction_price: number;
-  transaction_quantity: number;
+  billing_price_formatted: string;
+  transaction_price_formatted: string;
+  price_difference_percentage: string;
 }>;
