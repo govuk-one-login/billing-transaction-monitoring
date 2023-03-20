@@ -4,6 +4,7 @@ import {
   InvokeCommandInput,
 } from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
+import { logger } from "../../../shared/utils";
 import { lambdaClient } from "../clients";
 import { HelperDict, IntTestHelpers } from "../handler";
 import { configName, envName, resourcePrefix, runViaLambda } from "./envHelper";
@@ -23,8 +24,9 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
   const result = await invokeLambda({
     functionName: `${resourcePrefix()}-int-test-support-function`,
     payload,
+    forceWithoutLambda: true,
   });
-  // logger.info(toUtf8(result.Payload as Uint8Array));
+  logger.info(toUtf8(result.Payload as Uint8Array));
 
   if (result.StatusCode === 200 && result.Payload != null) {
     return JSON.parse(toUtf8(result.Payload)).successObject;
@@ -36,17 +38,18 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
 export interface InvokeLambdaParams {
   functionName: string;
   payload: string;
-  forceWithoutLambda?: false;
+  forceWithoutLambda?: boolean;
 }
 
 export const invokeLambda = async (
   params: InvokeLambdaParams
 ): Promise<InvocationResponse> => {
-  if (runViaLambda() && !params.forceWithoutLambda)
+  if (runViaLambda() && !params.forceWithoutLambda) {
     return (await sendLambdaCommand(
       IntTestHelpers.invokeLambda,
       params
     )) as unknown as InvocationResponse;
+  }
   const command: InvokeCommandInput = {
     FunctionName: params.functionName,
     InvocationType: "RequestResponse",
