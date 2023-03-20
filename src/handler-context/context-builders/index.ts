@@ -22,7 +22,7 @@ export const buildContext = async <
   }: CtxBuilderOptions<TMessage, TEnvVars, TConfigFileNames>
 ): Promise<HandlerCtx<TMessage, TEnvVars, TConfigFileNames>> => {
   // for the love of god find a nicer way to do this chain
-  return addConfigToCtx(
+  return await addConfigToCtx(
     configFiles,
     addOutputsToCtx(
       outputs,
