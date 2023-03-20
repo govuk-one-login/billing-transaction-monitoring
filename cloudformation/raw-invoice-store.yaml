@@ -30,7 +30,7 @@ Resources:
                 Rules:
                   - Name: suffix
                     Value: '.pdf'
-            Queue: !GetAtt ExtractQueue.Arn
+            Queue: !GetAtt PdfExtractQueue.Arn
           - Event: s3:ObjectCreated:*
             Filter:
               S3Key:

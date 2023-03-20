@@ -11,7 +11,7 @@ const MockTextract = AWS.Textract as jest.MockedClass<typeof AWS.Textract>;
 
 jest.mock("../../shared/utils/logger");
 
-describe("Extract handler test", () => {
+describe("Pdf Extract handler test", () => {
   const OLD_ENV = process.env;
 
   let mockStartExpenseAnalysis: jest.Mock;
