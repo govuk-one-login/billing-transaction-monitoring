@@ -4,7 +4,6 @@ import {
   InvokeCommandInput,
 } from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
-import { logger } from "../../../shared/utils";
 import { lambdaClient } from "../clients";
 import { HelperDict, IntTestHelpers } from "../handler";
 import { configName, envName, resourcePrefix, runViaLambda } from "./envHelper";
@@ -26,7 +25,7 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
     payload,
     forceWithoutLambda: true,
   });
-  logger.info(toUtf8(result.Payload as Uint8Array));
+  // logger.info(toUtf8(result.Payload as Uint8Array));
 
   if (result.StatusCode === 200 && result.Payload != null) {
     return JSON.parse(toUtf8(result.Payload)).successObject;
