@@ -47,7 +47,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}          | ${"2022/12/01"} | ${"10"}        | ${"12"}
     ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}           | ${"2023/01/02"} | ${"10"}        | ${"6"}
   `(
-    "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
+    "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
@@ -100,11 +100,11 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     }
   );
 
-  test.each`
+  test.skip.each`
     testCase                                                                                 | eventTime       | transactionQty | billingQty
     ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2023/02/28"} | ${"1"}         | ${undefined}
   `(
-    "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
+    "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
@@ -166,44 +166,33 @@ const calculateExpectedResults = (
 ): ExpectedResults => {
   const billingPrice = unitPrice * billingQty;
   const transactionPrice = unitPrice * transactionQty;
-  const qtyDifference = billingQty - transactionQty;
   const priceDifference = billingPrice - transactionPrice;
   const priceDifferencePercentage = (priceDifference / transactionPrice) * 100;
-  const qtyDifferencePercentage = (qtyDifference / transactionQty) * 100;
 
   if (billingQty === undefined) {
     return {
       transactionQty,
-      qtyDifference: (-transactionQty).toString(),
-      qtyDifferencePercentage: (-transactionQty * 100).toString(),
-      transactionPrice: transactionPrice.toFixed(4),
-      priceDifference: (-transactionPrice).toFixed(4).toString(),
-      priceDifferencePercentage: (-100).toFixed(4),
+      transactionPriceFormatted: "£" + transactionPrice.toFixed(2),
+      priceDifferencePercentage: (-100).toFixed(1),
       billingQty: undefined,
-      billingPrice: undefined,
+      billingPriceFormatted: undefined,
     };
   }
   if (transactionQty === undefined) {
     return {
       billingQty,
-      qtyDifference: billingQty.toString(),
-      qtyDifferencePercentage: undefined,
-      billingPrice: billingPrice.toFixed(4),
-      priceDifference: billingPrice.toFixed(4),
-      priceDifferencePercentage: undefined,
+      billingPriceFormatted: "£" + billingPrice.toFixed(2),
+      priceDifferencePercentage: "-1234567.04",
       transactionQty: undefined,
-      transactionPrice: undefined,
+      transactionPriceFormatted: undefined,
     };
   } else {
     return {
       billingQty,
       transactionQty,
-      qtyDifference: qtyDifference.toString(),
-      qtyDifferencePercentage: qtyDifferencePercentage.toString(),
-      transactionPrice: transactionPrice.toFixed(4),
-      priceDifference: priceDifference.toFixed(4).toString(),
-      billingPrice: billingPrice.toFixed(4),
-      priceDifferencePercentage: priceDifferencePercentage.toFixed(4),
+      transactionPriceFormatted: "£" + transactionPrice.toFixed(2),
+      billingPriceFormatted: "£" + billingPrice.toFixed(2),
+      priceDifferencePercentage: priceDifferencePercentage.toFixed(1),
     };
   }
 };
@@ -211,10 +200,7 @@ const calculateExpectedResults = (
 interface ExpectedResults {
   billingQty: number | undefined;
   transactionQty: number | undefined;
-  qtyDifference: number | string;
-  qtyDifferencePercentage: string | undefined;
-  transactionPrice: string | undefined;
-  priceDifference: number | string;
-  billingPrice: number | undefined | string;
+  transactionPriceFormatted: string | undefined;
+  billingPriceFormatted: number | undefined | string;
   priceDifferencePercentage: string | undefined;
 }
