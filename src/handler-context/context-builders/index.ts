@@ -1,3 +1,4 @@
+import { S3Event, SQSEvent } from "aws-lambda";
 import { CtxBuilderOptions, HandlerCtx } from "..";
 import { ConfigFileNames } from "../Config";
 import { getBlankCtx } from "./blank";
@@ -7,28 +8,29 @@ import { addLoggerToCtx } from "./logger";
 import { addMessagesToCtx } from "./messages";
 import { addOutputsToCtx } from "./outputs";
 
-export const buildContext = <
+export const buildContext = async <
   TMessage,
   TEnvVars extends string,
   TConfigFileNames extends ConfigFileNames
 >(
-  event: unknown,
+  event: S3Event | SQSEvent,
   {
     envVars,
     messageTypeGuard,
     outputs,
     configFiles,
   }: CtxBuilderOptions<TMessage, TEnvVars, TConfigFileNames>
-): HandlerCtx<TMessage, TEnvVars, TConfigFileNames> =>
+): Promise<HandlerCtx<TMessage, TEnvVars, TConfigFileNames>> => {
   // for the love of god find a nicer way to do this chain
-  addConfigToCtx(
+  return addConfigToCtx(
     configFiles,
     addOutputsToCtx(
       outputs,
-      addMessagesToCtx(
+      await addMessagesToCtx(
         event,
         messageTypeGuard,
         addEnvToCtx(envVars, addLoggerToCtx(getBlankCtx()))
       )
     )
   );
+};

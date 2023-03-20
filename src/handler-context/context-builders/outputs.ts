@@ -1,9 +1,4 @@
-import {
-  UserDefinedOutputs,
-  HandlerCtx,
-  OutputFunction,
-  BusinessLogicOutput,
-} from "..";
+import { UserDefinedOutputs, HandlerCtx, OutputFunction } from "..";
 import { Response } from "../../shared/types";
 import { ConfigFileNames } from "../Config";
 
@@ -30,10 +25,10 @@ export const outputMessages = async <
   TEnvVars extends string,
   TConfigFileNames extends ConfigFileNames
 >(
-  results: BusinessLogicOutput,
+  results: unknown[],
   { outputs }: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
 ): Promise<Response> => {
-  const promises = results
+  const promises = (results as Array<{ _id: string }>)
     .map(({ _id, ...body }) =>
       outputs.map<Promise<string>>(
         async ({ destination, store }) =>

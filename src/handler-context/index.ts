@@ -1,4 +1,4 @@
-import { SQSEvent } from "aws-lambda";
+import { S3Event, SQSEvent } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { Response } from "../shared/types";
 import { Config, ConfigFileNames } from "./Config";
@@ -25,15 +25,13 @@ export type UserDefinedOutputs<TEnvVars extends string> = Array<{
   store: UserDefinedOutputFunction<TEnvVars>;
 }>;
 
-export type BusinessLogicOutput = Array<{ _id: string }>;
-
 export type BusinessLogic<
   TMessage,
   TEnvVars extends string,
   TConfigFileNames extends ConfigFileNames
 > = (
   ctx: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
-) => Promise<BusinessLogicOutput>;
+) => Promise<unknown[]>;
 
 export interface HandlerCtx<
   TMessage,
@@ -41,12 +39,12 @@ export interface HandlerCtx<
   TConfigFileNames extends ConfigFileNames
 > {
   env: Record<TEnvVars, string>;
-  messages: Array<TMessage & { _id: string }>;
+  messages: TMessage[];
   logger: Logger;
   outputs: Outputs;
   config: Config<TConfigFileNames>["_cache"];
   outputMessages: (
-    results: BusinessLogicOutput,
+    results: unknown[],
     { outputs }: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
   ) => Promise<Response>;
 }
@@ -75,8 +73,8 @@ export const buildHandler =
     options: CtxBuilderOptions<TMessage, TEnvVars, TConfigFileNames>
   ) =>
   (businessLogic: BusinessLogic<TMessage, TEnvVars, TConfigFileNames>) =>
-  async (event: SQSEvent) => {
-    const ctx = buildContext(event, options);
+  async (event: S3Event | SQSEvent) => {
+    const ctx = await buildContext(event, options);
     const results = await businessLogic(ctx);
     return await outputMessages(results, ctx);
   };
