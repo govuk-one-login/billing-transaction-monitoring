@@ -53,6 +53,12 @@ jobs:
         run: sam validate
       - name: SAM deploy
         run: npm run sam:deploy
+
   run-integration-tests:
-    - name: Run integration tests
-      run: npm run test:integration
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run integration tests
+        run: npm run test:integration
