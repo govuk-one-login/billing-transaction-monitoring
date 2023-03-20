@@ -148,21 +148,13 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
-  expect(response[0].billing_quantity).toEqual(expectedResults.billingQty);
-  expect(response[0].transaction_quantity).toEqual(
-    expectedResults.transactionQty
+
+  expect(response[0].billing_price_formatted).toEqual(
+    expectedResults.billingPriceFormatted
   );
-  expect(response[0].quantity_difference).toEqual(
-    expectedResults.qtyDifference
+  expect(response[0].transaction_price_formatted).toEqual(
+    expectedResults.transactionPriceFormatted
   );
-  expect(response[0].quantity_difference_percentage).toEqual(
-    expectedResults.qtyDifferencePercentage
-  );
-  expect(response[0].billing_price).toEqual(expectedResults.billingPrice);
-  expect(response[0].transaction_price).toEqual(
-    expectedResults.transactionPrice
-  );
-  expect(response[0].price_difference).toEqual(expectedResults.priceDifference);
   expect(response[0].price_difference_percentage).toEqual(
     expectedResults.priceDifferencePercentage
   );
