@@ -70,7 +70,7 @@ export const generateTransactionEventsViaFilterLambda = async (
       eventName
     );
     const functionName = `${resourcePrefix()}-filter-function`;
-    await invokeLambda(functionName, updatedSQSEventPayload);
+    await invokeLambda({ functionName, payload: updatedSQSEventPayload });
     const json = JSON.parse(updatedSQSEventPayload);
     const eventId = JSON.parse(json.Records[0].body).event_id;
     await poll(

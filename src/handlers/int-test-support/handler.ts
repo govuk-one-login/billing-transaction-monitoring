@@ -19,6 +19,7 @@ import {
   getQueryResults,
 } from "./helpers/athenaHelper";
 import { createInvoiceInS3 } from "./helpers/mock-data/invoice/helpers";
+import { invokeLambda } from "./helpers/lambdaHelper";
 
 export interface TestSupportEvent {
   environment: string;
@@ -47,6 +48,7 @@ export enum IntTestHelpers {
   getQueryExecutionStatus = "getQueryExecutionStatus",
   getQueryResults = "getQueryResults",
   createInvoiceInS3 = "createInvoiceInS3",
+  invokeLambda = "invokeLambda",
 }
 
 export interface HelperDict {
@@ -64,6 +66,7 @@ export interface HelperDict {
   [IntTestHelpers.getQueryExecutionStatus]: typeof getQueryExecutionStatus;
   [IntTestHelpers.getQueryResults]: typeof getQueryResults;
   [IntTestHelpers.createInvoiceInS3]: typeof createInvoiceInS3;
+  [IntTestHelpers.invokeLambda]: typeof invokeLambda;
 }
 
 const functionMap: HelperDict = {
@@ -81,6 +84,7 @@ const functionMap: HelperDict = {
   [IntTestHelpers.getQueryExecutionStatus]: getQueryExecutionStatus,
   [IntTestHelpers.getQueryResults]: getQueryResults,
   [IntTestHelpers.createInvoiceInS3]: createInvoiceInS3,
+  [IntTestHelpers.invokeLambda]: invokeLambda,
 };
 
 const callFunction = async (

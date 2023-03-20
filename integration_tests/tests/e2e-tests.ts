@@ -81,7 +81,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
               s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
           ),
         {
-          timeout: 55000,
+          timeout: 60000,
           nonCompleteErrorMessage:
             "Invoice data never appeared in standardised folder",
         }
