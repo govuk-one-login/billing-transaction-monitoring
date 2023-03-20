@@ -25,7 +25,8 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   const promises = event.Records.map(async (record) => {
     try {
       await cleanRecord(record);
-    } catch (e) {
+    } catch (error) {
+      logger.error("Handler failure", { error });
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
     }
   });
@@ -37,10 +38,8 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 async function cleanRecord(record: SQSRecord): Promise<void> {
   const bodyObject = JSON.parse(record.body);
 
-  if (!isValidBodyObject(bodyObject)) {
-    logger.error("Event record body is invalid.");
+  if (!isValidBodyObject(bodyObject))
     throw new Error("Event record body is invalid.");
-  }
 
   const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
   if (outputQueueUrl === undefined || outputQueueUrl.length === 0)
