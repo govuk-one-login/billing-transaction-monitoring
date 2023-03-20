@@ -1,6 +1,7 @@
-import csvToJson from "csvtojson";
+import { Logger } from "@aws-lambda-powertools/logger";
 import { InferenceSpecifications } from "../handlers/transaction-csv-to-json-event/convert/make-inferences";
 import { Transformations } from "../handlers/transaction-csv-to-json-event/convert/perform-transformations";
+import { Json } from "../shared/types";
 
 export enum ConfigFileNames {
   rates = "rates",
@@ -42,86 +43,28 @@ export interface ConfigFiles {
   }>;
 }
 
-enum FileExtensions {
-  csv,
-  json,
+export interface ConfigClient {
+  getConfigFile: (fileName: ConfigFileNames) => Promise<Json>;
 }
-
-const fileMap: Record<
-  ConfigFileNames,
-  { path: string; fileExtension: FileExtensions }
-> = {
-  [ConfigFileNames.rates]: {
-    path: "rate_tables/rates.csv",
-    fileExtension: FileExtensions.csv,
-  },
-  [ConfigFileNames.services]: {
-    path: "vendor_services/vendor-services.csv",
-    fileExtension: FileExtensions.csv,
-  },
-  [ConfigFileNames.renamingMap]: {
-    path: "csv_transactions/header-row-renaming-map.json",
-    fileExtension: FileExtensions.json,
-  },
-  [ConfigFileNames.inferences]: {
-    path: "csv_transactions/event-inferences.json",
-    fileExtension: FileExtensions.json,
-  },
-  [ConfigFileNames.transformations]: {
-    path: "csv_transactions/event-transformation.json",
-    fileExtension: FileExtensions.json,
-  },
-  [ConfigFileNames.vat]: {
-    path: "uk-vat.json",
-    fileExtension: FileExtensions.json,
-  },
-  [ConfigFileNames.standardisation]: {
-    path: "vendor-invoice-standardisation.json",
-    fileExtension: FileExtensions.json,
-  },
-};
-
-type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
-
-interface ConfigClient {
-  getConfigFile: (path: string) => Promise<string>;
-}
-
-const parseCsvFile = async (rawFile: string): Promise<Json> => {
-  return await csvToJson().fromString(rawFile);
-};
-const parseJsonFile = (rawFile: string): Json => {
-  return JSON.parse(rawFile);
-};
-
-const parseConfigFile = async (
-  rawFile: string,
-  fileExtension: FileExtensions
-): Promise<Json> => {
-  switch (fileExtension) {
-    case FileExtensions.json:
-      return parseJsonFile(rawFile);
-    case FileExtensions.csv:
-      return await parseCsvFile(rawFile);
-  }
-};
 
 export class Config<TFileName extends ConfigFileNames> {
   private readonly _client: ConfigClient;
   private readonly _files: ConfigFileNames[];
+  private readonly _logger: Logger;
+  private _hasCacheBeenPopulated: boolean = false;
   private _cache!: Omit<ConfigFiles, keyof Omit<ConfigFiles, TFileName>>;
   private _promises!: Array<
     Promise<{
-      parsedFile: Json;
+      file: Json;
       fileName: ConfigFileNames;
     }>
   >;
 
-  constructor(client: ConfigClient, files: TFileName[]) {
+  constructor(client: ConfigClient, files: TFileName[], logger: Logger) {
     this._client = client;
     this._files = files;
+    this._logger = logger;
     this._populatePromises();
-    void this._populateCache();
   }
 
   private readonly _populatePromises = (): void => {
@@ -129,37 +72,43 @@ export class Config<TFileName extends ConfigFileNames> {
       throw new Error("No CONFIG_BUCKET defined in this environment");
 
     this._promises = this._files.map(async (fileName) => {
-      const { path, fileExtension } = fileMap[fileName];
       const promise = (async (): Promise<{
-        parsedFile: Json;
+        file: Json;
         fileName: ConfigFileNames;
       }> => {
-        const rawFile = await this._client.getConfigFile(path);
-        const parsedFile = await parseConfigFile(rawFile, fileExtension);
-        return { parsedFile, fileName };
+        const file = await this._client.getConfigFile(fileName);
+        return { file, fileName };
       })();
       return await promise;
     });
   };
 
-  private readonly _populateCache = async (): Promise<void> => {
+  public readonly populateCache = async (): Promise<void> => {
     const resolutions = await Promise.allSettled(this._promises);
     // @ts-expect-error
     this._cache = resolutions.reduce<
       Omit<ConfigFiles, keyof Omit<ConfigFiles, TFileName>>
     >((_config, resolution) => {
       if (resolution.status === "rejected") throw new Error(resolution.reason);
-      const { parsedFile, fileName } = resolution.value;
+      const { file, fileName } = resolution.value;
       return {
         ..._config,
-        [fileName]: parsedFile,
+        [fileName]: file,
       };
       // @ts-expect-error
     }, {});
+    this._hasCacheBeenPopulated = true;
   };
 
   public readonly getCache = (): Omit<
     ConfigFiles,
     keyof Omit<ConfigFiles, TFileName>
-  > => this._cache;
+  > => {
+    if (!this._hasCacheBeenPopulated) {
+      this._logger.warn(
+        "Called getCache before awaiting populateCache. Consider ensuing the cache is populated before reading it."
+      );
+    }
+    return this._cache;
+  };
 }
