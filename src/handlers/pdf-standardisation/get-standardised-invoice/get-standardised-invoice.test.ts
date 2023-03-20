@@ -94,7 +94,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
   });
 
-  test.skip("Standardised invoice getter with vendor service config fetch error", async () => {
+  test("Standardised invoice getter with vendor service config fetch error", async () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
     mockedGetVendorServiceConfigRows.mockRejectedValue(mockedError);
@@ -108,18 +108,14 @@ describe("Standardised invoice getter", () => {
         givenOriginalInvoiceFileName
       )
     ).rejects.toThrowError(mockedErrorText);
-    expect(mockedGetVendorInvoiceStandardisationModuleId).toHaveBeenCalledTimes(
-      1
-    );
-    expect(mockedGetVendorInvoiceStandardisationModuleId).toHaveBeenCalledWith(
-      givenConfigBucket,
-      givenVendorId
-    );
     expect(mockedGetVendorServiceConfigRows).toHaveBeenCalledTimes(1);
     expect(mockedGetVendorServiceConfigRows).toHaveBeenCalledWith(
       givenConfigBucket,
       { vendor_id: givenVendorId }
     );
+    expect(
+      mockedGetVendorInvoiceStandardisationModuleId
+    ).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoice0).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
   });
