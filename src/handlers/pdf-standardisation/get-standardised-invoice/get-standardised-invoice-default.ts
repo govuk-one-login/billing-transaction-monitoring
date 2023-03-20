@@ -15,14 +15,15 @@ import {
 } from "../field-utils";
 import {
   StandardisationModule,
-  StandardisedLineItem,
+  StandardisedLineItemFromPdf,
 } from "./get-standardised-invoice";
 
 export const getStandardisedInvoiceDefault: StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
   vendorServiceConfigRows: VendorServiceConfigRows,
-  parserVersion: string
-): StandardisedLineItem[] => {
+  parserVersion: string,
+  originalInvoiceFileName: string
+): StandardisedLineItemFromPdf[] => {
   // If you update this, please increment its version! See `README.md`.
 
   const summaryFields = getSummaryFields(textractPages);
@@ -41,9 +42,10 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
     tax: getTax(summaryFields),
     tax_payer_id: getTaxPayerId(summaryFields),
     parser_version: parserVersion,
+    originalInvoiceFile: originalInvoiceFileName,
   };
 
-  return lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
+  return lineItems.reduce<StandardisedLineItemFromPdf[]>((acc, item) => {
     const itemFields = item.LineItemExpenseFields ?? [];
     let nextAcc = [...acc];
     for (const {

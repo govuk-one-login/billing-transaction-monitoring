@@ -3,6 +3,7 @@ import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envH
 import {
   checkIfS3ObjectExists,
   deleteS3Object,
+  getS3Object,
   listS3Objects,
   putS3Object,
   S3Object,
@@ -74,6 +75,22 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
+    );
+
+    // Check the original PDF file name is saved.
+    const standardisedLineItemsText = await getS3Object({
+      bucket: storageBucket,
+      key: `${standardisedFolderPrefix}/${filename}.txt`,
+    });
+    const standardisedLineItems = standardisedLineItemsText
+      ?.split("\n")
+      .filter((line) => line.trim().length > 0)
+      .map((line) => JSON.parse(line));
+    expect(standardisedLineItems).not.toBeUndefined();
+    expect(standardisedLineItems?.length).toBeGreaterThan(0);
+    expect(standardisedLineItems?.[0]).toHaveProperty(
+      "originalInvoiceFile",
+      `${filename}.pdf`
     );
 
     // Check the view results match the invoice.
