@@ -55,6 +55,7 @@ jobs:
         run: npm run sam:deploy
 
   run-integration-tests:
+    needs: [build-and-deploy]
     permissions:
       contents: read
       id-token: write
