@@ -19,6 +19,8 @@ export default {
       "./src/handlers/store-raw-invoice-textract-data/handler.ts",
     pdfStandardisation: "./src/handlers/pdf-standardisation/handler.ts",
     csvExtract: "./src/handlers/csv-extract/handler.ts",
+    storeStandardisedInvoices:
+      "./src/handlers/store-standardised-invoices/handler.ts",
   },
   externals: "aws-sdk",
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
