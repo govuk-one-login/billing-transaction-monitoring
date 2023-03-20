@@ -1,4 +1,3 @@
-import csvjson from "csvtojson";
 import {
   configStackName,
   resourcePrefix,
@@ -7,7 +6,7 @@ import {
   formattedQueryResults,
   startQueryExecutionCommand,
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
-import { getS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { getRatesFromConfig } from "../../src/handlers/int-test-support/config-utils/get-rate-config-rows";
 const prefix = resourcePrefix();
 const configBucket = configStackName();
 
@@ -24,11 +23,7 @@ describe("Execute athena query to retrieve rate details", () => {
       .replace(/\s00:00:00.000/g, "")
       .replace(/"(\d+)(?:(\.\d*?[1-9]+)0*|\.0*)"/g, '"$1$2"'); // regex removes trailing zeros after decimal places eg 1.00 to 1
     const queryJsonObj = JSON.parse(queryResultToString);
-    const ratesCsv = await getS3Object({
-      bucket: configBucket,
-      key: "rate_tables/rates.csv",
-    });
-    const csvData = await csvjson().fromString(ratesCsv ?? "");
+    const csvData = await getRatesFromConfig(configBucket);
     const csvFormattedData = JSON.parse(
       JSON.stringify(csvData).replace(
         /"(\d+)(?:(\.\d*?[1-9]+)0*|\.0*)"/g,
