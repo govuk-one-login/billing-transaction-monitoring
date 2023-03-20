@@ -14,7 +14,7 @@ env:
   ENV_NAME: pr-${{ github.event.pull_request.number }}
 
 jobs:
-  run-integration-tests:
+  build-and-deploy:
     permissions:
       contents: read
       id-token: write
@@ -53,5 +53,6 @@ jobs:
         run: sam validate
       - name: SAM deploy
         run: npm run sam:deploy
-      - name: Run integration tests
-        run: npm run test:integration
+  run-integration-tests:
+    - name: Run integration tests
+      run: npm run test:integration
