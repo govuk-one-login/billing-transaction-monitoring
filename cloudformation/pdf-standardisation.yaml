@@ -2,56 +2,48 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  StorageBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub ${AWS::StackName}-storage
-      AccessControl: Private
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
-            BucketKeyEnabled: true
-      VersioningConfiguration:
-        Status: Enabled
-      LoggingConfiguration:
-        DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: storage-bucket/log
-      LifecycleConfiguration:
-        Rules:
-          - ExpirationInDays: 1825 # Five years
-            Status: Enabled
-
-  StandardisedInvoiceStorageQueue:
+  PdfStandardisationQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Sub ${AWS::StackName}-standardised-invoice-storage-queue
+      QueueName: !Sub ${AWS::StackName}-pdf-standardisation-queue
       KmsMasterKeyId: !GetAtt KmsKey.Arn
       RedrivePolicy:
-        deadLetterTargetArn: !GetAtt StandardisedInvoiceStorageDeadLetterQueue.Arn
+        deadLetterTargetArn: !GetAtt PdfStandardisationDeadLetterQueue.Arn
         maxReceiveCount: 3
 
-  StandardisedInvoiceStorageDeadLetterQueue:
+  PdfStandardisationQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Sub arn:aws:s3:*:*:${AWS::StackName}-raw-invoice-textract-data # no reference as this needs be created before the bucket
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+            Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Resource: !GetAtt PdfStandardisationQueue.Arn
+      Queues:
+        - !Ref PdfStandardisationQueue
+
+  PdfStandardisationDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Sub ${AWS::StackName}-standardised-invoice-storage-dlq
+      QueueName: !Sub ${AWS::StackName}-pdf-standardisation-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-  StandardisedInvoiceStorageDeadLetterQueueAlarm:
+  PdfStandardisationDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub ${AWS::StackName}-standardised-invoice-storage-dlq-alarm
+      AlarmName: !Sub ${AWS::StackName}-pdf-standardisation-dlq-alarm
       AlarmActions:
         - !GetAtt AlarmTopicParameter.Value
       Dimensions:
         - Name: QueueName
-          Value: !GetAtt StandardisedInvoiceStorageDeadLetterQueue.QueueName
+          Value: !GetAtt PdfStandardisationDeadLetterQueue.QueueName
       MetricName: ApproximateNumberOfMessagesVisible
       Namespace: AWS/SQS
       Statistic: Sum
@@ -61,28 +53,31 @@ Resources:
       DatapointsToAlarm: 1
       EvaluationPeriods: 1
 
-  StandardisedInvoiceStorageFunction:
+  PdfStandardisationFunction:
     # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${AWS::StackName}-standardised-invoice-storage-function
+      FunctionName: !Sub ${AWS::StackName}-pdf-standardisation-function
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           DESTINATION_BUCKET: !Ref StorageBucket
           DESTINATION_FOLDER: btm_billing_standardised
+          PARSER_0_VERSION: '1.0.0'
+          PARSER_DEFAULT_VERSION: '1.0.0'
           LOCAL_ENDPOINT:
             !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
-          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-standardised-invoice-storage-function
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-pdf-standardisation-function
       Events:
-        InvoiceStorageEvent:
+        PdfStandardisationEvent:
           Type: SQS
           Properties:
             FunctionResponseTypes:
               - ReportBatchItemFailures
-            Queue: !GetAtt StandardisedInvoiceStorageQueue.Arn
-      Handler: storeStandardisedInvoices.handler
+            Queue: !GetAtt PdfStandardisationQueue.Arn
+      Handler: pdfStandardisation.handler
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -91,7 +86,7 @@ Resources:
                 - sqs:DeleteMessage
                 - sqs:GetQueueAttributes
                 - sqs:ReceiveMessage
-              Resource: !GetAtt StandardisedInvoiceStorageQueue.Arn
+              Resource: !GetAtt PdfStandardisationQueue.Arn
             - Effect: Allow
               Action:
                 - kms:Decrypt
@@ -100,23 +95,36 @@ Resources:
               Resource: !GetAtt KmsKey.Arn
             - Effect: Allow
               Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+            - Effect: Allow
+              Action:
                 - s3:GetObject
                 - s3:ListBucket
                 - s3:PutObject
               Resource:
+                - !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
                 - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
       ReservedConcurrentExecutions: 1
 
-  StandardisedInvoiceStorageFunctionAlarm:
+  PdfStandardisationFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub ${AWS::StackName}-standardised-invoice-storage-function-alarm
+      AlarmName: !Sub ${AWS::StackName}-pdf-standardisation-function-alarm
       AlarmActions:
         - !GetAtt AlarmTopicParameter.Value
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName
-          Value: !Ref StandardisedInvoiceStorageFunction
+          Value: !Ref PdfStandardisationFunction
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
