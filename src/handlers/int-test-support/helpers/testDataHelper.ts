@@ -5,17 +5,16 @@ import { updateSQSEventPayloadBody } from "./payloadHelper";
 import { poll } from "./commonHelpers";
 import { getRatesFromConfig } from "../config-utils/get-rate-config-rows";
 import { getVendorServiceConfigRows } from "../config-utils/get-vendor-service-config-rows";
-import { getServiceDescriptionFromE2ETestConfig } from "../config-utils/get-e2e-test-seviceDescription";
+import { getE2ETestConfig } from "../config-utils/get-e2e-test-config";
 
 const configBucket = configStackName();
 
 export const getVendorServiceAndRatesFromConfig =
   async (): Promise<TestDataRetrievedFromConfig> => {
-    const vendorServiceRows = await getVendorServiceConfigRows(
-      configBucket,
-      {}
-    );
-    const rateConfigRows = await getRatesFromConfig(configBucket);
+    const [vendorServiceRows, rateConfigRows] = await Promise.all([
+      getVendorServiceConfigRows(configBucket, {}),
+      getRatesFromConfig(configBucket),
+    ]);
     const testDataRetrievedFromConfig = {
       unitPrice: rateConfigRows[2].unit_price,
       vendorId: vendorServiceRows[1].vendor_id,
@@ -26,8 +25,9 @@ export const getVendorServiceAndRatesFromConfig =
     };
 
     if (configBucket.includes("staging" || "integration")) {
-      await getServiceDescriptionFromE2ETestConfig().then((result) => {
-        testDataRetrievedFromConfig.description = result;
+      await getE2ETestConfig().then((result) => {
+        testDataRetrievedFromConfig.description =
+          result.parser_0_service_description;
       });
       testDataRetrievedFromConfig.unitPrice = rateConfigRows[0].unit_price;
       testDataRetrievedFromConfig.vendorId = vendorServiceRows[0].vendor_id;

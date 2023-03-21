@@ -17,8 +17,27 @@ export const getVendorServiceConfigRows = async (
   configBucket: string,
   fields: Partial<VendorServiceRow>
 ): Promise<VendorServiceRows> => {
-  if (vendorServiceRowsPromise === undefined)
-    vendorServiceRowsPromise = getVendorServiceConfig(configBucket);
+  if (vendorServiceRowsPromise === undefined) {
+    const vendorServiceConfigText = await getS3Object({
+      bucket: configBucket,
+      key: "vendor_services/vendor-services.csv",
+    });
+
+    if (
+      vendorServiceConfigText === "" ||
+      vendorServiceConfigText === undefined
+    ) {
+      throw new Error("No vendor service config found");
+    }
+
+    const csvConverter = csvtojson();
+
+    const vendorServiceConfig = await csvConverter.fromString(
+      vendorServiceConfigText
+    );
+
+    vendorServiceRowsPromise = Promise.resolve(vendorServiceConfig);
+  }
 
   const vendorServiceConfig = await vendorServiceRowsPromise;
 
@@ -34,23 +53,4 @@ export const getVendorServiceConfigRows = async (
     throw new Error("No vendor service config rows found");
 
   return vendorServiceConfigRows;
-};
-
-export const getVendorServiceConfig = async (
-  configBucket: string
-): Promise<VendorServiceRows> => {
-  const vendorServiceConfigText = await getS3Object({
-    bucket: configBucket,
-    key: "vendor_services/vendor-services.csv",
-  });
-
-  if (vendorServiceConfigText === "" || vendorServiceConfigText === undefined) {
-    throw new Error("No vendor service config found");
-  }
-
-  const csvConverter = csvtojson();
-  const vendorServiceConfig = await csvConverter.fromString(
-    vendorServiceConfigText
-  );
-  return vendorServiceConfig;
 };
