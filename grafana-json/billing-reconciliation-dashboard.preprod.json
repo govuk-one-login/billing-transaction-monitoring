@@ -133,7 +133,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": ["lastNotNull"],
-          "fields": "/^Difference$/",
+          "fields": "/^price_difference_percentage$/",
           "values": true
         },
         "text": {
@@ -155,7 +155,7 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  Difference\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  price_difference_percentage\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
           "table": "btm_billing_and_transactions_curated"
         }
@@ -297,7 +297,7 @@
       {
         "allValue": "",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": ["All"],
           "value": ["$__all"]
         },
@@ -331,8 +331,8 @@
       {
         "current": {
           "selected": false,
-          "text": "2023/02",
-          "value": "2023/02"
+          "text": "2023/03",
+          "value": "2023/03"
         },
         "datasource": {
           "type": "grafana-athena-datasource",
