@@ -3,7 +3,7 @@ import csvtojson from "csvtojson";
 
 export type VendorServiceRows = VendorServiceRow[];
 
-let vendorServiceRowsPromise: Promise<VendorServiceRows> | undefined;
+let vendorServiceRowsPromise: Promise<string | undefined>;
 
 export interface VendorServiceRow {
   vendor_name: string;
@@ -18,28 +18,20 @@ export const getVendorServiceConfigRows = async (
   fields: Partial<VendorServiceRow>
 ): Promise<VendorServiceRows> => {
   if (vendorServiceRowsPromise === undefined) {
-    const vendorServiceConfigText = await getS3Object({
+    vendorServiceRowsPromise = getS3Object({
       bucket: configBucket,
       key: "vendor_services/vendor-services.csv",
     });
-
-    if (
-      vendorServiceConfigText === "" ||
-      vendorServiceConfigText === undefined
-    ) {
-      throw new Error("No vendor service config found");
-    }
-
-    const csvConverter = csvtojson();
-
-    const vendorServiceConfig = await csvConverter.fromString(
-      vendorServiceConfigText
-    );
-
-    vendorServiceRowsPromise = Promise.resolve(vendorServiceConfig);
   }
 
-  const vendorServiceConfig = await vendorServiceRowsPromise;
+  const vendorServiceConfigText = await vendorServiceRowsPromise;
+  if (vendorServiceConfigText === "" || vendorServiceConfigText === undefined) {
+    throw new Error("No vendor service config found");
+  }
+  const csvConverter = csvtojson();
+  const vendorServiceConfig = await csvConverter.fromString(
+    vendorServiceConfigText
+  );
 
   const vendorServiceConfigRows = vendorServiceConfig.filter((row) =>
     Object.entries(fields).every(
