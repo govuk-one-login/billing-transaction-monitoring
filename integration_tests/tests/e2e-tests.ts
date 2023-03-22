@@ -169,18 +169,17 @@ const calculateExpectedResults = (
   const priceDifference = billingPrice - transactionPrice;
   const priceDifferencePercentage = (priceDifference / transactionPrice) * 100;
 
-  // Calling Typescript's transactionPrice.toFixed(2) on a number like 1.505 will
-  // return 1.50; unfortunately, we need to match against what's returned by the
-  // SQL query in Athena which uses `txn.price AS DECIMAL(10,2))` which rounds
-  // 1.505 to 1.51.  This function returns a currency value rounded like Athena does it.
-  function roundCurrencyLikeAthena(amount: number): string {
-    return "£" + (amount + 0.005).toFixed(2);
+  function formatCurrency(amount: number): string {
+    return amount.toLocaleString("en-GB", {
+      style: "currency",
+      currency: "GBP",
+    });
   }
 
   if (billingQty === undefined) {
     return {
       transactionQty,
-      transactionPriceFormatted: roundCurrencyLikeAthena(transactionPrice),
+      transactionPriceFormatted: formatCurrency(transactionPrice),
       priceDifferencePercentage: "-1234567.03", // Code for 'invoice data missing'
       billingQty: undefined,
       billingPriceFormatted: undefined,
@@ -189,7 +188,7 @@ const calculateExpectedResults = (
   if (transactionQty === undefined) {
     return {
       billingQty,
-      billingPriceFormatted: "£" + billingPrice.toFixed(2),
+      billingPriceFormatted: formatCurrency(billingPrice),
       priceDifferencePercentage: "-1234567.04", // Code for 'transaction data missing'
       transactionQty: undefined,
       transactionPriceFormatted: undefined,
@@ -198,8 +197,8 @@ const calculateExpectedResults = (
     return {
       billingQty,
       transactionQty,
-      transactionPriceFormatted: roundCurrencyLikeAthena(transactionPrice),
-      billingPriceFormatted: "£" + billingPrice.toFixed(2),
+      transactionPriceFormatted: formatCurrency(transactionPrice),
+      billingPriceFormatted: formatCurrency(billingPrice),
       priceDifferencePercentage: priceDifferencePercentage.toFixed(1),
     };
   }
