@@ -103,7 +103,7 @@ describe("Standardised invoice default getter", () => {
         vendor_id: "vendor_billy",
         service_name: "Lying About Speedruns",
         service_regex: "lying about speedruns",
-        event_name: "donkey_kong",
+        event_name: "DONKEY_KONG",
       },
       {
         vendor_name: "Billy Mitchell LLC",
@@ -383,6 +383,7 @@ describe("Standardised invoice default getter", () => {
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
+        event_name: "DONKEY_KONG",
         subtotal: "mocked subtotal",
         tax: "mocked tax",
         tax_payer_id: "mocked taxPayerId",
