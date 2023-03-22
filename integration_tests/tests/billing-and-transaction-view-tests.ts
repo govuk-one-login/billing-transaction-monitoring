@@ -47,7 +47,7 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
         data.transactionQty,
         data.eventName
       );
-      filename = `raw-Invoice-validFile.pdf`;
+      filename = `raw-Invoice-validFile`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,

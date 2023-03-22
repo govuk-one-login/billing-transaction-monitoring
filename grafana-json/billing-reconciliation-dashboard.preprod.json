@@ -22,8 +22,8 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 131,
-  "iteration": 1677243651604,
+  "id": 142,
+  "iteration": 1679485598501,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -198,7 +198,6 @@
             "displayMode": "auto",
             "filterable": false
           },
-          "decimals": 2,
           "mappings": [
             {
               "options": {
