@@ -186,7 +186,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       }
     );
 
-    // Step 3: Check the original PDF file name is saved.
+    // Step 3: Check the original CSV file name is saved.
     const standardisedLineItemsText = await getS3Object({
       bucket: storageBucket,
       key: `${standardisedFolderPrefix}/${filename}.txt`,
