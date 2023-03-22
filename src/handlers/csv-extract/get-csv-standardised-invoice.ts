@@ -1,5 +1,5 @@
+import { StandardisedLineItem } from "../../shared/types";
 import { formatDate, VendorServiceConfigRows } from "../../shared/utils";
-import { StandardisedLineItem } from "../pdf-standardisation/get-standardised-invoice";
 
 export interface LineItem {
   "Service Name": string;
@@ -44,6 +44,7 @@ export const getCsvStandardisedInvoice = (
     for (const {
       service_name: serviceName,
       service_regex: serviceRegexPattern,
+      event_name: eventName,
     } of vendorServiceConfigRows) {
       const serviceRegex = new RegExp(serviceRegexPattern, "i");
       if (!itemDescription?.match(serviceRegex)) {
@@ -54,6 +55,7 @@ export const getCsvStandardisedInvoice = (
         ...nextAcc,
         {
           ...summary,
+          event_name: eventName,
           item_description: itemDescription,
           subtotal: formatNumber(item.Subtotal),
           price: formatNumber(item.Subtotal),

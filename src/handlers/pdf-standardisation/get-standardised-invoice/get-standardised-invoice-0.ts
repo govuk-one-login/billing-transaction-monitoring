@@ -1,4 +1,8 @@
 import { Textract } from "aws-sdk";
+import {
+  StandardisedLineItem,
+  StandardisedLineItemSummary,
+} from "../../../shared/types";
 import { VendorServiceConfigRows } from "../../../shared/utils";
 import {
   getDueDate,
@@ -13,11 +17,7 @@ import {
   getTotal,
   getUnitPrice,
 } from "../field-utils";
-import {
-  StandardisationModule,
-  StandardisedLineItem,
-  StandardisedLineItemSummary,
-} from "./get-standardised-invoice";
+import { StandardisationModule } from "./get-standardised-invoice";
 
 interface TextractLineItemGroupWithLineItems extends Textract.LineItemGroup {
   LineItems: TextractLineItemWithFields[];
@@ -120,6 +120,7 @@ const getStandardisedLineItems = (
     for (const {
       service_name: serviceName,
       service_regex: serviceRegexPattern,
+      event_name: eventName,
     } of vendorServiceConfigRows) {
       const serviceRegex = new RegExp(serviceRegexPattern, "i");
       const itemDescription = getItemDescription(itemFields);
@@ -147,6 +148,7 @@ const getStandardisedLineItems = (
         ...nextAcc,
         {
           ...summary,
+          event_name: eventName,
           item_description: itemDescription,
           price: getPrice(itemFields),
           quantity,

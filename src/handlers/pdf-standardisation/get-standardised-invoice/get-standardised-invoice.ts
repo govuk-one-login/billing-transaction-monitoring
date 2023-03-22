@@ -1,4 +1,5 @@
 import { Textract } from "aws-sdk";
+import { StandardisedLineItem } from "../../../shared/types";
 import {
   getVendorInvoiceStandardisationModuleId,
   getVendorServiceConfigRows,
@@ -6,31 +7,6 @@ import {
 } from "../../../shared/utils";
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
 import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-default";
-
-export interface StandardisedLineItemSummary {
-  invoice_receipt_id: string;
-  vendor_id?: string;
-  vendor_name?: string;
-  total: number;
-  invoice_receipt_date: string;
-  subtotal?: number;
-  due_date?: string;
-  tax?: number;
-  tax_payer_id?: string;
-
-  // May not be present in old items, but required here to ensure they are added to new ones:
-  parser_version: string;
-  originalInvoiceFile: string;
-}
-
-export interface StandardisedLineItem extends StandardisedLineItemSummary {
-  item_id?: number;
-  item_description?: string;
-  service_name?: string;
-  unit_price?: number;
-  quantity?: number;
-  price?: number;
-}
 
 export type StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
