@@ -30,14 +30,25 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr-dev
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Build, tag, and push testing image to ECR in dev
+      - name: Build, tag, and push integration testing image to ECR in dev
         env:
           CONTAINER_SIGN_KMS_KEY: ${{ secrets.DEV_CONTAINER_SIGN_KMS_KEY }}
           ECR_REGISTRY: ${{ steps.login-ecr-dev.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.DEV_ECR_REPOSITORY }}
+          ECR_REPOSITORY: ${{ secrets.DEV_ECR_TEST_INTEGRATION }}
           IMAGE_TAG: latest
         run: |
           docker build -f integration_tests/Dockerfile -t btm-int-tests:$IMAGE_TAG .
+          docker tag btm-int-tests:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          cosign sign --key awskms:///${CONTAINER_SIGN_KMS_KEY} $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Build, tag, and push end to end testing image to ECR in dev
+        env:
+          CONTAINER_SIGN_KMS_KEY: ${{ secrets.DEV_CONTAINER_SIGN_KMS_KEY }}
+          ECR_REGISTRY: ${{ steps.login-ecr-dev.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.DEV_ECR_TEST_END2END }}
+          IMAGE_TAG: latest
+        run: |
+          docker build -f integration_tests/Dockerfile-e2e -t btm-int-tests:$IMAGE_TAG .
           docker tag btm-int-tests:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           cosign sign --key awskms:///${CONTAINER_SIGN_KMS_KEY} $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -49,11 +60,21 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr-build
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Tag and push testing image to ECR in build
+      - name: Tag and push integration testing image to ECR in build
         env:
           CONTAINER_SIGN_KMS_KEY: ${{ secrets.BUILD_CONTAINER_SIGN_KMS_KEY }}
           ECR_REGISTRY: ${{ steps.login-ecr-build.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.BUILD_ECR_REPOSITORY }}
+          ECR_REPOSITORY: ${{ secrets.BUILD_ECR_TEST_INTEGRATION }}
+          IMAGE_TAG: latest
+        run: |
+          docker tag btm-int-tests:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          cosign sign --key awskms:///${CONTAINER_SIGN_KMS_KEY} $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Tag and push end to end testing image to ECR in build
+        env:
+          CONTAINER_SIGN_KMS_KEY: ${{ secrets.BUILD_CONTAINER_SIGN_KMS_KEY }}
+          ECR_REGISTRY: ${{ steps.login-ecr-build.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.BUILD_ECR_TEST_END2END }}
           IMAGE_TAG: latest
         run: |
           docker tag btm-int-tests:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
