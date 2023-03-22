@@ -15,8 +15,8 @@ import {
 } from "../field-utils";
 import {
   StandardisationModule,
-  StandardisedLineItemFromPdf,
-  StandardisedLineItemFromPdfSummary,
+  StandardisedLineItem,
+  StandardisedLineItemSummary,
 } from "./get-standardised-invoice";
 
 interface TextractLineItemGroupWithLineItems extends Textract.LineItemGroup {
@@ -36,7 +36,7 @@ export const getStandardisedInvoice0: StandardisationModule = (
   vendorServiceConfigRows: VendorServiceConfigRows,
   parserVersion: string,
   originalInvoiceFileName: string
-): StandardisedLineItemFromPdf[] => {
+): StandardisedLineItem[] => {
   // If you update this, please increment its version! See `README.md`.
 
   if (vendorServiceConfigRows.length === 0)
@@ -110,11 +110,11 @@ const getLineItems = (
     .flat();
 
 const getStandardisedLineItems = (
-  summary: StandardisedLineItemFromPdfSummary,
+  summary: StandardisedLineItemSummary,
   lineItems: Textract.LineItemFields[],
   vendorServiceConfigRows: VendorServiceConfigRows
-): StandardisedLineItemFromPdf[] =>
-  lineItems.reduce<StandardisedLineItemFromPdf[]>((acc, item) => {
+): StandardisedLineItem[] =>
+  lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
     const itemFields = item.LineItemExpenseFields as Textract.ExpenseField[];
     let nextAcc = [...acc];
     for (const {

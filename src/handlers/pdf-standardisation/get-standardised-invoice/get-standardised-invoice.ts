@@ -17,7 +17,10 @@ export interface StandardisedLineItemSummary {
   due_date?: string;
   tax?: number;
   tax_payer_id?: string;
-  parser_version: string; // may not be present in old items, but required here to ensure it is added to new ones
+
+  // May not be present in old items, but required here to ensure they are added to new ones:
+  parser_version: string;
+  originalInvoiceFile: string;
 }
 
 export interface StandardisedLineItem extends StandardisedLineItemSummary {
@@ -29,20 +32,12 @@ export interface StandardisedLineItem extends StandardisedLineItemSummary {
   price?: number;
 }
 
-export interface StandardisedLineItemFromPdfSummary
-  extends StandardisedLineItemSummary {
-  originalInvoiceFile: string; // may not be present in old items, but required here to ensure it is added to new ones
-}
-
-export type StandardisedLineItemFromPdf = StandardisedLineItem &
-  StandardisedLineItemFromPdfSummary;
-
 export type StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
   vendorServiceConfigRows: VendorServiceConfigRows,
   parserVersion: string,
   originalInvoiceFile: string
-) => StandardisedLineItemFromPdf[];
+) => StandardisedLineItem[];
 
 const standardisationModuleMap: Record<number, StandardisationModule> = {
   0: getStandardisedInvoice0,
@@ -54,7 +49,7 @@ export const getStandardisedInvoice = async (
   configBucket: string,
   parserVersions: Record<string, string>,
   originalInvoiceFileName: string
-): Promise<StandardisedLineItemFromPdf[]> => {
+): Promise<StandardisedLineItem[]> => {
   const vendorServiceConfigRows = await getVendorServiceConfigRows(
     configBucket,
     { vendor_id: vendorId }
