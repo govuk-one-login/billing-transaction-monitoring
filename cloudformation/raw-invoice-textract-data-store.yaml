@@ -67,7 +67,7 @@ Resources:
                 Rules:
                   - Name: suffix
                     Value: '.json'
-            Queue: !GetAtt StandardisedInvoiceStorageQueue.Arn
+            Queue: !GetAtt PdfStandardisationQueue.Arn
       LifecycleConfiguration:
         Rules:
           - ExpirationInDays: 1825 # Five years

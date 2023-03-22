@@ -6,8 +6,7 @@ import {
   formattedQueryResults,
   startQueryExecutionCommand,
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
-import { getS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import csvjson from "csvtojson";
+import { getVendorServiceConfigRows } from "../../src/handlers/int-test-support/config-utils/get-vendor-service-config-rows";
 
 const prefix = resourcePrefix();
 const configBucket = configStackName();
@@ -23,14 +22,7 @@ describe("\n Execute athena query to retrieve vendor service details\n", () => {
     const queryResult = await formattedQueryResults(queryId);
     const queryResultToString = JSON.stringify(queryResult);
     const queryJsonObj = JSON.parse(queryResultToString);
-    const servicesCsv = await getS3Object({
-      bucket: configBucket,
-      key: "vendor_services/vendor-services.csv",
-    });
-    const csvData = await csvjson().fromString(servicesCsv ?? "");
-    const csvFormattedData = JSON.parse(JSON.stringify(csvData), (key, value) =>
-      value === null || value === "" ? undefined : value
-    );
-    expect(csvFormattedData).toEqual(queryJsonObj);
+    const csvData = await getVendorServiceConfigRows(configBucket, {});
+    expect(csvData).toEqual(queryJsonObj);
   });
 });

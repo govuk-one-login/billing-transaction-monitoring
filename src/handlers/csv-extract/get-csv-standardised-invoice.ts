@@ -1,5 +1,5 @@
 import { formatDate, VendorServiceConfigRows } from "../../shared/utils";
-import { StandardisedLineItem } from "../store-standardised-invoices/get-standardised-invoice";
+import { StandardisedLineItem } from "../pdf-standardisation/get-standardised-invoice";
 
 export interface LineItem {
   "Service Name": string;
