@@ -47,7 +47,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}          | ${"2022/12/01"} | ${"10"}        | ${"12"}
     ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}           | ${"2023/01/02"} | ${"10"}        | ${"6"}
   `(
-    "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
+    "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
@@ -104,7 +104,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     testCase                                                                                 | eventTime       | transactionQty | billingQty
     ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2023/02/28"} | ${"1"}         | ${undefined}
   `(
-    "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$unitPrice,$transactionQty,$billingQty,$transactionPrice,$billingPrice,$priceDiff,$qtyDiff,$priceDifferencePercent,$qtyDifferencePercent",
+    "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
@@ -148,21 +148,13 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
-  expect(response[0].billing_quantity).toEqual(expectedResults.billingQty);
-  expect(response[0].transaction_quantity).toEqual(
-    expectedResults.transactionQty
+
+  expect(response[0].billing_price_formatted).toEqual(
+    expectedResults.billingPriceFormatted
   );
-  expect(response[0].quantity_difference).toEqual(
-    expectedResults.qtyDifference
+  expect(response[0].transaction_price_formatted).toEqual(
+    expectedResults.transactionPriceFormatted
   );
-  expect(response[0].quantity_difference_percentage).toEqual(
-    expectedResults.qtyDifferencePercentage
-  );
-  expect(response[0].billing_price).toEqual(expectedResults.billingPrice);
-  expect(response[0].transaction_price).toEqual(
-    expectedResults.transactionPrice
-  );
-  expect(response[0].price_difference).toEqual(expectedResults.priceDifference);
   expect(response[0].price_difference_percentage).toEqual(
     expectedResults.priceDifferencePercentage
   );
@@ -174,44 +166,40 @@ const calculateExpectedResults = (
 ): ExpectedResults => {
   const billingPrice = unitPrice * billingQty;
   const transactionPrice = unitPrice * transactionQty;
-  const qtyDifference = billingQty - transactionQty;
   const priceDifference = billingPrice - transactionPrice;
   const priceDifferencePercentage = (priceDifference / transactionPrice) * 100;
-  const qtyDifferencePercentage = (qtyDifference / transactionQty) * 100;
+
+  function formatCurrency(amount: number): string {
+    return amount.toLocaleString("en-GB", {
+      style: "currency",
+      currency: "GBP",
+    });
+  }
 
   if (billingQty === undefined) {
     return {
       transactionQty,
-      qtyDifference: (-transactionQty).toString(),
-      qtyDifferencePercentage: (-transactionQty * 100).toString(),
-      transactionPrice: transactionPrice.toFixed(4),
-      priceDifference: (-transactionPrice).toFixed(4).toString(),
-      priceDifferencePercentage: (-100).toFixed(4),
+      transactionPriceFormatted: formatCurrency(transactionPrice),
+      priceDifferencePercentage: "-1234567.03", // Code for 'invoice data missing'
       billingQty: undefined,
-      billingPrice: undefined,
+      billingPriceFormatted: undefined,
     };
   }
   if (transactionQty === undefined) {
     return {
       billingQty,
-      qtyDifference: billingQty.toString(),
-      qtyDifferencePercentage: undefined,
-      billingPrice: billingPrice.toFixed(4),
-      priceDifference: billingPrice.toFixed(4),
-      priceDifferencePercentage: undefined,
+      billingPriceFormatted: formatCurrency(billingPrice),
+      priceDifferencePercentage: "-1234567.04", // Code for 'transaction data missing'
       transactionQty: undefined,
-      transactionPrice: undefined,
+      transactionPriceFormatted: undefined,
     };
   } else {
     return {
       billingQty,
       transactionQty,
-      qtyDifference: qtyDifference.toString(),
-      qtyDifferencePercentage: qtyDifferencePercentage.toString(),
-      transactionPrice: transactionPrice.toFixed(4),
-      priceDifference: priceDifference.toFixed(4).toString(),
-      billingPrice: billingPrice.toFixed(4),
-      priceDifferencePercentage: priceDifferencePercentage.toFixed(4),
+      transactionPriceFormatted: formatCurrency(transactionPrice),
+      billingPriceFormatted: formatCurrency(billingPrice),
+      priceDifferencePercentage: priceDifferencePercentage.toFixed(1),
     };
   }
 };
@@ -219,10 +207,7 @@ const calculateExpectedResults = (
 interface ExpectedResults {
   billingQty: number | undefined;
   transactionQty: number | undefined;
-  qtyDifference: number | string;
-  qtyDifferencePercentage: string | undefined;
-  transactionPrice: string | undefined;
-  priceDifference: number | string;
-  billingPrice: number | undefined | string;
+  transactionPriceFormatted: string | undefined;
+  billingPriceFormatted: number | undefined | string;
   priceDifferencePercentage: string | undefined;
 }

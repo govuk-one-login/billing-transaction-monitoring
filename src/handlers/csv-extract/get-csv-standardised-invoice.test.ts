@@ -9,6 +9,7 @@ describe("CSV Standardised invoice getter", () => {
   let givenCsvObjectWithInvalidDate: CsvObject;
   let givenCsvObjectWithInvalidNumber: CsvObject;
   let givenVendorServiceConfigRows: VendorServiceConfigRows;
+  let givenSourceFileName: string;
 
   beforeEach(() => {
     givenVendorServiceConfigRows = [
@@ -27,6 +28,8 @@ describe("CSV Standardised invoice getter", () => {
         event_name: "VENDOR_1_EVENT_3",
       },
     ];
+
+    givenSourceFileName = "given-source-file-name.csv";
   });
 
   test("should return StandardisedLineItems when given a valid CsvObject that has 3 line items, with two that have service_names in the vendor service config", () => {
@@ -67,7 +70,8 @@ describe("CSV Standardised invoice getter", () => {
     const result = getCsvStandardisedInvoice(
       givenValidCsvObject,
       "vendor_testvendor1",
-      givenVendorServiceConfigRows
+      givenVendorServiceConfigRows,
+      givenSourceFileName
     );
 
     expect(result).toEqual([
@@ -79,8 +83,10 @@ describe("CSV Standardised invoice getter", () => {
         due_date: "2023-03-28",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
+        originalInvoiceFile: givenSourceFileName,
         item_description: "Check one",
         subtotal: 4687.92,
+        tax: 937.584,
         price: 4687.92,
         quantity: 13788,
         service_name: "Check one",
@@ -95,8 +101,10 @@ describe("CSV Standardised invoice getter", () => {
         due_date: "2023-03-28",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
+        originalInvoiceFile: givenSourceFileName,
         item_description: "Check two",
         subtotal: 327.85,
+        tax: 65.57,
         price: 327.85,
         quantity: 83,
         service_name: "Check two",
@@ -130,7 +138,8 @@ describe("CSV Standardised invoice getter", () => {
       getCsvStandardisedInvoice(
         givenCsvObjectWithInvalidDate,
         "vendor_testvendor1",
-        givenVendorServiceConfigRows
+        givenVendorServiceConfigRows,
+        givenSourceFileName
       )
     ).toThrowError("Unsupported date format");
   });
@@ -158,7 +167,8 @@ describe("CSV Standardised invoice getter", () => {
       getCsvStandardisedInvoice(
         givenCsvObjectWithInvalidNumber,
         "vendor_testvendor1",
-        givenVendorServiceConfigRows
+        givenVendorServiceConfigRows,
+        givenSourceFileName
       )
     ).toThrowError("Unsupported number format: x");
   });
@@ -186,7 +196,8 @@ describe("CSV Standardised invoice getter", () => {
       getCsvStandardisedInvoice(
         givenCsvObjectWithInvalidNumber,
         "vendor_testvendor1",
-        givenVendorServiceConfigRows
+        givenVendorServiceConfigRows,
+        givenSourceFileName
       )
     ).toThrowError("Empty number field in csv: ");
   });

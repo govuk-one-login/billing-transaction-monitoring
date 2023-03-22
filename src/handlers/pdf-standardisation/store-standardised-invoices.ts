@@ -26,6 +26,8 @@ export async function storeStandardisedInvoices(
     const vendorId = sourcePathParts[0];
     const sourceFileName = sourcePathParts[sourcePathParts.length - 1];
 
+    const originalInvoiceFileName = sourceFileName.replace(/\.json$/g, ".pdf");
+
     const textractData = await fetchS3TextractData(
       sourceBucket,
       sourceFilePath
@@ -34,7 +36,8 @@ export async function storeStandardisedInvoices(
       textractData,
       vendorId,
       configBucket,
-      parserVersions
+      parserVersions,
+      originalInvoiceFileName
     );
 
     // Convert line items to new-line-separated JSON object text, to work with Glue/Athena.

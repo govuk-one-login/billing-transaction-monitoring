@@ -19,7 +19,8 @@ export const getHighestConfidenceTextractValue = (
     const confidence1 = getConfidence(field1);
     const confidence2 = getConfidence(field2);
 
-    return confidence1 > confidence2 ? -1 : confidence1 < confidence2 ? 1 : 0;
+    if (confidence1 > confidence2) return -1;
+    return confidence1 < confidence2 ? 1 : 0;
   });
 
   const highestConfidenceField = candidateFields[0];

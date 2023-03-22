@@ -51,7 +51,7 @@ describe("Highest confidence Textract value getter", () => {
   });
 
   test("Highest confidence Textract value getter with field without confidence", () => {
-    givenFields = [mockField(givenType, "given value", undefined)];
+    givenFields = [mockField(givenType, "given value")];
     const result = getHighestConfidenceTextractValue(givenFields, givenType);
     expect(result).toBeUndefined();
   });

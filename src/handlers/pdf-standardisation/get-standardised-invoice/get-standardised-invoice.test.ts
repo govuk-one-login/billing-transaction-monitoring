@@ -26,6 +26,7 @@ describe("Standardised invoice getter", () => {
   let mockedVendorServiceConfigRows: any;
   let givenVendorId: string;
   let givenConfigBucket: string;
+  let givenOriginalInvoiceFileName: string;
   let givenParserVersions: Record<string, string>;
   let givenTextractPages: Textract.ExpenseDocument[];
 
@@ -42,6 +43,8 @@ describe("Standardised invoice getter", () => {
     };
 
     givenTextractPages = "given Textract pages" as any;
+
+    givenOriginalInvoiceFileName = "given-source-file-name.json";
 
     mockedGetVendorInvoiceStandardisationModuleId.mockReturnValue(0);
 
@@ -71,7 +74,8 @@ describe("Standardised invoice getter", () => {
         givenTextractPages,
         givenVendorId,
         givenConfigBucket,
-        givenParserVersions
+        givenParserVersions,
+        givenOriginalInvoiceFileName
       )
     ).rejects.toThrowError(mockedErrorText);
     expect(mockedGetVendorInvoiceStandardisationModuleId).toHaveBeenCalledTimes(
@@ -90,7 +94,7 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
   });
 
-  test.skip("Standardised invoice getter with vendor service config fetch error", async () => {
+  test("Standardised invoice getter with vendor service config fetch error", async () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
     mockedGetVendorServiceConfigRows.mockRejectedValue(mockedError);
@@ -100,21 +104,18 @@ describe("Standardised invoice getter", () => {
         givenTextractPages,
         givenVendorId,
         givenConfigBucket,
-        givenParserVersions
+        givenParserVersions,
+        givenOriginalInvoiceFileName
       )
     ).rejects.toThrowError(mockedErrorText);
-    expect(mockedGetVendorInvoiceStandardisationModuleId).toHaveBeenCalledTimes(
-      1
-    );
-    expect(mockedGetVendorInvoiceStandardisationModuleId).toHaveBeenCalledWith(
-      givenConfigBucket,
-      givenVendorId
-    );
     expect(mockedGetVendorServiceConfigRows).toHaveBeenCalledTimes(1);
     expect(mockedGetVendorServiceConfigRows).toHaveBeenCalledWith(
       givenConfigBucket,
       { vendor_id: givenVendorId }
     );
+    expect(
+      mockedGetVendorInvoiceStandardisationModuleId
+    ).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoice0).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
   });
@@ -126,7 +127,8 @@ describe("Standardised invoice getter", () => {
       givenTextractPages,
       givenVendorId,
       givenConfigBucket,
-      givenParserVersions
+      givenParserVersions,
+      givenOriginalInvoiceFileName
     );
 
     expect(result).toBe(mockedStandardisedInvoiceDefault);
@@ -135,7 +137,8 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledWith(
       givenTextractPages,
       mockedVendorServiceConfigRows,
-      givenParserVersions.default
+      givenParserVersions.default,
+      givenOriginalInvoiceFileName
     );
   });
 
@@ -146,7 +149,8 @@ describe("Standardised invoice getter", () => {
       givenTextractPages,
       givenVendorId,
       givenConfigBucket,
-      givenParserVersions
+      givenParserVersions,
+      givenOriginalInvoiceFileName
     );
 
     expect(result).toBe(mockedStandardisedInvoiceDefault);
@@ -155,7 +159,8 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoiceDefault).toHaveBeenCalledWith(
       givenTextractPages,
       mockedVendorServiceConfigRows,
-      givenParserVersions.default
+      givenParserVersions.default,
+      givenOriginalInvoiceFileName
     );
   });
 
@@ -169,7 +174,8 @@ describe("Standardised invoice getter", () => {
       givenTextractPages,
       givenVendorId,
       givenConfigBucket,
-      givenParserVersions
+      givenParserVersions,
+      givenOriginalInvoiceFileName
     );
 
     expect(result).toBe(mockedStandardisedInvoice0);
@@ -177,7 +183,8 @@ describe("Standardised invoice getter", () => {
     expect(mockedGetStandardisedInvoice0).toHaveBeenCalledWith(
       givenTextractPages,
       mockedVendorServiceConfigRows,
-      givenParserVersions[mockedModuleId]
+      givenParserVersions[mockedModuleId],
+      givenOriginalInvoiceFileName
     );
     expect(mockedGetStandardisedInvoiceDefault).not.toHaveBeenCalled();
   });

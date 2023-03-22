@@ -32,7 +32,8 @@ const mockedGetVendorServiceConfigRows =
 describe("CSV Extract handler tests", () => {
   const OLD_ENV = process.env;
   const givenBucketName = "some bucket name";
-  const givenObjectKey1 = "vendor123/some object key.csv";
+  const givenFileName = "some file name.csv";
+  const givenObjectKey1 = `vendor123/${givenFileName}`;
   const validEvent = {
     Records: [
       {
@@ -331,7 +332,7 @@ describe("CSV Extract handler tests", () => {
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       "given destination bucket",
-      "given destination folder/some object key.txt",
+      "given destination folder/some file name.txt",
       JSON.stringify({
         invoice_receipt_id: "123 4567 89",
         vendor_id: "vendor123",
@@ -340,12 +341,14 @@ describe("CSV Extract handler tests", () => {
         due_date: "2022-02-01",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
+        originalInvoiceFile: givenFileName,
         item_description: "Horse Hoof Whittling",
         subtotal: 348.6,
         price: 348.6,
         quantity: 28,
         service_name: "Horse Hoof Whittling",
         unit_price: 12.45,
+        tax: 69.72,
         total: 418.32,
       })
     );
@@ -369,7 +372,7 @@ describe("CSV Extract handler tests", () => {
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       "given destination bucket",
-      "given destination folder/some object key.txt",
+      "given destination folder/some file name.txt",
       JSON.stringify({
         invoice_receipt_id: "123 4567 89",
         vendor_id: "vendor123",
@@ -378,12 +381,14 @@ describe("CSV Extract handler tests", () => {
         due_date: "2022-02-01",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
+        originalInvoiceFile: givenFileName,
         item_description: "Horse Hoof Whittling",
         subtotal: 348.6,
         price: 348.6,
         quantity: 28,
         service_name: "Horse Hoof Whittling",
         unit_price: 12.45,
+        tax: 69.72,
         total: 418.32,
       })
     );

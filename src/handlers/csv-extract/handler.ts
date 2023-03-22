@@ -65,7 +65,8 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
         const standardisedInvoice = getCsvStandardisedInvoice(
           parsedCsv,
           vendorId,
-          vendorServiceConfigRows
+          vendorServiceConfigRows,
+          sourceFileName
         );
 
         if (standardisedInvoice.length === 0) {
