@@ -16,6 +16,7 @@ import {
 import {
   StandardisationModule,
   StandardisedLineItem,
+  StandardisedLineItemSummary,
 } from "./get-standardised-invoice";
 
 interface TextractLineItemGroupWithLineItems extends Textract.LineItemGroup {
@@ -33,7 +34,8 @@ interface TextractPageWithLineItems extends Textract.ExpenseDocument {
 export const getStandardisedInvoice0: StandardisationModule = (
   allTextractPages: Textract.ExpenseDocument[],
   vendorServiceConfigRows: VendorServiceConfigRows,
-  parserVersion: string
+  parserVersion: string,
+  originalInvoiceFileName: string
 ): StandardisedLineItem[] => {
   // If you update this, please increment its version! See `README.md`.
 
@@ -66,9 +68,53 @@ export const getStandardisedInvoice0: StandardisationModule = (
     tax: getTax(summaryFields),
     tax_payer_id: getTaxPayerId(summaryFields),
     parser_version: parserVersion,
+    originalInvoiceFile: originalInvoiceFileName,
   };
 
-  return lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
+  return getStandardisedLineItems(summary, lineItems, vendorServiceConfigRows);
+};
+
+/** Try to get quantity and unit price from description text like "(X @ Y GBP)" */
+const getDescriptionData = (
+  description: string
+): { quantity: number; unitPrice: number } | undefined => {
+  const pattern = /\((.+)\s+@\s+(.+)\s+GBP\)/g;
+  const match = pattern.exec(description);
+
+  if (match !== null) {
+    const quantity = Number(match[1]);
+    const unitPrice = Number(match[2]);
+
+    if (!Number.isNaN(quantity) && !Number.isNaN(unitPrice))
+      return { quantity, unitPrice };
+  }
+};
+
+const getLastPageWithLineItems = (
+  textractPages: Textract.ExpenseDocument[]
+): TextractPageWithLineItems | undefined => {
+  const pagesWithItems = textractPages.filter((page) =>
+    page.LineItemGroups?.some((group) =>
+      group.LineItems?.some((item) => item.LineItemExpenseFields?.length)
+    )
+  ) as TextractPageWithLineItems[];
+
+  return pagesWithItems[pagesWithItems.length - 1];
+};
+
+const getLineItems = (
+  textractPage: TextractPageWithLineItems
+): Textract.LineItemFields[] =>
+  textractPage.LineItemGroups.flat()
+    .map((group) => group.LineItems)
+    .flat();
+
+const getStandardisedLineItems = (
+  summary: StandardisedLineItemSummary,
+  lineItems: Textract.LineItemFields[],
+  vendorServiceConfigRows: VendorServiceConfigRows
+): StandardisedLineItem[] =>
+  lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
     const itemFields = item.LineItemExpenseFields as Textract.ExpenseField[];
     let nextAcc = [...acc];
     for (const {
@@ -111,39 +157,3 @@ export const getStandardisedInvoice0: StandardisationModule = (
     }
     return nextAcc;
   }, []);
-};
-
-/** Try to get quantity and unit price from description text like "(X @ Y GBP)" */
-const getDescriptionData = (
-  description: string
-): { quantity: number; unitPrice: number } | undefined => {
-  const pattern = /\((.+)\s+@\s+(.+)\s+GBP\)/g;
-  const match = pattern.exec(description);
-
-  if (match !== null) {
-    const quantity = Number(match[1]);
-    const unitPrice = Number(match[2]);
-
-    if (!Number.isNaN(quantity) && !Number.isNaN(unitPrice))
-      return { quantity, unitPrice };
-  }
-};
-
-const getLastPageWithLineItems = (
-  textractPages: Textract.ExpenseDocument[]
-): TextractPageWithLineItems | undefined => {
-  const pagesWithItems = textractPages.filter((page) =>
-    page.LineItemGroups?.some((group) =>
-      group.LineItems?.some((item) => item.LineItemExpenseFields?.length)
-    )
-  ) as TextractPageWithLineItems[];
-
-  return pagesWithItems[pagesWithItems.length - 1];
-};
-
-const getLineItems = (
-  textractPage: TextractPageWithLineItems
-): Textract.LineItemFields[] =>
-  textractPage.LineItemGroups.flat()
-    .map((group) => group.LineItems)
-    .flat();

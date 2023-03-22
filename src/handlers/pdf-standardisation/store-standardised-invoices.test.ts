@@ -206,9 +206,17 @@ describe("Standardised invoice storer", () => {
     expect(mockedGetStandardisedInvoice).toHaveBeenCalledTimes(2);
     expect(mockedGetStandardisedInvoice).toHaveBeenCalledWith(
       mockedTextractData,
+      mockedS3EventRecord1Folder,
+      givenConfigBucket,
+      givenParserVersions,
+      `${mockedS3EventRecord1FileNameWithoutFileExtension}.pdf`
+    );
+    expect(mockedGetStandardisedInvoice).toHaveBeenCalledWith(
+      mockedTextractData,
       mockedS3EventRecord2Folder,
       givenConfigBucket,
-      givenParserVersions
+      givenParserVersions,
+      `${mockedS3EventRecord2FileNameWithoutFileExtension}.pdf`
     );
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });

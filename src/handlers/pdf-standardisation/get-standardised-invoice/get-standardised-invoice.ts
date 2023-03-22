@@ -7,7 +7,7 @@ import {
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
 import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-default";
 
-export interface StandardisedLineItem {
+export interface StandardisedLineItemSummary {
   invoice_receipt_id: string;
   vendor_id?: string;
   vendor_name?: string;
@@ -17,19 +17,26 @@ export interface StandardisedLineItem {
   due_date?: string;
   tax?: number;
   tax_payer_id?: string;
+
+  // May not be present in old items, but required here to ensure they are added to new ones:
+  parser_version: string;
+  originalInvoiceFile: string;
+}
+
+export interface StandardisedLineItem extends StandardisedLineItemSummary {
   item_id?: number;
   item_description?: string;
   service_name?: string;
   unit_price?: number;
   quantity?: number;
   price?: number;
-  parser_version: string; // may not be present in old items, but required here to ensure it is added to new ones
 }
 
 export type StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
   vendorServiceConfigRows: VendorServiceConfigRows,
-  parserVersion: string
+  parserVersion: string,
+  originalInvoiceFile: string
 ) => StandardisedLineItem[];
 
 const standardisationModuleMap: Record<number, StandardisationModule> = {
@@ -40,7 +47,8 @@ export const getStandardisedInvoice = async (
   textractPages: Textract.ExpenseDocument[],
   vendorId: string,
   configBucket: string,
-  parserVersions: Record<string, string>
+  parserVersions: Record<string, string>,
+  originalInvoiceFileName: string
 ): Promise<StandardisedLineItem[]> => {
   const vendorServiceConfigRows = await getVendorServiceConfigRows(
     configBucket,
@@ -66,6 +74,7 @@ export const getStandardisedInvoice = async (
   return standardisationModule(
     textractPages,
     vendorServiceConfigRows,
-    parserVersion
+    parserVersion,
+    originalInvoiceFileName
   );
 };

@@ -21,7 +21,8 @@ import {
 export const getStandardisedInvoiceDefault: StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
   vendorServiceConfigRows: VendorServiceConfigRows,
-  parserVersion: string
+  parserVersion: string,
+  originalInvoiceFileName: string
 ): StandardisedLineItem[] => {
   // If you update this, please increment its version! See `README.md`.
 
@@ -41,6 +42,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
     tax: getTax(summaryFields),
     tax_payer_id: getTaxPayerId(summaryFields),
     parser_version: parserVersion,
+    originalInvoiceFile: originalInvoiceFileName,
   };
 
   return lineItems.reduce<StandardisedLineItem[]>((acc, item) => {

@@ -23,7 +23,8 @@ export interface CsvObject {
 export const getCsvStandardisedInvoice = (
   csvObject: CsvObject,
   vendorId: string,
-  vendorServiceConfigRows: VendorServiceConfigRows
+  vendorServiceConfigRows: VendorServiceConfigRows,
+  sourceFileName: string
 ): StandardisedLineItem[] => {
   const summary = {
     invoice_receipt_id: csvObject["PO Number"],
@@ -33,6 +34,7 @@ export const getCsvStandardisedInvoice = (
     due_date: formatDate(new Date(csvObject["Due Date"])),
     tax_payer_id: csvObject["VAT Number"],
     parser_version: csvObject.Version,
+    originalInvoiceFile: sourceFileName,
   };
 
   return csvObject.lineItems.reduce<StandardisedLineItem[]>((acc, item) => {

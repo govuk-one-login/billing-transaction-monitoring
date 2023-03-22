@@ -28,6 +28,7 @@ const mockedGetTotal = getTotal as jest.Mock;
 const mockedGetUnitPrice = getUnitPrice as jest.Mock;
 
 describe("Standardised invoice default getter", () => {
+  let givenOriginalInvoiceFileName: string;
   let givenParserVersion: string;
   let givenTextractPages: any;
   let givenTextractPagesLineItemFields: any;
@@ -50,6 +51,8 @@ describe("Standardised invoice default getter", () => {
     mockedGetTaxPayerId.mockReturnValue("mocked taxPayerId");
     mockedGetTotal.mockReturnValue("mocked total");
     mockedGetUnitPrice.mockReturnValue("mocked unit price");
+
+    givenOriginalInvoiceFileName = "given-original-invice-file.pdf";
 
     givenParserVersion = "123_4.5.6";
 
@@ -118,7 +121,8 @@ describe("Standardised invoice default getter", () => {
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
       givenVendorServiceConfigRows,
-      givenParserVersion
+      givenParserVersion,
+      givenOriginalInvoiceFileName
     );
 
     expect(result).toEqual([]);
@@ -148,7 +152,8 @@ describe("Standardised invoice default getter", () => {
     getStandardisedInvoiceDefault(
       givenTextractPages,
       givenVendorServiceConfigRows,
-      givenParserVersion
+      givenParserVersion,
+      givenOriginalInvoiceFileName
     );
 
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -189,7 +194,8 @@ describe("Standardised invoice default getter", () => {
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
       givenVendorServiceConfigRows,
-      givenParserVersion
+      givenParserVersion,
+      givenOriginalInvoiceFileName
     );
 
     expect(result).toEqual([]);
@@ -231,7 +237,8 @@ describe("Standardised invoice default getter", () => {
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
       givenVendorServiceConfigRows,
-      givenParserVersion
+      givenParserVersion,
+      givenOriginalInvoiceFileName
     );
 
     expect(result).toEqual([]);
@@ -273,7 +280,8 @@ describe("Standardised invoice default getter", () => {
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
       givenVendorServiceConfigRows,
-      givenParserVersion
+      givenParserVersion,
+      givenOriginalInvoiceFileName
     );
 
     expect(result).toEqual([]);
@@ -316,7 +324,8 @@ describe("Standardised invoice default getter", () => {
     getStandardisedInvoiceDefault(
       givenTextractPages,
       givenVendorServiceConfigRows,
-      givenParserVersion
+      givenParserVersion,
+      givenOriginalInvoiceFileName
     );
 
     expect(mockedGetInvoiceReceiptId).toHaveBeenCalledTimes(1);
@@ -359,7 +368,8 @@ describe("Standardised invoice default getter", () => {
     const result = getStandardisedInvoiceDefault(
       givenTextractPages,
       givenVendorServiceConfigRows,
-      givenParserVersion
+      givenParserVersion,
+      givenOriginalInvoiceFileName
     );
 
     expect(result).toEqual([
@@ -369,6 +379,7 @@ describe("Standardised invoice default getter", () => {
         invoice_receipt_id: "mocked invoice receipt ID",
         item_description: "Lying about speedruns to seem cool on the internet",
         parser_version: givenParserVersion,
+        originalInvoiceFile: givenOriginalInvoiceFileName,
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
