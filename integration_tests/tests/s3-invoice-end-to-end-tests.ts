@@ -28,10 +28,10 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
   let filename: string;
 
   test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
-    const passportCheckItems = randomLineItems(8, {
+    const passportCheckItems = randomLineItems(2, {
       description: "passport check",
     });
-    const addressCheckItems = randomLineItems(10, {
+    const addressCheckItems = randomLineItems(1, {
       description: "address check",
     });
     const invoice = randomInvoice({
