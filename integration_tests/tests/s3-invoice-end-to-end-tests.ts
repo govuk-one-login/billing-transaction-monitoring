@@ -29,10 +29,10 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
   let filename: string;
 
   test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
-    const passportCheckItems = randomLineItems(2, {
+    const passportCheckItems = randomLineItems(8, {
       description: "passport check",
     });
-    const addressCheckItems = randomLineItems(1, {
+    const addressCheckItems = randomLineItems(10, {
       description: "address check",
     });
     const invoice = randomInvoice({
@@ -53,7 +53,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       invoiceData: invoice,
       filename: `${filename}.pdf`,
     });
-    console.log("e2e test invoice filename:", filename);
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
 
@@ -71,7 +70,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
             s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
         ),
       {
-        timeout: 60000,
+        timeout: 90000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
@@ -144,6 +143,14 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     await deleteS3Object({
       bucket: s3Object.bucket,
       key: `successful/${s3Object.key}`,
+    });
+
+    afterEach(async () => {
+      console.log(`${standardisedFolderPrefix}/${filename}.txt`);
+      await deleteS3Object({
+        bucket: storageBucket,
+        key: `${standardisedFolderPrefix}/${filename}.txt`,
+      });
     });
   });
 
@@ -229,7 +236,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
   afterAll(async () => {
     await deleteS3Object({
       bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
+      key: `${standardisedFolderPrefix}/s3-invoice-e2e-test-raw-Invoice-validFile.txt`,
     });
     await deleteS3Object({
       bucket: storageBucket,
