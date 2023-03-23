@@ -146,7 +146,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     });
 
     afterEach(async () => {
-      console.log(`${standardisedFolderPrefix}/${filename}.txt`);
       await deleteS3Object({
         bucket: storageBucket,
         key: `${standardisedFolderPrefix}/${filename}.txt`,
