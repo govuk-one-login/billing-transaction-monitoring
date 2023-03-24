@@ -77,6 +77,7 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
         },
         {
           timeout: 90000,
+          interval: 10000,
           nonCompleteErrorMessage:
             "Invoice data never appeared in standardised folder",
         }

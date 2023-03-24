@@ -79,14 +79,15 @@ const getQueryResults = async (
 const waitAndGetQueryResults = async (
   queryId: string
 ): Promise<GetQueryResultsCommandOutput | undefined> => {
+  let result: QueryExecutionStatus | undefined;
   const checkState = async (): Promise<boolean> => {
-    const result = await getQueryExecutionStatus(queryId);
+    result = await getQueryExecutionStatus(queryId);
     return result?.State?.match("SUCCEEDED") !== null;
   };
   const queryStatusSuccess = await poll(checkState, (state) => state, {
-    timeout: 90000,
+    timeout: 100000,
     interval: 10000,
-    nonCompleteErrorMessage: "Query did not succeed within the given timeout",
+    nonCompleteErrorMessage: `Query did not succeed within the given timeout. Current query state: ${result?.State}`,
   });
   if (queryStatusSuccess) {
     return await getQueryResults(queryId);

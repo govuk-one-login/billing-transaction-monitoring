@@ -55,7 +55,7 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
           tableName,
           eventTime
         );
-
+      expect(response.length).toBe(1);
       expect(response[0].price).toEqual(expectedPrice);
     }
   );

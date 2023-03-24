@@ -86,6 +86,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
         },
         {
           timeout: 90000,
+          interval: 10000,
           nonCompleteErrorMessage:
             "Invoice data never appeared in standardised folder",
         }

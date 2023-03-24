@@ -71,6 +71,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
         ),
       {
         timeout: 90000,
+        interval: 10000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
