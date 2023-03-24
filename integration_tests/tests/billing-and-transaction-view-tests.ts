@@ -30,7 +30,7 @@ const standardisedFolderPrefix = "btm_billing_standardised";
 let filename: string;
 let eventIds: string[];
 let eventTime: string;
-
+let fileNameToDelete: string;
 describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data \n", () => {
   test.each`
     testCase                                                                                 | eventName             | vendorId                | eventTime             | unitPrice | numberOfTestEvents | priceDifferencePercentage | billingPriceFormatted | billingQty | transactionPriceFormatted | transactionQty
@@ -42,6 +42,7 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPriceFormatted,$transactionQty,$transactionPriceFormatted,$priceDifferencePercentage",
     async ({ ...data }) => {
       eventTime = data.eventTime;
+      fileNameToDelete = data.eventIds;
       eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
@@ -67,11 +68,9 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
             prefix: standardisedFolderPrefix,
           }),
         ({ Contents }) =>
-          !!Contents?.some(
-            (s3Object) =>
-              s3Object.Key !== undefined &&
-              s3Object.Key === `btm_billing_standardised/${filename}.txt`
-          ),
+          Contents?.filter((s3Object) =>
+            s3Object.Key?.includes(`${data.eventName}`)
+          ).length === 1,
         {
           timeout: 55000,
           nonCompleteErrorMessage:
@@ -93,10 +92,21 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
 
   afterEach(async () => {
     await deleteS3Events(eventIds, eventTime);
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
+
+    const files = await listS3Objects({
+      bucketName: storageBucket,
+      prefix: standardisedFolderPrefix,
     });
+    if (files.Contents) {
+      for (const content of files.Contents) {
+        if (content.Key?.includes(fileNameToDelete)) {
+          await deleteS3Object({
+            bucket: storageBucket,
+            key: content.Key,
+          });
+        }
+      }
+    }
   });
 });
 

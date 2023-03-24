@@ -3,7 +3,6 @@ import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envH
 import {
   checkIfS3ObjectExists,
   deleteS3Object,
-  getS3Object,
   listS3Objects,
   putS3Object,
   S3Object,
@@ -29,10 +28,10 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
   let filename: string;
 
   test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
-    const passportCheckItems = randomLineItems(8, {
+    const passportCheckItems = randomLineItems(1, {
       description: "passport check",
     });
-    const addressCheckItems = randomLineItems(10, {
+    const addressCheckItems = randomLineItems(2, {
       description: "address check",
     });
     const invoice = randomInvoice({
@@ -53,11 +52,11 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       invoiceData: invoice,
       filename: `${filename}.pdf`,
     });
-    console.log("e2e test invoice filename:", filename);
+
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
 
-    // Wait for the invoice data to have been written, to some file in the standardised folder.
+    // Wait for the invoice data to have been written, to files in the standardised folder.
     await poll(
       async () =>
         await listS3Objects({
@@ -65,34 +64,17 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           prefix: standardisedFolderPrefix,
         }),
       ({ Contents }) =>
-        !!Contents?.some(
-          (s3Object) =>
-            s3Object.Key !== undefined &&
-            s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
-        ),
+        Contents?.filter((s3Object) =>
+          s3Object.Key?.includes(
+            "btm_billing_standardised/2023-03-Vendor Three-VENDOR_3_EVENT"
+          )
+        ).length === 3,
       {
-        timeout: 70000,
+        timeout: 30000,
         nonCompleteErrorMessage:
-          "Invoice data never appeared in standardised folder",
+          "PDF Invoice data never appeared in standardised folder",
       }
     );
-
-    // Check the original PDF file name and the event_name key is saved.
-    const standardisedLineItemsText = await getS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
-    });
-    const standardisedLineItems = standardisedLineItemsText
-      ?.split("\n")
-      .filter((line) => line.trim().length > 0)
-      .map((line) => JSON.parse(line));
-    expect(standardisedLineItems).not.toBeUndefined();
-    expect(standardisedLineItems?.length).toBeGreaterThan(0);
-    expect(standardisedLineItems?.[0]).toHaveProperty(
-      "originalInvoiceFile",
-      `${filename}.pdf`
-    );
-    expect(standardisedLineItems?.[0]).toHaveProperty("event_name");
 
     // Check the view results match the invoice.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3'`;
@@ -152,8 +134,8 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     // Step 1: Put the test csv file in the raw-invoice bucket. A further ticket will handle the random creation of a csv invoice, similar to the pdf invoice.
     // Note: For the csv invoice flow, the original does not get moved to a 'successful folder' like it does for the pdf invoice flow that invokes Textract.
 
-    filename = "valid-invoice";
-    const folderPrefix = "vendor_testvendor1";
+    filename = "valid-vendor3-invoice";
+    const folderPrefix = "vendor_testvendor3";
     const testObject: S3Object = {
       bucket: `${prefix}-raw-invoice`,
       key: `${folderPrefix}/${filename}.csv`,
@@ -175,37 +157,20 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           prefix: standardisedFolderPrefix,
         }),
       ({ Contents }) =>
-        !!Contents?.some(
-          (s3Object) =>
-            s3Object.Key !== undefined &&
-            s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
-        ),
+        Contents?.filter((s3Object) =>
+          s3Object.Key?.includes(
+            "btm_billing_standardised/2023-03-Vendor Three-VENDOR_3_EVENT"
+          )
+        ).length === 2,
       {
-        timeout: 50000,
+        timeout: 30000,
         nonCompleteErrorMessage:
-          "Invoice data never appeared in standardised folder",
+          "CSV Invoice data never appeared in standardised folder",
       }
     );
 
-    // Step 3: Check the original CSV file name and the event_name key is saved.
-    const standardisedLineItemsText = await getS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
-    });
-    const standardisedLineItems = standardisedLineItemsText
-      ?.split("\n")
-      .filter((line) => line.trim().length > 0)
-      .map((line) => JSON.parse(line));
-    expect(standardisedLineItems).not.toBeUndefined();
-    expect(standardisedLineItems?.length).toBeGreaterThan(0);
-    expect(standardisedLineItems?.[0]).toHaveProperty(
-      "originalInvoiceFile",
-      `${filename}.csv`
-    );
-    expect(standardisedLineItems?.[0]).toHaveProperty("event_name");
-
-    // Step 4: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
-    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
+    // Step 3: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
     const queryId = await startQueryExecutionCommand({
       databaseName,
       queryString,
@@ -213,14 +178,14 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     const queryObjects: BillingCurated[] = await queryObject(queryId);
     expect(queryObjects.length).toEqual(2);
 
-    expect(queryObjects[0].vendor_name).toEqual("Vendor One");
-    expect(queryObjects[0].service_name).toEqual("Fraud check");
+    expect(queryObjects[0].vendor_name).toEqual("Vendor Three");
+    expect(queryObjects[0].service_name).toEqual("Address check");
     expect(queryObjects[0].quantity).toEqual("83");
     expect(queryObjects[0].price).toEqual("327.8500");
     expect(queryObjects[0].year).toEqual("2023");
     expect(queryObjects[0].month).toEqual("03");
 
-    expect(queryObjects[1].vendor_name).toEqual("Vendor One");
+    expect(queryObjects[1].vendor_name).toEqual("Vendor Three");
     expect(queryObjects[1].service_name).toEqual("Passport check");
     expect(queryObjects[1].quantity).toEqual("13788");
     expect(queryObjects[1].price).toEqual("4687.9200");
@@ -228,15 +193,25 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(queryObjects[1].month).toEqual("03");
   });
 
-  afterAll(async () => {
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
+  afterEach(async () => {
+    const files = await listS3Objects({
+      bucketName: storageBucket,
+      prefix: standardisedFolderPrefix,
     });
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/valid-invoice.txt`,
-    });
+    if (files.Contents) {
+      for (const content of files.Contents) {
+        if (
+          content.Key?.startsWith(
+            "btm_billing_standardised/2023-03-Vendor Three-VENDOR_3_EVENT"
+          )
+        ) {
+          await deleteS3Object({
+            bucket: storageBucket,
+            key: content.Key,
+          });
+        }
+      }
+    }
   });
 });
 
