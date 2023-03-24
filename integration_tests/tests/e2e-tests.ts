@@ -75,14 +75,12 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
             prefix: standardisedFolderPrefix,
           }),
 
-        ({ Contents }) => {
-          console.log(Contents);
-          return !!Contents?.some(
+        ({ Contents }) =>
+          !!Contents?.some(
             (s3Object) =>
               s3Object.Key !== undefined &&
               s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
-          );
-        },
+          ),
         {
           timeout: 100000,
           interval: 10000,
