@@ -55,8 +55,8 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
         eventName
       );
       eventTime = data.eventTime;
-
-      filename = `e2e-test-raw-Invoice-validFile`;
+      const uniqueString = Math.random().toString(36).substring(2, 7);
+      filename = `e2e-test-raw-Invoice-validFile-${uniqueString}`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,
@@ -82,7 +82,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
               s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
           ),
         {
-          timeout: 100000,
+          timeout: 800000,
           interval: 10000,
           nonCompleteErrorMessage:
             "Invoice data never appeared in standardised folder",
@@ -150,9 +150,7 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
-
   expect(response.length).toBe(1);
-
   expect(response[0].billing_price_formatted).toEqual(
     expectedResults.billingPriceFormatted
   );

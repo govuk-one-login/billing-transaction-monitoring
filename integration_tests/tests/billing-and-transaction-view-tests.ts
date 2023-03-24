@@ -47,7 +47,8 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
         data.transactionQty,
         data.eventName
       );
-      filename = `raw-Invoice-validFile`;
+      const uniqueString = Math.random().toString(36).substring(2, 7);
+      filename = `raw-Invoice-validFile-${uniqueString}`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,
@@ -70,10 +71,10 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
           !!Contents?.some(
             (s3Object) =>
               s3Object.Key !== undefined &&
-              s3Object.Key === `btm_billing_standardised/${filename}.txt`
+              s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
           ),
         {
-          timeout: 100000,
+          timeout: 80000,
           interval: 10000,
           nonCompleteErrorMessage:
             "Invoice data never appeared in standardised folder",
@@ -119,7 +120,6 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
-
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(billingPriceFormatted);
   expect(response[0].transaction_price_formatted).toEqual(
