@@ -1,5 +1,9 @@
 import { SQSRecord } from "aws-lambda";
-import { getS3EventRecordsFromSqs, putTextS3 } from "../../shared/utils";
+import {
+  getS3EventRecordsFromSqs,
+  getStandardisedInvoiceFileName,
+  putTextS3,
+} from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 import { storeStandardisedInvoices } from "./store-standardised-invoices";
@@ -13,6 +17,18 @@ const mockedFetchS3TextractData = fetchS3TextractData as jest.Mock;
 
 jest.mock("./get-standardised-invoice");
 const mockedGetStandardisedInvoice = getStandardisedInvoice as jest.Mock;
+
+jest.mock("../../shared/utils/get-standardised-invoice-filename", () => {
+  const original = jest.requireActual(
+    "../../shared/utils/get-standardised-invoice-filename"
+  );
+  return {
+    ...original,
+    getStandardisedInvoiceFileName: jest.fn(),
+  };
+});
+const mockedGetStandardisedInvoiceFilename =
+  getStandardisedInvoiceFileName as jest.Mock;
 
 describe("Standardised invoice storer", () => {
   let mockedStandardisedInvoice: any[];
@@ -225,6 +241,9 @@ describe("Standardised invoice storer", () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
     mockedPutTextS3.mockRejectedValue(mockedError);
+    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+      "mocked-s3-event-record-1-s3-object-key-u7eg46.txt"
+    );
 
     await expect(
       storeStandardisedInvoices(
@@ -236,17 +255,10 @@ describe("Standardised invoice storer", () => {
       )
     ).rejects.toThrowError(mockedErrorText);
     expect(mockedPutTextS3).toHaveBeenCalledTimes(2);
-    const expectedStandardisedInvoiceText =
-      '"mocked Textract line item 1"\n"mocked Textract line item 2"';
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       givenDestinationBucket,
-      `${givenDestinationFolder}/${mockedS3EventRecord1FileNameWithoutFileExtension}.txt`,
-      expectedStandardisedInvoiceText
-    );
-    expect(mockedPutTextS3).toHaveBeenCalledWith(
-      givenDestinationBucket,
-      `${givenDestinationFolder}/${mockedS3EventRecord2FileNameWithoutFileExtension}.txt`,
-      expectedStandardisedInvoiceText
+      `${givenDestinationFolder}/mocked-s3-event-record-1-s3-object-key-u7eg46.txt`,
+      JSON.stringify("mocked Textract line item 1")
     );
   });
 

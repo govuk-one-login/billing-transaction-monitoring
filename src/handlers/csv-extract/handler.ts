@@ -76,12 +76,12 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
         for (const item of standardisedInvoice) {
           const fileName = getStandardisedInvoiceFileName(item);
-          const standardisedInvoice = JSON.stringify(item);
+          const standardisedInvoiceText = JSON.stringify(item);
           // Storage will be moved to a new lambda as part of BTM-466
           await putTextS3(
             destinationBucket,
             `${destinationFolder}/${fileName}`,
-            standardisedInvoice
+            standardisedInvoiceText
           );
         }
       });

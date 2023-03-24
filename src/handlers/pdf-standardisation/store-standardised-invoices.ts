@@ -1,5 +1,9 @@
 import { SQSRecord } from "aws-lambda";
-import { getS3EventRecordsFromSqs, putTextS3 } from "../../shared/utils";
+import {
+  getS3EventRecordsFromSqs,
+  getStandardisedInvoiceFileName,
+  putTextS3,
+} from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 
@@ -40,19 +44,16 @@ export async function storeStandardisedInvoices(
       originalInvoiceFileName
     );
 
-    // Convert line items to new-line-separated JSON object text, to work with Glue/Athena.
-    const standardisedInvoiceText = standardisedInvoice
-      .map((lineItem) => JSON.stringify(lineItem))
-      .join("\n");
-
-    // Since that text block is not valid JSON, use a file extension that is not `.json`.
-    const destinationFileName = sourceFileName.replace(/\.json$/g, ".txt");
-
-    await putTextS3(
-      destinationBucket,
-      `${destinationFolder}/${destinationFileName}`,
-      standardisedInvoiceText
-    );
+    for (const item of standardisedInvoice) {
+      const fileName = getStandardisedInvoiceFileName(item);
+      const standardisedInvoiceText = JSON.stringify(item);
+      // Storage will be moved to a new lambda as part of BTM-466
+      await putTextS3(
+        destinationBucket,
+        `${destinationFolder}/${fileName}`,
+        standardisedInvoiceText
+      );
+    }
   });
 
   await Promise.all(promises);
