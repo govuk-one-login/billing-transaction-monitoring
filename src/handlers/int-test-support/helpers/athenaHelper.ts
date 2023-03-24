@@ -45,7 +45,7 @@ const startQueryExecutionCommand = async (
 
 const getQueryExecutionStatus = async (
   queryId: string
-): Promise<QueryExecutionStatus | undefined> => {
+): Promise<QueryExecutionStatus> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.getQueryExecutionStatus,
@@ -58,6 +58,10 @@ const getQueryExecutionStatus = async (
   const response = await athenaClient.send(
     new GetQueryExecutionCommand(params)
   );
+
+  if (response.QueryExecution?.Status === undefined) {
+    throw new Error("Query status is undefined");
+  }
   return response.QueryExecution?.Status;
 };
 
@@ -79,15 +83,14 @@ const getQueryResults = async (
 const waitAndGetQueryResults = async (
   queryId: string
 ): Promise<GetQueryResultsCommandOutput | undefined> => {
-  let result: QueryExecutionStatus | undefined;
   const checkState = async (): Promise<boolean> => {
-    result = await getQueryExecutionStatus(queryId);
-    return result?.State === "SUCCEEDED";
+    const result = await getQueryExecutionStatus(queryId);
+    return result.State === "SUCCEEDED";
   };
   const queryStatusSuccess = await poll(checkState, (state) => state, {
     timeout: 65000,
     interval: 5000,
-    nonCompleteErrorMessage: `Query did not succeed within the given timeout. Current query state: ${result?.State}`,
+    nonCompleteErrorMessage: `Query did not succeed within the given timeout`,
   });
   if (queryStatusSuccess) {
     return await getQueryResults(queryId);
