@@ -66,12 +66,15 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
             bucketName: storageBucket,
             prefix: standardisedFolderPrefix,
           }),
-        ({ Contents }) =>
-          !!Contents?.some(
+        ({ Contents }) => {
+          console.log("Contents:", Contents);
+
+          return !!Contents?.some(
             (s3Object) =>
               s3Object.Key !== undefined &&
               s3Object.Key === `btm_billing_standardised/${filename}.txt`
-          ),
+          );
+        },
         {
           timeout: 90000,
           nonCompleteErrorMessage:

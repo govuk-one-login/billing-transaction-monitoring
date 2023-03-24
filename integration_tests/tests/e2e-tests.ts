@@ -74,12 +74,16 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
             bucketName: storageBucket,
             prefix: standardisedFolderPrefix,
           }),
-        ({ Contents }) =>
-          !!Contents?.some(
+
+        ({ Contents }) => {
+          console.log("Contents:", Contents);
+
+          return !!Contents?.some(
             (s3Object) =>
               s3Object.Key !== undefined &&
               s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
-          ),
+          );
+        },
         {
           timeout: 90000,
           nonCompleteErrorMessage:
