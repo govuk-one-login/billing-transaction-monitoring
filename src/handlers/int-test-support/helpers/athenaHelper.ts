@@ -82,7 +82,7 @@ const waitAndGetQueryResults = async (
   let result: QueryExecutionStatus | undefined;
   const checkState = async (): Promise<boolean> => {
     result = await getQueryExecutionStatus(queryId);
-    return result?.State?.match("SUCCEEDED") !== null;
+    return result?.State === "SUCCEEDED";
   };
   const queryStatusSuccess = await poll(checkState, (state) => state, {
     timeout: 65000,
