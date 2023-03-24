@@ -92,6 +92,7 @@ describe("CSV Standardised invoice getter", () => {
         service_name: "Check one",
         unit_price: 0.34,
         total: 5625.504,
+        event_name: "VENDOR_1_EVENT_1",
       },
       {
         invoice_receipt_id: "370 000",
@@ -110,6 +111,7 @@ describe("CSV Standardised invoice getter", () => {
         service_name: "Check two",
         unit_price: 3.95,
         total: 393.42,
+        event_name: "VENDOR_1_EVENT_3",
       },
     ]);
   });

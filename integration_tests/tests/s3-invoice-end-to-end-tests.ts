@@ -77,7 +77,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       }
     );
 
-    // Check the original PDF file name is saved.
+    // Check the original PDF file name and the event_name key is saved.
     const standardisedLineItemsText = await getS3Object({
       bucket: storageBucket,
       key: `${standardisedFolderPrefix}/${filename}.txt`,
@@ -92,6 +92,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       "originalInvoiceFile",
       `${filename}.pdf`
     );
+    expect(standardisedLineItems?.[0]).toHaveProperty("event_name");
 
     // Check the view results match the invoice.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3'`;
@@ -186,7 +187,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       }
     );
 
-    // Step 3: Check the original CSV file name is saved.
+    // Step 3: Check the original CSV file name and the event_name key is saved.
     const standardisedLineItemsText = await getS3Object({
       bucket: storageBucket,
       key: `${standardisedFolderPrefix}/${filename}.txt`,
@@ -201,6 +202,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       "originalInvoiceFile",
       `${filename}.csv`
     );
+    expect(standardisedLineItems?.[0]).toHaveProperty("event_name");
 
     // Step 4: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;

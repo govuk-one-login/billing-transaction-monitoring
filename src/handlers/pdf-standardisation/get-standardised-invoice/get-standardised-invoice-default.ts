@@ -1,4 +1,5 @@
 import { Textract } from "aws-sdk";
+import { StandardisedLineItem } from "../../../shared/types";
 import { VendorServiceConfigRows } from "../../../shared/utils";
 import {
   getDueDate,
@@ -13,10 +14,7 @@ import {
   getTotal,
   getUnitPrice,
 } from "../field-utils";
-import {
-  StandardisationModule,
-  StandardisedLineItem,
-} from "./get-standardised-invoice";
+import { StandardisationModule } from "./get-standardised-invoice";
 
 export const getStandardisedInvoiceDefault: StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
@@ -51,6 +49,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
     for (const {
       service_name: serviceName,
       service_regex: serviceRegexPattern,
+      event_name: eventName,
     } of vendorServiceConfigRows) {
       const serviceRegex = new RegExp(serviceRegexPattern, "i");
       const itemDescription = getItemDescription(itemFields);
@@ -62,6 +61,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
         ...nextAcc,
         {
           ...summary,
+          event_name: eventName,
           item_description: itemDescription,
           price: getPrice(itemFields),
           quantity: getQuantity(itemFields),
