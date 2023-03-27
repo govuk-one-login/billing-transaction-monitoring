@@ -318,7 +318,7 @@ describe("CSV Extract handler tests", () => {
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
     mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
-      "2022-01-Skippy’s Everything Shop-VENDOR_1_EVENT_1-e61108.txt"
+      "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const mockedErrorText = "mocked put text error";
     const mockedError = new Error(mockedErrorText);
@@ -335,14 +335,14 @@ describe("CSV Extract handler tests", () => {
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
     mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
-      "2022-01-Skippy’s Everything Shop-VENDOR_1_EVENT_1-e61108.txt"
+      "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const result = await handler(validEvent);
     expect(result).toEqual({ batchItemFailures: [] });
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       "given destination bucket",
-      "given destination folder/2022-01-Skippy’s Everything Shop-VENDOR_1_EVENT_1-e61108.txt",
+      "given destination folder/2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt",
       JSON.stringify({
         invoice_receipt_id: "123 4567 89",
         vendor_id: "vendor123",
@@ -379,14 +379,14 @@ describe("CSV Extract handler tests", () => {
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
     mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
-      "2022-01-Skippy’s Everything Shop-VENDOR_1_EVENT_1-e61108.txt"
+      "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const result = await handler(validEvent);
     expect(result).toEqual({ batchItemFailures: [] });
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       "given destination bucket",
-      "given destination folder/2022-01-Skippy’s Everything Shop-VENDOR_1_EVENT_1-e61108.txt",
+      "given destination folder/2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt",
       JSON.stringify({
         invoice_receipt_id: "123 4567 89",
         vendor_id: "vendor123",

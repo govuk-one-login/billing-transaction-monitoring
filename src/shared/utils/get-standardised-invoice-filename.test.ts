@@ -24,7 +24,9 @@ test("Filename getter with  standardised line item", () => {
     event_name: "VENDOR_1_EVENT_1",
   };
   const filename = getStandardisedInvoiceFileName(standardisedLineItem);
-  expect(filename).toMatch(/^2023-02-Vendor One-VENDOR_1_EVENT_1-.{6}\.txt$/); // <- expects 6 alphanumeric chars for the uuid
+  expect(filename).toMatch(
+    /^2023-02-vendor_testvendor1-VENDOR_1_EVENT_1-.{6}\.txt$/
+  ); // <- expects 6 alphanumeric chars for the uuid
 });
 
 test("Year, month, and day are formatted to yyyy-mm", () => {

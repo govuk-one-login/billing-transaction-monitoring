@@ -5,10 +5,10 @@ export function getStandardisedInvoiceFileName(
   standardisedInvoice: StandardisedLineItem
 ): string {
   const yearMonth = getYearMonth(standardisedInvoice.invoice_receipt_date);
-  const vendorName = standardisedInvoice.vendor_name;
+  const vendorId = standardisedInvoice.vendor_id;
   const eventName = standardisedInvoice.event_name;
   const uuid = crypto.randomBytes(3).toString("hex");
-  const fileName = `${yearMonth}-${vendorName}-${eventName}-${uuid}.txt`;
+  const fileName = `${yearMonth}-${vendorId}-${eventName}-${uuid}.txt`;
 
   return fileName;
 }
