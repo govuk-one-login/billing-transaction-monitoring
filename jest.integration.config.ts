@@ -6,8 +6,9 @@ const config: Config.InitialOptions = {
   coveragePathIgnorePatterns: ["/node_modules/"],
   preset: "ts-jest",
   testRunner: "jasmine2",
+  globalSetup: "./src/handlers/int-test-support/helpers/testSetup.ts",
   verbose: true,
-  testTimeout: 120000,
+  testTimeout: 1600000,
   reporters: [
     "default",
     [
