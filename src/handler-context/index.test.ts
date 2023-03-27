@@ -19,7 +19,7 @@ jest.mock("./S3ConfigClient", () => ({
   })),
 }));
 
-jest.mock("../shared/utils/S3", () => ({
+jest.mock("../shared/utils/s3", () => ({
   fetchS3: jest.fn(async (_name, key) => {
     switch (key) {
       case "test-key":
