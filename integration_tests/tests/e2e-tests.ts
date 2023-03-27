@@ -159,7 +159,6 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
-  console.log("response", response);
 
   expect(response[0].billing_price_formatted).toEqual(
     expectedResults.billingPriceFormatted
