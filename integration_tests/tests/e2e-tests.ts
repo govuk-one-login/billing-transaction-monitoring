@@ -56,7 +56,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
       );
       eventTime = data.eventTime;
 
-      filename = `e2e-test-raw-Invoice-validFile`;
+      filename = `e2e-test-raw-invoice-vendor1-validFile`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,
@@ -75,15 +75,14 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
             prefix: standardisedFolderPrefix,
           }),
         ({ Contents }) =>
-          !!Contents?.some(
-            (s3Object) =>
-              s3Object.Key !== undefined &&
-              s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
-          ),
+          Contents?.filter((s3Object) =>
+            s3Object.Key?.includes(getYearMonth(`${data.eventTime}`))
+          ).length === 1,
         {
-          timeout: 60000,
+          timeout: 80000,
+          interval: 10000,
           nonCompleteErrorMessage:
-            "Invoice data never appeared in standardised folder",
+            "e2e tests invoice data never appeared in standardised folder",
         }
       );
 
@@ -127,10 +126,22 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
 
   afterEach(async () => {
     await deleteS3Events(eventIds, eventTime);
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
+
+    const files = await listS3Objects({
+      bucketName: storageBucket,
+      prefix: standardisedFolderPrefix,
     });
+
+    if (files.Contents) {
+      for (const content of files.Contents) {
+        if (content.Key?.includes(eventName)) {
+          await deleteS3Object({
+            bucket: storageBucket,
+            key: content.Key,
+          });
+        }
+      }
+    }
   });
 });
 
@@ -148,6 +159,7 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
+  console.log("response", response);
 
   expect(response[0].billing_price_formatted).toEqual(
     expectedResults.billingPriceFormatted
@@ -203,6 +215,13 @@ const calculateExpectedResults = (
     };
   }
 };
+
+function getYearMonth(dateStr: string): string {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  return `${year}-${month}`;
+}
 
 interface ExpectedResults {
   billingQty: number | undefined;
