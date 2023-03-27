@@ -25,15 +25,7 @@ jest.mock("../../shared/utils", () => {
   };
 });
 
-jest.mock("../../shared/utils/get-standardised-invoice-filename", () => {
-  const original = jest.requireActual(
-    "../../shared/utils/get-standardised-invoice-filename"
-  );
-  return {
-    ...original,
-    getStandardisedInvoiceFileName: jest.fn(),
-  };
-});
+jest.mock("../../shared/utils/get-standardised-invoice-filename");
 
 const mockedFetchS3 = fetchS3 as jest.Mock;
 const mockedPutTextS3 = putTextS3 as jest.Mock;

@@ -18,15 +18,8 @@ const mockedFetchS3TextractData = fetchS3TextractData as jest.Mock;
 jest.mock("./get-standardised-invoice");
 const mockedGetStandardisedInvoice = getStandardisedInvoice as jest.Mock;
 
-jest.mock("../../shared/utils/get-standardised-invoice-filename", () => {
-  const original = jest.requireActual(
-    "../../shared/utils/get-standardised-invoice-filename"
-  );
-  return {
-    ...original,
-    getStandardisedInvoiceFileName: jest.fn(),
-  };
-});
+jest.mock("../../shared/utils/get-standardised-invoice-filename");
+
 const mockedGetStandardisedInvoiceFilename =
   getStandardisedInvoiceFileName as jest.Mock;
 
