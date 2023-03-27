@@ -26,17 +26,23 @@ export const callWithTimeout =
 export const callWithRetry =
   (retries = 3) =>
   <TArgs, TResolution>(
-    asyncFunc: (underlyingArgs: TArgs) => Promise<TResolution>
+    asyncFunc: (underlyingArgs: TArgs) => Promise<TResolution>,
+    retryOnErrorMatching?: (error: Error) => boolean
   ) =>
   async (...underlyingArgs: any): Promise<TResolution> =>
     await new Promise((resolve, reject) => {
-      for (let i = 0; i < retries; i++) {
+      let isUnresolved = true;
+      for (let i = 0; isUnresolved && i < retries; i++) {
         asyncFunc.apply(null, underlyingArgs).then(
           (result) => {
+            isUnresolved = false;
             resolve(result);
           },
           (error) => {
-            if (i < retries - 1) {
+            if (
+              i < retries - 1 &&
+              (!retryOnErrorMatching || retryOnErrorMatching(error))
+            ) {
               logger.warn(`Retrying on error: ${error.message}`);
             } else {
               reject(error);
@@ -52,7 +58,7 @@ export const callWithRetry =
 
 export const compose = (...funcs: Function[]): Function => {
   if (funcs.length === 0) {
-    // infer the argument type so it is usable in inference down the line
+    // infer the argument type, so it is usable in inference down the line
     return <T>(arg: T) => arg;
   }
 

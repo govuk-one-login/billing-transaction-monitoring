@@ -41,8 +41,8 @@ describe("callWithRetry", () => {
     });
   });
 
-  describe("given a function that fails then succeeds", () => {
-    it("successfully retrieves the value", async () => {
+  describe("given a function that fails on first call, then succeeds", () => {
+    it("successfully retrieves the value if no error filter applied", async () => {
       let fail = true;
 
       const result = await callWithRetry(3)(
@@ -57,6 +57,47 @@ describe("callWithRetry", () => {
           })
       )();
       expect(result).toBe("a");
+    });
+
+    it("successfully retrieves the value if error filter matches the error thrown", async () => {
+      let fail = true;
+
+      const result = await callWithRetry(3)(
+        async () =>
+          await new Promise((resolve, reject) => {
+            if (fail) {
+              fail = false;
+              reject(new Error("some failure"));
+            } else {
+              resolve("a");
+            }
+          }),
+        (error) => error.message === "some failure"
+      )();
+      expect(result).toBe("a");
+    });
+
+    it("fails when error thrown that doesn't match the error filter", async () => {
+      let fail = true;
+
+      try {
+        await callWithRetry(3)(
+          async () =>
+            await new Promise((resolve, reject) => {
+              if (fail) {
+                fail = false;
+                reject(new Error("some other failure"));
+              } else {
+                resolve("a");
+              }
+            }),
+          (error) => error.message === "some failure"
+        )();
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe("some other failure");
+      }
+      expect.hasAssertions();
     });
   });
 
