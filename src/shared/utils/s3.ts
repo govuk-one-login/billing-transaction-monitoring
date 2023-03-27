@@ -10,7 +10,12 @@ import {
 import type { Command, SmithyConfiguration } from "@aws-sdk/smithy-client";
 import { S3Event, S3EventRecord, SQSRecord } from "aws-lambda";
 import { logger } from "./logger";
-import { callWithRetry, callWithTimeout, compose } from "./call-wrappers";
+import {
+  callWithRetry,
+  callWithTimeout,
+  compose,
+  ONLY_RETRY_ON_TIMEOUT,
+} from "./call-wrappers";
 
 const s3 = new S3Client({
   region: "eu-west-2",
@@ -23,7 +28,7 @@ const DEFAULT_TIMEOUT = 5000;
 export async function deleteS3(bucket: string, key: string): Promise<void> {
   await compose(
     callWithTimeout(DEFAULT_TIMEOUT),
-    callWithRetry(DEFAULT_RETRIES)
+    callWithRetry(DEFAULT_RETRIES, ONLY_RETRY_ON_TIMEOUT)
   )(deleteS3Basic)(bucket, key);
 }
 

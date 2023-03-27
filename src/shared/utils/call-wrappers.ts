@@ -1,6 +1,10 @@
 import { clearTimeout } from "timers";
 import { logger } from "./logger";
 
+const TIMEOUT_MESSAGE = "Operation timed out";
+export const ONLY_RETRY_ON_TIMEOUT = (error: Error): boolean =>
+  error.message === TIMEOUT_MESSAGE;
+
 export const callWithTimeout =
   (timeoutMillis = 5000) =>
   <TArgs, TResolution>(
@@ -9,7 +13,7 @@ export const callWithTimeout =
   async (...underlyingArgs: any): Promise<TResolution> =>
     await new Promise((resolve, reject) => {
       const timeoutHandle = setTimeout(() => {
-        reject(new Error("Operation timed out"));
+        reject(new Error(TIMEOUT_MESSAGE));
       }, timeoutMillis);
       asyncFunc.apply(null, underlyingArgs).then(
         (result) => {
@@ -24,10 +28,9 @@ export const callWithTimeout =
     });
 
 export const callWithRetry =
-  (retries = 3) =>
+  (retries = 3, retryOnErrorMatching?: (error: Error) => boolean) =>
   <TArgs, TResolution>(
-    asyncFunc: (underlyingArgs: TArgs) => Promise<TResolution>,
-    retryOnErrorMatching?: (error: Error) => boolean
+    asyncFunc: (underlyingArgs: TArgs) => Promise<TResolution>
   ) =>
   async (...underlyingArgs: any): Promise<TResolution> =>
     await new Promise((resolve, reject) => {

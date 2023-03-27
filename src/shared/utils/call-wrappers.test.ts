@@ -62,7 +62,10 @@ describe("callWithRetry", () => {
     it("successfully retrieves the value if error filter matches the error thrown", async () => {
       let fail = true;
 
-      const result = await callWithRetry(3)(
+      const result = await callWithRetry(
+        3,
+        (error) => error.message === "some failure"
+      )(
         async () =>
           await new Promise((resolve, reject) => {
             if (fail) {
@@ -71,8 +74,7 @@ describe("callWithRetry", () => {
             } else {
               resolve("a");
             }
-          }),
-        (error) => error.message === "some failure"
+          })
       )();
       expect(result).toBe("a");
     });
@@ -81,7 +83,10 @@ describe("callWithRetry", () => {
       let fail = true;
 
       try {
-        await callWithRetry(3)(
+        await callWithRetry(
+          3,
+          (error) => error.message === "some failure"
+        )(
           async () =>
             await new Promise((resolve, reject) => {
               if (fail) {
@@ -90,8 +95,7 @@ describe("callWithRetry", () => {
               } else {
                 resolve("a");
               }
-            }),
-          (error) => error.message === "some failure"
+            })
         )();
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
