@@ -76,7 +76,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
           }),
         ({ Contents }) =>
           Contents?.filter((s3Object) =>
-            s3Object.Key?.includes(getYearMonth(`${data.eventTime}`))
+            s3Object.Key?.includes(getYearMonth(eventTime))
           ).length === 1,
         {
           timeout: 80000,

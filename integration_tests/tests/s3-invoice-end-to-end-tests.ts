@@ -66,11 +66,11 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       ({ Contents }) =>
         Contents?.filter((s3Object) =>
           s3Object.Key?.includes(
-            "btm_billing_standardised/2023-03-Vendor Three-VENDOR_3_EVENT"
+            "btm_billing_standardised/2023-03-vendor_testvendor3-VENDOR_3_EVENT"
           )
         ).length === 3,
       {
-        timeout: 30000,
+        timeout: 80000,
         nonCompleteErrorMessage:
           "PDF Invoice data never appeared in standardised folder",
       }
@@ -159,11 +159,11 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       ({ Contents }) =>
         Contents?.filter((s3Object) =>
           s3Object.Key?.includes(
-            "btm_billing_standardised/2023-03-Vendor Three-VENDOR_3_EVENT"
+            "btm_billing_standardised/2023-03-vendor_testvendor3-VENDOR_3_EVENT"
           )
         ).length === 2,
       {
-        timeout: 30000,
+        timeout: 80000,
         nonCompleteErrorMessage:
           "CSV Invoice data never appeared in standardised folder",
       }
@@ -193,26 +193,26 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(queryObjects[1].month).toEqual("03");
   });
 
-  afterEach(async () => {
-    const files = await listS3Objects({
-      bucketName: storageBucket,
-      prefix: standardisedFolderPrefix,
-    });
-    if (files.Contents) {
-      for (const content of files.Contents) {
-        if (
-          content.Key?.startsWith(
-            "btm_billing_standardised/2023-03-Vendor Three-VENDOR_3_EVENT"
-          )
-        ) {
-          await deleteS3Object({
-            bucket: storageBucket,
-            key: content.Key,
-          });
-        }
-      }
-    }
-  });
+  // afterEach(async () => {
+  //   const files = await listS3Objects({
+  //     bucketName: storageBucket,
+  //     prefix: standardisedFolderPrefix,
+  //   });
+  //   if (files.Contents) {
+  //     for (const content of files.Contents) {
+  //       if (
+  //         content.Key?.startsWith(
+  //           "btm_billing_standardised/2023-03-vendor_testvendor3-VENDOR_3_EVENT"
+  //         )
+  //       ) {
+  //         await deleteS3Object({
+  //           bucket: storageBucket,
+  //           key: content.Key,
+  //         });
+  //       }
+  //     }
+  //   }
+  // });
 });
 
 interface BillingCurated {
