@@ -1,4 +1,5 @@
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
+import crypto from "crypto";
 
 import {
   createInvoiceInS3,
@@ -40,8 +41,8 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
         data.transactionQty,
         data.eventName
       );
-      const uniqueString = Math.random().toString(36).substring(2, 7);
-      filename = `raw-Invoice-validFile-${uniqueString}`;
+      const uuid = crypto.randomBytes(3).toString("hex");
+      filename = `raw-Invoice-validFile-${uuid}`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,

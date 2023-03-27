@@ -17,6 +17,7 @@ import {
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
+import crypto from "crypto";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
@@ -50,8 +51,8 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
         eventName
       );
       eventTime = data.eventTime;
-      const uniqueString = Math.random().toString(36).substring(2, 7);
-      filename = `e2e-test-raw-Invoice-validFile-${uniqueString}`;
+      const uuid = crypto.randomBytes(3).toString("hex");
+      filename = `e2e-test-raw-Invoice-validFile-${uuid}`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,
