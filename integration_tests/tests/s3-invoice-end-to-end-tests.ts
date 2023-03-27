@@ -227,17 +227,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(queryObjects[1].year).toEqual("2023");
     expect(queryObjects[1].month).toEqual("03");
   });
-
-  afterAll(async () => {
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/s3-invoice-e2e-test-raw-Invoice-validFile.txt`,
-    });
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/valid-invoice.txt`,
-    });
-  });
 });
 
 interface BillingCurated {
