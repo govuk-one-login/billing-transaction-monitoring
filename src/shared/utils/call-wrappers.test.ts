@@ -1,4 +1,4 @@
-import { callWithRetry, callWithTimeout } from "./call-wrappers";
+import { callWithRetry, callWithTimeout, compose } from "./call-wrappers";
 
 describe("callWithTimeout", () => {
   const wait = async (milliseconds: number): Promise<string> => {
@@ -12,7 +12,7 @@ describe("callWithTimeout", () => {
   describe("given a call that takes shorter than the timeout", () => {
     it("does not fail with a timeout error", async () => {
       // give it a second and a half to complete
-      const result = await callWithTimeout(oneSecondCall, 1500)();
+      const result = await callWithTimeout(1500)(oneSecondCall)();
       expect(result).toBe("a");
     });
   });
@@ -21,7 +21,7 @@ describe("callWithTimeout", () => {
     it("fails with a timeout error", async () => {
       try {
         // only give it a half a second to complete
-        await callWithTimeout(oneSecondCall, 500)();
+        await callWithTimeout(500)(oneSecondCall)();
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
         expect((error as Error).message).toBe("Operation timed out");
@@ -34,9 +34,8 @@ describe("callWithTimeout", () => {
 describe("callWithRetry", () => {
   describe("given a function that succeeds the first time", () => {
     it("successfully retrieves the value", async () => {
-      const result = await callWithRetry(
-        async () => await new Promise((resolve) => resolve("a")),
-        3
+      const result = await callWithRetry(3)(
+        async () => await new Promise((resolve) => resolve("a"))
       )();
       expect(result).toBe("a");
     });
@@ -46,7 +45,7 @@ describe("callWithRetry", () => {
     it("successfully retrieves the value", async () => {
       let fail = true;
 
-      const result = await callWithRetry(
+      const result = await callWithRetry(3)(
         async () =>
           await new Promise((resolve, reject) => {
             if (fail) {
@@ -55,8 +54,7 @@ describe("callWithRetry", () => {
             } else {
               resolve("a");
             }
-          }),
-        3
+          })
       )();
       expect(result).toBe("a");
     });
@@ -67,13 +65,12 @@ describe("callWithRetry", () => {
       let attempt = 0;
 
       try {
-        await callWithRetry(
+        await callWithRetry(3)(
           async () =>
             await new Promise((resolve, reject) => {
               attempt++;
               reject(new Error(`failure on attempt ${attempt}`));
-            }),
-          3
+            })
         )();
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
@@ -84,7 +81,7 @@ describe("callWithRetry", () => {
   });
 });
 
-describe("timeout within retry", () => {
+describe("compose", () => {
   describe("given a function that times out then succeeds", () => {
     it("successfully retrieves the value", async () => {
       const wait = async (milliseconds: number): Promise<string> => {
@@ -94,15 +91,15 @@ describe("timeout within retry", () => {
       };
 
       let delay = 2500;
-      const firstCallTooSlow = async (): Promise<string> => {
+      const slowFirstCall = async (): Promise<string> => {
         delay -= 1000;
         return await wait(delay);
       };
 
-      const result = await callWithRetry(
-        async () => await callWithTimeout(firstCallTooSlow, 1000)(),
-        3
-      )();
+      const result = await compose(
+        callWithTimeout(1000),
+        callWithRetry(3)
+      )(slowFirstCall)();
       expect(result).toBe("a");
     });
   });

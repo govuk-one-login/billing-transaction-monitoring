@@ -2,9 +2,9 @@ import { clearTimeout } from "timers";
 import { logger } from "./logger";
 
 export const callWithTimeout =
+  (timeoutMillis = 5000) =>
   <TArgs, TResolution>(
-    asyncFunc: (underlyingArgs: TArgs) => Promise<TResolution>,
-    timeoutMillis = 5000
+    asyncFunc: (underlyingArgs: TArgs) => Promise<TResolution>
   ) =>
   async (...underlyingArgs: any): Promise<TResolution> =>
     await new Promise((resolve, reject) => {
@@ -24,9 +24,9 @@ export const callWithTimeout =
     });
 
 export const callWithRetry =
+  (retries = 3) =>
   <TArgs, TResolution>(
-    asyncFunc: (underlyingArgs: TArgs) => Promise<TResolution>,
-    retries = 3
+    asyncFunc: (underlyingArgs: TArgs) => Promise<TResolution>
   ) =>
   async (...underlyingArgs: any): Promise<TResolution> =>
     await new Promise((resolve, reject) => {
@@ -45,3 +45,24 @@ export const callWithRetry =
         );
       }
     });
+
+/* eslint-disable @typescript-eslint/ban-types */
+
+// This code is based on Redux Compose
+
+export const compose = (...funcs: Function[]): Function => {
+  if (funcs.length === 0) {
+    // infer the argument type so it is usable in inference down the line
+    return <T>(arg: T) => arg;
+  }
+
+  if (funcs.length === 1) {
+    return funcs[0];
+  }
+
+  return funcs.reduce(
+    (a, b) =>
+      (...args: unknown[]) =>
+        a(b(...args))
+  );
+};
