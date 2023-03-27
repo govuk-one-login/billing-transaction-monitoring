@@ -1,5 +1,4 @@
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import { standardRetryAsync } from "../../src/shared/utils/call-wrappers";
 
 import {
   createInvoiceInS3,
@@ -43,13 +42,10 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPriceFormatted,$transactionQty,$transactionPriceFormatted,$priceDifferencePercentage",
     async ({ ...data }) => {
       eventTime = data.eventTime;
-      eventIds = await standardRetryAsync(
-        async () =>
-          await generateTransactionEventsViaFilterLambda(
-            data.eventTime,
-            data.transactionQty,
-            data.eventName
-          )
+      eventIds = await generateTransactionEventsViaFilterLambda(
+        data.eventTime,
+        data.transactionQty,
+        data.eventName
       );
       filename = `raw-Invoice-validFile`;
 

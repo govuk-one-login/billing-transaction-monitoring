@@ -1,4 +1,5 @@
 import { clearTimeout } from "timers";
+import { logger } from "./logger";
 
 export const callWithTimeout =
   <TArgs, TResolution>(
@@ -35,9 +36,8 @@ export const callWithRetry =
             resolve(result);
           },
           (error) => {
-            console.log(error);
             if (i < retries - 1) {
-              console.log("Retrying");
+              logger.warn(`Retrying on error: ${error.message}`);
             } else {
               reject(error);
             }
