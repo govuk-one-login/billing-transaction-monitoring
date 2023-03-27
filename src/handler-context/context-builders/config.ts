@@ -1,6 +1,7 @@
 import { HandlerCtx } from "..";
-import { ConfigFileNames, Config } from "../Config";
 import { S3ConfigFileClient } from "../S3ConfigClient";
+import { Config } from "../Config";
+import { ConfigFileNames } from "../Config/types";
 
 export const addConfigToCtx = async <
   TMessage,

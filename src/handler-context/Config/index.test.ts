@@ -1,5 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { Config, ConfigClient, ConfigFileNames } from "./Config";
+import { Config } from ".";
+import { ConfigClient, ConfigFileNames } from "./types";
 
 const mockClient: ConfigClient = {
   getConfigFile: jest.fn(async (path) => {

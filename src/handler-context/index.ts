@@ -1,9 +1,9 @@
 import { S3Event, SQSEvent } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { Response } from "../shared/types";
-import { Config, ConfigFileNames } from "./Config";
-import { outputMessages } from "./context-builders/outputs";
+import { ConfigFileNames } from "./Config/types";
 import { buildContext } from "./context-builders";
+import { Config } from "./Config";
 
 export type OutputFunction = (
   destination: string,
@@ -76,8 +76,5 @@ export const buildHandler =
   async (event: S3Event | SQSEvent) => {
     const ctx = await buildContext(event, options);
     const results = await businessLogic(ctx);
-    return await outputMessages(results, ctx);
+    return await ctx.outputMessages(results, ctx);
   };
-
-// Make an extension of addMessagesToCtx that handles S3 events
-// to work with the transaction csv to json events lambda

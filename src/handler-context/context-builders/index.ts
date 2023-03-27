@@ -1,6 +1,6 @@
 import { S3Event, SQSEvent } from "aws-lambda";
 import { CtxBuilderOptions, HandlerCtx } from "..";
-import { ConfigFileNames } from "../Config";
+import { ConfigFileNames } from "../Config/types";
 import { getBlankCtx } from "./blank";
 import { addConfigToCtx } from "./config";
 import { addEnvToCtx } from "./env";

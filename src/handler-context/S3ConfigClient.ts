@@ -1,6 +1,6 @@
 import csvToJson from "csvtojson";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { ConfigFileNames } from "./Config";
+import { ConfigFileNames } from "./Config/types";
 import { Json } from "../shared/types";
 
 enum FileExtensions {

@@ -1,5 +1,5 @@
 import { HandlerCtx } from "..";
-import { ConfigFileNames } from "../Config";
+import { ConfigFileNames } from "../Config/types";
 
 export const getBlankCtx = <
   TMessage,

@@ -30,3 +30,47 @@ export const convert = async <
 
   return transformedObjects;
 };
+
+export const convertMany = async <
+  TObject extends Record<string, unknown>,
+  TFields extends Record<string, unknown>
+>(
+  csvs: string[],
+  config: Options<TObject, TFields>
+): Promise<{
+  events: Array<TObject & TFields>;
+  failedConversionsCount: number;
+  failedEventNameInferenceCount: number;
+}> => {
+  const promises = await Promise.allSettled(
+    csvs.map(async (csv) => await convert(csv, config))
+  );
+
+  let failedConversionsCount = 0;
+  let failedEventNameInferenceCount = 0;
+  const validEvents = promises.reduce<Array<TObject & TFields>>(
+    (acc, promiseResult) => {
+      if (promiseResult.status === "rejected") {
+        failedConversionsCount++;
+        return acc;
+      }
+
+      const nextAcc = [...acc];
+      promiseResult.value.forEach((event) => {
+        if (event.event_name === "Unknown") {
+          failedEventNameInferenceCount++;
+        } else {
+          nextAcc.push(event);
+        }
+      });
+      return nextAcc;
+    },
+    []
+  );
+
+  return {
+    events: validEvents,
+    failedConversionsCount,
+    failedEventNameInferenceCount,
+  };
+};

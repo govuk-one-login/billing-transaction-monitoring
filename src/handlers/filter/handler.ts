@@ -1,5 +1,5 @@
-import { buildHandler } from "../../handler-context";
-import { ConfigFileNames } from "../../handler-context/Config";
+import { buildHandler, BusinessLogic } from "../../handler-context";
+import { ConfigFileNames } from "../../handler-context/Config/types";
 import { sendRecord } from "../../shared/utils";
 
 enum FilterEnv {
@@ -12,31 +12,26 @@ interface FilterableMessage {
 
 type FilterConfigFiles = ConfigFileNames.services;
 
-const envVars = [FilterEnv.OUTPUT_QUEUE_URL];
+const businessLogic: BusinessLogic<
+  FilterableMessage,
+  FilterEnv,
+  FilterConfigFiles
+> = async ({ messages, config: { services } }) => {
+  const validEventNames = new Set<string>(
+    services.map(({ event_name }) => event_name)
+  );
 
-const messageTypeGuard = (
-  maybeMessage: any
-): maybeMessage is FilterableMessage => !!maybeMessage?.event_name;
-
-const outputs = [
-  { destination: FilterEnv.OUTPUT_QUEUE_URL, store: sendRecord },
-];
-
-const configFiles: FilterConfigFiles[] = [ConfigFileNames.services];
+  return messages.filter(({ event_name }) => validEventNames.has(event_name));
+};
 
 export const handler = buildHandler<
   FilterableMessage,
   FilterEnv,
   FilterConfigFiles
 >({
-  envVars,
-  messageTypeGuard,
-  outputs,
-  configFiles,
-})(async ({ messages, config: { services } }) => {
-  const validEventNames = new Set<string>(
-    services.map(({ event_name }) => event_name)
-  );
-
-  return messages.filter(({ event_name }) => validEventNames.has(event_name));
-});
+  envVars: [FilterEnv.OUTPUT_QUEUE_URL],
+  messageTypeGuard: (maybeMessage: any): maybeMessage is FilterableMessage =>
+    !!maybeMessage?.event_name,
+  outputs: [{ destination: FilterEnv.OUTPUT_QUEUE_URL, store: sendRecord }],
+  configFiles: [ConfigFileNames.services],
+})(businessLogic);

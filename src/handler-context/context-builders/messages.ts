@@ -1,7 +1,7 @@
 import { S3Event, SQSEvent } from "aws-lambda";
 import { HandlerCtx } from "..";
 import { fetchS3 } from "../../shared/utils";
-import { ConfigFileNames } from "../Config";
+import { ConfigFileNames } from "../Config/types";
 
 enum EventTypes {
   SQS,
