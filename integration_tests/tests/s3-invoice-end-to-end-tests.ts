@@ -193,26 +193,26 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(queryObjects[1].month).toEqual("03");
   });
 
-  // afterEach(async () => {
-  //   const files = await listS3Objects({
-  //     bucketName: storageBucket,
-  //     prefix: standardisedFolderPrefix,
-  //   });
-  //   if (files.Contents) {
-  //     for (const content of files.Contents) {
-  //       if (
-  //         content.Key?.startsWith(
-  //           "btm_billing_standardised/2023-03-vendor_testvendor3-VENDOR_3_EVENT"
-  //         )
-  //       ) {
-  //         await deleteS3Object({
-  //           bucket: storageBucket,
-  //           key: content.Key,
-  //         });
-  //       }
-  //     }
-  //   }
-  // });
+  afterEach(async () => {
+    const files = await listS3Objects({
+      bucketName: storageBucket,
+      prefix: standardisedFolderPrefix,
+    });
+    if (files.Contents) {
+      for (const content of files.Contents) {
+        if (
+          content.Key?.startsWith(
+            "btm_billing_standardised/2023-03-vendor_testvendor3-VENDOR_3_EVENT"
+          )
+        ) {
+          await deleteS3Object({
+            bucket: storageBucket,
+            key: content.Key,
+          });
+        }
+      }
+    }
+  });
 });
 
 interface BillingCurated {
