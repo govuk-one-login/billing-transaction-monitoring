@@ -22,26 +22,26 @@ export const callWithTimeout =
       );
     });
 
-export const callWithRetry = async <TArgs, TResolution>(
-  asyncFunc: (underlyingArgs: TArgs) => Promise<TResolution>,
-  retries = 3
-) => {
-  return async (...underlyingArgs: any): Promise<TResolution> =>
+export const callWithRetry =
+  <TArgs, TResolution>(
+    asyncFunc: (underlyingArgs: TArgs) => Promise<TResolution>,
+    retries = 3
+  ) =>
+  async (...underlyingArgs: any): Promise<TResolution> =>
     await new Promise((resolve, reject) => {
       for (let i = 0; i < retries; i++) {
         asyncFunc.apply(null, underlyingArgs).then(
-          (underlyingResolution) => {
-            resolve(underlyingResolution);
+          (result) => {
+            resolve(result);
           },
-          (underlyingRejection) => {
-            console.log(underlyingRejection);
+          (error) => {
+            console.log(error);
             if (i < retries - 1) {
               console.log("Retrying");
             } else {
-              reject(underlyingRejection);
+              reject(error);
             }
           }
         );
       }
     });
-};
