@@ -63,6 +63,7 @@ Resources:
           OUTPUT_QUEUE_URL: !Ref CleanQueue
           LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-filter-function
       Handler: filter.handler
       Policies:
         - AWSLambdaBasicExecutionRole

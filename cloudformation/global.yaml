@@ -66,6 +66,14 @@ Resources:
               - kms:Decrypt
               - kms:GenerateDataKey*
             Resource: '*'
+          - !If
+            - IsSplunkForwardingActive
+            - Effect: Allow
+              Principal:
+                AWS: arn:aws:iam::885513274347:role/csls_prodpython/csls_process_s3_logs_lambda_prodpython
+              Action: kms:Decrypt
+              Resource: '*'
+            - !Ref AWS::NoValue
 
   KmsKeyAlias:
     Type: AWS::KMS::Alias
@@ -80,7 +88,6 @@ Resources:
       BucketName: !Sub ${AWS::StackName}-s3-logs
       VersioningConfiguration:
         Status: Enabled
-      AccessControl: LogDeliveryWrite
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -91,10 +98,21 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
+      NotificationConfiguration:
+        QueueConfigurations:
+          - !If
+            - IsSplunkForwardingActive
+            - Event: s3:ObjectCreated:*
+              Queue: arn:aws:sqs:eu-west-2:885513274347:cyber-security-s3-to-splunk-prodpython
+            - !Ref AWS::NoValue
       LifecycleConfiguration:
         Rules:
-          - ExpirationInDays: 1825  # Five years
+          - ExpirationInDays: 1825 # Five years
             Status: Enabled
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
 
   GlobalAccessLogsBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -103,19 +121,36 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
+          - Effect: Deny
+            Principal: '*'
+            Action: s3:*
+            Resource:
+              - !Sub ${GlobalLogBucket.Arn}
+              - !Sub ${GlobalLogBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: false
           - Sid: EnableS3Logging
             Effect: Allow
-            Resource:
-              - !Join ['/', [!GetAtt GlobalLogBucket.Arn, '*']]
             Principal:
               Service: logging.s3.amazonaws.com
-            Action:
-              - s3:PutObject
+            Action: s3:PutObject
+            Resource: !Sub ${GlobalLogBucket.Arn}/*
             Condition:
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
-              Bool:
-                aws:SecureTransport: true
+          - !If
+            - IsSplunkForwardingActive
+            - Effect: Allow
+              Principal:
+                AWS: arn:aws:iam::885513274347:role/csls_prodpython/csls_process_s3_logs_lambda_prodpython
+              Action:
+                - s3:ListBucket
+                - s3:GetObject
+              Resource:
+                - !Sub ${GlobalLogBucket.Arn}
+                - !Sub ${GlobalLogBucket.Arn}/*
+            - !Ref AWS::NoValue
 
   ConfigStackParameter:
     Type: AWS::SSM::Parameter

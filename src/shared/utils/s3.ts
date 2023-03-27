@@ -9,6 +9,7 @@ import {
 } from "@aws-sdk/client-s3";
 import type { Command, SmithyConfiguration } from "@aws-sdk/smithy-client";
 import { S3Event, S3EventRecord, SQSRecord } from "aws-lambda";
+import { logger } from "./logger";
 
 const s3 = new S3Client({
   region: "eu-west-2",
@@ -116,10 +117,10 @@ const send = async <T extends ServiceInputTypes, U extends ServiceOutputTypes>(
   await s3
     .send(command)
     .then((data) => {
-      console.log(data.$metadata);
+      logger.info("Sent S3 command", { metadata: data.$metadata });
       return data;
     })
     .catch((err) => {
-      console.log(err, err.stack);
+      logger.error("S3 command send error", { error: err });
       throw err;
     });

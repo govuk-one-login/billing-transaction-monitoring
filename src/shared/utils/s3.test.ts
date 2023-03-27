@@ -16,20 +16,16 @@ import {
   putTextS3,
 } from "./s3";
 
+jest.mock("./logger");
+
 let s3Mock: ReturnType<typeof mockClient>;
 
-const oldConsoleLog = console.log;
 const bucket = "given-bucket-name";
 const key = "given/key";
 const record = { record: "given record" };
 
 beforeEach(() => {
-  console.log = jest.fn();
   s3Mock = mockClient(S3Client);
-});
-
-afterAll(() => {
-  console.log = oldConsoleLog;
 });
 
 test("Put object with callback error", async () => {

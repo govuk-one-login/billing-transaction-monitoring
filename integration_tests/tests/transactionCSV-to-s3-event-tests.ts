@@ -1,8 +1,10 @@
-import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import {
+  deleteS3Event,
+  poll,
+} from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { mockCsvData } from "../../src/handlers/int-test-support/helpers/mock-data/csv";
 import {
-  deleteS3Objects,
   getS3Object,
   listS3Objects,
   putS3Object,
@@ -16,14 +18,8 @@ const { csv, happyPathCount, testCases } = mockCsvData();
 
 describe("Given a csv with event data is uploaded to the transaction csv bucket", () => {
   beforeAll(async () => {
-    // First delete all transactions in btm_transaction
-    await deleteS3Objects({
-      bucketName: outputBucket,
-      prefix: transactionsDirectory,
-    });
-    // Add data to build the test csv
-
     // Upload the csv file to S3 transaction csv bucket
+
     await putS3Object({
       target: {
         bucket: inputBucket,
@@ -35,7 +31,7 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
       async () =>
         await listS3Objects({
           bucketName: outputBucket,
-          prefix: transactionsDirectory,
+          prefix: `${transactionsDirectory}/${"2023-01-01"}`,
         }),
       (result) => {
         return (
@@ -44,7 +40,8 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
         );
       },
       {
-        nonCompleteErrorMessage: "Events CSV was not successfully uploaded",
+        nonCompleteErrorMessage:
+          "Events CSV was not successfully uploaded within the given timeout",
       }
     );
   });
@@ -65,6 +62,7 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
           expect(s3Event.vendor_id).toEqual(testCase.expectedVendorId);
           expect(s3Event.event_id).toEqual(testCase.expectedEventId);
           expect(s3Event.event_name).toEqual(testCase.expectedEventName);
+          await deleteS3Event(s3Event.event_id, s3Event.timestamp_formatted);
           break;
         }
         case "sad": {

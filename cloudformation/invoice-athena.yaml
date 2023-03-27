@@ -25,6 +25,7 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -65,7 +66,7 @@ Resources:
             - Name: due_date
               Type: date
             - Name: tax
-              Type: decimal(10,2)
+              Type: decimal(12,4)
             - Name: tax_payer_id
               Type: string
             - Name: item_id
@@ -106,6 +107,7 @@ Resources:
             service_name,
             sum(quantity) AS quantity,
             sum(price) AS price,
+            sum(tax) AS tax,
             year,
             month
           FROM (

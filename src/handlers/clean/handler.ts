@@ -1,6 +1,6 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { sendRecord } from "../../shared/utils";
+import { logger, sendRecord } from "../../shared/utils";
 import { fetchVendorId } from "../../shared/utils/config-utils/fetch-vendor-id";
 
 interface CleanedEventBodyObject {
@@ -25,7 +25,8 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   const promises = event.Records.map(async (record) => {
     try {
       await cleanRecord(record);
-    } catch (e) {
+    } catch (error) {
+      logger.error("Handler failure", { error });
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
     }
   });
@@ -37,10 +38,8 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 async function cleanRecord(record: SQSRecord): Promise<void> {
   const bodyObject = JSON.parse(record.body);
 
-  if (!isValidBodyObject(bodyObject)) {
-    console.error("Event record body is invalid.");
+  if (!isValidBodyObject(bodyObject))
     throw new Error("Event record body is invalid.");
-  }
 
   const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
   if (outputQueueUrl === undefined || outputQueueUrl.length === 0)
@@ -62,7 +61,7 @@ async function cleanRecord(record: SQSRecord): Promise<void> {
     },
   };
 
-  console.log("Cleaned event ", cleanedBodyObject.event_id);
+  logger.info(`Cleaned event ${cleanedBodyObject.event_id}`);
   await sendRecord(outputQueueUrl, JSON.stringify(cleanedBodyObject));
 }
 

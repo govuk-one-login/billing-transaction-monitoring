@@ -77,6 +77,14 @@ Conditions:
       !Equals [!Ref Environment, staging],
       !Equals [!Ref Environment, integration],
     ]
+  IsSplunkForwardingActive:
+    !Or [
+      !Equals [!Ref AWS::StackName, di-btm-dev],
+      !Equals [!Ref AWS::StackName, di-btm-build],
+      !Equals [!Ref AWS::StackName, di-btm-staging],
+      !Equals [!Ref AWS::StackName, di-btm-integration],
+      !Equals [!Ref AWS::StackName, di-btm-production],
+    ]
 
 Globals:
   Function:
@@ -99,12 +107,12 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/transaction-csv-to-json-event.yaml,
   ./cloudformation/transaction-storage.yaml,
   ./cloudformation/intTestSupport.yaml#NO_LOCAL,
-  ./cloudformation/raw-invoice-textract-data-store.yaml,
   ./cloudformation/raw-invoice-store.yaml,
-  ./cloudformation/standardised-invoice-storage.yaml,
-  ./cloudformation/extraction.yaml,
+  ./cloudformation/pdf-extraction.yaml,
+  ./cloudformation/raw-invoice-textract-data-store.yaml,
+  ./cloudformation/pdf-standardisation.yaml,
   ./cloudformation/csv-extraction.yaml,
-  ./cloudformation/calculation-s3.yaml,
+  ./cloudformation/standardised-invoice-storage.yaml,
   ./cloudformation/calculation-athena.yaml#NO_LOCAL,
   ./cloudformation/custom-athena-view-resource.yaml#NO_LOCAL,
   ./cloudformation/invoice-athena.yaml#NO_LOCAL

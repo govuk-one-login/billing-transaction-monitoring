@@ -16,6 +16,7 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
@@ -29,7 +30,7 @@ Resources:
                 Rules:
                   - Name: suffix
                     Value: '.pdf'
-            Queue: !GetAtt ExtractQueue.Arn
+            Queue: !GetAtt PdfExtractQueue.Arn
           - Event: s3:ObjectCreated:*
             Filter:
               S3Key:

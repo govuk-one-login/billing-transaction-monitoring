@@ -22,15 +22,15 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 131,
-  "iteration": 1677243651604,
+  "id": 142,
+  "iteration": 1679485598501,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "gridPos": {
         "h": 4,
-        "w": 7,
+        "w": 11,
         "x": 0,
         "y": 0
       },
@@ -46,7 +46,7 @@
       "gridPos": {
         "h": 4,
         "w": 5,
-        "x": 7,
+        "x": 11,
         "y": 0
       },
       "id": 4,
@@ -120,7 +120,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 16,
         "x": 0,
         "y": 4
       },
@@ -132,10 +132,8 @@
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/^Difference$/",
+          "calcs": ["lastNotNull"],
+          "fields": "/^price_difference_percentage$/",
           "values": true
         },
         "text": {
@@ -157,7 +155,7 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  Difference\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  price_difference_percentage\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
           "table": "btm_billing_and_transactions_curated"
         }
@@ -172,8 +170,8 @@
     },
     {
       "gridPos": {
-        "h": 5,
-        "w": 12,
+        "h": 4,
+        "w": 16,
         "x": 0,
         "y": 12
       },
@@ -236,23 +234,34 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "currencyGBP"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "% Discrepancy"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 5,
-        "w": 12,
+        "w": 16,
         "x": 0,
-        "y": 17
+        "y": 16
       },
       "id": 10,
       "options": {
         "footer": {
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true
@@ -270,7 +279,7 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Billing Price\",\n  transaction_price_formatted AS \"Transaction Price\",\n  Difference\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Invoiced Amount\",\n  transaction_price_formatted AS \"Expected Amount\",\n  price_difference_percentage AS \"% Discrepancy\",\n  price_difference AS \"Discrepancy in £\",\n  billing_amount_with_tax AS \"Total Invoice + VAT\"\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
           "table": "btm_billing_and_transactions_curated"
         }
@@ -288,12 +297,8 @@
         "allValue": "",
         "current": {
           "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "text": ["All"],
+          "value": ["$__all"]
         },
         "datasource": {
           "type": "grafana-athena-datasource",
@@ -325,8 +330,8 @@
       {
         "current": {
           "selected": false,
-          "text": "2023/02",
-          "value": "2023/02"
+          "text": "2023/03",
+          "value": "2023/03"
         },
         "datasource": {
           "type": "grafana-athena-datasource",

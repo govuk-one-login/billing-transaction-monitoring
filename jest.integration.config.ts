@@ -1,12 +1,13 @@
 import type { Config } from "@jest/types";
 
 const config: Config.InitialOptions = {
-  testRegex: "tests\\.ts",
+  roots: ["<rootDir>/integration_tests"],
+  testMatch: ["**/tests/*tests.ts"],
   coveragePathIgnorePatterns: ["/node_modules/"],
   preset: "ts-jest",
   testRunner: "jasmine2",
   verbose: true,
-  testTimeout: 60000,
+  testTimeout: 120000,
   reporters: [
     "default",
     [
@@ -16,7 +17,7 @@ const config: Config.InitialOptions = {
         outputName: "testReport.xml",
       },
     ],
-  ]
+  ],
 };
 
 export default config;

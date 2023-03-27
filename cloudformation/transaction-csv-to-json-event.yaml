@@ -17,6 +17,7 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
@@ -59,6 +60,7 @@ Resources:
           OUTPUT_QUEUE_URL: !Ref CleanQueue
           LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-transaction-csv-to-json-event-function
       Handler: transactionCsvToJsonEvent.handler
       Policies:
         - AWSLambdaBasicExecutionRole
