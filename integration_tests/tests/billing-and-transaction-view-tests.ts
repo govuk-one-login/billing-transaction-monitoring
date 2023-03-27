@@ -15,21 +15,15 @@ import {
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import {
-  deleteS3Events,
   poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import {
-  deleteS3Object,
-  listS3Objects,
-} from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
 const standardisedFolderPrefix = "btm_billing_standardised";
 let filename: string;
-let eventIds: string[];
-let eventTime: string;
 
 describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data \n", () => {
   test.each`
@@ -41,8 +35,7 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPriceFormatted,$transactionQty,$transactionPriceFormatted,$priceDifferencePercentage",
     async ({ ...data }) => {
-      eventTime = data.eventTime;
-      eventIds = await generateTransactionEventsViaFilterLambda(
+      await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         data.eventName
@@ -92,14 +85,6 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
       );
     }
   );
-
-  afterEach(async () => {
-    await deleteS3Events(eventIds, eventTime);
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
-    });
-  });
 });
 
 export const assertQueryResultWithTestData = async (

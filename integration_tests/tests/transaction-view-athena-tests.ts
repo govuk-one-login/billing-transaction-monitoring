@@ -1,7 +1,4 @@
-import {
-  deleteS3Events,
-  TableNames,
-} from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { TableNames } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
   VendorId,
   EventName,
@@ -11,9 +8,6 @@ import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handl
 import { generateTransactionEventsViaFilterLambda } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
-  let eventIds: string[];
-  let eventTimestamp: string;
-
   test.each`
     eventName             | vendorId                | numberOfTestEvents | unitPrice | eventTime
     ${"VENDOR_1_EVENT_1"} | ${"vendor_testvendor1"} | ${2}               | ${1.23}   | ${"2022/06/30 10:00"}
@@ -36,10 +30,8 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       year: number;
       eventTime: string;
     }) => {
-      eventTimestamp = eventTime;
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
-
-      eventIds = await generateTransactionEventsViaFilterLambda(
+      await generateTransactionEventsViaFilterLambda(
         eventTime,
         numberOfTestEvents,
         eventName
@@ -59,10 +51,6 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       expect(response[0].price).toEqual(expectedPrice);
     }
   );
-
-  afterEach(async () => {
-    await deleteS3Events(eventIds, eventTimestamp);
-  });
 });
 
 interface TransactionCuratedView {

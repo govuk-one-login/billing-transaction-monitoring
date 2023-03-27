@@ -2,10 +2,7 @@ import { snsValidEventPayload } from "../../src/handlers/int-test-support/helper
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import {
-  deleteS3Event,
-  poll,
-} from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
   startQueryExecutionCommand,
   waitAndGetQueryResults,
@@ -52,12 +49,6 @@ describe("\nPublish valid sns message and execute athena query\n", () => {
     expect(JSON.stringify(queryResult?.ResultSet?.Rows)).toContain(
       snsValidEventPayload.event_id
     );
-  });
-  afterAll(async () => {
-    const eventTime = new Date(
-      snsValidEventPayload.timestamp * 1000
-    ).toISOString();
-    await deleteS3Event(snsValidEventPayload.event_id, eventTime);
   });
 });
 

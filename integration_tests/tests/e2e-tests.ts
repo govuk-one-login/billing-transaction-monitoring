@@ -1,5 +1,4 @@
 import {
-  deleteS3Events,
   poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
@@ -9,10 +8,7 @@ import {
   createInvoiceWithGivenData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import {
-  deleteS3Object,
-  listS3Objects,
-} from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
   generateTransactionEventsViaFilterLambda,
@@ -37,7 +33,6 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     eventName = dataRetrievedFromConfig.eventName;
   });
   let filename: string;
-  let eventIds: string[];
   let eventTime: string;
 
   test.each`
@@ -49,7 +44,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      eventIds = await generateTransactionEventsViaFilterLambda(
+      await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         eventName
@@ -108,7 +103,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      eventIds = await generateTransactionEventsViaFilterLambda(
+      await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         eventName
@@ -126,14 +121,6 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
       );
     }
   );
-
-  afterEach(async () => {
-    await deleteS3Events(eventIds, eventTime);
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
-    });
-  });
 });
 
 export const assertQueryResultWithTestData = async (
