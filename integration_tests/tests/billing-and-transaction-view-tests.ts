@@ -42,7 +42,7 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPriceFormatted,$transactionQty,$transactionPriceFormatted,$priceDifferencePercentage",
     async ({ ...data }) => {
       eventTime = data.eventTime;
-      fileNameToDelete = data.eventIds;
+      fileNameToDelete = data.eventName;
       eventIds = await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
