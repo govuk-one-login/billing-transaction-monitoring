@@ -1,6 +1,6 @@
 import { UserDefinedOutputs, HandlerCtx, OutputFunction } from "..";
 import { Response } from "../../shared/types";
-import { ConfigFileNames } from "../Config/types";
+import { ConfigFileNames } from "../config/types";
 
 export const addOutputsToCtx = <
   TMessage,

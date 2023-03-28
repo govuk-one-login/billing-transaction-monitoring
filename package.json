@@ -4,7 +4,6 @@
   "version": "0.0.1",
   "type": "module",
   "devDependencies": {
-    "@aws-lambda-powertools/logger": "^1.6.0",
     "@aws-sdk/client-athena": "^3.188.0",
     "@aws-sdk/client-cloudformation": "^3.188.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.188.0",
@@ -53,7 +52,7 @@
   },
   "scripts": {
     "husky:install": "husky install",
-    "test": "jest --maxWorkers=4",
+    "test": "jest --maxWorkers=4 --silent",
     "test:integration": "jest --config jest.integration.config.ts --maxWorkers=4",
     "test:end2end": "jest --config jest.e2e.config.ts",
     "test:integration:local": "jest --setupFiles=./integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --config jest.integration.config.ts",

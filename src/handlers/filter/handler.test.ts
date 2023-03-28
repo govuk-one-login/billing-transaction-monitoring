@@ -6,7 +6,7 @@ import {
 import { sendRecord } from "../../shared/utils";
 
 jest.mock("../../shared/utils");
-jest.mock("../../handler-context/Config");
+jest.mock("../../handler-context/config");
 const mockedSendRecord = sendRecord as jest.MockedFunction<typeof sendRecord>;
 
 describe("Filter handler", () => {

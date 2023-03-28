@@ -1,6 +1,6 @@
 import { businessLogic, ConfigFiles, Env } from "./handler";
 import { Constructables, Operations } from "./convert/transform-dicts";
-import { __setConfigOverrides } from "../../handler-context/Config/__mocks__";
+import { __setConfigOverrides } from "../../handler-context/config/__mocks__";
 import { InferenceSpecifications } from "./convert/make-inferences";
 import { Transformations } from "./convert/perform-transformations";
 import { HandlerCtx } from "../../handler-context";

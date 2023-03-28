@@ -1,6 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { HandlerCtx } from "..";
-import { ConfigFileNames } from "../Config/types";
+import { ConfigFileNames } from "../config/types";
 
 export const addLoggerToCtx = <
   TMessage,

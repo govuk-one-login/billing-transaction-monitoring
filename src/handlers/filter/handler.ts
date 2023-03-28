@@ -1,5 +1,5 @@
 import { buildHandler, BusinessLogic } from "../../handler-context";
-import { ConfigFileNames } from "../../handler-context/Config/types";
+import { ConfigFileNames } from "../../handler-context/config/types";
 import { sendRecord } from "../../shared/utils";
 
 enum FilterEnv {

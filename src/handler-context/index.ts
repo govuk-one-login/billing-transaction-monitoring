@@ -1,9 +1,9 @@
 import { S3Event, SQSEvent } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { Response } from "../shared/types";
-import { ConfigFileNames } from "./Config/types";
+import { ConfigFileNames } from "./config/types";
 import { buildContext } from "./context-builders";
-import { Config } from "./Config";
+import { Config } from "./config";
 
 export type OutputFunction = (
   destination: string,
@@ -42,7 +42,7 @@ export interface HandlerCtx<
   messages: TMessage[];
   logger: Logger;
   outputs: Outputs;
-  config: Config<TConfigFileNames>["_cache"];
+  config: Config<TConfigFileNames>["cache"];
   outputMessages: (
     results: unknown[],
     { outputs }: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>

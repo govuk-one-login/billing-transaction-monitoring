@@ -1,7 +1,7 @@
 import csvToJson from "csvtojson";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { ConfigFileNames } from "./Config/types";
-import { Json } from "../shared/types";
+import { ConfigClient, ConfigFileNames } from "./types";
+import { Json } from "../../shared/types";
 
 enum FileExtensions {
   csv,
@@ -61,25 +61,16 @@ const parseConfigFile = async (
   }
 };
 
-const getClient = (): S3Client =>
-  new S3Client({
-    region: "eu-west-2",
-    endpoint: process.env.LOCAL_ENDPOINT,
-  });
+const client = new S3Client({
+  region: "eu-west-2",
+  endpoint: process.env.LOCAL_ENDPOINT,
+});
 
-export class S3ConfigFileClient {
-  private readonly _client: S3Client;
-
-  constructor() {
-    this._client = getClient();
-  }
-
-  public readonly getConfigFile = async (
-    fileName: ConfigFileNames
-  ): Promise<Json> => {
+export const s3ConfigFileClient: ConfigClient = {
+  getConfigFile: async (fileName: ConfigFileNames): Promise<Json> => {
     const { path, fileExtension } = fileMap[fileName];
 
-    const response = await this._client.send(
+    const response = await client.send(
       new GetObjectCommand({
         Bucket: process.env.CONFIG_BUCKET,
         Key: path,
@@ -92,5 +83,5 @@ export class S3ConfigFileClient {
       await response.Body.transformToString(),
       fileExtension
     );
-  };
-}
+  },
+};

@@ -1,23 +1,8 @@
 import { S3Event, SQSEvent } from "aws-lambda";
 import { buildHandler, CtxBuilderOptions } from ".";
-import { ConfigFileNames } from "./Config/types";
+import { ConfigFileNames } from "./config/types";
 
-jest.mock("./S3ConfigClient", () => ({
-  S3ConfigFileClient: jest.fn(() => ({
-    getConfigFile: jest.fn(async (path) => {
-      switch (path) {
-        case ConfigFileNames.inferences:
-          return "mock inferences";
-        case ConfigFileNames.rates:
-          return "mock rates";
-        case ConfigFileNames.standardisation:
-          return "mock standardisation";
-        default:
-          throw new Error("No config found");
-      }
-    }),
-  })),
-}));
+jest.mock("./config/s3-config-client");
 
 jest.mock("../shared/utils/s3", () => ({
   fetchS3: jest.fn(async (_name, key) => {
