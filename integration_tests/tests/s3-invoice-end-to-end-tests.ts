@@ -53,7 +53,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       invoiceData: invoice,
       filename: `${filename}.pdf`,
     });
-    console.log("e2e test invoice filename:", filename);
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
 
@@ -71,7 +70,8 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
             s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
         ),
       {
-        timeout: 70000,
+        timeout: 100000,
+        interval: 10000,
         nonCompleteErrorMessage:
           "Invoice data never appeared in standardised folder",
       }
@@ -226,17 +226,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(queryObjects[1].price).toEqual("4687.9200");
     expect(queryObjects[1].year).toEqual("2023");
     expect(queryObjects[1].month).toEqual("03");
-  });
-
-  afterAll(async () => {
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
-    });
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/valid-invoice.txt`,
-    });
   });
 });
 

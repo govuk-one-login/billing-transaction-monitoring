@@ -1,10 +1,7 @@
 import { snsValidEventPayload } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { getRecentCloudwatchLogs } from "../../src/handlers/int-test-support/helpers/cloudWatchHelper";
-import {
-  deleteS3Event,
-  poll,
-} from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 
 const logNamePrefix = resourcePrefix();
@@ -33,11 +30,6 @@ describe(
   "\n Happy path tests \n" +
     "\n publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId\n",
   () => {
-    const eventTime = new Date(
-      snsValidEventPayload.timestamp * 1000
-    ).toISOString();
-    const eventId = snsValidEventPayload.event_id;
-
     beforeAll(async () => {
       await publishToTestTopic(snsValidEventPayload);
     });
@@ -61,9 +53,6 @@ describe(
         "-storage-function",
         snsValidEventPayload.event_id
       );
-    });
-    afterEach(async () => {
-      await deleteS3Event(eventId, eventTime);
     });
   }
 );

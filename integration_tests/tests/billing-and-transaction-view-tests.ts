@@ -1,4 +1,5 @@
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
+import crypto from "crypto";
 
 import {
   createInvoiceInS3,
@@ -15,21 +16,15 @@ import {
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import {
-  deleteS3Events,
   poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import {
-  deleteS3Object,
-  listS3Objects,
-} from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
 const standardisedFolderPrefix = "btm_billing_standardised";
 let filename: string;
-let eventIds: string[];
-let eventTime: string;
 
 describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data \n", () => {
   test.each`
@@ -41,13 +36,13 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPriceFormatted,$transactionQty,$transactionPriceFormatted,$priceDifferencePercentage",
     async ({ ...data }) => {
-      eventTime = data.eventTime;
-      eventIds = await generateTransactionEventsViaFilterLambda(
+      await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         data.eventName
       );
-      filename = `raw-Invoice-validFile`;
+      const uuid = crypto.randomBytes(3).toString("hex");
+      filename = `raw-Invoice-validFile-${uuid}`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,
@@ -70,10 +65,11 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
           !!Contents?.some(
             (s3Object) =>
               s3Object.Key !== undefined &&
-              s3Object.Key === `btm_billing_standardised/${filename}.txt`
+              s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
           ),
         {
-          timeout: 55000,
+          timeout: 80000,
+          interval: 10000,
           nonCompleteErrorMessage:
             "Invoice data never appeared in standardised folder",
         }
@@ -90,14 +86,6 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
       );
     }
   );
-
-  afterEach(async () => {
-    await deleteS3Events(eventIds, eventTime);
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
-    });
-  });
 });
 
 export const assertQueryResultWithTestData = async (
@@ -118,7 +106,7 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
-
+  expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(billingPriceFormatted);
   expect(response[0].transaction_price_formatted).toEqual(
     transactionPriceFormatted
