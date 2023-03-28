@@ -54,7 +54,6 @@ const getQueryExecutionStatus = async (
   const params = {
     QueryExecutionId: queryId,
   };
-
   const response = await athenaClient.send(
     new GetQueryExecutionCommand(params)
   );

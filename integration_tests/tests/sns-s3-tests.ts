@@ -9,10 +9,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import {
-  poll,
-  deleteS3Event,
-} from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
 
 let snsResponse: PublishResponse;
@@ -50,7 +47,6 @@ describe(
   "\n Happy path tests\n" +
     "\n Publish valid SNS message and expect event id stored in S3\n",
   () => {
-    let eventTime: string;
     test("S3 should contain event id for valid SNS message", async () => {
       snsResponse = await publishToTestTopic(snsValidEventPayload);
       expect(snsResponse).toHaveProperty("MessageId");
@@ -59,10 +55,6 @@ describe(
         7000
       );
       expect(eventIdExists).toBeTruthy();
-    });
-    afterAll(async () => {
-      eventTime = new Date(snsValidEventPayload.timestamp * 1000).toISOString();
-      await deleteS3Event(snsValidEventPayload.event_id, eventTime);
     });
   }
 );

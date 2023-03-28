@@ -21,6 +21,5 @@ export const queryResponseFilterByVendorServiceNameYearMonth = async (
     databaseName,
     queryString: curatedQueryString,
   });
-
   return await queryObject(queryId);
 };

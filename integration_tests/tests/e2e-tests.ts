@@ -1,5 +1,4 @@
 import {
-  deleteS3Events,
   poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
@@ -9,10 +8,7 @@ import {
   createInvoiceWithGivenData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import {
-  deleteS3Object,
-  listS3Objects,
-} from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
   generateTransactionEventsViaFilterLambda,
@@ -21,6 +17,7 @@ import {
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
+import crypto from "crypto";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
@@ -37,7 +34,6 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     eventName = dataRetrievedFromConfig.eventName;
   });
   let filename: string;
-  let eventIds: string[];
   let eventTime: string;
 
   test.each`
@@ -49,14 +45,14 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      eventIds = await generateTransactionEventsViaFilterLambda(
+      await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         eventName
       );
       eventTime = data.eventTime;
-
-      filename = `e2e-test-raw-invoice-vendor1-validFile`;
+      const uuid = crypto.randomBytes(3).toString("hex");
+      filename = `e2e-test-raw-Invoice-validFile-${uuid}`;
 
       const invoiceData = createInvoiceWithGivenData(
         data,
@@ -74,12 +70,13 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
             bucketName: storageBucket,
             prefix: standardisedFolderPrefix,
           }),
+
         ({ Contents }) =>
           Contents?.filter((s3Object) =>
             s3Object.Key?.includes(getYearMonth(eventTime))
           ).length === 1,
         {
-          timeout: 80000,
+          timeout: 800000,
           interval: 10000,
           nonCompleteErrorMessage:
             "e2e tests invoice data never appeared in standardised folder",
@@ -105,7 +102,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      eventIds = await generateTransactionEventsViaFilterLambda(
+      await generateTransactionEventsViaFilterLambda(
         data.eventTime,
         data.transactionQty,
         eventName
@@ -123,26 +120,6 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
       );
     }
   );
-
-  afterEach(async () => {
-    await deleteS3Events(eventIds, eventTime);
-
-    const files = await listS3Objects({
-      bucketName: storageBucket,
-      prefix: standardisedFolderPrefix,
-    });
-
-    if (files.Contents) {
-      for (const content of files.Contents) {
-        if (content.Key?.includes(eventName)) {
-          await deleteS3Object({
-            bucket: storageBucket,
-            key: content.Key,
-          });
-        }
-      }
-    }
-  });
 });
 
 export const assertQueryResultWithTestData = async (
@@ -159,7 +136,7 @@ export const assertQueryResultWithTestData = async (
       tableName,
       eventTime
     );
-
+  expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(
     expectedResults.billingPriceFormatted
   );

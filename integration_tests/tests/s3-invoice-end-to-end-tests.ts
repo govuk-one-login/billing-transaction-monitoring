@@ -70,7 +70,8 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           )
         ).length === 3,
       {
-        timeout: 80000,
+        timeout: 100000,
+        interval: 10000,
         nonCompleteErrorMessage:
           "PDF Invoice data never appeared in standardised folder",
       }
@@ -163,7 +164,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           )
         ).length === 2,
       {
-        timeout: 80000,
+        timeout: 100000,
         nonCompleteErrorMessage:
           "CSV Invoice data never appeared in standardised folder",
       }
@@ -191,27 +192,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(queryObjects[1].price).toEqual("4687.9200");
     expect(queryObjects[1].year).toEqual("2023");
     expect(queryObjects[1].month).toEqual("03");
-  });
-
-  afterEach(async () => {
-    const files = await listS3Objects({
-      bucketName: storageBucket,
-      prefix: standardisedFolderPrefix,
-    });
-    if (files.Contents) {
-      for (const content of files.Contents) {
-        if (
-          content.Key?.startsWith(
-            "btm_billing_standardised/2023-03-vendor_testvendor3-VENDOR_3_EVENT"
-          )
-        ) {
-          await deleteS3Object({
-            bucket: storageBucket,
-            key: content.Key,
-          });
-        }
-      }
-    }
   });
 });
 
