@@ -1,4 +1,5 @@
 import {
+  getYearMonth,
   poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
@@ -191,13 +192,6 @@ const calculateExpectedResults = (
     };
   }
 };
-
-function getYearMonth(dateStr: string): string {
-  const date = new Date(dateStr);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  return `${year}-${month}`;
-}
 
 interface ExpectedResults {
   billingQty: number | undefined;
