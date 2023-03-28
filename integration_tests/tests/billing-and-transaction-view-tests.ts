@@ -16,6 +16,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import {
+  getYearMonth,
   poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
@@ -62,11 +63,9 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
             prefix: standardisedFolderPrefix,
           }),
         ({ Contents }) =>
-          !!Contents?.some(
-            (s3Object) =>
-              s3Object.Key !== undefined &&
-              s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
-          ),
+          Contents?.filter((s3Object) =>
+            s3Object.Key?.includes(getYearMonth(data.eventTime))
+          ).length === 1,
         {
           timeout: 80000,
           interval: 10000,

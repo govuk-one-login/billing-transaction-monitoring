@@ -13,6 +13,7 @@ import {
   getCsvStandardisedInvoice,
   LineItem,
 } from "./get-csv-standardised-invoice";
+import { getStandardisedInvoiceFileName } from "../../shared/utils/get-standardised-invoice-filename";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   const configBucket = process.env.CONFIG_BUCKET;
@@ -73,18 +74,16 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           throw new Error("No matching line items in csv invoice.");
         }
 
-        // Convert line items to new-line-separated JSON object text, to work with Glue/Athena.
-        const standardisedInvoiceText = standardisedInvoice
-          .map((lineItem) => JSON.stringify(lineItem))
-          .join("\n");
-        // Since that text block is not valid JSON, use a file extension that is not `.json`.
-        const destinationFileName = sourceFileName.replace(/\.csv$/g, ".txt");
-
-        await putTextS3(
-          destinationBucket,
-          `${destinationFolder}/${destinationFileName}`,
-          standardisedInvoiceText
-        );
+        for (const item of standardisedInvoice) {
+          const fileName = getStandardisedInvoiceFileName(item);
+          const standardisedInvoiceText = JSON.stringify(item);
+          // Storage will be moved to a new lambda as part of BTM-466
+          await putTextS3(
+            destinationBucket,
+            `${destinationFolder}/${fileName}`,
+            standardisedInvoiceText
+          );
+        }
       });
 
       await Promise.all(recordPromises);
