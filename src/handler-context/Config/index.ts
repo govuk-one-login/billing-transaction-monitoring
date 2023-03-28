@@ -26,16 +26,10 @@ export class Config<TFileName extends ConfigFileNames> {
     if (process.env.CONFIG_BUCKET === undefined)
       throw new Error("No CONFIG_BUCKET defined in this environment");
 
-    this.promises = this.files.map(async (fileName) => {
-      const promise = (async (): Promise<{
-        file: Json;
-        fileName: ConfigFileNames;
-      }> => {
-        const file = await this.client.getConfigFile(fileName);
-        return { file, fileName };
-      })();
-      return await promise;
-    });
+    this.promises = this.files.map(async (fileName) => ({
+      file: await this.client.getConfigFile(fileName),
+      fileName,
+    }));
   };
 
   public readonly populateCache = async (): Promise<void> => {
