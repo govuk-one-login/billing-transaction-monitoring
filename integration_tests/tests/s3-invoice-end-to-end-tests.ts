@@ -70,7 +70,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           )
         ).length === 3,
       {
-        timeout: 100000,
+        timeout: 80000,
         interval: 10000,
         nonCompleteErrorMessage:
           "PDF Invoice data never appeared in standardised folder",
@@ -135,8 +135,8 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     // Step 1: Put the test csv file in the raw-invoice bucket. A further ticket will handle the random creation of a csv invoice, similar to the pdf invoice.
     // Note: For the csv invoice flow, the original does not get moved to a 'successful folder' like it does for the pdf invoice flow that invokes Textract.
 
-    filename = "valid-vendor3-invoice";
-    const folderPrefix = "vendor_testvendor3";
+    filename = "valid-vendor1-invoice";
+    const folderPrefix = "vendor_testvendor1";
     const testObject: S3Object = {
       bucket: `${prefix}-raw-invoice`,
       key: `${folderPrefix}/${filename}.csv`,
@@ -160,18 +160,18 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       ({ Contents }) =>
         Contents?.filter((s3Object) =>
           s3Object.Key?.includes(
-            "btm_billing_standardised/2023-03-vendor_testvendor3-VENDOR_3_EVENT"
+            "btm_billing_standardised/2023-03-vendor_testvendor1-VENDOR_1_EVENT"
           )
         ).length === 2,
       {
-        timeout: 100000,
+        timeout: 80000,
         nonCompleteErrorMessage:
           "CSV Invoice data never appeared in standardised folder",
       }
     );
 
     // Step 3: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
-    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
     const queryId = await startQueryExecutionCommand({
       databaseName,
       queryString,
@@ -179,14 +179,14 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     const queryObjects: BillingCurated[] = await queryObject(queryId);
     expect(queryObjects.length).toEqual(2);
 
-    expect(queryObjects[0].vendor_name).toEqual("Vendor Three");
-    expect(queryObjects[0].service_name).toEqual("Address check");
+    expect(queryObjects[0].vendor_name).toEqual("Vendor One");
+    expect(queryObjects[0].service_name).toEqual("Fraud check");
     expect(queryObjects[0].quantity).toEqual("83");
     expect(queryObjects[0].price).toEqual("327.8500");
     expect(queryObjects[0].year).toEqual("2023");
     expect(queryObjects[0].month).toEqual("03");
 
-    expect(queryObjects[1].vendor_name).toEqual("Vendor Three");
+    expect(queryObjects[1].vendor_name).toEqual("Vendor One");
     expect(queryObjects[1].service_name).toEqual("Passport check");
     expect(queryObjects[1].quantity).toEqual("13788");
     expect(queryObjects[1].price).toEqual("4687.9200");
