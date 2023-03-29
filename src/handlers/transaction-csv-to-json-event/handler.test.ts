@@ -6,8 +6,6 @@ import { Transformations } from "./convert/perform-transformations";
 import { HandlerCtx } from "../../handler-context";
 import { Logger } from "@aws-lambda-powertools/logger";
 
-jest.mock("../../shared/utils");
-
 const renamingMap: [[string, string]] = [["a", "id"]];
 const inferences: InferenceSpecifications<{}, { event_name: string }> = [
   {
