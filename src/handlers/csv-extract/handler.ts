@@ -4,8 +4,8 @@ import {
   fetchS3,
   getS3EventRecordsFromSqs,
   getVendorServiceConfigRows,
-  putTextS3,
   logger,
+  sendRecord,
 } from "../../shared/utils";
 import { parseCsv } from "./parsing-utils/parse-csv";
 import {
@@ -13,21 +13,15 @@ import {
   getCsvStandardisedInvoice,
   LineItem,
 } from "./get-csv-standardised-invoice";
-import { getStandardisedInvoiceFileName } from "../../shared/utils/get-standardised-invoice-filename";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   const configBucket = process.env.CONFIG_BUCKET;
   if (configBucket === undefined || configBucket.length === 0)
     throw new Error("Config bucket not set.");
 
-  const destinationBucket = process.env.DESTINATION_BUCKET;
-  if (destinationBucket === undefined || destinationBucket.length === 0) {
-    throw new Error("Destination bucket not set.");
-  }
-
-  const destinationFolder = process.env.DESTINATION_FOLDER;
-  if (destinationFolder === undefined || destinationFolder.length === 0) {
-    throw new Error("Destination folder not set.");
+  const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
+  if (outputQueueUrl === undefined || outputQueueUrl.length === 0) {
+    throw new Error("Output queue URL not set.");
   }
 
   const response: Response = {
@@ -74,16 +68,12 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           throw new Error("No matching line items in csv invoice.");
         }
 
-        for (const item of standardisedInvoice) {
-          const fileName = getStandardisedInvoiceFileName(item);
+        const lineItemPromises = standardisedInvoice.map(async (item) => {
           const standardisedInvoiceText = JSON.stringify(item);
-          // Storage will be moved to a new lambda as part of BTM-466
-          await putTextS3(
-            destinationBucket,
-            `${destinationFolder}/${fileName}`,
-            standardisedInvoiceText
-          );
-        }
+          await sendRecord(outputQueueUrl, standardisedInvoiceText);
+        });
+
+        await Promise.all(lineItemPromises);
       });
 
       await Promise.all(recordPromises);
