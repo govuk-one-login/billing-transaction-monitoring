@@ -49,6 +49,8 @@ Resources:
               Action:
                 - sns:Publish
               Resource: !Ref TestTxMASNS
+            - !If
+              - IsLowerEnv
             - Effect: Allow
               Action:
                 - sns:ListTopics
