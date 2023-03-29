@@ -70,6 +70,7 @@
     "*.{js,json,ts,yaml,yml}": "prettier --write"
   },
   "dependencies": {
-    "@aws-lambda-powertools/logger": "^1.6.0"
+    "@aws-lambda-powertools/logger": "^1.6.0",
+    "redux-thunk": "^2.4.2"
   }
 }

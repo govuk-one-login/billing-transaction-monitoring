@@ -11,10 +11,20 @@ import {
   PutObjectCommand,
   PutObjectCommandOutput,
 } from "@aws-sdk/client-s3";
-import { runViaLambda } from "./envHelper";
-import { s3Client } from "../clients";
-import { sendLambdaCommand } from "./lambdaHelper";
-import { IntTestHelpers } from "../handler";
+import {runViaLambda} from "./envHelper";
+import {s3Client} from "../clients";
+import {sendLambdaCommand} from "./lambdaHelper";
+import {IntTestHelpers} from "../handler";
+import {
+  callWithRetry,
+  callWithRetryAndTimeout,
+  callWithTimeout,
+  compose,
+  RetryAndTimeoutOptions
+} from "./call-wrappers";
+
+const DEFAULT_RETRIES = 3;
+const DEFAULT_TIMEOUT = 5000;
 
 interface S3Object {
   bucket: string;
@@ -31,7 +41,7 @@ interface DataAndTarget {
   target: S3Object;
 }
 
-const listS3Objects = async (
+const listS3ObjectsBasic = async (
   params: BucketAndPrefix
 ): Promise<ListObjectsCommandOutput> => {
   if (runViaLambda())
@@ -44,11 +54,13 @@ const listS3Objects = async (
     Bucket: params.bucketName,
     Prefix: params.prefix,
   };
-  const data = await s3Client.send(new ListObjectsCommand(bucketParams));
-  return data;
+  return await s3Client.send(new ListObjectsCommand(bucketParams));
 };
 
-const getS3Object = async (object: S3Object): Promise<string | undefined> => {
+const listS3Objects = compose(callWithTimeout(DEFAULT_TIMEOUT), callWithRetry(DEFAULT_RETRIES))(listS3ObjectsBasic);
+
+
+const getS3ObjectBasic = async (object: S3Object): Promise<string | undefined> => {
   if (runViaLambda())
     return await sendLambdaCommand(IntTestHelpers.getS3Object, object);
 
@@ -66,7 +78,12 @@ const getS3Object = async (object: S3Object): Promise<string | undefined> => {
   }
 };
 
-const putS3Object = async (
+
+// const getS3Object = compose(callWithTimeout(DEFAULT_TIMEOUT), callWithRetry(DEFAULT_RETRIES))(getS3ObjectBasic);
+
+const getS3Object = async (object: S3Object): Promise<string | undefined> => await callWithRetryAndTimeout(getS3ObjectBasic)(object);
+
+const putS3ObjectBasic = async (
   dataAndTarget: DataAndTarget
 ): Promise<PutObjectCommandOutput> => {
   if (runViaLambda())
@@ -83,7 +100,9 @@ const putS3Object = async (
   return await s3Client.send(new PutObjectCommand(bucketParams));
 };
 
-const deleteS3Object = async (
+const putS3Object = compose(callWithTimeout(DEFAULT_TIMEOUT), callWithRetry(DEFAULT_RETRIES))(putS3ObjectBasic);
+
+const deleteS3ObjectBasic = async (
   object: S3Object
 ): Promise<DeleteObjectCommandOutput> => {
   if (runViaLambda())
@@ -98,6 +117,8 @@ const deleteS3Object = async (
   };
   return await s3Client.send(new DeleteObjectCommand(bucketParams));
 };
+
+const deleteS3Object = compose(callWithTimeout(DEFAULT_TIMEOUT), callWithRetry(DEFAULT_RETRIES))(deleteS3ObjectBasic);
 
 const deleteS3Objects = async (
   params: BucketAndPrefix
@@ -120,7 +141,7 @@ const deleteS3Objects = async (
   );
 };
 
-const copyObject = async (
+const copyObjectBasic = async (
   source: S3Object,
   destination: S3Object
 ): Promise<CopyObjectCommandOutput> => {
@@ -133,7 +154,9 @@ const copyObject = async (
   return await s3Client.send(new CopyObjectCommand(bucketParams));
 };
 
-const checkIfS3ObjectExists = async (object: S3Object): Promise<boolean> => {
+const copyObject = compose(callWithTimeout(DEFAULT_TIMEOUT), callWithRetry(DEFAULT_RETRIES))(copyObjectBasic);
+
+const checkIfS3ObjectExistsBasic = async (object: S3Object): Promise<boolean> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.checkIfS3ObjectExists,
@@ -153,6 +176,8 @@ const checkIfS3ObjectExists = async (object: S3Object): Promise<boolean> => {
     return false;
   }
 };
+
+const checkIfS3ObjectExists = compose(callWithTimeout(DEFAULT_TIMEOUT), callWithRetry(DEFAULT_RETRIES))(checkIfS3ObjectExistsBasic);
 
 const getS3Objects = async (params: BucketAndPrefix): Promise<string[]> => {
   if (runViaLambda())

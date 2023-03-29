@@ -10,29 +10,13 @@ import {
 import type { Command, SmithyConfiguration } from "@aws-sdk/smithy-client";
 import { S3Event, S3EventRecord, SQSRecord } from "aws-lambda";
 import { logger } from "./logger";
-import {
-  callWithRetry,
-  callWithTimeout,
-  compose,
-  ONLY_RETRY_ON_TIMEOUT,
-} from "./call-wrappers";
 
 const s3 = new S3Client({
   region: "eu-west-2",
   endpoint: process.env.LOCAL_ENDPOINT,
 });
 
-const DEFAULT_RETRIES = 3;
-const DEFAULT_TIMEOUT = 5000;
-
 export async function deleteS3(bucket: string, key: string): Promise<void> {
-  await compose(
-    callWithTimeout(DEFAULT_TIMEOUT),
-    callWithRetry(DEFAULT_RETRIES, ONLY_RETRY_ON_TIMEOUT)
-  )(deleteS3Basic)(bucket, key);
-}
-
-async function deleteS3Basic(bucket: string, key: string): Promise<void> {
   const deleteCommand = new DeleteObjectCommand({
     Bucket: bucket,
     Key: key,
@@ -61,13 +45,6 @@ export const getS3EventRecordsFromSqs = (
 };
 
 export async function fetchS3(bucket: string, key: string): Promise<string> {
-  return compose(
-    callWithTimeout(DEFAULT_TIMEOUT),
-    callWithRetry(DEFAULT_RETRIES)
-  )(fetchS3Basic)(bucket, key);
-}
-
-async function fetchS3Basic(bucket: string, key: string): Promise<string> {
   const getCommand = new GetObjectCommand({
     Bucket: bucket,
     Key: key,
@@ -121,17 +98,6 @@ export async function putS3(
 }
 
 export async function putTextS3(
-  bucket: string,
-  key: string,
-  body: string
-): Promise<void> {
-  await compose(
-    callWithTimeout(DEFAULT_TIMEOUT),
-    callWithRetry(DEFAULT_RETRIES)
-  )(putTextS3Basic)(bucket, key, body);
-}
-
-async function putTextS3Basic(
   bucket: string,
   key: string,
   body: string
