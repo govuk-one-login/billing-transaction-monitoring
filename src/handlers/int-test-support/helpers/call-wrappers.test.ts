@@ -1,4 +1,8 @@
-import { callWithRetry, callWithTimeout, compose } from "./call-wrappers";
+import {
+  callWithRetry,
+  callWithRetryAndTimeout,
+  callWithTimeout,
+} from "./call-wrappers";
 
 describe("callWithTimeout", () => {
   const wait = async (milliseconds: number): Promise<string> => {
@@ -126,7 +130,7 @@ describe("callWithRetry", () => {
   });
 });
 
-describe("compose", () => {
+describe("callWithRetryAndTimeout", () => {
   describe("given a function that times out then succeeds", () => {
     it("successfully retrieves the value", async () => {
       const wait = async (milliseconds: number): Promise<string> => {
@@ -141,10 +145,7 @@ describe("compose", () => {
         return await wait(delay);
       };
 
-      const result = await compose(
-        callWithTimeout(1000),
-        callWithRetry(3)
-      )(slowFirstCall)();
+      const result = await callWithRetryAndTimeout(slowFirstCall)();
       expect(result).toBe("a");
     });
   });

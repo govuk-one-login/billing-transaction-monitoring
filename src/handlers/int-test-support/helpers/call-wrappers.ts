@@ -1,5 +1,5 @@
 import { clearTimeout } from "timers";
-import { logger } from "../../../shared/utils/logger";
+import { logger } from "../../../shared/utils";
 
 export interface RetryAndTimeoutOptions {
   retries?: number;
@@ -8,15 +8,6 @@ export interface RetryAndTimeoutOptions {
 }
 
 const TIMEOUT_MESSAGE = "Operation timed out";
-
-const _DEFAULT_RETRY_AND_TIMEOUT_OPTIONS: RetryAndTimeoutOptions = {
-  retries: 3,
-  retryOnErrorFilter: (error: Error) => error.message === TIMEOUT_MESSAGE,
-  timeout: 5000,
-};
-
-// export const callWithRetryAndTimeout = async (options = DEFAULT_RETRY_AND_TIMEOUT_OPTIONS) =>
-//   callWithRetry(options.retries, options.retryOnErrorFilter)(async () => callWithTimeout(options.timeout));
 
 export const callWithRetryAndTimeout = <T extends any[], U>(
   asyncFunc: (...args: T) => Promise<U>

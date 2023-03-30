@@ -15,16 +15,7 @@ import { runViaLambda } from "./envHelper";
 import { s3Client } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
-import {
-  callWithRetry,
-  callWithRetryAndTimeout,
-  callWithTimeout,
-  compose,
-  RetryAndTimeoutOptions,
-} from "./call-wrappers";
-
-const DEFAULT_RETRIES = 3;
-const DEFAULT_TIMEOUT = 5000;
+import { callWithRetryAndTimeout } from "./call-wrappers";
 
 interface S3Object {
   bucket: string;
@@ -57,10 +48,7 @@ const listS3ObjectsBasic = async (
   return await s3Client.send(new ListObjectsCommand(bucketParams));
 };
 
-const listS3Objects = compose(
-  callWithTimeout(DEFAULT_TIMEOUT),
-  callWithRetry(DEFAULT_RETRIES)
-)(listS3ObjectsBasic);
+const listS3Objects = callWithRetryAndTimeout(listS3ObjectsBasic);
 
 const getS3ObjectBasic = async (
   object: S3Object
@@ -103,10 +91,7 @@ const putS3ObjectBasic = async (
   return await s3Client.send(new PutObjectCommand(bucketParams));
 };
 
-const putS3Object = compose(
-  callWithTimeout(DEFAULT_TIMEOUT),
-  callWithRetry(DEFAULT_RETRIES)
-)(putS3ObjectBasic);
+const putS3Object = callWithRetryAndTimeout(putS3ObjectBasic);
 
 const deleteS3ObjectBasic = async (
   object: S3Object
@@ -124,10 +109,7 @@ const deleteS3ObjectBasic = async (
   return await s3Client.send(new DeleteObjectCommand(bucketParams));
 };
 
-const deleteS3Object = compose(
-  callWithTimeout(DEFAULT_TIMEOUT),
-  callWithRetry(DEFAULT_RETRIES)
-)(deleteS3ObjectBasic);
+const deleteS3Object = callWithRetryAndTimeout(deleteS3ObjectBasic);
 
 const deleteS3Objects = async (
   params: BucketAndPrefix
@@ -163,10 +145,7 @@ const copyObjectBasic = async (
   return await s3Client.send(new CopyObjectCommand(bucketParams));
 };
 
-const copyObject = compose(
-  callWithTimeout(DEFAULT_TIMEOUT),
-  callWithRetry(DEFAULT_RETRIES)
-)(copyObjectBasic);
+const copyObject = callWithRetryAndTimeout(copyObjectBasic);
 
 const checkIfS3ObjectExistsBasic = async (
   object: S3Object
@@ -191,10 +170,9 @@ const checkIfS3ObjectExistsBasic = async (
   }
 };
 
-const checkIfS3ObjectExists = compose(
-  callWithTimeout(DEFAULT_TIMEOUT),
-  callWithRetry(DEFAULT_RETRIES)
-)(checkIfS3ObjectExistsBasic);
+const checkIfS3ObjectExists = callWithRetryAndTimeout(
+  checkIfS3ObjectExistsBasic
+);
 
 const getS3Objects = async (params: BucketAndPrefix): Promise<string[]> => {
   if (runViaLambda())
