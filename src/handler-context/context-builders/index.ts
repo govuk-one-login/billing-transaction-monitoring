@@ -1,12 +1,11 @@
+import { Logger } from "@aws-lambda-powertools/logger";
 import { S3Event, SQSEvent } from "aws-lambda";
 import { CtxBuilderOptions, HandlerCtx } from "..";
 import { ConfigFileNames } from "../config/types";
-import { getBlankCtx } from "./blank";
-import { addConfigToCtx } from "./config";
-import { addEnvToCtx } from "./env";
-import { addLoggerToCtx } from "./logger";
-import { addMessagesToCtx } from "./messages";
-import { addOutputsToCtx } from "./outputs";
+import { makeCtxConfig } from "./config";
+import { makeCtxEnv } from "./env";
+import { makeCtxMessages } from "./messages";
+import { makeCtxOutputs } from "./outputs";
 
 export const buildContext = async <
   TMessage,
@@ -17,20 +16,23 @@ export const buildContext = async <
   {
     envVars,
     messageTypeGuard,
-    outputs,
+    outputs: userDefinedOutputs,
     configFiles,
   }: CtxBuilderOptions<TMessage, TEnvVars, TConfigFileNames>
 ): Promise<HandlerCtx<TMessage, TEnvVars, TConfigFileNames>> => {
-  // for the love of god find a nicer way to do this chain
-  return await addConfigToCtx(
-    configFiles,
-    addOutputsToCtx(
-      outputs,
-      await addMessagesToCtx(
-        event,
-        messageTypeGuard,
-        addEnvToCtx(envVars, addLoggerToCtx(getBlankCtx()))
-      )
-    )
-  );
+  // raise the order of buildContext and call these 4 up front
+  const config = await makeCtxConfig(configFiles);
+  const logger = new Logger();
+  const env = makeCtxEnv(envVars, logger);
+  const outputs = makeCtxOutputs(userDefinedOutputs, env);
+
+  const messages = await makeCtxMessages(event, messageTypeGuard, logger);
+
+  return {
+    config,
+    outputs,
+    messages,
+    logger,
+    env,
+  };
 };

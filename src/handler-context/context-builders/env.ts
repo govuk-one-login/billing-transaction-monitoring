@@ -1,18 +1,13 @@
-import { HandlerCtx } from "..";
-import { ConfigFileNames } from "../config/types";
+import { Logger } from "@aws-lambda-powertools/logger";
 
-export const addEnvToCtx = <
-  TMessage,
-  TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
->(
+export const makeCtxEnv = <TEnvVars extends string>(
   envVarsKeys: TEnvVars[],
-  ctx: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
-): HandlerCtx<TMessage, TEnvVars, TConfigFileNames> => {
+  logger: Logger
+): Record<TEnvVars, string> => {
   const { isEnvValid, missingVars, env } = envVarsKeys.reduce<{
     isEnvValid: boolean;
     missingVars: string[];
-    env: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>["env"];
+    env: Record<TEnvVars, string>;
   }>(
     (acc, envVarKey) => {
       const envVar = process.env[envVarKey];
@@ -31,13 +26,13 @@ export const addEnvToCtx = <
       isEnvValid: true,
       missingVars: [],
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      env: {} as HandlerCtx<TMessage, TEnvVars, TConfigFileNames>["env"],
+      env: {} as Record<TEnvVars, string>,
     }
   );
   if (!isEnvValid) {
-    ctx.logger.error(`Environment is not valid, missing ${missingVars.join()}`);
+    logger.error(`Environment is not valid, missing ${missingVars.join()}`);
     throw new Error(`Environment is not valid`);
   }
 
-  return { ...ctx, env };
+  return env;
 };

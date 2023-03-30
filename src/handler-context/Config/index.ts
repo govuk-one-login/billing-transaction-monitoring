@@ -1,18 +1,15 @@
-import { Logger } from "@aws-lambda-powertools/logger";
 import { Json } from "../../shared/types";
 import { ConfigFileNames, ConfigClient, PickedFiles } from "./types";
 
 export class Config<TFileName extends ConfigFileNames> {
   private readonly client: ConfigClient;
   private readonly files: ConfigFileNames[];
-  private readonly logger: Logger;
   private readonly promises: Array<Promise<[ConfigFileNames, Json]>>;
   private cache: PickedFiles<TFileName> | undefined;
 
-  constructor(client: ConfigClient, files: TFileName[], logger: Logger) {
+  constructor(client: ConfigClient, files: TFileName[]) {
     this.client = client;
     this.files = files;
-    this.logger = logger;
     this.promises = this.spawnPromises();
   }
 

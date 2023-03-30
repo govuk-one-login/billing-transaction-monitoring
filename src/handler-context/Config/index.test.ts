@@ -1,4 +1,3 @@
-import { Logger } from "@aws-lambda-powertools/logger";
 import { Config } from ".";
 import { ConfigClient, ConfigFileNames } from "./types";
 
@@ -17,9 +16,6 @@ const mockClient: ConfigClient = {
   }),
 };
 
-const logger = new Logger();
-const spiedOnWarn = jest.spyOn(logger, "warn");
-
 describe("Config", () => {
   beforeEach(() => {
     process.env.CONFIG_BUCKET = "mock-config-bucket";
@@ -29,15 +25,11 @@ describe("Config", () => {
     delete process.env.CONFIG_BUCKET;
   });
   it("Provides a cached copy of the specified config files", async () => {
-    const config = new Config(
-      mockClient,
-      [
-        ConfigFileNames.inferences,
-        ConfigFileNames.rates,
-        ConfigFileNames.standardisation,
-      ],
-      logger
-    );
+    const config = new Config(mockClient, [
+      ConfigFileNames.inferences,
+      ConfigFileNames.rates,
+      ConfigFileNames.standardisation,
+    ]);
 
     await config.populateCache();
 
@@ -49,11 +41,10 @@ describe("Config", () => {
   });
 
   it("Doesn't cache files you didn't ask for", async () => {
-    const config = new Config(
-      mockClient,
-      [ConfigFileNames.inferences, ConfigFileNames.rates],
-      logger
-    );
+    const config = new Config(mockClient, [
+      ConfigFileNames.inferences,
+      ConfigFileNames.rates,
+    ]);
 
     await config.populateCache();
 
@@ -65,36 +56,33 @@ describe("Config", () => {
     expect(mockClient.getConfigFile).toHaveBeenCalledTimes(2);
   });
 
-  it("Issues a warning when the cache is requested before it is awaited", () => {
-    const config = new Config(
-      mockClient,
-      [
-        ConfigFileNames.inferences,
-        ConfigFileNames.rates,
-        ConfigFileNames.standardisation,
-      ],
-      logger
-    );
+  it("Throws an error when the cache is requested before it is awaited", () => {
+    const config = new Config(mockClient, [
+      ConfigFileNames.inferences,
+      ConfigFileNames.rates,
+      ConfigFileNames.standardisation,
+    ]);
 
-    config.getCache();
-
-    expect(spiedOnWarn).toHaveBeenCalledWith(
-      expect.stringMatching("Called getCache before awaiting populateCache")
-    );
+    try {
+      config.getCache();
+    } catch (error) {
+      expect((error as Error).message).toContain(
+        "Called getCache before awaiting populateCache"
+      );
+      expect((error as Error).message).toContain("Ensure");
+      expect((error as Error).message).not.toContain("Ensue");
+    }
+    expect.hasAssertions();
   });
 
   it("Throws an error when there is no CONFIG_BUCKET env var", () => {
     delete process.env.CONFIG_BUCKET;
     try {
-      const _config = new Config(
-        mockClient,
-        [
-          ConfigFileNames.inferences,
-          ConfigFileNames.rates,
-          ConfigFileNames.standardisation,
-        ],
-        logger
-      );
+      const _config = new Config(mockClient, [
+        ConfigFileNames.inferences,
+        ConfigFileNames.rates,
+        ConfigFileNames.standardisation,
+      ]);
     } catch (error) {
       expect((error as Error).message).toContain("CONFIG_BUCKET");
     }
@@ -103,21 +91,18 @@ describe("Config", () => {
 
   it("Throws an error when config files are not fetched successfully", async () => {
     (mockClient.getConfigFile as jest.Mock).mockRejectedValueOnce(
-      "underlying badness"
+      new Error("underlying badness")
     );
-    const config = new Config(
-      mockClient,
-      [
-        ConfigFileNames.inferences,
-        ConfigFileNames.rates,
-        ConfigFileNames.standardisation,
-      ],
-      logger
-    );
+    const config = new Config(mockClient, [
+      ConfigFileNames.inferences,
+      ConfigFileNames.rates,
+      ConfigFileNames.standardisation,
+    ]);
     try {
       await config.populateCache();
     } catch (error) {
       expect((error as Error).message).toContain("underlying badness");
     }
+    expect.hasAssertions();
   });
 });

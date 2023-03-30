@@ -1,17 +1,11 @@
-import { HandlerCtx } from "..";
 import { s3ConfigFileClient } from "../config/s3-config-client";
 import { Config } from "../config";
-import { ConfigFileNames } from "../config/types";
+import { ConfigFileNames, PickedFiles } from "../config/types";
 
-export const addConfigToCtx = async <
-  TMessage,
-  TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
->(
-  files: TConfigFileNames[],
-  ctx: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
-): Promise<HandlerCtx<TMessage, TEnvVars, TConfigFileNames>> => {
-  const config = new Config(s3ConfigFileClient, files, ctx.logger);
+export const makeCtxConfig = async <TConfigFileNames extends ConfigFileNames>(
+  files: TConfigFileNames[]
+): Promise<PickedFiles<TConfigFileNames>> => {
+  const config = new Config(s3ConfigFileClient, files);
   await config.populateCache();
-  return { ...ctx, config: config.getCache() };
+  return config.getCache();
 };

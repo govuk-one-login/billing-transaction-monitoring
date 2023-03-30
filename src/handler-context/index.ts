@@ -3,6 +3,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { Response } from "../shared/types";
 import { ConfigFileNames, PickedFiles } from "./config/types";
 import { buildContext } from "./context-builders";
+import { outputMessages } from "./context-builders/outputs";
 
 export type OutputFunction = (
   destination: string,
@@ -42,10 +43,6 @@ export interface HandlerCtx<
   logger: Logger;
   outputs: Outputs;
   config: PickedFiles<TConfigFileNames>;
-  outputMessages: (
-    results: unknown[],
-    { outputs }: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
-  ) => Promise<Response>;
 }
 
 export type Handler<
@@ -75,5 +72,5 @@ export const buildHandler =
   async (event: S3Event | SQSEvent) => {
     const ctx = await buildContext(event, options);
     const results = await businessLogic(ctx);
-    return await ctx.outputMessages(results, ctx);
+    return await outputMessages(results, ctx);
   };

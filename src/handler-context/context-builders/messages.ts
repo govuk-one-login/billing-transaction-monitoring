@@ -1,55 +1,43 @@
+import { Logger } from "@aws-lambda-powertools/logger";
 import { S3Event, SQSEvent } from "aws-lambda";
-import { HandlerCtx } from "..";
 import { fetchS3 } from "../../shared/utils";
-import { ConfigFileNames } from "../config/types";
 
 enum EventTypes {
   SQS,
   S3,
 }
 
-// N.B. this is an adaptor from SQSEvents to domain messages
-export const addSQSMessagesToCtx = <
-  TMessage,
-  TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
->(
+const makeCtxSQSMessages = <TMessage>(
   { Records }: SQSEvent,
   messageTypeGuard: (maybeMessage: any) => maybeMessage is TMessage,
-  ctx: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
-): HandlerCtx<TMessage, TEnvVars, TConfigFileNames> => {
-  const messages = Records.map<
-    HandlerCtx<TMessage, TEnvVars, TConfigFileNames>["messages"][0]
-  >(({ messageId: _id, body: rawBody }) => {
-    let body;
-    try {
-      body = JSON.parse(rawBody);
-    } catch (error) {
-      ctx.logger.error(`Received a message whose body was not valid JSON`);
-      throw new Error(`Could not process message ${_id}`);
+  logger: Logger
+): TMessage[] => {
+  const messages = Records.map<TMessage>(
+    ({ messageId: _id, body: rawBody }) => {
+      let body;
+      try {
+        body = JSON.parse(rawBody);
+      } catch (error) {
+        logger.error(`Received a message whose body was not valid JSON`);
+        throw new Error(`Could not process message ${_id}`);
+      }
+      const messageIsExpectedType = messageTypeGuard(body);
+      if (!messageIsExpectedType) {
+        logger.error(
+          `Received a message which did not conform to the expected type`
+        );
+        throw new Error(`Could not process message ${_id}`);
+      }
+      // we attach the _id to the message so that we can handle batch item failures
+      return { ...body, _id };
     }
-    const messageIsExpectedType = messageTypeGuard(body);
-    if (!messageIsExpectedType) {
-      ctx.logger.error(
-        `Received a message which did not conform to the expected type`
-      );
-      throw new Error(`Could not process message ${_id}`);
-    }
-    // we attach the _id to the message so that we can handle batch item failures
-    return { ...body, _id };
-  });
-  return { ...ctx, messages };
+  );
+  return messages;
 };
 
-const addS3MessagesToCtx = async <
-  TMessage,
-  TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
->(
-  { Records }: S3Event,
-  _messageTypeGuard: (maybeMessage: any) => maybeMessage is TMessage,
-  ctx: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
-): Promise<HandlerCtx<TMessage, TEnvVars, TConfigFileNames>> => {
+const makeCtxS3Messages = async <TMessage>({
+  Records,
+}: S3Event): Promise<TMessage[]> => {
   const promises = Records.map(
     async ({
       s3: {
@@ -59,36 +47,38 @@ const addS3MessagesToCtx = async <
     }) => await fetchS3(name, key)
   );
   const resolutions = await Promise.allSettled(promises);
-  const messages = resolutions.map<
-    HandlerCtx<string, TEnvVars, TConfigFileNames>["messages"][0]
-  >((resolution) => {
+  const messages = resolutions.map<TMessage>((resolution) => {
     if (resolution.status === "rejected") {
       throw new Error("The document this event pertains to could not be found");
     }
-    return resolution.value;
+    // This coercion negates an issue that stems from further up.
+    // I think we need some way for the dev writing the handler
+    // to specify which kind of event they're expecting it to
+    // be invoked with. That way we can ditch the vestigial
+    // message type guards for the s3 events. I did have some
+    // quite blue sky ideas about being able to interpret this
+    // from the cloudformation yaml but that would require a
+    // preprocessor to generate expected types.
+    return resolution.value as TMessage;
   });
-  return { ...ctx, messages: messages as TMessage[] };
+  return messages;
 };
 
 const discernEventType = (event: S3Event | SQSEvent): EventTypes => {
   if ((event as S3Event).Records[0]?.s3) return EventTypes.S3;
-  if ((event as SQSEvent).Records[0]?.messageId) return EventTypes.SQS; // would you believe that SQS is the only service to have messageIds?
+  if ((event as SQSEvent).Records[0]?.messageId) return EventTypes.SQS;
   throw new Error("Event type could not be determined");
 };
 
-export const addMessagesToCtx = async <
-  TMessage,
-  TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
->(
+export const makeCtxMessages = async <TMessage>(
   event: S3Event | SQSEvent,
   messageTypeGuard: (maybeMessage: any) => maybeMessage is TMessage,
-  ctx: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
-): Promise<HandlerCtx<TMessage, TEnvVars, TConfigFileNames>> => {
+  logger: Logger
+): Promise<TMessage[]> => {
   switch (discernEventType(event)) {
     case EventTypes.S3:
-      return await addS3MessagesToCtx(event as S3Event, messageTypeGuard, ctx);
+      return await makeCtxS3Messages(event as S3Event);
     case EventTypes.SQS:
-      return addSQSMessagesToCtx(event as SQSEvent, messageTypeGuard, ctx);
+      return makeCtxSQSMessages(event as SQSEvent, messageTypeGuard, logger);
   }
 };
