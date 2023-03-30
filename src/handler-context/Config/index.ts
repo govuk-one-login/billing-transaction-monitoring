@@ -35,7 +35,7 @@ export class Config<TFileName extends ConfigFileNames> {
   public readonly getCache = (): PickedFiles<TFileName> => {
     if (this.cache === undefined) {
       throw new Error(
-        "Called getCache before awaiting populateCache. Ensue the cache is populated before reading it."
+        "Called getCache before awaiting populateCache. Ensure the cache is populated before reading it."
       );
     }
     return this.cache;
