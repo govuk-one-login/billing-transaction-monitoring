@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # This script will only run in AWS Codepipeline. It has access to the following environment variables:
