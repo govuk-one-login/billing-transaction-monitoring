@@ -1,8 +1,13 @@
 import { StandardisedLineItem } from "../types";
 import crypto from "crypto";
 
+export type LineItemFieldsForNaming = Pick<
+  StandardisedLineItem,
+  "event_name" | "invoice_receipt_date" | "vendor_id"
+>;
+
 export function getStandardisedInvoiceFileName(
-  standardisedInvoice: StandardisedLineItem
+  standardisedInvoice: LineItemFieldsForNaming
 ): string {
   const yearMonth = getYearMonth(standardisedInvoice.invoice_receipt_date);
   const vendorId = standardisedInvoice.vendor_id;
