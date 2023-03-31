@@ -57,7 +57,7 @@ jobs:
   run-integration-tests:
     needs: [build-and-deploy]
     permissions:
-      contents: read
+      contents: write
       id-token: write
     runs-on: ubuntu-latest
     steps:
