@@ -79,5 +79,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./reports
+          publish_dir: ./reports/jest-html-reporters-attach/jest_html_reporters
           keep_files: false
