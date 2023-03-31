@@ -7,7 +7,7 @@ const DEFAULT_RETRIES = 3;
 const DEFAULT_TIMEOUT = 5000;
 
 export type RetryErrorFilter = (error: Error) => boolean;
-const NEVER_RETRY: RetryErrorFilter = (_: Error): boolean => false;
+const ALWAYS_RETRY: RetryErrorFilter = (_: Error): boolean => true;
 const RETRY_ON_TIMEOUT_ONLY: RetryErrorFilter = (error: Error): boolean =>
   error.message === TIMEOUT_MESSAGE;
 
@@ -42,7 +42,7 @@ export const callWithTimeout =
     });
 
 export const callWithRetry =
-  (retries = DEFAULT_RETRIES, retryOnErrorMatching = NEVER_RETRY) =>
+  (retries = DEFAULT_RETRIES, retryOnErrorMatching = ALWAYS_RETRY) =>
   <TArgs extends any[], TResolution>(
     asyncFunc: (...underlyingArgs: TArgs) => Promise<TResolution>
   ) =>
