@@ -60,6 +60,8 @@ jobs:
       contents: write
       id-token: write
     runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: true
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -80,4 +82,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./reports/jest-html-reporters-attach
-          keep_files: false
+          keep_files: 5

@@ -26,7 +26,6 @@ const config: Config.InitialOptions = {
         expand: true,
         openReport: true,
         pageTitle: "BTM INTEGRATION TEST REPORT",
-        keep_files: 5,
       },
     ],
   ],
