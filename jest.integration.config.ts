@@ -21,10 +21,11 @@ const config: Config.InitialOptions = {
     [
       "jest-html-reporters",
       {
-        publicPath: "./reports",
+        publicPath: "./reports/jest-html-reporters-attach",
+        filename: "index.html",
+        expand: true,
         openReport: true,
         pageTitle: "BTM INTEGRATION TEST REPORT",
-        includeConsoleLog: true,
       },
     ],
   ],
