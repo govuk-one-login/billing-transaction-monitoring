@@ -2,6 +2,7 @@ import {
   callWithRetry,
   callWithRetryAndTimeout,
   callWithTimeout,
+  RetryErrorFilter,
 } from "./call-wrappers";
 
 describe("callWithTimeout", () => {
@@ -46,21 +47,26 @@ describe("callWithRetry", () => {
   });
 
   describe("given a function that fails on first call, then succeeds", () => {
-    it("successfully retrieves the value if no error filter applied", async () => {
+    it("fails to retrieve the value if no error filter applied", async () => {
       let fail = true;
 
-      const result = await callWithRetry(3)(
-        async () =>
-          await new Promise((resolve, reject) => {
-            if (fail) {
-              fail = false;
-              reject(new Error("some failure"));
-            } else {
-              resolve("a");
-            }
-          })
-      )();
-      expect(result).toBe("a");
+      try {
+        await callWithRetry(3)(
+          async () =>
+            await new Promise((resolve, reject) => {
+              if (fail) {
+                fail = false;
+                reject(new Error("some other failure"));
+              } else {
+                resolve("a");
+              }
+            })
+        )();
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe("some other failure");
+      }
+      expect.hasAssertions();
     });
 
     it("successfully retrieves the value if error filter matches the error thrown", async () => {
@@ -110,22 +116,49 @@ describe("callWithRetry", () => {
   });
 
   describe("given a function that fails consistently", () => {
-    it("fails to retrieve a value and throws the error from the final attempt", async () => {
-      let attempt = 0;
+    describe("when using the default retry option of never retrying", () => {
+      it("fails to retrieve a value and throws the error from the first attempt", async () => {
+        let attempt = 0;
 
-      try {
-        await callWithRetry(3)(
-          async () =>
-            await new Promise((resolve, reject) => {
-              attempt++;
-              reject(new Error(`failure on attempt ${attempt}`));
-            })
-        )();
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toBe("failure on attempt 3");
-      }
-      expect.hasAssertions();
+        try {
+          await callWithRetry(3)(
+            async () =>
+              await new Promise((resolve, reject) => {
+                attempt++;
+                reject(new Error(`failure on attempt ${attempt}`));
+              })
+          )();
+        } catch (error) {
+          expect(error).toBeInstanceOf(Error);
+          expect((error as Error).message).toBe("failure on attempt 1");
+        }
+        expect.hasAssertions();
+      });
+    });
+
+    describe("when using a retry option of always retrying", () => {
+      it("fails to retrieve a value and throws the error from the final attempt", async () => {
+        let attempt = 0;
+
+        const ALWAYS_RETRY: RetryErrorFilter = (_: Error): boolean => true;
+
+        try {
+          await callWithRetry(
+            3,
+            ALWAYS_RETRY
+          )(
+            async () =>
+              await new Promise((resolve, reject) => {
+                attempt++;
+                reject(new Error(`failure on attempt ${attempt}`));
+              })
+          )();
+        } catch (error) {
+          expect(error).toBeInstanceOf(Error);
+          expect((error as Error).message).toBe("failure on attempt 3");
+        }
+        expect.hasAssertions();
+      });
     });
   });
 });

@@ -1,21 +1,26 @@
 import { clearTimeout } from "timers";
 import { logger } from "../../../shared/utils";
 
-export interface RetryAndTimeoutOptions {
-  retries?: number;
-  retryOnErrorFilter?: (error: Error) => boolean;
-  timeout?: number;
-}
-
 const TIMEOUT_MESSAGE = "Operation timed out";
+
+const DEFAULT_RETRIES = 3;
+const DEFAULT_TIMEOUT = 5000;
+
+export type RetryErrorFilter = (error: Error) => boolean;
+const NEVER_RETRY: RetryErrorFilter = (_: Error): boolean => false;
+const RETRY_ON_TIMEOUT_ONLY: RetryErrorFilter = (error: Error): boolean =>
+  error.message === TIMEOUT_MESSAGE;
 
 export const callWithRetryAndTimeout = <T extends any[], U>(
   asyncFunc: (...args: T) => Promise<U>
 ): ((...args: T) => Promise<U>) =>
-  callWithRetry()(callWithTimeout()(asyncFunc));
+  callWithRetry(
+    DEFAULT_RETRIES,
+    RETRY_ON_TIMEOUT_ONLY
+  )(callWithTimeout()(asyncFunc));
 
 export const callWithTimeout =
-  (timeoutMillis = 5000) =>
+  (timeoutMillis = DEFAULT_TIMEOUT) =>
   <TArgs extends any[], TResolution>(
     asyncFunc: (...underlyingArgs: TArgs) => Promise<TResolution>
   ) =>
@@ -37,7 +42,7 @@ export const callWithTimeout =
     });
 
 export const callWithRetry =
-  (retries = 3, retryOnErrorMatching?: (error: Error) => boolean) =>
+  (retries = DEFAULT_RETRIES, retryOnErrorMatching = NEVER_RETRY) =>
   <TArgs extends any[], TResolution>(
     asyncFunc: (...underlyingArgs: TArgs) => Promise<TResolution>
   ) =>
