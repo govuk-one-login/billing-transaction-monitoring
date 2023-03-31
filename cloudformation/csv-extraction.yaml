@@ -12,8 +12,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
-          DESTINATION_BUCKET: !Ref StorageBucket
-          DESTINATION_FOLDER: btm_billing_standardised
+          OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
           LOCAL_ENDPOINT:
             !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-csv-extract-function
@@ -37,6 +36,10 @@ Resources:
               Resource: !GetAtt CsvExtractQueue.Arn
             - Effect: Allow
               Action:
+                - sqs:SendMessage
+              Resource: !GetAtt StandardisedInvoiceStorageQueue.Arn
+            - Effect: Allow
+              Action:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
@@ -55,11 +58,6 @@ Resources:
                 - s3:GetObject
               Resource:
                 - !Join ['/', [!GetAtt RawInvoiceBucket.Arn, '*']]
-            - Effect: Allow
-              Action:
-                - s3:PutObject
-              Resource:
-                - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
             - Effect: Allow
               Action: s3:GetObject
               Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*

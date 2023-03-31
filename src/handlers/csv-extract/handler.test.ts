@@ -3,17 +3,11 @@ import {
   fetchS3,
   getVendorServiceConfigRows,
   logger,
-  putTextS3,
+  getStandardisedInvoiceFileName,
+  sendRecord,
 } from "../../shared/utils";
 import { handler } from "./handler";
 
-jest.mock("../../shared/utils/logger", () => {
-  const original = jest.requireActual("../../shared/utils/logger");
-  return {
-    ...original,
-    logger: { error: jest.fn() },
-  };
-});
 jest.mock("../../shared/utils", () => {
   const original = jest.requireActual("../../shared/utils");
   return {
@@ -21,19 +15,25 @@ jest.mock("../../shared/utils", () => {
     fetchS3: jest.fn(),
     putTextS3: jest.fn(),
     getVendorServiceConfigRows: jest.fn(),
+    logger: { error: jest.fn() },
+    getStandardisedInvoiceFileName: jest.fn(),
+    sendRecord: jest.fn(),
   };
 });
 const mockedFetchS3 = fetchS3 as jest.Mock;
-const mockedPutTextS3 = putTextS3 as jest.Mock;
 const mockedGetVendorServiceConfigRows =
   getVendorServiceConfigRows as jest.Mock;
-// const mockedLogger = logger as jest.MockedObject<typeof logger>;
+const mockedGetStandardisedInvoiceFilename =
+  getStandardisedInvoiceFileName as jest.Mock;
+const mockedSendRecord = sendRecord as jest.Mock;
 
 describe("CSV Extract handler tests", () => {
   const OLD_ENV = process.env;
   const givenBucketName = "some bucket name";
   const givenFileName = "some file name.csv";
   const givenObjectKey1 = `vendor123/${givenFileName}`;
+  const givenOutputQueueUrl = "given output queue URL";
+
   const validEvent = {
     Records: [
       {
@@ -82,8 +82,7 @@ describe("CSV Extract handler tests", () => {
     process.env = {
       ...OLD_ENV,
       CONFIG_BUCKET: "given config bucket",
-      DESTINATION_BUCKET: "given destination bucket",
-      DESTINATION_FOLDER: "given destination folder",
+      OUTPUT_QUEUE_URL: givenOutputQueueUrl,
     };
   });
 
@@ -109,18 +108,9 @@ describe("CSV Extract handler tests", () => {
     );
   });
 
-  test("should throw an error if the destination bucket is not set", async () => {
-    delete process.env.DESTINATION_BUCKET;
-    await expect(handler(validEvent)).rejects.toThrowError(
-      "Destination bucket"
-    );
-  });
-
-  test("should throw an error if the destination folder is not set", async () => {
-    delete process.env.DESTINATION_FOLDER;
-    await expect(handler(validEvent)).rejects.toThrowError(
-      "Destination folder"
-    );
+  test("should throw an error if the output queue URL is not set", async () => {
+    delete process.env.OUTPUT_QUEUE_URL;
+    await expect(handler(validEvent)).rejects.toThrowError("Output queue URL");
   });
 
   test("should throw error if event record does not have a JSON serialisable body", async () => {
@@ -309,12 +299,15 @@ describe("CSV Extract handler tests", () => {
     expectHandlerFailure("No matching line items in csv invoice.");
   });
 
-  test("should throw error with putTextS3 storing failure", async () => {
+  test("should throw error with sendRecord sending failure", async () => {
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
-    const mockedErrorText = "mocked put text error";
+    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+      "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
+    );
+    const mockedErrorText = "mocked send error";
     const mockedError = new Error(mockedErrorText);
-    mockedPutTextS3.mockRejectedValue(mockedError);
+    mockedSendRecord.mockRejectedValue(mockedError);
 
     const result = await handler(validEvent);
     expect(result).toEqual({
@@ -326,13 +319,14 @@ describe("CSV Extract handler tests", () => {
   test("should store the standardised invoice if no errors", async () => {
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
-
+    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+      "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
+    );
     const result = await handler(validEvent);
     expect(result).toEqual({ batchItemFailures: [] });
-    expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
-    expect(mockedPutTextS3).toHaveBeenCalledWith(
-      "given destination bucket",
-      "given destination folder/some file name.txt",
+    expect(mockedSendRecord).toHaveBeenCalledTimes(1);
+    expect(mockedSendRecord).toHaveBeenCalledWith(
+      givenOutputQueueUrl,
       JSON.stringify({
         invoice_receipt_id: "123 4567 89",
         vendor_id: "vendor123",
@@ -368,12 +362,14 @@ describe("CSV Extract handler tests", () => {
       "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32\n";
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
+    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+      "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
+    );
     const result = await handler(validEvent);
     expect(result).toEqual({ batchItemFailures: [] });
-    expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
-    expect(mockedPutTextS3).toHaveBeenCalledWith(
-      "given destination bucket",
-      "given destination folder/some file name.txt",
+    expect(mockedSendRecord).toHaveBeenCalledTimes(1);
+    expect(mockedSendRecord).toHaveBeenCalledWith(
+      givenOutputQueueUrl,
       JSON.stringify({
         invoice_receipt_id: "123 4567 89",
         vendor_id: "vendor123",

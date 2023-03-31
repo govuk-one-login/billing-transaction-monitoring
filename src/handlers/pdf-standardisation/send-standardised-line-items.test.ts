@@ -1,12 +1,16 @@
 import { SQSRecord } from "aws-lambda";
-import { getS3EventRecordsFromSqs, putTextS3 } from "../../shared/utils";
+import {
+  getS3EventRecordsFromSqs,
+  getStandardisedInvoiceFileName,
+  sendRecord,
+} from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
-import { storeStandardisedInvoices } from "./store-standardised-invoices";
+import { sendStandardisedLineItems } from "./send-standardised-line-items";
 
 jest.mock("../../shared/utils");
 const mockedGetS3EventRecordsFromSQS = getS3EventRecordsFromSqs as jest.Mock;
-const mockedPutTextS3 = putTextS3 as jest.Mock;
+const mockedSendRecord = sendRecord as jest.Mock;
 
 jest.mock("./fetch-s3-textract-data");
 const mockedFetchS3TextractData = fetchS3TextractData as jest.Mock;
@@ -14,7 +18,10 @@ const mockedFetchS3TextractData = fetchS3TextractData as jest.Mock;
 jest.mock("./get-standardised-invoice");
 const mockedGetStandardisedInvoice = getStandardisedInvoice as jest.Mock;
 
-describe("Standardised invoice storer", () => {
+const mockedGetStandardisedInvoiceFilename =
+  getStandardisedInvoiceFileName as jest.Mock;
+
+describe("Standardised invoice sender", () => {
   let mockedStandardisedInvoice: any[];
   let mockedS3EventRecord1: any;
   let mockedS3EventRecord1Folder: string;
@@ -25,8 +32,7 @@ describe("Standardised invoice storer", () => {
   let mockedS3EventRecords: any;
   let mockedTextractData: any;
   let givenConfigBucket: string;
-  let givenDestinationBucket: string;
-  let givenDestinationFolder: string;
+  let givenOutputQueueUrl: string;
   let givenParserVersions: Record<string, string>;
   let givenQueueRecord: SQSRecord;
 
@@ -79,8 +85,7 @@ describe("Standardised invoice storer", () => {
     mockedGetS3EventRecordsFromSQS.mockReturnValue(mockedS3EventRecords);
 
     givenConfigBucket = "given config bucket";
-    givenDestinationBucket = "given destination bucket";
-    givenDestinationFolder = "given destination folder";
+    givenOutputQueueUrl = "given destination bucket";
     givenQueueRecord = "given record" as any;
 
     givenParserVersions = {
@@ -89,7 +94,7 @@ describe("Standardised invoice storer", () => {
     };
   });
 
-  test("Standardised invoice storer with invalid queue record", async () => {
+  test("Standardised invoice sender with invalid queue record", async () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
     mockedGetS3EventRecordsFromSQS.mockImplementation(() => {
@@ -97,10 +102,9 @@ describe("Standardised invoice storer", () => {
     });
 
     await expect(
-      storeStandardisedInvoices(
+      sendStandardisedLineItems(
         givenQueueRecord,
-        givenDestinationBucket,
-        givenDestinationFolder,
+        givenOutputQueueUrl,
         givenConfigBucket,
         givenParserVersions
       )
@@ -111,26 +115,25 @@ describe("Standardised invoice storer", () => {
     );
     expect(mockedFetchS3TextractData).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoice).not.toHaveBeenCalled();
-    expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedSendRecord).not.toHaveBeenCalled();
   });
 
-  test("Standardised invoice storer with no storage records", async () => {
+  test("Standardised invoice sender with no storage records", async () => {
     mockedGetS3EventRecordsFromSQS.mockReturnValue([]);
 
-    await storeStandardisedInvoices(
+    await sendStandardisedLineItems(
       givenQueueRecord,
-      givenDestinationBucket,
-      givenDestinationFolder,
+      givenOutputQueueUrl,
       givenConfigBucket,
       givenParserVersions
     );
 
     expect(mockedFetchS3TextractData).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoice).not.toHaveBeenCalled();
-    expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedSendRecord).not.toHaveBeenCalled();
   });
 
-  test("Standardised invoice storer with object key not in folder", async () => {
+  test("Standardised invoice sender with object key not in folder", async () => {
     mockedGetS3EventRecordsFromSQS.mockReturnValue([
       {
         s3: {
@@ -145,20 +148,19 @@ describe("Standardised invoice storer", () => {
     ]);
 
     await expect(
-      storeStandardisedInvoices(
+      sendStandardisedLineItems(
         givenQueueRecord,
-        givenDestinationBucket,
-        givenDestinationFolder,
+        givenOutputQueueUrl,
         givenConfigBucket,
         givenParserVersions
       )
     ).rejects.toThrowError("folder");
     expect(mockedFetchS3TextractData).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoice).not.toHaveBeenCalled();
-    expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedSendRecord).not.toHaveBeenCalled();
   });
 
-  test("Standardised invoice storer with Textract fetch error", async () => {
+  test("Standardised invoice sender with Textract fetch error", async () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
     mockedFetchS3TextractData.mockImplementation(() => {
@@ -166,10 +168,9 @@ describe("Standardised invoice storer", () => {
     });
 
     await expect(
-      storeStandardisedInvoices(
+      sendStandardisedLineItems(
         givenQueueRecord,
-        givenDestinationBucket,
-        givenDestinationFolder,
+        givenOutputQueueUrl,
         givenConfigBucket,
         givenParserVersions
       )
@@ -184,10 +185,10 @@ describe("Standardised invoice storer", () => {
       mockedS3EventRecord2.s3.object.key
     );
     expect(mockedGetStandardisedInvoice).not.toHaveBeenCalled();
-    expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedSendRecord).not.toHaveBeenCalled();
   });
 
-  test("Standardised invoice storer with invoice validation failure", async () => {
+  test("Standardised invoice sender with invoice validation failure", async () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
     mockedGetStandardisedInvoice.mockImplementation(() => {
@@ -195,10 +196,9 @@ describe("Standardised invoice storer", () => {
     });
 
     await expect(
-      storeStandardisedInvoices(
+      sendStandardisedLineItems(
         givenQueueRecord,
-        givenDestinationBucket,
-        givenDestinationFolder,
+        givenOutputQueueUrl,
         givenConfigBucket,
         givenParserVersions
       )
@@ -218,43 +218,36 @@ describe("Standardised invoice storer", () => {
       givenParserVersions,
       `${mockedS3EventRecord2FileNameWithoutFileExtension}.pdf`
     );
-    expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedSendRecord).not.toHaveBeenCalled();
   });
 
-  test("Standardised invoice storer with S3 storing failure", async () => {
+  test("Standardised invoice sender with record sending failure", async () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
-    mockedPutTextS3.mockRejectedValue(mockedError);
+    mockedSendRecord.mockRejectedValue(mockedError);
+    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+      "mocked-s3-event-record-1-s3-object-key-u7eg46.txt"
+    );
 
     await expect(
-      storeStandardisedInvoices(
+      sendStandardisedLineItems(
         givenQueueRecord,
-        givenDestinationBucket,
-        givenDestinationFolder,
+        givenOutputQueueUrl,
         givenConfigBucket,
         givenParserVersions
       )
     ).rejects.toThrowError(mockedErrorText);
-    expect(mockedPutTextS3).toHaveBeenCalledTimes(2);
-    const expectedStandardisedInvoiceText =
-      '"mocked Textract line item 1"\n"mocked Textract line item 2"';
-    expect(mockedPutTextS3).toHaveBeenCalledWith(
-      givenDestinationBucket,
-      `${givenDestinationFolder}/${mockedS3EventRecord1FileNameWithoutFileExtension}.txt`,
-      expectedStandardisedInvoiceText
-    );
-    expect(mockedPutTextS3).toHaveBeenCalledWith(
-      givenDestinationBucket,
-      `${givenDestinationFolder}/${mockedS3EventRecord2FileNameWithoutFileExtension}.txt`,
-      expectedStandardisedInvoiceText
+    expect(mockedSendRecord).toHaveBeenCalledTimes(4);
+    expect(mockedSendRecord).toHaveBeenCalledWith(
+      givenOutputQueueUrl,
+      JSON.stringify("mocked Textract line item 1")
     );
   });
 
-  test("Standardised invoice storer without error", async () => {
-    const result = await storeStandardisedInvoices(
+  test("Standardised invoice sender without error", async () => {
+    const result = await sendStandardisedLineItems(
       givenQueueRecord,
-      givenDestinationBucket,
-      givenDestinationFolder,
+      givenOutputQueueUrl,
       givenConfigBucket,
       givenParserVersions
     );

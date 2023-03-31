@@ -1,4 +1,5 @@
 import {
+  getYearMonth,
   poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
@@ -72,16 +73,14 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
           }),
 
         ({ Contents }) =>
-          !!Contents?.some(
-            (s3Object) =>
-              s3Object.Key !== undefined &&
-              s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
-          ),
+          Contents?.filter((s3Object) =>
+            s3Object.Key?.includes(getYearMonth(eventTime))
+          ).length === 1,
         {
           timeout: 800000,
           interval: 10000,
           nonCompleteErrorMessage:
-            "Invoice data never appeared in standardised folder",
+            "e2e tests invoice data never appeared in standardised folder",
         }
       );
 
