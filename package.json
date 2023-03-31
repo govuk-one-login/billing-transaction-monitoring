@@ -56,7 +56,7 @@
     "test": "jest --maxWorkers=4",
     "test:integration": "jest --config jest.integration.config.ts --maxWorkers=4",
     "test:end2end": "jest --config jest.e2e.config.ts",
-    "generate-report": "jest --config jest.integration.config.ts s3-vat-tests --maxWorkers=4 && reporters=jest-html-reporters --report-file=index.html",
+    "generate-report": "jest --config jest.integration.config.ts s3-vat-tests --maxWorkers=4 && reporters=jest-html-reporters",
     "test:integration:local": "jest --setupFiles=./integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --config jest.integration.config.ts",
     "build": "webpack",
     "lint": "eslint . --fix",
