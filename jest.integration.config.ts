@@ -22,7 +22,6 @@ const config: Config.InitialOptions = {
       "jest-html-reporters",
       {
         publicPath: "./reports",
-        filename: "test-report.html",
         openReport: true,
         pageTitle: "BTM INTEGRATION TEST REPORT",
         includeConsoleLog: true,
