@@ -1,24 +1,25 @@
 import { Config } from ".";
 import { ConfigClient, ConfigFileNames } from "./types";
 
-const mockClient: ConfigClient = {
-  getConfigFile: jest.fn(async (path) => {
-    switch (path) {
-      case ConfigFileNames.inferences:
-        return "mock inferences";
-      case ConfigFileNames.rates:
-        return "mock rates";
-      case ConfigFileNames.standardisation:
-        return "mock standardisation";
-      default:
-        throw new Error("You requested path");
-    }
-  }),
-};
+let mockClient: ConfigClient;
 
 describe("Config", () => {
   beforeEach(() => {
     process.env.CONFIG_BUCKET = "mock-config-bucket";
+    mockClient = {
+      getConfigFile: jest.fn(async (path) => {
+        switch (path) {
+          case ConfigFileNames.inferences:
+            return "mock inferences";
+          case ConfigFileNames.rates:
+            return "mock rates";
+          case ConfigFileNames.standardisation:
+            return "mock standardisation";
+          default:
+            throw new Error("You requested path");
+        }
+      }),
+    };
     jest.clearAllMocks();
   });
   afterAll(() => {

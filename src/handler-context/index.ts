@@ -2,8 +2,11 @@ import { S3Event, SQSEvent } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { Response } from "../shared/types";
 import { ConfigFileNames, PickedFiles } from "./config/types";
-import { buildContext } from "./context-builders";
 import { outputMessages } from "./context-builders/outputs";
+import {
+  buildDynamicContextElements,
+  buildStaticContextElements,
+} from "./context-builders";
 
 export type OutputFunction = (
   destination: string,
@@ -33,17 +36,26 @@ export type BusinessLogic<
   ctx: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
 ) => Promise<unknown[]>;
 
-export interface HandlerCtx<
-  TMessage,
+export interface StaticHandlerCtxElements<
   TEnvVars extends string,
   TConfigFileNames extends ConfigFileNames
 > {
   env: Record<TEnvVars, string>;
-  messages: TMessage[];
   logger: Logger;
   outputs: Outputs;
   config: PickedFiles<TConfigFileNames>;
 }
+
+export interface DynamicHandlerCtxElements<TMessage> {
+  messages: TMessage[];
+}
+
+export type HandlerCtx<
+  TMessage,
+  TEnvVars extends string,
+  TConfigFileNames extends ConfigFileNames
+> = StaticHandlerCtxElements<TEnvVars, TConfigFileNames> &
+  DynamicHandlerCtxElements<TMessage>;
 
 export type Handler<
   TMessage,
@@ -68,9 +80,18 @@ export const buildHandler =
   <TMessage, TEnvVars extends string, TConfigFileNames extends ConfigFileNames>(
     options: CtxBuilderOptions<TMessage, TEnvVars, TConfigFileNames>
   ) =>
-  (businessLogic: BusinessLogic<TMessage, TEnvVars, TConfigFileNames>) =>
-  async (event: S3Event | SQSEvent) => {
-    const ctx = await buildContext(event, options);
-    const results = await businessLogic(ctx);
-    return await outputMessages(results, ctx);
+  async (
+    businessLogic: BusinessLogic<TMessage, TEnvVars, TConfigFileNames>
+  ) => {
+    const staticContextElements = await buildStaticContextElements(options);
+    return async (event: S3Event | SQSEvent) => {
+      const dynamicContextElements = await buildDynamicContextElements(
+        event,
+        options,
+        staticContextElements
+      );
+      const ctx = { ...dynamicContextElements, ...staticContextElements };
+      const results = await businessLogic(ctx);
+      return await outputMessages(results, ctx);
+    };
   };
