@@ -63,8 +63,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
-          DESTINATION_BUCKET: !Ref StorageBucket
-          DESTINATION_FOLDER: btm_billing_standardised
+          OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
           PARSER_0_VERSION: '1.2.0'
           PARSER_DEFAULT_VERSION: '1.2.0'
           LOCAL_ENDPOINT:
@@ -89,6 +88,10 @@ Resources:
               Resource: !GetAtt PdfStandardisationQueue.Arn
             - Effect: Allow
               Action:
+                - sqs:SendMessage
+              Resource: !GetAtt StandardisedInvoiceStorageQueue.Arn
+            - Effect: Allow
+              Action:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
@@ -105,11 +108,8 @@ Resources:
             - Effect: Allow
               Action:
                 - s3:GetObject
-                - s3:ListBucket
-                - s3:PutObject
               Resource:
                 - !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
-                - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
             - Effect: Allow
               Action: s3:GetObject
               Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
