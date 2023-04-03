@@ -17,7 +17,7 @@ import {
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
-import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
+import { BillingTransactionCurated } from "./e2e-set2-tests";
 import crypto from "crypto";
 
 const prefix = resourcePrefix();

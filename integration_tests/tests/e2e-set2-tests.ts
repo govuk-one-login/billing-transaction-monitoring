@@ -27,6 +27,8 @@ const storageBucket = `${prefix}-storage`;
 const standardisedFolderPrefix = "btm_billing_standardised";
 let filename: string;
 
+// Below tests only run in lower environments as the test data used in tests
+
 describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data \n", () => {
   test.each`
     testCase                                                                                 | eventName             | vendorId                | eventTime             | unitPrice | numberOfTestEvents | priceDifferencePercentage | billingPriceFormatted | billingQty | transactionPriceFormatted | transactionQty

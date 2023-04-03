@@ -2,7 +2,7 @@ import type { Config } from "@jest/types";
 
 const config: Config.InitialOptions = {
   roots: ["<rootDir>/integration_tests"],
-  testMatch: ["**/tests/**/e2e-tests.ts"],
+  testMatch: ["**/tests/**/e2e-set1-tests.ts"],
   coveragePathIgnorePatterns: ["/node_modules/"],
   preset: "ts-jest",
   testRunner: "jasmine2",
