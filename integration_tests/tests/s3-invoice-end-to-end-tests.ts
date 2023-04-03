@@ -7,7 +7,10 @@ import {
   putS3Object,
   S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import {
+  getYearMonth,
+  poll,
+} from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
   randomInvoice,
   randomLineItems,
@@ -66,7 +69,9 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       ({ Contents }) =>
         Contents?.filter((s3Object) =>
           s3Object.Key?.includes(
-            "btm_billing_standardised/2023-04-vendor_testvendor3-VENDOR_3_EVENT"
+            `btm_billing_standardised/${getYearMonth(
+              invoice.date.toISOString()
+            )}-vendor_testvendor3-VENDOR_3_EVENT`
           )
         ).length === 3,
       {
