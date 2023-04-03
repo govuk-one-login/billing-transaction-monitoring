@@ -52,8 +52,18 @@ describe("New invoice with same month, vendor, service as old line item", () => 
 
     // Check they were standardised
     [givenService1LineItem, givenService2LineItem] = await Promise.all([
-      checkStandardised(givenDate, givenVendorId, givenVendorService1),
-      checkStandardised(givenDate, givenVendorId, givenVendorService2),
+      checkStandardised(
+        givenDate,
+        givenVendorId,
+        givenVendorService1,
+        "Given service 1 line item"
+      ),
+      checkStandardised(
+        givenDate,
+        givenVendorId,
+        givenVendorService2,
+        "Given service 2 line item"
+      ),
     ]);
 
     // Upload new invoice for existing vendor service
@@ -68,18 +78,27 @@ describe("New invoice with same month, vendor, service as old line item", () => 
       givenDate,
       givenVendorId,
       givenVendorService1,
+      "New service 1 line item",
       { keyToExclude: givenService1LineItem.key }
     );
 
     // Check old matching line item was archived
-    await checkStandardised(givenDate, givenVendorId, givenVendorService1, {
-      archived: true,
-    });
+    await checkStandardised(
+      givenDate,
+      givenVendorId,
+      givenVendorService1,
+      "Archived service 1 line item",
+      { archived: true }
+    );
 
     // Check old non-matching line item was not archived
-    await checkStandardised(givenDate, givenVendorId, givenVendorService2, {
-      archived: false,
-    });
+    await checkStandardised(
+      givenDate,
+      givenVendorId,
+      givenVendorService2,
+      "Non-archived service 2 line item",
+      { archived: false }
+    );
   });
 
   // Delete any uploaded test files
@@ -108,6 +127,7 @@ const checkStandardised = async (
   date: Date,
   vendorId: string,
   serviceConfig: E2ETestParserServiceConfig,
+  itemDescription: string,
   {
     archived = false,
     keyToExclude = undefined,
@@ -133,7 +153,7 @@ const checkStandardised = async (
 
     {
       interval: 10000,
-      nonCompleteErrorMessage: "Standardised line item not found",
+      nonCompleteErrorMessage: `${itemDescription} not found`,
       timeout: 80000,
     }
   );
