@@ -66,7 +66,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       ({ Contents }) =>
         Contents?.filter((s3Object) =>
           s3Object.Key?.includes(
-            "btm_billing_standardised/2023-03-vendor_testvendor3-VENDOR_3_EVENT"
+            "btm_billing_standardised/2023-04-vendor_testvendor3-VENDOR_3_EVENT"
           )
         ).length === 3,
       {
