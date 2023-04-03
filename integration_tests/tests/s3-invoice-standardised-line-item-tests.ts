@@ -134,7 +134,7 @@ const checkStandardised = async (
     {
       interval: 10000,
       nonCompleteErrorMessage: "Standardised line item not found",
-      timeout: 800000,
+      timeout: 80000,
     }
   );
 
