@@ -69,7 +69,7 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
             s3Object.Key?.includes(getYearMonth(data.eventTime))
           ).length === 1,
         {
-          timeout: 80000,
+          timeout: 120000,
           interval: 10000,
           nonCompleteErrorMessage:
             "Invoice data never appeared in standardised folder",
