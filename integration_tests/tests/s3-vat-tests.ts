@@ -8,7 +8,7 @@ describe("\n Verify VAT details exists in S3 config bucket\n", () => {
       key: "uk-vat.json",
     });
     expect(JSON.parse(response ?? "")).toEqual([
-      { rate: 0.2, start: "2011-01-05" },
+      { rate: 0.2, start: "2011-01-04" },
     ]);
   });
 });
