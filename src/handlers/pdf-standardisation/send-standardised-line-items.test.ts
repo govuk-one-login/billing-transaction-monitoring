@@ -1,7 +1,7 @@
 import { SQSRecord } from "aws-lambda";
 import {
   getS3EventRecordsFromSqs,
-  getStandardisedInvoiceFileName,
+  getStandardisedInvoiceKey,
   sendRecord,
 } from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
@@ -19,7 +19,7 @@ jest.mock("./get-standardised-invoice");
 const mockedGetStandardisedInvoice = getStandardisedInvoice as jest.Mock;
 
 const mockedGetStandardisedInvoiceFilename =
-  getStandardisedInvoiceFileName as jest.Mock;
+  getStandardisedInvoiceKey as jest.Mock;
 
 describe("Standardised invoice sender", () => {
   let mockedStandardisedInvoice: any[];

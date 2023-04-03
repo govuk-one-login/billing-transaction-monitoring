@@ -1,6 +1,7 @@
 import { SQSRecord } from "aws-lambda";
 import {
   getStandardisedInvoiceFileName,
+  getStandardisedInvoiceKey,
   LineItemFieldsForNaming,
   putTextS3,
 } from "../../shared/utils";
@@ -22,6 +23,13 @@ export async function storeLineItem(
       "Event record body is not object with valid fields for generating a file name."
     );
 
+  await putTextS3(
+    bucket,
+    getStandardisedInvoiceKey(folder, bodyObject),
+    record.body
+  );
+
+  // TODO The legacy storage location.  This will go away with BTM-486.
   await putTextS3(
     bucket,
     `${folder}/${getStandardisedInvoiceFileName(bodyObject)}`,

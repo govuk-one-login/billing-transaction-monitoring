@@ -48,12 +48,20 @@ async function storeRecord(record: SQSRecord): Promise<void> {
   const date = new Date(timestamp);
   const formattedDate = formatDate(date);
 
-  const key = `${formattedDate}/${eventId}.json`;
-
   logger.info("Storing event " + eventId);
+
+  const key = `${formattedDate}/${eventId}.json`;
   await putS3(
     process.env.STORAGE_BUCKET,
     process.env.TRANSACTIONS_FOLDER + "/" + key,
+    bodyObject
+  );
+
+  // TODO The legacy storage location.  This will go away with BTM-486.
+  const oldKey = `${formattedDate}/${eventId}.json`;
+  await putS3(
+    process.env.STORAGE_BUCKET,
+    process.env.TRANSACTIONS_FOLDER + "/" + oldKey,
     bodyObject
   );
 }

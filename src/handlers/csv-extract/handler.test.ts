@@ -3,7 +3,7 @@ import {
   fetchS3,
   getVendorServiceConfigRows,
   logger,
-  getStandardisedInvoiceFileName,
+  getStandardisedInvoiceKey,
   sendRecord,
 } from "../../shared/utils";
 import { handler } from "./handler";
@@ -24,7 +24,7 @@ const mockedFetchS3 = fetchS3 as jest.Mock;
 const mockedGetVendorServiceConfigRows =
   getVendorServiceConfigRows as jest.Mock;
 const mockedGetStandardisedInvoiceFilename =
-  getStandardisedInvoiceFileName as jest.Mock;
+  getStandardisedInvoiceKey as jest.Mock;
 const mockedSendRecord = sendRecord as jest.Mock;
 
 describe("CSV Extract handler tests", () => {

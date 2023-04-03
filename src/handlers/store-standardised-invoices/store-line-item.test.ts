@@ -1,14 +1,20 @@
 import { SQSRecord } from "aws-lambda";
-import { getStandardisedInvoiceFileName, putTextS3 } from "../../shared/utils";
+import {
+  getStandardisedInvoiceKey,
+  getStandardisedInvoiceFileName,
+  putTextS3,
+} from "../../shared/utils";
 import { storeLineItem } from "./store-line-item";
 
 jest.mock("../../shared/utils");
+const mockedGetStandardisedInvoiceKey = getStandardisedInvoiceKey as jest.Mock;
 const mockedGetStandardisedInvoiceFileName =
   getStandardisedInvoiceFileName as jest.Mock;
 const mockedPutTextS3 = putTextS3 as jest.Mock;
 
 describe("Line item storer", () => {
   let mockedStandardisedLineItemFileName: string;
+  let mockedStandardisedLineItemKey: string;
   let givenBucket: string;
   let givenFolder: string;
   let givenRecord: SQSRecord;
@@ -22,6 +28,13 @@ describe("Line item storer", () => {
 
     mockedGetStandardisedInvoiceFileName.mockReturnValue(
       mockedStandardisedLineItemFileName
+    );
+
+    mockedStandardisedLineItemKey =
+      "given folder/mocked standardised line item key";
+
+    mockedGetStandardisedInvoiceKey.mockReturnValue(
+      mockedStandardisedLineItemKey
     );
 
     givenBucket = "given bucket";
@@ -43,6 +56,7 @@ describe("Line item storer", () => {
 
     await expect(resultPromise).rejects.toThrow("not valid JSON");
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });
 
@@ -63,6 +77,7 @@ describe("Line item storer", () => {
       "is not object with valid fields"
     );
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });
 
@@ -76,6 +91,7 @@ describe("Line item storer", () => {
       "is not object with valid fields"
     );
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });
 
@@ -89,6 +105,7 @@ describe("Line item storer", () => {
       "is not object with valid fields"
     );
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });
 
@@ -102,6 +119,7 @@ describe("Line item storer", () => {
       "is not object with valid fields"
     );
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });
 
@@ -115,6 +133,7 @@ describe("Line item storer", () => {
       "is not object with valid fields"
     );
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });
 
@@ -128,6 +147,7 @@ describe("Line item storer", () => {
       "is not object with valid fields"
     );
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });
 
@@ -141,6 +161,7 @@ describe("Line item storer", () => {
       "is not object with valid fields"
     );
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
   });
 
@@ -152,16 +173,14 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(givenRecord, givenBucket, givenFolder);
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
-    expect(mockedGetStandardisedInvoiceFileName).toHaveBeenCalledTimes(1);
-    expect(mockedGetStandardisedInvoiceFileName).toHaveBeenCalledWith(
-      givenRecordBodyObject
-    );
+    expect(mockedGetStandardisedInvoiceKey).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       givenBucket,
-      `${givenFolder}/${mockedStandardisedLineItemFileName}`,
+      mockedStandardisedLineItemKey,
       givenRecord.body
     );
+    expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
   });
 
   test("Line item storer with valid input and working S3 call", async () => {
@@ -172,10 +191,15 @@ describe("Line item storer", () => {
     expect(mockedGetStandardisedInvoiceFileName).toHaveBeenCalledWith(
       givenRecordBodyObject
     );
-    expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
+    expect(mockedPutTextS3).toHaveBeenCalledTimes(2);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       givenBucket,
       `${givenFolder}/${mockedStandardisedLineItemFileName}`,
+      givenRecord.body
+    );
+    expect(mockedPutTextS3).toHaveBeenCalledWith(
+      givenBucket,
+      mockedStandardisedLineItemKey,
       givenRecord.body
     );
   });
