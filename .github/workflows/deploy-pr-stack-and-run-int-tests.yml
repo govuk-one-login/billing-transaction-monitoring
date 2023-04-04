@@ -80,6 +80,10 @@ jobs:
           REPORT_NAME="jest-report-$(date +%Y-%m-%d-%H-%M-%S).html"
           npm run test:integration
           mv ./reports/index.html ./reports/$REPORT_NAME
+      - name: Copy previous reports to reports history
+        run: |
+          mkdir p ./reports/history
+          cp -r ./reports/. ./reports/history/
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
@@ -87,4 +91,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
-          keep_files: 5
+          keep_files: 2
