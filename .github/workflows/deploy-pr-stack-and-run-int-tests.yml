@@ -84,3 +84,12 @@ jobs:
           publish_dir: ./reports/jest-html-reporters-attach
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: true
+      - name: Store last 5 reports
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          keep_history: true
+          max_depth: 5
+          publish_dir: ./reports/jest-html-reporters-attach
+          commit_message: 'Keep only the last 5 Jest HTML reports in gh-pages'
+          allow_empty_commit: true
