@@ -22,10 +22,12 @@ const config: Config.InitialOptions = {
       "jest-html-reporters",
       {
         publicPath: "./reports/jest-html-reporters-attach",
-        filename: "index.html",
+        filename: "index_[timestamp].html",
         expand: true,
         openReport: true,
         pageTitle: "BTM INTEGRATION TEST REPORT",
+        automateJson: true,
+        includeFailureMsg: true,
       },
     ],
   ],
