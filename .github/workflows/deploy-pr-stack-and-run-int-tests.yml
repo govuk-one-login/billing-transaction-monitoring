@@ -76,7 +76,14 @@ jobs:
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
       - name: Run integration tests
         run: npm run test:integration
-      - name: Deploy Jest HTML report to Github Pages
+      - name: Move existing reports to history folder
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          run: |
+            mkdir -p reports/history
+            ls reports/jest-html-reporters-attach/*.html | head -n -5 | xgrs -I {} mv {} reports/jest-html-reporters-history/
+      - name: Deploy Current Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -84,12 +91,12 @@ jobs:
           publish_dir: ./reports/jest-html-reporters-attach
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: true
-      - name: Store last 5 reports
+      - name: Deploy history of reports to GitHub Pages
+        if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          keep_history: true
+          publish_dir: ./reports/history
+          commit_message: 'Last 5 Jest HTML report'
+          keep_files: true
           max_depth: 5
-          publish_dir: ./reports/jest-html-reporters-attach
-          commit_message: 'Keep only the last 5 Jest HTML reports in gh-pages'
-          allow_empty_commit: true
