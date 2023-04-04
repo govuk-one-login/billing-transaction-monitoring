@@ -53,8 +53,8 @@ export const callWithRetry =
       try {
         return await asyncFunc.apply(null, underlyingArgs);
       } catch (error) {
-        if (retryOnErrorMatching(error as Error)) {
-          logger.warn(`Retrying on error: ${(error as Error)?.message}`);
+        if (error instanceof Error && retryOnErrorMatching(error)) {
+          logger.warn(`Retrying on error: ${error.message}`);
           return await callWithRetry(
             retries - 1,
             retryOnErrorMatching

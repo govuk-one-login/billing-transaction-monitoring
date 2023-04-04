@@ -84,11 +84,10 @@ describe("callWithRetry", () => {
     beforeEach(() => {
       attempt = 0;
     });
-    const alwaysFailsWithIncrementingErrorMessage = async (): Promise<string> =>
-      await new Promise((resolve, reject) => {
-        attempt++;
-        reject(new Error(`failure on attempt ${attempt}`));
-      });
+    const alwaysFailsWithIncrementingErrorMessage = async (): Promise<void> => {
+      attempt++;
+      throw new Error(`failure on attempt ${attempt}`);
+    };
 
     describe("when using the default retry option of always retrying", () => {
       it("fails to retrieve a value", async () => {
