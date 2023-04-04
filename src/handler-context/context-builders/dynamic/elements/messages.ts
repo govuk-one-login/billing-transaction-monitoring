@@ -1,6 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { S3Event, SQSEvent } from "aws-lambda";
-import { fetchS3 } from "../../shared/utils";
+import { fetchS3 } from "../../../../shared/utils";
 
 enum EventTypes {
   SQS,

@@ -1,18 +1,7 @@
-import { UserDefinedOutputs, HandlerCtx, OutputFunction, Outputs } from "..";
-import { Response } from "../../shared/types";
-import { ConfigFileNames } from "../config/types";
+import { HandlerCtx } from ".";
+import { Response } from "../shared/types";
+import { ConfigFileNames } from "./config/types";
 
-export const makeCtxOutputs = <TEnvVars extends string>(
-  outputs: UserDefinedOutputs<TEnvVars>,
-  env: Record<TEnvVars, string>
-): Outputs => {
-  return outputs.map(({ destination, store }) => ({
-    destination: env[destination],
-    store: store as OutputFunction,
-  }));
-};
-
-// I don't think this belongs here
 export const outputMessages = async <
   TMessage,
   TEnvVars extends string,

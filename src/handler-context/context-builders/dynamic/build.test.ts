@@ -1,12 +1,11 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { S3Event, SQSEvent } from "aws-lambda";
-import { buildContext } from ".";
-import { CtxBuilderOptions } from "..";
-import { ConfigFileNames } from "../config/types";
+import { SQSEvent, S3Event } from "aws-lambda";
+import { CtxBuilderOptions } from "../..";
+import { ConfigFileNames } from "../../config/types";
+import { StaticHandlerCtxElements } from "../static/build";
+import { build } from "./build";
 
-jest.mock("../config/s3-config-client");
-
-jest.mock("../../shared/utils/s3", () => ({
+jest.mock("../../../shared/utils", () => ({
   fetchS3: jest.fn(async (_name, key) => {
     switch (key) {
       case "test-key":
@@ -25,7 +24,6 @@ interface TestMessage {
 type TestEnvVars = "THIS" | "THAT" | "THE_OTHER";
 type TestConfigFiles = ConfigFileNames.inferences | ConfigFileNames.rates;
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const testSQSEvent = {
   Records: [
     {
@@ -33,9 +31,8 @@ const testSQSEvent = {
       body: '{"a":"something","b":12,"c":false}',
     },
   ],
-} as SQSEvent;
+} as unknown as SQSEvent;
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const testS3Event = {
   Records: [
     {
@@ -45,7 +42,7 @@ const testS3Event = {
       },
     },
   ],
-} as S3Event;
+} as unknown as S3Event;
 
 const mockStoreFunction1 = jest.fn();
 const mockStoreFunction2 = jest.fn();
@@ -73,20 +70,11 @@ const testOptions: CtxBuilderOptions<
   configFiles: [ConfigFileNames.inferences, ConfigFileNames.rates],
 };
 
-describe("buildContext", () => {
-  beforeEach(() => {
-    process.env.THIS = "this";
-    process.env.THAT = "that";
-    process.env.THE_OTHER = "the other";
-    process.env.CONFIG_BUCKET = "mock-config-bucket";
-  });
-  afterAll(() => {
-    delete process.env.THIS;
-    delete process.env.THAT;
-    delete process.env.THE_OTHER;
-    delete process.env.CONFIG_BUCKET;
-  });
+const testStaticContext = {
+  logger: new Logger(),
+} as unknown as StaticHandlerCtxElements<TestEnvVars, TestConfigFiles>;
 
+describe("build", () => {
   it.each([
     {
       event: testSQSEvent,
@@ -94,45 +82,20 @@ describe("buildContext", () => {
     },
     { event: testS3Event, expectedMessages: ["test document"] },
   ])(
-    "Returns a complete handler context based on the given options and event",
+    "builds context elements which depend on events",
     async ({ event, expectedMessages }) => {
-      const ctx = await buildContext<TestMessage, TestEnvVars, TestConfigFiles>(
+      const ctx = await build<TestMessage, TestEnvVars, TestConfigFiles>(
         event,
-        testOptions
+        testOptions,
+        testStaticContext
       );
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      expect(ctx.logger).toBeInstanceOf(Logger);
-      expect(ctx.env).toEqual({
-        THIS: "this",
-        THAT: "that",
-        THE_OTHER: "the other",
-      });
       expect(ctx.messages).toEqual(expectedMessages);
-      expect(ctx.outputs[0].destination).toBe("that");
-      expect(ctx.outputs[1].destination).toBe("the other");
-      expect(ctx.config).toEqual({
-        inferences: "mock inferences",
-        rates: "mock rates",
-      });
     }
   );
 
-  it("Throws an error if any of the requested env vars are not present", async () => {
-    delete process.env.THE_OTHER;
-    try {
-      await buildContext<TestMessage, TestEnvVars, TestConfigFiles>(
-        testSQSEvent,
-        testOptions
-      );
-    } catch (error) {
-      expect((error as Error).message).toContain("Environment is not valid");
-    }
-    expect.hasAssertions();
-  });
-
   it("Throws an error if a given message does not conform to the specified type", async () => {
     try {
-      await buildContext<TestMessage, TestEnvVars, TestConfigFiles>(
+      await build<TestMessage, TestEnvVars, TestConfigFiles>(
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         {
           ...testSQSEvent,
@@ -144,7 +107,8 @@ describe("buildContext", () => {
             },
           ],
         } as SQSEvent,
-        testOptions
+        testOptions,
+        testStaticContext
       );
     } catch (error) {
       expect((error as Error).message).toContain(
@@ -156,8 +120,7 @@ describe("buildContext", () => {
 
   it("Throws an error if a given SQS message's body is not valid json", async () => {
     try {
-      await buildContext<TestMessage, TestEnvVars, TestConfigFiles>(
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      await build<TestMessage, TestEnvVars, TestConfigFiles>(
         {
           ...testSQSEvent,
           Records: [
@@ -167,8 +130,9 @@ describe("buildContext", () => {
               body: `"invalid": "json"`,
             },
           ],
-        } as SQSEvent,
-        testOptions
+        } as unknown as SQSEvent,
+        testOptions,
+        testStaticContext
       );
     } catch (error) {
       expect((error as Error).message).toContain(
@@ -180,8 +144,7 @@ describe("buildContext", () => {
 
   it("Throws an error if a the file related to a given S3 message cannot be found", async () => {
     try {
-      await buildContext<TestMessage, TestEnvVars, TestConfigFiles>(
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      await build<TestMessage, TestEnvVars, TestConfigFiles>(
         {
           ...testS3Event,
           Records: [
@@ -193,8 +156,9 @@ describe("buildContext", () => {
               },
             },
           ],
-        } as S3Event,
-        testOptions
+        } as unknown as S3Event,
+        testOptions,
+        testStaticContext
       );
     } catch (error) {
       expect((error as Error).message).toContain(
@@ -206,13 +170,12 @@ describe("buildContext", () => {
 
   it("Throws an error if the event type cannot be determined", async () => {
     try {
-      await buildContext<TestMessage, TestEnvVars, TestConfigFiles>(
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      await build<TestMessage, TestEnvVars, TestConfigFiles>(
         {
           Records: [{ something: "something" }],
         } as unknown as S3Event,
-        testOptions
+        testOptions,
+        testStaticContext
       );
     } catch (error) {
       expect((error as Error).message).toContain(

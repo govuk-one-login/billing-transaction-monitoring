@@ -1,6 +1,6 @@
-import { s3ConfigFileClient } from "../config/s3-config-client";
-import { Config } from "../config";
-import { ConfigFileNames, PickedFiles } from "../config/types";
+import { s3ConfigFileClient } from "../../../config/s3-config-client";
+import { Config } from "../../../config";
+import { ConfigFileNames, PickedFiles } from "../../../config/types";
 
 export const makeCtxConfig = async <TConfigFileNames extends ConfigFileNames>(
   files: TConfigFileNames[]
