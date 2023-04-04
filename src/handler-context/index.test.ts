@@ -94,12 +94,10 @@ describe("buildHandler", () => {
     ])(
       "creates a context, invokes the business logic with that context, then sends to results of the business logic to the specified outputs",
       async ({ event, expectedOutput }) => {
-        await (
-          await buildHandler(testOptions)(
-            jest.fn(async ({ messages }) => {
-              return messages;
-            })
-          )
+        await buildHandler(testOptions)(
+          jest.fn(async ({ messages }) => {
+            return messages;
+          })
         )(event);
 
         expect(mockStoreFunction1).toHaveBeenLastCalledWith(
