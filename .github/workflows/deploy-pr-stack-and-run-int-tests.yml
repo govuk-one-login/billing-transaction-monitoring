@@ -74,8 +74,12 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
-      - name: Run integration tests
-        run: npm run test:integration
+      - name: Run integration tests and generate Jest HTML report
+        run: |
+          # Generate Jest HTML report with unique name
+          REPORT_NAME="jest-report-$(date +%Y-%m-%d-%H-%M-%S).html"
+          npm run test:integration
+          mv ./reports/index.html ./reports/$REPORT_NAME
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
