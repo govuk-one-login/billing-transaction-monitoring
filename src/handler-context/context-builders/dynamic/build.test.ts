@@ -112,7 +112,7 @@ describe("build", () => {
       );
     } catch (error) {
       expect((error as Error).message).toContain(
-        "Could not process message msg_2"
+        "Message msg_2 did not conform to the expected type"
       );
     }
     expect.hasAssertions();
@@ -136,7 +136,7 @@ describe("build", () => {
       );
     } catch (error) {
       expect((error as Error).message).toContain(
-        "Could not process message msg_2"
+        "Failed to parse message msg_2 as JSON"
       );
     }
     expect.hasAssertions();

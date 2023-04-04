@@ -14,7 +14,7 @@ const makeCtxSQSMessages = <TMessage>(
         body = JSON.parse(rawBody);
       } catch (error) {
         logger.error(`Received a message whose body was not valid JSON`);
-        throw new Error(`Failed to parse Message ${_id} as JSON`);
+        throw new Error(`Failed to parse message ${_id} as JSON`);
       }
       const messageIsExpectedType = messageTypeGuard(body);
       if (!messageIsExpectedType) {
