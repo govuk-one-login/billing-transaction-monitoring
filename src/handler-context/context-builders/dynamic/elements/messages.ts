@@ -44,7 +44,7 @@ const makeCtxS3Messages = async <TMessage>({
   const resolutions = await Promise.allSettled(promises);
   const messages = resolutions.map<TMessage>((resolution) => {
     if (resolution.status === "rejected") {
-      throw new Error("The document this event pertains to could not be found");
+      throw new Error("The object this event references could not be found.");
     }
     // This coercion negates an issue that stems from further up.
     // I think we need some way for the dev writing the handler

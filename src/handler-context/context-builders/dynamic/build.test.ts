@@ -142,7 +142,7 @@ describe("build", () => {
     expect.hasAssertions();
   });
 
-  it("Throws an error if a the file related to a given S3 message cannot be found", async () => {
+  it("Throws an error if the S3-object the message references cannot not be found", async () => {
     try {
       await build<TestMessage, TestEnvVars, TestConfigFiles>(
         {
@@ -162,7 +162,7 @@ describe("build", () => {
       );
     } catch (error) {
       expect((error as Error).message).toContain(
-        "The document this event pertains to could not be found"
+        "The object this event references could not be found."
       );
     }
     expect.hasAssertions();
