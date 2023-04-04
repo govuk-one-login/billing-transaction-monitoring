@@ -36,10 +36,10 @@ const makeCtxS3Messages = async <TMessage>({
   const promises = Records.map(
     async ({
       s3: {
-        bucket: { name },
+        bucket: { name: bucketName },
         object: { key },
       },
-    }) => await fetchS3(name, key)
+    }) => await fetchS3(bucketName, key)
   );
   const resolutions = await Promise.allSettled(promises);
   const messages = resolutions.map<TMessage>((resolution) => {
