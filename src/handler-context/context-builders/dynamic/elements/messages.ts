@@ -2,11 +2,6 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { S3Event, SQSEvent } from "aws-lambda";
 import { fetchS3 } from "../../../../shared/utils";
 
-enum EventTypes {
-  SQS,
-  S3,
-}
-
 const makeCtxSQSMessages = <TMessage>(
   { Records }: SQSEvent,
   messageTypeGuard: (maybeMessage: any) => maybeMessage is TMessage,
@@ -64,21 +59,18 @@ const makeCtxS3Messages = async <TMessage>({
   return messages;
 };
 
-const discernEventType = (event: S3Event | SQSEvent): EventTypes => {
-  if ((event as S3Event).Records[0]?.s3) return EventTypes.S3;
-  if ((event as SQSEvent).Records[0]?.messageId) return EventTypes.SQS;
-  throw new Error("Event type could not be determined");
-};
+const isS3Event = (event: any): event is S3Event =>
+  !!(event as S3Event).Records[0]?.s3;
+const isSQSEvent = (event: any): event is SQSEvent =>
+  !!(event as SQSEvent).Records[0]?.messageId;
 
 export const makeCtxMessages = async <TMessage>(
   event: S3Event | SQSEvent,
   messageTypeGuard: (maybeMessage: any) => maybeMessage is TMessage,
   logger: Logger
 ): Promise<TMessage[]> => {
-  switch (discernEventType(event)) {
-    case EventTypes.S3:
-      return await makeCtxS3Messages(event as S3Event);
-    case EventTypes.SQS:
-      return makeCtxSQSMessages(event as SQSEvent, messageTypeGuard, logger);
-  }
+  if (isS3Event(event)) return await makeCtxS3Messages(event);
+  if (isSQSEvent(event))
+    return makeCtxSQSMessages(event, messageTypeGuard, logger);
+  throw new Error("Event type could not be determined");
 };
