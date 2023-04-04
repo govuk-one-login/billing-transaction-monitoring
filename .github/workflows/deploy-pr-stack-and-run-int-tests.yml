@@ -78,11 +78,9 @@ jobs:
         run: npm run test:integration
       - name: Move existing reports to history folder
         if: always()
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          run: |
-            mkdir -p reports/history
-            ls reports/jest-html-reporters-attach/*.html | head -n -5 | xgrs -I {} mv {} reports/jest-html-reporters-history/
+        run: |
+          mkdir -p reports/history
+          ls reports/jest-html-reporters-attach/*.html | head -n -5 | xgrs -I {} mv {} reports/jest-html-reporters-history/
       - name: Deploy Current Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
