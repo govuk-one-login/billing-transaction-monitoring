@@ -79,7 +79,7 @@ jobs:
       - name: Move existing reports to history folder
         if: always()
         run: |
-          if [ -d ./reports/jest-html-reporters-history]; then
+          if [ -d ./reports/jest-html-reporters-history ]; then
             mkdir -p ./reports/jest-html-reporters-history
             for file in ./reports/jest-html-reporters-attach/*.html; do
               mv "$file" ./reports/jest-html-reporters-history/
