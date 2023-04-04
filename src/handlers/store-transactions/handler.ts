@@ -1,6 +1,11 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { formatDate, logger, putS3 } from "../../shared/utils";
+import {
+  formatDate,
+  formatDateAsYearMonthDay,
+  logger,
+  putS3,
+} from "../../shared/utils";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   const response: Response = { batchItemFailures: [] };
@@ -45,12 +50,10 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     throw new Error(message);
   }
 
-  const date = new Date(timestamp);
-  const formattedDate = formatDate(date);
-
   logger.info("Storing event " + eventId);
 
-  const key = `${formattedDate}/${eventId}.json`;
+  const date = new Date(timestamp);
+  const key = `${formatDateAsYearMonthDay(date)}/${eventId}.json`;
   await putS3(
     process.env.STORAGE_BUCKET,
     process.env.TRANSACTIONS_FOLDER + "/" + key,
@@ -58,10 +61,11 @@ async function storeRecord(record: SQSRecord): Promise<void> {
   );
 
   // TODO The legacy storage location.  This will go away with BTM-486.
-  const oldKey = `${formattedDate}/${eventId}.json`;
+  const formattedDate = formatDate(date);
+  const legacyKey = `${formattedDate}/${eventId}.json`;
   await putS3(
     process.env.STORAGE_BUCKET,
-    process.env.TRANSACTIONS_FOLDER + "/" + oldKey,
+    process.env.TRANSACTIONS_FOLDER + "/" + legacyKey,
     bodyObject
   );
 }

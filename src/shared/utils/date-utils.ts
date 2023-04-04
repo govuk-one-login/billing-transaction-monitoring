@@ -15,18 +15,20 @@ export const formatYearMonthDay = (
   day: number
 ): string => `${year}-${padZero(month)}-${padZero(day)}`;
 
-export function formatYearMonth(date: Date): string {
-  return formatYearMonthWithDelimiter(date, "-");
-}
+export const formatDateAsYearMonthDay = (
+  date: Date,
+  delimiter = "/"
+): string => {
+  const year = date.getFullYear();
+  const month = padZero(date.getMonth() + 1);
+  const day = padZero(date.getDate());
+  return `${year}${delimiter}${month}${delimiter}${day}`;
+};
 
-export function getYearMonthFolder(date: Date): string {
-  return formatYearMonthWithDelimiter(date, "/");
-}
-
-function formatYearMonthWithDelimiter(date: Date, delimiter: string): string {
+export const formatDateAsYearMonth = (date: Date, delimiter = "/"): string => {
   const year = date.getFullYear();
   const month = padZero(date.getMonth() + 1);
   return `${year}${delimiter}${month}`;
-}
+};
 
 export const padZero = (number: number): string => `0${number}`.slice(-2);

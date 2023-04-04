@@ -1,6 +1,6 @@
 import { StandardisedLineItem } from "../types";
 import crypto from "crypto";
-import { formatYearMonth, getYearMonthFolder } from "./date-utils";
+import { formatDateAsYearMonth } from "./date-utils";
 
 export type LineItemFieldsForNaming = Pick<
   StandardisedLineItem,
@@ -33,11 +33,11 @@ export function getStandardisedInvoiceKey(
   standardisedInvoice: LineItemFieldsForNaming
 ): string {
   const date = new Date(standardisedInvoice.invoice_receipt_date);
-  const yearMonth = formatYearMonth(date);
+  const yearMonth = formatDateAsYearMonth(date, "-");
   const vendorId = standardisedInvoice.vendor_id;
   const eventName = standardisedInvoice.event_name;
   const uuid = crypto.randomBytes(3).toString("hex");
-  return `${folder}/${getYearMonthFolder(
+  return `${folder}/${formatDateAsYearMonth(
     date
   )}/${yearMonth}-${vendorId}-${eventName}-${uuid}.txt`;
 }

@@ -16,7 +16,7 @@ jest.mock("../../shared/utils", () => {
     putTextS3: jest.fn(),
     getVendorServiceConfigRows: jest.fn(),
     logger: { error: jest.fn() },
-    getStandardisedInvoiceFileName: jest.fn(),
+    getStandardisedInvoiceKey: jest.fn(),
     sendRecord: jest.fn(),
   };
 });

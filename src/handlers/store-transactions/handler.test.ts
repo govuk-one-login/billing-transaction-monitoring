@@ -3,7 +3,11 @@ import {
   createEvent,
   createEventRecordWithName,
 } from "../../../test-helpers/SQS";
-import {formatDate, getYearMonthFolder, putS3} from "../../shared/utils";
+import {
+  formatDate,
+  formatDateAsYearMonthDay,
+  putS3,
+} from "../../shared/utils";
 
 jest.mock("../../shared/utils/s3");
 const mockPutS3 = putS3 as jest.MockedFunction<typeof putS3>;
@@ -40,8 +44,8 @@ test("Store Transactions handler with some valid events calls s3", async () => {
 
   const recordBody1 = JSON.parse(validRecord1.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
-  const formattedDate1 = formatDate(expectedDate1);
-  const expectedKey1 = `btm_transactions/${formattedDate1}/${
+  const yearMonthFolderDay1 = formatDateAsYearMonthDay(expectedDate1);
+  const expectedKey1 = `btm_transactions/${yearMonthFolderDay1}/${
     recordBody1.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -50,17 +54,37 @@ test("Store Transactions handler with some valid events calls s3", async () => {
     expectedKey1,
     JSON.parse(validRecord1.body)
   );
+  const formattedDate1 = formatDate(expectedDate1);
+  const expectedLegacyKey1 = `btm_transactions/${formattedDate1}/${
+    recordBody1.event_id as string
+  }.json`;
+  expect(mockPutS3).toHaveBeenNthCalledWith(
+    3,
+    "store",
+    expectedLegacyKey1,
+    JSON.parse(validRecord1.body)
+  );
 
   const recordBody2 = JSON.parse(validRecord2.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
-  const formattedDate2 = formatDate(expectedDate2);
-  const expectedKey2 = `btm_transactions/${formattedDate2}/${
+  const yearMonthDayFolder2 = formatDateAsYearMonthDay(expectedDate2);
+  const expectedKey2 = `btm_transactions/${yearMonthDayFolder2}/${
     recordBody2.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
     2,
     "store",
     expectedKey2,
+    JSON.parse(validRecord2.body)
+  );
+  const formattedDate2 = formatDate(expectedDate2);
+  const expectedLegacyKey2 = `btm_transactions/${formattedDate2}/${
+    recordBody2.event_id as string
+  }.json`;
+  expect(mockPutS3).toHaveBeenNthCalledWith(
+    4,
+    "store",
+    expectedLegacyKey2,
     JSON.parse(validRecord2.body)
   );
 });
@@ -105,9 +129,8 @@ test("Failing puts to S3", async () => {
 
   const recordBody1 = JSON.parse(validRecord.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
-  const formattedDate1 = formatDate(expectedDate1);
-  const yearMonthFolder1 = getYearMonthFolder(expectedDate1);
-  const expectedKey1 = `btm_transactions/${yearMonthFolder1}/${formattedDate1}/${
+  const yearMonthDayFolder1 = formatDateAsYearMonthDay(expectedDate1);
+  const expectedKey1 = `btm_transactions/${yearMonthDayFolder1}/${
     recordBody1.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -119,10 +142,9 @@ test("Failing puts to S3", async () => {
 
   const recordBody2 = JSON.parse(invalidRecord.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
-  const yearMonthFolder2 = getYearMonthFolder(expectedDate2);
-  const formattedDate2 = formatDate(expectedDate2);
+  const yearMonthDayFolder2 = formatDateAsYearMonthDay(expectedDate2);
 
-  const expectedKey2 = `btm_transactions/${yearMonthFolder2}/${formattedDate2}/${
+  const expectedKey2 = `btm_transactions/${yearMonthDayFolder2}/${
     recordBody2.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -132,14 +154,15 @@ test("Failing puts to S3", async () => {
     JSON.parse(invalidRecord.body)
   );
 
-  const expectedLegacyKey2 = `btm_transactions/${formattedDate2}/${
-    recordBody2.event_id as string
+  const formattedDate1 = formatDate(expectedDate1);
+  const expectedLegacyKey1 = `btm_transactions/${formattedDate1}/${
+    recordBody1.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
-    2,
+    3,
     "store",
-    expectedLegacyKey2,
-    JSON.parse(invalidRecord.body)
+    expectedLegacyKey1,
+    JSON.parse(validRecord.body)
   );
 
   expect(result.batchItemFailures.length).toEqual(1);
