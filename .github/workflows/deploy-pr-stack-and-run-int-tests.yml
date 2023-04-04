@@ -76,19 +76,11 @@ jobs:
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
       - name: Run integration tests
         run: npm run test:integration
-      - name: Keep only last 5 reports
-        run: |
-          cd  ./reports
-          files=$(ls -t | tail -n +6)
-          for file in $files; do
-            rm "$file"
-          done
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./reports/jest-html-reporters-attach
+          publish_dir: ./reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
-          keep_files: true
-          max_depth: 5
+          keep_files: 5
