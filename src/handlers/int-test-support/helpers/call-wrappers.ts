@@ -46,25 +46,22 @@ export const callWithRetry =
   <TArgs extends any[], TResolution>(
     asyncFunc: (...underlyingArgs: TArgs) => Promise<TResolution>
   ) =>
-  async (...underlyingArgs: any): Promise<TResolution> =>
-    await new Promise((resolve, reject) => {
-      let isUnresolved = true;
-      for (let i = 0; isUnresolved && i < retries; i++) {
-        asyncFunc.apply(null, underlyingArgs).then(
-          (result) => {
-            isUnresolved = false;
-            resolve(result);
-          },
-          (error) => {
-            if (
-              i < retries - 1 &&
-              (!retryOnErrorMatching || retryOnErrorMatching(error))
-            ) {
-              logger.warn(`Retrying on error: ${error.message}`);
-            } else {
-              reject(error);
-            }
-          }
-        );
+  async (...underlyingArgs: any): Promise<TResolution> => {
+    if (retries <= 0) {
+      throw new Error("Ran out of retries");
+    } else {
+      try {
+        return await asyncFunc.apply(null, underlyingArgs);
+      } catch (error) {
+        if (retryOnErrorMatching(error as Error)) {
+          logger.warn(`Retrying on error: ${(error as Error)?.message}`);
+          return await callWithRetry(
+            retries - 1,
+            retryOnErrorMatching
+          )(asyncFunc).apply(null, underlyingArgs);
+        } else {
+          throw error;
+        }
       }
-    });
+    }
+  };
