@@ -76,12 +76,13 @@ jobs:
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
       - name: Run integration tests
         run: npm run test:integration
-      - name: Install xargs
-        run: sudo apt-get install -y xargs
       - name: Keep only last 5 reports
         run: |
-          cd  ./reports/jest-html-reporters-attach
-          ls  -t | tail -n +6 | xargs rm --
+          cd  ./reports
+          files=$(ls -t | tail -n +6)
+          for file in $files; do
+            rm "$file"
+          done
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
