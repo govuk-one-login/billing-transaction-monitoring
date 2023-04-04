@@ -11,7 +11,8 @@ import {
 export async function storeLineItem(
   record: SQSRecord,
   bucket: string,
-  folder: string
+  destinationFolder: string,
+  archiveFolder: string
 ): Promise<void> {
   let bodyObject;
   try {
@@ -26,21 +27,18 @@ export async function storeLineItem(
     );
 
   const itemFileNamePrefix = getStandardisedInvoiceFileNamePrefix(bodyObject);
-  const itemKeyPrefix = `${folder}/${itemFileNamePrefix}`;
+  const itemKeyPrefix = `${destinationFolder}/${itemFileNamePrefix}`;
   const staleItemKeys = await listS3Keys(bucket, itemKeyPrefix);
 
   await putTextS3(
     bucket,
-    `${folder}/${getStandardisedInvoiceFileName(bodyObject)}`,
+    `${destinationFolder}/${getStandardisedInvoiceFileName(bodyObject)}`,
     record.body
   );
 
-  const archivePromises = staleItemKeys.map(async (key) => {
-    const keyParts = key.split("/");
-    const folderNames = keyParts.slice(0, -1);
-    const newFolderName = [...folderNames, "archived"].join("/");
-    await moveToFolderS3(bucket, key, newFolderName);
-  });
+  const archivePromises = staleItemKeys.map(
+    async (key) => await moveToFolderS3(bucket, key, archiveFolder)
+  );
 
   await Promise.all(archivePromises);
 }

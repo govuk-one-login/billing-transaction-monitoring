@@ -193,8 +193,8 @@ const deleteInvoice = async (pdf: S3Object): Promise<void> => {
 };
 
 const deleteLineItem = async ({ bucket, key }: S3Object): Promise<void> => {
-  const [folderName, fileName] = key.split("/");
-  const keys = [key, `${folderName}/archived/${fileName}`];
+  const [_, fileName] = key.split("/");
+  const keys = [key, `btm_billing_standardised_archived/${fileName}`];
   await deleteExisting(bucket, keys);
 };
 
@@ -228,16 +228,14 @@ const getLineItemPrefix = (
   eventName: string,
   archived: boolean
 ): string => {
-  const folder = "btm_billing_standardised";
-
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const monthText = String(month).padStart(2, "0");
   const filePrefix = `${year}-${monthText}-${vendorId}-${eventName}-`;
 
   return archived
-    ? `${folder}/archived/${filePrefix}`
-    : `${folder}/${filePrefix}`;
+    ? `btm_billing_standardised_archived/${filePrefix}`
+    : `btm_billing_standardised/${filePrefix}`;
 };
 
 const getRandomInteger = (minInteger: number, maxInteger: number): number =>
