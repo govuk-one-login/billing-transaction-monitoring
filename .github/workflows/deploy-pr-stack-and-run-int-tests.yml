@@ -79,8 +79,12 @@ jobs:
       - name: Move existing reports to history folder
         if: always()
         run: |
-          mkdir -p reports/history
-          ls reports/jest-html-reporters-attach/*.html | head -n -5 | xgrs -I {} mv {} reports/jest-html-reporters-history/
+          if [ -d ./reports/jest-html-reporters-history]; then
+            mkdir -p ./reports/jest-html-reporters-history
+            for file in ./reports/jest-html-reporters-attach/*.html; do
+              mv "$file" ./reports/jest-html-reporters-history/
+            done
+          fi
       - name: Deploy Current Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
