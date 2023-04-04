@@ -14,14 +14,14 @@ const makeCtxSQSMessages = <TMessage>(
         body = JSON.parse(rawBody);
       } catch (error) {
         logger.error(`Received a message whose body was not valid JSON`);
-        throw new Error(`Could not process message ${_id}`);
+        throw new Error(`Failed to parse Message ${_id} as JSON`);
       }
       const messageIsExpectedType = messageTypeGuard(body);
       if (!messageIsExpectedType) {
         logger.error(
           `Received a message which did not conform to the expected type`
         );
-        throw new Error(`Could not process message ${_id}`);
+        throw new Error(`Message ${_id} did not conform to the expected type`);
       }
       // we attach the _id to the message so that we can handle batch item failures
       return { ...body, _id };
