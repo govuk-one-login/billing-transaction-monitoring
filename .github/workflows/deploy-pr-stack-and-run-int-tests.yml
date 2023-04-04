@@ -83,4 +83,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./reports/jest-html-reporters-attach
           commit_message: 'Deploy Jest HTML report to gh-pages'
-          keep_files: 5
+          keep_files: true
