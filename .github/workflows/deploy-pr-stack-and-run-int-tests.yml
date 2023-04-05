@@ -76,7 +76,7 @@ jobs:
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
       - name: Delete old Jest HTML reports
         run: |
-          REPORTS_DIR="./reports/jest-html-reporters-attach"
+          REPORTS_DIR="./reports/jest-html-reporters-attach/jest-html-reporters-attach/index"
           # Get the number of existing reports
           REPORTS_COUNT=$(ls $REPORTS_DIR | grep -c "jest-report-" || true)
           # If there are more than 3 reports, remove the oldest ones
@@ -93,7 +93,9 @@ jobs:
           # Generate Jest HTML report with unique name
           REPORT_NAME="jest-report-$(date +%Y-%m-%d-%H-%M-%S).html"
           npm run test:integration
-          mv ./reports/jest-html-reporters-attach/index.html ./reports/$REPORT_NAME
+          mv ./reports/index.html ./reports/{$REPORT_NAME}.html
+          mv ./reports/jest-html-reporters-attach/jest-html-reporters-attach/index.js ./reports/jest-html-reporters-attach/jest-html-reporters-attach/index/${REPORT_NAME}-index.js
+          mv ./reports/jest-html-reporters-attach/jest-html-reporters-attach/result.js ./reports/jest-html-reporters-attach/jest-html-reporters-attach/index/${REPORT_NAME}-result.js
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
