@@ -106,6 +106,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: $UNIQUE_DIR
+          publish_dir: $UNIQUE_DIR-$TIMESTAMP
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: 2
