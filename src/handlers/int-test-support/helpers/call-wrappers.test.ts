@@ -34,10 +34,10 @@ describe("callWithTimeout", () => {
 describe("callWithRetry", () => {
   describe("given a function that succeeds the first time", () => {
     it("successfully retrieves the value", async () => {
-      const result = await callWithRetry(3)(
-        async () => await new Promise((resolve) => resolve("a"))
-      )();
+      const asyncFunc = jest.fn(async (): Promise<string> => "a");
+      const result = await callWithRetry(3)(asyncFunc)();
       expect(result).toBe("a");
+      expect(asyncFunc).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -80,22 +80,31 @@ describe("callWithRetry", () => {
   });
 
   describe("given a function that fails consistently", () => {
-    describe("when using the default retry option of always retrying", () => {
-      let attempt: number;
-      beforeEach(() => {
-        attempt = 0;
-      });
-      const alwaysFailsWithIncrementingErrorMessage =
-        async (): Promise<string> =>
-          await new Promise((resolve, reject) => {
-            attempt++;
-            reject(new Error(`failure on attempt ${attempt}`));
-          });
+    let attempt: number;
+    beforeEach(() => {
+      attempt = 0;
+    });
+    const alwaysFailsWithIncrementingErrorMessage = async (): Promise<void> => {
+      attempt++;
+      throw new Error(`failure on attempt ${attempt}`);
+    };
 
-      it("fails to retrieve a value and throws the error from the last attempt", async () => {
+    describe("when using the default retry option of always retrying", () => {
+      it("fails to retrieve a value", async () => {
         await expect(
           callWithRetry(3)(alwaysFailsWithIncrementingErrorMessage)()
-        ).rejects.toThrowError(new Error("failure on attempt 3"));
+        ).rejects.toThrowError(new Error("Ran out of retries"));
+      });
+    });
+
+    describe("when using a retry option that doesn't match the thrown error", () => {
+      it("fails with the first error thrown", async () => {
+        await expect(
+          callWithRetry(
+            3,
+            (error: Error): boolean => error.message === "some other error"
+          )(alwaysFailsWithIncrementingErrorMessage)()
+        ).rejects.toThrowError(new Error("failure on attempt 1"));
       });
     });
   });
