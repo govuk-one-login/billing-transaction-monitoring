@@ -74,6 +74,29 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
+      - name: Move existing reports to history directory
+        run: |
+          # Create history directory if not exists
+          mkdir -p ./reports/history
+          # Move existing reports to history directory
+          mv ./reports/*.html ./reports/history
+      - name: Check for last 5 reports in history
+        run: |
+          # Install xargs package
+          sudo apt-get update
+          sudo apt-get install -y findutils
+          # Get the count of reports in history directory
+          REPORT_COUNT=$(ls -1 ./reports/history/*.html | wc -l)
+          # If report count is greater than 3, remove older reports
+          if [ $REPORT_COUNT -gt 3 ]; then
+             ls -t ./reports/history/*.html | tail -n +6 | xargs rm
+          fi
+      - name: Run integration tests and generate Jest HTML report
+        run: |
+          # Generate Jest HTML report with unique name
+          REPORT_NAME="jest-report-$(date +%Y-%m-%d-%H-%M-%S).html"
+          npm run test:integration
+          mv ./reports/index.html ./reports/$REPORT_NAME
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
@@ -81,4 +104,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
-          keep_files: 2
+          keep_files: 3
