@@ -9,7 +9,8 @@ import {
 export async function storeLineItem(
   record: SQSRecord,
   bucket: string,
-  folder: string
+  folder: string,
+  legacyFolder: string
 ): Promise<void> {
   let bodyObject;
   try {
@@ -32,7 +33,7 @@ export async function storeLineItem(
   // TODO The legacy storage location.  This will go away with BTM-486.
   await putTextS3(
     bucket,
-    `${folder}/${getStandardisedInvoiceFileName(bodyObject)}`,
+    `${legacyFolder}/${getStandardisedInvoiceFileName(bodyObject)}`,
     record.body
   );
 }

@@ -19,6 +19,7 @@ beforeEach(() => {
   mockPutS3.mockClear();
   process.env.STORAGE_BUCKET = "store";
   process.env.TRANSACTIONS_FOLDER = "btm_transactions";
+  process.env.TRANSACTION_DATA_FOLDER = "btm_transaction_data";
 });
 
 afterAll(() => {
@@ -45,7 +46,7 @@ test("Store Transactions handler with some valid events calls s3", async () => {
   const recordBody1 = JSON.parse(validRecord1.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
   const yearMonthFolderDay1 = formatDateAsYearMonthDay(expectedDate1);
-  const expectedKey1 = `btm_transactions/${yearMonthFolderDay1}/${
+  const expectedKey1 = `btm_transaction_data/${yearMonthFolderDay1}/${
     recordBody1.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -68,7 +69,7 @@ test("Store Transactions handler with some valid events calls s3", async () => {
   const recordBody2 = JSON.parse(validRecord2.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
   const yearMonthDayFolder2 = formatDateAsYearMonthDay(expectedDate2);
-  const expectedKey2 = `btm_transactions/${yearMonthDayFolder2}/${
+  const expectedKey2 = `btm_transaction_data/${yearMonthDayFolder2}/${
     recordBody2.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -130,7 +131,7 @@ test("Failing puts to S3", async () => {
   const recordBody1 = JSON.parse(validRecord.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
   const yearMonthDayFolder1 = formatDateAsYearMonthDay(expectedDate1);
-  const expectedKey1 = `btm_transactions/${yearMonthDayFolder1}/${
+  const expectedKey1 = `btm_transaction_data/${yearMonthDayFolder1}/${
     recordBody1.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -143,8 +144,7 @@ test("Failing puts to S3", async () => {
   const recordBody2 = JSON.parse(invalidRecord.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
   const yearMonthDayFolder2 = formatDateAsYearMonthDay(expectedDate2);
-
-  const expectedKey2 = `btm_transactions/${yearMonthDayFolder2}/${
+  const expectedKey2 = `btm_transaction_data/${yearMonthDayFolder2}/${
     recordBody2.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(

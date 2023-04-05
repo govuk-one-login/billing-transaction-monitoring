@@ -18,6 +18,7 @@ describe("Store Standardised Invoices handler tests", () => {
       ...OLD_ENV,
       DESTINATION_BUCKET: "given destination bucket",
       DESTINATION_FOLDER: "given destination folder",
+      LEGACY_DESTINATION_FOLDER: "given legacy destination folder",
     };
 
     givenEvent = { Records: [] };
@@ -58,12 +59,14 @@ describe("Store Standardised Invoices handler tests", () => {
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord1,
       process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER
+      process.env.DESTINATION_FOLDER,
+      process.env.LEGACY_DESTINATION_FOLDER
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord2,
       process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER
+      process.env.DESTINATION_FOLDER,
+      process.env.LEGACY_DESTINATION_FOLDER
     );
     expect(result).toEqual({
       batchItemFailures: [
@@ -90,12 +93,14 @@ describe("Store Standardised Invoices handler tests", () => {
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord1,
       process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER
+      process.env.DESTINATION_FOLDER,
+      process.env.LEGACY_DESTINATION_FOLDER
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord2,
       process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER
+      process.env.DESTINATION_FOLDER,
+      process.env.LEGACY_DESTINATION_FOLDER
     );
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given record 1 message ID" }],
