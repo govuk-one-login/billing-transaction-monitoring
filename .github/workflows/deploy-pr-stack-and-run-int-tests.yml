@@ -91,14 +91,14 @@ jobs:
       - name: Run integration tests and generate Jest HTML report
         run: |
           # Generate Jest HTML report with unique name
-          REPORTS_DIR="./reports/jest-html-reporters-attach"
+          REPORTS_DIR="./reports"
           TIMESTAMP=$(date +%Y-%m-%d-%H-%M-%S)
-          UNIQUE_DIR=./reports/jest-html-reporters-attach/jest-html-reporters-attach-$TIMESTAMP
+          UNIQUE_DIR=TEST-$TIMESTAMP
           mkdir -p $UNIQUE_DIR
           npm run test:integration
-          ls ./reports/jest-html-reporters-attach
-          mv ./reports/jest-html-reporters-attach/index.html "$UNIQUE_DIR/"
-          mv ./reports/jest-html-reporters-attach/jest-html-reporters-attach "$UNIQUE_DIR/"
+          ls ./reports
+          mv ./reports/index.html "$UNIQUE_DIR/"
+          mv ./reports/jest-html-reporters-attach "$UNIQUE_DIR/"
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3

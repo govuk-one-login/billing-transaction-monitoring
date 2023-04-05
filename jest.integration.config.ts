@@ -21,7 +21,7 @@ const config: Config.InitialOptions = {
     [
       "jest-html-reporters",
       {
-        publicPath: "./reports/jest-html-reporters-attach",
+        publicPath: "./reports",
         filename: "index.html",
         expand: true,
         openReport: true,
