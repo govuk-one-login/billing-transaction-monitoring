@@ -1,14 +1,14 @@
 import { Json } from "../../shared/types";
-import { ConfigFileNames, ConfigClient, PickedFiles } from "./types";
+import { ConfigFileNames, GetConfigFile, PickedConfigFiles } from "./types";
 
 export class Config<TFileName extends ConfigFileNames> {
-  private readonly client: ConfigClient;
+  private readonly getConfigFile: GetConfigFile;
   private readonly files: ConfigFileNames[];
   private readonly promises: Array<Promise<[ConfigFileNames, Json]>>;
-  private cache: PickedFiles<TFileName> | undefined;
+  private cache: PickedConfigFiles<TFileName> | undefined;
 
-  constructor(client: ConfigClient, files: TFileName[]) {
-    this.client = client;
+  constructor(getConfigFile: GetConfigFile, files: TFileName[]) {
+    this.getConfigFile = getConfigFile;
     this.files = files;
     this.promises = this.spawnPromises();
   }
@@ -16,20 +16,19 @@ export class Config<TFileName extends ConfigFileNames> {
   private readonly spawnPromises = (): Array<
     Promise<[ConfigFileNames, Json]>
   > => {
-    if (process.env.CONFIG_BUCKET === undefined)
-      throw new Error("No CONFIG_BUCKET defined in this environment");
-
     return this.files.map<Promise<[ConfigFileNames, Json]>>(
-      async (fileName) => [fileName, await this.client.getConfigFile(fileName)]
+      async (fileName) => [fileName, await this.getConfigFile(fileName)]
     );
   };
 
   public readonly populateCache = async (): Promise<void> => {
     const cacheEntries = await Promise.all(this.promises);
-    this.cache = Object.fromEntries(cacheEntries) as PickedFiles<TFileName>;
+    this.cache = Object.fromEntries(
+      cacheEntries
+    ) as PickedConfigFiles<TFileName>;
   };
 
-  public readonly getCache = (): PickedFiles<TFileName> => {
+  public readonly getCache = (): PickedConfigFiles<TFileName> => {
     if (this.cache === undefined) {
       throw new Error(
         "Called getCache before awaiting populateCache. Ensure the cache is populated before reading it."

@@ -3,7 +3,6 @@ import { buildHandler, CtxBuilderOptions } from ".";
 import { ConfigFileNames } from "./config/types";
 
 jest.mock("./config/s3-config-client");
-
 jest.mock("../shared/utils/s3", () => ({
   fetchS3: jest.fn(async (_name, key) => {
     switch (key) {

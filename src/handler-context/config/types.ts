@@ -42,11 +42,9 @@ export interface ConfigFiles {
   }>;
 }
 
-export interface ConfigClient {
-  getConfigFile: (fileName: ConfigFileNames) => Promise<Json>;
-}
+export type GetConfigFile = (fileName: ConfigFileNames) => Promise<Json>;
 
-export type PickedFiles<TFileName extends ConfigFileNames> = Omit<
+export type PickedConfigFiles<TFileName extends ConfigFileNames> = Pick<
   ConfigFiles,
-  keyof Omit<ConfigFiles, TFileName>
+  TFileName
 >;

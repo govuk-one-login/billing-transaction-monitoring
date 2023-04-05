@@ -1,45 +1,18 @@
 import csvToJson from "csvtojson";
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { ConfigClient, ConfigFileNames } from "./types";
+import { ConfigFileNames, GetConfigFile } from "./types";
 import { Json } from "../../shared/types";
+import { fetchS3 } from "../../shared/utils";
 
-enum FileExtensions {
-  csv,
-  json,
-}
-
-const fileMap: Record<
-  ConfigFileNames,
-  { path: string; fileExtension: FileExtensions }
-> = {
-  [ConfigFileNames.rates]: {
-    path: "rate_tables/rates.csv",
-    fileExtension: FileExtensions.csv,
-  },
-  [ConfigFileNames.services]: {
-    path: "vendor_services/vendor-services.csv",
-    fileExtension: FileExtensions.csv,
-  },
-  [ConfigFileNames.renamingMap]: {
-    path: "csv_transactions/header-row-renaming-map.json",
-    fileExtension: FileExtensions.json,
-  },
-  [ConfigFileNames.inferences]: {
-    path: "csv_transactions/event-inferences.json",
-    fileExtension: FileExtensions.json,
-  },
-  [ConfigFileNames.transformations]: {
-    path: "csv_transactions/event-transformation.json",
-    fileExtension: FileExtensions.json,
-  },
-  [ConfigFileNames.vat]: {
-    path: "uk-vat.json",
-    fileExtension: FileExtensions.json,
-  },
-  [ConfigFileNames.standardisation]: {
-    path: "vendor-invoice-standardisation.json",
-    fileExtension: FileExtensions.json,
-  },
+const fileMap: Record<ConfigFileNames, string> = {
+  [ConfigFileNames.rates]: "rate_tables/rates.csv",
+  [ConfigFileNames.services]: "vendor_services/vendor-services.csv",
+  [ConfigFileNames.renamingMap]:
+    "csv_transactions/header-row-renaming-map.json",
+  [ConfigFileNames.inferences]: "csv_transactions/event-inferences.json",
+  [ConfigFileNames.transformations]:
+    "csv_transactions/event-transformation.json",
+  [ConfigFileNames.vat]: "uk-vat.json",
+  [ConfigFileNames.standardisation]: "vendor-invoice-standardisation.json",
 };
 
 const parseCsvFile = async (rawFile: string): Promise<Json> => {
@@ -51,37 +24,33 @@ const parseJsonFile = (rawFile: string): Json => {
 
 const parseConfigFile = async (
   rawFile: string,
-  fileExtension: FileExtensions
+  fileExtension: string
 ): Promise<Json> => {
   switch (fileExtension) {
-    case FileExtensions.json:
+    case "json":
       return parseJsonFile(rawFile);
-    case FileExtensions.csv:
+    case "csv":
       return await parseCsvFile(rawFile);
+    default:
+      throw new Error(
+        `Config file extension could not be mapped to a parser. The extension was ${fileExtension}`
+      );
   }
 };
 
-const client = new S3Client({
-  region: "eu-west-2",
-  endpoint: process.env.LOCAL_ENDPOINT,
-});
+export const getConfigFile: GetConfigFile = async (fileName) => {
+  if (process.env.CONFIG_BUCKET === undefined)
+    throw new Error("No CONFIG_BUCKET defined in this environment");
 
-export const s3ConfigFileClient: ConfigClient = {
-  getConfigFile: async (fileName: ConfigFileNames): Promise<Json> => {
-    const { path, fileExtension } = fileMap[fileName];
+  const path = fileMap[fileName];
+  const fileExtension = path.split(".").reverse()[0];
 
-    const response = await client.send(
-      new GetObjectCommand({
-        Bucket: process.env.CONFIG_BUCKET,
-        Key: path,
-      })
+  if (!fileExtension)
+    throw new Error(
+      `Config file extension could not be determined. The path was ${path}`
     );
-    if (response.Body === undefined) {
-      throw new Error(`Config file could not be found at ${path}`);
-    }
-    return await parseConfigFile(
-      await response.Body.transformToString(),
-      fileExtension
-    );
-  },
+
+  const response = await fetchS3(process.env.CONFIG_BUCKET, path);
+
+  return await parseConfigFile(response, fileExtension);
 };

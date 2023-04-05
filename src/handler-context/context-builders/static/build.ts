@@ -1,6 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { CtxBuilderOptions, Outputs } from "../..";
-import { ConfigFileNames, PickedFiles } from "../../config/types";
+import { ConfigFileNames, PickedConfigFiles } from "../../config/types";
 import { makeCtxConfig } from "./elements/config";
 import { makeCtxEnv } from "./elements/env";
 import { makeCtxOutputs } from "./elements/outputs";
@@ -12,7 +12,7 @@ export interface StaticHandlerCtxElements<
   env: Record<TEnvVars, string>;
   logger: Logger;
   outputs: Outputs;
-  config: PickedFiles<TConfigFileNames>;
+  config: PickedConfigFiles<TConfigFileNames>;
 }
 
 export const build = async <
