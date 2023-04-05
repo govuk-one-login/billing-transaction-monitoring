@@ -97,7 +97,8 @@ jobs:
           mkdir -p $UNIQUE_DIR
           npm run test:integration
           ls ./reports/jest-html-reporters-attach
-          mv ./reports/jest-html-reporters-attach/* "$UNIQUE_DIR/"
+          mv ./reports/jest-html-reporters-attach/index.html "$UNIQUE_DIR/"
+          mv ./reports/jest-html-reporters-attach/jest-html-reporters-attach "$UNIQUE_DIR/"
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
