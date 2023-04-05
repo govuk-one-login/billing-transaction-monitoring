@@ -93,18 +93,16 @@ jobs:
           # Generate Jest HTML report with unique name
           REPORTS_DIR="./reports"
           TIMESTAMP=$(date +%Y-%m-%d-%H-%M-%S)
-          UNIQUE_DIR=TEST-$TIMESTAMP
+          UNIQUE_DIR="$GITHUB_WORKSPACE/TEST-$TIMESTAMP"
           mkdir -p $UNIQUE_DIR
           npm run test:integration
           ls ./reports
-          ls ../reports
-          mv ./reports/index.html "$UNIQUE_DIR/"
-          mv ./reports/jest-html-reporters-attach "$UNIQUE_DIR/"
+          mv $REPORTS_DIR $UNIQUE_DIR
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ../reports
+          publish_dir: ./TEST-TIMESTAMP
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: 2
