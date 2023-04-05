@@ -96,7 +96,6 @@ jobs:
           mkdir -p $REPORTS_DIR
           npm run test:integration
           mv "$REPORTS_DIR/jest-html-reporters-attach/* $REPORTS_DIR
-          mv "$REPORTS_DIR/jest-html-reporters-attach/index.html  $REPORTS_DIR/index.html
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
