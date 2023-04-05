@@ -74,15 +74,19 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
-      - name: Remove old Jest HTML reports
+      - name: Delete old Jest HTML reports
         run: |
           REPORTS_DIR="./reports"
           # Get the number of existing reports
-          REPORTS_COUNT=$(ls $REPORTS_DIR | grep -c "jest-report-")
-          # If there are more than 4 reports, remove the oldest one(s)
-          if [ $REPORTS_COUNT -ge 4 ]; then
-           OLDEST_REPORTS=$(ls -tr $REPORTS_DIR | grep "jest-report-" | head -n $((REPORTS_COUNT-4)))
-           rm -f $REPORTS_DIR/$OLDEST_REPORTS
+          REPORTS_COUNT=$(ls $REPORTS_DIR | grep -c "jest-report-" || true)
+          # If there are more than 3 reports, remove the oldest ones
+          if [ $REPORTS_COUNT -gt 3 ]; then
+            # Get the number of reports to remove
+            REPORTS_TO_REMOVE=$((REPORTS_COUNT - 3))
+            # Get the oldest report files
+            OLDEST_REPORTS=$(ls -tr $REPORTS_DIR | grep "jest-report-" | head -n $REPORTS_TO_REMOVE)
+            # Remove the oldest report files
+            rm -f $REPORTS_DIR/$OLDEST_REPORTS
           fi
       - name: Run integration tests and generate Jest HTML report
         run: |
