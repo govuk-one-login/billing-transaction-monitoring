@@ -86,14 +86,17 @@ jobs:
             # Get the oldest report files
             OLDEST_REPORTS=$(ls -tr $REPORTS_DIR | grep "jest-report-" | head -n $REPORTS_TO_REMOVE)
             # Remove the oldest report files
-            rm -f $REPORTS_DIR/$OLDEST_REPORTS
+            rm -rf $REPORTS_DIR/$OLDEST_REPORTS
           fi
       - name: Run integration tests and generate Jest HTML report
         run: |
           # Generate Jest HTML report with unique name
-          REPORT_NAME="jest-report-$(date +%Y-%m-%d-%H-%M-%S)"
+          REPORTS_DIR="./reports/jest-html-reporters-attach"
+          REPORTS_DIR="$REPORTS_DIR/jest-html-reporters-$(date +%Y-%m-%d-%H-%M-%S)"
+          mkdir -p $REPORTS_DIR
           npm run test:integration
-          mv ./reports/jest-html-reporters-attach ./reports/${REPORT_NAME}
+          mv "$REPORTS_DIR/jest-html-reporters-attach/* $REPORTS_DIR
+          mv "$REPORTS_DIR/jest-html-reporters-attach/index.html  $REPORTS_DIR/index.html
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
