@@ -9,13 +9,18 @@ export type LineItemFieldsForNaming = Pick<
 export function getStandardisedInvoiceFileName(
   standardisedInvoice: LineItemFieldsForNaming
 ): string {
+  const prefix = getStandardisedInvoiceFileNamePrefix(standardisedInvoice);
+  const uuid = crypto.randomBytes(3).toString("hex");
+  return `${prefix}${uuid}.txt`;
+}
+
+export function getStandardisedInvoiceFileNamePrefix(
+  standardisedInvoice: LineItemFieldsForNaming
+): string {
   const yearMonth = getYearMonth(standardisedInvoice.invoice_receipt_date);
   const vendorId = standardisedInvoice.vendor_id;
   const eventName = standardisedInvoice.event_name;
-  const uuid = crypto.randomBytes(3).toString("hex");
-  const fileName = `${yearMonth}-${vendorId}-${eventName}-${uuid}.txt`;
-
-  return fileName;
+  return `${yearMonth}-${vendorId}-${eventName}-`;
 }
 
 export function getYearMonth(dateStr: string): string {

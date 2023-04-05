@@ -22,7 +22,7 @@ const randomLetter = (): string => {
   return Math.ceil(10 + Math.random() * 25).toString(36);
 };
 
-const randomString = (length: number): string => {
+export const randomString = (length: number): string => {
   return new Array(length)
     .fill(null)
     .reduce<string>((acc) => acc + randomLetter(), "");
