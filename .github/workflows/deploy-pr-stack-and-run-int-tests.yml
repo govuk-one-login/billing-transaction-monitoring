@@ -81,8 +81,8 @@ jobs:
           REPORTS_COUNT=$(ls $REPORTS_DIR | grep -c "jest-report-")
           # If there are more than 4 reports, remove the oldest one(s)
           if [ $REPORTS_COUNT -ge 4 ]; then
-            OLDEST_REPORTS=$(ls -tr $REPORTS_DIR | grep "jest-report-" | head -n $((REPORTS_COUNT-4)))
-            rm -f $REPORTS_DIR/$OLDEST_REPORTS
+           OLDEST_REPORTS=$(ls -tr $REPORTS_DIR | grep "jest-report-" | head -n $((REPORTS_COUNT-4)))
+           rm -f $REPORTS_DIR/$OLDEST_REPORTS
           fi
       - name: Run integration tests and generate Jest HTML report
         run: |
