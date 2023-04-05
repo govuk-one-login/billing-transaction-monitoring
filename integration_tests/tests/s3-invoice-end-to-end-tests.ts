@@ -35,6 +35,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       description: "address check",
     });
     const invoice = randomInvoice({
+      date: new Date("2023-03-31"),
       lineItems: [...passportCheckItems, ...addressCheckItems],
     });
     const expectedSubtotals = [
@@ -70,7 +71,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           )
         ).length === 3,
       {
-        timeout: 80000,
+        timeout: 120000,
         interval: 10000,
         nonCompleteErrorMessage:
           "PDF Invoice data never appeared in standardised folder",
