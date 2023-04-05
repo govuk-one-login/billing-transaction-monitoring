@@ -93,7 +93,7 @@ jobs:
           # Generate Jest HTML report with unique name
           REPORT_NAME="jest-report-$(date +%Y-%m-%d-%H-%M-%S).html"
           npm run test:integration
-          mv ./reports/index.html ./reports/{$REPORT_NAME}.html
+          mv ./reports/jest-html-reporters-attach/index.html ./reports/jest-html-reporters-attach/${REPORT_NAME}.html
           mv ./reports/jest-html-reporters-attach/jest-html-reporters-attach/index.js ./reports/jest-html-reporters-attach/jest-html-reporters-attach/index/${REPORT_NAME}-index.js
           mv ./reports/jest-html-reporters-attach/jest-html-reporters-attach/result.js ./reports/jest-html-reporters-attach/jest-html-reporters-attach/index/${REPORT_NAME}-result.js
       - name: Deploy Jest HTML report to Github Pages
