@@ -2,7 +2,7 @@ import { InferenceSpecifications } from "../../handlers/transaction-csv-to-json-
 import { Transformations } from "../../handlers/transaction-csv-to-json-event/convert/perform-transformations";
 import { Json } from "../../shared/types";
 
-export enum ConfigFileNames {
+export enum ConfigElements {
   rates = "rates",
   services = "services",
   renamingMap = "renamingMap",
@@ -12,8 +12,8 @@ export enum ConfigFileNames {
   standardisation = "standardisation",
 }
 
-export interface ConfigFiles {
-  [ConfigFileNames.rates]: Array<{
+export interface ConfigCache {
+  [ConfigElements.rates]: Array<{
     vendor_id: string;
     event_name: string;
     volumes_from: string;
@@ -22,29 +22,29 @@ export interface ConfigFiles {
     effective_from: string;
     effective_to: string;
   }>;
-  [ConfigFileNames.services]: Array<{
+  [ConfigElements.services]: Array<{
     vendor_name: string;
     vendor_id: string;
     service_name: string;
     service_regex: string;
     event_name: string;
   }>;
-  [ConfigFileNames.renamingMap]: Array<[string, string]>;
-  [ConfigFileNames.inferences]: InferenceSpecifications<
+  [ConfigElements.renamingMap]: Array<[string, string]>;
+  [ConfigElements.inferences]: InferenceSpecifications<
     {}, // I'm avoiding including this type as the field names are sensitive
     { event_name: string }
   >;
-  [ConfigFileNames.transformations]: Transformations<{}, {}>;
-  [ConfigFileNames.vat]: Array<{ rate: number; start: string }>;
-  [ConfigFileNames.standardisation]: Array<{
+  [ConfigElements.transformations]: Transformations<{}, {}>;
+  [ConfigElements.vat]: Array<{ rate: number; start: string }>;
+  [ConfigElements.standardisation]: Array<{
     vendorId: string;
     invoiceStandardisationModuleId: number;
   }>;
 }
 
-export type GetConfigFile = (fileName: ConfigFileNames) => Promise<Json>;
+export type GetConfigFile = (fileName: ConfigElements) => Promise<Json>;
 
-export type PickedConfigFiles<TFileName extends ConfigFileNames> = Pick<
-  ConfigFiles,
+export type PickedConfigCache<TFileName extends ConfigElements> = Pick<
+  ConfigCache,
   TFileName
 >;

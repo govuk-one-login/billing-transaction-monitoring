@@ -3,10 +3,10 @@ import {
   Constructables,
   Operations,
 } from "../../../handlers/transaction-csv-to-json-event/convert/transform-dicts";
-import { ConfigFiles } from "../types";
+import { ConfigCache } from "../types";
 
 // TODO: fill in the rest of these
-const config: ConfigFiles = {
+const config: ConfigCache = {
   rates: [],
   services: [
     {
@@ -50,7 +50,7 @@ const config: ConfigFiles = {
 };
 
 let configOverrides = Object.create(null);
-export const __setConfigOverrides = (overrides: Partial<ConfigFiles>): void => {
+export const __setConfigOverrides = (overrides: Partial<ConfigCache>): void => {
   configOverrides = overrides;
 };
 
@@ -59,7 +59,7 @@ export const __resetOverrides = (): void => {
 };
 
 export class Config {
-  public readonly getCache = (): ConfigFiles => ({
+  public readonly getCache = (): ConfigCache => ({
     ...config,
     ...configOverrides,
   });

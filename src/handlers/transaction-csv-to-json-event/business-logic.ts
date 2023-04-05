@@ -1,8 +1,8 @@
 import { BusinessLogic } from "../../handler-context";
 import { convertMany } from "./convert";
-import { Env, ConfigFiles } from "./types";
+import { Env, ConfigCache } from "./types";
 
-export const businessLogic: BusinessLogic<string, Env, ConfigFiles> = async ({
+export const businessLogic: BusinessLogic<string, Env, ConfigCache> = async ({
   messages,
   config,
   logger,

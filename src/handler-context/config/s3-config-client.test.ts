@@ -1,5 +1,5 @@
 import { getConfigFile } from "./s3-config-client";
-import { ConfigFileNames } from "./types";
+import { ConfigElements } from "./types";
 
 jest.mock("../../shared/utils/s3", () => ({
   fetchS3: jest.fn((_bucket, path) => {
@@ -18,7 +18,7 @@ describe("getConfigFile", () => {
     delete process.env.CONFIG_BUCKET;
   });
 
-  it.each(Object.values(ConfigFileNames))(
+  it.each(Object.values(ConfigElements))(
     "Retrieves, parses and returns config files from our S3 bucket",
     async (configFileName) => {
       const config = await getConfigFile(configFileName);

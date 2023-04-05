@@ -1,18 +1,17 @@
 import csvToJson from "csvtojson";
-import { ConfigFileNames, GetConfigFile } from "./types";
+import { ConfigElements, GetConfigFile } from "./types";
 import { Json } from "../../shared/types";
 import { fetchS3 } from "../../shared/utils";
 
-const fileMap: Record<ConfigFileNames, string> = {
-  [ConfigFileNames.rates]: "rate_tables/rates.csv",
-  [ConfigFileNames.services]: "vendor_services/vendor-services.csv",
-  [ConfigFileNames.renamingMap]:
-    "csv_transactions/header-row-renaming-map.json",
-  [ConfigFileNames.inferences]: "csv_transactions/event-inferences.json",
-  [ConfigFileNames.transformations]:
+const fileMap: Record<ConfigElements, string> = {
+  [ConfigElements.rates]: "rate_tables/rates.csv",
+  [ConfigElements.services]: "vendor_services/vendor-services.csv",
+  [ConfigElements.renamingMap]: "csv_transactions/header-row-renaming-map.json",
+  [ConfigElements.inferences]: "csv_transactions/event-inferences.json",
+  [ConfigElements.transformations]:
     "csv_transactions/event-transformation.json",
-  [ConfigFileNames.vat]: "uk-vat.json",
-  [ConfigFileNames.standardisation]: "vendor-invoice-standardisation.json",
+  [ConfigElements.vat]: "uk-vat.json",
+  [ConfigElements.standardisation]: "vendor-invoice-standardisation.json",
 };
 
 const parseCsvFile = async (rawFile: string): Promise<Json> => {

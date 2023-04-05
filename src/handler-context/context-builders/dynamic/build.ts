@@ -1,6 +1,6 @@
 import { S3Event, SQSEvent } from "aws-lambda";
 import { CtxBuilderOptions } from "../..";
-import { ConfigFileNames } from "../../config/types";
+import { ConfigElements } from "../../config/types";
 import { StaticHandlerCtxElements } from "../static/build";
 import { makeCtxMessages } from "./elements/messages";
 
@@ -13,11 +13,11 @@ export interface DynamicHandlerCtxElements<TMessage> {
 export const build = async <
   TMessage,
   TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
+  TConfigElements extends ConfigElements
 >(
   event: S3Event | SQSEvent,
-  { messageTypeGuard }: CtxBuilderOptions<TMessage, TEnvVars, TConfigFileNames>,
-  { logger }: StaticHandlerCtxElements<TEnvVars, TConfigFileNames>
+  { messageTypeGuard }: CtxBuilderOptions<TMessage, TEnvVars, TConfigElements>,
+  { logger }: StaticHandlerCtxElements<TEnvVars, TConfigElements>
 ): Promise<DynamicHandlerCtxElements<TMessage>> => {
   const messages = await makeCtxMessages(event, messageTypeGuard, logger);
 

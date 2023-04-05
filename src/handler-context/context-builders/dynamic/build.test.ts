@@ -1,7 +1,7 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SQSEvent, S3Event } from "aws-lambda";
 import { CtxBuilderOptions } from "../..";
-import { ConfigFileNames } from "../../config/types";
+import { ConfigElements } from "../../config/types";
 import { StaticHandlerCtxElements } from "../static/build";
 import { build } from "./build";
 
@@ -22,7 +22,7 @@ interface TestMessage {
   c: boolean;
 }
 type TestEnvVars = "THIS" | "THAT" | "THE_OTHER";
-type TestConfigFiles = ConfigFileNames.inferences | ConfigFileNames.rates;
+type TestConfigCache = ConfigElements.inferences | ConfigElements.rates;
 
 const testSQSEvent = {
   Records: [
@@ -50,7 +50,7 @@ const mockStoreFunction2 = jest.fn();
 const testOptions: CtxBuilderOptions<
   TestMessage,
   TestEnvVars,
-  TestConfigFiles
+  TestConfigCache
 > = {
   envVars: ["THIS", "THAT", "THE_OTHER"],
   messageTypeGuard: (message: any): message is TestMessage =>
@@ -67,12 +67,12 @@ const testOptions: CtxBuilderOptions<
       store: mockStoreFunction2,
     },
   ],
-  configFiles: [ConfigFileNames.inferences, ConfigFileNames.rates],
+  ConfigCache: [ConfigElements.inferences, ConfigElements.rates],
 };
 
 const testStaticContext = {
   logger: new Logger(),
-} as unknown as StaticHandlerCtxElements<TestEnvVars, TestConfigFiles>;
+} as unknown as StaticHandlerCtxElements<TestEnvVars, TestConfigCache>;
 
 describe("build", () => {
   it.each([
@@ -84,7 +84,7 @@ describe("build", () => {
   ])(
     "builds context elements which depend on events",
     async ({ event, expectedMessages }) => {
-      const ctx = await build<TestMessage, TestEnvVars, TestConfigFiles>(
+      const ctx = await build<TestMessage, TestEnvVars, TestConfigCache>(
         event,
         testOptions,
         testStaticContext
@@ -95,7 +95,7 @@ describe("build", () => {
 
   it("Throws an error if a given message does not conform to the specified type", async () => {
     try {
-      await build<TestMessage, TestEnvVars, TestConfigFiles>(
+      await build<TestMessage, TestEnvVars, TestConfigCache>(
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         {
           ...testSQSEvent,
@@ -120,7 +120,7 @@ describe("build", () => {
 
   it("Throws an error if a given SQS message's body is not valid json", async () => {
     try {
-      await build<TestMessage, TestEnvVars, TestConfigFiles>(
+      await build<TestMessage, TestEnvVars, TestConfigCache>(
         {
           ...testSQSEvent,
           Records: [
@@ -144,7 +144,7 @@ describe("build", () => {
 
   it("Throws an error if the S3-object the message references cannot not be found", async () => {
     try {
-      await build<TestMessage, TestEnvVars, TestConfigFiles>(
+      await build<TestMessage, TestEnvVars, TestConfigCache>(
         {
           ...testS3Event,
           Records: [
@@ -170,7 +170,7 @@ describe("build", () => {
 
   it("Throws an error if the event type cannot be determined", async () => {
     try {
-      await build<TestMessage, TestEnvVars, TestConfigFiles>(
+      await build<TestMessage, TestEnvVars, TestConfigCache>(
         {
           Records: [{ something: "something" }],
         } as unknown as S3Event,

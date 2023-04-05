@@ -1,10 +1,10 @@
 import { getConfigFile } from "../../../config/s3-config-client";
 import { Config } from "../../../config";
-import { ConfigFileNames, PickedConfigFiles } from "../../../config/types";
+import { ConfigElements, PickedConfigCache } from "../../../config/types";
 
-export const makeCtxConfig = async <TConfigFileNames extends ConfigFileNames>(
-  files: TConfigFileNames[]
-): Promise<PickedConfigFiles<TConfigFileNames>> => {
+export const makeCtxConfig = async <TConfigElements extends ConfigElements>(
+  files: TConfigElements[]
+): Promise<PickedConfigCache<TConfigElements>> => {
   const config = new Config(getConfigFile, files);
   await config.populateCache();
   return config.getCache();

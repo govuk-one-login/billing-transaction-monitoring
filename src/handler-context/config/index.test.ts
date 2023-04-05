@@ -1,5 +1,5 @@
 import { Config } from ".";
-import { ConfigFileNames } from "./types";
+import { ConfigElements } from "./types";
 
 let mockGetConfigFile: jest.Mock;
 
@@ -8,11 +8,11 @@ describe("Config", () => {
     process.env.CONFIG_BUCKET = "mock-config-bucket";
     mockGetConfigFile = jest.fn(async (path) => {
       switch (path) {
-        case ConfigFileNames.inferences:
+        case ConfigElements.inferences:
           return "mock inferences";
-        case ConfigFileNames.rates:
+        case ConfigElements.rates:
           return "mock rates";
-        case ConfigFileNames.standardisation:
+        case ConfigElements.standardisation:
           return "mock standardisation";
         default:
           throw new Error("You requested path");
@@ -25,9 +25,9 @@ describe("Config", () => {
   });
   it("Provides a cached copy of the specified config files", async () => {
     const config = new Config(mockGetConfigFile, [
-      ConfigFileNames.inferences,
-      ConfigFileNames.rates,
-      ConfigFileNames.standardisation,
+      ConfigElements.inferences,
+      ConfigElements.rates,
+      ConfigElements.standardisation,
     ]);
 
     await config.populateCache();
@@ -41,8 +41,8 @@ describe("Config", () => {
 
   it("Doesn't cache files you didn't ask for", async () => {
     const config = new Config(mockGetConfigFile, [
-      ConfigFileNames.inferences,
-      ConfigFileNames.rates,
+      ConfigElements.inferences,
+      ConfigElements.rates,
     ]);
 
     await config.populateCache();
@@ -57,9 +57,9 @@ describe("Config", () => {
 
   it("Throws an error when the cache is requested before it is awaited", () => {
     const config = new Config(mockGetConfigFile, [
-      ConfigFileNames.inferences,
-      ConfigFileNames.rates,
-      ConfigFileNames.standardisation,
+      ConfigElements.inferences,
+      ConfigElements.rates,
+      ConfigElements.standardisation,
     ]);
 
     try {
@@ -77,9 +77,9 @@ describe("Config", () => {
   it("Throws an error when config files are not fetched successfully", async () => {
     mockGetConfigFile.mockRejectedValueOnce(new Error("underlying badness"));
     const config = new Config(mockGetConfigFile, [
-      ConfigFileNames.inferences,
-      ConfigFileNames.rates,
-      ConfigFileNames.standardisation,
+      ConfigElements.inferences,
+      ConfigElements.rates,
+      ConfigElements.standardisation,
     ]);
     try {
       await config.populateCache();

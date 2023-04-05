@@ -1,6 +1,6 @@
 import { S3Event, SQSEvent } from "aws-lambda";
 import { Response } from "../shared/types";
-import { ConfigFileNames } from "./config/types";
+import { ConfigElements } from "./config/types";
 import {
   buildDynamicContextElements,
   buildStaticContextElements,
@@ -32,42 +32,40 @@ export type UserDefinedOutputs<TEnvVars extends string> = Array<{
 export type BusinessLogic<
   TMessage,
   TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
+  TConfigElements extends ConfigElements
 > = (
-  ctx: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
+  ctx: HandlerCtx<TMessage, TEnvVars, TConfigElements>
 ) => Promise<unknown[]>;
 
 export type HandlerCtx<
   TMessage,
   TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
-> = StaticHandlerCtxElements<TEnvVars, TConfigFileNames> &
+  TConfigElements extends ConfigElements
+> = StaticHandlerCtxElements<TEnvVars, TConfigElements> &
   DynamicHandlerCtxElements<TMessage>;
 
 export type Handler<
   TMessage,
   TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
-> = (
-  ctx: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
-) => Promise<Response>;
+  TConfigElements extends ConfigElements
+> = (ctx: HandlerCtx<TMessage, TEnvVars, TConfigElements>) => Promise<Response>;
 
 export interface CtxBuilderOptions<
   TMessage,
   TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
+  TConfigElements extends ConfigElements
 > {
   envVars: TEnvVars[];
   messageTypeGuard: (maybeMessage: unknown) => maybeMessage is TMessage;
   outputs: UserDefinedOutputs<TEnvVars>;
-  configFiles: TConfigFileNames[];
+  ConfigCache: TConfigElements[];
 }
 
 export const buildHandler =
-  <TMessage, TEnvVars extends string, TConfigFileNames extends ConfigFileNames>(
-    options: CtxBuilderOptions<TMessage, TEnvVars, TConfigFileNames>
+  <TMessage, TEnvVars extends string, TConfigElements extends ConfigElements>(
+    options: CtxBuilderOptions<TMessage, TEnvVars, TConfigElements>
   ) =>
-  (businessLogic: BusinessLogic<TMessage, TEnvVars, TConfigFileNames>) => {
+  (businessLogic: BusinessLogic<TMessage, TEnvVars, TConfigElements>) => {
     const staticContextElementsPromise = buildStaticContextElements(options);
     return async (event: S3Event | SQSEvent) => {
       const dynamicContextElements = await buildDynamicContextElements(

@@ -1,12 +1,12 @@
-import { ConfigFileNames } from "../types";
+import { ConfigElements } from "../types";
 
 export const getConfigFile = jest.fn(async (path) => {
   switch (path) {
-    case ConfigFileNames.inferences:
+    case ConfigElements.inferences:
       return "mock inferences";
-    case ConfigFileNames.rates:
+    case ConfigElements.rates:
       return "mock rates";
-    case ConfigFileNames.standardisation:
+    case ConfigElements.standardisation:
       return "mock standardisation";
     default:
       throw new Error("No config found");

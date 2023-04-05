@@ -1,6 +1,6 @@
 import { S3Event, SQSEvent } from "aws-lambda";
 import { buildHandler, CtxBuilderOptions } from ".";
-import { ConfigFileNames } from "./config/types";
+import { ConfigElements } from "./config/types";
 
 jest.mock("./config/s3-config-client");
 jest.mock("../shared/utils/s3", () => ({
@@ -20,7 +20,7 @@ interface TestMessage {
   c: boolean;
 }
 type TestEnvVars = "THIS" | "THAT" | "THE_OTHER";
-type TestConfigFiles = ConfigFileNames.inferences | ConfigFileNames.rates;
+type TestConfigCache = ConfigElements.inferences | ConfigElements.rates;
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const testSQSEvent = {
@@ -50,7 +50,7 @@ const mockStoreFunction2 = jest.fn(async () => await Promise.resolve());
 const testOptions: CtxBuilderOptions<
   TestMessage,
   TestEnvVars,
-  TestConfigFiles
+  TestConfigCache
 > = {
   envVars: ["THIS", "THAT", "THE_OTHER"],
   messageTypeGuard: (message: any): message is TestMessage =>
@@ -67,7 +67,7 @@ const testOptions: CtxBuilderOptions<
       store: mockStoreFunction2,
     },
   ],
-  configFiles: [ConfigFileNames.inferences, ConfigFileNames.rates],
+  ConfigCache: [ConfigElements.inferences, ConfigElements.rates],
 };
 
 describe("buildHandler", () => {

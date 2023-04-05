@@ -1,6 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { CtxBuilderOptions } from "../..";
-import { ConfigFileNames } from "../../config/types";
+import { ConfigElements } from "../../config/types";
 import { build } from "./build";
 
 jest.mock("../../config/s3-config-client");
@@ -11,7 +11,7 @@ interface TestMessage {
   c: boolean;
 }
 type TestEnvVars = "THIS" | "THAT" | "THE_OTHER";
-type TestConfigFiles = ConfigFileNames.inferences | ConfigFileNames.rates;
+type TestConfigCache = ConfigElements.inferences | ConfigElements.rates;
 
 const mockStoreFunction1 = jest.fn();
 const mockStoreFunction2 = jest.fn();
@@ -19,7 +19,7 @@ const mockStoreFunction2 = jest.fn();
 const testOptions: CtxBuilderOptions<
   TestMessage,
   TestEnvVars,
-  TestConfigFiles
+  TestConfigCache
 > = {
   envVars: ["THIS", "THAT", "THE_OTHER"],
   messageTypeGuard: (message: any): message is TestMessage =>
@@ -36,7 +36,7 @@ const testOptions: CtxBuilderOptions<
       store: mockStoreFunction2,
     },
   ],
-  configFiles: [ConfigFileNames.inferences, ConfigFileNames.rates],
+  ConfigCache: [ConfigElements.inferences, ConfigElements.rates],
 };
 
 describe("build", () => {
@@ -55,7 +55,7 @@ describe("build", () => {
   });
 
   it("builds context elements which don't depend on events", async () => {
-    const ctx = await build<TestMessage, TestEnvVars, TestConfigFiles>(
+    const ctx = await build<TestMessage, TestEnvVars, TestConfigCache>(
       testOptions
     );
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -76,7 +76,7 @@ describe("build", () => {
   it("Throws an error if any of the requested env vars are not present", async () => {
     delete process.env.THE_OTHER;
     try {
-      await build<TestMessage, TestEnvVars, TestConfigFiles>(testOptions);
+      await build<TestMessage, TestEnvVars, TestConfigCache>(testOptions);
     } catch (error) {
       expect((error as Error).message).toContain("Environment is not valid");
     }

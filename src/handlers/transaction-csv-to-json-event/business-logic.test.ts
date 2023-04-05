@@ -2,7 +2,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { HandlerCtx } from "../../handler-context";
 import { businessLogic } from "./business-logic";
 import { Operations, Constructables } from "./convert/transform-dicts";
-import { ConfigFiles, Env } from "./types";
+import { ConfigCache, Env } from "./types";
 
 describe("transaction-csv-to-json-events businessLogic", () => {
   it("processes CSVs which can be processed and provide warnings about those that can't", async () => {
@@ -41,7 +41,7 @@ describe("transaction-csv-to-json-events businessLogic", () => {
         ],
       },
       logger,
-    } as unknown as HandlerCtx<string, Env, ConfigFiles>);
+    } as unknown as HandlerCtx<string, Env, ConfigCache>);
 
     expect(result).toEqual([
       {

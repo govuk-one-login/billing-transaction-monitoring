@@ -1,6 +1,6 @@
 import { HandlerCtx } from "../../handler-context";
 import { businessLogic } from "./business-logic";
-import { ConfigFiles, Env, Message } from "./types";
+import { ConfigCache, Env, Message } from "./types";
 
 describe("Filter businessLogic", () => {
   it("returns messages with valid event names", async () => {
@@ -34,7 +34,7 @@ describe("Filter businessLogic", () => {
           },
         ],
       },
-    } as unknown as HandlerCtx<Message, Env, ConfigFiles>);
+    } as unknown as HandlerCtx<Message, Env, ConfigCache>);
 
     expect(result).toContain(validRecord1);
     expect(result).toContain(validRecord2);

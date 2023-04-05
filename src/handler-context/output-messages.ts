@@ -1,14 +1,14 @@
 import { HandlerCtx } from ".";
 import { Response } from "../shared/types";
-import { ConfigFileNames } from "./config/types";
+import { ConfigElements } from "./config/types";
 
 export const outputMessages = async <
   TMessage,
   TEnvVars extends string,
-  TConfigFileNames extends ConfigFileNames
+  TConfigElements extends ConfigElements
 >(
   results: unknown[],
-  { outputs }: HandlerCtx<TMessage, TEnvVars, TConfigFileNames>
+  { outputs }: HandlerCtx<TMessage, TEnvVars, TConfigElements>
 ): Promise<Response> => {
   const promises = (results as Array<{ _id: string } | string>)
     .map((result) => {
