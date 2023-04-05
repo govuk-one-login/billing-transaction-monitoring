@@ -95,14 +95,16 @@ jobs:
           TIMESTAMP=$(date +%Y-%m-%d-%H-%M-%S)
           UNIQUE_DIR="$GITHUB_WORKSPACE/TEST-$TIMESTAMP"
           mkdir -p $UNIQUE_DIR
+          ls "$GITHUB_WORKSPACE"
           npm run test:integration
           ls ./reports
           mv $REPORTS_DIR $UNIQUE_DIR
+          ls $UNIQUE_DIR
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./TEST-TIMESTAMP
+          publish_dir: ./UNIQUE_DIR
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: 2
