@@ -1,9 +1,9 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { CtxBuilderOptions, Outputs } from "../..";
-import { ConfigElements, PickedConfigCache } from "../../config/types";
+import { CtxBuilderOptions } from "../../types";
+import { ConfigElements, PickedConfigCache } from "../../config";
 import { makeCtxConfig } from "./elements/config";
 import { makeCtxEnv } from "./elements/env";
-import { makeCtxOutputs } from "./elements/outputs";
+import { makeCtxOutputs, Outputs } from "./elements/outputs";
 
 export interface StaticHandlerCtxElements<
   TEnvVars extends string,

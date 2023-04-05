@@ -1,6 +1,6 @@
 import { HandlerCtx } from ".";
 import { Response } from "../shared/types";
-import { ConfigElements } from "./config/types";
+import { ConfigElements } from "./config";
 
 export const outputMessages = async <
   TMessage,

@@ -1,5 +1,5 @@
 import { buildHandler } from "../../handler-context";
-import { ConfigElements } from "../../handler-context/config/types";
+import { ConfigElements } from "../../handler-context/config";
 import { sendRecord } from "../../shared/utils";
 import { businessLogic } from "./business-logic";
 import { Env, ConfigCache } from "./types";

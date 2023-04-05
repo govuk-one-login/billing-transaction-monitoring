@@ -1,6 +1,7 @@
 import { S3Event, SQSEvent } from "aws-lambda";
-import { buildHandler, CtxBuilderOptions } from ".";
-import { ConfigElements } from "./config/types";
+import { buildHandler } from "./build-handler";
+import { ConfigElements } from "./config";
+import { CtxBuilderOptions } from "./types";
 
 jest.mock("./config/s3-config-client");
 jest.mock("../shared/utils/s3", () => ({

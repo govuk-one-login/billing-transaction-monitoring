@@ -1,4 +1,4 @@
-import { ConfigElements } from "../../handler-context/config/types";
+import { ConfigElements } from "../../handler-context/config";
 
 export interface Message {
   event_name: string;

@@ -1,6 +1,6 @@
 import { S3Event, SQSEvent } from "aws-lambda";
-import { CtxBuilderOptions } from "../..";
-import { ConfigElements } from "../../config/types";
+import { CtxBuilderOptions } from "../../types";
+import { ConfigElements } from "../../config";
 import { StaticHandlerCtxElements } from "../static/build";
 import { makeCtxMessages } from "./elements/messages";
 

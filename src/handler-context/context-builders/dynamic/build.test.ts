@@ -1,7 +1,7 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SQSEvent, S3Event } from "aws-lambda";
-import { CtxBuilderOptions } from "../..";
-import { ConfigElements } from "../../config/types";
+import { ConfigElements } from "../../config";
+import { CtxBuilderOptions } from "../../types";
 import { StaticHandlerCtxElements } from "../static/build";
 import { build } from "./build";
 

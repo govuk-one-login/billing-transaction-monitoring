@@ -1,6 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { CtxBuilderOptions } from "../..";
-import { ConfigElements } from "../../config/types";
+import { CtxBuilderOptions } from "../../types";
+import { ConfigElements } from "../../config";
 import { build } from "./build";
 
 jest.mock("../../config/s3-config-client");
