@@ -10,11 +10,6 @@ jest.mock("../../shared/utils/s3", () => ({
   }),
 }));
 
-// const randomConfigFileName = (): ConfigFileNames => {
-//   const names = Object.values(ConfigFileNames);
-//   return names[Math.floor(Math.random() * names.length)];
-// };
-
 describe("getConfigFile", () => {
   beforeEach(() => {
     process.env.CONFIG_BUCKET = "mock-config-bucket";
@@ -26,7 +21,6 @@ describe("getConfigFile", () => {
   it.each(Object.values(ConfigFileNames))(
     "Retrieves, parses and returns config files from our S3 bucket",
     async (configFileName) => {
-      // const configFileName = randomConfigFileName();
       const config = await getConfigFile(configFileName);
       expect(config).toEqual([
         { val_a: "a", val_b: "c" },
