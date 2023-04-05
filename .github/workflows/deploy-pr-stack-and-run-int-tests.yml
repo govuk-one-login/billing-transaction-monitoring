@@ -74,14 +74,30 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
+      - name: Delete old Jest HTML reports
+        run: |
+          REPORTS_DIR="./reports/jest-html-reporters-attach"
+          # Get the number of existing reports
+          REPORTS_COUNT=$(ls $REPORTS_DIR | grep -c "jest-report-" || true)
+          # If there are more than 3 reports, remove the oldest ones
+          if [ $REPORTS_COUNT -gt 3 ]; then
+            # Get the number of reports to remove
+            REPORTS_TO_REMOVE=$((REPORTS_COUNT - 3))
+            # Get the oldest report files
+            OLDEST_REPORTS=$(ls -tr $REPORTS_DIR | grep "jest-report-" | head -n $REPORTS_TO_REMOVE)
+            # Remove the oldest report files
+            rm -rf $REPORTS_DIR/$OLDEST_REPORTS
+          fi
       - name: Run integration tests and generate Jest HTML report
         run: |
           # Generate Jest HTML report with unique name
-          REPORTS_DIR="./reports/jest-html-reporters-attach/jest-html-reporters-$(date +%Y-%m-%d-%H-%M-%S)"
+          REPORTS_DIR="./reports/jest-html-reporters-attach"
+          TIMESTAMP=$(date +%Y-%m-%d-%H-%M-%S)
+          REPORTS_DIR=$REPORTS_DIR/jest-html-reporters-attach-$TIMESTAMP
           mkdir -p $REPORTS_DIR
           npm run test:integration
           ls ./reports/jest-html-reporters-attach
-          mv "./reports/jest-html-reporters-attach/"* "$REPORTS_DIR"
+          mv ./reports/jest-html-reporters-attach/* "$REPORTS_DIR/"
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
@@ -89,4 +105,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
-          keep_files: 3
+          keep_files: 2
