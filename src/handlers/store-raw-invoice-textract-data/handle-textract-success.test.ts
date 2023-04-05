@@ -17,6 +17,8 @@ describe("Textract success handler", () => {
   let givenResultsFileName: string;
   let givenSourceBucket: string;
   let givenSourceFileName: string;
+  let givenSourceFolderPath: string;
+  let givenSourceKey: string;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -24,7 +26,9 @@ describe("Textract success handler", () => {
     givenResultsBucket = "given results bucket";
     givenResultsFileName = "given results file name";
     givenSourceBucket = "given source bucket";
-    givenSourceFileName = "given source file name";
+    givenSourceFileName = "given-source-file.name";
+    givenSourceFolderPath = "given/source/folder/path";
+    givenSourceKey = `${givenSourceFolderPath}/${givenSourceFileName}`;
   });
 
   test("Textract success handler with S3 put error", async () => {
@@ -32,7 +36,7 @@ describe("Textract success handler", () => {
 
     await handleTextractSuccess(
       givenSourceBucket,
-      givenSourceFileName,
+      givenSourceKey,
       givenResultsBucket,
       givenResultsFileName,
       givenResults
@@ -47,7 +51,7 @@ describe("Textract success handler", () => {
     expect(mockedHandleTextractFailure).toHaveBeenCalledTimes(1);
     expect(mockedHandleTextractFailure).toHaveBeenCalledWith(
       givenSourceBucket,
-      givenSourceFileName
+      givenSourceKey
     );
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
@@ -60,7 +64,7 @@ describe("Textract success handler", () => {
     try {
       await handleTextractSuccess(
         givenSourceBucket,
-        givenSourceFileName,
+        givenSourceKey,
         givenResultsBucket,
         givenResultsFileName,
         givenResults
@@ -74,15 +78,15 @@ describe("Textract success handler", () => {
     expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(1);
     expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
       givenSourceBucket,
-      givenSourceFileName,
-      RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS
+      givenSourceKey,
+      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenSourceFolderPath}`
     );
   });
 
   test("Textract success handler with no error", async () => {
     await handleTextractSuccess(
       givenSourceBucket,
-      givenSourceFileName,
+      givenSourceKey,
       givenResultsBucket,
       givenResultsFileName,
       givenResults
@@ -92,8 +96,8 @@ describe("Textract success handler", () => {
     expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(1);
     expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
       givenSourceBucket,
-      givenSourceFileName,
-      RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS
+      givenSourceKey,
+      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenSourceFolderPath}`
     );
   });
 });

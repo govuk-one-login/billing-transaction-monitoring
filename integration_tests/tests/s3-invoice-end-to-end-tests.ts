@@ -31,7 +31,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     const passportCheckItems = randomLineItems(1, {
       description: "passport check",
     });
-    const addressCheckItems = randomLineItems(2, {
+    const addressCheckItems = randomLineItems(1, {
       description: "address check",
     });
     const invoice = randomInvoice({
@@ -69,7 +69,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           s3Object.Key?.includes(
             "btm_billing_standardised/2023-03-vendor_testvendor3-VENDOR_3_EVENT"
           )
-        ).length === 3,
+        ).length === 2,
       {
         timeout: 120000,
         interval: 10000,

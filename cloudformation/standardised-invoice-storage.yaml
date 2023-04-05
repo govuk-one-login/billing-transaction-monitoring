@@ -70,6 +70,7 @@ Resources:
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          ARCHIVE_FOLDER: btm_billing_standardised_archived
           DESTINATION_BUCKET: !Ref StorageBucket
           DESTINATION_FOLDER: btm_billing_standardised
           LOCAL_ENDPOINT:
@@ -100,10 +101,12 @@ Resources:
               Resource: !GetAtt KmsKey.Arn
             - Effect: Allow
               Action:
+                - s3:DeleteObject
                 - s3:GetObject
                 - s3:ListBucket
                 - s3:PutObject
               Resource:
+                - !GetAtt StorageBucket.Arn
                 - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
       ReservedConcurrentExecutions: 1
 
