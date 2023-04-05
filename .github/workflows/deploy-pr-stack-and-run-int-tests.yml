@@ -97,6 +97,7 @@ jobs:
           mkdir -p $UNIQUE_DIR
           npm run test:integration
           ls ./reports
+          ls ../reports
           mv ./reports/index.html "$UNIQUE_DIR/"
           mv ./reports/jest-html-reporters-attach "$UNIQUE_DIR/"
       - name: Deploy Jest HTML report to Github Pages
@@ -104,6 +105,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./reports
+          publish_dir: ../reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: 2
