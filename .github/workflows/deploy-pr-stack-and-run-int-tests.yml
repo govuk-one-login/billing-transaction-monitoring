@@ -85,6 +85,7 @@ jobs:
           current_branch=$(git branch --show-current)
           git branch -la
           git status
+          git fetch origin/gh-pages
           git checkout origin/gh-pages
           dirs=( $(ls -d -t */ | tail -n +2) )
           for dir in "${dirs[@]}"; do
@@ -94,6 +95,7 @@ jobs:
           git commit -m "cleanup old reports"
           git push origin gh-pages
           git checkout "$current_branch"
+          cd ${GITHUB_WORKSPACE}
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
