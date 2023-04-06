@@ -87,12 +87,12 @@ jobs:
         if: always()
         run: |
           git branch
-          ls gh-pages
+          ls jest-html-report
           dirs=( $(ls -d -t */ | tail -n +2) )
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
           done
-          cp -r ./reports/* ./
+          cp -r ./jest-html-report/* ./
           git commit -m "cleanup old reports"
           git push origin gh-pages
       - name: Check out default branch
@@ -104,6 +104,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./reports/jest-html-report
+          publish_dir: ./reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: true
