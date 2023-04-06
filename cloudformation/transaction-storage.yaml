@@ -54,7 +54,7 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_BUCKET: !Ref StorageBucket
           TRANSACTIONS_FOLDER: 'btm_transactions'
-          TRANSACTION_DATA_FOLDER: 'btm_transaction_data'
+          EVENT_DATA_FOLDER: 'btm_event_data'
           LOCAL_ENDPOINT:
             !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-storage-function

@@ -3,6 +3,7 @@ import {
   fetchS3,
   getVendorServiceConfigRows,
   logger,
+  getStandardisedInvoiceFileName,
   getStandardisedInvoiceKey,
   sendRecord,
 } from "../../shared/utils";
@@ -16,6 +17,7 @@ jest.mock("../../shared/utils", () => {
     putTextS3: jest.fn(),
     getVendorServiceConfigRows: jest.fn(),
     logger: { error: jest.fn() },
+    getStandardisedInvoiceFileName: jest.fn(),
     getStandardisedInvoiceKey: jest.fn(),
     sendRecord: jest.fn(),
   };
@@ -23,8 +25,9 @@ jest.mock("../../shared/utils", () => {
 const mockedFetchS3 = fetchS3 as jest.Mock;
 const mockedGetVendorServiceConfigRows =
   getVendorServiceConfigRows as jest.Mock;
-const mockedGetStandardisedInvoiceFilename =
-  getStandardisedInvoiceKey as jest.Mock;
+const mockedGetStandardisedInvoiceFileName =
+  getStandardisedInvoiceFileName as jest.Mock;
+const mockedGetStandardisedInvoiceKey = getStandardisedInvoiceKey as jest.Mock;
 const mockedSendRecord = sendRecord as jest.Mock;
 
 describe("CSV Extract handler tests", () => {
@@ -302,8 +305,11 @@ describe("CSV Extract handler tests", () => {
   test("should throw error with sendRecord sending failure", async () => {
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
-    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+    mockedGetStandardisedInvoiceFileName.mockReturnValueOnce(
       "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
+    );
+    mockedGetStandardisedInvoiceKey.mockReturnValueOnce(
+      "folder/2022/01/2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const mockedErrorText = "mocked send error";
     const mockedError = new Error(mockedErrorText);
@@ -319,8 +325,11 @@ describe("CSV Extract handler tests", () => {
   test("should store the standardised invoice if no errors", async () => {
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
-    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+    mockedGetStandardisedInvoiceFileName.mockReturnValueOnce(
       "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
+    );
+    mockedGetStandardisedInvoiceKey.mockReturnValueOnce(
+      "folder/2022/01/2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const result = await handler(validEvent);
     expect(result).toEqual({ batchItemFailures: [] });
@@ -362,8 +371,11 @@ describe("CSV Extract handler tests", () => {
       "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32\n";
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
-    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+    mockedGetStandardisedInvoiceFileName.mockReturnValueOnce(
       "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
+    );
+    mockedGetStandardisedInvoiceKey.mockReturnValueOnce(
+      "folder/2022/01/2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const result = await handler(validEvent);
     expect(result).toEqual({ batchItemFailures: [] });
