@@ -79,8 +79,6 @@ jobs:
           npm run test:integration
           ls "$GITHUB_WORKSPACE"
           ls ./reports
-      - name: Clean up old test reports
-        run: bash ./integration_tests/run-cleanup-reports.sh
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
@@ -88,4 +86,12 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./reports/jest-html-report
           commit_message: 'Deploy Jest HTML report to gh-pages'
-          keep_files: 2
+          keep_files: true
+      - name: Keep only last 2 reports in gh-pages
+        run: |
+          cd ${{ env.publish_dir }}
+          dirs=( $(ls -d -t */ | tail -n +2) )
+          for dir in "${dirs[@]}"; do
+            rm -rf "$dir"
+          done
+        if: always()
