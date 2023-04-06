@@ -21,7 +21,7 @@ const config: Config.InitialOptions = {
     [
       "jest-html-reporters",
       {
-        publicPath: `./reports/${new Date().toISOString()}`,
+        publicPath: `./reports/jest-html-report/${new Date().toISOString()}`,
         filename: "index.html",
         expand: true,
         openReport: true,
