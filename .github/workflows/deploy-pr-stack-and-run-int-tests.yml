@@ -93,7 +93,7 @@ jobs:
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
           done
-          cp -r ../gh-pages/* ./
+          cp -r ./reports/* ./
           git commit -m "cleanup old reports"
           git push origin gh-pages
           git checkout "$current_branch"
