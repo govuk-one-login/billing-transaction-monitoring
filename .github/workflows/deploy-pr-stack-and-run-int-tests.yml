@@ -101,8 +101,6 @@ jobs:
             rm -rf "$dir"
           done
           cp -r ./jest-html-report/* ./
-          git commit -m "cleanup old reports"
-          git push origin gh-pages
       - name: Check out default branch
         uses: actions/checkout@v3
         with:
