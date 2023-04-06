@@ -18,6 +18,22 @@ export const handler = async (event: S3Event): Promise<void> => {
     throw new Error("Config Bucket not set.");
   }
 
+  if (
+    process.env.BATCH_SIZE === undefined ||
+    process.env.BATCH_SIZE.length === 0
+  ) {
+    throw new Error("Batch size not set.");
+  }
+
+  const batchSize = parseInt(process.env.BATCH_SIZE, 10);
+
+  if (
+    Number.isNaN(batchSize) ||
+    batchSize < 1 ||
+    batchSize > Number.MAX_SAFE_INTEGER
+  )
+    throw new Error("Invalid batch size.");
+
   const [renamingMap, inferences, transformations] = await Promise.all([
     fetchS3(configBucket, "csv_transactions/header-row-renaming-map.json"),
     fetchS3(configBucket, "csv_transactions/event-inferences.json"),
@@ -66,16 +82,23 @@ export const handler = async (event: S3Event): Promise<void> => {
     transformations,
   });
 
-  const sendRecordPromises = transactions
-    .filter(({ event_name }) => event_name !== "Unknown")
-    .map(
-      async (transaction) =>
-        await sendRecord(outputQueueUrl, JSON.stringify(transaction), {
-          shouldLog: false,
-        })
-    );
+  const results = [];
 
-  const results = await Promise.allSettled(sendRecordPromises);
+  for (let index = 0; index < transactions.length; index += batchSize) {
+    const sendRecordPromises = transactions
+      .slice(index, index + batchSize)
+      .filter(({ event_name }) => event_name !== "Unknown")
+      .map(
+        async (transaction) =>
+          await sendRecord(outputQueueUrl, JSON.stringify(transaction), {
+            shouldLog: false,
+          })
+      );
+
+    const batchResults = await Promise.allSettled(sendRecordPromises);
+    results.push(...batchResults);
+  }
+
   for (const result of results) {
     if (result.status === "rejected")
       throw new Error(

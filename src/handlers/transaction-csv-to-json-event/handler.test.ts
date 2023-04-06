@@ -17,6 +17,7 @@ describe("Transaction CSV To JSON Event handler test", () => {
       ...OLD_ENV,
       OUTPUT_QUEUE_URL: "output queue url",
       CONFIG_BUCKET: "config bucket",
+      BATCH_SIZE: "123",
     };
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     givenEvent = {
@@ -70,6 +71,26 @@ describe("Transaction CSV To JSON Event handler test", () => {
   test("should throw error if no config bucket set", async () => {
     delete process.env.CONFIG_BUCKET;
     await expect(handler(givenEvent)).rejects.toThrowError("Config Bucket");
+  });
+
+  test("should throw error if no batch size set", async () => {
+    delete process.env.BATCH_SIZE;
+    await expect(handler(givenEvent)).rejects.toThrowError("Batch size");
+  });
+
+  test("should throw error if batch size not a number", async () => {
+    process.env.BATCH_SIZE = "given non-number batch size string";
+    await expect(handler(givenEvent)).rejects.toThrowError("batch size");
+  });
+
+  test("should throw error if batch size less than one", async () => {
+    process.env.BATCH_SIZE = "0";
+    await expect(handler(givenEvent)).rejects.toThrowError("batch size");
+  });
+
+  test("should throw error if batch size too big", async () => {
+    process.env.BATCH_SIZE = "Infinity";
+    await expect(handler(givenEvent)).rejects.toThrowError("batch size");
   });
 
   test("should throw error if renaming config is not valid", async () => {
@@ -136,5 +157,32 @@ describe("Transaction CSV To JSON Event handler test", () => {
       '{"id":"one","color":"red","timestamp":1667262461,"event_name":"TEST_EVENT"}',
       { shouldLog: false }
     );
+  });
+
+  describe("Batching", () => {
+    let mockedPromiseAllSettled: jest.SpyInstance;
+
+    beforeEach(() => {
+      mockedPromiseAllSettled = jest.spyOn(Promise, "allSettled");
+      mockedPromiseAllSettled.mockResolvedValue([]);
+
+      mockedFetchS3
+        .mockResolvedValueOnce(givenRenamingConfig)
+        .mockResolvedValueOnce(givenInferences)
+        .mockResolvedValueOnce(givenTransformations)
+        .mockResolvedValueOnce(givenCsv);
+    });
+
+    test("should batch correctly with batch size 1", async () => {
+      process.env.BATCH_SIZE = "1";
+      await handler(givenEvent);
+      expect(mockedPromiseAllSettled).toHaveBeenCalledTimes(2);
+    });
+
+    test("should batch correctly with batch size 2", async () => {
+      process.env.BATCH_SIZE = "2";
+      await handler(givenEvent);
+      expect(mockedPromiseAllSettled).toHaveBeenCalledTimes(1);
+    });
   });
 });
