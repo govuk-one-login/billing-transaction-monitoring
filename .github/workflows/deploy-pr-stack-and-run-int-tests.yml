@@ -79,6 +79,10 @@ jobs:
           npm run test:integration
           ls "$GITHUB_WORKSPACE"
           ls ./reports
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
       - name: Keep only last 2 reports in gh-pages
         if: always()
         run: |
@@ -97,6 +101,10 @@ jobs:
           git push origin gh-pages
           git checkout "$current_branch"
           cd ${GITHUB_WORKSPACE}
+      - name: Check out default branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head.ref }}
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
