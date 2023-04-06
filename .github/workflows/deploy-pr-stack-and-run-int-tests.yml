@@ -83,8 +83,8 @@ jobs:
         if: always()
         run: |
           current_branch=$(git branch --show-current)
-          echo $current_branch
-          git branch
+          git branch -la
+          git status
           git checkout origin/gh-pages
           dirs=( $(ls -d -t */ | tail -n +2) )
           for dir in "${dirs[@]}"; do
