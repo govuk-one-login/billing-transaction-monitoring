@@ -87,7 +87,7 @@ jobs:
         if: always()
         run: |
           git clone --depth 1 --branch=gh-pages --single-branch https://github.com/alphagov/di-billing-transaction-monitoring.git
-          git branch -la
+          git branch
           dirs=( $(ls -d -t */ | tail -n +2) )
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
