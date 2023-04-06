@@ -79,15 +79,13 @@ jobs:
           npm run test:integration
           ls "$GITHUB_WORKSPACE"
           ls ./reports
-      - name: Clean up old test reports
-        run: bash ./integration_tests/run-cleanup-reports.sh
       - name: Keep only last 2 reports in gh-pages
         if: always()
         run: |
           current_branch=$(git branch --show-current)
           echo $current_branch
           git branch
-          git checkout gh-pages
+          git checkout origin/gh-pages
           dirs=( $(ls -d -t */ | tail -n +2) )
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
