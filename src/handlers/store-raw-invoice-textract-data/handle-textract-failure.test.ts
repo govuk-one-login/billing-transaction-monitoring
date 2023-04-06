@@ -8,20 +8,24 @@ const mockedMoveToFolderS3 = moveToFolderS3 as jest.Mock;
 describe("Textract failure handler", () => {
   let givenSourceBucket: string;
   let givenSourceFileName: string;
+  let givenSourceFolderPath: string;
+  let givenSourceKey: string;
 
   beforeEach(() => {
     givenSourceBucket = "given source bucket";
-    givenSourceFileName = "given source file name";
+    givenSourceFileName = "given-source-file.name";
+    givenSourceFolderPath = "given/source/folder/path";
+    givenSourceKey = `${givenSourceFolderPath}/${givenSourceFileName}`;
   });
 
   test("Textract failure handler", async () => {
-    await handleTextractFailure(givenSourceBucket, givenSourceFileName);
+    await handleTextractFailure(givenSourceBucket, givenSourceKey);
 
     expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(1);
     expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
       givenSourceBucket,
-      givenSourceFileName,
-      RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE
+      givenSourceKey,
+      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE}/${givenSourceFolderPath}`
     );
   });
 });

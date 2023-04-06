@@ -2,6 +2,9 @@ import { SQSRecord } from "aws-lambda";
 import {
   getStandardisedInvoiceKey,
   getStandardisedInvoiceFileName,
+  getStandardisedInvoiceFileNamePrefix,
+  listS3Keys,
+  moveToFolderS3,
   putTextS3,
 } from "../../shared/utils";
 import { storeLineItem } from "./store-line-item";
@@ -10,42 +13,64 @@ jest.mock("../../shared/utils");
 const mockedGetStandardisedInvoiceKey = getStandardisedInvoiceKey as jest.Mock;
 const mockedGetStandardisedInvoiceFileName =
   getStandardisedInvoiceFileName as jest.Mock;
+const mockedGetStandardisedInvoiceFileNamePrefix =
+  getStandardisedInvoiceFileNamePrefix as jest.Mock;
+const mockedListS3Keys = listS3Keys as jest.Mock;
+const mockedMoveToFolderS3 = moveToFolderS3 as jest.Mock;
 const mockedPutTextS3 = putTextS3 as jest.Mock;
 
 describe("Line item storer", () => {
+  let mockedS3StaleKey: string;
   let mockedStandardisedLineItemFileName: string;
   let mockedStandardisedLineItemKey: string;
+  let mockedStandardisedLineItemPrefix: string;
+  let givenArchiveFolder: string;
   let givenBucket: string;
-  let givenFolder: string;
-  let givenLegacyFolder: string;
+  let givenDestinationFolder: string;
+  let givenLegacyDestinationFolder: string;
   let givenRecord: SQSRecord;
+  let givenRecordBodyEventName: string;
+  let givenRecordBodyInvoiceReceiptDate: string;
   let givenRecordBodyObject: Record<string, unknown>;
+  let givenRecordBodyVendorId: string;
 
   beforeEach(() => {
     jest.resetAllMocks();
 
     mockedStandardisedLineItemFileName =
       "mocked standardised line item file name";
-
     mockedGetStandardisedInvoiceFileName.mockReturnValue(
       mockedStandardisedLineItemFileName
     );
 
     mockedStandardisedLineItemKey =
-      "given folder/mocked standardised line item key";
+      "given destination folder/mocked standardised line item key";
 
     mockedGetStandardisedInvoiceKey.mockReturnValue(
       mockedStandardisedLineItemKey
     );
 
-    givenBucket = "given bucket";
-    givenFolder = "given folder";
-    givenLegacyFolder = "given legacy folder";
+    mockedStandardisedLineItemPrefix = "mocked standardised line item prefix";
+    mockedGetStandardisedInvoiceFileNamePrefix.mockReturnValue(
+      mockedStandardisedLineItemPrefix
+    );
 
+    mockedS3StaleKey = "mocked S3 stale key";
+    mockedListS3Keys.mockResolvedValue([mockedS3StaleKey]);
+
+    givenArchiveFolder = "given archive folder";
+    givenBucket = "given bucket";
+    givenDestinationFolder = "given destination folder";
+    givenLegacyDestinationFolder = "given legacy folder";
+
+    givenRecordBodyEventName = "given record body event name";
+    givenRecordBodyInvoiceReceiptDate =
+      "given record body invoice receipt date";
+    givenRecordBodyVendorId = "given record body vendor ID";
     givenRecordBodyObject = {
-      event_name: "given event name",
-      invoice_receipt_date: "given invoice receipt date",
-      vendor_id: "given vendor ID",
+      event_name: givenRecordBodyEventName,
+      invoice_receipt_date: givenRecordBodyInvoiceReceiptDate,
+      vendor_id: givenRecordBodyVendorId,
     };
 
     givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
@@ -57,14 +82,17 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow("not valid JSON");
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
-    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
   test("Line item storer with parsed record body that is not an object", async () => {
@@ -73,11 +101,17 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow("is not object");
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
+    expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
   test("Line item storer with parsed record body that is null", async () => {
@@ -86,16 +120,20 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
   test("Line item storer with record body object with no event name", async () => {
@@ -105,16 +143,20 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
   test("Line item storer with record body object with non-string event name", async () => {
@@ -124,16 +166,20 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
   test("Line item storer with record body object with no invoice receipt date string", async () => {
@@ -143,16 +189,20 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
   test("Line item storer with record body object with non-string invoice receipt date", async () => {
@@ -162,16 +212,20 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
   test("Line item storer with record body object with no vendor ID", async () => {
@@ -181,16 +235,20 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
   test("Line item storer with record body object with non-string vendor ID", async () => {
@@ -200,19 +258,51 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
-  test("Line item storer with S3 call failure", async () => {
+  test("Line item storer with S3 listing failure", async () => {
+    const mockedErrorMessage = "mocked error message";
+    const mockedError = new Error(mockedErrorMessage);
+    mockedListS3Keys.mockRejectedValueOnce(mockedError);
+
+    const resultPromise = storeLineItem(
+      givenRecord,
+      givenBucket,
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
+    );
+
+    await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).toHaveBeenCalledTimes(1);
+    expect(mockedGetStandardisedInvoiceFileNamePrefix).toHaveBeenCalledWith(
+      givenRecordBodyObject
+    );
+    expect(mockedListS3Keys).toHaveBeenCalledTimes(1);
+    expect(mockedListS3Keys).toHaveBeenCalledWith(
+      givenBucket,
+      `${givenDestinationFolder}/${mockedStandardisedLineItemPrefix}`
+    );
+    expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
+  });
+
+  test("Line item storer with S3 storage failure", async () => {
     const mockedErrorMessage = "mocked error message";
     const mockedError = new Error(mockedErrorMessage);
     mockedPutTextS3.mockRejectedValueOnce(mockedError);
@@ -220,44 +310,56 @@ describe("Line item storer", () => {
     const resultPromise = storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
     expect(mockedGetStandardisedInvoiceKey).toHaveBeenCalledTimes(1);
+    expect(mockedGetStandardisedInvoiceKey).toHaveBeenCalledWith(
+      givenDestinationFolder,
+      givenRecordBodyObject
+    );
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       givenBucket,
       mockedStandardisedLineItemKey,
       givenRecord.body
     );
-    expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
-  test("Line item storer with valid input and working S3 call", async () => {
+  test("Line item storer with S3 archive failure", async () => {
+    const mockedErrorMessage = "mocked error message";
+    const mockedError = new Error(mockedErrorMessage);
+    mockedMoveToFolderS3.mockRejectedValueOnce(mockedError);
+
+    const resultPromise = storeLineItem(
+      givenRecord,
+      givenBucket,
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
+    );
+
+    await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
+    expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(1);
+    expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
+      givenBucket,
+      mockedS3StaleKey,
+      givenArchiveFolder
+    );
+  });
+
+  test("Line item storer with valid input and working S3 calls", async () => {
     const result = await storeLineItem(
       givenRecord,
       givenBucket,
-      givenFolder,
-      givenLegacyFolder
+      givenDestinationFolder,
+      givenLegacyDestinationFolder,
+      givenArchiveFolder
     );
-
     expect(result).toBeUndefined();
-    expect(mockedGetStandardisedInvoiceFileName).toHaveBeenCalledTimes(1);
-    expect(mockedGetStandardisedInvoiceFileName).toHaveBeenCalledWith(
-      givenRecordBodyObject
-    );
-    expect(mockedPutTextS3).toHaveBeenCalledTimes(2);
-    expect(mockedPutTextS3).toHaveBeenCalledWith(
-      givenBucket,
-      `${givenLegacyFolder}/${mockedStandardisedLineItemFileName}`,
-      givenRecord.body
-    );
-    expect(mockedPutTextS3).toHaveBeenCalledWith(
-      givenBucket,
-      mockedStandardisedLineItemKey,
-      givenRecord.body
-    );
   });
 });

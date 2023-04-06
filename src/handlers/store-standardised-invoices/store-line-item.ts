@@ -2,15 +2,19 @@ import { SQSRecord } from "aws-lambda";
 import {
   getStandardisedInvoiceFileName,
   getStandardisedInvoiceKey,
+  getStandardisedInvoiceFileNamePrefix,
   LineItemFieldsForNaming,
+  listS3Keys,
+  moveToFolderS3,
   putTextS3,
 } from "../../shared/utils";
 
 export async function storeLineItem(
   record: SQSRecord,
   bucket: string,
-  folder: string,
-  legacyFolder: string
+  destinationFolder: string,
+  legacyDestinationFolder: string,
+  archiveFolder: string
 ): Promise<void> {
   let bodyObject;
   try {
@@ -24,18 +28,28 @@ export async function storeLineItem(
       "Event record body is not object with valid fields for generating a file name."
     );
 
+  const itemFileNamePrefix = getStandardisedInvoiceFileNamePrefix(bodyObject);
+  const itemKeyPrefix = `${destinationFolder}/${itemFileNamePrefix}`;
+  const staleItemKeys = await listS3Keys(bucket, itemKeyPrefix);
+
   await putTextS3(
     bucket,
-    getStandardisedInvoiceKey(folder, bodyObject),
+    getStandardisedInvoiceKey(destinationFolder, bodyObject),
     record.body
   );
 
   // TODO The legacy storage location.  This will go away with BTM-486.
   await putTextS3(
     bucket,
-    `${legacyFolder}/${getStandardisedInvoiceFileName(bodyObject)}`,
+    `${legacyDestinationFolder}/${getStandardisedInvoiceFileName(bodyObject)}`,
     record.body
   );
+
+  const archivePromises = staleItemKeys.map(
+    async (key) => await moveToFolderS3(bucket, key, archiveFolder)
+  );
+
+  await Promise.all(archivePromises);
 }
 
 const isNameable = (x: unknown): x is LineItemFieldsForNaming =>

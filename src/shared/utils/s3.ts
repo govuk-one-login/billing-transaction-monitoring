@@ -6,6 +6,7 @@ import {
   ServiceInputTypes,
   ServiceOutputTypes,
   GetObjectCommand,
+  ListObjectsCommand,
 } from "@aws-sdk/client-s3";
 import type { Command, SmithyConfiguration } from "@aws-sdk/smithy-client";
 import { S3Event, S3EventRecord, SQSRecord } from "aws-lambda";
@@ -65,6 +66,23 @@ const isS3Event = (object: any): object is S3Event =>
       typeof record?.s3?.object?.key === "string"
   );
 
+export const listS3Keys = async (
+  bucket: string,
+  prefix: string
+): Promise<string[]> => {
+  const listCommand = new ListObjectsCommand({
+    Bucket: bucket,
+    Prefix: prefix,
+  });
+
+  const result = await send(listCommand);
+
+  if (result.Contents === undefined) return [];
+
+  const keys: Array<string | undefined> = result.Contents.map(({ Key }) => Key);
+  return keys.filter((key) => key !== undefined) as string[];
+};
+
 export async function moveS3(
   sourceBucket: string,
   sourceKey: string,
@@ -86,7 +104,11 @@ export const moveToFolderS3 = async (
   bucket: string,
   key: string,
   folder: string
-): Promise<void> => await moveS3(bucket, key, bucket, `${folder}/${key}`);
+): Promise<void> => {
+  const keyParts = key.split("/");
+  const fileName = keyParts[keyParts.length - 1];
+  await moveS3(bucket, key, bucket, `${folder}/${fileName}`);
+};
 
 export async function putS3(
   bucket: string,
