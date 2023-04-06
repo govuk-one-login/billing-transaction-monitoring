@@ -88,3 +88,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
+          clean: false
