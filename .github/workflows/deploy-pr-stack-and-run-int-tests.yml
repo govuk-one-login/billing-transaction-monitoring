@@ -75,6 +75,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
       - name: Run integration tests
+        run: |
           npm run test:integration
           ls "$GITHUB_WORKSPACE"
           ls ./reports
