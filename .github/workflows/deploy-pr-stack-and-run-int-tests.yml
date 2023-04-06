@@ -79,12 +79,15 @@ jobs:
           npm run test:integration
           ls "$GITHUB_WORKSPACE"
           ls ./reports
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
       - name: Keep only last 2 reports in gh-pages
         if: always()
         run: |
-          git clone --depth 1 --branch=gh-pages --single-branch https://github.com/alphagov/di-billing-transaction-monitoring.git
           git branch
-          git checkout gh-pages
+          ls gh-pages
           dirs=( $(ls -d -t */ | tail -n +2) )
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
@@ -92,7 +95,6 @@ jobs:
           cp -r ./reports/* ./
           git commit -m "cleanup old reports"
           git push origin gh-pages
-          git checkout "$current_branch"
       - name: Check out default branch
         uses: actions/checkout@v3
         with:
