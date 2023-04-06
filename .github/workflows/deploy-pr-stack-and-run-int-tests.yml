@@ -85,7 +85,7 @@ jobs:
           current_branch=$(git branch --show-current)
           git branch -la
           git status
-          git fetch origin/gh-pages
+          git fetch origin
           git ls-remote --heads origin
           git checkout origin/gh-pages
           dirs=( $(ls -d -t */ | tail -n +2) )
