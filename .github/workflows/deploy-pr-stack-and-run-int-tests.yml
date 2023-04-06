@@ -86,6 +86,7 @@ jobs:
           git branch -la
           git status
           git fetch origin/gh-pages
+          git ls-remote --heads origin
           git checkout origin/gh-pages
           dirs=( $(ls -d -t */ | tail -n +2) )
           for dir in "${dirs[@]}"; do
