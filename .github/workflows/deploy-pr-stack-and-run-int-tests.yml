@@ -88,10 +88,11 @@ jobs:
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: true
       - name: Keep only last 2 reports in gh-pages
+        if: always()
         run: |
           cd ${{ env.publish_dir }}
           dirs=( $(ls -d -t */ | tail -n +2) )
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
           done
-        if: always()
+          cd -
