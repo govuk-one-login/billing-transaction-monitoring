@@ -98,10 +98,6 @@ jobs:
           cp -r ./jest-html-report/* ./
           git commit -m "cleanup old reports"
           git push origin gh-pages
-      - name: Check out default branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head.ref }}
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
@@ -110,3 +106,7 @@ jobs:
           publish_dir: ./reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: true
+      - name: Check out default branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head.ref }}
