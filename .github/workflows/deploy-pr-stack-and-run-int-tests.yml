@@ -79,6 +79,29 @@ jobs:
           npm run test:integration
           ls "$GITHUB_WORKSPACE"
           ls ./reports
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+      - name: Keep only last 2 reports in gh-pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git branch
+          ls jest-html-report
+          dirs=( $(ls -d -t */ | tail -n +2) )
+          for dir in "${dirs[@]}"; do
+            rm -rf "$dir"
+          done
+          cp -r ./jest-html-report/* ./
+          git commit -m "cleanup old reports"
+          git push origin gh-pages
+      - name: Check out default branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head.ref }}
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
@@ -87,15 +110,3 @@ jobs:
           publish_dir: ./reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: true
-          before_deploy: |
-            git branch
-            ls jest-html-report
-            dirs=( $(ls -d -t */ | tail -n +2) )
-            for dir in "${dirs[@]}"; do
-              rm -rf "$dir"
-            done
-            cp -r ./jest-html-report/* ./
-      - name: Check out default branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head.ref }}
