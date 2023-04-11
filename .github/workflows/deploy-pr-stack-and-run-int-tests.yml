@@ -98,9 +98,8 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "Github Actions"
           git branch
-          ls jest-html-report
           cd jest-html-report
-          ls jest-html-report
+          ls 
           dirs=( $(ls -d -t */ | tail -n +2) )
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
