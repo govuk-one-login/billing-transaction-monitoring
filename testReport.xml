@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="1" failures="0" errors="0" time="2.437">
+<testsuites name="jest tests" tests="1" failures="0" errors="0" time="3.274">
   <testsuite name="
  Verify VAT details exists in S3 config bucket
-" errors="0" failures="0" skipped="0" timestamp="2023-04-11T00:32:28" time="2.399" tests="1">
+" errors="0" failures="0" skipped="0" timestamp="2023-04-11T00:35:47" time="3.224" tests="1">
     <testcase classname="
  Verify VAT details exists in S3 config bucket
  S3 config bucket should contain VAT details matches with expected vat config file " name="
  Verify VAT details exists in S3 config bucket
- S3 config bucket should contain VAT details matches with expected vat config file " time="0.599">
+ S3 config bucket should contain VAT details matches with expected vat config file " time="0.71">
     </testcase>
   </testsuite>
 </testsuites>
