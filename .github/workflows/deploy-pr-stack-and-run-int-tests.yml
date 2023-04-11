@@ -15,7 +15,6 @@ env:
 
 jobs:
   build-and-deploy:
-    if: false
     permissions:
       contents: read
       id-token: write
@@ -56,6 +55,7 @@ jobs:
         run: npm run sam:deploy
 
   run-integration-tests:
+    needs: [build-and-deploy]
     permissions:
       contents: write
       id-token: write
@@ -96,7 +96,6 @@ jobs:
           git config user.name "Github Actions"
           git branch
           cd jest-html-report
-          ls 
           dirs=( $(ls -d -t */ | tail -n +6) )
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
