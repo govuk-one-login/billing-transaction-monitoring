@@ -87,8 +87,6 @@ jobs:
           publish_dir: ./reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: true
-        run: |
-          ls ./reports
       - name: Check out gh-pages branch
         uses: actions/checkout@v3
         with:
