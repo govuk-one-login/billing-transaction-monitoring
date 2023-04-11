@@ -3,11 +3,7 @@ import {
   createEvent,
   createEventRecordWithName,
 } from "../../../test-helpers/SQS";
-import {
-  formatDate,
-  formatDateAsYearMonthDay,
-  putS3,
-} from "../../shared/utils";
+import { formatDate, putS3 } from "../../shared/utils";
 
 jest.mock("../../shared/utils/s3");
 const mockPutS3 = putS3 as jest.MockedFunction<typeof putS3>;
@@ -45,7 +41,7 @@ test("Store Transactions handler with some valid events calls s3", async () => {
 
   const recordBody1 = JSON.parse(validRecord1.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
-  const yearMonthFolderDay1 = formatDateAsYearMonthDay(expectedDate1);
+  const yearMonthFolderDay1 = formatDate(expectedDate1, "/");
   const expectedKey1 = `btm_event_data/${yearMonthFolderDay1}/${
     recordBody1.event_id as string
   }.json`;
@@ -68,7 +64,7 @@ test("Store Transactions handler with some valid events calls s3", async () => {
 
   const recordBody2 = JSON.parse(validRecord2.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
-  const yearMonthDayFolder2 = formatDateAsYearMonthDay(expectedDate2);
+  const yearMonthDayFolder2 = formatDate(expectedDate2, "/");
   const expectedKey2 = `btm_event_data/${yearMonthDayFolder2}/${
     recordBody2.event_id as string
   }.json`;
@@ -130,7 +126,7 @@ test("Failing puts to S3", async () => {
 
   const recordBody1 = JSON.parse(validRecord.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
-  const yearMonthDayFolder1 = formatDateAsYearMonthDay(expectedDate1);
+  const yearMonthDayFolder1 = formatDate(expectedDate1, "/");
   const expectedKey1 = `btm_event_data/${yearMonthDayFolder1}/${
     recordBody1.event_id as string
   }.json`;
@@ -143,7 +139,7 @@ test("Failing puts to S3", async () => {
 
   const recordBody2 = JSON.parse(invalidRecord.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
-  const yearMonthDayFolder2 = formatDateAsYearMonthDay(expectedDate2);
+  const yearMonthDayFolder2 = formatDate(expectedDate2, "/");
   const expectedKey2 = `btm_event_data/${yearMonthDayFolder2}/${
     recordBody2.event_id as string
   }.json`;

@@ -1,12 +1,11 @@
-export function formatDate(date: Date): string {
+export function formatDate(date: Date, delimiter = "-"): string {
   if (date.toString() === "Invalid Date") {
     throw new Error(`Unsupported date format`);
   }
-  return formatYearMonthDay(
-    date.getFullYear(),
-    date.getMonth() + 1,
-    date.getDate()
-  );
+  const year = date.getFullYear();
+  const month = padZero(date.getMonth() + 1);
+  const day = padZero(date.getDate());
+  return `${year}${delimiter}${month}${delimiter}${day}`;
 }
 
 export const formatYearMonthDay = (
@@ -14,16 +13,6 @@ export const formatYearMonthDay = (
   month: number,
   day: number
 ): string => `${year}-${padZero(month)}-${padZero(day)}`;
-
-export const formatDateAsYearMonthDay = (
-  date: Date,
-  delimiter = "/"
-): string => {
-  const year = date.getFullYear();
-  const month = padZero(date.getMonth() + 1);
-  const day = padZero(date.getDate());
-  return `${year}${delimiter}${month}${delimiter}${day}`;
-};
 
 export const formatDateAsYearMonth = (date: Date, delimiter = "/"): string => {
   const year = date.getFullYear();

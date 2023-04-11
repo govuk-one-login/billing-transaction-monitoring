@@ -45,12 +45,14 @@ describe("Line item storer", () => {
 
     mockedStandardisedLineItemKey =
       "given destination folder/mocked standardised line item key";
+    mockedStandardisedLineItemPrefix =
+      "given destination folder/mocked standardised line item prefix";
 
-    mockedGetStandardisedInvoiceKey.mockReturnValue(
-      mockedStandardisedLineItemKey
-    );
+    mockedGetStandardisedInvoiceKey.mockReturnValue([
+      mockedStandardisedLineItemKey,
+      mockedStandardisedLineItemPrefix,
+    ]);
 
-    mockedStandardisedLineItemPrefix = "mocked standardised line item prefix";
     mockedGetStandardisedInvoiceFileNamePrefix.mockReturnValue(
       mockedStandardisedLineItemPrefix
     );
@@ -288,14 +290,10 @@ describe("Line item storer", () => {
     );
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).toHaveBeenCalledTimes(1);
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).toHaveBeenCalledWith(
-      givenRecordBodyObject
-    );
     expect(mockedListS3Keys).toHaveBeenCalledTimes(1);
     expect(mockedListS3Keys).toHaveBeenCalledWith(
       givenBucket,
-      `${givenDestinationFolder}/${mockedStandardisedLineItemPrefix}`
+      mockedStandardisedLineItemPrefix
     );
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();

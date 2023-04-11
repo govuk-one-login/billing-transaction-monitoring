@@ -7,6 +7,30 @@ export type LineItemFieldsForNaming = Pick<
   "event_name" | "invoice_receipt_date" | "vendor_id"
 >;
 
+export function getStandardisedInvoiceKeyPrefix(
+  folder: string,
+  standardisedInvoice: LineItemFieldsForNaming
+): string {
+  const date = new Date(standardisedInvoice.invoice_receipt_date);
+  const yearMonth = formatDateAsYearMonth(date, "-");
+  const vendorId = standardisedInvoice.vendor_id;
+  const eventName = standardisedInvoice.event_name;
+  return `${folder}/${formatDateAsYearMonth(
+    date
+  )}/${yearMonth}-${vendorId}-${eventName}-`;
+}
+
+export function getStandardisedInvoiceKey(
+  folder: string,
+  standardisedInvoice: LineItemFieldsForNaming
+): [string, string] {
+  const uuid = crypto.randomBytes(3).toString("hex");
+  const prefix = getStandardisedInvoiceKeyPrefix(folder, standardisedInvoice);
+  return [`${prefix}${uuid}.txt`, prefix];
+}
+
+// TODO The below functions will go away with BTM-486.
+
 export function getStandardisedInvoiceFileNamePrefix(
   standardisedInvoice: LineItemFieldsForNaming
 ): string {
@@ -15,22 +39,6 @@ export function getStandardisedInvoiceFileNamePrefix(
   const eventName = standardisedInvoice.event_name;
   return `${yearMonth}-${vendorId}-${eventName}-`;
 }
-
-export function getStandardisedInvoiceKey(
-  folder: string,
-  standardisedInvoice: LineItemFieldsForNaming
-): string {
-  const date = new Date(standardisedInvoice.invoice_receipt_date);
-  const yearMonth = formatDateAsYearMonth(date, "-");
-  const vendorId = standardisedInvoice.vendor_id;
-  const eventName = standardisedInvoice.event_name;
-  const uuid = crypto.randomBytes(3).toString("hex");
-  return `${folder}/${formatDateAsYearMonth(
-    date
-  )}/${yearMonth}-${vendorId}-${eventName}-${uuid}.txt`;
-}
-
-// TODO The below functions will go away with BTM-486.
 
 export function getStandardisedInvoiceFileName(
   standardisedInvoice: LineItemFieldsForNaming

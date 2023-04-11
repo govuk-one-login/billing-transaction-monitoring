@@ -5,7 +5,7 @@ import {
   getYearMonth,
 } from "./get-standardised-invoice-key";
 
-test("Filename getter with standardised line item", () => {
+test("Invoice key getter with standardised line item", () => {
   const standardisedLineItem = {
     invoice_receipt_id: "370 000",
     vendor_id: "vendor_testvendor1",
@@ -25,12 +25,19 @@ test("Filename getter with standardised line item", () => {
     total: 5625.504,
     event_name: "VENDOR_1_EVENT_1",
   };
-  const filename = getStandardisedInvoiceKey("folder", standardisedLineItem);
-  expect(filename).toMatch(
+  const [key, prefix] = getStandardisedInvoiceKey(
+    "folder",
+    standardisedLineItem
+  );
+  expect(key).toMatch(
     /^folder\/2023\/02\/2023-02-vendor_testvendor1-VENDOR_1_EVENT_1-.{6}\.txt$/
+  );
+  expect(prefix).toMatch(
+    /^folder\/2023\/02\/2023-02-vendor_testvendor1-VENDOR_1_EVENT_1-$/
   ); // <- expects 6 alphanumeric chars for the uuid
 });
 
+// TODO The below tests will go away with BTM-486.
 test("Filename prefix getter with standardised line item", () => {
   const standardisedLineItem = {
     vendor_id: "vendor_testvendor1",
@@ -40,8 +47,6 @@ test("Filename prefix getter with standardised line item", () => {
   const prefix = getStandardisedInvoiceFileNamePrefix(standardisedLineItem);
   expect(prefix).toMatch(/^2023-02-vendor_testvendor1-VENDOR_1_EVENT_1-$/);
 });
-
-// TODO The below tests will go away with BTM-486.
 
 test("Filename getter with  standardised line item", () => {
   const standardisedLineItem = {
