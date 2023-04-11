@@ -105,6 +105,7 @@ jobs:
           ref: ${{ github.head.ref }}
       - name: Run integration tests
         run: |
+          ls
           npm run test:integration
       - name: Deploy Jest HTML report to Github Pages
         if: always()
