@@ -94,19 +94,23 @@ jobs:
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
           done
+          if git diff --exit-code >/dev/null; then
+             echo "No directories were deleted.Skipping commit."
+          else
           git add -A
           git commit -m "cleanup old reports" --allow-empty
           git push origin gh-pages
+          fi
         if: always()
+      - name: Check out default branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head.ref }}
       - name: Deploy Jest HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./reports/jest-html-report
+          publish_dir: ./reports
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: true
-      - name: Check out default branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head.ref }}
