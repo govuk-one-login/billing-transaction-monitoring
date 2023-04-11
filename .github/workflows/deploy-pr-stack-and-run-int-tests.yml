@@ -100,7 +100,7 @@ jobs:
           git branch
           cd jest-html-report
           ls 
-          dirs=( $(ls -d -t */ | tail -n +2) )
+          dirs=( $(ls -d -t */ | tail -n +3) )
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
           done
