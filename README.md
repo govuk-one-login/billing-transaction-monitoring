@@ -132,10 +132,16 @@ To run the tests against local environment
 npm ci
 npm run test:integration:local
 ```
-To delete the jest html reports locally 
+To delete all the jest html reports locally 
 
 ```sh
 sudo bash ./integration_tests/run-cleanup-jest-html-reports.sh
+```
+
+Instead of deleting all jest html reports locally, you specify number of reports to keep
+
+```sh
+sudo bash ./integration_tests/run-cleanup-jest-html-reports.sh 1
 ```
 
 ## Deploy

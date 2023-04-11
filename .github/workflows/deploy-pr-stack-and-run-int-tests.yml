@@ -85,6 +85,7 @@ jobs:
           commit_message: 'Deploy Jest HTML report to gh-pages'
           keep_files: true
       - name: Check out gh-pages branch
+        if: always()
         uses: actions/checkout@v3
         with:
           ref: gh-pages
@@ -96,10 +97,7 @@ jobs:
           git config user.name "Github Actions"
           git branch
           cd jest-html-report
-          dirs=( $(ls -d -t */ | tail -n +6) )
-          for dir in "${dirs[@]}"; do
-            rm -rf "$dir"
-          done
+          ./run-cleanup-jest-html-reports.sh 6
           if git diff --exit-code >/dev/null; then
              echo "No directories were deleted.Skipping commit."
           else
@@ -108,7 +106,3 @@ jobs:
           git push origin gh-pages
           fi
         if: always()
-      - name: Check out default branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head.ref }}
