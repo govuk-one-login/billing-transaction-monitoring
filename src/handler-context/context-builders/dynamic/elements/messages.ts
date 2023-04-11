@@ -4,7 +4,7 @@ import { fetchS3 } from "../../../../shared/utils";
 
 const makeCtxSQSMessages = <TMessage>(
   { Records }: SQSEvent,
-  messageTypeGuard: (maybeMessage: any) => maybeMessage is TMessage,
+  messageTypeGuard: (maybeMessage: unknown) => maybeMessage is TMessage,
   logger: Logger
 ): TMessage[] => {
   const messages = Records.map<TMessage>(

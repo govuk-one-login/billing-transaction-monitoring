@@ -112,9 +112,7 @@ describe("buildHandler", () => {
     );
 
     it("returns batchItemFailures if errors are encountered during output", async () => {
-      mockStoreFunction2.mockImplementation(
-        async () => await Promise.reject(new Error("badness 10000"))
-      );
+      mockStoreFunction2.mockRejectedValue(new Error("badness 10000"));
 
       const { batchItemFailures } = await buildHandler(testOptions)(
         jest.fn(async ({ messages }) => {
