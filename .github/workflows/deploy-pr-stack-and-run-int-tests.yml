@@ -96,7 +96,11 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "Github Actions"
           git branch
-          ./run-cleanup-jest-html-reports.sh 6
+          cd jest-html-report
+          dirs=( $(ls -d -t */ | tail -n +6) )
+          for dir in "${dirs[@]}"; do
+            rm -rf "$dir"
+          done
           if git diff --exit-code >/dev/null; then
              echo "No directories were deleted.Skipping commit."
           else
