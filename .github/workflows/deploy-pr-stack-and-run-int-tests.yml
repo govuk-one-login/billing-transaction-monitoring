@@ -74,6 +74,18 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
+      - name: Run integration tests
+        run: |
+          ls
+          npm run test:integration
+      - name: Deploy Jest HTML report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./reports
+          commit_message: 'Deploy Jest HTML report to gh-pages'
+          keep_files: true
       - name: Check out gh-pages branch
         uses: actions/checkout@v3
         with:
@@ -103,15 +115,3 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head.ref }}
-      - name: Run integration tests
-        run: |
-          ls
-          npm run test:integration
-      - name: Deploy Jest HTML report to Github Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./reports
-          commit_message: 'Deploy Jest HTML report to gh-pages'
-          keep_files: true
