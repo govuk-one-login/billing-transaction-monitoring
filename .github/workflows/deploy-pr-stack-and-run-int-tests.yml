@@ -90,13 +90,12 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "Github Actions"
           git branch
-          ls jest-html-report
           dirs=( $(ls -d -t */ | tail -n +2) )
           for dir in "${dirs[@]}"; do
             rm -rf "$dir"
           done
           git add -A
-          git commit -m "cleanup old reports"
+          git commit -m "cleanup old reports" --allow-empty
           git push origin gh-pages
         if: always()
       - name: Deploy Jest HTML report to Github Pages
