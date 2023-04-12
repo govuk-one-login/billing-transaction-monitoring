@@ -141,7 +141,7 @@ sudo bash ./integration_tests/run-cleanup-jest-html-reports.sh
 Instead of deleting all jest html reports locally, you specify number of reports to keep
 
 ```sh
-sudo bash ./integration_tests/run-cleanup-jest-html-reports.sh 1
+sudo bash ./integration_tests/run-cleanup-jest-html-reports.sh 3
 ```
 
 ## Deploy
