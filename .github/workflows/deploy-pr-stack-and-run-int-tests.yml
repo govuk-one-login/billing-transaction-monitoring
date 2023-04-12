@@ -97,7 +97,7 @@ jobs:
           git config user.name "Github Actions"
           git fetch
           git branch
-          git checkout origin/BTM-481-jest-report-outputs -- integration_tests/cleanup-jest-html-reports.sh
+          git checkout origin/main -- integration_tests/cleanup-jest-html-reports.sh
           chmod +x ./integration_tests/cleanup-jest-html-reports.sh
           ./integration_tests/cleanup-jest-html-reports.sh 5
           if git diff --exit-code >/dev/null; then
