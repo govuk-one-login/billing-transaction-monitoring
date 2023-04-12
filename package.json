@@ -56,6 +56,7 @@
     "test": "jest --maxWorkers=4",
     "test:integration": "jest --config jest.integration.config.ts --maxWorkers=4",
     "test:end2end": "jest --config jest.e2e.config.ts",
+    "test:cleanup:reports": " cd reports/jest-html-reports && chmod +x ../../integration_tests/cleanup-jest-html-reports.sh && ../../integration_tests/cleanup-jest-html-reports.sh 5",
     "test:integration:local": "jest --setupFiles=./integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --config jest.integration.config.ts",
     "build": "webpack",
     "lint": "eslint . --fix",

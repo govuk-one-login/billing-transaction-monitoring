@@ -133,11 +133,9 @@ npm ci
 npm run test:integration:local
 ```
 
-To delete generated jest html reports locally, you specify number of reports to keep and the script will keep last 3 reports and delete
-others
-
+To delete generated jest html reports locally
 ```sh
-sudo bash ./integration_tests/run-cleanup-jest-html-reports.sh 3 ./reports/jest-html-reports
+npm run test:cleanup:reports 
 ```
 
 ## Deploy
