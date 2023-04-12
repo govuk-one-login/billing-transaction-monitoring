@@ -135,13 +135,13 @@ npm run test:integration:local
 To delete all the jest html reports locally 
 
 ```sh
-sudo bash ./integration_tests/run-cleanup-jest-html-reports.sh
+sudo bash ./integration_tests/run-cleanup-jest-html-reports.sh ./reports/jest-html-reports
 ```
 
 Instead of deleting all jest html reports locally, you specify number of reports to keep
 
 ```sh
-sudo bash ./integration_tests/run-cleanup-jest-html-reports.sh 3
+sudo bash ./integration_tests/run-cleanup-jest-html-reports.sh 3 ./reports/jest-html-reports
 ```
 
 ## Deploy
