@@ -1,18 +1,17 @@
 import { SQSRecord } from "aws-lambda";
-import { getS3EventRecordsFromSqs, putTextS3 } from "../../shared/utils";
+import { getS3EventRecordsFromSqs, sendRecord } from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 
-export async function storeStandardisedInvoices(
+export async function sendStandardisedLineItems(
   queueRecord: SQSRecord,
-  destinationBucket: string,
-  destinationFolder: string,
+  outputQueueUrl: string,
   configBucket: string,
   parserVersions: Record<string, string>
 ): Promise<void> {
   const storageRecords = getS3EventRecordsFromSqs(queueRecord);
 
-  const promises = storageRecords.map(async (storageRecord) => {
+  const recordPromises = storageRecords.map(async (storageRecord) => {
     const sourceBucket = storageRecord.s3.bucket.name;
     const sourceFilePath = storageRecord.s3.object.key;
 
@@ -40,20 +39,13 @@ export async function storeStandardisedInvoices(
       originalInvoiceFileName
     );
 
-    // Convert line items to new-line-separated JSON object text, to work with Glue/Athena.
-    const standardisedInvoiceText = standardisedInvoice
-      .map((lineItem) => JSON.stringify(lineItem))
-      .join("\n");
+    const lineItemPromises = standardisedInvoice.map(async (item) => {
+      const standardisedInvoiceText = JSON.stringify(item);
+      await sendRecord(outputQueueUrl, standardisedInvoiceText);
+    });
 
-    // Since that text block is not valid JSON, use a file extension that is not `.json`.
-    const destinationFileName = sourceFileName.replace(/\.json$/g, ".txt");
-
-    await putTextS3(
-      destinationBucket,
-      `${destinationFolder}/${destinationFileName}`,
-      standardisedInvoiceText
-    );
+    await Promise.all(lineItemPromises);
   });
 
-  await Promise.all(promises);
+  await Promise.all(recordPromises);
 }
