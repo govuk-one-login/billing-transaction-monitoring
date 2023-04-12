@@ -6,25 +6,23 @@ import {
 } from "./context-builders";
 import { outputMessages } from "./output-messages";
 import { BusinessLogic, CtxBuilderOptions } from "./types";
-import { Response } from "../shared/types";
 
-export const buildHandler = async <
-  TMessage,
-  TEnvVars extends string,
-  TConfigElements extends ConfigElements
->(
-  businessLogic: BusinessLogic<TMessage, TEnvVars, TConfigElements>,
-  options: CtxBuilderOptions<TMessage, TEnvVars, TConfigElements>
-): Promise<(event: S3Event | SQSEvent) => Promise<Response>> => {
-  const staticContextElements = await buildStaticContextElements(options);
-  return async (event: S3Event | SQSEvent) => {
+export const buildHandler =
+  <TMessage, TEnvVars extends string, TConfigElements extends ConfigElements>(
+    businessLogic: BusinessLogic<TMessage, TEnvVars, TConfigElements>,
+    options: CtxBuilderOptions<TMessage, TEnvVars, TConfigElements>
+  ) =>
+  async (event: S3Event | SQSEvent) => {
+    const staticContextElementsPromise = buildStaticContextElements(options);
     const dynamicContextElements = await buildDynamicContextElements(
       event,
       options,
-      staticContextElements
+      await staticContextElementsPromise
     );
-    const ctx = { ...dynamicContextElements, ...staticContextElements };
+    const ctx = {
+      ...dynamicContextElements,
+      ...(await staticContextElementsPromise),
+    };
     const results = await businessLogic(ctx);
     return await outputMessages(results, ctx);
   };
-};

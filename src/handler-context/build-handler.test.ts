@@ -94,13 +94,12 @@ describe("buildHandler", () => {
     ])(
       "creates a context, invokes the business logic with that context, then sends to results of the business logic to the specified outputs",
       async ({ event, expectedOutput }) => {
-        const handler = await buildHandler(
+        await buildHandler(
           jest.fn(async ({ messages }) => {
             return messages;
           }),
           testOptions
-        );
-        await handler(event);
+        )(event);
 
         expect(mockStoreFunction1).toHaveBeenLastCalledWith(
           "that",
@@ -116,13 +115,12 @@ describe("buildHandler", () => {
     it("returns batchItemFailures if errors are encountered during output", async () => {
       mockStoreFunction2.mockRejectedValue(new Error("badness 10000"));
 
-      const handler = await buildHandler(
+      const { batchItemFailures } = await buildHandler(
         jest.fn(async ({ messages }) => {
           return messages;
         }),
         testOptions
-      );
-      const { batchItemFailures } = await handler(testSQSEvent);
+      )(testSQSEvent);
 
       expect(batchItemFailures).toEqual(["msg_1"]);
     });

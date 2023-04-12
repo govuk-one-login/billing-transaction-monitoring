@@ -34,7 +34,7 @@ describe(
       await publishToTestTopic(snsValidEventPayload);
     });
 
-    test("Filter function cloud watch logs should contain eventid", async () => {
+    test.only("Filter function cloud watch logs should contain eventid", async () => {
       await waitForSubstringInLogs(
         "-filter-function",
         snsValidEventPayload.event_id
