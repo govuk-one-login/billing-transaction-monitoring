@@ -1,10 +1,9 @@
-import { buildHandler } from "../../handler-context";
-import { ConfigElements } from "../../handler-context";
+import { buildHandler, ConfigElements } from "../../handler-context";
 import { sendRecord } from "../../shared/utils";
 import { businessLogic } from "./business-logic";
 import { Env, ConfigCache } from "./types";
 
-export const handler = buildHandler<string, Env, ConfigCache>({
+export const handler = buildHandler<string, Env, ConfigCache>(businessLogic, {
   envVars: [Env.OUTPUT_QUEUE_URL],
   messageTypeGuard: (message: any): message is string =>
     typeof message === "string",
@@ -14,4 +13,4 @@ export const handler = buildHandler<string, Env, ConfigCache>({
     ConfigElements.inferences,
     ConfigElements.transformations,
   ],
-})(businessLogic);
+});
