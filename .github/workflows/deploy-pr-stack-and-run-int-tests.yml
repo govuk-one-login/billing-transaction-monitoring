@@ -98,7 +98,8 @@ jobs:
           git fetch
           git branch
           git checkout origin/BTM-481-jest-report-outputs -- integration_tests/cleanup-jest-html-reports.sh
-          bash ./cleanup-jest-html-reports.sh 6
+          ls
+          ./cleanup-jest-html-reports.sh 6
           if git diff --exit-code >/dev/null; then
              echo "No directories were deleted.Skipping commit."
           else
