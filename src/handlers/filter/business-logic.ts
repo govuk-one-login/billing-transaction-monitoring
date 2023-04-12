@@ -1,10 +1,12 @@
 import { BusinessLogic } from "../../handler-context";
 import { ConfigCache, Env, Message } from "./types";
 
-export const businessLogic: BusinessLogic<Message, Env, ConfigCache> = async ({
-  messages,
-  config: { services },
-}) => {
+export const businessLogic: BusinessLogic<
+  Message,
+  Env,
+  ConfigCache,
+  Message
+> = async ({ messages, config: { services } }) => {
   const validEventNames = new Set<string>(
     services.map(({ event_name }) => event_name)
   );

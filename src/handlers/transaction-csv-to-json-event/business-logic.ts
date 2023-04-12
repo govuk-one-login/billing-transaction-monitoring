@@ -1,12 +1,14 @@
 import { BusinessLogic } from "../../handler-context";
 import { convertMany } from "./convert";
 import { Env, ConfigCache } from "./types";
+import { Message } from "../filter/types";
 
-export const businessLogic: BusinessLogic<string, Env, ConfigCache> = async ({
-  messages,
-  config,
-  logger,
-}) => {
+export const businessLogic: BusinessLogic<
+  string,
+  Env,
+  ConfigCache,
+  Message
+> = async ({ messages, config, logger }) => {
   const { events, failedConversionsCount, failedEventNameInferenceCount } =
     await convertMany(messages, config);
 

@@ -16,10 +16,11 @@ export type UserDefinedOutputs<TEnvVars extends string> = Array<{
 export type BusinessLogic<
   TMessage,
   TEnvVars extends string,
-  TConfigElements extends ConfigElements
+  TConfigElements extends ConfigElements,
+  TResult extends string | {}
 > = (
   ctx: HandlerCtx<TMessage, TEnvVars, TConfigElements>
-) => Promise<unknown[]>;
+) => Promise<TResult[]>;
 
 export type HandlerCtx<
   TMessage,

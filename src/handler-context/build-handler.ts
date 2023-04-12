@@ -8,8 +8,13 @@ import { outputMessages } from "./output-messages";
 import { BusinessLogic, CtxBuilderOptions } from "./types";
 
 export const buildHandler =
-  <TMessage, TEnvVars extends string, TConfigElements extends ConfigElements>(
-    businessLogic: BusinessLogic<TMessage, TEnvVars, TConfigElements>,
+  <
+    TMessage,
+    TEnvVars extends string,
+    TConfigElements extends ConfigElements,
+    TResult extends string | {}
+  >(
+    businessLogic: BusinessLogic<TMessage, TEnvVars, TConfigElements, TResult>,
     options: CtxBuilderOptions<TMessage, TEnvVars, TConfigElements>
   ) =>
   async (event: S3Event | SQSEvent) => {
