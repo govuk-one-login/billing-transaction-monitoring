@@ -1,13 +1,313 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="1" failures="0" errors="0" time="2.433">
+<testsuites name="jest tests" tests="35" failures="2" errors="0" time="261.923">
+  <testsuite name="New invoice with same month, vendor, service as old line item" errors="0" failures="1" skipped="0" timestamp="2023-04-12T11:14:37" time="145.227" tests="1">
+    <testcase classname="New invoice with same month, vendor, service as old line item should archive old line item" name="New invoice with same month, vendor, service as old line item should archive old line item" time="82.791">
+      <failure>Error: Failed: &quot;Given service 1 line item not found&quot;
+    at Env.it (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:101:24)
+    at it (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/jasmine/jasmineLight.js:67:21)
+    at Suite.&lt;anonymous&gt; (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/integration_tests/tests/s3-invoice-standardised-line-item-tests.ts:37:3)
+    at addSpecsToSuite (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/jasmine/Env.js:356:49)
+    at Env.describe (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/jasmine/Env.js:331:9)
+    at describe (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/jasmine/jasmineLight.js:58:18)
+    at Object.&lt;anonymous&gt; (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/integration_tests/tests/s3-invoice-standardised-line-item-tests.ts:18:1)
+    at Runtime._execModule (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-runtime/build/index.js:1377:24)
+    at Runtime._loadModule (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-runtime/build/index.js:989:12)
+    at Runtime.requireModule (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-runtime/build/index.js:849:12)
+    at jasmine2 (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/index.js:197:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at runTestInternal (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="
+ Happy path tests
+
+ Publish valid SNS message and expect event id stored in S3
+" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:17:02" time="29.663" tests="6">
+    <testcase classname="
+ Happy path tests
+
+ Publish valid SNS message and expect event id stored in S3
+ S3 should contain event id for valid SNS message" name="
+ Happy path tests
+
+ Publish valid SNS message and expect event id stored in S3
+ S3 should contain event id for valid SNS message" time="2.613">
+    </testcase>
+    <testcase classname="
+Unhappy path tests
+
+ Publish invalid SNS message and expect event id not stored in S3
+ S3 should not contain event id for SNS message with invalid EventName in the payload" name="
+Unhappy path tests
+
+ Publish invalid SNS message and expect event id not stored in S3
+ S3 should not contain event id for SNS message with invalid EventName in the payload" time="3.159">
+    </testcase>
+    <testcase classname="
+Unhappy path tests
+
+ Publish invalid SNS message and expect event id not stored in S3
+ S3 should not contain event id for SNS message with invalid ComponentId in the payload" name="
+Unhappy path tests
+
+ Publish invalid SNS message and expect event id not stored in S3
+ S3 should not contain event id for SNS message with invalid ComponentId in the payload" time="3.162">
+    </testcase>
+    <testcase classname="
+Unhappy path tests
+
+ Publish invalid SNS message and expect event id not stored in S3
+ S3 should not contain event id for SNS message with invalid Timestamp in the payload" name="
+Unhappy path tests
+
+ Publish invalid SNS message and expect event id not stored in S3
+ S3 should not contain event id for SNS message with invalid Timestamp in the payload" time="3.164">
+    </testcase>
+    <testcase classname="
+Unhappy path tests
+
+ Publish invalid SNS message and expect event id not stored in S3
+ S3 should not contain event id for SNS message with invalid event id in the payload" name="
+Unhappy path tests
+
+ Publish invalid SNS message and expect event id not stored in S3
+ S3 should not contain event id for SNS message with invalid event id in the payload" time="3.162">
+    </testcase>
+    <testcase classname="
+Unhappy path tests
+
+ Publish invalid SNS message and expect event id not stored in S3
+ S3 should not contain event id for SNS message with invalid timestamp formatted in the payload" name="
+Unhappy path tests
+
+ Publish invalid SNS message and expect event id not stored in S3
+ S3 should not contain event id for SNS message with invalid timestamp formatted in the payload" time="3.162">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+ Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view
+" errors="0" failures="1" skipped="0" timestamp="2023-04-12T11:14:37" time="187.9" tests="2">
+    <testcase classname="
+ Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view
+ upload valid pdf file in raw-invoice bucket and see that we can see the data in the view" name="
+ Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view
+ upload valid pdf file in raw-invoice bucket and see that we can see the data in the view" time="85.093">
+      <failure>Error: AWS SDK error wrapper for TimeoutError: socket hang up
+    at asSdkError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-retry/dist-cjs/StandardRetryStrategy.js:103:12)
+    at StandardRetryStrategy.retry (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-retry/dist-cjs/StandardRetryStrategy.js:61:29)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:6:22
+    at listS3ObjectsBasic (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:48:10)</failure>
+    </testcase>
+    <testcase classname="
+ Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view
+ upload valid csv file in raw-invoice bucket and check that we can see the data in the view" name="
+ Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view
+ upload valid csv file in raw-invoice bucket and check that we can see the data in the view" time="40.489">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+Publish valid sns message and execute athena query
+" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:17:32" time="15.695" tests="2">
+    <testcase classname="
+Publish valid sns message and execute athena query
+ should contain eventId in the generated query results" name="
+Publish valid sns message and execute athena query
+ should contain eventId in the generated query results" time="6.112">
+    </testcase>
+    <testcase classname="
+Publish invalid sns message and execute athena query
+ should not contain eventId in the generated query results" name="
+Publish invalid sns message and execute athena query
+ should not contain eventId in the generated query results" time="5.647">
+    </testcase>
+  </testsuite>
+  <testsuite name="Given a csv with event data is uploaded to the transaction csv bucket" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:17:45" time="8.828" tests="1">
+    <testcase classname="Given a csv with event data is uploaded to the transaction csv bucket stores the events we care about in the storage bucket" name="Given a csv with event data is uploaded to the transaction csv bucket stores the events we care about in the storage bucket" time="2.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+ Unhappy path - Upload invalid pdf to the raw invoice bucket test
+" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:17:53" time="4.666" tests="1">
+    <testcase classname="
+ Unhappy path - Upload invalid pdf to the raw invoice bucket test
+ should move the original raw invoice to failed folder in s3 raw-invoice bucket upon uploading the invalid pdf file " name="
+ Unhappy path - Upload invalid pdf to the raw invoice bucket test
+ should move the original raw invoice to failed folder in s3 raw-invoice bucket upon uploading the invalid pdf file " time="3.381">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
+" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:14:37" time="202.945" tests="4">
+    <testcase classname="
+Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty and No TransactionPrice No BillingPrice ,2,£0.00,2,£0.00,-1234567.01" name="
+Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty and No TransactionPrice No BillingPrice ,2,£0.00,2,£0.00,-1234567.01" time="54.836">
+    </testcase>
+    <testcase classname="
+Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice ,2,£0.00,11,£27.50,-100.0" name="
+Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice ,2,£0.00,11,£27.50,-100.0" time="44.566">
+    </testcase>
+    <testcase classname="
+Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty greater than TransactionQty and No TransactionPrice but has BillingPrice,11,£27.50,2,£0.00,undefined" name="
+Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty greater than TransactionQty and No TransactionPrice but has BillingPrice,11,£27.50,2,£0.00,undefined" time="20.42">
+    </testcase>
+    <testcase classname="
+Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty but BillingPrice greater than TransactionPrice,2,£6.66,2,£2.46,170.7317" name="
+Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty but BillingPrice greater than TransactionPrice,2,£6.66,2,£2.46,170.7317" time="20.369">
+    </testcase>
+  </testsuite>
+  <testsuite name="Execute athena query to retrieve rate details" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:18:00" time="9.234" tests="1">
+    <testcase classname="Execute athena query to retrieve rate details retrieved rate details should match rate csv uploaded in s3 config bucket" name="Execute athena query to retrieve rate details retrieved rate details should match rate csv uploaded in s3 config bucket" time="6.752">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+ Happy path tests 
+
+ publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
+" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:17:58" time="15.823" tests="3">
+    <testcase classname="
+ Happy path tests 
+
+ publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
+ Filter function cloud watch logs should contain eventid" name="
+ Happy path tests 
+
+ publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
+ Filter function cloud watch logs should contain eventid" time="8.759">
+    </testcase>
+    <testcase classname="
+ Happy path tests 
+
+ publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
+ Clean function cloud watch logs should contain eventid" name="
+ Happy path tests 
+
+ publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
+ Clean function cloud watch logs should contain eventid" time="1.894">
+    </testcase>
+    <testcase classname="
+ Happy path tests 
+
+ publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
+ Store Transactions function cloud watch logs should contain eventid" name="
+ Happy path tests 
+
+ publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
+ Store Transactions function cloud watch logs should contain eventid" time="1.574">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+ Execute athena query to retrieve vendor service details
+" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:18:09" time="8.079" tests="1">
+    <testcase classname="
+ Execute athena query to retrieve vendor service details
+ retrieved vendor service details should match with vendor service csv uploaded in s3 config bucket " name="
+ Execute athena query to retrieve vendor service details
+ retrieved vendor service details should match with vendor service csv uploaded in s3 config bucket " time="6.76">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+ Invoice data buckets exists in S3
+" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:18:14" time="3.367" tests="3">
+    <testcase classname="
+ Invoice data buckets exists in S3
+ Raw invoice bucket should exists in S3" name="
+ Invoice data buckets exists in S3
+ Raw invoice bucket should exists in S3" time="0.659">
+    </testcase>
+    <testcase classname="
+ Invoice data buckets exists in S3
+ Raw invoice textract data bucket should exists in S3" name="
+ Invoice data buckets exists in S3
+ Raw invoice textract data bucket should exists in S3" time="0.652">
+    </testcase>
+    <testcase classname="
+ Invoice data buckets exists in S3
+ Storage bucket should exists in S3" name="
+ Invoice data buckets exists in S3
+ Storage bucket should exists in S3" time="0.78">
+    </testcase>
+  </testsuite>
   <testsuite name="
  Verify VAT details exists in S3 config bucket
-" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:01:41" time="2.39" tests="1">
+" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:18:17" time="2.879" tests="1">
     <testcase classname="
  Verify VAT details exists in S3 config bucket
  S3 config bucket should contain VAT details matches with expected vat config file " name="
  Verify VAT details exists in S3 config bucket
- S3 config bucket should contain VAT details matches with expected vat config file " time="0.669">
+ S3 config bucket should contain VAT details matches with expected vat config file " time="0.709">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+Execute athena transaction curated query to retrieve price 
+" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:17:47" time="63.54" tests="4">
+    <testcase classname="
+Execute athena transaction curated query to retrieve price 
+ price retrieved from transaction_curated athena view query should match with expected calculated price for 2" name="
+Execute athena transaction curated query to retrieve price 
+ price retrieved from transaction_curated athena view query should match with expected calculated price for 2" time="9.9">
+    </testcase>
+    <testcase classname="
+Execute athena transaction curated query to retrieve price 
+ price retrieved from transaction_curated athena view query should match with expected calculated price for 2" name="
+Execute athena transaction curated query to retrieve price 
+ price retrieved from transaction_curated athena view query should match with expected calculated price for 2" time="8.979">
+    </testcase>
+    <testcase classname="
+Execute athena transaction curated query to retrieve price 
+ price retrieved from transaction_curated athena view query should match with expected calculated price for 7" name="
+Execute athena transaction curated query to retrieve price 
+ price retrieved from transaction_curated athena view query should match with expected calculated price for 7" time="16">
+    </testcase>
+    <testcase classname="
+Execute athena transaction curated query to retrieve price 
+ price retrieved from transaction_curated athena view query should match with expected calculated price for 14" name="
+Execute athena transaction curated query to retrieve price 
+ price retrieved from transaction_curated athena view query should match with expected calculated price for 14" time="26.234">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+" errors="0" failures="0" skipped="0" timestamp="2023-04-12T11:14:37" time="260.281" tests="5">
+    <testcase classname="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+ results retrieved from BillingAndTransactionsCuratedView view should match with expected No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price,2022/10/30,undefined,100" name="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+ results retrieved from BillingAndTransactionsCuratedView view should match with expected No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price,2022/10/30,undefined,100" time="77.677">
+    </testcase>
+    <testcase classname="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+ results retrieved from BillingAndTransactionsCuratedView view should match with expected BillingQty BillingPrice equals TransactionQty and TransactionPrice,2022/11/30,10,10" name="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+ results retrieved from BillingAndTransactionsCuratedView view should match with expected BillingQty BillingPrice equals TransactionQty and TransactionPrice,2022/11/30,10,10" time="37.172">
+    </testcase>
+    <testcase classname="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+ results retrieved from BillingAndTransactionsCuratedView view should match with expected BillingQty BillingPrice greater than TransactionQty and TransactionPrice,2022/12/01,10,12" name="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+ results retrieved from BillingAndTransactionsCuratedView view should match with expected BillingQty BillingPrice greater than TransactionQty and TransactionPrice,2022/12/01,10,12" time="42.351">
+    </testcase>
+    <testcase classname="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+ results retrieved from BillingAndTransactionsCuratedView view should match with expected BillingQty BillingPrice lesser than TransactionQty and TransactionPrice,2023/01/02,10,6" name="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+ results retrieved from BillingAndTransactionsCuratedView view should match with expected BillingQty BillingPrice lesser than TransactionQty and TransactionPrice,2023/01/02,10,6" time="32.049">
+    </testcase>
+    <testcase classname="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+ results retrieved from BillingAndTransactionsCuratedView should match with expected No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice,2023/02/28,1,undefined" name="
+ Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data 
+ results retrieved from BillingAndTransactionsCuratedView should match with expected No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice,2023/02/28,1,undefined" time="7.613">
     </testcase>
   </testsuite>
 </testsuites>
