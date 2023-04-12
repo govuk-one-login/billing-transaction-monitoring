@@ -95,9 +95,8 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "Github Actions"
+          git fetch
           git branch
-          git branch -r
-          git checkout BTM-481-jest-report-outputs 
           git checkout BTM-481-jest-report-outputs -- integration_tests/cleanup-jest-html-reports.sh
           bash ./cleanup-jest-html-reports.sh 6
           if git diff --exit-code >/dev/null; then
