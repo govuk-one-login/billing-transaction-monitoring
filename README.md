@@ -133,6 +133,11 @@ npm ci
 npm run test:integration:local
 ```
 
+To delete generated jest html reports locally. This will delete all the reports except last 3 reports
+```sh
+npm run test:cleanup:reports 
+```
+
 ## Deploy
 
 ### To dev, build, staging, production
