@@ -18,18 +18,10 @@ export const handler = async (event: S3Event): Promise<void> => {
     throw new Error("Config Bucket not set.");
   }
 
-  const [renamingMap, inferences, transformations] = await Promise.all([
-    fetchS3(configBucket, "csv_transactions/header-row-renaming-map.json"),
-    fetchS3(configBucket, "csv_transactions/event-inferences.json"),
-    fetchS3(configBucket, "csv_transactions/event-transformation.json"),
-  ]).then((results) =>
-    results.map((result) => {
-      try {
-        return JSON.parse(result);
-      } catch (error) {
-        throw new Error(`Config JSON could not be parsed. Received ${result}`);
-      }
-    })
+  const batchSize = getBatchSize();
+
+  const [renamingMap, inferences, transformations] = await fetchHandlerConfig(
+    configBucket
   );
 
   if (!isValidRenamingConfig(renamingMap)) {
@@ -66,22 +58,79 @@ export const handler = async (event: S3Event): Promise<void> => {
     transformations,
   });
 
-  const sendRecordPromises = transactions
-    .filter(({ event_name }) => event_name !== "Unknown")
-    .map(
-      async (transaction) =>
-        await sendRecord(outputQueueUrl, JSON.stringify(transaction), {
-          shouldLog: false,
-        })
-    );
+  const results = await sendTransactions(
+    transactions,
+    outputQueueUrl,
+    batchSize
+  );
 
-  const results = await Promise.allSettled(sendRecordPromises);
-  for (const result of results) {
-    if (result.status === "rejected")
-      throw new Error(
-        `Failed to process all rows: ${
-          results.filter((result) => result.status === "rejected").length
-        } out of ${results.length} failed`
-      );
+  if (results.some((result) => result.status === "rejected"))
+    throw new Error(
+      `Failed to process all rows: ${
+        results.filter((result) => result.status === "rejected").length
+      } out of ${results.length} failed`
+    );
+};
+
+const fetchHandlerConfig = async (
+  configBucket: string
+): Promise<[unknown, unknown, unknown]> => {
+  const results = await Promise.all([
+    fetchS3(configBucket, "csv_transactions/header-row-renaming-map.json"),
+    fetchS3(configBucket, "csv_transactions/event-inferences.json"),
+    fetchS3(configBucket, "csv_transactions/event-transformation.json"),
+  ]);
+
+  return results.map((result) => {
+    try {
+      return JSON.parse(result);
+    } catch (error) {
+      throw new Error(`Config JSON could not be parsed. Received ${result}`);
+    }
+  }) as [unknown, unknown, unknown]; // TS compiler cannot tell length of result
+};
+
+const getBatchSize = (): number => {
+  if (
+    process.env.BATCH_SIZE === undefined ||
+    process.env.BATCH_SIZE.length === 0
+  ) {
+    throw new Error("Batch size not set.");
   }
+
+  const batchSize = parseInt(process.env.BATCH_SIZE, 10);
+
+  if (
+    Number.isNaN(batchSize) ||
+    batchSize < 1 ||
+    batchSize > Number.MAX_SAFE_INTEGER
+  )
+    throw new Error("Invalid batch size.");
+
+  return batchSize;
+};
+
+const sendTransactions = async (
+  transactions: Array<Record<string, unknown>>,
+  outputQueueUrl: string,
+  batchSize: number
+): Promise<Array<PromiseSettledResult<unknown>>> => {
+  const results = [];
+
+  for (let index = 0; index < transactions.length; index += batchSize) {
+    const sendRecordPromises = transactions
+      .slice(index, index + batchSize)
+      .filter(({ event_name }) => event_name !== "Unknown")
+      .map(
+        async (transaction) =>
+          await sendRecord(outputQueueUrl, JSON.stringify(transaction), {
+            shouldLog: false,
+          })
+      );
+
+    const batchResults = await Promise.allSettled(sendRecordPromises);
+    results.push(...batchResults);
+  }
+
+  return results;
 };
