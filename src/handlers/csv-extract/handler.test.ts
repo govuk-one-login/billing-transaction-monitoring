@@ -4,7 +4,6 @@ import {
   getVendorServiceConfigRows,
   logger,
   getStandardisedInvoiceFileName,
-  getStandardisedInvoiceKey,
   sendRecord,
 } from "../../shared/utils";
 import { handler } from "./handler";
@@ -27,7 +26,6 @@ const mockedGetVendorServiceConfigRows =
   getVendorServiceConfigRows as jest.Mock;
 const mockedGetStandardisedInvoiceFileName =
   getStandardisedInvoiceFileName as jest.Mock;
-const mockedGetStandardisedInvoiceKey = getStandardisedInvoiceKey as jest.Mock;
 const mockedSendRecord = sendRecord as jest.Mock;
 
 describe("CSV Extract handler tests", () => {
@@ -308,9 +306,6 @@ describe("CSV Extract handler tests", () => {
     mockedGetStandardisedInvoiceFileName.mockReturnValueOnce(
       "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
-    mockedGetStandardisedInvoiceKey.mockReturnValueOnce(
-      "folder/2022/01/2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
-    );
     const mockedErrorText = "mocked send error";
     const mockedError = new Error(mockedErrorText);
     mockedSendRecord.mockRejectedValue(mockedError);
@@ -327,9 +322,6 @@ describe("CSV Extract handler tests", () => {
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
     mockedGetStandardisedInvoiceFileName.mockReturnValueOnce(
       "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
-    );
-    mockedGetStandardisedInvoiceKey.mockReturnValueOnce(
-      "folder/2022/01/2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const result = await handler(validEvent);
     expect(result).toEqual({ batchItemFailures: [] });
@@ -373,9 +365,6 @@ describe("CSV Extract handler tests", () => {
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
     mockedGetStandardisedInvoiceFileName.mockReturnValueOnce(
       "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
-    );
-    mockedGetStandardisedInvoiceKey.mockReturnValueOnce(
-      "folder/2022/01/2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const result = await handler(validEvent);
     expect(result).toEqual({ batchItemFailures: [] });
