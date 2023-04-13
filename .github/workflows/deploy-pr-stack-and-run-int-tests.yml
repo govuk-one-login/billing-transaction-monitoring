@@ -99,13 +99,12 @@ jobs:
           git branch
           git checkout origin/main -- integration_tests/cleanup-jest-html-reports.sh
           cd jest-html-reports
-          chmod +x ../integration_tests/cleanup-jest-html-reports.sh
           ../integration_tests/cleanup-jest-html-reports.sh 5
           if git diff --exit-code >/dev/null; then
-             echo "No directories were deleted.Skipping commit."
+            echo "No directories were deleted.Skipping commit."
           else
-          git add -A
-          git commit -m "cleanup old reports" --allow-empty
-          git push origin gh-pages
+            git add -A
+            git commit -m "cleanup old reports" --allow-empty
+            git push origin gh-pages
           fi
         if: always()
