@@ -77,7 +77,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
             s3Object.Key?.includes(getYearMonth(eventTime))
           ).length === 1,
         {
-          timeout: 800000,
+          timeout: 80000,
           interval: 10000,
           nonCompleteErrorMessage:
             "e2e tests invoice data never appeared in standardised folder",
