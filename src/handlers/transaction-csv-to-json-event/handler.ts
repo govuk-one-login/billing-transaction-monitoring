@@ -50,7 +50,7 @@ export const handler = async (event: S3Event): Promise<void> => {
   const csv = await fetchS3(
     event.Records[0].s3.bucket.name,
     event.Records[0].s3.object.key
-  ); // should we we getting all the records or is the zeroth one ok?
+  ); // should we be getting all the records or is the zeroth one ok?
 
   const transactions = await convert(csv, {
     renamingMap,

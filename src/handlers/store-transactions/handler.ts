@@ -45,15 +45,31 @@ async function storeRecord(record: SQSRecord): Promise<void> {
     throw new Error(message);
   }
 
-  const date = new Date(timestamp);
-  const formattedDate = formatDate(date);
-
-  const key = `${formattedDate}/${eventId}.json`;
+  if (
+    process.env.EVENT_DATA_FOLDER === undefined ||
+    process.env.EVENT_DATA_FOLDER.length === 0
+  ) {
+    const message = "Event data folder name not set.";
+    logger.error(message);
+    throw new Error(message);
+  }
 
   logger.info("Storing event " + eventId);
+
+  const date = new Date(timestamp);
+  const key = `${formatDate(date, "/")}/${eventId}.json`;
   await putS3(
     process.env.STORAGE_BUCKET,
-    process.env.TRANSACTIONS_FOLDER + "/" + key,
+    process.env.EVENT_DATA_FOLDER + "/" + key,
+    bodyObject
+  );
+
+  // TODO The legacy storage location.  This will go away with BTM-486.
+  const formattedDate = formatDate(date);
+  const legacyKey = `${formattedDate}/${eventId}.json`;
+  await putS3(
+    process.env.STORAGE_BUCKET,
+    process.env.TRANSACTIONS_FOLDER + "/" + legacyKey,
     bodyObject
   );
 }
