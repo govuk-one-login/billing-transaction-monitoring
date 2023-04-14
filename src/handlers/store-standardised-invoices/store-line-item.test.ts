@@ -2,7 +2,6 @@ import { SQSRecord } from "aws-lambda";
 import {
   getStandardisedInvoiceKey,
   getStandardisedInvoiceFileName,
-  getStandardisedInvoiceFileNamePrefix,
   listS3Keys,
   moveToFolderS3,
   putTextS3,
@@ -13,8 +12,6 @@ jest.mock("../../shared/utils");
 const mockedGetStandardisedInvoiceKey = getStandardisedInvoiceKey as jest.Mock;
 const mockedGetStandardisedInvoiceFileName =
   getStandardisedInvoiceFileName as jest.Mock;
-const mockedGetStandardisedInvoiceFileNamePrefix =
-  getStandardisedInvoiceFileNamePrefix as jest.Mock;
 const mockedListS3Keys = listS3Keys as jest.Mock;
 const mockedMoveToFolderS3 = moveToFolderS3 as jest.Mock;
 const mockedPutTextS3 = putTextS3 as jest.Mock;
@@ -53,10 +50,6 @@ describe("Line item storer", () => {
       mockedStandardisedLineItemPrefix,
     ]);
 
-    mockedGetStandardisedInvoiceFileNamePrefix.mockReturnValue(
-      mockedStandardisedLineItemPrefix
-    );
-
     mockedS3StaleKey = "mocked S3 stale key";
     mockedListS3Keys.mockResolvedValue([mockedS3StaleKey]);
 
@@ -90,7 +83,6 @@ describe("Line item storer", () => {
     );
 
     await expect(resultPromise).rejects.toThrow("not valid JSON");
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
@@ -109,7 +101,6 @@ describe("Line item storer", () => {
     );
 
     await expect(resultPromise).rejects.toThrow("is not object");
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
@@ -130,7 +121,6 @@ describe("Line item storer", () => {
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
@@ -153,7 +143,6 @@ describe("Line item storer", () => {
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
@@ -176,7 +165,6 @@ describe("Line item storer", () => {
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
@@ -199,7 +187,6 @@ describe("Line item storer", () => {
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
@@ -222,7 +209,6 @@ describe("Line item storer", () => {
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
@@ -245,7 +231,6 @@ describe("Line item storer", () => {
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
@@ -268,7 +253,6 @@ describe("Line item storer", () => {
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();

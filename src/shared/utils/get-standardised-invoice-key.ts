@@ -12,11 +12,12 @@ export function getStandardisedInvoiceKeyPrefix(
   standardisedInvoice: LineItemFieldsForNaming
 ): string {
   const date = new Date(standardisedInvoice.invoice_receipt_date);
-  const yearMonth = formatDateAsYearMonth(date, "-");
+  const yearMonth = formatDateAsYearMonth(date);
   const vendorId = standardisedInvoice.vendor_id;
   const eventName = standardisedInvoice.event_name;
   return `${folder}/${formatDateAsYearMonth(
-    date
+    date,
+    "/"
   )}/${yearMonth}-${vendorId}-${eventName}-`;
 }
 

@@ -74,16 +74,6 @@ test("Filename getter with  standardised line item", () => {
   ); // <- expects 6 alphanumeric chars for the uuid
 });
 
-test("Filename prefix getter with standardised line item", () => {
-  const standardisedLineItem = {
-    vendor_id: "vendor_testvendor1",
-    invoice_receipt_date: "2023-02-28",
-    event_name: "VENDOR_1_EVENT_1",
-  };
-  const prefix = getStandardisedInvoiceFileNamePrefix(standardisedLineItem);
-  expect(prefix).toMatch(/^2023-02-vendor_testvendor1-VENDOR_1_EVENT_1-$/);
-});
-
 test("Year, month, and day are formatted to yyyy-mm", () => {
   const date: string = "2023/03/28";
   const yearMonth = getYearMonth(date);
