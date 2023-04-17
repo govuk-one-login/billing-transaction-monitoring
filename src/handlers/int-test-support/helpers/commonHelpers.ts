@@ -138,9 +138,7 @@ export const checkS3BucketForEventId = async (
       prefix: "btm_transactions",
     });
     if (result.Contents !== undefined) {
-      return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
-        eventIdString
-      );
+      return result.Contents.some((obj) => obj.Key?.includes(eventIdString));
     } else {
       return false;
     }
