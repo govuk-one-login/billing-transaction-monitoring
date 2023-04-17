@@ -22,6 +22,7 @@ import { BillingTransactionCurated } from "./billing-and-transaction-view-tests"
 import crypto from "crypto";
 
 const prefix = resourcePrefix();
+let eventName: string;
 const storageBucket = `${prefix}-storage`;
 const standardisedFolderPrefix = "btm_billing_standardised";
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
@@ -48,7 +49,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     async (data) => {
       for (let i = 0; i < data.transactionQty; i++) {
         const createEventPayload = await generateTestEvent({
-          event_name: data.eventName,
+          event_name: eventName,
           timestamp_formatted: data.eventTime,
           timestamp: new Date(data.eventTime).getTime() / 1000,
         });
@@ -110,7 +111,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     async (data) => {
       for (let i = 0; i < data.transactionQty; i++) {
         const createEventPayload = await generateTestEvent({
-          event_name: data.eventName,
+          event_name: eventName,
           timestamp_formatted: data.eventTime,
           timestamp: new Date(data.eventTime).getTime() / 1000,
         });

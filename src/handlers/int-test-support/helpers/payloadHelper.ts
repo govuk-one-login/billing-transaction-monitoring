@@ -17,7 +17,7 @@ export enum EventName {
 }
 
 export interface SNSEventPayload {
-  event_name: EventName;
+  event_name: EventName | string;
   event_id: string;
   component_id: string;
   timestamp: number;
