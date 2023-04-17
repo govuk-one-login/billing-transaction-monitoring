@@ -91,13 +91,13 @@ export const poll = async <Resolution>(
     }, interval);
   });
 };
+
 export const generateTestEvent = async (
-  overrides: Partial<SNSEventPayload> & Pick<SNSEventPayload, "event_name">
+  overrides: Partial<SNSEventPayload> &
+    Pick<SNSEventPayload, "event_name" | "timestamp_formatted" | "timestamp">
 ): Promise<SNSEventPayload> => ({
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
   ...overrides,
 });
 
