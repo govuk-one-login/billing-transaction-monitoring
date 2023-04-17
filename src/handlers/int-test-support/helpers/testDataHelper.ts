@@ -1,6 +1,6 @@
 import { configStackName, resourcePrefix } from "./envHelper";
 import { invokeLambda } from "./lambdaHelper";
-import { SNSEventPayload, updateSQSEventPayloadBody } from "./payloadHelper";
+import { EventPayload, updateSQSEventPayloadBody } from "./payloadHelper";
 import { getRatesFromConfig } from "../config-utils/get-rate-config-rows";
 import { getVendorServiceConfigRows } from "../config-utils/get-vendor-service-config-rows";
 import { getE2ETestConfig } from "../config-utils/get-e2e-test-config";
@@ -44,7 +44,7 @@ export interface GenerateEventsResult {
 }
 
 export const generateAndCheckEventsInS3BucketViaFilterLambda = async (
-  payload: SNSEventPayload
+  payload: EventPayload
 ): Promise<GenerateEventsResult> => {
   let eventId: string;
   try {

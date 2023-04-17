@@ -16,7 +16,7 @@ export enum EventName {
   VENDOR_3_EVENT_6 = "VENDOR_3_EVENT_6",
 }
 
-export interface SNSEventPayload {
+export interface EventPayload {
   event_name: EventName | string;
   event_id: string;
   component_id: string;
@@ -41,7 +41,7 @@ export const prettyEventNameMap = {
   VENDOR_4_EVENT_5: "Passport check",
 };
 
-const snsValidEventPayload: SNSEventPayload = {
+export const validEventPayload: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
@@ -49,7 +49,7 @@ const snsValidEventPayload: SNSEventPayload = {
   timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
 };
 
-const snsInvalidEventPayloadEventName: SNSEventPayload = {
+export const invalidEventPayloadEventName: EventPayload = {
   event_name: "TESTGGHYJKIK" as EventName,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
@@ -57,7 +57,7 @@ const snsInvalidEventPayloadEventName: SNSEventPayload = {
   timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
 };
 
-const snsInvalidEventPayloadTimeStamp: SNSEventPayload = {
+export const invalidEventPayloadTimeStamp: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
@@ -65,7 +65,7 @@ const snsInvalidEventPayloadTimeStamp: SNSEventPayload = {
   timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
 };
 
-const snsInvalidEventPayloadComponentId: SNSEventPayload = {
+export const invalidEventPayloadComponentId: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: 5678 as unknown as string,
@@ -73,7 +73,7 @@ const snsInvalidEventPayloadComponentId: SNSEventPayload = {
   timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
 };
 
-const snsInvalidEventPayloadEventId: SNSEventPayload = {
+export const invalidEventPayloadEventId: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: 123 as unknown as string,
   component_id: "TEST_COMP",
@@ -81,7 +81,7 @@ const snsInvalidEventPayloadEventId: SNSEventPayload = {
   timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
 };
 
-const snsInvalidEventPayloadTimestampFormatted: SNSEventPayload = {
+export const invalidEventPayloadTimestampFormatted: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
@@ -90,7 +90,7 @@ const snsInvalidEventPayloadTimestampFormatted: SNSEventPayload = {
 };
 
 export const updateSQSEventPayloadBody = async (
-  eventPayload: SNSEventPayload
+  eventPayload: EventPayload
 ): Promise<string> => {
   // update SQS Event body value with eventPayload
   const sqsEventFilePath = path.join(
@@ -102,14 +102,4 @@ export const updateSQSEventPayloadBody = async (
   sqsEventPayload.Records[0].body = JSON.stringify(eventPayload);
   const updatedSQSEventPayload = JSON.stringify(sqsEventPayload);
   return updatedSQSEventPayload;
-};
-
-export {
-  snsValidEventPayload,
-  snsInvalidEventPayloadEventName,
-  snsInvalidEventPayloadComponentId,
-  snsInvalidEventPayloadTimeStamp,
-  snsInvalidEventPayloadEventId,
-  snsInvalidEventPayloadTimestampFormatted,
-  generateRandomId,
 };
