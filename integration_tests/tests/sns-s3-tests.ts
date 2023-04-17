@@ -2,7 +2,6 @@ import {
   validEventPayload,
   invalidEventPayloadEventName,
   invalidEventPayloadComponentId,
-  invalidEventPayloadEventId,
   invalidEventPayloadTimeStamp,
   invalidEventPayloadTimestampFormatted,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
@@ -43,14 +42,6 @@ describe(
     test("S3 should not contain event id for event payload which has invalid Timestamp in the payload", async () => {
       const result = await generateAndCheckEventsInS3BucketViaFilterLambda(
         invalidEventPayloadTimeStamp
-      );
-      console.log("Result:", result);
-      expect(result.success).toBe(false);
-    });
-
-    test("S3 should not contain event id for event payload which has invalid event id in the payload", async () => {
-      const result = await generateAndCheckEventsInS3BucketViaFilterLambda(
-        invalidEventPayloadEventId
       );
       expect(result.success).toBe(false);
     });

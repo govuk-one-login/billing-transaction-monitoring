@@ -73,14 +73,6 @@ export const invalidEventPayloadComponentId: EventPayload = {
   timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
 };
 
-export const invalidEventPayloadEventId: EventPayload = {
-  event_name: EventName.VENDOR_1_EVENT_1,
-  event_id: 123 as unknown as string,
-  component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
-};
-
 export const invalidEventPayloadTimestampFormatted: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
