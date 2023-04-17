@@ -49,6 +49,23 @@ Resources:
         TableType: EXTERNAL_TABLE
         Parameters:
           has_encrypted_data: 'true'
+          projection.enabled: true
+          projection.year.type: integer
+          projection.month.type: integer
+          projection.year.range: 2022,2050
+          projection.month.range: 1,12
+          storage.location.template:
+            !Join [
+              '',
+              [
+                's3://',
+                !Ref StorageBucket,
+                '/btm_invoice_data/${year}/${month}',
+              ],
+            ]
+        PartitionKeys:
+          - { Name: year, Type: integer }
+          - { Name: month, Type: integer }
         StorageDescriptor:
           Columns:
             - Name: invoice_receipt_id
@@ -83,7 +100,7 @@ Resources:
               Type: decimal(12,4)
           Compressed: 'true'
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Sub s3://${StorageBucket}/btm_billing_standardised/
+          Location: !Sub s3://${StorageBucket}/btm_invoice_data/
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
