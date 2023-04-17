@@ -44,6 +44,7 @@ describe(
       const result = await generateAndCheckEventsInS3BucketViaFilterLambda(
         invalidEventPayloadTimeStamp
       );
+      console.log("Result:", result);
       expect(result.success).toBe(false);
     });
 

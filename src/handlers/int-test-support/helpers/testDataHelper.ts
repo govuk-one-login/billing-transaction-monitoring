@@ -52,7 +52,9 @@ export const generateAndCheckEventsInS3BucketViaFilterLambda = async (
     await invokeLambda({ functionName, payload: updatedSQSEventPayload });
     const json = JSON.parse(updatedSQSEventPayload);
     const eventId = JSON.parse(json.Records[0].body).event_id;
+    console.log(eventId);
     const eventExistsInS3 = await checkS3BucketForEventId(eventId, 7000);
+    console.log("eventIdExistsInS3", eventExistsInS3);
     if (!eventExistsInS3) {
       return { success: false };
     }
