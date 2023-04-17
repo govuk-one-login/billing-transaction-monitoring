@@ -2,7 +2,7 @@ import { snsValidEventPayload } from "../../src/handlers/int-test-support/helper
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { getRecentCloudwatchLogs } from "../../src/handlers/int-test-support/helpers/cloudWatchHelper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
+import { generateAndCheckEventsInS3BucketViaFilterLambda } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 const logNamePrefix = resourcePrefix();
 
@@ -31,7 +31,9 @@ describe(
     "\n publish valid sns message and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId\n",
   () => {
     beforeAll(async () => {
-      await publishToTestTopic(snsValidEventPayload);
+      await generateAndCheckEventsInS3BucketViaFilterLambda(
+        snsValidEventPayload
+      );
     });
 
     test("Filter function cloud watch logs should contain eventid", async () => {

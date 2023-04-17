@@ -1,11 +1,14 @@
-import { TableNames } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import {
+  generateTestEvent,
+  TableNames,
+} from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
   VendorId,
   EventName,
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { generateTransactionEventsViaFilterLambda } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { generateAndCheckEventsInS3BucketViaFilterLambda } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
   test.each`
@@ -31,12 +34,17 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       eventTime: string;
     }) => {
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
-      await generateTransactionEventsViaFilterLambda(
-        eventTime,
-        numberOfTestEvents,
-        eventName
-      );
-
+      for (let i = 0; i < numberOfTestEvents; i++) {
+        const createEventPayload = await generateTestEvent({
+          event_name: eventName,
+          timestamp_formatted: eventTime,
+          timestamp: new Date(eventTime).getTime() / 1000,
+        });
+        console.log(createEventPayload);
+        await generateAndCheckEventsInS3BucketViaFilterLambda(
+          createEventPayload
+        );
+      }
       const tableName = TableNames.TRANSACTION_CURATED;
       const prettyEventName = prettyEventNameMap[eventName];
 

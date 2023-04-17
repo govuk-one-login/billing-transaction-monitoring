@@ -1,4 +1,5 @@
 import {
+  generateTestEvent,
   getYearMonth,
   poll,
   TableNames,
@@ -12,7 +13,7 @@ import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handl
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
-  generateTransactionEventsViaFilterLambda,
+  generateAndCheckEventsInS3BucketViaFilterLambda,
   getVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
@@ -23,7 +24,6 @@ import crypto from "crypto";
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
 const standardisedFolderPrefix = "btm_billing_standardised";
-let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 // Below tests can be run both in lower and higher environments
@@ -46,11 +46,16 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      await generateTransactionEventsViaFilterLambda(
-        data.eventTime,
-        data.transactionQty,
-        eventName
-      );
+      for (let i = 0; i < data.transactionQty; i++) {
+        const createEventPayload = await generateTestEvent({
+          event_name: data.eventName,
+          timestamp_formatted: data.eventTime,
+          timestamp: new Date(data.eventTime).getTime() / 1000,
+        });
+        await generateAndCheckEventsInS3BucketViaFilterLambda(
+          createEventPayload
+        );
+      }
       eventTime = data.eventTime;
       const uuid = crypto.randomBytes(3).toString("hex");
       filename = `e2e-test-raw-Invoice-validFile-${uuid}`;
@@ -103,11 +108,16 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      await generateTransactionEventsViaFilterLambda(
-        data.eventTime,
-        data.transactionQty,
-        eventName
-      );
+      for (let i = 0; i < data.transactionQty; i++) {
+        const createEventPayload = await generateTestEvent({
+          event_name: data.eventName,
+          timestamp_formatted: data.eventTime,
+          timestamp: new Date(data.eventTime).getTime() / 1000,
+        });
+        await generateAndCheckEventsInS3BucketViaFilterLambda(
+          createEventPayload
+        );
+      }
       eventTime = data.eventTime;
       const expectedResults = calculateExpectedResults(
         data,

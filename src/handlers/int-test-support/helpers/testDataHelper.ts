@@ -1,11 +1,10 @@
 import { configStackName, resourcePrefix } from "./envHelper";
-import { listS3Objects } from "./s3Helper";
 import { invokeLambda } from "./lambdaHelper";
-import { updateSQSEventPayloadBody } from "./payloadHelper";
-import { poll } from "./commonHelpers";
+import { SNSEventPayload, updateSQSEventPayloadBody } from "./payloadHelper";
 import { getRatesFromConfig } from "../config-utils/get-rate-config-rows";
 import { getVendorServiceConfigRows } from "../config-utils/get-vendor-service-config-rows";
 import { getE2ETestConfig } from "../config-utils/get-e2e-test-config";
+import { checkS3BucketForEventId } from "./commonHelpers";
 
 const configBucket = configStackName();
 
@@ -39,36 +38,29 @@ export const getVendorServiceAndRatesFromConfig =
     return testDataRetrievedFromConfig;
   };
 
-export const generateTransactionEventsViaFilterLambda = async (
-  eventTime: string,
-  transactionQty: number,
-  eventName: string
-): Promise<string[]> => {
-  const eventIds: string[] = [];
-  for (let i = 0; i < transactionQty; i++) {
-    const updatedSQSEventPayload = await updateSQSEventPayloadBody(
-      eventTime,
-      eventName
-    );
+export interface GenerateEventsResult {
+  success: boolean;
+  eventId?: string;
+}
+
+export const generateAndCheckEventsInS3BucketViaFilterLambda = async (
+  payload: SNSEventPayload
+): Promise<GenerateEventsResult> => {
+  let eventId: string;
+  try {
+    const updatedSQSEventPayload = await updateSQSEventPayloadBody(payload);
     const functionName = `${resourcePrefix()}-filter-function`;
     await invokeLambda({ functionName, payload: updatedSQSEventPayload });
     const json = JSON.parse(updatedSQSEventPayload);
-    const eventId = JSON.parse(json.Records[0].body).event_id;
-    await poll(
-      async () =>
-        await listS3Objects({
-          bucketName: `${resourcePrefix()}-storage`,
-          prefix: `btm_transactions`,
-        }),
-      (result) => !!result?.Contents?.some((data) => data.Key?.match(eventId)),
-      {
-        nonCompleteErrorMessage:
-          "event id not appeared in s3 within the given timeout",
-      }
-    );
-    eventIds.push(eventId);
+    eventId = JSON.parse(json.Records[0].body).event_id;
+    const eventExistsInS3 = await checkS3BucketForEventId(eventId, 7000);
+    if (!eventExistsInS3) {
+      return { success: false };
+    }
+    return { success: true, eventId };
+  } catch (error) {
+    return { success: false };
   }
-  return eventIds;
 };
 
 export interface TestDataRetrievedFromConfig {

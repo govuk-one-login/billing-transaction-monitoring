@@ -1,41 +1,16 @@
 import { snsValidEventPayload } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import { publishToTestTopic } from "../../src/handlers/int-test-support/helpers/snsHelper";
-import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
   startQueryExecutionCommand,
   waitAndGetQueryResults,
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
+import { generateAndCheckEventsInS3BucketViaFilterLambda } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 const prefix = resourcePrefix();
-const objectsPrefix = "btm_transactions";
 
 describe("\nPublish valid sns message and execute athena query\n", () => {
   beforeAll(async () => {
-    await publishToTestTopic(snsValidEventPayload);
-    const checkEventId = async (): Promise<boolean> => {
-      const result = await listS3Objects({
-        bucketName: `${prefix}-storage`,
-        prefix: objectsPrefix,
-      });
-      if (result.Contents !== undefined) {
-        return JSON.stringify(result.Contents.map((data) => data.Key)).includes(
-          snsValidEventPayload.event_id
-        );
-      } else {
-        return false;
-      }
-    };
-    const eventIdExists = await poll(
-      checkEventId,
-      (result: boolean) => result,
-      {
-        nonCompleteErrorMessage:
-          "Event Id check was not successful within the specified timeout",
-      }
-    );
-    expect(eventIdExists).toBeTruthy();
+    await generateAndCheckEventsInS3BucketViaFilterLambda(snsValidEventPayload);
   });
 
   test("should contain eventId in the generated query results", async () => {

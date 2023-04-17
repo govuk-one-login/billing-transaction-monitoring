@@ -1,7 +1,7 @@
 import { deleteS3Object, listS3Objects } from "./s3Helper";
 import { publishToTestTopic } from "./snsHelper";
 import { resourcePrefix } from "./envHelper";
-import { EventName, SNSEventPayload } from "./payloadHelper";
+import { SNSEventPayload } from "./payloadHelper";
 
 const objectsPrefix = "btm_transactions";
 
@@ -116,27 +116,6 @@ export const publishAndValidateEvent = async (
   );
 };
 
-export const generatePublishAndValidateEvents = async ({
-  numberOfTestEvents,
-  eventName,
-  eventTime,
-}: {
-  numberOfTestEvents: number;
-  eventName: EventName;
-  eventTime: TimeStamps;
-}): Promise<string[]> => {
-  const eventIds: string[] = [];
-  for (let i = 0; i < numberOfTestEvents; i++) {
-    const event = await generateTestEvent({
-      event_name: eventName,
-      timestamp: eventTimeStamp[eventTime],
-    });
-    await publishAndValidateEvent(event);
-    eventIds.push(event.event_id); // storing event_ids in array to delete from s3 later on
-  }
-  return eventIds;
-};
-
 export const deleteS3Event = async (
   eventId: string,
   eventTime: string
@@ -166,3 +145,31 @@ export function getYearMonth(dateStr: string): string {
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   return `${year}-${month}`;
 }
+
+export const checkS3BucketForEventId = async (
+  eventIdString: string,
+  timeoutMs: number
+): Promise<boolean> => {
+  const pollS3BucketForEventIdString = async (): Promise<boolean> => {
+    const result = await listS3Objects({
+      bucketName: `${resourcePrefix()}-storage`,
+      prefix: "btm_transactions",
+    });
+    if (result.Contents !== undefined) {
+      return JSON.stringify(result.Contents.map((x) => x.Key)).includes(
+        eventIdString
+      );
+    } else {
+      return false;
+    }
+  };
+  try {
+    return await poll(pollS3BucketForEventIdString, (result) => result, {
+      timeout: timeoutMs,
+      nonCompleteErrorMessage:
+        "EventId not exists in S3 bucket within the timeout",
+    });
+  } catch (error) {
+    return false;
+  }
+};

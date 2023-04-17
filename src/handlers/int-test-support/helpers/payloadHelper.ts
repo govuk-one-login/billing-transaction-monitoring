@@ -90,17 +90,8 @@ const snsInvalidEventPayloadTimestampFormatted: SNSEventPayload = {
 };
 
 export const updateSQSEventPayloadBody = async (
-  eventTime: string,
-  eventName: string
+  eventPayload: SNSEventPayload
 ): Promise<string> => {
-  const eventPayload = {
-    component_id: "Test_COMP",
-    event_id: `e2eTestEvents_${generateRandomId()}`,
-    timestamp: new Date(eventTime).getTime() / 1000,
-    event_name: eventName,
-    timestamp_formatted: eventTime,
-  };
-
   // update SQS Event body value with eventPayload
   const sqsEventFilePath = path.join(
     __dirname,
