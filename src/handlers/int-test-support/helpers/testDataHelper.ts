@@ -46,19 +46,19 @@ export interface GenerateEventsResult {
 export const generateAndCheckEventsInS3BucketViaFilterLambda = async (
   payload: EventPayload
 ): Promise<GenerateEventsResult> => {
-  let eventId: string;
   try {
     const updatedSQSEventPayload = await updateSQSEventPayloadBody(payload);
     const functionName = `${resourcePrefix()}-filter-function`;
     await invokeLambda({ functionName, payload: updatedSQSEventPayload });
     const json = JSON.parse(updatedSQSEventPayload);
-    eventId = JSON.parse(json.Records[0].body).event_id;
+    const eventId = JSON.parse(json.Records[0].body).event_id;
     const eventExistsInS3 = await checkS3BucketForEventId(eventId, 7000);
     if (!eventExistsInS3) {
       return { success: false };
     }
     return { success: true, eventId };
   } catch (error) {
+    console.error(error);
     return { success: false };
   }
 };

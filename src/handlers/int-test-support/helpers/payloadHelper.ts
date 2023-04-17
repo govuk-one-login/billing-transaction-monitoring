@@ -100,6 +100,5 @@ export const updateSQSEventPayloadBody = async (
   const sqsEventPayloadFileContent = fs.readFileSync(sqsEventFilePath, "utf-8");
   const sqsEventPayload = JSON.parse(sqsEventPayloadFileContent);
   sqsEventPayload.Records[0].body = JSON.stringify(eventPayload);
-  const updatedSQSEventPayload = JSON.stringify(sqsEventPayload);
-  return updatedSQSEventPayload;
+  return JSON.stringify(sqsEventPayload);
 };
