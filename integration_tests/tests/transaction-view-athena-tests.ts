@@ -8,7 +8,7 @@ import {
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { generateAndCheckEventsInS3BucketViaFilterLambda } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
   test.each`
@@ -40,7 +40,7 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
           timestamp_formatted: eventTime,
           timestamp: new Date(eventTime).getTime() / 1000,
         });
-        await generateAndCheckEventsInS3BucketViaFilterLambda(
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
           createEventPayload
         );
       }

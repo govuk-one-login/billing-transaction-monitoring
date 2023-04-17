@@ -7,7 +7,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 
 import {
-  generateAndCheckEventsInS3BucketViaFilterLambda,
+  generateEventViaFilterLambdaAndCheckEventInS3Bucket,
   TestData,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import {
@@ -44,7 +44,7 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
           timestamp_formatted: data.eventTime,
           timestamp: new Date(data.eventTime).getTime() / 1000,
         });
-        await generateAndCheckEventsInS3BucketViaFilterLambda(
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
           createEventPayload
         );
       }

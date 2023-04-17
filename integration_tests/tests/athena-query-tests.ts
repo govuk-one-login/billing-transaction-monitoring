@@ -4,13 +4,15 @@ import {
   startQueryExecutionCommand,
   waitAndGetQueryResults,
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
-import { generateAndCheckEventsInS3BucketViaFilterLambda } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 const prefix = resourcePrefix();
 
 describe("\nGenerate valid event and execute athena query\n", () => {
   beforeAll(async () => {
-    await generateAndCheckEventsInS3BucketViaFilterLambda(validEventPayload);
+    await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
+      validEventPayload
+    );
   });
 
   test("should contain eventId in the generated query results", async () => {

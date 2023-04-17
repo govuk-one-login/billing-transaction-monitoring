@@ -43,7 +43,7 @@ export interface GenerateEventsResult {
   eventId?: string;
 }
 
-export const generateAndCheckEventsInS3BucketViaFilterLambda = async (
+export const generateEventViaFilterLambdaAndCheckEventInS3Bucket = async (
   payload: EventPayload
 ): Promise<GenerateEventsResult> => {
   try {

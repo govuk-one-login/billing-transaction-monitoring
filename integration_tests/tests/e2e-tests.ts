@@ -13,7 +13,7 @@ import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handl
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
-  generateAndCheckEventsInS3BucketViaFilterLambda,
+  generateEventViaFilterLambdaAndCheckEventInS3Bucket,
   getVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
@@ -53,7 +53,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
           timestamp_formatted: data.eventTime,
           timestamp: new Date(data.eventTime).getTime() / 1000,
         });
-        await generateAndCheckEventsInS3BucketViaFilterLambda(
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
           createEventPayload
         );
       }
@@ -115,7 +115,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
           timestamp_formatted: data.eventTime,
           timestamp: new Date(data.eventTime).getTime() / 1000,
         });
-        await generateAndCheckEventsInS3BucketViaFilterLambda(
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
           createEventPayload
         );
       }

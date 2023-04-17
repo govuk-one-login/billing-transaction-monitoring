@@ -2,7 +2,7 @@ import { validEventPayload } from "../../src/handlers/int-test-support/helpers/p
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { getRecentCloudwatchLogs } from "../../src/handlers/int-test-support/helpers/cloudWatchHelper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { generateAndCheckEventsInS3BucketViaFilterLambda } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 const logNamePrefix = resourcePrefix();
 
@@ -31,7 +31,9 @@ describe(
     "\n Generate valid event and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId\n",
   () => {
     beforeAll(async () => {
-      await generateAndCheckEventsInS3BucketViaFilterLambda(validEventPayload);
+      await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
+        validEventPayload
+      );
     });
 
     test("Filter function cloud watch logs should contain eventid", async () => {
