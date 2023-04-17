@@ -40,7 +40,6 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
           timestamp_formatted: eventTime,
           timestamp: new Date(eventTime).getTime() / 1000,
         });
-        console.log(createEventPayload);
         await generateAndCheckEventsInS3BucketViaFilterLambda(
           createEventPayload
         );
