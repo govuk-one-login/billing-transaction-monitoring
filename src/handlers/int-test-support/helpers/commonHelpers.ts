@@ -3,7 +3,7 @@ import { publishToTestTopic } from "./snsHelper";
 import { resourcePrefix } from "./envHelper";
 import { EventName, SNSEventPayload } from "./payloadHelper";
 
-const objectsPrefix = "btm_transactions";
+const objectsPrefix = "btm_event_data";
 
 export const generateRandomId = (): string => {
   return Math.floor(Math.random() * 10000000).toString();
@@ -142,10 +142,13 @@ export const deleteS3Event = async (
   eventTime: string
 ): Promise<boolean> => {
   const bucketName = `${resourcePrefix()}-storage`;
-  const date = new Date(eventTime).toISOString().slice(0, 10);
+  const date = new Date(eventTime);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
   await deleteS3Object({
     bucket: bucketName,
-    key: `btm_transactions/${date}/${eventId}.json`,
+    key: `${objectsPrefix}/${year}/${month}/${day}/${eventId}.json`,
   });
   return true;
 };

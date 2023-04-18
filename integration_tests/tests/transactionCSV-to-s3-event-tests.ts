@@ -10,7 +10,7 @@ import {
   putS3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
-const transactionsDirectory = "btm_transactions";
+const transactionsDirectory = "btm_event_data";
 const outputBucket = `${resourcePrefix()}-storage`;
 const inputBucket = `${resourcePrefix()}-transaction-csv`;
 
@@ -31,7 +31,7 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
       async () =>
         await listS3Objects({
           bucketName: outputBucket,
-          prefix: `${transactionsDirectory}/${"2023-01-01"}`,
+          prefix: `${transactionsDirectory}/2023/01/01/`,
         }),
       (result) => {
         return (
@@ -50,9 +50,7 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
     for (const testCase of testCases) {
       const s3Object = await getS3Object({
         bucket: outputBucket,
-        key: `${transactionsDirectory}/${"2023-01-01"}/${
-          testCase.expectedEventId
-        }.json`,
+        key: `${transactionsDirectory}/2023/01/01/${testCase.expectedEventId}.json`,
       });
       switch (testCase.expectedPath) {
         case "happy": {
