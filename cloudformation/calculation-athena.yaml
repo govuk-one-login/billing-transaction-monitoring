@@ -29,8 +29,8 @@ Resources:
               ['s3://', !Ref StorageBucket, '/btm_event_data/${year}/${month}'],
             ]
         PartitionKeys:
-          - { Name: year, Type: int }
-          - { Name: month, Type: int }
+          - { Name: year, Type: string }
+          - { Name: month, Type: string }
         StorageDescriptor:
           Columns:
             - Name: vendor_id

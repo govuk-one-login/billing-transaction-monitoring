@@ -64,8 +64,8 @@ Resources:
               ],
             ]
         PartitionKeys:
-          - { Name: year, Type: int }
-          - { Name: month, Type: int }
+          - { Name: year, Type: string }
+          - { Name: month, Type: string }
         StorageDescriptor:
           Columns:
             - Name: invoice_receipt_id
