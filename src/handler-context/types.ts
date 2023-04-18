@@ -1,7 +1,18 @@
-import { Response } from "../shared/types";
-import { ConfigElements } from "./config";
-import { StaticHandlerCtxElements } from "./context-builders/static/build";
-import { DynamicHandlerCtxElements } from "./context-builders/dynamic/build";
+import { Logger } from "@aws-lambda-powertools/logger";
+import { ConfigElements, PickedConfigCache } from "./config";
+import { HandlerOutputs } from "./context-builder";
+
+export type HandlerMessageBody = string | {};
+
+export interface HandlerIncomingMessage<TBody extends HandlerMessageBody> {
+  id?: string;
+  body: TBody;
+}
+
+export interface HandlerOutgoingMessage<TBody extends HandlerMessageBody> {
+  originalId?: string; // ID of incoming message from which this outgoing message was derived (one incoming can have multiple outgoing)
+  body: TBody;
+}
 
 export type UserDefinedOutputFunction<TEnvVars extends string> = (
   destination: TEnvVars,
@@ -14,34 +25,42 @@ export type UserDefinedOutputs<TEnvVars extends string> = Array<{
 }>;
 
 export type BusinessLogic<
-  TMessage,
+  TIncomingMessageBody extends HandlerMessageBody,
   TEnvVars extends string,
   TConfigElements extends ConfigElements,
-  TResult extends string | {}
+  TOutgoingMessageBody extends HandlerMessageBody
 > = (
-  ctx: HandlerCtx<TMessage, TEnvVars, TConfigElements>
-) => Promise<TResult[]>;
+  incomingMessageBody: TIncomingMessageBody,
+  ctx: HandlerCtx<TEnvVars, TConfigElements>
+) => Promise<TOutgoingMessageBody[]>;
 
-export type HandlerCtx<
-  TMessage,
-  TEnvVars extends string,
-  TConfigElements extends ConfigElements
-> = StaticHandlerCtxElements<TEnvVars, TConfigElements> &
-  DynamicHandlerCtxElements<TMessage>;
-
-export type Handler<
-  TMessage,
-  TEnvVars extends string,
-  TConfigElements extends ConfigElements
-> = (ctx: HandlerCtx<TMessage, TEnvVars, TConfigElements>) => Promise<Response>;
-
-export interface CtxBuilderOptions<
-  TMessage,
+export interface HandlerCtx<
   TEnvVars extends string,
   TConfigElements extends ConfigElements
 > {
+  env: Record<TEnvVars, string>;
+  logger: Logger;
+  outputs: HandlerOutputs;
+  config: PickedConfigCache<TConfigElements>;
+}
+
+export interface HandlerOptions<
+  TIncomingMessageBody extends HandlerMessageBody,
+  TEnvVars extends string,
+  TConfigElements extends ConfigElements,
+  TOutgoingMessageBody extends HandlerMessageBody
+> {
+  businessLogic: BusinessLogic<
+    TIncomingMessageBody,
+    TEnvVars,
+    TConfigElements,
+    TOutgoingMessageBody
+  >;
   envVars: TEnvVars[];
-  messageTypeGuard: (maybeMessage: unknown) => maybeMessage is TMessage;
+  incomingMessageBodyTypeGuard: (
+    maybeIncomingMessageBody: unknown
+  ) => maybeIncomingMessageBody is TIncomingMessageBody;
   outputs: UserDefinedOutputs<TEnvVars>;
+  withBatchItemFailures?: boolean;
   ConfigCache: TConfigElements[];
 }

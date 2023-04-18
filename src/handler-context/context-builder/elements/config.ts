@@ -1,6 +1,5 @@
-import { getConfigFile } from "../../../config/s3-config-client";
-import { Config } from "../../../config";
-import { ConfigElements, PickedConfigCache } from "../../../config";
+import { getConfigFile } from "../../config/s3-config-client";
+import { Config, ConfigElements, PickedConfigCache } from "../../config";
 
 export const makeCtxConfig = async <TConfigElements extends ConfigElements>(
   files: TConfigElements[]

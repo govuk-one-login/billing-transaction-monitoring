@@ -1,48 +1,71 @@
-import { HandlerCtx } from ".";
-import { Response } from "../shared/types";
 import { ConfigElements } from "./config";
+import {
+  HandlerCtx,
+  HandlerMessageBody,
+  HandlerOutgoingMessage,
+} from "./types";
+
+const ERROR_MESSAGE_DEFAULT = "Output failure";
+const ERROR_MESSAGE_STORAGE = "Storage failure";
 
 export const outputMessages = async <
-  TMessage,
   TEnvVars extends string,
-  TConfigElements extends ConfigElements
+  TConfigElements extends ConfigElements,
+  TMessageBody extends HandlerMessageBody
 >(
-  results: unknown[],
-  { outputs }: HandlerCtx<TMessage, TEnvVars, TConfigElements>
-): Promise<Response> => {
-  const promises = (results as Array<{ _id: string } | string>)
-    .map((result) => {
-      const outputBody = (() => {
-        if (typeof result === "string") return result;
-        const { _id, ...body } = result;
-        return JSON.stringify(body);
-      })();
+  messages: Array<HandlerOutgoingMessage<TMessageBody>>,
+  ctx: HandlerCtx<TEnvVars, TConfigElements>,
+  failuresAllowed?: boolean
+): Promise<{ failedIds: string[] }> => {
+  const failedIds = new Set<string | undefined>();
 
-      return outputs.map<Promise<string | undefined>>(
-        async ({ destination, store }) =>
-          await new Promise((resolve, reject) => {
-            store(destination, outputBody).then(
-              () => resolve((result as { _id: string })?._id),
-              () => reject((result as { _id: string })?._id)
-            );
-          })
-      );
-    })
-    .flat();
+  const promises = messages.map(async ({ originalId, body }) => {
+    try {
+      await outputMessage(body, ctx);
+    } catch (error) {
+      ctx.logger.error(ERROR_MESSAGE_DEFAULT, {
+        error,
+        incomingMessageId: originalId,
+      });
 
-  return await Promise.allSettled(promises).then((resolutions) => {
-    return resolutions.reduce<Response>(
-      (response, outputPromise) => {
-        if (outputPromise.status === "fulfilled") return response;
-        return {
-          ...response,
-          batchItemFailures: [
-            ...response.batchItemFailures,
-            outputPromise.reason,
-          ],
-        };
-      },
-      { batchItemFailures: [] }
-    );
+      failedIds.add(originalId);
+    }
   });
+
+  await Promise.allSettled(promises);
+
+  const aFailedIdIsUndefined = failedIds.has(undefined);
+
+  if (aFailedIdIsUndefined || (!failuresAllowed && failedIds.size > 0))
+    throw new Error(ERROR_MESSAGE_DEFAULT);
+
+  return { failedIds: Array.from(failedIds) as string[] };
+};
+
+const outputMessage = async <
+  TEnvVars extends string,
+  TConfigElements extends ConfigElements,
+  TMessageBody extends HandlerMessageBody
+>(
+  body: TMessageBody,
+  { logger, outputs }: HandlerCtx<TEnvVars, TConfigElements>
+): Promise<void> => {
+  const outputBody = typeof body === "string" ? body : JSON.stringify(body);
+
+  const promises = outputs.map(async ({ destination, store }) => {
+    try {
+      await store(destination, outputBody);
+    } catch (error) {
+      logger.error(ERROR_MESSAGE_STORAGE, { destination, error });
+      throw error;
+    }
+  });
+
+  const results = await Promise.allSettled(promises);
+
+  const resultWasRejected = results.some(
+    (result) => result.status === "rejected"
+  );
+
+  if (resultWasRejected) throw new Error(ERROR_MESSAGE_STORAGE);
 };

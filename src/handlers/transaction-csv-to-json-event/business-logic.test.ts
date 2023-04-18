@@ -1,27 +1,25 @@
-import { Logger } from "@aws-lambda-powertools/logger";
 import { HandlerCtx } from "../../handler-context";
 import { businessLogic } from "./business-logic";
 import { Operations, Constructables } from "./convert/transform-dicts";
-import { ConfigCache, Env } from "./types";
 
 describe("transaction-csv-to-json-events businessLogic", () => {
-  it("processes CSVs which can be processed and provide warnings about those that can't", async () => {
-    const logger = new Logger();
-    const spiedOnWarn = jest.spyOn(logger, "warn");
+  let givenCtx: HandlerCtx<any, any>;
+  let givenWarningLogger: jest.Mock;
 
-    const result = await businessLogic({
-      messages: [
-        "Invalid CSV",
-        "a,color,timestamp\none,red,1667262461\ntwo,pink,1667262461",
-        "Invalid CSV",
-      ],
+  beforeEach(() => {
+    givenWarningLogger = jest.fn();
+
+    givenCtx = {
       config: {
         renamingMap: [["a", "id"]],
         inferences: [
           {
             field: "event_name",
             rules: [
-              { given: { id: "one", color: "red" }, inferValue: "TEST_EVENT" },
+              {
+                given: { id: "one", color: "red" },
+                inferValue: "TEST_EVENT",
+              },
             ],
             defaultValue: "Unknown",
           },
@@ -40,24 +38,36 @@ describe("transaction-csv-to-json-events businessLogic", () => {
           },
         ],
       },
-      logger,
-    } as unknown as HandlerCtx<string, Env, ConfigCache>);
+      logger: { warn: givenWarningLogger },
+    } as any;
+  });
 
-    expect(result).toEqual([
-      {
-        id: "one",
-        color: "red",
-        timestamp: 1667262461,
-        event_name: "TEST_EVENT",
-      },
-    ]);
+  describe("CSV which can be processsed", () => {
+    it("processes CSV and provides warning for line which can't be processed", async () => {
+      const result = await businessLogic(
+        "a,color,timestamp\none,red,1667262461\ntwo,pink,1667262461",
+        givenCtx
+      );
 
-    expect(spiedOnWarn).toHaveBeenCalledWith(
-      expect.stringMatching("2 event conversions failed")
-    );
+      expect(result).toEqual([
+        {
+          id: "one",
+          color: "red",
+          timestamp: 1667262461,
+          event_name: "TEST_EVENT",
+        },
+      ]);
 
-    expect(spiedOnWarn).toHaveBeenCalledWith(
-      expect.stringMatching("1 event names could not be determined")
-    );
+      expect(givenWarningLogger).toHaveBeenCalledWith(
+        expect.stringMatching("1 event names could not be determined")
+      );
+    });
+  });
+
+  describe("CSV which can't be processed", () => {
+    it("throws error", async () => {
+      const resultPromise = businessLogic("Invalid CSV", givenCtx);
+      await expect(resultPromise).rejects.toThrow();
+    });
   });
 });

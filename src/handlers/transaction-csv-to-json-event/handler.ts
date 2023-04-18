@@ -1,20 +1,19 @@
 import { buildHandler, ConfigElements } from "../../handler-context";
 import { sendRecord } from "../../shared/utils";
 import { businessLogic } from "./business-logic";
-import { Env, ConfigCache } from "./types";
-import { Message } from "../filter/types";
+import { Env } from "./types";
 
-export const handler = buildHandler<string, Env, ConfigCache, Message>(
+export const handler = buildHandler({
   businessLogic,
-  {
-    envVars: [Env.OUTPUT_QUEUE_URL],
-    messageTypeGuard: (message: any): message is string =>
-      typeof message === "string",
-    outputs: [{ destination: Env.OUTPUT_QUEUE_URL, store: sendRecord }],
-    ConfigCache: [
-      ConfigElements.renamingMap,
-      ConfigElements.inferences,
-      ConfigElements.transformations,
-    ],
-  }
-);
+  envVars: [Env.OUTPUT_QUEUE_URL],
+  incomingMessageBodyTypeGuard: (
+    maybeIncomingMessageBody: unknown
+  ): maybeIncomingMessageBody is string =>
+    typeof maybeIncomingMessageBody === "string",
+  outputs: [{ destination: Env.OUTPUT_QUEUE_URL, store: sendRecord }],
+  ConfigCache: [
+    ConfigElements.renamingMap,
+    ConfigElements.inferences,
+    ConfigElements.transformations,
+  ],
+});

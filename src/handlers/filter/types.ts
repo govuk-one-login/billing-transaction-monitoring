@@ -1,6 +1,6 @@
 import { ConfigElements } from "../../handler-context";
 
-export interface Message {
+export interface MessageBody {
   event_name: string;
 }
 

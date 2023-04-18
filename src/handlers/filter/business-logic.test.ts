@@ -1,21 +1,11 @@
 import { HandlerCtx } from "../../handler-context";
 import { businessLogic } from "./business-logic";
-import { ConfigCache, Env, Message } from "./types";
 
 describe("Filter businessLogic", () => {
-  it("returns messages with valid event names", async () => {
-    const validRecord1 = {
-      event_name: "EXECUTIVE_ENDUNKENING_COMPLETED",
-    };
-    const validRecord2 = {
-      event_name: "SPIRIT_CONSUMPTION_EXECUTION_TASK_START",
-    };
-    const ignoredRecord = {
-      event_name: "SOME_IGNORED_EVENT_NAME",
-    };
+  let givenCtx: HandlerCtx<any, any>;
 
-    const result = await businessLogic({
-      messages: [validRecord1, validRecord2, ignoredRecord],
+  beforeEach(() => {
+    givenCtx = {
       config: {
         services: [
           {
@@ -34,10 +24,26 @@ describe("Filter businessLogic", () => {
           },
         ],
       },
-    } as unknown as HandlerCtx<Message, Env, ConfigCache>);
+    } as any;
+  });
 
-    expect(result).toContain(validRecord1);
-    expect(result).toContain(validRecord2);
-    expect(result).not.toContain(ignoredRecord);
+  it("returns messages with valid event names", async () => {
+    const validRecord = {
+      event_name: "EXECUTIVE_ENDUNKENING_COMPLETED",
+    };
+
+    const result = await businessLogic(validRecord, givenCtx);
+
+    expect(result).toEqual([validRecord]);
+  });
+
+  it("returns messages with valid event names", async () => {
+    const ignoredRecord = {
+      event_name: "SOME_IGNORED_EVENT_NAME",
+    };
+
+    const result = await businessLogic(ignoredRecord, givenCtx);
+
+    expect(result).toEqual([]);
   });
 });

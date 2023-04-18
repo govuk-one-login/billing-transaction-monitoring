@@ -1,8 +1,8 @@
-import { UserDefinedOutputs } from "../../../types";
+import { UserDefinedOutputs } from "../../types";
 
 type OutputFunction = (destination: string, message: string) => Promise<void>;
 
-export type Outputs = Array<{
+export type HandlerOutputs = Array<{
   destination: string;
   store: OutputFunction;
 }>;
@@ -10,7 +10,7 @@ export type Outputs = Array<{
 export const makeCtxOutputs = <TEnvVars extends string>(
   outputs: UserDefinedOutputs<TEnvVars>,
   env: Record<TEnvVars, string>
-): Outputs => {
+): HandlerOutputs => {
   return outputs.map(({ destination, store }) => ({
     destination: env[destination],
     store: store as OutputFunction,

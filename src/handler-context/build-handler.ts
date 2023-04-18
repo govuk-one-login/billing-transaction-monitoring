@@ -1,33 +1,62 @@
 import { S3Event, SQSEvent } from "aws-lambda";
 import { ConfigElements } from "./config";
-import {
-  buildDynamicContextElements,
-  buildStaticContextElements,
-} from "./context-builders";
+import { buildContext } from "./context-builder";
+import { makeIncomingMessages } from "./make-incoming-messages";
+import { HandlerOptions, HandlerMessageBody } from "./types";
 import { outputMessages } from "./output-messages";
-import { BusinessLogic, CtxBuilderOptions } from "./types";
+import { runBusinessLogic } from "./run-business-logic";
+import { logger } from "../shared/utils";
 
 export const buildHandler =
   <
-    TMessage,
+    TIncomingMessageBody extends HandlerMessageBody,
     TEnvVars extends string,
     TConfigElements extends ConfigElements,
-    TResult extends string | {}
+    TOutgoingMessageBody extends HandlerMessageBody
   >(
-    businessLogic: BusinessLogic<TMessage, TEnvVars, TConfigElements, TResult>,
-    options: CtxBuilderOptions<TMessage, TEnvVars, TConfigElements>
+    options: HandlerOptions<
+      TIncomingMessageBody,
+      TEnvVars,
+      TConfigElements,
+      TOutgoingMessageBody
+    >
   ) =>
   async (event: S3Event | SQSEvent) => {
-    const staticContextElementsPromise = buildStaticContextElements(options);
-    const dynamicContextElements = await buildDynamicContextElements(
-      event,
-      options,
-      await staticContextElementsPromise
-    );
-    const ctx = {
-      ...dynamicContextElements,
-      ...(await staticContextElementsPromise),
-    };
-    const results = await businessLogic(ctx);
-    return await outputMessages(results, ctx);
+    try {
+      const ctx = await buildContext(logger, options);
+
+      const { incomingMessages, failedIds: failedIncomingIds } =
+        await makeIncomingMessages(
+          event,
+          options.incomingMessageBodyTypeGuard,
+          ctx.logger,
+          options.withBatchItemFailures
+        );
+
+      const { outgoingMessages, failedIds: failedBusinessLogicIds } =
+        await runBusinessLogic(
+          options.businessLogic,
+          incomingMessages,
+          ctx,
+          options.withBatchItemFailures
+        );
+
+      const { failedIds: failedOutputIds } = await outputMessages(
+        outgoingMessages,
+        ctx,
+        options.withBatchItemFailures
+      );
+
+      if (options.withBatchItemFailures)
+        return {
+          batchItemFailures: [
+            ...failedIncomingIds,
+            ...failedBusinessLogicIds,
+            ...failedOutputIds,
+          ],
+        };
+    } catch (error) {
+      logger.error("Handler failure", { error });
+      throw error;
+    }
   };
