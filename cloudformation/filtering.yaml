@@ -72,7 +72,7 @@ Resources:
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-filter-function
       Handler: filter.handler
       Policies:
-        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action:

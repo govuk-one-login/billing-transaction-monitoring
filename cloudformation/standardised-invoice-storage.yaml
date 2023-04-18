@@ -92,7 +92,7 @@ Resources:
             Queue: !GetAtt StandardisedInvoiceStorageQueue.Arn
       Handler: storeStandardisedInvoices.handler
       Policies:
-        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action:

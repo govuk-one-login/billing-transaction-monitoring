@@ -32,7 +32,7 @@ Resources:
       Handler: csvExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
-        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action:

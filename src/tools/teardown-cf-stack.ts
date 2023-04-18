@@ -233,6 +233,12 @@ if (stackSuffix == null || stackSuffix === "") {
 
 const stackName = `di-btm-${stackSuffix}`;
 
+console.log(
+  `!!! Tearing down stack "${stackName}" in 5 seconds. Abort with CTRL-c if that's not correct. !!!`
+);
+await wait(5000);
+console.log(`Starting teardown of stack "${stackName}"...`);
+
 const resourcesFailed = await destroyStack(stackName);
 
 let resourcesRemainingAfterRemediation = (

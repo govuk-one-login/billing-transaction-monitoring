@@ -84,7 +84,7 @@ Resources:
             Queue: !GetAtt PdfStandardisationQueue.Arn
       Handler: pdfStandardisation.handler
       Policies:
-        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action:

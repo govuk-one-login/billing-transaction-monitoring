@@ -70,7 +70,7 @@ Resources:
           BATCH_SIZE: 1000
       Handler: transactionCsvToJsonEvent.handler
       Policies:
-        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action: s3:GetObject
