@@ -11,7 +11,7 @@ interface TestMessage {
   c: boolean;
 }
 
-describe("build", () => {
+describe("buildContext", () => {
   let mockStoreFunction1: jest.Mock;
   let mockStoreFunction2: jest.Mock;
   let testLogger: Logger;
