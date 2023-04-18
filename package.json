@@ -65,6 +65,7 @@
     "sam:build": "npm run build && npm run build:template && npm run checkov && sam build",
     "sam:deploy": "sam deploy --disable-rollback --no-fail-on-empty-changeset --stack-name di-btm-${ENV_NAME} --parameter-overrides Environment=dev PrivateConfigStack=${CONFIG_NAME:-none} TestRoleArn=${TEST_ROLE_ARN:-none} EnableAlerting=${ENABLE_ALERTING:-false} --s3-prefix ${ENV_NAME}",
     "sam:teardown": "ts-node --esm src/tools/teardown-cf-stack.ts",
+    "sam:partition-migrate": "ts-node --esm migrations/0001-migrate-event-and-invoice-data-to-partitions.ts",
     "typecheck": "tsc --noEmit"
   },
   "lint-staged": {
