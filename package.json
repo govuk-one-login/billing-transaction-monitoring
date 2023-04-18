@@ -54,7 +54,7 @@
   "scripts": {
     "husky:install": "husky install",
     "test": "jest --maxWorkers=4",
-    "test:integration": " jest --config jest.integration.config.ts --maxWorkers=4 && cd reports/jest-html-reports && ../../integration_tests/cleanup-jest-html-reports.sh 3",
+    "test:integration": "jest --config jest.integration.config.ts --maxWorkers=4 && npm run test:cleanup:reports",
     "test:end2end": "jest --config jest.e2e.config.ts",
     "test:cleanup:reports": "cd reports/jest-html-reports && ../../integration_tests/cleanup-jest-html-reports.sh 3",
     "test:integration:local": "jest --setupFiles=./integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --config jest.integration.config.ts",
