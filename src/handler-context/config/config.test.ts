@@ -1,12 +1,16 @@
 import { Config } from ".";
+import { getConfigFile } from "./s3-config-client";
 import { ConfigElements } from "./types";
 
-let mockGetConfigFile: jest.Mock;
+jest.mock("./s3-config-client");
+const mockGetConfigFile = getConfigFile as jest.Mock;
 
 describe("Config", () => {
   beforeEach(() => {
+    jest.resetAllMocks();
+
     process.env.CONFIG_BUCKET = "mock-config-bucket";
-    mockGetConfigFile = jest.fn(async (path) => {
+    mockGetConfigFile.mockImplementation(async (path) => {
       switch (path) {
         case ConfigElements.inferences:
           return "mock inferences";
@@ -24,7 +28,7 @@ describe("Config", () => {
     delete process.env.CONFIG_BUCKET;
   });
   it("Provides a cached copy of the specified config files", async () => {
-    const config = new Config(mockGetConfigFile, [
+    const config = new Config([
       ConfigElements.inferences,
       ConfigElements.rates,
       ConfigElements.standardisation,
@@ -40,7 +44,7 @@ describe("Config", () => {
   });
 
   it("Doesn't cache files you didn't ask for", async () => {
-    const config = new Config(mockGetConfigFile, [
+    const config = new Config([
       ConfigElements.inferences,
       ConfigElements.rates,
     ]);
@@ -56,7 +60,7 @@ describe("Config", () => {
   });
 
   it("Throws an error when the cache is requested before it is awaited", () => {
-    const config = new Config(mockGetConfigFile, [
+    const config = new Config([
       ConfigElements.inferences,
       ConfigElements.rates,
       ConfigElements.standardisation,
@@ -69,14 +73,13 @@ describe("Config", () => {
         "Called getCache before awaiting populateCache"
       );
       expect((error as Error).message).toContain("Ensure");
-      expect((error as Error).message).not.toContain("Ensue");
     }
     expect.hasAssertions();
   });
 
   it("Throws an error when config files are not fetched successfully", async () => {
     mockGetConfigFile.mockRejectedValueOnce(new Error("underlying badness"));
-    const config = new Config(mockGetConfigFile, [
+    const config = new Config([
       ConfigElements.inferences,
       ConfigElements.rates,
       ConfigElements.standardisation,

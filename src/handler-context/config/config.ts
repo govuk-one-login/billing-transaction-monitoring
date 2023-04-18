@@ -1,29 +1,20 @@
 import { Json } from "../../shared/types";
-import { ConfigElements, GetConfigFile, PickedConfigCache } from "./types";
+import { getConfigFile } from "./s3-config-client";
+import { ConfigElements, PickedConfigCache } from "./types";
 
 export class Config<TFileName extends ConfigElements> {
-  private readonly getConfigFile: GetConfigFile;
   private readonly files: ConfigElements[];
-  private readonly promises: Array<Promise<[ConfigElements, Json]>>;
   private cache: PickedConfigCache<TFileName> | undefined;
 
-  constructor(getConfigFile: GetConfigFile, files: TFileName[]) {
-    this.getConfigFile = getConfigFile;
+  constructor(files: TFileName[]) {
     this.files = files;
-    this.promises = this.spawnPromises();
   }
 
-  private readonly spawnPromises = (): Array<
-    Promise<[ConfigElements, Json]>
-  > => {
-    return this.files.map<Promise<[ConfigElements, Json]>>(async (fileName) => [
-      fileName,
-      await this.getConfigFile(fileName),
-    ]);
-  };
-
   public readonly populateCache = async (): Promise<void> => {
-    const cacheEntries = await Promise.all(this.promises);
+    const promises = this.files.map<Promise<[ConfigElements, Json]>>(
+      async (fileName) => [fileName, await getConfigFile(fileName)]
+    );
+    const cacheEntries = await Promise.all(promises);
     this.cache = Object.fromEntries(
       cacheEntries
     ) as PickedConfigCache<TFileName>;
