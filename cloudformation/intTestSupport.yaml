@@ -4,11 +4,17 @@ Transform: AWS::Serverless-2016-10-31
 Resources:
   IntTestSupportFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for synchronously invoked lambda
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Condition: IsEnvWithAutoTests
     Properties:
       FunctionName: !Sub ${AWS::StackName}-int-test-support-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-int-test-support-function
