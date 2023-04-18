@@ -24,7 +24,7 @@ import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Hel
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
-const standardisedFolderPrefix = "btm_billing_standardised";
+const standardisedFolderPrefix = "btm_invoice_data";
 let filename: string;
 
 describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data \n", () => {

@@ -22,7 +22,7 @@ import crypto from "crypto";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
-const standardisedFolderPrefix = "btm_billing_standardised";
+const standardisedFolderPrefix = "btm_invoice_data";
 let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
