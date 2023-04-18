@@ -127,13 +127,6 @@ Resources:
             sum(tax) AS tax,
             year,
             month
-          FROM (
-            -- Adds year and month columns to standardised billing
-            SELECT
-              *,
-              date_format(invoice_receipt_date,'%m') AS month,
-              date_format(invoice_receipt_date,'%Y') AS year
-            FROM btm_billing_standardised
-          )
+          FROM btm_billing_standardised
           GROUP BY vendor_id,vendor_name,service_name,year,month
         Workgroup: !Ref AthenaInvoiceWorkgroup
