@@ -14,7 +14,7 @@ beforeEach(() => {
   process.env = { ...OLD_ENV };
   mockPutS3.mockClear();
   process.env.STORAGE_BUCKET = "store";
-  process.env.TRANSACTIONS_FOLDER = "btm_transactions";
+  process.env.LEGACY_TRANSACTIONS_FOLDER = "btm_transactions";
   process.env.EVENT_DATA_FOLDER = "btm_event_data";
 });
 
@@ -100,7 +100,7 @@ test("Bucket name not defined", async () => {
 });
 
 test("Transactions folder name not defined", async () => {
-  process.env.TRANSACTIONS_FOLDER = undefined;
+  process.env.LEGACY_TRANSACTIONS_FOLDER = undefined;
 
   const validRecord = createEventRecordWithName("EVENT_1", 1);
 
