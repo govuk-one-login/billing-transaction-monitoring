@@ -1,4 +1,5 @@
 import {
+  generateTestEvent,
   getYearMonth,
   poll,
   TableNames,
@@ -12,7 +13,7 @@ import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handl
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
-  generateTransactionEventsViaFilterLambda,
+  generateEventViaFilterLambdaAndCheckEventInS3Bucket,
   getVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
@@ -21,9 +22,9 @@ import { BillingTransactionCurated } from "./billing-and-transaction-view-tests"
 import crypto from "crypto";
 
 const prefix = resourcePrefix();
+let eventName: string;
 const storageBucket = `${prefix}-storage`;
 const standardisedFolderPrefix = "btm_invoice_data";
-let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 // Below tests can be run both in lower and higher environments
@@ -46,11 +47,14 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      await generateTransactionEventsViaFilterLambda(
-        data.eventTime,
-        data.transactionQty,
-        eventName
-      );
+      for (let i = 0; i < data.transactionQty; i++) {
+        const eventPayload = await generateTestEvent({
+          event_name: eventName,
+          timestamp_formatted: data.eventTime,
+          timestamp: new Date(data.eventTime).getTime() / 1000,
+        });
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
+      }
       eventTime = data.eventTime;
       const uuid = crypto.randomBytes(3).toString("hex");
       filename = `e2e-test-raw-Invoice-validFile-${uuid}`;
@@ -79,7 +83,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
         {
           timeout: 120000,
           interval: 10000,
-          nonCompleteErrorMessage:
+          notCompleteErrorMessage:
             "e2e tests invoice data never appeared in standardised folder",
         }
       );
@@ -103,11 +107,14 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      await generateTransactionEventsViaFilterLambda(
-        data.eventTime,
-        data.transactionQty,
-        eventName
-      );
+      for (let i = 0; i < data.transactionQty; i++) {
+        const eventPayload = await generateTestEvent({
+          event_name: eventName,
+          timestamp_formatted: data.eventTime,
+          timestamp: new Date(data.eventTime).getTime() / 1000,
+        });
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
+      }
       eventTime = data.eventTime;
       const expectedResults = calculateExpectedResults(
         data,

@@ -73,7 +73,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       {
         timeout: 120000,
         interval: 10000,
-        nonCompleteErrorMessage:
+        notCompleteErrorMessage:
           "PDF Invoice data never appeared in standardised folder",
       }
     );
@@ -115,7 +115,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     };
 
     const pollOptions = {
-      nonCompleteErrorMessage:
+      notCompleteErrorMessage:
         "File was not moved to successful folder within the timeout",
     };
 
@@ -166,7 +166,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
         ).length === 2,
       {
         timeout: 80000,
-        nonCompleteErrorMessage:
+        notCompleteErrorMessage:
           "CSV Invoice data never appeared in standardised folder",
       }
     );

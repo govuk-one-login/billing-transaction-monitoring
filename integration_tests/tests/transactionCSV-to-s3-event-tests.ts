@@ -40,7 +40,7 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
         );
       },
       {
-        nonCompleteErrorMessage:
+        notCompleteErrorMessage:
           "Events CSV was not successfully uploaded within the given timeout",
       }
     );
