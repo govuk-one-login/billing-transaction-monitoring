@@ -13,6 +13,6 @@ export const makeCtxOutputs = <TEnvVars extends string>(
 ): HandlerOutputs => {
   return outputs.map(({ destination, store }) => ({
     destination: env[destination],
-    store: store as OutputFunction,
+    store,
   }));
 };

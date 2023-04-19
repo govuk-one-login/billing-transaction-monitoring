@@ -14,14 +14,14 @@ export interface HandlerOutgoingMessage<TBody extends HandlerMessageBody> {
   body: TBody;
 }
 
-export type UserDefinedOutputFunction<TEnvVars extends string> = (
-  destination: TEnvVars,
+export type UserDefinedOutputFunction = (
+  destination: string,
   message: string
 ) => Promise<void>;
 
 export type UserDefinedOutputs<TEnvVars extends string> = Array<{
   destination: TEnvVars;
-  store: UserDefinedOutputFunction<TEnvVars>;
+  store: UserDefinedOutputFunction;
 }>;
 
 export type BusinessLogic<
