@@ -29,6 +29,7 @@ Resources:
       Handler: pdfExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action:

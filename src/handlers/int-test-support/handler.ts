@@ -103,6 +103,12 @@ export const handler = async (
   process.env.ENV_NAME = event.environment;
   process.env.CONFIG_NAME = event.config;
 
+  console.log(
+    `Executing command "${event.command}" with parameters "${Object.keys(
+      event.parameters
+    )}" in environment "${event.environment}" with config "${event.config}"`
+  );
+
   const retVal = await callFunction(event.command, event.parameters);
 
   return { success: true, successObject: retVal };
