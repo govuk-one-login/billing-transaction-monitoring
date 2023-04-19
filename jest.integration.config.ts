@@ -18,6 +18,16 @@ const config: Config.InitialOptions = {
         outputName: "testReport.xml",
       },
     ],
+    [
+      "jest-html-reporters",
+      {
+        publicPath: `./reports/jest-html-reports/test-report-${new Date().toISOString()}`,
+        filename: "index.html",
+        expand: true,
+        openReport: true,
+        pageTitle: "BTM INTEGRATION TEST REPORT",
+      },
+    ],
   ],
 };
 

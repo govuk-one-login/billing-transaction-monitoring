@@ -45,7 +45,7 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice bucket test\n"
 
     const pollOptions = {
       timeout: 40000,
-      nonCompleteErrorMessage:
+      notCompleteErrorMessage:
         "File was not moved to failed folder within the specified timeout",
     };
 

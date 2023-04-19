@@ -1,7 +1,7 @@
 import { SQSRecord } from "aws-lambda";
 import {
+  getStandardisedInvoiceKey,
   getStandardisedInvoiceFileName,
-  getStandardisedInvoiceFileNamePrefix,
   listS3Keys,
   moveToFolderS3,
   putTextS3,
@@ -9,10 +9,9 @@ import {
 import { storeLineItem } from "./store-line-item";
 
 jest.mock("../../shared/utils");
+const mockedGetStandardisedInvoiceKey = getStandardisedInvoiceKey as jest.Mock;
 const mockedGetStandardisedInvoiceFileName =
   getStandardisedInvoiceFileName as jest.Mock;
-const mockedGetStandardisedInvoiceFileNamePrefix =
-  getStandardisedInvoiceFileNamePrefix as jest.Mock;
 const mockedListS3Keys = listS3Keys as jest.Mock;
 const mockedMoveToFolderS3 = moveToFolderS3 as jest.Mock;
 const mockedPutTextS3 = putTextS3 as jest.Mock;
@@ -20,10 +19,12 @@ const mockedPutTextS3 = putTextS3 as jest.Mock;
 describe("Line item storer", () => {
   let mockedS3StaleKey: string;
   let mockedStandardisedLineItemFileName: string;
+  let mockedStandardisedLineItemKey: string;
   let mockedStandardisedLineItemPrefix: string;
   let givenArchiveFolder: string;
   let givenBucket: string;
   let givenDestinationFolder: string;
+  let givenLegacyDestinationFolder: string;
   let givenRecord: SQSRecord;
   let givenRecordBodyEventName: string;
   let givenRecordBodyInvoiceReceiptDate: string;
@@ -39,10 +40,15 @@ describe("Line item storer", () => {
       mockedStandardisedLineItemFileName
     );
 
-    mockedStandardisedLineItemPrefix = "mocked standardised line item prefix";
-    mockedGetStandardisedInvoiceFileNamePrefix.mockReturnValue(
-      mockedStandardisedLineItemPrefix
-    );
+    mockedStandardisedLineItemKey =
+      "given destination folder/mocked standardised line item key";
+    mockedStandardisedLineItemPrefix =
+      "given destination folder/mocked standardised line item prefix";
+
+    mockedGetStandardisedInvoiceKey.mockReturnValue([
+      mockedStandardisedLineItemKey,
+      mockedStandardisedLineItemPrefix,
+    ]);
 
     mockedS3StaleKey = "mocked S3 stale key";
     mockedListS3Keys.mockResolvedValue([mockedS3StaleKey]);
@@ -50,6 +56,7 @@ describe("Line item storer", () => {
     givenArchiveFolder = "given archive folder";
     givenBucket = "given bucket";
     givenDestinationFolder = "given destination folder";
+    givenLegacyDestinationFolder = "given legacy folder";
 
     givenRecordBodyEventName = "given record body event name";
     givenRecordBodyInvoiceReceiptDate =
@@ -71,11 +78,11 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow("not valid JSON");
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
@@ -89,11 +96,11 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow("is not object");
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
@@ -107,14 +114,15 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
@@ -128,14 +136,15 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
@@ -149,14 +158,15 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
@@ -170,14 +180,15 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
@@ -191,14 +202,15 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
@@ -212,14 +224,15 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
@@ -233,14 +246,15 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
       "is not object with valid fields"
     );
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).not.toHaveBeenCalled();
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
     expect(mockedListS3Keys).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
@@ -255,18 +269,15 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).toHaveBeenCalledTimes(1);
-    expect(mockedGetStandardisedInvoiceFileNamePrefix).toHaveBeenCalledWith(
-      givenRecordBodyObject
-    );
     expect(mockedListS3Keys).toHaveBeenCalledTimes(1);
     expect(mockedListS3Keys).toHaveBeenCalledWith(
       givenBucket,
-      `${givenDestinationFolder}/${mockedStandardisedLineItemPrefix}`
+      mockedStandardisedLineItemPrefix
     );
     expect(mockedGetStandardisedInvoiceFileName).not.toHaveBeenCalled();
     expect(mockedPutTextS3).not.toHaveBeenCalled();
@@ -282,18 +293,20 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
-    expect(mockedGetStandardisedInvoiceFileName).toHaveBeenCalledTimes(1);
-    expect(mockedGetStandardisedInvoiceFileName).toHaveBeenCalledWith(
+    expect(mockedGetStandardisedInvoiceKey).toHaveBeenCalledTimes(1);
+    expect(mockedGetStandardisedInvoiceKey).toHaveBeenCalledWith(
+      givenDestinationFolder,
       givenRecordBodyObject
     );
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       givenBucket,
-      `${givenDestinationFolder}/${mockedStandardisedLineItemFileName}`,
+      mockedStandardisedLineItemKey,
       givenRecord.body
     );
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
@@ -308,6 +321,7 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -325,6 +339,7 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
+      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
     expect(result).toBeUndefined();

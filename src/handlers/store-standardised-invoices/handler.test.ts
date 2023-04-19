@@ -19,6 +19,7 @@ describe("Store Standardised Invoices handler tests", () => {
       ARCHIVE_FOLDER: "given archive folder",
       DESTINATION_BUCKET: "given destination bucket",
       DESTINATION_FOLDER: "given destination folder",
+      LEGACY_DESTINATION_FOLDER: "given legacy destination folder",
     };
 
     givenEvent = { Records: [] };
@@ -65,12 +66,14 @@ describe("Store Standardised Invoices handler tests", () => {
       givenRecord1,
       process.env.DESTINATION_BUCKET,
       process.env.DESTINATION_FOLDER,
+      process.env.LEGACY_DESTINATION_FOLDER,
       process.env.ARCHIVE_FOLDER
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord2,
       process.env.DESTINATION_BUCKET,
       process.env.DESTINATION_FOLDER,
+      process.env.LEGACY_DESTINATION_FOLDER,
       process.env.ARCHIVE_FOLDER
     );
     expect(result).toEqual({
@@ -99,12 +102,14 @@ describe("Store Standardised Invoices handler tests", () => {
       givenRecord1,
       process.env.DESTINATION_BUCKET,
       process.env.DESTINATION_FOLDER,
+      process.env.LEGACY_DESTINATION_FOLDER,
       process.env.ARCHIVE_FOLDER
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord2,
       process.env.DESTINATION_BUCKET,
       process.env.DESTINATION_FOLDER,
+      process.env.LEGACY_DESTINATION_FOLDER,
       process.env.ARCHIVE_FOLDER
     );
     expect(result).toEqual({

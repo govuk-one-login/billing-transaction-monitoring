@@ -5,7 +5,7 @@ import {
 } from "../../../test-helpers/SQS";
 import { formatDate, putS3 } from "../../shared/utils";
 
-jest.mock("../../shared/utils");
+jest.mock("../../shared/utils/s3");
 const mockPutS3 = putS3 as jest.MockedFunction<typeof putS3>;
 
 const OLD_ENV = process.env;
@@ -15,6 +15,7 @@ beforeEach(() => {
   mockPutS3.mockClear();
   process.env.STORAGE_BUCKET = "store";
   process.env.TRANSACTIONS_FOLDER = "btm_transactions";
+  process.env.EVENT_DATA_FOLDER = "btm_event_data";
 });
 
 afterAll(() => {
@@ -36,12 +37,12 @@ test("Store Transactions handler with some valid events calls s3", async () => {
 
   await handler(event);
 
-  expect(mockPutS3).toHaveBeenCalledTimes(2);
+  expect(mockPutS3).toHaveBeenCalledTimes(4);
 
   const recordBody1 = JSON.parse(validRecord1.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
-  const formattedDate1 = formatDate(expectedDate1);
-  const expectedKey1 = `btm_transactions/${formattedDate1}/${
+  const yearMonthFolderDay1 = formatDate(expectedDate1, "/");
+  const expectedKey1 = `btm_event_data/${yearMonthFolderDay1}/${
     recordBody1.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -50,17 +51,37 @@ test("Store Transactions handler with some valid events calls s3", async () => {
     expectedKey1,
     JSON.parse(validRecord1.body)
   );
+  const formattedDate1 = formatDate(expectedDate1);
+  const expectedLegacyKey1 = `btm_transactions/${formattedDate1}/${
+    recordBody1.event_id as string
+  }.json`;
+  expect(mockPutS3).toHaveBeenNthCalledWith(
+    3,
+    "store",
+    expectedLegacyKey1,
+    JSON.parse(validRecord1.body)
+  );
 
   const recordBody2 = JSON.parse(validRecord2.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
-  const formattedDate2 = formatDate(expectedDate2);
-  const expectedKey2 = `btm_transactions/${formattedDate2}/${
+  const yearMonthDayFolder2 = formatDate(expectedDate2, "/");
+  const expectedKey2 = `btm_event_data/${yearMonthDayFolder2}/${
     recordBody2.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
     2,
     "store",
     expectedKey2,
+    JSON.parse(validRecord2.body)
+  );
+  const formattedDate2 = formatDate(expectedDate2);
+  const expectedLegacyKey2 = `btm_transactions/${formattedDate2}/${
+    recordBody2.event_id as string
+  }.json`;
+  expect(mockPutS3).toHaveBeenNthCalledWith(
+    4,
+    "store",
+    expectedLegacyKey2,
     JSON.parse(validRecord2.body)
   );
 });
@@ -101,12 +122,12 @@ test("Failing puts to S3", async () => {
 
   const result = await handler(event);
 
-  expect(mockPutS3).toHaveBeenCalledTimes(2);
+  expect(mockPutS3).toHaveBeenCalledTimes(3);
 
   const recordBody1 = JSON.parse(validRecord.body);
   const expectedDate1 = new Date(recordBody1.timestamp);
-  const formattedDate1 = formatDate(expectedDate1);
-  const expectedKey1 = `btm_transactions/${formattedDate1}/${
+  const yearMonthDayFolder1 = formatDate(expectedDate1, "/");
+  const expectedKey1 = `btm_event_data/${yearMonthDayFolder1}/${
     recordBody1.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -118,9 +139,8 @@ test("Failing puts to S3", async () => {
 
   const recordBody2 = JSON.parse(invalidRecord.body);
   const expectedDate2 = new Date(recordBody2.timestamp);
-  const formattedDate2 = formatDate(expectedDate2);
-
-  const expectedKey2 = `btm_transactions/${formattedDate2}/${
+  const yearMonthDayFolder2 = formatDate(expectedDate2, "/");
+  const expectedKey2 = `btm_event_data/${yearMonthDayFolder2}/${
     recordBody2.event_id as string
   }.json`;
   expect(mockPutS3).toHaveBeenNthCalledWith(
@@ -128,6 +148,17 @@ test("Failing puts to S3", async () => {
     "store",
     expectedKey2,
     JSON.parse(invalidRecord.body)
+  );
+
+  const formattedDate1 = formatDate(expectedDate1);
+  const expectedLegacyKey1 = `btm_transactions/${formattedDate1}/${
+    recordBody1.event_id as string
+  }.json`;
+  expect(mockPutS3).toHaveBeenNthCalledWith(
+    3,
+    "store",
+    expectedLegacyKey1,
+    JSON.parse(validRecord.body)
   );
 
   expect(result.batchItemFailures.length).toEqual(1);

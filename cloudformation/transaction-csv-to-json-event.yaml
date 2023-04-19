@@ -39,10 +39,16 @@ Resources:
 
   TransactionCsvToJsonEventFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-transaction-csv-to-json-event-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
       Events:
         S3Event:
           Type: S3
@@ -61,9 +67,10 @@ Resources:
           LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-transaction-csv-to-json-event-function
+          BATCH_SIZE: 1000
       Handler: transactionCsvToJsonEvent.handler
       Policies:
-        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action: s3:GetObject

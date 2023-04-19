@@ -17,13 +17,14 @@ jest.mock("../../shared/utils", () => {
     getVendorServiceConfigRows: jest.fn(),
     logger: { error: jest.fn() },
     getStandardisedInvoiceFileName: jest.fn(),
+    getStandardisedInvoiceKey: jest.fn(),
     sendRecord: jest.fn(),
   };
 });
 const mockedFetchS3 = fetchS3 as jest.Mock;
 const mockedGetVendorServiceConfigRows =
   getVendorServiceConfigRows as jest.Mock;
-const mockedGetStandardisedInvoiceFilename =
+const mockedGetStandardisedInvoiceFileName =
   getStandardisedInvoiceFileName as jest.Mock;
 const mockedSendRecord = sendRecord as jest.Mock;
 
@@ -302,7 +303,7 @@ describe("CSV Extract handler tests", () => {
   test("should throw error with sendRecord sending failure", async () => {
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
-    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+    mockedGetStandardisedInvoiceFileName.mockReturnValueOnce(
       "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const mockedErrorText = "mocked send error";
@@ -319,7 +320,7 @@ describe("CSV Extract handler tests", () => {
   test("should store the standardised invoice if no errors", async () => {
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
-    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+    mockedGetStandardisedInvoiceFileName.mockReturnValueOnce(
       "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const result = await handler(validEvent);
@@ -362,7 +363,7 @@ describe("CSV Extract handler tests", () => {
       "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32\n";
     mockedFetchS3.mockReturnValueOnce(validInvoiceData);
     mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
-    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
+    mockedGetStandardisedInvoiceFileName.mockReturnValueOnce(
       "2022-01-vendor123-VENDOR_1_EVENT_1-e61108.txt"
     );
     const result = await handler(validEvent);
