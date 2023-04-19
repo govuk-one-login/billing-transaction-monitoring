@@ -1,9 +1,15 @@
-import csvToJson from "csvtojson";
-import { ConfigElements, GetConfigFile } from "./types";
+import {
+  ConfigCache,
+  ConfigElements,
+  ConfigRatesRow,
+  ConfigServicesRow,
+  GetConfigFile,
+} from "./types";
 import { Json } from "../../shared/types";
 import { fetchS3 } from "../../shared/utils";
+import { parseConfigCsv } from "./parse-config-csv";
 
-const fileMap: Record<ConfigElements, string> = {
+export const configFileMap: Record<ConfigElements, string> = {
   [ConfigElements.rates]: "rate_tables/rates.csv",
   [ConfigElements.services]: "vendor_services/vendor-services.csv",
   [ConfigElements.renamingMap]: "csv_transactions/header-row-renaming-map.json",
@@ -14,42 +20,52 @@ const fileMap: Record<ConfigElements, string> = {
   [ConfigElements.standardisation]: "vendor-invoice-standardisation.json",
 };
 
-const parseCsvFile = async (rawFile: string): Promise<Json> => {
-  return await csvToJson().fromString(rawFile);
-};
-const parseJsonFile = (rawFile: string): Json => {
+const parseJsonFile = async (rawFile: string): Promise<Json> => {
   return JSON.parse(rawFile);
 };
 
-const parseConfigFile = async (
-  rawFile: string,
-  fileExtension: string
-): Promise<Json> => {
-  switch (fileExtension) {
-    case "json":
-      return parseJsonFile(rawFile);
-    case "csv":
-      return await parseCsvFile(rawFile);
-    default:
-      throw new Error(
-        `Config file extension could not be mapped to a parser. The extension was ${fileExtension}`
-      );
-  }
+const parserMap = {
+  [ConfigElements.rates]: async (rawFile: string) =>
+    await parseConfigCsv<keyof ConfigRatesRow, ConfigRatesRow>(rawFile, {
+      vendor_id: { type: "string", required: true },
+      event_name: { type: "string", required: true },
+      volumes_from: { type: "number", required: true },
+      volumes_to: { type: "number" },
+      unit_price: { type: "number", required: true },
+      effective_from: { type: "date", required: true },
+      effective_to: { type: "date", required: true },
+    }),
+  [ConfigElements.services]: async (rawFile: string) =>
+    await parseConfigCsv<keyof ConfigServicesRow, ConfigServicesRow>(rawFile, {
+      vendor_name: { type: "string", required: true },
+      vendor_id: { type: "string", required: true },
+      service_name: { type: "string", required: true },
+      service_regex: { type: "string", required: true },
+      event_name: { type: "string", required: true },
+    }),
+  [ConfigElements.renamingMap]: parseJsonFile,
+  [ConfigElements.inferences]: parseJsonFile,
+  [ConfigElements.transformations]: parseJsonFile,
+  [ConfigElements.vat]: parseJsonFile,
+  [ConfigElements.standardisation]: parseJsonFile,
+};
+
+const parseConfigFile = async <TFileName extends ConfigElements>(
+  fileName: TFileName,
+  rawFile: string
+): Promise<ConfigCache[TFileName]> => {
+  const parser = parserMap[fileName];
+  const result = await parser(rawFile);
+  return result as ConfigCache[TFileName];
 };
 
 export const getConfigFile: GetConfigFile = async (fileName) => {
   if (process.env.CONFIG_BUCKET === undefined)
     throw new Error("No CONFIG_BUCKET defined in this environment");
 
-  const path = fileMap[fileName];
-  const fileExtension = path.split(".").reverse()[0];
-
-  if (!fileExtension)
-    throw new Error(
-      `Config file extension could not be determined. The path was ${path}`
-    );
+  const path = configFileMap[fileName];
 
   const response = await fetchS3(process.env.CONFIG_BUCKET, path);
 
-  return await parseConfigFile(response, fileExtension);
+  return await parseConfigFile(fileName, response);
 };

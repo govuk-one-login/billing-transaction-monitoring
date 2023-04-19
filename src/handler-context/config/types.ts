@@ -1,6 +1,5 @@
 import { InferenceSpecifications } from "../../handlers/transaction-csv-to-json-event/convert/make-inferences";
 import { Transformations } from "../../handlers/transaction-csv-to-json-event/convert/perform-transformations";
-import { Json } from "../../shared/types";
 
 export enum ConfigElements {
   rates = "rates",
@@ -12,23 +11,27 @@ export enum ConfigElements {
   standardisation = "standardisation",
 }
 
+export interface ConfigRatesRow {
+  vendor_id: string;
+  event_name: string;
+  volumes_from: number;
+  volumes_to: number | undefined;
+  unit_price: number;
+  effective_from: Date;
+  effective_to: Date;
+}
+
+export interface ConfigServicesRow {
+  vendor_name: string;
+  vendor_id: string;
+  service_name: string;
+  service_regex: string;
+  event_name: string;
+}
+
 export interface ConfigCache {
-  [ConfigElements.rates]: Array<{
-    vendor_id: string;
-    event_name: string;
-    volumes_from: string;
-    volumes_to: string;
-    unit_price: string;
-    effective_from: string;
-    effective_to: string;
-  }>;
-  [ConfigElements.services]: Array<{
-    vendor_name: string;
-    vendor_id: string;
-    service_name: string;
-    service_regex: string;
-    event_name: string;
-  }>;
+  [ConfigElements.rates]: ConfigRatesRow[];
+  [ConfigElements.services]: ConfigServicesRow[];
   [ConfigElements.renamingMap]: Array<[string, string]>;
   [ConfigElements.inferences]: InferenceSpecifications<
     {}, // I'm avoiding including this type as the field names are sensitive
@@ -42,9 +45,28 @@ export interface ConfigCache {
   }>;
 }
 
-export type GetConfigFile = (fileName: ConfigElements) => Promise<Json>;
+export type GetConfigFile = <TFileName extends ConfigElements>(
+  fileName: TFileName
+) => Promise<ConfigCache[TFileName]>;
 
 export type PickedConfigCache<TFileName extends ConfigElements> = Pick<
   ConfigCache,
   TFileName
 >;
+
+export type CsvColumnTypeName = "date" | "number" | "string";
+export type CsvColumnValue = Date | number | string | undefined;
+
+export type ConfigParser<TConfig extends {} | Array<{}>> = (
+  rawFile: string
+) => TConfig | Promise<TConfig>;
+
+export interface CsvParserColumnOptions {
+  type: CsvColumnTypeName;
+  required?: boolean;
+}
+
+export type CsvParserOptions<
+  TColumn extends string,
+  TRow extends Record<TColumn, CsvColumnValue>
+> = Record<keyof TRow, CsvParserColumnOptions>;

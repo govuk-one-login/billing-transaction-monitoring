@@ -4,13 +4,7 @@ export interface Response {
 
 export type ValidTextractJobStatus = "FAILED" | "PARTIAL_SUCCESS" | "SUCCEEDED";
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | Json[]
-  | { [key: string]: Json };
+export type Json = string | number | boolean | null | Json[] | {};
 
 export interface StandardisedLineItemSummary {
   invoice_receipt_id: string;
