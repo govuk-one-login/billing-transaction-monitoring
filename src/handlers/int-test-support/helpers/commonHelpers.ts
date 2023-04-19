@@ -116,7 +116,7 @@ export const checkS3BucketForEventId = async (
   const pollS3BucketForEventIdString = async (): Promise<boolean> => {
     const result = await listS3Objects({
       bucketName: `${resourcePrefix()}-storage`,
-      prefix: "btm_transactions",
+      prefix: "btm_event_data",
     });
     if (result.Contents !== undefined) {
       return result.Contents.some((obj) => obj.Key?.includes(eventIdString));
@@ -128,7 +128,7 @@ export const checkS3BucketForEventId = async (
     return await poll(pollS3BucketForEventIdString, (result) => result, {
       timeout: timeoutMs,
       notCompleteErrorMessage:
-        "EventId does not exists in S3 bucket within the timeout",
+        "EventId does not exist in S3 bucket within the timeout",
     });
   } catch (error) {
     return false;
