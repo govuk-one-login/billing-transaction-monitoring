@@ -54,7 +54,7 @@ export const generateEventViaFilterLambdaAndCheckEventInS3Bucket = async (
     const eventId = JSON.parse(json.Records[0].body).event_id;
     const eventExistsInS3 = await checkS3BucketForEventId(eventId, 7000);
     if (!eventExistsInS3) {
-      return { success: false };
+      return { success: false, eventId };
     }
     return { success: true, eventId };
   } catch (error) {

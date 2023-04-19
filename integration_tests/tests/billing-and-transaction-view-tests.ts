@@ -39,14 +39,12 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPriceFormatted,$transactionQty,$transactionPriceFormatted,$priceDifferencePercentage",
     async ({ ...data }) => {
       for (let i = 0; i < data.transactionQty; i++) {
-        const createEventPayload = await generateTestEvent({
+        const eventPayload = await generateTestEvent({
           event_name: data.eventName,
           timestamp_formatted: data.eventTime,
           timestamp: new Date(data.eventTime).getTime() / 1000,
         });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
-          createEventPayload
-        );
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
       }
 
       const uuid = crypto.randomBytes(3).toString("hex");
@@ -76,7 +74,7 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
         {
           timeout: 120000,
           interval: 10000,
-          nonCompleteErrorMessage:
+          notCompleteErrorMessage:
             "Invoice data never appeared in standardised folder",
         }
       );

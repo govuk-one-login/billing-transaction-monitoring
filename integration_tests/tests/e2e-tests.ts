@@ -48,14 +48,12 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       for (let i = 0; i < data.transactionQty; i++) {
-        const createEventPayload = await generateTestEvent({
+        const eventPayload = await generateTestEvent({
           event_name: eventName,
           timestamp_formatted: data.eventTime,
           timestamp: new Date(data.eventTime).getTime() / 1000,
         });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
-          createEventPayload
-        );
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
       }
       eventTime = data.eventTime;
       const uuid = crypto.randomBytes(3).toString("hex");
@@ -85,7 +83,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
         {
           timeout: 120000,
           interval: 10000,
-          nonCompleteErrorMessage:
+          notCompleteErrorMessage:
             "e2e tests invoice data never appeared in standardised folder",
         }
       );
@@ -110,14 +108,12 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       for (let i = 0; i < data.transactionQty; i++) {
-        const createEventPayload = await generateTestEvent({
+        const eventPayload = await generateTestEvent({
           event_name: eventName,
           timestamp_formatted: data.eventTime,
           timestamp: new Date(data.eventTime).getTime() / 1000,
         });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
-          createEventPayload
-        );
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
       }
       eventTime = data.eventTime;
       const expectedResults = calculateExpectedResults(

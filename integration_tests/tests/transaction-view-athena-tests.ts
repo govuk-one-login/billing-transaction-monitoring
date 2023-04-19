@@ -35,14 +35,12 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
     }) => {
       const expectedPrice = (numberOfTestEvents * unitPrice).toFixed(4);
       for (let i = 0; i < numberOfTestEvents; i++) {
-        const createEventPayload = await generateTestEvent({
+        const eventPayload = await generateTestEvent({
           event_name: eventName,
           timestamp_formatted: eventTime,
           timestamp: new Date(eventTime).getTime() / 1000,
         });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
-          createEventPayload
-        );
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
       }
       const tableName = TableNames.TRANSACTION_CURATED;
       const prettyEventName = prettyEventNameMap[eventName];

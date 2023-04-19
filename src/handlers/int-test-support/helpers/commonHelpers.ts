@@ -35,13 +35,13 @@ export const poll = async <Resolution>(
   options?: {
     interval?: number;
     timeout?: number;
-    nonCompleteErrorMessage?: string;
+    notCompleteErrorMessage?: string;
   }
 ): Promise<Resolution> => {
   const {
     interval = 1_000,
     timeout = 30_000,
-    nonCompleteErrorMessage = "Polling completion condition was never achieved",
+    notCompleteErrorMessage = "Polling completion condition was never achieved",
   } = options ?? {};
   return await new Promise((resolve, reject) => {
     // This timeout safely exits the function if the completion condition
@@ -51,7 +51,7 @@ export const poll = async <Resolution>(
       // Rejecting with a string rather than an error so that the failure
       // bubbles up to the test, giving better output
       // eslint-disable-next-line prefer-promise-reject-errors
-      reject(nonCompleteErrorMessage);
+      reject(notCompleteErrorMessage);
     }, timeout);
     // using a stack even though we only intend to have one promise at a time
     // because we can synchronously measure the length of an array
@@ -146,8 +146,8 @@ export const checkS3BucketForEventId = async (
   try {
     return await poll(pollS3BucketForEventIdString, (result) => result, {
       timeout: timeoutMs,
-      nonCompleteErrorMessage:
-        "EventId not exists in S3 bucket within the timeout",
+      notCompleteErrorMessage:
+        "EventId does not exists in S3 bucket within the timeout",
     });
   } catch (error) {
     return false;

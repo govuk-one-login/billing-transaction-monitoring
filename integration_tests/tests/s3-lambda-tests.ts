@@ -21,7 +21,7 @@ async function waitForSubstringInLogs(
         return event.message?.includes(subString);
       }),
     {
-      nonCompleteErrorMessage: "Substring " + subString + " not found in logs",
+      notCompleteErrorMessage: "Substring " + subString + " not found in logs",
     }
   );
 }
@@ -30,31 +30,27 @@ describe(
   "\n Happy path tests \n" +
     "\n Generate valid event and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId\n",
   () => {
+    let eventId: string;
+
     beforeAll(async () => {
-      await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
+      const result = await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
         validEventPayload
       );
+      if (result.eventId) {
+        eventId = result.eventId;
+      }
     });
 
     test("Filter function cloud watch logs should contain eventid", async () => {
-      await waitForSubstringInLogs(
-        "-filter-function",
-        validEventPayload.event_id
-      );
+      await waitForSubstringInLogs("-filter-function", eventId);
     });
 
     test("Clean function cloud watch logs should contain eventid", async () => {
-      await waitForSubstringInLogs(
-        "-clean-function",
-        validEventPayload.event_id
-      );
+      await waitForSubstringInLogs("-clean-function", eventId);
     });
 
     test("Store Transactions function cloud watch logs should contain eventid", async () => {
-      await waitForSubstringInLogs(
-        "-storage-function",
-        validEventPayload.event_id
-      );
+      await waitForSubstringInLogs("-storage-function", eventId);
     });
   }
 );
