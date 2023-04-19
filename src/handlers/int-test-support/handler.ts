@@ -8,7 +8,6 @@ import {
   checkIfS3ObjectExists,
   putS3Object,
 } from "./helpers/s3Helper";
-import { publishToTestTopic } from "./helpers/snsHelper";
 import {
   getRecentCloudwatchLogs,
   checkGivenStringExistsInLogs,
@@ -41,7 +40,6 @@ export enum IntTestHelpers {
   deleteS3Object = "deleteS3Object",
   deleteS3Objects = "deleteS3Objects",
   checkIfS3ObjectExists = "checkIfS3ObjectExists",
-  publishToTestTopic = "publishToTestTopic",
   checkGivenStringExistsInLogs = "checkGivenStringExistsInLogs",
   getRecentCloudwatchLogs = "getRecentCloudwatchLogs",
   startQueryExecutionCommand = "startQueryExecutionCommand",
@@ -59,7 +57,6 @@ export interface HelperDict {
   [IntTestHelpers.deleteS3Object]: typeof deleteS3Object;
   [IntTestHelpers.deleteS3Objects]: typeof deleteS3Objects;
   [IntTestHelpers.checkIfS3ObjectExists]: typeof checkIfS3ObjectExists;
-  [IntTestHelpers.publishToTestTopic]: typeof publishToTestTopic;
   [IntTestHelpers.checkGivenStringExistsInLogs]: typeof checkGivenStringExistsInLogs;
   [IntTestHelpers.getRecentCloudwatchLogs]: typeof getRecentCloudwatchLogs;
   [IntTestHelpers.startQueryExecutionCommand]: typeof startQueryExecutionCommand;
@@ -77,7 +74,6 @@ const functionMap: HelperDict = {
   [IntTestHelpers.deleteS3Object]: deleteS3Object,
   [IntTestHelpers.deleteS3Objects]: deleteS3Objects,
   [IntTestHelpers.checkIfS3ObjectExists]: checkIfS3ObjectExists,
-  [IntTestHelpers.publishToTestTopic]: publishToTestTopic,
   [IntTestHelpers.checkGivenStringExistsInLogs]: checkGivenStringExistsInLogs,
   [IntTestHelpers.getRecentCloudwatchLogs]: getRecentCloudwatchLogs,
   [IntTestHelpers.startQueryExecutionCommand]: startQueryExecutionCommand,

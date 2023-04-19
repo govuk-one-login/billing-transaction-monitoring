@@ -19,7 +19,7 @@ export default async function globalSetup(): Promise<void> {
     {
       timeout: 60000,
       interval: 10000,
-      nonCompleteErrorMessage: "Bucket is not empty after deleting objects",
+      notCompleteErrorMessage: "Bucket is not empty after deleting objects",
     }
   );
   console.log("Deleted storage bucket before running the tests");
