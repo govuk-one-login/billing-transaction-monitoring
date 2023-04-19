@@ -67,7 +67,6 @@ Resources:
           LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-transaction-csv-to-json-event-function
-          BATCH_SIZE: 1000
       Handler: transactionCsvToJsonEvent.handler
       Policies:
         - AWSLambdaVPCAccessExecutionRole

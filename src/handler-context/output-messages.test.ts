@@ -421,4 +421,58 @@ describe("outputMessages", () => {
       });
     });
   });
+
+  describe("batching", () => {
+    let originalPromiseAllSettled: typeof Promise.allSettled;
+    let mockedPromiseAllSettled: jest.Mock;
+
+    beforeEach(() => {
+      originalPromiseAllSettled = Promise.allSettled;
+
+      mockedPromiseAllSettled = jest.fn((promises: any[]) =>
+        Array(promises.length).fill({ status: "fulfilled" })
+      );
+
+      global.Promise.allSettled = mockedPromiseAllSettled;
+
+      givenCtx.outputs = [
+        {
+          destination: givenOutputDestination1,
+          store: givenOutputStorageFunction1,
+        },
+      ];
+    });
+
+    afterEach(() => {
+      global.Promise.allSettled = originalPromiseAllSettled;
+    });
+
+    it("batches <= 1000 correctly", async () => {
+      const givenMessageCount = 1000;
+      givenMessages = Array(givenMessageCount).fill({
+        body: "given message body",
+      });
+
+      await outputMessages(givenMessages, givenCtx);
+
+      const expectedBatchPromiseCount = 1;
+      expect(mockedPromiseAllSettled).toHaveBeenCalledTimes(
+        givenMessageCount + expectedBatchPromiseCount
+      );
+    });
+
+    it("batches > 1000 correctly", async () => {
+      const givenMessageCount = 1001;
+      givenMessages = Array(givenMessageCount).fill({
+        body: "given message body",
+      });
+
+      await outputMessages(givenMessages, givenCtx);
+
+      const expectedBatchPromiseCount = 2;
+      expect(mockedPromiseAllSettled).toHaveBeenCalledTimes(
+        givenMessageCount + expectedBatchPromiseCount
+      );
+    });
+  });
 });
