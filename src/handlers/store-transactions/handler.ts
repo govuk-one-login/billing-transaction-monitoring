@@ -37,8 +37,8 @@ async function storeRecord(record: SQSRecord): Promise<void> {
   }
 
   if (
-    process.env.TRANSACTIONS_FOLDER === undefined ||
-    process.env.TRANSACTIONS_FOLDER.length === 0
+    process.env.LEGACY_TRANSACTIONS_FOLDER === undefined ||
+    process.env.LEGACY_TRANSACTIONS_FOLDER.length === 0
   ) {
     const message = "Transactions folder name not set.";
     logger.error(message);
@@ -69,7 +69,7 @@ async function storeRecord(record: SQSRecord): Promise<void> {
   const legacyKey = `${formattedDate}/${eventId}.json`;
   await putS3(
     process.env.STORAGE_BUCKET,
-    process.env.TRANSACTIONS_FOLDER + "/" + legacyKey,
+    process.env.LEGACY_TRANSACTIONS_FOLDER + "/" + legacyKey,
     bodyObject
   );
 }

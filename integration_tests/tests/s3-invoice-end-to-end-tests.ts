@@ -23,7 +23,7 @@ const prefix = resourcePrefix();
 
 describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view\n", () => {
   const storageBucket = `${prefix}-storage`;
-  const standardisedFolderPrefix = "btm_billing_standardised";
+  const standardisedFolderPrefix = "btm_invoice_data";
   const databaseName = `${prefix}-calculations`;
   let filename: string;
 
@@ -67,7 +67,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       ({ Contents }) =>
         Contents?.filter((s3Object) =>
           s3Object.Key?.includes(
-            "btm_billing_standardised/2023-03-vendor_testvendor3-VENDOR_3_EVENT"
+            `${standardisedFolderPrefix}/2023/03/2023-03-vendor_testvendor3-VENDOR_3_EVENT`
           )
         ).length === 2,
       {
@@ -150,7 +150,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     const checkRawCsvFileExists = await checkIfS3ObjectExists(testObject);
     expect(checkRawCsvFileExists).toBeTruthy();
 
-    // Step 2: Wait for the invoice data to be standardised and saved in the storage bucket/btm_billing_standardised.
+    // Step 2: Wait for the invoice data to be standardised and saved in the storage bucket/btm_invoice_data.
 
     await poll(
       async () =>
@@ -161,7 +161,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       ({ Contents }) =>
         Contents?.filter((s3Object) =>
           s3Object.Key?.includes(
-            "btm_billing_standardised/2023-03-vendor_testvendor1-VENDOR_1_EVENT"
+            `${standardisedFolderPrefix}/2023/03/2023-03-vendor_testvendor1-VENDOR_1_EVENT`
           )
         ).length === 2,
       {

@@ -235,7 +235,7 @@ const getLineItemPrefix = (
 
   return archived
     ? `btm_billing_standardised_archived/${filePrefix}`
-    : `btm_billing_standardised/${filePrefix}`;
+    : `btm_invoice_data/${year}/${monthText}/${filePrefix}`;
 };
 
 const getRandomInteger = (minInteger: number, maxInteger: number): number =>
