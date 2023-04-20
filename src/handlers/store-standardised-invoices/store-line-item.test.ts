@@ -24,7 +24,6 @@ describe("Line item storer", () => {
   let givenArchiveFolder: string;
   let givenBucket: string;
   let givenDestinationFolder: string;
-  let givenLegacyDestinationFolder: string;
   let givenRecord: SQSRecord;
   let givenRecordBodyEventName: string;
   let givenRecordBodyInvoiceReceiptDate: string;
@@ -56,7 +55,6 @@ describe("Line item storer", () => {
     givenArchiveFolder = "given archive folder";
     givenBucket = "given bucket";
     givenDestinationFolder = "given destination folder";
-    givenLegacyDestinationFolder = "given legacy folder";
 
     givenRecordBodyEventName = "given record body event name";
     givenRecordBodyInvoiceReceiptDate =
@@ -78,7 +76,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -96,7 +93,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -114,7 +110,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -136,7 +131,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -158,7 +152,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -180,7 +173,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -202,7 +194,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -224,7 +215,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -246,7 +236,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -269,7 +258,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -293,7 +281,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -321,7 +308,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
 
@@ -339,7 +325,6 @@ describe("Line item storer", () => {
       givenRecord,
       givenBucket,
       givenDestinationFolder,
-      givenLegacyDestinationFolder,
       givenArchiveFolder
     );
     expect(result).toBeUndefined();
