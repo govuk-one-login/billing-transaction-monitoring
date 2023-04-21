@@ -24,7 +24,7 @@ import crypto from "crypto";
 const prefix = resourcePrefix();
 let eventName: string;
 const storageBucket = `${prefix}-storage`;
-const standardisedFolderPrefix = "btm_billing_standardised";
+const standardisedFolderPrefix = "btm_invoice_data";
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 // Below tests can be run both in lower and higher environments

@@ -19,18 +19,19 @@ Resources:
         Parameters:
           has_encrypted_data: true
           projection.enabled: true
-          projection.datetime.type: date
-          projection.datetime.range: 2022-01-01,NOW
-          projection.datetime.format: yyyy-MM-dd
-          projection.datetime.interval: 1
-          projection.datetime.interval.unit: DAYS
+          projection.year.type: integer
+          projection.year.range: 2022,2050
+          projection.month.type: integer
+          projection.month.digits: 2
+          projection.month.range: 1,12
           storage.location.template:
             !Join [
               '',
-              ['s3://', !Ref StorageBucket, '/btm_transactions/${datetime}/'],
+              ['s3://', !Ref StorageBucket, '/btm_event_data/${year}/${month}'],
             ]
         PartitionKeys:
-          - { Name: datetime, Type: date }
+          - { Name: year, Type: string }
+          - { Name: month, Type: string }
         StorageDescriptor:
           Columns:
             - Name: vendor_id
@@ -47,7 +48,7 @@ Resources:
               Type: string
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Join ['', ['s3://', !Ref StorageBucket, '/']]
+          Location: !Sub s3://${StorageBucket}/btm_event_data/
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
@@ -145,19 +146,19 @@ Resources:
                         "$path" path,
                         "COUNT"(event_id)
                           OVER (
-                            PARTITION BY event_name, vendor_id, "DATE_TRUNC"('month', timestamp)
-                            ORDER BY "DATE_TRUNC"('month', timestamp) ASC) month_event_count
+                            PARTITION BY event_name, vendor_id, year, month
+                            ORDER BY year ASC, month ASC) month_event_count
                 FROM   "btm_transactions_standardised"),
             btm_transactions_harmonised
             AS (SELECT txn.vendor_id,
                         txn.event_id,
                         txn.event_name,
                         txn.timestamp,
+                        txn.year,
+                        txn.month,
                         ven.vendor_name,
                         ven.service_name,
-                        rates.unit_price transaction_price,
-                        "Date_format"(timestamp, '%m') month,
-                        "Date_format"(timestamp, '%Y') year
+                        rates.unit_price transaction_price
                 FROM (btm_transactions_standardised_with_count txn
                         LEFT JOIN "btm_vendor_service_standardised" ven 
                                 ON (txn.event_name = ven.event_name)

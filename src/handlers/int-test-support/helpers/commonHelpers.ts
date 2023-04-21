@@ -2,6 +2,8 @@ import { deleteS3Object, listS3Objects } from "./s3Helper";
 import { resourcePrefix } from "./envHelper";
 import { EventPayload } from "./payloadHelper";
 
+const objectsPrefix = "btm_event_data";
+
 export const generateRandomId = (): string => {
   return Math.floor(Math.random() * 10000000).toString();
 };
@@ -10,24 +12,10 @@ export const validTimestamp = (): number => {
   return Math.floor(new Date().getTime() / 1000);
 };
 
-export const thisTimeLastYear = (): number => {
-  return Math.floor((new Date().getTime() - 365 * 24 * 60 * 60 * 1000) / 1000);
-};
-
-export enum TimeStamps {
-  THIS_TIME_LAST_YEAR,
-  CURRENT_TIME,
-}
-
 export enum TableNames {
   BILLING_TRANSACTION_CURATED = "btm_billing_and_transactions_curated",
   TRANSACTION_CURATED = "btm_transactions_curated",
 }
-
-export const eventTimeStamp = {
-  [TimeStamps.THIS_TIME_LAST_YEAR]: thisTimeLastYear(),
-  [TimeStamps.CURRENT_TIME]: validTimestamp(),
-};
 
 export const poll = async <Resolution>(
   promise: () => Promise<Resolution>,
@@ -103,21 +91,14 @@ export const deleteS3Event = async (
   eventTime: string
 ): Promise<boolean> => {
   const bucketName = `${resourcePrefix()}-storage`;
-  const date = new Date(eventTime).toISOString().slice(0, 10);
+  const date = new Date(eventTime);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
   await deleteS3Object({
     bucket: bucketName,
-    key: `btm_transactions/${date}/${eventId}.json`,
+    key: `${objectsPrefix}/${year}/${month}/${day}/${eventId}.json`,
   });
-  return true;
-};
-
-export const deleteS3Events = async (
-  eventIds: string[],
-  eventTime: string
-): Promise<boolean> => {
-  for (const eventId of eventIds) {
-    await deleteS3Event(eventId, eventTime);
-  }
   return true;
 };
 
@@ -135,7 +116,7 @@ export const checkS3BucketForEventId = async (
   const pollS3BucketForEventIdString = async (): Promise<boolean> => {
     const result = await listS3Objects({
       bucketName: `${resourcePrefix()}-storage`,
-      prefix: "btm_transactions",
+      prefix: "btm_event_data",
     });
     if (result.Contents !== undefined) {
       return result.Contents.some((obj) => obj.Key?.includes(eventIdString));
@@ -147,7 +128,7 @@ export const checkS3BucketForEventId = async (
     return await poll(pollS3BucketForEventIdString, (result) => result, {
       timeout: timeoutMs,
       notCompleteErrorMessage:
-        "EventId does not exists in S3 bucket within the timeout",
+        "EventId does not exist in S3 bucket within the timeout",
     });
   } catch (error) {
     return false;
