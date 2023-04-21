@@ -8,7 +8,7 @@ describe("Valid Textract status type guard", () => {
     expect(result).toBe(false);
   });
 
-  test("Valid Textract status type guard with invalid status", () => {
+  test("Valid Textract status type guard with valid status", () => {
     const givenStatus = [...VALID_TEXTRACT_STATUS_MESSAGES][0];
     const result = isValidTextractJobStatus(givenStatus);
     expect(result).toBe(true);
