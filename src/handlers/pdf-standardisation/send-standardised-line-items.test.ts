@@ -1,9 +1,5 @@
 import { SQSRecord } from "aws-lambda";
-import {
-  getS3EventRecordsFromSqs,
-  getStandardisedInvoiceFileName,
-  sendRecord,
-} from "../../shared/utils";
+import { getS3EventRecordsFromSqs, sendRecord } from "../../shared/utils";
 import { fetchS3TextractData } from "./fetch-s3-textract-data";
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 import { sendStandardisedLineItems } from "./send-standardised-line-items";
@@ -17,9 +13,6 @@ const mockedFetchS3TextractData = fetchS3TextractData as jest.Mock;
 
 jest.mock("./get-standardised-invoice");
 const mockedGetStandardisedInvoice = getStandardisedInvoice as jest.Mock;
-
-const mockedGetStandardisedInvoiceFilename =
-  getStandardisedInvoiceFileName as jest.Mock;
 
 describe("Standardised invoice sender", () => {
   let mockedStandardisedInvoice: any[];
@@ -225,9 +218,6 @@ describe("Standardised invoice sender", () => {
     const mockedErrorText = "mocked error";
     const mockedError = new Error(mockedErrorText);
     mockedSendRecord.mockRejectedValue(mockedError);
-    mockedGetStandardisedInvoiceFilename.mockReturnValueOnce(
-      "mocked-s3-event-record-1-s3-object-key-u7eg46.txt"
-    );
 
     await expect(
       sendStandardisedLineItems(
