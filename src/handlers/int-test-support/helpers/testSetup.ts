@@ -29,7 +29,7 @@ export default async function globalSetup(): Promise<void> {
         {
           timeout: 60000,
           interval: 10000,
-          notCompleteErrorMessage: "Deletion not successful",
+          notCompleteErrorMessage: `S3 objects with prefix ${prefix} could not be deleted`,
         }
       );
     }
@@ -50,7 +50,8 @@ export default async function globalSetup(): Promise<void> {
     {
       timeout: 60000,
       interval: 10000,
-      notCompleteErrorMessage: " invoice_data folder not empty",
+      notCompleteErrorMessage:
+        " invoice_data folder could not be deleted because it still contains objects",
     }
   );
 }
