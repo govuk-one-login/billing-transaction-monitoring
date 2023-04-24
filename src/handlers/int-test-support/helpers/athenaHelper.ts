@@ -11,6 +11,7 @@ import { resourcePrefix, runViaLambda } from "./envHelper";
 import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
+import { callWithRetryAndTimeout } from "./call-wrappers";
 
 interface StringObject {
   [key: string]: string;
@@ -21,7 +22,7 @@ interface DatabaseQuery {
   queryString: string;
 }
 
-const startQueryExecutionCommand = async (
+const startQueryExecutionCommandBasic = async (
   query: DatabaseQuery
 ): Promise<string> => {
   if (runViaLambda())
@@ -42,6 +43,10 @@ const startQueryExecutionCommand = async (
   const queryId = response.QueryExecutionId ?? "queryId not found";
   return queryId;
 };
+
+const startQueryExecutionCommand = callWithRetryAndTimeout(
+  startQueryExecutionCommandBasic
+);
 
 const getQueryExecutionStatus = async (
   queryId: string
