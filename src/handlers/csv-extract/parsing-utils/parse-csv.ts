@@ -14,7 +14,7 @@ const isFullRow = (row: string[]): boolean => {
 };
 
 const isTotalRow = (row: string[]): boolean => {
-  return row[0] === "Total";
+  return normaliseFieldName(row[0]) === "total";
 };
 
 const objectifyLineItemRow = (
@@ -38,6 +38,11 @@ const trimTrailingBlankColumns = (row: string[]): string[] => {
   return trimmedRow;
 };
 
+const normaliseHeaderRow = (row: string[]): string[] =>
+  row.map(normaliseFieldName);
+
+const normaliseFieldName = (cell: string): string => cell.toLowerCase().trim();
+
 const applyStructure = (
   cells: string[][]
 ): {
@@ -48,9 +53,10 @@ const applyStructure = (
   return cells.reduce(
     (acc, row) => {
       if (isKvpRow(row)) {
+        const key = normaliseFieldName(row[0]);
         return {
           ...acc,
-          kvps: { ...acc.kvps, [row[0]]: row[1] },
+          kvps: { ...acc.kvps, [key]: row[1] },
         };
       }
       if (isTotalRow(row)) {
@@ -59,7 +65,7 @@ const applyStructure = (
       const trimmedRow = trimTrailingBlankColumns(row);
       if (isFullRow(trimmedRow)) {
         if (!tableHeader) {
-          tableHeader = trimmedRow;
+          tableHeader = normaliseHeaderRow(trimmedRow);
           return acc;
         }
         if (trimmedRow.length !== tableHeader.length) {

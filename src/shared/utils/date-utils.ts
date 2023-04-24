@@ -1,9 +1,26 @@
 const DELIMITER_DEFAULT = "-";
 
-export function formatDate(date: Date, delimiter = DELIMITER_DEFAULT): string {
+const checkDate = (date: Date): void => {
   if (date.toString() === "Invalid Date") {
     throw new Error(`Unsupported date format`);
   }
+};
+
+export const getDate = (string: string): Date => {
+  const dayMonthYearMatch = string.match(/(\d\d)\/(\d\d)\/(\d\d\d\d)/);
+
+  const date = new Date(
+    dayMonthYearMatch
+      ? `${dayMonthYearMatch[3]}-${dayMonthYearMatch[2]}-${dayMonthYearMatch[1]}`
+      : string
+  );
+
+  checkDate(date);
+  return date;
+};
+
+export function formatDate(date: Date, delimiter = DELIMITER_DEFAULT): string {
+  checkDate(date);
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
