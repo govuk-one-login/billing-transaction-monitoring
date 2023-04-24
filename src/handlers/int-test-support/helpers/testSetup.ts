@@ -15,13 +15,12 @@ export default async function globalSetup(): Promise<void> {
   const currentMonth = new Date().getMonth() + 1;
   const prefixesToDelete: string[] = [];
   for (let year = 2022; year <= currentYear; year++) {
-    const startMonth = year === 2022 ? 1 : 12;
+    const startMonth = year === 2022 ? 1 : 0;
     const endMonth = year === currentYear ? currentMonth : 12;
-    for (let month = startMonth; month <= endMonth; month++) {
+    for (let month = startMonth + 1; month <= endMonth; month++) {
       const prefix = `btm_event_data/${year}/${month
         .toString()
         .padStart(2, "0")}/`;
-      console.log(prefix);
       prefixesToDelete.push(prefix);
     }
   }
@@ -47,7 +46,6 @@ export default async function globalSetup(): Promise<void> {
         prefix: `btm_event_data/`,
       });
       const objectKeys = s3Objects.Contents?.map((obj) => obj.Key) ?? [];
-      console.log(objectKeys);
       return prefixesToDelete.every((prefix) => !objectKeys.includes(prefix));
     },
     (isComplete) => isComplete,
