@@ -136,12 +136,13 @@ const deleteS3Objects = async (
   );
 };
 
+/* Deletes s3 objects by prefixes in batches */
 export const batchDeleteS3ObjectsByPrefixesInBatchBasic = async (
   bucketName: string,
   prefixesToDelete: string[],
   batchSize: number
 ): Promise<DeleteObjectsCommandOutput> => {
-  const result: DeleteObjectsCommandOutput = {
+  let result: DeleteObjectsCommandOutput = {
     Deleted: [],
     Errors: [],
     $metadata: {},
@@ -160,15 +161,11 @@ export const batchDeleteS3ObjectsByPrefixesInBatchBasic = async (
       );
       if (listResult.Contents) {
         const keysToDelete = listResult.Contents.map(({ Key }) => ({ Key }));
-        const batchResult = await batchDeleteS3ObjectsByKeysInBatch(
+        result = await batchDeleteS3ObjectsByKeysInBatch(
           bucketName,
           keysToDelete,
           batchSize
         );
-        result.Deleted = (result.Deleted ?? []).concat(
-          batchResult.Deleted ?? []
-        );
-        result.Errors = (result.Errors ?? []).concat(batchResult.Errors ?? []);
       }
       continuationToken = listResult.NextContinuationToken;
     } while (continuationToken);
@@ -180,12 +177,13 @@ export const deleteS3ObjectsByPrefixesInBatch = callWithRetryAndTimeout(
   batchDeleteS3ObjectsByPrefixesInBatchBasic
 );
 
+/* Deletes s3 objects by keys in batches */
 export const batchDeleteS3ObjectsByKeysInBatchBasic = async (
   bucketName: string,
   keysToDelete: ObjectIdentifier[],
   batchSize: number
 ): Promise<DeleteObjectsCommandOutput> => {
-  const result: DeleteObjectsCommandOutput = {
+  let result: DeleteObjectsCommandOutput = {
     Deleted: [],
     Errors: [],
     $metadata: {},
@@ -199,11 +197,7 @@ export const batchDeleteS3ObjectsByKeysInBatchBasic = async (
         Quiet: false,
       },
     };
-    const batchResult = await s3Client.send(
-      new DeleteObjectsCommand(batchParams)
-    );
-    result.Deleted = (result.Deleted ?? []).concat(batchResult.Deleted ?? []);
-    result.Errors = (result.Errors ?? []).concat(batchResult.Errors ?? []);
+    result = await s3Client.send(new DeleteObjectsCommand(batchParams));
   }
   return result;
 };

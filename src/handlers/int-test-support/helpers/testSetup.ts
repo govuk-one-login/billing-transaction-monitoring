@@ -13,7 +13,7 @@ export default async function globalSetup(): Promise<void> {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = new Date().getMonth() + 1;
-  const prefixesToDelete = [];
+  const prefixesToDelete: string[] = [];
   for (let year = 2022; year <= currentYear; year++) {
     const startMonth = year === 2022 ? 1 : 1;
     const endMonth = year === currentYear ? currentMonth : 12;
@@ -25,8 +25,8 @@ export default async function globalSetup(): Promise<void> {
       prefixesToDelete.push(prefix);
     }
   }
-  for (let i = 0; i < prefixesToDelete.length; i++) {
-    const prefixToDelete = prefixesToDelete[i];
+
+  for (const prefixToDelete of prefixesToDelete) {
     const result = await deleteS3ObjectsByPrefixesInBatch(
       storageBucket,
       prefixesToDelete,
@@ -34,20 +34,38 @@ export default async function globalSetup(): Promise<void> {
     );
 
     if (result.Errors && result.Errors.length > 0) {
-      console.error(
-        `Error deleting objects with prefix ${prefixToDelete}:`,
-        result.Errors
-      );
+      console.error("Error deleting objects:", result.Errors);
     } else {
       console.log(`Successfully deleted objects with prefix ${prefixToDelete}`);
     }
   }
 
+  await poll(
+    async () => {
+      const s3Objects = await listS3Objects({
+        bucketName: storageBucket,
+        prefix: `btm_event_data/`,
+      });
+      const objectKeys = s3Objects.Contents?.map((obj) => obj.Key) ?? [];
+      console.log(objectKeys);
+      return prefixesToDelete.every((prefix) => !objectKeys.includes(prefix));
+    },
+    (isComplete) => isComplete,
+    {
+      timeout: 60000,
+      interval: 10000,
+      notCompleteErrorMessage:
+        "prefix could not be deleted because it still contains objects",
+    }
+  );
+
+  // Delete objects with prefix "btm_invoice_data"
   await deleteS3Objects({
     bucketName: storageBucket,
     prefix: "btm_invoice_data",
   });
 
+  // poll to ensure that the objects with prefix "btm_invoice_data" have been deleted
   await poll(
     async () =>
       await listS3Objects({
@@ -59,7 +77,7 @@ export default async function globalSetup(): Promise<void> {
       timeout: 60000,
       interval: 10000,
       notCompleteErrorMessage:
-        " invoice_data folder could not be deleted because it still contains objects",
+        "invoice_data folder could not be deleted because it still contains objects",
     }
   );
 }
