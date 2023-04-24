@@ -1,0 +1,18 @@
+{
+  "name": "di-billing-transaction-monitoring-frontend",
+  "description": "Identity verification billing dashboard",
+  "scripts": {
+    "start": "nodemon index.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "govuk-frontend": "^4.5.0",
+    "nunjucks": "^3.2.3",
+    "sass": "^1.60.0"
+  },
+  "devDependencies": {
+    "@types/nunjucks": "^3.2.2",
+    "nodemon": "^2.0.22"
+  }
+}
