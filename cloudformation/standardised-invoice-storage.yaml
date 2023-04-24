@@ -76,7 +76,7 @@ Resources:
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-          ARCHIVE_FOLDER: btm_billing_standardised_archived
+          ARCHIVE_FOLDER: btm_invoice_data_archived
           DESTINATION_BUCKET: !Ref StorageBucket
           DESTINATION_FOLDER: btm_invoice_data
           LOCAL_ENDPOINT:
