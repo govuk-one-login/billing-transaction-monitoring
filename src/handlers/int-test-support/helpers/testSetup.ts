@@ -15,7 +15,7 @@ export default async function globalSetup(): Promise<void> {
   const currentMonth = new Date().getMonth() + 1;
   const prefixesToDelete: string[] = [];
   for (let year = 2022; year <= currentYear; year++) {
-    const startMonth = year === 2022 ? 1 : 1;
+    const startMonth = year === 2022 ? 1 : 12;
     const endMonth = year === currentYear ? currentMonth : 12;
     for (let month = startMonth; month <= endMonth; month++) {
       const prefix = `btm_event_data/${year}/${month
