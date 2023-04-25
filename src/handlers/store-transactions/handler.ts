@@ -37,15 +37,6 @@ async function storeRecord(record: SQSRecord): Promise<void> {
   }
 
   if (
-    process.env.LEGACY_TRANSACTIONS_FOLDER === undefined ||
-    process.env.LEGACY_TRANSACTIONS_FOLDER.length === 0
-  ) {
-    const message = "Transactions folder name not set.";
-    logger.error(message);
-    throw new Error(message);
-  }
-
-  if (
     process.env.EVENT_DATA_FOLDER === undefined ||
     process.env.EVENT_DATA_FOLDER.length === 0
   ) {
@@ -61,15 +52,6 @@ async function storeRecord(record: SQSRecord): Promise<void> {
   await putS3(
     process.env.STORAGE_BUCKET,
     process.env.EVENT_DATA_FOLDER + "/" + key,
-    bodyObject
-  );
-
-  // TODO The legacy storage location.  This will go away with BTM-486.
-  const formattedDate = formatDate(date);
-  const legacyKey = `${formattedDate}/${eventId}.json`;
-  await putS3(
-    process.env.STORAGE_BUCKET,
-    process.env.LEGACY_TRANSACTIONS_FOLDER + "/" + legacyKey,
     bodyObject
   );
 }

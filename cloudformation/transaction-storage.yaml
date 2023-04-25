@@ -59,7 +59,6 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_BUCKET: !Ref StorageBucket
-          LEGACY_TRANSACTIONS_FOLDER: 'btm_transactions'
           EVENT_DATA_FOLDER: 'btm_event_data'
           LOCAL_ENDPOINT:
             !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
