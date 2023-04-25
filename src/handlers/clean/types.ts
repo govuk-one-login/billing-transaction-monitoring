@@ -1,3 +1,5 @@
+import { ConfigElements } from "../../handler-context";
+
 export interface CleanedEventBody {
   vendor_id: string;
   component_id: string;
@@ -9,6 +11,8 @@ export interface CleanedEventBody {
     transaction_id?: string;
   };
 }
+
+export type ConfigCache = ConfigElements.services;
 
 export enum Env {
   OUTPUT_QUEUE_URL = "OUTPUT_QUEUE_URL",

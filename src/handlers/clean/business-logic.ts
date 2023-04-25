@@ -1,11 +1,11 @@
-import { BusinessLogic } from "../../handler-context";
-import { fetchVendorId } from "../../shared/utils/config-utils/fetch-vendor-id";
-import { CleanedEventBody, Env, IncomingEventBody } from "./types";
+import { BusinessLogic, ConfigElements } from "../../handler-context";
+import { getVendorId } from "../../shared/utils";
+import { CleanedEventBody, ConfigCache, Env, IncomingEventBody } from "./types";
 
 export const businessLogic: BusinessLogic<
   IncomingEventBody,
   Env,
-  never,
+  ConfigCache,
   CleanedEventBody
 > = async (
   {
@@ -17,9 +17,10 @@ export const businessLogic: BusinessLogic<
     user,
     vendor_id,
   },
-  { logger }
+  { config, logger }
 ) => {
-  const vendorId = vendor_id ?? (await fetchVendorId(event_name));
+  const vendorId =
+    vendor_id ?? getVendorId(event_name, config[ConfigElements.services]);
 
   const cleanedBody: CleanedEventBody = {
     component_id,

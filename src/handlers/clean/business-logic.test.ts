@@ -1,26 +1,31 @@
-import { HandlerCtx } from "../../handler-context";
-import { fetchVendorId } from "../../shared/utils/config-utils/fetch-vendor-id";
+import { ConfigElements, HandlerCtx } from "../../handler-context";
+import { getVendorId } from "../../shared/utils";
 import { businessLogic } from "./business-logic";
 import { IncomingEventBody } from "./types";
 
-jest.mock("../../shared/utils/config-utils/fetch-vendor-id");
-const mockedFetchVendorId = fetchVendorId as jest.Mock;
+jest.mock("../../shared/utils");
+const mockedGetVendorId = getVendorId as jest.Mock;
 
 describe("Clean businessLogic", () => {
   let mockedVendorId: string;
   let givenCtx: HandlerCtx<any, any>;
   let givenInfoLogger: jest.Mock;
+  let givenServicesConfig: any;
   let validIncomingEventBody: IncomingEventBody;
 
   beforeEach(() => {
     jest.resetAllMocks();
 
     mockedVendorId = "mocked vendor ID";
-    mockedFetchVendorId.mockResolvedValue(mockedVendorId);
+    mockedGetVendorId.mockReturnValue(mockedVendorId);
 
     givenInfoLogger = jest.fn();
+    givenServicesConfig = "given services config";
 
     givenCtx = {
+      config: {
+        [ConfigElements.services]: givenServicesConfig,
+      },
       logger: {
         info: givenInfoLogger,
       },
@@ -51,9 +56,10 @@ describe("Clean businessLogic", () => {
         },
       },
     ]);
-    expect(mockedFetchVendorId).toHaveBeenCalledTimes(1);
-    expect(mockedFetchVendorId).toHaveBeenCalledWith(
-      validIncomingEventBody.event_name
+    expect(mockedGetVendorId).toHaveBeenCalledTimes(1);
+    expect(mockedGetVendorId).toHaveBeenCalledWith(
+      validIncomingEventBody.event_name,
+      givenServicesConfig
     );
     expect(givenInfoLogger).toHaveBeenCalledTimes(1);
     expect(givenInfoLogger).toHaveBeenCalledWith(
@@ -80,7 +86,7 @@ describe("Clean businessLogic", () => {
         },
       },
     ]);
-    expect(mockedFetchVendorId).not.toHaveBeenCalled();
+    expect(mockedGetVendorId).not.toHaveBeenCalled();
     expect(givenInfoLogger).toHaveBeenCalledTimes(1);
     expect(givenInfoLogger).toHaveBeenCalledWith(
       `Cleaned event ${validIncomingEventBody.event_id}`

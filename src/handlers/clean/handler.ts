@@ -1,4 +1,4 @@
-import { buildHandler } from "../../handler-context";
+import { ConfigElements, buildHandler } from "../../handler-context";
 import { sendRecord } from "../../shared/utils";
 import { businessLogic } from "./business-logic";
 import { isValidIncomingEventBody } from "./is-valid-incoming-event-body";
@@ -10,5 +10,5 @@ export const handler = buildHandler({
   incomingMessageBodyTypeGuard: isValidIncomingEventBody,
   outputs: [{ destination: Env.OUTPUT_QUEUE_URL, store: sendRecord }],
   withBatchItemFailures: true,
-  ConfigCache: [],
+  ConfigCache: [ConfigElements.services],
 });
