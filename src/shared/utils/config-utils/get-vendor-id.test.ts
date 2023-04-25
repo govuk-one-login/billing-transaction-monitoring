@@ -28,7 +28,7 @@ describe("getVendorId", () => {
     expect(result).toEqual("vendor_testvendor1");
   });
 
-  it("throws an error if the event name is not found in the config bucket", () => {
+  it("throws an error if the event name is not found in the given config", () => {
     expect(() =>
       getVendorId("SOME_EVENT", givenVendorServiceConfig)
     ).toThrowError("Event name: SOME_EVENT not found in vendorServiceConfig");
