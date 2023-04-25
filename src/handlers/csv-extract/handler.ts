@@ -89,19 +89,19 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
 const isValidCsvObject = (x: any): x is CsvObject =>
   typeof x === "object" &&
-  typeof x.Vendor === "string" &&
-  typeof x["Invoice Date"] === "string" &&
-  typeof x["Due Date"] === "string" &&
-  typeof x["VAT Number"] === "string" &&
-  typeof x["PO Number"] === "string" &&
-  typeof x.Version === "string" &&
+  typeof x.vendor === "string" &&
+  typeof x["invoice date"] === "string" &&
+  typeof x["due date"] === "string" &&
+  typeof x["vat number"] === "string" &&
+  typeof x["po number"] === "string" &&
+  typeof x.version === "string" &&
   Array.isArray(x.lineItems) &&
   x.lineItems.every((lineItem: any) => isValidLineItem(lineItem));
 
 const isValidLineItem = (x: any): x is LineItem =>
   typeof x === "object" &&
-  typeof x["Service Name"] === "string" &&
-  typeof x["Unit Price"] === "string" &&
-  typeof x.Quantity === "string" &&
-  typeof x.Tax === "string" &&
-  typeof x.Subtotal === "string";
+  typeof x["service name"] === "string" &&
+  typeof x["unit price"] === "string" &&
+  typeof x.quantity === "string" &&
+  typeof x.tax === "string" &&
+  typeof x.subtotal === "string";

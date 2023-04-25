@@ -1,22 +1,26 @@
 import { StandardisedLineItem } from "../../shared/types";
-import { formatDate, VendorServiceConfigRows } from "../../shared/utils";
+import {
+  formatDate,
+  getDate,
+  VendorServiceConfigRows,
+} from "../../shared/utils";
 
 export interface LineItem {
-  "Service Name": string;
-  "Unit Price": string;
-  Quantity: string;
-  Tax: string;
-  Subtotal: string;
-  Total: string;
+  "service name": string;
+  "unit price": string;
+  quantity: string;
+  tax: string;
+  subtotal: string;
+  total: string;
 }
 
 export interface CsvObject {
-  Vendor: string;
-  "Invoice Date": string;
-  "Due Date": string;
-  "VAT Number": string;
-  "PO Number": string;
-  Version: string;
+  vendor: string;
+  "invoice date": string;
+  "due date": string;
+  "vat number": string;
+  "po number": string;
+  version: string;
   lineItems: LineItem[];
 }
 
@@ -27,18 +31,18 @@ export const getCsvStandardisedInvoice = (
   sourceFileName: string
 ): StandardisedLineItem[] => {
   const summary = {
-    invoice_receipt_id: csvObject["PO Number"],
+    invoice_receipt_id: csvObject["po number"],
     vendor_id: vendorId,
-    vendor_name: csvObject.Vendor,
-    invoice_receipt_date: formatDate(new Date(csvObject["Invoice Date"])),
-    due_date: formatDate(new Date(csvObject["Due Date"])),
-    tax_payer_id: csvObject["VAT Number"],
-    parser_version: csvObject.Version,
+    vendor_name: csvObject.vendor,
+    invoice_receipt_date: formatDate(getDate(csvObject["invoice date"])),
+    due_date: formatDate(getDate(csvObject["due date"])),
+    tax_payer_id: csvObject["vat number"],
+    parser_version: csvObject.version,
     originalInvoiceFile: sourceFileName,
   };
 
   return csvObject.lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
-    const itemDescription = item["Service Name"];
+    const itemDescription = item["service name"];
     let nextAcc = [...acc];
 
     for (const {
@@ -57,13 +61,13 @@ export const getCsvStandardisedInvoice = (
           ...summary,
           event_name: eventName,
           item_description: itemDescription,
-          subtotal: formatNumber(item.Subtotal),
-          price: formatNumber(item.Subtotal),
-          quantity: formatNumber(item.Quantity),
+          subtotal: formatNumber(item.subtotal),
+          price: formatNumber(item.subtotal),
+          quantity: formatNumber(item.quantity),
           service_name: serviceName,
-          unit_price: formatNumber(item["Unit Price"]),
-          tax: formatNumber(item.Tax),
-          total: formatNumber(item.Total),
+          unit_price: formatNumber(item["unit price"]),
+          tax: formatNumber(item.tax),
+          total: formatNumber(item.total),
         },
       ];
     }

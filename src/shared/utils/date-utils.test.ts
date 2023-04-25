@@ -2,8 +2,34 @@ import {
   formatDate,
   formatDateAsYearMonth,
   formatYearMonthDay,
+  getDate,
   padZero,
 } from "./date-utils";
+
+test("Date is got from yyyy/mm/dd", () => {
+  const string = "2022/01/30";
+
+  const date = getDate(string);
+
+  expect(date.getFullYear()).toBe(2022);
+  expect(date.getMonth()).toBe(0);
+  expect(date.getDate()).toBe(30);
+});
+
+test("Date is got from dd/mm/yyyy", () => {
+  const string = "30/01/2022";
+
+  const date = getDate(string);
+
+  expect(date.getFullYear()).toBe(2022);
+  expect(date.getMonth()).toBe(0);
+  expect(date.getDate()).toBe(30);
+});
+
+test("Throws error if not given a valid date", () => {
+  const string = "abc";
+  expect(() => getDate(string)).toThrowError("Unsupported date format");
+});
 
 test("Date is formatted to yyyy-mm-dd with a month that is single digits", async () => {
   const date: Date = new Date("2022-01-16");
