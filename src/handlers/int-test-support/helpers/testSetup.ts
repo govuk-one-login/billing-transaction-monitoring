@@ -13,11 +13,15 @@ export default async function globalSetup(): Promise<void> {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = new Date().getMonth() + 1;
+
+  // create an array of prefixes to delete
   const prefixesToDelete: string[] = [];
+
+  // Loop through all months from Feb 2022 to current month
   for (let year = 2022; year <= currentYear; year++) {
-    const startMonth = year === 2022 ? 1 : 0;
+    const startMonth = year === 2022 ? 2 : 1;
     const endMonth = year === currentYear ? currentMonth : 12;
-    for (let month = startMonth + 1; month <= endMonth; month++) {
+    for (let month = startMonth; month <= endMonth; month++) {
       const prefix = `btm_event_data/${year}/${month
         .toString()
         .padStart(2, "0")}/`;
@@ -25,6 +29,7 @@ export default async function globalSetup(): Promise<void> {
     }
   }
 
+  // Loop through all prefixes to delete and delete all s3 objects with those prefixes
   for (const prefixToDelete of prefixesToDelete) {
     const result = await deleteS3ObjectsByPrefixesInBatch(
       storageBucket,
@@ -35,10 +40,11 @@ export default async function globalSetup(): Promise<void> {
     if (result.Errors && result.Errors.length > 0) {
       console.error("Error deleting objects:", result.Errors);
     } else {
-      console.log(`Successfully deleted objects with prefix ${prefixToDelete}`);
+      console.log(`Deleted objects with prefix ${prefixToDelete}`);
     }
   }
 
+  // poll until all objects with the prefixes are deleted
   await poll(
     async () => {
       const s3Objects = await listS3Objects({
