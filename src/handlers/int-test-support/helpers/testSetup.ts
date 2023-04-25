@@ -31,14 +31,12 @@ export default async function globalSetup(): Promise<void> {
 
   // Loop through all prefixes to delete and delete all s3 objects with those prefixes
   for (const prefixToDelete of prefixesToDelete) {
-    const result = await deleteS3ObjectsByPrefixesInBatch(
-      storageBucket,
+    const result = await deleteS3ObjectsByPrefixesInBatch({
+      bucketName: storageBucket,
       prefixesToDelete,
-      1000
-    );
-
+    });
     if (result.Errors?.length) {
-      console.error("Error deleting objects:", result.Errors);
+      throw new Error(`Error deleting objects: ${result.Errors}`);
     } else {
       console.log(`Deleted objects with prefix ${prefixToDelete}`);
     }

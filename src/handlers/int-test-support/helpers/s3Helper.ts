@@ -36,6 +36,16 @@ interface DataAndTarget {
   target: S3Object;
 }
 
+interface BatchDeleteS3ObjectByKeysParams {
+  bucketName: string;
+  keysToDelete: ObjectIdentifier[];
+}
+
+interface BatchDeleteS3ObjectByPrefixesParams {
+  bucketName: string;
+  prefixesToDelete: string[];
+}
+
 const listS3ObjectsBasic = async (
   params: BucketAndPrefix
 ): Promise<ListObjectsCommandOutput> => {
@@ -138,21 +148,26 @@ const deleteS3Objects = async (
 
 /* Deletes s3 objects by prefixes in batches */
 export const batchDeleteS3ObjectsByPrefixesInBatchBasic = async (
-  bucketName: string,
-  prefixesToDelete: string[],
-  batchSize: number
+  params: BatchDeleteS3ObjectByPrefixesParams
 ): Promise<DeleteObjectsCommandOutput> => {
+  if (runViaLambda())
+    return (await sendLambdaCommand(
+      IntTestHelpers.deleteS3ObjectsByPrefixesInBatch,
+      params
+    )) as unknown as DeleteObjectsCommandOutput;
+
   let result: DeleteObjectsCommandOutput = {
     Deleted: [],
     Errors: [],
     $metadata: {},
   };
-  for (const prefixToDelete of prefixesToDelete) {
+
+  for (const prefixToDelete of params.prefixesToDelete) {
     let continuationToken: string | undefined;
 
     do {
       const listParams = {
-        Bucket: bucketName,
+        Bucket: params.bucketName,
         Prefix: prefixToDelete,
         ContinuationToken: continuationToken,
       };
@@ -161,11 +176,10 @@ export const batchDeleteS3ObjectsByPrefixesInBatchBasic = async (
       );
       if (listResult.Contents) {
         const keysToDelete = listResult.Contents.map(({ Key }) => ({ Key }));
-        result = await batchDeleteS3ObjectsByKeysInBatch(
-          bucketName,
+        result = await batchDeleteS3ObjectsByKeysInBatch({
+          bucketName: params.bucketName,
           keysToDelete,
-          batchSize
-        );
+        });
       }
       continuationToken = listResult.NextContinuationToken;
     } while (continuationToken);
@@ -179,19 +193,24 @@ export const deleteS3ObjectsByPrefixesInBatch = callWithRetryAndTimeout(
 
 /* Deletes s3 objects by keys in batches */
 export const batchDeleteS3ObjectsByKeysInBatchBasic = async (
-  bucketName: string,
-  keysToDelete: ObjectIdentifier[],
-  batchSize: number
+  params: BatchDeleteS3ObjectByKeysParams
 ): Promise<DeleteObjectsCommandOutput> => {
+  if (runViaLambda())
+    return (await sendLambdaCommand(
+      IntTestHelpers.batchDeleteS3ObjectsByKeysInBatch,
+      params
+    )) as unknown as DeleteObjectsCommandOutput;
+
   let result: DeleteObjectsCommandOutput = {
     Deleted: [],
     Errors: [],
     $metadata: {},
   };
-  for (let i = 0; i < keysToDelete.length; i += batchSize) {
-    const batchKeys = keysToDelete.slice(i, i + batchSize);
+  const batchSize = 1000;
+  for (let i = 0; i < params.keysToDelete.length; i += batchSize) {
+    const batchKeys = params.keysToDelete.slice(i, i + batchSize);
     const batchParams = {
-      Bucket: bucketName,
+      Bucket: params.bucketName,
       Delete: {
         Objects: batchKeys,
         Quiet: false,
