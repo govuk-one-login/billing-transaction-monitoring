@@ -156,12 +156,7 @@ export const batchDeleteS3ObjectsByPrefixesInBatchBasic = async (
       params
     )) as unknown as DeleteObjectsCommandOutput;
 
-  let result: DeleteObjectsCommandOutput = {
-    Deleted: [],
-    Errors: [],
-    $metadata: {},
-  };
-
+  let result: DeleteObjectsCommandOutput | undefined;
   for (const prefixToDelete of params.prefixesToDelete) {
     let continuationToken: string | undefined;
 
@@ -184,6 +179,9 @@ export const batchDeleteS3ObjectsByPrefixesInBatchBasic = async (
       continuationToken = listResult.NextContinuationToken;
     } while (continuationToken);
   }
+  if (result === undefined) {
+    throw new Error("Failed to delete objects");
+  }
   return result;
 };
 
@@ -200,12 +198,7 @@ export const batchDeleteS3ObjectsByKeysInBatchBasic = async (
       IntTestHelpers.batchDeleteS3ObjectsByKeysInBatch,
       params
     )) as unknown as DeleteObjectsCommandOutput;
-
-  let result: DeleteObjectsCommandOutput = {
-    Deleted: [],
-    Errors: [],
-    $metadata: {},
-  };
+  let result: DeleteObjectsCommandOutput | undefined;
   const batchSize = 1000;
   for (let i = 0; i < params.keysToDelete.length; i += batchSize) {
     const batchKeys = params.keysToDelete.slice(i, i + batchSize);
@@ -217,6 +210,9 @@ export const batchDeleteS3ObjectsByKeysInBatchBasic = async (
       },
     };
     result = await s3Client.send(new DeleteObjectsCommand(batchParams));
+  }
+  if (result === undefined) {
+    throw new Error("Failed to delete objects");
   }
   return result;
 };
