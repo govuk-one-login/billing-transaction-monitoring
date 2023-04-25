@@ -37,7 +37,7 @@ export default async function globalSetup(): Promise<void> {
       1000
     );
 
-    if (result.Errors && result.Errors.length > 0) {
+    if (result.Errors?.length) {
       console.error("Error deleting objects:", result.Errors);
     } else {
       console.log(`Deleted objects with prefix ${prefixToDelete}`);
@@ -51,8 +51,8 @@ export default async function globalSetup(): Promise<void> {
         bucketName: storageBucket,
         prefix: `btm_event_data/`,
       });
-      const objectKeys = s3Objects.Contents?.map((obj) => obj.Key) ?? [];
-      return prefixesToDelete.every((prefix) => !objectKeys.includes(prefix));
+      const objectKeys = s3Objects.Contents?.map((obj) => obj.Key);
+      return prefixesToDelete.every((prefix) => !objectKeys?.includes(prefix));
     },
     (isComplete) => isComplete,
     {
