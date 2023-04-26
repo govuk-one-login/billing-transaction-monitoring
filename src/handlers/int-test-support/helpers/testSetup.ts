@@ -12,7 +12,7 @@ export default async function globalSetup(): Promise<void> {
     prefix: "btm_event_data/2005",
   });
 
-  // poll to ensure that the objects with prefix "btm_invoice_data" have been deleted
+  // poll to ensure that the objects with prefix "btm_event_data/2005" have been deleted
   await poll(
     async () =>
       await listS3Objects({
