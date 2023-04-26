@@ -1,6 +1,7 @@
 import { BusinessLogic, ConfigElements } from "../../handler-context";
 import { getVendorId } from "../../shared/utils";
-import { CleanedEventBody, ConfigCache, Env, IncomingEventBody } from "./types";
+import { CleanedEventBody } from "../store-transactions/types";
+import { ConfigCache, Env, IncomingEventBody } from "./types";
 
 export const businessLogic: BusinessLogic<
   IncomingEventBody,

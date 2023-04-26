@@ -1,3 +1,5 @@
+import { ConfigElements } from "../../handler-context";
+
 export interface CleanedEventBody {
   vendor_id: string;
   component_id: string;
@@ -14,3 +16,5 @@ export enum Env {
   STORAGE_BUCKET = "STORAGE_BUCKET",
   EVENT_DATA_FOLDER = "EVENT_DATA_FOLDER",
 }
+
+export type ConfigCache = ConfigElements.services; // ToDo Needed?

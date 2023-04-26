@@ -32,7 +32,7 @@ export type BusinessLogic<
 > = (
   incomingMessageBody: TIncomingMessageBody,
   ctx: HandlerCtx<TEnvVars, TConfigElements>
-) => Promise<TOutgoingMessageBody[]>;
+) => Promise<TOutgoingMessageBody[]> | TOutgoingMessageBody[];
 
 export interface HandlerCtx<
   TEnvVars extends string,
