@@ -1,0 +1,10 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  Type: AWS::Route53::HostedZone
+  Properties: 
+    Name: !If [
+      IsLowerEnv,
+      !Sub 'btm.${Environment}.account.gov.uk',
+      btm.account.gov.uk
+    ]
