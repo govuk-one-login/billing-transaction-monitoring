@@ -1,6 +1,5 @@
 import { SQSRecord } from "aws-lambda";
 import {
-  getStandardisedInvoiceFileName,
   getStandardisedInvoiceKey,
   LineItemFieldsForNaming,
   listS3Keys,
@@ -12,7 +11,6 @@ export async function storeLineItem(
   record: SQSRecord,
   bucket: string,
   destinationFolder: string,
-  legacyDestinationFolder: string,
   archiveFolder: string
 ): Promise<void> {
   let bodyObject;
@@ -34,13 +32,6 @@ export async function storeLineItem(
   const staleItemKeys = await listS3Keys(bucket, itemKeyPrefix);
 
   await putTextS3(bucket, itemKey, record.body);
-
-  // TODO The legacy storage location.  This will go away with BTM-486.
-  await putTextS3(
-    bucket,
-    `${legacyDestinationFolder}/${getStandardisedInvoiceFileName(bodyObject)}`,
-    record.body
-  );
 
   const archivePromises = staleItemKeys.map(
     async (key) => await moveToFolderS3(bucket, key, archiveFolder)

@@ -8,15 +8,15 @@ describe("Parse CSV tests", () => {
       "Service Name,Unit Price,Quantity,Tax,Subtotal,Total,\n" +
       "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32,\n";
     const expected = {
-      Vendor: "Skippy’s Everything Shop",
+      vendor: "Skippy’s Everything Shop",
       lineItems: [
         {
-          "Service Name": "Horse Hoof Whittling",
-          "Unit Price": "12.45",
-          Quantity: "28",
-          Tax: "69.72",
-          Subtotal: "348.6",
-          Total: "418.32",
+          "service name": "Horse Hoof Whittling",
+          "unit price": "12.45",
+          quantity: "28",
+          tax: "69.72",
+          subtotal: "348.6",
+          total: "418.32",
         },
       ],
     };
@@ -70,15 +70,39 @@ describe("Parse CSV tests", () => {
       "Service Name,Unit Price,Quantity,Tax,Subtotal,Total,\r\n" +
       "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32,\r\n";
     const expected = {
-      Vendor: "Skippy’s Everything Shop",
+      vendor: "Skippy’s Everything Shop",
       lineItems: [
         {
-          "Service Name": "Horse Hoof Whittling",
-          "Unit Price": "12.45",
-          Quantity: "28",
-          Tax: "69.72",
-          Subtotal: "348.6",
-          Total: "418.32",
+          "service name": "Horse Hoof Whittling",
+          "unit price": "12.45",
+          quantity: "28",
+          tax: "69.72",
+          subtotal: "348.6",
+          total: "418.32",
+        },
+      ],
+    };
+    const result = parseCsv(fileData);
+
+    expect(result).toEqual(expected);
+  });
+
+  test("should parse correctly with abnormal capitalisation and white space", async () => {
+    const fileData =
+      " VENDOR ,Skippy’s Everything Shop,,,,,\r\n" +
+      ",,,,,,\r\n" +
+      "  Service name,unit Price  ,Quantity,Tax,Subtotal,Total,\r\n" +
+      "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32,\r\n";
+    const expected = {
+      vendor: "Skippy’s Everything Shop",
+      lineItems: [
+        {
+          "service name": "Horse Hoof Whittling",
+          "unit price": "12.45",
+          quantity: "28",
+          tax: "69.72",
+          subtotal: "348.6",
+          total: "418.32",
         },
       ],
     };

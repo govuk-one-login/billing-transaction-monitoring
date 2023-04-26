@@ -194,7 +194,7 @@ const deleteInvoice = async (pdf: S3Object): Promise<void> => {
 
 const deleteLineItem = async ({ bucket, key }: S3Object): Promise<void> => {
   const [_, fileName] = key.split("/");
-  const keys = [key, `btm_billing_standardised_archived/${fileName}`];
+  const keys = [key, `btm_invoice_data_archived/${fileName}`];
   await deleteExisting(bucket, keys);
 };
 
@@ -234,7 +234,7 @@ const getLineItemPrefix = (
   const filePrefix = `${year}-${monthText}-${vendorId}-${eventName}-`;
 
   return archived
-    ? `btm_billing_standardised_archived/${filePrefix}`
+    ? `btm_invoice_data_archived/${filePrefix}`
     : `btm_invoice_data/${year}/${monthText}/${filePrefix}`;
 };
 

@@ -4,12 +4,6 @@ export const createEvent = (records: SQSRecord[]): SQSEvent => ({
   Records: records,
 });
 
-export const createRecord = (body: string, messageId?: string): SQSRecord =>
-  ({
-    body,
-    messageId,
-  } as any);
-
 export const createEventRecordWithName = (
   name: string,
   messageId: number
