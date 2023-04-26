@@ -8,8 +8,8 @@ export const generateRandomId = (): string => {
   return Math.floor(Math.random() * 10000000).toString();
 };
 
-export const validTimestamp = (): number => {
-  return Math.floor(new Date().getTime() / 1000);
+export const validTimestamp = (date: string): number => {
+  return Math.floor(new Date(date).getTime() / 1000);
 };
 
 export enum TableNames {

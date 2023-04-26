@@ -7,8 +7,6 @@ import {
   getS3Objects,
   checkIfS3ObjectExists,
   putS3Object,
-  batchDeleteS3ObjectsByKeysInBatch,
-  deleteS3ObjectsByPrefixesInBatch,
 } from "./helpers/s3Helper";
 import {
   getRecentCloudwatchLogs,
@@ -41,8 +39,6 @@ export enum IntTestHelpers {
   putS3Object = "putS3Object",
   deleteS3Object = "deleteS3Object",
   deleteS3Objects = "deleteS3Objects",
-  batchDeleteS3ObjectsByKeysInBatch = "batchDeleteS3ObjectsByKeysInBatch",
-  deleteS3ObjectsByPrefixesInBatch = "deleteS3ObjectsByPrefixesInBatch",
   checkIfS3ObjectExists = "checkIfS3ObjectExists",
   checkGivenStringExistsInLogs = "checkGivenStringExistsInLogs",
   getRecentCloudwatchLogs = "getRecentCloudwatchLogs",
@@ -59,8 +55,6 @@ export interface HelperDict {
   [IntTestHelpers.listS3Objects]: typeof listS3Objects;
   [IntTestHelpers.putS3Object]: typeof putS3Object;
   [IntTestHelpers.deleteS3Object]: typeof deleteS3Object;
-  [IntTestHelpers.batchDeleteS3ObjectsByKeysInBatch]: typeof batchDeleteS3ObjectsByKeysInBatch;
-  [IntTestHelpers.deleteS3ObjectsByPrefixesInBatch]: typeof deleteS3ObjectsByPrefixesInBatch;
   [IntTestHelpers.deleteS3Objects]: typeof deleteS3Objects;
   [IntTestHelpers.checkIfS3ObjectExists]: typeof checkIfS3ObjectExists;
   [IntTestHelpers.checkGivenStringExistsInLogs]: typeof checkGivenStringExistsInLogs;
@@ -79,10 +73,6 @@ const functionMap: HelperDict = {
   [IntTestHelpers.putS3Object]: putS3Object,
   [IntTestHelpers.deleteS3Object]: deleteS3Object,
   [IntTestHelpers.deleteS3Objects]: deleteS3Objects,
-  [IntTestHelpers.batchDeleteS3ObjectsByKeysInBatch]:
-    batchDeleteS3ObjectsByKeysInBatch,
-  [IntTestHelpers.deleteS3ObjectsByPrefixesInBatch]:
-    deleteS3ObjectsByPrefixesInBatch,
   [IntTestHelpers.checkIfS3ObjectExists]: checkIfS3ObjectExists,
   [IntTestHelpers.checkGivenStringExistsInLogs]: checkGivenStringExistsInLogs,
   [IntTestHelpers.getRecentCloudwatchLogs]: getRecentCloudwatchLogs,
