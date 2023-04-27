@@ -128,7 +128,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(originalFileExistsInSuccessfulFolder).toBeTruthy();
     await deleteS3Object({
       bucket: s3Object.bucket,
-      key: `successful/${s3Object.key}`,
+      keysToDelete: [{ Key: `successful/${s3Object.key}` }],
     });
   });
 

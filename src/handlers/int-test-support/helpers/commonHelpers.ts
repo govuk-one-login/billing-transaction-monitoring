@@ -97,7 +97,9 @@ export const deleteS3Event = async (
   const day = date.getDate().toString().padStart(2, "0");
   await deleteS3Object({
     bucket: bucketName,
-    key: `${objectsPrefix}/${year}/${month}/${day}/${eventId}.json`,
+    keysToDelete: [
+      { Key: `${objectsPrefix}/${year}/${month}/${day}/${eventId}.json` },
+    ],
   });
   return true;
 };

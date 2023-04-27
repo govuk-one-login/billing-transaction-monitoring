@@ -57,7 +57,7 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice bucket test\n"
     expect(originalFileExistsInFailedFolder).toBeTruthy();
     await deleteS3Object({
       bucket: rawInvoice.bucket,
-      key: "failed/" + rawInvoice.key,
+      keysToDelete: [{ Key: "failed/" + rawInvoice.key }],
     });
   });
 });

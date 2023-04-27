@@ -176,7 +176,8 @@ const deleteExisting = async (
   const keys = keyArrays.flat();
 
   const deletionPromises = keys.map(
-    async (key) => await deleteS3Object({ bucket, key })
+    async (key) =>
+      await deleteS3Object({ bucket, keysToDelete: [{ Key: key }] })
   );
 
   await Promise.all(deletionPromises);

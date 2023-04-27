@@ -9,7 +9,7 @@ export default async function globalSetup(): Promise<void> {
   // Delete objects with prefix "btm_event_data/2005"
   await deleteS3Objects({
     bucketName: storageBucket,
-    prefix: "btm_event_data/2005",
+    prefixesToDelete: ["btm_event_data/2005"],
   });
 
   // poll to ensure that the objects with prefix "btm_event_data/2005" have been deleted
@@ -31,7 +31,7 @@ export default async function globalSetup(): Promise<void> {
   // Delete objects with prefix "btm_invoice_data"
   await deleteS3Objects({
     bucketName: storageBucket,
-    prefix: "btm_invoice_data",
+    prefixesToDelete: ["btm_invoice_data"],
   });
 
   // poll to ensure that the objects with prefix "btm_invoice_data" have been deleted
