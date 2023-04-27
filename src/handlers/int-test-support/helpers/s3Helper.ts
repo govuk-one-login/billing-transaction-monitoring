@@ -145,6 +145,9 @@ const deleteS3ObjectsBasic = async (
       if (deleteResult.Deleted) {
         result.Deleted?.push(...deleteResult.Deleted);
       }
+      if (deleteResult.Errors) {
+        result.Errors?.push(...deleteResult.Errors);
+      }
     }
   }
   return result;
@@ -181,6 +184,9 @@ const deleteS3ObjectBasic = async (
     );
     if (deleteResult.Deleted) {
       result.Deleted?.push(...deleteResult.Deleted);
+    }
+    if (deleteResult.Errors) {
+      result.Errors?.push(...deleteResult.Errors);
     }
   }
   return result;
