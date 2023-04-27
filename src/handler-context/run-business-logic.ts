@@ -27,7 +27,7 @@ export const runBusinessLogic = async <
     TOutputMessageBody
   >,
   incomingMessages: Array<HandlerIncomingMessage<TInputMessageBody>>,
-  ctx: HandlerCtx<TEnvVars, TConfigElements>,
+  ctx: HandlerCtx<TEnvVars, TConfigElements, TOutputMessageBody>,
   failuresAllowed?: boolean
 ): ReturnType<TOutputMessageBody> => {
   const failedIds: Array<string | undefined> = [];
