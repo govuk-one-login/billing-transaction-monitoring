@@ -33,12 +33,12 @@ interface DataAndTarget {
   target: S3Object;
 }
 
-interface deleteS3ObjectByKeysParams {
+interface deleteS3ObjectByKeys {
   bucket: string;
   keysToDelete: ObjectIdentifier[];
 }
 
-interface deleteS3ObjectByPrefixesParams {
+interface deleteS3ObjectByPrefixes {
   bucketName: string;
   prefixesToDelete: string[];
 }
@@ -119,7 +119,7 @@ const putS3ObjectBasic = async (
 const putS3Object = callWithRetryAndTimeout(putS3ObjectBasic);
 
 const deleteS3ObjectsBasic = async (
-  params: deleteS3ObjectByPrefixesParams
+  params: deleteS3ObjectByPrefixes
 ): Promise<DeleteObjectsCommandOutput> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
@@ -151,7 +151,7 @@ const deleteS3Objects = callWithRetryAndTimeout(deleteS3ObjectsBasic);
 
 /* Deletes s3 objects by keys in batches */
 const deleteS3ObjectBasic = async (
-  params: deleteS3ObjectByKeysParams
+  params: deleteS3ObjectByKeys
 ): Promise<DeleteObjectsCommandOutput> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
