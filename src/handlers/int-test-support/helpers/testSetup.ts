@@ -11,7 +11,6 @@ export default async function globalSetup(): Promise<void> {
     bucketName: storageBucket,
     prefixesToDelete: ["btm_event_data/2005"],
   });
-
   // poll to ensure that the objects with prefix "btm_event_data/2005" have been deleted
   await poll(
     async () =>
@@ -19,12 +18,12 @@ export default async function globalSetup(): Promise<void> {
         bucketName: storageBucket,
         prefix: "btm_event_data/2005",
       }),
-    (s3Objects) => s3Objects.Contents === undefined,
+    (s3Objects) => s3Objects.Contents?.length === 0,
     {
       timeout: 60000,
       interval: 10000,
       notCompleteErrorMessage:
-        "event_data/2005 folder could not be deleted because it still contains objects",
+        "btm_event_data/2005 folder could not be deleted because it still contains objects",
     }
   );
 
@@ -41,7 +40,7 @@ export default async function globalSetup(): Promise<void> {
         bucketName: storageBucket,
         prefix: "btm_invoice_data",
       }),
-    (s3Objects) => s3Objects.Contents === undefined,
+    (s3Objects) => s3Objects.Contents?.length === 0,
     {
       timeout: 60000,
       interval: 10000,
