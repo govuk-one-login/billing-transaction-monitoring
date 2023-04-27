@@ -155,9 +155,9 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  price_difference_percentage\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  price_difference_percentage\nFROM \"btm_monthly_extract\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
-          "table": "btm_billing_and_transactions_curated"
+          "table": "btm_monthly_extract"
         }
       ],
       "transformations": [
@@ -279,9 +279,9 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Invoiced Amount\",\n  transaction_price_formatted AS \"Expected Amount\",\n  price_difference_percentage AS \"% Discrepancy\",\n  price_difference AS \"Discrepancy in £\",\n  billing_amount_with_tax AS \"Total Invoice + VAT\"\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Invoiced Amount\",\n  transaction_price_formatted AS \"Expected Amount\",\n  price_difference AS \"Discrepancy in £\",\n  price_difference_percentage AS \"% Discrepancy\",\n  billing_amount_with_tax AS \"Total Invoice + VAT\"\nFROM \"btm_monthly_extract\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
-          "table": "btm_billing_and_transactions_curated"
+          "table": "btm_monthly_extract"
         }
       ],
       "type": "table"
@@ -318,8 +318,8 @@
             "region": "__default"
           },
           "format": 1,
-          "rawSQL": "SELECT vendor_name FROM \"btm_billing_and_transactions_curated\" ORDER BY vendor_name ASC ",
-          "table": "btm_billing_and_transactions_curated"
+          "rawSQL": "SELECT vendor_name FROM \"btm_monthly_extract\" ORDER BY vendor_name ASC ",
+          "table": "btm_monthly_extract"
         },
         "refresh": 1,
         "regex": "",
@@ -351,8 +351,8 @@
             "region": "__default"
           },
           "format": 1,
-          "rawSQL": "SELECT DISTINCT CONCAT(year, '/', month) as yearMonth FROM \"btm_billing_and_transactions_curated\" ORDER BY yearMonth ASC",
-          "table": "btm_billing_and_transactions_curated"
+          "rawSQL": "SELECT DISTINCT CONCAT(year, '/', month) as yearMonth FROM \"btm_monthly_extract\" ORDER BY yearMonth ASC",
+          "table": "btm_monthly_extract"
         },
         "refresh": 1,
         "regex": "",
