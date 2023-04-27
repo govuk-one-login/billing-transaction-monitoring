@@ -1,11 +1,16 @@
+import { HandlerCtx } from "../../handler-context";
 import { formatDate, putTextS3 } from "../../shared/utils";
-import { CleanedEventBody } from "./types";
+import { CleanedEventBody, ConfigCache, Env } from "./types";
 
 export const store = async (
   bucket: string,
-  message: CleanedEventBody
+  message: CleanedEventBody,
+  { env }: HandlerCtx<Env, ConfigCache, CleanedEventBody>
 ): Promise<void> => {
   const { event_id, timestamp } = message;
-  const key = `${formatDate(new Date(timestamp), "/")}/${event_id}.json`;
+  const key = `${env.EVENT_DATA_FOLDER}/${formatDate(
+    new Date(timestamp),
+    "/"
+  )}/${event_id}.json`;
   await putTextS3(bucket, key, JSON.stringify(message));
 };

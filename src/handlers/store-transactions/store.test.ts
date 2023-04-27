@@ -1,3 +1,4 @@
+import { HandlerCtx } from "../../handler-context";
 import { putTextS3 } from "../../shared/utils";
 import { store } from "./store";
 import { CleanedEventBody } from "./types";
@@ -16,10 +17,15 @@ describe("store", () => {
       b: 2,
       c: 3,
     } as unknown as CleanedEventBody;
-    await store(bucket, message);
+    const ctx = {
+      env: {
+        EVENT_DATA_FOLDER: "event_data_folder",
+      },
+    } as unknown as HandlerCtx<any, any, any>;
+    await store(bucket, message, ctx);
     expect(putTextS3).toHaveBeenCalledWith(
       bucket,
-      "2023/04/27/event_001.json",
+      "event_data_folder/2023/04/27/event_001.json",
       '{"timestamp":1682603719956,"event_id":"event_001","a":1,"b":2,"c":3}'
     );
   });

@@ -8,14 +8,9 @@ const sqs = new SQSClient({
 
 export const stringifyAndSendRecord = async <TMessage>(
   queueUrl: string,
-  message: TMessage,
-  options: {
-    shouldLog?: boolean;
-  } = {
-    shouldLog: true,
-  }
+  message: TMessage
 ): Promise<void> => {
-  return await sendRecord(queueUrl, JSON.stringify(message), options);
+  return await sendRecord(queueUrl, JSON.stringify(message));
 };
 
 export async function sendRecord(

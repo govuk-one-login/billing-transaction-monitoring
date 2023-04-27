@@ -53,13 +53,13 @@ const outputMessage = async <
   TMessageBody extends HandlerMessageBody
 >(
   body: TMessageBody,
-  { logger, outputs }: HandlerCtx<TEnvVars, TConfigElements, TMessageBody>
+  ctx: HandlerCtx<TEnvVars, TConfigElements, TMessageBody>
 ): Promise<void> => {
-  const promises = outputs.map(async ({ destination, store }) => {
+  const promises = ctx.outputs.map(async ({ destination, store }) => {
     try {
-      await store(destination, body);
+      await store(destination, body, ctx);
     } catch (error) {
-      logger.error(ERROR_MESSAGE_STORAGE, { destination, error });
+      ctx.logger.error(ERROR_MESSAGE_STORAGE, { destination, error });
       throw error;
     }
   });

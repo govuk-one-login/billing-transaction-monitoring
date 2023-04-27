@@ -15,15 +15,26 @@ export interface HandlerOutgoingMessage<TBody extends HandlerMessageBody> {
 }
 
 export type UserDefinedOutputFunction<
+  TEnvVars extends string,
+  TConfigElements extends ConfigElements,
   TOutgoingMessageBody extends HandlerMessageBody
-> = (destination: string, message: TOutgoingMessageBody) => Promise<void>;
+> = (
+  destination: string,
+  message: TOutgoingMessageBody,
+  ctx: HandlerCtx<TEnvVars, TConfigElements, TOutgoingMessageBody>
+) => Promise<void>;
 
 export type UserDefinedOutputs<
   TEnvVars extends string,
+  TConfigElements extends ConfigElements,
   TOutgoingMessageBody extends HandlerMessageBody
 > = Array<{
   destination: TEnvVars;
-  store: UserDefinedOutputFunction<TOutgoingMessageBody>;
+  store: UserDefinedOutputFunction<
+    TEnvVars,
+    TConfigElements,
+    TOutgoingMessageBody
+  >;
 }>;
 
 export type BusinessLogic<
@@ -43,7 +54,7 @@ export interface HandlerCtx<
 > {
   env: Record<TEnvVars, string>;
   logger: Logger;
-  outputs: HandlerOutputs<TOutgoingMessageBody>;
+  outputs: HandlerOutputs<TEnvVars, TConfigElements, TOutgoingMessageBody>;
   config: PickedConfigCache<TConfigElements>;
 }
 
@@ -63,7 +74,7 @@ export interface HandlerOptions<
   incomingMessageBodyTypeGuard: (
     maybeIncomingMessageBody: unknown
   ) => maybeIncomingMessageBody is TIncomingMessageBody;
-  outputs: UserDefinedOutputs<TEnvVars, TOutgoingMessageBody>;
+  outputs: UserDefinedOutputs<TEnvVars, TConfigElements, TOutgoingMessageBody>;
   withBatchItemFailures?: boolean;
   ConfigCache: TConfigElements[];
 }
