@@ -6,6 +6,18 @@ const sqs = new SQSClient({
   endpoint: process.env.LOCAL_ENDPOINT,
 });
 
+export const stringifyAndSendRecord = async <TMessage>(
+  queueUrl: string,
+  message: TMessage,
+  options: {
+    shouldLog?: boolean;
+  } = {
+    shouldLog: true,
+  }
+): Promise<void> => {
+  return await sendRecord(queueUrl, JSON.stringify(message), options);
+};
+
 export async function sendRecord(
   queueUrl: string,
   messageBody: string,

@@ -23,7 +23,7 @@ jest.mock("./run-business-logic");
 const mockedRunBusinessLogic = runBusinessLogic as jest.Mock;
 
 describe("buildHandler", () => {
-  let mockedContext: HandlerCtx<any, any>;
+  let mockedContext: HandlerCtx<any, any, any>;
   let mockedIncomingMessages: any[];
   let mockedOutgoingMessages: any[];
   let testBusinessLogic: BusinessLogic<any, any, any, any>;
@@ -32,7 +32,7 @@ describe("buildHandler", () => {
   let testEvent: any;
   let testIncomingMessageBodyTypeGuard: (x: unknown) => x is any;
   let testOptions: HandlerOptions<any, any, any, any>;
-  let testOutputs: HandlerOutputs;
+  let testOutputs: HandlerOutputs<any>;
   let testWithBatchItemFailures: boolean | undefined;
 
   beforeEach(() => {

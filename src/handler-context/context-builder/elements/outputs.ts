@@ -1,16 +1,23 @@
-import { UserDefinedOutputs } from "../../types";
+import { HandlerMessageBody, UserDefinedOutputs } from "../../types";
 
-type OutputFunction = (destination: string, message: string) => Promise<void>;
+type OutputFunction<TOutgoingMessageBody extends HandlerMessageBody> = (
+  destination: string,
+  message: TOutgoingMessageBody
+) => Promise<void>;
 
-export type HandlerOutputs = Array<{
-  destination: string;
-  store: OutputFunction;
-}>;
+export type HandlerOutputs<TOutgoingMessageBody extends HandlerMessageBody> =
+  Array<{
+    destination: string;
+    store: OutputFunction<TOutgoingMessageBody>;
+  }>;
 
-export const makeCtxOutputs = <TEnvVars extends string>(
-  outputs: UserDefinedOutputs<TEnvVars>,
+export const makeCtxOutputs = <
+  TEnvVars extends string,
+  TOutgoingMessageBody extends HandlerMessageBody
+>(
+  outputs: UserDefinedOutputs<TEnvVars, TOutgoingMessageBody>,
   env: Record<TEnvVars, string>
-): HandlerOutputs => {
+): HandlerOutputs<TOutgoingMessageBody> => {
   return outputs.map(({ destination, store }) => ({
     destination: env[destination],
     store,

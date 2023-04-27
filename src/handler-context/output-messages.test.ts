@@ -6,7 +6,7 @@ import {
 } from "./types";
 
 describe("outputMessages", () => {
-  let givenCtx: HandlerCtx<any, any>;
+  let givenCtx: HandlerCtx<any, any, any>;
   let givenErrorLogger: jest.Mock;
   let givenFailuresAllowed: boolean | undefined;
   let givenMessages: Array<HandlerOutgoingMessage<HandlerMessageBody>>;
@@ -181,7 +181,7 @@ describe("outputMessages", () => {
       givenMessages = [givenMessage1A, givenMessage1B, givenMessage2];
     });
 
-    it("calls given output storage functions with given output destinations and stringified message body", async () => {
+    it("calls given output storage functions with given output destinations and message body", async () => {
       const result = await outputMessages(
         givenMessages,
         givenCtx,
@@ -192,28 +192,28 @@ describe("outputMessages", () => {
       expect(givenOutputStorageFunction1).toHaveBeenCalledTimes(3);
       expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
         givenOutputDestination1,
-        JSON.stringify(givenMessageBody1A)
+        givenMessageBody1A
       );
       expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
         givenOutputDestination1,
-        JSON.stringify(givenMessageBody1B)
+        givenMessageBody1B
       );
       expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
         givenOutputDestination1,
-        JSON.stringify(givenMessageBody2)
+        givenMessageBody2
       );
       expect(givenOutputStorageFunction2).toHaveBeenCalledTimes(3);
       expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
         givenOutputDestination2,
-        JSON.stringify(givenMessageBody1A)
+        givenMessageBody1A
       );
       expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
         givenOutputDestination2,
-        JSON.stringify(givenMessageBody1B)
+        givenMessageBody1B
       );
       expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
         givenOutputDestination2,
-        JSON.stringify(givenMessageBody2)
+        givenMessageBody2
       );
       expect(givenErrorLogger).not.toHaveBeenCalled();
     });
@@ -239,28 +239,28 @@ describe("outputMessages", () => {
         expect(givenOutputStorageFunction1).toHaveBeenCalledTimes(3);
         expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
           givenOutputDestination1,
-          JSON.stringify(givenMessageBody1A)
+          givenMessageBody1A
         );
         expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
           givenOutputDestination1,
-          JSON.stringify(givenMessageBody1B)
+          givenMessageBody1B
         );
         expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
           givenOutputDestination1,
-          JSON.stringify(givenMessageBody2)
+          givenMessageBody2
         );
         expect(givenOutputStorageFunction2).toHaveBeenCalledTimes(3);
         expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
           givenOutputDestination2,
-          JSON.stringify(givenMessageBody1A)
+          givenMessageBody1A
         );
         expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
           givenOutputDestination2,
-          JSON.stringify(givenMessageBody1B)
+          givenMessageBody1B
         );
         expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
           givenOutputDestination2,
-          JSON.stringify(givenMessageBody2)
+          givenMessageBody2
         );
         expect(givenErrorLogger).toHaveBeenCalledTimes(6);
         expect(givenErrorLogger).toHaveBeenCalledWith(
@@ -309,28 +309,28 @@ describe("outputMessages", () => {
             expect(givenOutputStorageFunction1).toHaveBeenCalledTimes(3);
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              JSON.stringify(givenMessageBody1A)
+              givenMessageBody1A
             );
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              JSON.stringify(givenMessageBody1B)
+              givenMessageBody1B
             );
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              JSON.stringify(givenMessageBody2)
+              givenMessageBody2
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledTimes(3);
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              JSON.stringify(givenMessageBody1A)
+              givenMessageBody1A
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              JSON.stringify(givenMessageBody1B)
+              givenMessageBody1B
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              JSON.stringify(givenMessageBody2)
+              givenMessageBody2
             );
             expect(givenErrorLogger).toHaveBeenCalledTimes(6);
             expect(givenErrorLogger).toHaveBeenCalledWith(
@@ -371,28 +371,28 @@ describe("outputMessages", () => {
             expect(givenOutputStorageFunction1).toHaveBeenCalledTimes(3);
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              JSON.stringify(givenMessageBody1A)
+              givenMessageBody1A
             );
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              JSON.stringify(givenMessageBody1B)
+              givenMessageBody1B
             );
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              JSON.stringify(givenMessageBody2)
+              givenMessageBody2
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledTimes(3);
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              JSON.stringify(givenMessageBody1A)
+              givenMessageBody1A
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              JSON.stringify(givenMessageBody1B)
+              givenMessageBody1B
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              JSON.stringify(givenMessageBody2)
+              givenMessageBody2
             );
             expect(givenErrorLogger).toHaveBeenCalledTimes(6);
             expect(givenErrorLogger).toHaveBeenCalledWith(

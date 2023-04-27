@@ -3,7 +3,7 @@ import { businessLogic } from "./business-logic";
 import { Operations, Constructables } from "./convert/transform-dicts";
 
 describe("transaction-csv-to-json-events businessLogic", () => {
-  let givenCtx: HandlerCtx<any, any>;
+  let givenCtx: HandlerCtx<any, any, any>;
   let givenWarningLogger: jest.Mock;
 
   beforeEach(() => {

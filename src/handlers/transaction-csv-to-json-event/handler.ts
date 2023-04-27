@@ -1,5 +1,5 @@
 import { buildHandler, ConfigElements } from "../../handler-context";
-import { sendRecord } from "../../shared/utils";
+import { stringifyAndSendRecord } from "../../shared/utils";
 import { businessLogic } from "./business-logic";
 import { Env } from "./types";
 
@@ -10,7 +10,9 @@ export const handler = buildHandler({
     maybeIncomingMessageBody: unknown
   ): maybeIncomingMessageBody is string =>
     typeof maybeIncomingMessageBody === "string",
-  outputs: [{ destination: Env.OUTPUT_QUEUE_URL, store: sendRecord }],
+  outputs: [
+    { destination: Env.OUTPUT_QUEUE_URL, store: stringifyAndSendRecord },
+  ],
   ConfigCache: [
     ConfigElements.renamingMap,
     ConfigElements.inferences,
