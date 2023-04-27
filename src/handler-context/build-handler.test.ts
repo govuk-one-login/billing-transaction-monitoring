@@ -32,7 +32,7 @@ describe("buildHandler", () => {
   let testEvent: any;
   let testIncomingMessageBodyTypeGuard: (x: unknown) => x is any;
   let testOptions: HandlerOptions<any, any, any, any>;
-  let testOutputs: HandlerOutputs<any>;
+  let testOutputs: HandlerOutputs<any, any, any>;
   let testWithBatchItemFailures: boolean | undefined;
 
   beforeEach(() => {

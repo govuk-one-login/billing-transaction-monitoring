@@ -47,104 +47,6 @@ describe("outputMessages", () => {
     expectedErrorMessageStorage = "Storage failure";
   });
 
-  describe("message body strings", () => {
-    let givenMessageBody1: string;
-    let givenMessageBody2: string;
-
-    beforeEach(() => {
-      givenMessageBody1 = "given message body 1";
-      givenMessageBody2 = "given message body 2";
-
-      givenMessages = [
-        { body: givenMessageBody1 },
-        { body: givenMessageBody2 },
-      ];
-    });
-
-    it("calls given output storage functions with given output destinations and message body", async () => {
-      const result = await outputMessages(
-        givenMessages,
-        givenCtx,
-        givenFailuresAllowed
-      );
-
-      expect(result).toEqual({ failedIds: [] });
-      expect(givenOutputStorageFunction1).toHaveBeenCalledTimes(2);
-      expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
-        givenOutputDestination1,
-        givenMessageBody1
-      );
-      expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
-        givenOutputDestination1,
-        givenMessageBody2
-      );
-      expect(givenOutputStorageFunction2).toHaveBeenCalledTimes(2);
-      expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
-        givenOutputDestination2,
-        givenMessageBody1
-      );
-      expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
-        givenOutputDestination2,
-        givenMessageBody2
-      );
-      expect(givenErrorLogger).not.toHaveBeenCalled();
-    });
-
-    describe("storage error", () => {
-      let mockedError: Error;
-
-      beforeEach(() => {
-        mockedError = new Error("mocked error");
-        givenOutputStorageFunction1.mockRejectedValue(mockedError);
-      });
-
-      it("throws error", async () => {
-        const resultPromise = outputMessages(
-          givenMessages,
-          givenCtx,
-          givenFailuresAllowed
-        );
-
-        await expect(resultPromise).rejects.toThrow(
-          expectedErrorMessageDefault
-        );
-        expect(givenOutputStorageFunction1).toHaveBeenCalledTimes(2);
-        expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
-          givenOutputDestination1,
-          givenMessageBody1
-        );
-        expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
-          givenOutputDestination1,
-          givenMessageBody2
-        );
-        expect(givenOutputStorageFunction2).toHaveBeenCalledTimes(2);
-        expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
-          givenOutputDestination2,
-          givenMessageBody1
-        );
-        expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
-          givenOutputDestination2,
-          givenMessageBody2
-        );
-        expect(givenErrorLogger).toHaveBeenCalledTimes(4);
-        expect(givenErrorLogger).toHaveBeenCalledWith(
-          expectedErrorMessageStorage,
-          {
-            destination: givenOutputDestination1,
-            error: mockedError,
-          }
-        );
-        expect(givenErrorLogger).toHaveBeenCalledWith(
-          expectedErrorMessageDefault,
-          {
-            error: expect.any(Error),
-            incomingMessageId: undefined,
-          }
-        );
-      });
-    });
-  });
-
   describe("message body objects", () => {
     let givenMessage1A: HandlerOutgoingMessage<object>;
     let givenMessage1B: HandlerOutgoingMessage<object>;
@@ -192,28 +94,34 @@ describe("outputMessages", () => {
       expect(givenOutputStorageFunction1).toHaveBeenCalledTimes(3);
       expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
         givenOutputDestination1,
-        givenMessageBody1A
+        givenMessageBody1A,
+        givenCtx
       );
       expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
         givenOutputDestination1,
-        givenMessageBody1B
+        givenMessageBody1B,
+        givenCtx
       );
       expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
         givenOutputDestination1,
-        givenMessageBody2
+        givenMessageBody2,
+        givenCtx
       );
       expect(givenOutputStorageFunction2).toHaveBeenCalledTimes(3);
       expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
         givenOutputDestination2,
-        givenMessageBody1A
+        givenMessageBody1A,
+        givenCtx
       );
       expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
         givenOutputDestination2,
-        givenMessageBody1B
+        givenMessageBody1B,
+        givenCtx
       );
       expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
         givenOutputDestination2,
-        givenMessageBody2
+        givenMessageBody2,
+        givenCtx
       );
       expect(givenErrorLogger).not.toHaveBeenCalled();
     });
@@ -239,28 +147,34 @@ describe("outputMessages", () => {
         expect(givenOutputStorageFunction1).toHaveBeenCalledTimes(3);
         expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
           givenOutputDestination1,
-          givenMessageBody1A
+          givenMessageBody1A,
+          givenCtx
         );
         expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
           givenOutputDestination1,
-          givenMessageBody1B
+          givenMessageBody1B,
+          givenCtx
         );
         expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
           givenOutputDestination1,
-          givenMessageBody2
+          givenMessageBody2,
+          givenCtx
         );
         expect(givenOutputStorageFunction2).toHaveBeenCalledTimes(3);
         expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
           givenOutputDestination2,
-          givenMessageBody1A
+          givenMessageBody1A,
+          givenCtx
         );
         expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
           givenOutputDestination2,
-          givenMessageBody1B
+          givenMessageBody1B,
+          givenCtx
         );
         expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
           givenOutputDestination2,
-          givenMessageBody2
+          givenMessageBody2,
+          givenCtx
         );
         expect(givenErrorLogger).toHaveBeenCalledTimes(6);
         expect(givenErrorLogger).toHaveBeenCalledWith(
@@ -309,28 +223,34 @@ describe("outputMessages", () => {
             expect(givenOutputStorageFunction1).toHaveBeenCalledTimes(3);
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              givenMessageBody1A
+              givenMessageBody1A,
+              givenCtx
             );
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              givenMessageBody1B
+              givenMessageBody1B,
+              givenCtx
             );
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              givenMessageBody2
+              givenMessageBody2,
+              givenCtx
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledTimes(3);
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              givenMessageBody1A
+              givenMessageBody1A,
+              givenCtx
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              givenMessageBody1B
+              givenMessageBody1B,
+              givenCtx
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              givenMessageBody2
+              givenMessageBody2,
+              givenCtx
             );
             expect(givenErrorLogger).toHaveBeenCalledTimes(6);
             expect(givenErrorLogger).toHaveBeenCalledWith(
@@ -371,28 +291,34 @@ describe("outputMessages", () => {
             expect(givenOutputStorageFunction1).toHaveBeenCalledTimes(3);
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              givenMessageBody1A
+              givenMessageBody1A,
+              givenCtx
             );
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              givenMessageBody1B
+              givenMessageBody1B,
+              givenCtx
             );
             expect(givenOutputStorageFunction1).toHaveBeenCalledWith(
               givenOutputDestination1,
-              givenMessageBody2
+              givenMessageBody2,
+              givenCtx
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledTimes(3);
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              givenMessageBody1A
+              givenMessageBody1A,
+              givenCtx
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              givenMessageBody1B
+              givenMessageBody1B,
+              givenCtx
             );
             expect(givenOutputStorageFunction2).toHaveBeenCalledWith(
               givenOutputDestination2,
-              givenMessageBody2
+              givenMessageBody2,
+              givenCtx
             );
             expect(givenErrorLogger).toHaveBeenCalledTimes(6);
             expect(givenErrorLogger).toHaveBeenCalledWith(
