@@ -126,7 +126,7 @@ const deleteS3ObjectsBasic = async (
       IntTestHelpers.deleteS3Objects,
       params
     )) as unknown as DeleteObjectsCommandOutput;
-  let result: DeleteObjectsCommandOutput = {
+  const result: DeleteObjectsCommandOutput = {
     Deleted: [],
     Errors: [],
     $metadata: {},
@@ -138,10 +138,13 @@ const deleteS3ObjectsBasic = async (
     });
     if (listResult.Contents && listResult.Contents.length > 0) {
       const keysToDelete = listResult.Contents.map(({ Key }) => ({ Key }));
-      result = await deleteS3Object({
+      const deleteResult = await deleteS3Object({
         bucket: params.bucketName,
         keysToDelete,
       });
+      if (deleteResult.Deleted) {
+        result.Deleted?.push(...deleteResult.Deleted);
+      }
     }
   }
   return result;
@@ -158,7 +161,7 @@ const deleteS3ObjectBasic = async (
       IntTestHelpers.deleteS3Object,
       params
     )) as unknown as DeleteObjectsCommandOutput;
-  let result: DeleteObjectsCommandOutput = {
+  const result: DeleteObjectsCommandOutput = {
     Deleted: [],
     Errors: [],
     $metadata: {},
@@ -173,7 +176,12 @@ const deleteS3ObjectBasic = async (
         Quiet: false,
       },
     };
-    result = await s3Client.send(new DeleteObjectsCommand(batchParams));
+    const deleteResult = await s3Client.send(
+      new DeleteObjectsCommand(batchParams)
+    );
+    if (deleteResult.Deleted) {
+      result.Deleted?.push(...deleteResult.Deleted);
+    }
   }
   return result;
 };
