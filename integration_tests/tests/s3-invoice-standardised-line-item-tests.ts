@@ -10,7 +10,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import {
-  deleteS3Object,
+  deleteS3Objects,
   listS3Objects,
   S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
@@ -176,8 +176,7 @@ const deleteExisting = async (
   const keys = keyArrays.flat();
 
   const deletionPromises = keys.map(
-    async (key) =>
-      await deleteS3Object({ bucket, keysToDelete: [{ Key: key }] })
+    async (key) => await deleteS3Objects({ bucket, keys: [key] })
   );
 
   await Promise.all(deletionPromises);

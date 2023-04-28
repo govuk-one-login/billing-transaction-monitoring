@@ -3,7 +3,7 @@ import fs from "fs";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkIfS3ObjectExists,
-  deleteS3Object,
+  deleteS3Objects,
   listS3Objects,
   putS3Object,
   S3Object,
@@ -55,9 +55,9 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice bucket test\n"
       pollOptions
     );
     expect(originalFileExistsInFailedFolder).toBeTruthy();
-    await deleteS3Object({
+    await deleteS3Objects({
       bucket: rawInvoice.bucket,
-      keysToDelete: [{ Key: "failed/" + rawInvoice.key }],
+      keys: ["failed/" + rawInvoice.key],
     });
   });
 });

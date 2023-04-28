@@ -8,7 +8,6 @@ import {
   HeadObjectCommandOutput,
   ListObjectsV2Command,
   ListObjectsV2CommandOutput,
-  ObjectIdentifier,
   PutObjectCommand,
   PutObjectCommandOutput,
 } from "@aws-sdk/client-s3";
@@ -33,14 +32,14 @@ interface DataAndTarget {
   target: S3Object;
 }
 
-interface deleteS3ObjectByKeys {
+interface DeleteS3ObjectsByPrefix {
   bucket: string;
-  keysToDelete: ObjectIdentifier[];
+  prefixes: string[];
 }
 
-interface deleteS3ObjectByPrefixes {
-  bucketName: string;
-  prefixesToDelete: string[];
+interface DeleteS3Objects {
+  bucket: string;
+  keys: string[];
 }
 
 const listS3ObjectsBasic = async (
@@ -118,12 +117,12 @@ const putS3ObjectBasic = async (
 
 const putS3Object = callWithRetryAndTimeout(putS3ObjectBasic);
 
-const deleteS3ObjectsBasic = async (
-  params: deleteS3ObjectByPrefixes
+const deleteS3ObjectsByPrefixBasic = async (
+  params: DeleteS3ObjectsByPrefix
 ): Promise<DeleteObjectsCommandOutput> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      IntTestHelpers.deleteS3Objects,
+      IntTestHelpers.deleteS3ObjectsByPrefix,
       params
     )) as unknown as DeleteObjectsCommandOutput;
   const result: DeleteObjectsCommandOutput = {
@@ -131,17 +130,21 @@ const deleteS3ObjectsBasic = async (
     Errors: [],
     $metadata: {},
   };
-  for (const prefixToDelete of params.prefixesToDelete) {
+  for (const prefixToDelete of params.prefixes) {
     const listResult = await listS3Objects({
-      bucketName: params.bucketName,
+      bucketName: params.bucket,
       prefix: prefixToDelete,
     });
     if (listResult.Contents && listResult.Contents.length > 0) {
-      const keysToDelete = listResult.Contents.map(({ Key }) => ({ Key }));
-      const deleteResult = await deleteS3Object({
-        bucket: params.bucketName,
-        keysToDelete,
+      const keysToDelete = listResult.Contents.map(({ Key }) => Key).filter(
+        (key): key is string => key !== undefined
+      );
+      console.log(keysToDelete);
+      const deleteResult = await deleteS3Objects({
+        bucket: params.bucket,
+        keys: keysToDelete,
       });
+      console.log(deleteResult);
       if (deleteResult.Deleted) {
         result.Deleted?.push(...deleteResult.Deleted);
       }
@@ -153,15 +156,17 @@ const deleteS3ObjectsBasic = async (
   return result;
 };
 
-const deleteS3Objects = callWithRetryAndTimeout(deleteS3ObjectsBasic);
+const deleteS3ObjectsByPrefix = callWithRetryAndTimeout(
+  deleteS3ObjectsByPrefixBasic
+);
 
 /* Deletes s3 objects by keys in batches */
-const deleteS3ObjectBasic = async (
-  params: deleteS3ObjectByKeys
+const deleteS3ObjectsBasic = async (
+  params: DeleteS3Objects
 ): Promise<DeleteObjectsCommandOutput> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
-      IntTestHelpers.deleteS3Object,
+      IntTestHelpers.deleteS3Objects,
       params
     )) as unknown as DeleteObjectsCommandOutput;
   const result: DeleteObjectsCommandOutput = {
@@ -170,12 +175,12 @@ const deleteS3ObjectBasic = async (
     $metadata: {},
   };
   const batchSize = 1000;
-  for (let i = 0; i < params.keysToDelete.length; i += batchSize) {
-    const batchKeys = params.keysToDelete.slice(i, i + batchSize);
+  for (let i = 0; i < params.keys.length; i += batchSize) {
+    const batchKeys = params.keys.slice(i, i + batchSize);
     const batchParams = {
       Bucket: params.bucket,
       Delete: {
-        Objects: batchKeys,
+        Objects: batchKeys.map((Key) => ({ Key })),
         Quiet: false,
       },
     };
@@ -192,7 +197,7 @@ const deleteS3ObjectBasic = async (
   return result;
 };
 
-const deleteS3Object = callWithRetryAndTimeout(deleteS3ObjectBasic);
+const deleteS3Objects = callWithRetryAndTimeout(deleteS3ObjectsBasic);
 
 const copyObjectBasic = async (
   source: S3Object,
@@ -296,7 +301,7 @@ export {
   listS3Objects,
   getS3Object,
   putS3Object,
-  deleteS3Object,
+  deleteS3ObjectsByPrefix,
   copyObject,
   deleteS3Objects,
   checkIfS3ObjectExists,

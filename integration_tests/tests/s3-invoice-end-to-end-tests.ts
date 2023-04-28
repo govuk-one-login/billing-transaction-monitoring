@@ -2,7 +2,7 @@ import path from "path";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkIfS3ObjectExists,
-  deleteS3Object,
+  deleteS3Objects,
   listS3Objects,
   putS3Object,
   S3Object,
@@ -126,9 +126,9 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     );
 
     expect(originalFileExistsInSuccessfulFolder).toBeTruthy();
-    await deleteS3Object({
+    await deleteS3Objects({
       bucket: s3Object.bucket,
-      keysToDelete: [{ Key: `successful/${s3Object.key}` }],
+      keys: [`successful/${s3Object.key}`],
     });
   });
 
