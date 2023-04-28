@@ -139,12 +139,10 @@ const deleteS3ObjectsByPrefixBasic = async (
       const keysToDelete = listResult.Contents.map(({ Key }) => Key).filter(
         (key): key is string => key !== undefined
       );
-      console.log(keysToDelete);
       const deleteResult = await deleteS3Objects({
         bucket: params.bucket,
         keys: keysToDelete,
       });
-      console.log(deleteResult);
       if (deleteResult.Deleted) {
         result.Deleted?.push(...deleteResult.Deleted);
       }
