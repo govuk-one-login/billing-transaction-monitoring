@@ -7,6 +7,7 @@ export const businessLogic: BusinessLogic<
   Env,
   ConfigCache,
   CleanedEventBody
-> = async (cleanedBody) => {
-  return [cleanedBody];
+> = async (message, { logger }) => {
+  logger.info(`Storing event ${message.event_id}`);
+  return [message];
 };
