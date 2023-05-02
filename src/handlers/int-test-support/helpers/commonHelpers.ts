@@ -1,4 +1,4 @@
-import { deleteS3Object, listS3Objects } from "./s3Helper";
+import { deleteS3Objects, listS3Objects } from "./s3Helper";
 import { resourcePrefix } from "./envHelper";
 import { EventPayload } from "./payloadHelper";
 
@@ -8,8 +8,8 @@ export const generateRandomId = (): string => {
   return Math.floor(Math.random() * 10000000).toString();
 };
 
-export const validTimestamp = (): number => {
-  return Math.floor(new Date().getTime() / 1000);
+export const validTimestamp = (date: string): number => {
+  return Math.floor(new Date(date).getTime() / 1000);
 };
 
 export enum TableNames {
@@ -95,9 +95,9 @@ export const deleteS3Event = async (
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
-  await deleteS3Object({
+  await deleteS3Objects({
     bucket: bucketName,
-    key: `${objectsPrefix}/${year}/${month}/${day}/${eventId}.json`,
+    keys: [`${objectsPrefix}/${year}/${month}/${day}/${eventId}.json`],
   });
   return true;
 };

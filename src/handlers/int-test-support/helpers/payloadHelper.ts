@@ -45,16 +45,16 @@ export const validEventPayload: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
+  timestamp: validTimestamp("2005-01-30"),
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
 };
 
 export const invalidEventPayloadEventName: EventPayload = {
   event_name: "TESTGGHYJKIK" as EventName,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
+  timestamp: validTimestamp("2005-01-30"),
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
 };
 
 export const invalidEventPayloadTimeStamp: EventPayload = {
@@ -62,22 +62,22 @@ export const invalidEventPayloadTimeStamp: EventPayload = {
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: "somestring" as unknown as number,
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
 };
 
 export const invalidEventPayloadComponentId: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: 5678 as unknown as string,
-  timestamp: validTimestamp(),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
+  timestamp: validTimestamp("2005-01-30"),
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
 };
 
 export const invalidEventPayloadTimestampFormatted: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
+  timestamp: validTimestamp("2005-01-30"),
   timestamp_formatted: 123 as unknown as string,
 };
 

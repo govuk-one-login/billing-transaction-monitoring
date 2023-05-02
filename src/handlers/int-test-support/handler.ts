@@ -3,10 +3,10 @@ import {
   listS3Objects,
   getS3Object,
   deleteS3Objects,
-  deleteS3Object,
   getS3Objects,
   checkIfS3ObjectExists,
   putS3Object,
+  deleteS3ObjectsByPrefix,
 } from "./helpers/s3Helper";
 import {
   getRecentCloudwatchLogs,
@@ -37,7 +37,7 @@ export enum IntTestHelpers {
   getS3Objects = "getS3Objects",
   listS3Objects = "listS3Objects",
   putS3Object = "putS3Object",
-  deleteS3Object = "deleteS3Object",
+  deleteS3ObjectsByPrefix = "deleteS3ObjectsByPrefix",
   deleteS3Objects = "deleteS3Objects",
   checkIfS3ObjectExists = "checkIfS3ObjectExists",
   checkGivenStringExistsInLogs = "checkGivenStringExistsInLogs",
@@ -54,7 +54,7 @@ export interface HelperDict {
   [IntTestHelpers.getS3Objects]: typeof getS3Objects;
   [IntTestHelpers.listS3Objects]: typeof listS3Objects;
   [IntTestHelpers.putS3Object]: typeof putS3Object;
-  [IntTestHelpers.deleteS3Object]: typeof deleteS3Object;
+  [IntTestHelpers.deleteS3ObjectsByPrefix]: typeof deleteS3ObjectsByPrefix;
   [IntTestHelpers.deleteS3Objects]: typeof deleteS3Objects;
   [IntTestHelpers.checkIfS3ObjectExists]: typeof checkIfS3ObjectExists;
   [IntTestHelpers.checkGivenStringExistsInLogs]: typeof checkGivenStringExistsInLogs;
@@ -71,7 +71,7 @@ const functionMap: HelperDict = {
   [IntTestHelpers.getS3Objects]: getS3Objects,
   [IntTestHelpers.listS3Objects]: listS3Objects,
   [IntTestHelpers.putS3Object]: putS3Object,
-  [IntTestHelpers.deleteS3Object]: deleteS3Object,
+  [IntTestHelpers.deleteS3ObjectsByPrefix]: deleteS3ObjectsByPrefix,
   [IntTestHelpers.deleteS3Objects]: deleteS3Objects,
   [IntTestHelpers.checkIfS3ObjectExists]: checkIfS3ObjectExists,
   [IntTestHelpers.checkGivenStringExistsInLogs]: checkGivenStringExistsInLogs,
