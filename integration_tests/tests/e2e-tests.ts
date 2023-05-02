@@ -40,10 +40,10 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
 
   test.each`
     testCase                                                                               | eventTime       | transactionQty | billingQty
-    ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2022/10/30"} | ${undefined}   | ${"100"}
-    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                | ${"2022/11/30"} | ${"10"}        | ${"10"}
-    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}          | ${"2022/12/01"} | ${"10"}        | ${"12"}
-    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}           | ${"2023/01/02"} | ${"10"}        | ${"6"}
+    ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2006/01/30"} | ${undefined}   | ${"100"}
+    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                | ${"2005/09/30"} | ${"10"}        | ${"10"}
+    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}          | ${"2005/10/30"} | ${"10"}        | ${"12"}
+    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}           | ${"2005/11/30"} | ${"10"}        | ${"6"}
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
@@ -103,7 +103,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
 
   test.each`
     testCase                                                                                 | eventTime       | transactionQty | billingQty
-    ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2023/02/28"} | ${"1"}         | ${undefined}
+    ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2005/12/28"} | ${"1"}         | ${undefined}
   `(
     "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
