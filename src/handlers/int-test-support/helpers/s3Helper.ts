@@ -2,7 +2,6 @@ import {
   CopyObjectCommand,
   CopyObjectCommandOutput,
   DeleteObjectsCommand,
-  DeleteObjectsCommandOutput,
   GetObjectCommand,
   HeadObjectCommand,
   HeadObjectCommandOutput,
@@ -45,6 +44,11 @@ interface S3ObjectContent {
   key?: string;
   size?: number;
   lastModified?: Date;
+}
+
+interface DeletedObject {
+  key?: string;
+  versionId?: string;
 }
 
 const listS3ObjectsBasic = async (
@@ -130,17 +134,13 @@ const putS3Object = callWithRetryAndTimeout(putS3ObjectBasic);
 
 const deleteS3ObjectsByPrefixBasic = async (
   params: DeleteS3ObjectsByPrefix
-): Promise<DeleteObjectsCommandOutput> => {
+): Promise<DeletedObject[]> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.deleteS3ObjectsByPrefix,
       params
-    )) as unknown as DeleteObjectsCommandOutput;
-  const result: DeleteObjectsCommandOutput = {
-    Deleted: [],
-    Errors: [],
-    $metadata: {},
-  };
+    )) as unknown as DeletedObject[];
+  let result: DeletedObject[] = [];
   for (const prefixToDelete of params.prefixes) {
     const listResult = await listS3Objects({
       bucketName: params.bucket,
@@ -150,16 +150,10 @@ const deleteS3ObjectsByPrefixBasic = async (
       const keysToDelete = listResult
         .map(({ key }) => key)
         .filter((key): key is string => key !== undefined);
-      const deleteResult = await deleteS3Objects({
+      result = await deleteS3Objects({
         bucket: params.bucket,
         keys: keysToDelete,
       });
-      if (deleteResult.Deleted) {
-        result.Deleted?.push(...deleteResult.Deleted);
-      }
-      if (deleteResult.Errors) {
-        result.Errors?.push(...deleteResult.Errors);
-      }
     }
   }
   return result;
@@ -172,17 +166,13 @@ const deleteS3ObjectsByPrefix = callWithRetryAndTimeout(
 /* Deletes s3 objects by keys in batches */
 const deleteS3ObjectsBasic = async (
   params: DeleteS3Objects
-): Promise<DeleteObjectsCommandOutput> => {
+): Promise<DeletedObject[]> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.deleteS3Objects,
       params
-    )) as unknown as DeleteObjectsCommandOutput;
-  const result: DeleteObjectsCommandOutput = {
-    Deleted: [],
-    Errors: [],
-    $metadata: {},
-  };
+    )) as unknown as DeletedObject[];
+  const result: DeletedObject[] = [];
   const batchSize = 1000;
   for (let i = 0; i < params.keys.length; i += batchSize) {
     const batchKeys = params.keys.slice(i, i + batchSize);
@@ -197,10 +187,12 @@ const deleteS3ObjectsBasic = async (
       new DeleteObjectsCommand(batchParams)
     );
     if (deleteResult.Deleted) {
-      result.Deleted?.push(...deleteResult.Deleted);
-    }
-    if (deleteResult.Errors) {
-      result.Errors?.push(...deleteResult.Errors);
+      result.push(
+        ...deleteResult.Deleted.map(({ Key, VersionId }) => ({
+          key: Key,
+          versionId: VersionId,
+        }))
+      );
     }
   }
   return result;
