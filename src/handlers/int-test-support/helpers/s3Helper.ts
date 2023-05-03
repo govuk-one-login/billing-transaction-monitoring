@@ -1,13 +1,11 @@
 import {
   CopyObjectCommand,
-  CopyObjectCommandOutput,
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
   HeadObjectCommandOutput,
   ListObjectsV2Command,
   PutObjectCommand,
-  PutObjectCommandOutput,
 } from "@aws-sdk/client-s3";
 import { runViaLambda } from "./envHelper";
 import { s3Client } from "../clients";
@@ -15,7 +13,7 @@ import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
 import { callWithRetryAndTimeout } from "./call-wrappers";
 
-interface S3Object {
+export interface S3Object {
   bucket: string;
   key: string;
 }
@@ -40,15 +38,15 @@ interface DeleteS3Objects {
   keys: string[];
 }
 
+interface DeletedObject {
+  key?: string;
+  versionId?: string;
+}
+
 interface S3ObjectContent {
   key?: string;
   size?: number;
   lastModified?: Date;
-}
-
-interface DeletedObject {
-  key?: string;
-  versionId?: string;
 }
 
 const listS3ObjectsBasic = async (
@@ -83,11 +81,10 @@ const listS3ObjectsBasic = async (
     }
     continuationToken = listResult.ContinuationToken;
   } while (continuationToken);
-  console.log(objects);
   return objects;
 };
 
-const listS3Objects = callWithRetryAndTimeout(listS3ObjectsBasic);
+export const listS3Objects = callWithRetryAndTimeout(listS3ObjectsBasic);
 
 const getS3ObjectBasic = async (
   object: S3Object
@@ -111,26 +108,30 @@ const getS3ObjectBasic = async (
 
 // const getS3Object = compose(callWithTimeout(DEFAULT_TIMEOUT), callWithRetry(DEFAULT_RETRIES))(getS3ObjectBasic);
 
-const getS3Object = callWithRetryAndTimeout(getS3ObjectBasic);
+export const getS3Object = callWithRetryAndTimeout(getS3ObjectBasic);
 
 const putS3ObjectBasic = async (
   dataAndTarget: DataAndTarget
-): Promise<PutObjectCommandOutput> => {
+): Promise<void> => {
   if (runViaLambda())
-    return (await sendLambdaCommand(
+    (await sendLambdaCommand(
       IntTestHelpers.putS3Object,
       dataAndTarget
-    )) as unknown as PutObjectCommandOutput;
+    )) as unknown;
 
   const bucketParams = {
     Bucket: dataAndTarget.target.bucket,
     Key: dataAndTarget.target.key,
     Body: Buffer.from(dataAndTarget.data),
   };
-  return await s3Client.send(new PutObjectCommand(bucketParams));
+  try {
+    await s3Client.send(new PutObjectCommand(bucketParams));
+  } catch (error) {
+    throw new Error(`Failed to put object in S3: ${error}`);
+  }
 };
 
-const putS3Object = callWithRetryAndTimeout(putS3ObjectBasic);
+export const putS3Object = callWithRetryAndTimeout(putS3ObjectBasic);
 
 const deleteS3ObjectsByPrefixBasic = async (
   params: DeleteS3ObjectsByPrefix
@@ -159,7 +160,7 @@ const deleteS3ObjectsByPrefixBasic = async (
   return result;
 };
 
-const deleteS3ObjectsByPrefix = callWithRetryAndTimeout(
+export const deleteS3ObjectsByPrefix = callWithRetryAndTimeout(
   deleteS3ObjectsByPrefixBasic
 );
 
@@ -198,22 +199,25 @@ const deleteS3ObjectsBasic = async (
   return result;
 };
 
-const deleteS3Objects = callWithRetryAndTimeout(deleteS3ObjectsBasic);
+export const deleteS3Objects = callWithRetryAndTimeout(deleteS3ObjectsBasic);
 
 const copyObjectBasic = async (
   source: S3Object,
   destination: S3Object
-): Promise<CopyObjectCommandOutput> => {
+): Promise<void> => {
   const bucketParams = {
     Bucket: destination.bucket,
     CopySource: `${source.bucket}/${source.key}`,
     Key: destination.key,
   };
-
-  return await s3Client.send(new CopyObjectCommand(bucketParams));
+  try {
+    await s3Client.send(new CopyObjectCommand(bucketParams));
+  } catch (error) {
+    throw new Error(`Failed to put object in S3: ${error}`);
+  }
 };
 
-const copyObject = callWithRetryAndTimeout(copyObjectBasic);
+export const copyObject = callWithRetryAndTimeout(copyObjectBasic);
 
 const checkIfS3ObjectExistsBasic = async (
   object: S3Object
@@ -238,11 +242,13 @@ const checkIfS3ObjectExistsBasic = async (
   }
 };
 
-const checkIfS3ObjectExists = callWithRetryAndTimeout(
+export const checkIfS3ObjectExists = callWithRetryAndTimeout(
   checkIfS3ObjectExistsBasic
 );
 
-const getS3Objects = async (params: BucketAndPrefix): Promise<string[]> => {
+export const getS3Objects = async (
+  params: BucketAndPrefix
+): Promise<string[]> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.getS3Objects,
@@ -288,24 +294,11 @@ export interface BillingStandardised {
   price: number;
 }
 
-const getS3ObjectsAsArray = async (
+export const getS3ObjectsAsArray = async (
   bucketName: string,
   folderPrefix: string
 ): Promise<BillingStandardised[]> => {
   const s3Response = await getS3Objects({ bucketName, prefix: folderPrefix });
   const s3String = s3Response.join("").replace(/\n/g, "").replace(/}{/g, "},{");
   return JSON.parse("[" + s3String + "]");
-};
-
-export {
-  S3Object,
-  listS3Objects,
-  getS3Object,
-  putS3Object,
-  deleteS3ObjectsByPrefix,
-  copyObject,
-  deleteS3Objects,
-  checkIfS3ObjectExists,
-  getS3Objects,
-  getS3ObjectsAsArray,
 };
