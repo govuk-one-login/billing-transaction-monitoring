@@ -1,4 +1,0 @@
-{
-  "ext": "js,json,njk,ts",
-  "ignore": ["dist"]
-}

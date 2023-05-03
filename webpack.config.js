@@ -1,3 +1,4 @@
+import CopyPlugin from "copy-webpack-plugin";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -21,11 +22,15 @@ export default {
     csvExtract: "./src/handlers/csv-extract/handler.ts",
     storeStandardisedInvoices:
       "./src/handlers/store-standardised-invoices/handler.ts",
+    frontend: "./src/handlers/frontend/handler.ts",
   },
   externals: "aws-sdk",
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
   module: {
-    rules: [{ test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ }],
+    rules: [
+      { test: /.node$/, loader: "node-loader" },
+      { test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ },
+    ],
   },
   output: {
     clean: true,
@@ -33,6 +38,20 @@ export default {
     libraryTarget: "commonjs2",
     path: path.resolve(__dirname, "./dist"),
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "./node_modules/govuk-frontend",
+          to: "node_modules/govuk-frontend",
+        },
+        {
+          from: "./src/frontend/views",
+          to: "views",
+        },
+      ],
+    }),
+  ],
   resolve: {
     extensions: [".js", ".ts"],
   },
