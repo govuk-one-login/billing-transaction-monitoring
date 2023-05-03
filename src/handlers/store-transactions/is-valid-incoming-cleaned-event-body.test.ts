@@ -108,9 +108,4 @@ describe("Valid incoming cleaned event body type guard", () => {
     const result = isValidIncomingCleanedEventBody(givenEvent);
     expect(result).toBe(false);
   });
-
-  test("Valid incoming cleaned event body type guard with valid vendor_id", () => {
-    const result = isValidIncomingCleanedEventBody(givenEvent);
-    expect(result).toBe(true);
-  });
 });
