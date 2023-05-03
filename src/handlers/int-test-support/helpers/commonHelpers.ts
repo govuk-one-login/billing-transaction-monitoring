@@ -118,8 +118,8 @@ export const checkS3BucketForEventId = async (
       bucketName: `${resourcePrefix()}-storage`,
       prefix: "btm_event_data",
     });
-    if (result.Contents !== undefined) {
-      return result.Contents.some((obj) => obj.Key?.includes(eventIdString));
+    if (result !== undefined) {
+      return result.some((obj) => obj.key?.includes(eventIdString));
     } else {
       return false;
     }

@@ -18,7 +18,7 @@ export default async function globalSetup(): Promise<void> {
         bucketName: storageBucket,
         prefix: "btm_event_data/2005",
       }),
-    (s3Objects) => s3Objects.Contents?.length === 0,
+    (s3Objects) => s3Objects.length === 0,
     {
       timeout: 60000,
       interval: 10000,
@@ -40,7 +40,7 @@ export default async function globalSetup(): Promise<void> {
         bucketName: storageBucket,
         prefix: "btm_invoice_data",
       }),
-    (s3Objects) => s3Objects.Contents?.length === 0,
+    (s3Objects) => s3Objects.length === 0,
     {
       timeout: 60000,
       interval: 10000,

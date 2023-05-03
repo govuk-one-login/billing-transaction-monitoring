@@ -64,9 +64,9 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           bucketName: storageBucket,
           prefix: standardisedFolderPrefix,
         }),
-      ({ Contents }) =>
+      (Contents) =>
         Contents?.filter((s3Object) =>
-          s3Object.Key?.includes(
+          s3Object.key?.includes(
             `${standardisedFolderPrefix}/2023/03/2023-03-vendor_testvendor3-VENDOR_3_EVENT`
           )
         ).length === 2,
@@ -108,10 +108,10 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
         bucketName: s3Object.bucket,
         prefix: "successful",
       });
-      if (result.Contents === undefined) {
+      if (result === undefined) {
         return false;
       }
-      return result.Contents.some((t) => t.Key?.includes(s3Object.key));
+      return result.some((t) => t.key?.includes(s3Object.key));
     };
 
     const pollOptions = {
@@ -158,9 +158,9 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           bucketName: storageBucket,
           prefix: standardisedFolderPrefix,
         }),
-      ({ Contents }) =>
+      (Contents) =>
         Contents?.filter((s3Object) =>
-          s3Object.Key?.includes(
+          s3Object.key?.includes(
             `${standardisedFolderPrefix}/2023/03/2023-03-vendor_testvendor1-VENDOR_1_EVENT`
           )
         ).length === 2,

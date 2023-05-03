@@ -67,9 +67,9 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
             bucketName: storageBucket,
             prefix: standardisedFolderPrefix,
           }),
-        ({ Contents }) =>
-          Contents?.filter((s3Object) =>
-            s3Object.Key?.includes(getYearMonth(data.eventTime))
+        (Contents) =>
+          Contents?.filter((obj) =>
+            obj.key?.includes(getYearMonth(data.eventTime))
           ).length === 1,
         {
           timeout: 120000,

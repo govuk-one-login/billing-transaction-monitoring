@@ -7,7 +7,6 @@ import {
   HeadObjectCommand,
   HeadObjectCommandOutput,
   ListObjectsV2Command,
-  ListObjectsV2CommandOutput,
   PutObjectCommand,
   PutObjectCommandOutput,
 } from "@aws-sdk/client-s3";
@@ -42,16 +41,22 @@ interface DeleteS3Objects {
   keys: string[];
 }
 
+interface S3ObjectContent {
+  key?: string;
+  size?: number;
+  lastModified?: Date;
+}
+
 const listS3ObjectsBasic = async (
   params: BucketAndPrefix
-): Promise<ListObjectsV2CommandOutput> => {
+): Promise<S3ObjectContent[]> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.listS3Objects,
       params
-    )) as unknown as ListObjectsV2CommandOutput;
+    )) as unknown as S3ObjectContent[];
 
-  const objects: ListObjectsV2CommandOutput = { Contents: [], $metadata: {} };
+  const objects: S3ObjectContent[] = [];
   let continuationToken: string | undefined;
   do {
     const listParams = {
@@ -65,10 +70,16 @@ const listS3ObjectsBasic = async (
     if (listResult.Contents === undefined) {
       return objects;
     }
-    objects.Contents = objects.Contents?.concat(listResult.Contents);
+    for (const content of listResult.Contents) {
+      objects.push({
+        key: content.Key,
+        size: content.Size,
+        lastModified: content.LastModified,
+      });
+    }
     continuationToken = listResult.ContinuationToken;
   } while (continuationToken);
-
+  console.log(objects);
   return objects;
 };
 
@@ -135,10 +146,10 @@ const deleteS3ObjectsByPrefixBasic = async (
       bucketName: params.bucket,
       prefix: prefixToDelete,
     });
-    if (listResult.Contents && listResult.Contents.length > 0) {
-      const keysToDelete = listResult.Contents.map(({ Key }) => Key).filter(
-        (key): key is string => key !== undefined
-      );
+    if (listResult && listResult.length > 0) {
+      const keysToDelete = listResult
+        .map(({ key }) => key)
+        .filter((key): key is string => key !== undefined);
       const deleteResult = await deleteS3Objects({
         bucket: params.bucket,
         keys: keysToDelete,
@@ -248,16 +259,16 @@ const getS3Objects = async (params: BucketAndPrefix): Promise<string[]> => {
 
   const content = [];
   const response = await listS3Objects(params);
-  if (response.Contents === undefined) {
+  if (response === undefined) {
     throw new Error("Invalid results");
   } else {
-    for (const currentValue of response.Contents) {
-      if (currentValue.Size === null || currentValue.Key === undefined) {
+    for (const currentValue of response) {
+      if (currentValue.size === null || currentValue.key === undefined) {
         continue;
       }
       const res = await getS3Object({
         bucket: params.bucketName,
-        key: currentValue.Key,
+        key: currentValue.key,
       });
       if (res !== undefined) {
         content.push(res);
