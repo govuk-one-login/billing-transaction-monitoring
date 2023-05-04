@@ -1,7 +1,6 @@
 import { buildHandler } from "../../handler-context";
 import { businessLogic } from "./business-logic";
-import { isValidIncomingCleanedEventBody } from "./is-valid-incoming-cleaned-event-body";
-import { Env } from "./types";
+import { Env, isValidIncomingCleanedEventBody } from "./types";
 import { store } from "./store";
 
 export const handler = buildHandler({
