@@ -15,7 +15,7 @@ export const outputMessages = async <
   TMessageBody extends HandlerMessageBody
 >(
   messages: Array<HandlerOutgoingMessage<TMessageBody>>,
-  ctx: HandlerCtx<TEnvVars, TConfigElements>,
+  ctx: HandlerCtx<TEnvVars, TConfigElements, TMessageBody>,
   failuresAllowed?: boolean
 ): Promise<{ failedIds: string[] }> => {
   const failedIds = new Set<string | undefined>();
@@ -53,15 +53,13 @@ const outputMessage = async <
   TMessageBody extends HandlerMessageBody
 >(
   body: TMessageBody,
-  { logger, outputs }: HandlerCtx<TEnvVars, TConfigElements>
+  ctx: HandlerCtx<TEnvVars, TConfigElements, TMessageBody>
 ): Promise<void> => {
-  const outputBody = typeof body === "string" ? body : JSON.stringify(body);
-
-  const promises = outputs.map(async ({ destination, store }) => {
+  const promises = ctx.outputs.map(async ({ destination, store }) => {
     try {
-      await store(destination, outputBody);
+      await store(destination, body, ctx);
     } catch (error) {
-      logger.error(ERROR_MESSAGE_STORAGE, { destination, error });
+      ctx.logger.error(ERROR_MESSAGE_STORAGE, { destination, error });
       throw error;
     }
   });

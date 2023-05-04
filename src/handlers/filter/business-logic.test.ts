@@ -2,7 +2,7 @@ import { HandlerCtx } from "../../handler-context";
 import { businessLogic } from "./business-logic";
 
 describe("Filter businessLogic", () => {
-  let givenCtx: HandlerCtx<any, any>;
+  let givenCtx: HandlerCtx<any, any, any>;
 
   beforeEach(() => {
     givenCtx = {
