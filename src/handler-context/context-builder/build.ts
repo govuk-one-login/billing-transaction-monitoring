@@ -22,7 +22,7 @@ export const buildContext = async <
     TConfigElements,
     TOutgoingMessageBody
   >
-): Promise<HandlerCtx<TEnvVars, TConfigElements>> => {
+): Promise<HandlerCtx<TEnvVars, TConfigElements, TOutgoingMessageBody>> => {
   const config = await makeCtxConfig(ConfigCache);
   const env = makeCtxEnv(envVars, logger);
   const outputs = makeCtxOutputs(userDefinedOutputs, env);

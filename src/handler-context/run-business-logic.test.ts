@@ -6,7 +6,7 @@ describe("runBusinessLogic", () => {
   let mockedOutgoingMessageBody1B: string;
   let mockedOutgoingMessageBody2: string;
   let givenBusinessLogic: BusinessLogic<any, any, any, any>;
-  let givenContext: HandlerCtx<any, any>;
+  let givenContext: HandlerCtx<any, any, any>;
   let givenErrorLogger: jest.Mock;
   let givenFailuresAllowed: boolean | undefined;
   let givenIncomingMessageBody1: string;

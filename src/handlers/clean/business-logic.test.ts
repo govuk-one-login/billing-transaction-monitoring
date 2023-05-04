@@ -8,7 +8,7 @@ const mockedGetVendorId = getVendorId as jest.Mock;
 
 describe("Clean businessLogic", () => {
   let mockedVendorId: string;
-  let givenCtx: HandlerCtx<any, any>;
+  let givenCtx: HandlerCtx<any, any, any>;
   let givenInfoLogger: jest.Mock;
   let givenServicesConfig: any;
   let validIncomingEventBody: IncomingEventBody;
