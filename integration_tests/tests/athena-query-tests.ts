@@ -4,8 +4,8 @@ import {
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
+  formattedQueryResults,
   startQueryExecutionCommand,
-  waitAndGetQueryResults,
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
 import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
@@ -23,8 +23,8 @@ describe("\nGenerate valid event and execute athena query\n", () => {
       databaseName,
       queryString,
     });
-    const queryResult = await waitAndGetQueryResults(queryId);
-    expect(JSON.stringify(queryResult?.ResultSet?.Rows)).toContain(eventId);
+    const queryResult = await formattedQueryResults(queryId);
+    expect(JSON.stringify(queryResult)).toContain(eventId);
   });
 });
 
@@ -40,7 +40,7 @@ describe("\nGenerate invalid event and execute athena query\n", () => {
       databaseName,
       queryString,
     });
-    const queryResult = await waitAndGetQueryResults(queryId);
-    expect(JSON.stringify(queryResult?.ResultSet?.Rows)).not.toContain(eventId);
+    const queryResult = await formattedQueryResults(queryId);
+    expect(JSON.stringify(queryResult)).not.toContain(eventId);
   });
 });

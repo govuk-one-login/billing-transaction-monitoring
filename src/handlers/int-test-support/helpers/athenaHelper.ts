@@ -3,7 +3,6 @@ import {
   GetQueryExecutionCommand,
   GetQueryResultsCommand,
   GetQueryResultsCommandOutput,
-  QueryExecutionStatus,
   StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
 import { poll } from "./commonHelpers";
@@ -21,7 +20,12 @@ interface DatabaseQuery {
   queryString: string;
 }
 
-const startQueryExecutionCommand = async (
+interface QueryStatus {
+  state?: string;
+  stateChangeReason?: string;
+}
+
+export const startQueryExecutionCommand = async (
   query: DatabaseQuery
 ): Promise<string> => {
   if (runViaLambda())
@@ -43,24 +47,27 @@ const startQueryExecutionCommand = async (
   return queryId;
 };
 
-const getQueryExecutionStatus = async (
+export const getQueryExecutionStatus = async (
   queryId: string
-): Promise<QueryExecutionStatus | undefined> => {
+): Promise<QueryStatus | undefined> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.getQueryExecutionStatus,
       queryId
-    )) as QueryExecutionStatus;
+    )) as QueryStatus;
   const params = {
     QueryExecutionId: queryId,
   };
   const response = await athenaClient.send(
     new GetQueryExecutionCommand(params)
   );
-  return response.QueryExecution?.Status;
+  return {
+    state: response.QueryExecution?.Status?.State,
+    stateChangeReason: response.QueryExecution?.Status?.StateChangeReason,
+  };
 };
 
-const getQueryResults = async (
+export const getQueryResults = async (
   queryId: string
 ): Promise<GetQueryResultsCommandOutput | undefined> => {
   if (runViaLambda())
@@ -80,7 +87,7 @@ const waitAndGetQueryResults = async (
 ): Promise<GetQueryResultsCommandOutput | undefined> => {
   const checkState = async (): Promise<boolean> => {
     const result = await getQueryExecutionStatus(queryId);
-    return result?.State?.match("SUCCEEDED") !== null;
+    return result?.state?.match("SUCCEEDED") !== null;
   };
   const queryStatusSuccess = await poll(checkState, (state) => state, {
     timeout: 65000,
@@ -92,7 +99,7 @@ const waitAndGetQueryResults = async (
   }
 };
 
-const formattedQueryResults = async (
+export const formattedQueryResults = async (
   queryId: string
 ): Promise<StringObject[]> => {
   const queryResults = await waitAndGetQueryResults(queryId);
@@ -116,17 +123,8 @@ const formattedQueryResults = async (
     );
 };
 
-const queryObject = async (queryId: string): Promise<any> => {
+export const queryObject = async (queryId: string): Promise<any> => {
   const queryResults: StringObject[] = await formattedQueryResults(queryId);
   const strFromQuery = JSON.stringify(queryResults);
   return JSON.parse(strFromQuery);
-};
-
-export {
-  startQueryExecutionCommand,
-  getQueryExecutionStatus,
-  getQueryResults,
-  waitAndGetQueryResults,
-  formattedQueryResults,
-  queryObject,
 };
