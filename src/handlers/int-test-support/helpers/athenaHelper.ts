@@ -2,7 +2,6 @@ import {
   Datum,
   GetQueryExecutionCommand,
   GetQueryResultsCommand,
-  GetQueryResultsCommandOutput,
   StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
 import { poll } from "./commonHelpers";
@@ -69,40 +68,19 @@ export const getQueryExecutionStatus = async (
 
 export const getQueryResults = async (
   queryId: string
-): Promise<GetQueryResultsCommandOutput | undefined> => {
+): Promise<StringObject[]> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.getQueryResults,
       queryId
-    )) as unknown as GetQueryResultsCommandOutput;
+    )) as unknown as StringObject[];
 
   const params = {
     QueryExecutionId: queryId,
   };
-  return await athenaClient.send(new GetQueryResultsCommand(params));
-};
-
-const waitAndGetQueryResults = async (
-  queryId: string
-): Promise<GetQueryResultsCommandOutput | undefined> => {
-  const checkState = async (): Promise<boolean> => {
-    const result = await getQueryExecutionStatus(queryId);
-    return result?.state?.match("SUCCEEDED") !== null;
-  };
-  const queryStatusSuccess = await poll(checkState, (state) => state, {
-    timeout: 65000,
-    interval: 5000,
-    notCompleteErrorMessage: "Query did not succeed within the given timeout",
-  });
-  if (queryStatusSuccess) {
-    return await getQueryResults(queryId);
-  }
-};
-
-export const formattedQueryResults = async (
-  queryId: string
-): Promise<StringObject[]> => {
-  const queryResults = await waitAndGetQueryResults(queryId);
+  const queryResults = await athenaClient.send(
+    new GetQueryResultsCommand(params)
+  );
   if (queryResults?.ResultSet?.Rows?.[0]?.Data === undefined)
     throw new Error("Invalid query results");
   const columns = queryResults.ResultSet.Rows[0].Data;
@@ -123,8 +101,23 @@ export const formattedQueryResults = async (
     );
 };
 
+export const waitAndGetQueryResults = async (
+  queryId: string
+): Promise<StringObject[]> => {
+  const checkState = async (): Promise<boolean> => {
+    const result = await getQueryExecutionStatus(queryId);
+    return result?.state?.match("SUCCEEDED") !== null;
+  };
+  await poll(checkState, (state) => state, {
+    timeout: 65000,
+    interval: 5000,
+    notCompleteErrorMessage: "Query did not succeed within the given timeout",
+  });
+  return await getQueryResults(queryId);
+};
+
 export const queryObject = async (queryId: string): Promise<any> => {
-  const queryResults: StringObject[] = await formattedQueryResults(queryId);
+  const queryResults: StringObject[] = await waitAndGetQueryResults(queryId);
   const strFromQuery = JSON.stringify(queryResults);
   return JSON.parse(strFromQuery);
 };

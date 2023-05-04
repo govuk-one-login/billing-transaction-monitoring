@@ -3,7 +3,7 @@ import {
   resourcePrefix,
 } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
-  formattedQueryResults,
+  waitAndGetQueryResults,
   startQueryExecutionCommand,
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
 import { getRatesFromConfig } from "../../src/handlers/int-test-support/config-utils/get-rate-config-rows";
@@ -18,7 +18,7 @@ describe("Execute athena query to retrieve rate details", () => {
       databaseName,
       queryString,
     });
-    const queryResult = await formattedQueryResults(queryId);
+    const queryResult = await waitAndGetQueryResults(queryId);
     const queryResultToString = JSON.stringify(queryResult)
       .replace(/\s00:00:00.000/g, "")
       .replace(/"(\d+)(?:(\.\d*?[1-9]+)0*|\.0*)"/g, '"$1$2"'); // regex removes trailing zeros after decimal places eg 1.00 to 1

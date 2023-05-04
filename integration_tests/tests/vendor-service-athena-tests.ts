@@ -3,7 +3,7 @@ import {
   resourcePrefix,
 } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
-  formattedQueryResults,
+  waitAndGetQueryResults,
   startQueryExecutionCommand,
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
 import { getVendorServiceConfigRows } from "../../src/handlers/int-test-support/config-utils/get-vendor-service-config-rows";
@@ -19,7 +19,7 @@ describe("\n Execute athena query to retrieve vendor service details\n", () => {
       databaseName,
       queryString,
     });
-    const queryResult = await formattedQueryResults(queryId);
+    const queryResult = await waitAndGetQueryResults(queryId);
     const queryResultToString = JSON.stringify(queryResult);
     const queryJsonObj = JSON.parse(queryResultToString);
     const csvData = await getVendorServiceConfigRows(configBucket, {});
