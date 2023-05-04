@@ -8,7 +8,7 @@ jest.mock("../../shared/utils/s3", () => ({
 }));
 
 describe("store", () => {
-  it("stores an message in S3 in a directory based on the event timestamp and a file based on the event id", async () => {
+  it("stores a message in S3 in a directory based on the event timestamp and a file based on the event id", async () => {
     const bucket = "test_bucket";
     const message = {
       timestamp: 1682603719956,

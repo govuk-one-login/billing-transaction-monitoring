@@ -1,4 +1,4 @@
-import { isValidIncomingCleanedEventBody } from "./is-valid-incoming-cleaned-event-body";
+import { isValidIncomingCleanedEventBody } from "./types";
 
 describe("Valid incoming cleaned event body type guard", () => {
   let givenEvent: any;
