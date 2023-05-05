@@ -20,11 +20,11 @@ import {
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
 
 const prefix = resourcePrefix();
+const databaseName = `${prefix}-calculations`;
 
 describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view\n", () => {
   const storageBucket = `${prefix}-storage`;
   const standardisedFolderPrefix = "btm_invoice_data";
-  const databaseName = `${prefix}-calculations`;
   let filename: string;
 
   test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
@@ -80,22 +80,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
 
     // Check the view results match the invoice.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3'`;
-    const queryId = await startQueryExecutionCommand({
-      databaseName,
-      queryString,
-    });
-    const response = await waitAndGetQueryResults(queryId);
-    const queryObjects: BillingCurated[] = response.map((item) => {
-      return {
-        vendor_id: item.vendor_id,
-        vendor_name: item.vendor_name,
-        service_name: item.service_name,
-        quantity: item.quantity,
-        price: item.price,
-        year: item.year,
-        month: item.month,
-      };
-    });
+    const queryObjects = await mapBillingCuratedResponse(queryString);
     expect(queryObjects.length).toEqual(2);
     queryObjects.sort((q0, q1) => {
       return q0.service_name.localeCompare(q1.service_name);
@@ -224,3 +209,24 @@ interface BillingCurated {
   year: string;
   month: string;
 }
+
+const mapBillingCuratedResponse = async (
+  queryString: string
+): Promise<BillingCurated[]> => {
+  const queryId = await startQueryExecutionCommand({
+    databaseName,
+    queryString,
+  });
+  const response = await waitAndGetQueryResults(queryId);
+  return response.map((item) => {
+    return {
+      vendor_id: item.vendor_id,
+      vendor_name: item.vendor_name,
+      service_name: item.service_name,
+      quantity: item.quantity,
+      price: item.price,
+      year: item.year,
+      month: item.month,
+    };
+  });
+};
