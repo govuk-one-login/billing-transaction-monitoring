@@ -15,8 +15,8 @@ import {
 import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import fs from "fs";
 import {
-  queryObject,
   startQueryExecutionCommand,
+  waitAndGetQueryResults,
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
 
 const prefix = resourcePrefix();
@@ -84,7 +84,18 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       databaseName,
       queryString,
     });
-    const queryObjects: BillingCurated[] = await queryObject(queryId);
+    const response = await waitAndGetQueryResults(queryId);
+    const queryObjects: BillingCurated[] = response.map((item) => {
+      return {
+        vendor_id: item.vendor_id,
+        vendor_name: item.vendor_name,
+        service_name: item.service_name,
+        quantity: item.quantity,
+        price: item.price,
+        year: item.year,
+        month: item.month,
+      };
+    });
     expect(queryObjects.length).toEqual(2);
     queryObjects.sort((q0, q1) => {
       return q0.service_name.localeCompare(q1.service_name);
@@ -95,9 +106,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       expect(expectedServices[i]).toEqual(queryObjects[i].service_name);
       expect(invoice.date.getFullYear()).toEqual(+queryObjects[i].year);
       expect(invoice.date.getMonth() + 1).toEqual(+queryObjects[i].month);
-      expect(queryObjects[i].quantity.toString()).toEqual(
-        queryObjects[i].quantity
-      );
       expect(queryObjects[i].price).toMatch(expectedSubtotals[i].toFixed(2));
       expect(+queryObjects[i].quantity).toEqual(expectedQuantities[i]);
     }
@@ -177,7 +185,18 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       databaseName,
       queryString,
     });
-    const queryObjects: BillingCurated[] = await queryObject(queryId);
+    const response = await waitAndGetQueryResults(queryId);
+    const queryObjects: BillingCurated[] = response.map((item) => {
+      return {
+        vendor_id: item.vendor_id,
+        vendor_name: item.vendor_name,
+        service_name: item.service_name,
+        quantity: item.quantity,
+        price: item.price,
+        year: item.year,
+        month: item.month,
+      };
+    });
     expect(queryObjects.length).toEqual(2);
 
     expect(queryObjects[0].vendor_name).toEqual("Vendor One");
@@ -200,8 +219,8 @@ interface BillingCurated {
   vendor_id: string;
   vendor_name: string;
   service_name: string;
-  quantity: number;
-  price: number;
+  quantity: string;
+  price: string;
   year: string;
   month: string;
 }

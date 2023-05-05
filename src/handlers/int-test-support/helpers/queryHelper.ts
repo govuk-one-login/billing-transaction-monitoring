@@ -1,4 +1,7 @@
-import { queryObject, startQueryExecutionCommand } from "./athenaHelper";
+import {
+  startQueryExecutionCommand,
+  waitAndGetQueryResults,
+} from "./athenaHelper";
 import { resourcePrefix } from "./envHelper";
 
 const prefix = resourcePrefix();
@@ -9,7 +12,7 @@ export const queryResponseFilterByVendorServiceNameYearMonth = async (
   serviceName: string,
   tableName: string,
   eventTime: string
-): Promise<[]> => {
+): Promise<Array<Record<string, string>>> => {
   const year = new Date(eventTime).getFullYear();
   const month = new Date(eventTime).toLocaleString("en-US", {
     month: "2-digit",
@@ -21,5 +24,5 @@ export const queryResponseFilterByVendorServiceNameYearMonth = async (
     databaseName,
     queryString: curatedQueryString,
   });
-  return await queryObject(queryId);
+  return await waitAndGetQueryResults(queryId);
 };

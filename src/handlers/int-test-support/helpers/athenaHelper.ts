@@ -68,7 +68,7 @@ export const getQueryExecutionStatus = async (
 
 export const getQueryResults = async (
   queryId: string
-): Promise<StringObject[]> => {
+): Promise<Array<Record<string, string>>> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.getQueryResults,
@@ -103,21 +103,15 @@ export const getQueryResults = async (
 
 export const waitAndGetQueryResults = async (
   queryId: string
-): Promise<StringObject[]> => {
-  const checkState = async (): Promise<boolean> => {
-    const result = await getQueryExecutionStatus(queryId);
-    return result?.state?.match("SUCCEEDED") !== null;
-  };
-  await poll(checkState, (state) => state, {
-    timeout: 65000,
-    interval: 5000,
-    notCompleteErrorMessage: "Query did not succeed within the given timeout",
-  });
+): Promise<Array<Record<string, string>>> => {
+  await poll(
+    async () => await getQueryExecutionStatus(queryId),
+    (result) => result?.state?.match("SUCCEEDED") !== null,
+    {
+      timeout: 65000,
+      interval: 5000,
+      notCompleteErrorMessage: "Query did not succeed within the given timeout",
+    }
+  );
   return await getQueryResults(queryId);
-};
-
-export const queryObject = async (queryId: string): Promise<any> => {
-  const queryResults: StringObject[] = await waitAndGetQueryResults(queryId);
-  const strFromQuery = JSON.stringify(queryResults);
-  return JSON.parse(strFromQuery);
 };

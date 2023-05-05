@@ -103,13 +103,24 @@ export const assertQueryResultWithTestData = async (
   serviceName: string
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
-  const response: BillingTransactionCurated =
-    await queryResponseFilterByVendorServiceNameYearMonth(
-      vendorId,
-      serviceName,
-      tableName,
-      eventTime
-    );
+  const curatedResponse = await queryResponseFilterByVendorServiceNameYearMonth(
+    vendorId,
+    serviceName,
+    tableName,
+    eventTime
+  );
+  const response: BillingTransactionCurated = curatedResponse.map((item) => {
+    return {
+      vendor_id: item.vendor_id,
+      vendor_name: item.vendor_id,
+      service_name: item.service_name,
+      year: item.year,
+      month: item.month,
+      billing_price_formatted: item.billing_price_formatted,
+      transaction_price_formatted: item.transaction_price_formatted,
+      price_difference_percentage: item.price_difference_percentage,
+    };
+  });
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(billingPriceFormatted);
   expect(response[0].transaction_price_formatted).toEqual(
