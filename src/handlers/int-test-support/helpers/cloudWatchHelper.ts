@@ -38,7 +38,11 @@ export async function getRecentCloudwatchLogs(params: {
   const response = await cloudWatchLogsClient.send(
     new FilterLogEventsCommand(commandInput)
   );
-  return response.events ?? [];
+
+  if (response.events === undefined) {
+    throw new Error("Events not found in logs");
+  }
+  return response.events;
 }
 
 export async function checkGivenStringExistsInLogs(

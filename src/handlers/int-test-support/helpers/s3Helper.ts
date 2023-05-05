@@ -213,7 +213,7 @@ const copyObjectBasic = async (
   try {
     await s3Client.send(new CopyObjectCommand(bucketParams));
   } catch (error) {
-    throw new Error(`Failed to put object in S3: ${error}`);
+    throw new Error(`Failed to copy object in S3: ${error}`);
   }
 };
 
