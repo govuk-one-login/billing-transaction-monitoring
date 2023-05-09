@@ -3,6 +3,7 @@ import {
   getYearMonth,
   poll,
   TableNames,
+  mapBillingTransactionCurated,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
@@ -18,7 +19,6 @@ import {
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
-import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 import crypto from "crypto";
 
 const prefix = resourcePrefix();
@@ -144,18 +144,7 @@ export const assertQueryResultWithTestData = async (
     eventTime
   );
 
-  const response: BillingTransactionCurated = curatedResponse.map((item) => {
-    return {
-      vendor_id: item.vendor_id,
-      vendor_name: item.vendor_id,
-      service_name: item.service_name,
-      year: item.year,
-      month: item.month,
-      billing_price_formatted: item.billing_price_formatted,
-      transaction_price_formatted: item.transaction_price_formatted,
-      price_difference_percentage: item.price_difference_percentage,
-    };
-  });
+  const response = mapBillingTransactionCurated(curatedResponse);
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(
     expectedResults.billingPriceFormatted
