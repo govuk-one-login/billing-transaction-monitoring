@@ -134,3 +134,31 @@ export const checkS3BucketForEventId = async (
     return false;
   }
 };
+
+export type BillingTransactionCurated = Array<{
+  vendor_id: string;
+  vendor_name: string;
+  service_name: string;
+  year: string;
+  month: string;
+  billing_price_formatted: string;
+  transaction_price_formatted: string;
+  price_difference_percentage: string;
+}>;
+
+export const mapBillingTransactionCurated = (
+  items: Array<Record<string, string>>
+): BillingTransactionCurated => {
+  return items.map((item) => {
+    return {
+      vendor_id: item.vendor_id,
+      vendor_name: item.vendor_id,
+      service_name: item.service_name,
+      year: item.year,
+      month: item.month,
+      billing_price_formatted: item.billing_price_formatted,
+      transaction_price_formatted: item.transaction_price_formatted,
+      price_difference_percentage: item.price_difference_percentage,
+    };
+  });
+};
