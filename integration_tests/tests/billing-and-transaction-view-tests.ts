@@ -18,7 +18,6 @@ import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handl
 import {
   generateTestEvent,
   getYearMonth,
-  mapBillingTransactionCurated,
   poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
@@ -110,7 +109,18 @@ export const assertQueryResultWithTestData = async (
     tableName,
     eventTime
   );
-  const response = mapBillingTransactionCurated(curatedResponse);
+  const response: BillingTransactionCurated = curatedResponse.map((item) => {
+    return {
+      vendor_id: item.vendor_id,
+      vendor_name: item.vendor_id,
+      service_name: item.service_name,
+      year: item.year,
+      month: item.month,
+      billing_price_formatted: item.billing_price_formatted,
+      transaction_price_formatted: item.transaction_price_formatted,
+      price_difference_percentage: item.price_difference_percentage,
+    };
+  });
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(billingPriceFormatted);
   expect(response[0].transaction_price_formatted).toEqual(
@@ -120,3 +130,14 @@ export const assertQueryResultWithTestData = async (
     priceDifferencePercentage
   );
 };
+
+export type BillingTransactionCurated = Array<{
+  vendor_id: string;
+  vendor_name: string;
+  service_name: string;
+  year: string;
+  month: string;
+  billing_price_formatted: string;
+  transaction_price_formatted: string;
+  price_difference_percentage: string;
+}>;
