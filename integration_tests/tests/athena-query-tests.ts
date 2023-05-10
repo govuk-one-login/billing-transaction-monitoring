@@ -2,14 +2,8 @@ import {
   invalidEventPayloadEventName,
   validEventPayload,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import {
-  startQueryExecutionCommand,
-  waitAndGetQueryResults,
-} from "../../src/handlers/int-test-support/helpers/athenaHelper";
 import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
-
-const prefix = resourcePrefix();
+import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
 describe("\nGenerate valid event and execute athena query\n", () => {
   test("should contain eventId in the generated query results", async () => {
@@ -17,13 +11,8 @@ describe("\nGenerate valid event and execute athena query\n", () => {
       await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
         validEventPayload
       );
-    const databaseName = `${prefix}-calculations`;
     const queryString = `SELECT * FROM "btm_transactions_standardised" where event_id='${eventId}'`;
-    const queryId = await startQueryExecutionCommand({
-      databaseName,
-      queryString,
-    });
-    const queryResult = await waitAndGetQueryResults(queryId);
+    const queryResult = await queryAthena(queryString);
     expect(JSON.stringify(queryResult)).toContain(eventId);
   });
 });
@@ -34,13 +23,8 @@ describe("\nGenerate invalid event and execute athena query\n", () => {
       await generateEventViaFilterLambdaAndCheckEventInS3Bucket(
         invalidEventPayloadEventName
       );
-    const databaseName = `${prefix}-calculations`;
     const queryString = `SELECT * FROM "btm_transactions_standardised" where event_id='${eventId}'`;
-    const queryId = await startQueryExecutionCommand({
-      databaseName,
-      queryString,
-    });
-    const queryResult = await waitAndGetQueryResults(queryId);
+    const queryResult = await queryAthena(queryString);
     expect(JSON.stringify(queryResult)).not.toContain(eventId);
   });
 });

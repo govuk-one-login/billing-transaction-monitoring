@@ -14,7 +14,6 @@ import {
   EventName,
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import {
   generateTestEvent,
   getYearMonth,
@@ -23,6 +22,7 @@ import {
   mapBillingTransactionCurated,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
@@ -104,12 +104,14 @@ export const assertQueryResultWithTestData = async (
   serviceName: string
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
-  const curatedResponse = await queryResponseFilterByVendorServiceNameYearMonth(
-    vendorId,
-    serviceName,
-    tableName,
-    eventTime
-  );
+  const year = new Date(eventTime).getFullYear();
+  const month = new Date(eventTime).toLocaleString("en-US", {
+    month: "2-digit",
+  });
+
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+  const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_id='${vendorId}' AND service_name='${serviceName}' AND year='${year}' AND month='${month}'`;
+  const curatedResponse = await queryAthena(curatedQueryString);
   const response = mapBillingTransactionCurated(curatedResponse);
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(billingPriceFormatted);

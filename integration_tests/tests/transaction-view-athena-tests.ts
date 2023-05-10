@@ -7,7 +7,7 @@ import {
   EventName,
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
@@ -44,14 +44,14 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       }
       const tableName = TableNames.TRANSACTION_CURATED;
       const prettyEventName = prettyEventNameMap[eventName];
+      const year = new Date(eventTime).getFullYear();
+      const month = new Date(eventTime).toLocaleString("en-US", {
+        month: "2-digit",
+      });
 
-      const curatedResponse =
-        await queryResponseFilterByVendorServiceNameYearMonth(
-          vendorId,
-          prettyEventName,
-          tableName,
-          eventTime
-        );
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      const queryString = `SELECT * FROM "${tableName}" WHERE vendor_id='${vendorId}' AND service_name='${prettyEventName}' AND year='${year}' AND month='${month}'`;
+      const curatedResponse = await queryAthena(queryString);
 
       const response: TransactionCuratedView[] = curatedResponse.map((item) => {
         return {

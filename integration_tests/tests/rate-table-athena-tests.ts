@@ -1,24 +1,12 @@
-import {
-  configStackName,
-  resourcePrefix,
-} from "../../src/handlers/int-test-support/helpers/envHelper";
-import {
-  waitAndGetQueryResults,
-  startQueryExecutionCommand,
-} from "../../src/handlers/int-test-support/helpers/athenaHelper";
+import { configStackName } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { getRatesFromConfig } from "../../src/handlers/int-test-support/config-utils/get-rate-config-rows";
-const prefix = resourcePrefix();
+import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 const configBucket = configStackName();
 
 describe("Execute athena query to retrieve rate details", () => {
   test("retrieved rate details should match rate csv uploaded in s3 config bucket", async () => {
-    const databaseName = `${prefix}-calculations`;
     const queryString = `SELECT * FROM "btm_rates_standardised"`;
-    const queryId = await startQueryExecutionCommand({
-      databaseName,
-      queryString,
-    });
-    const queryResult = await waitAndGetQueryResults(queryId);
+    const queryResult = await queryAthena(queryString);
     const queryResultToString = JSON.stringify(queryResult)
       .replace(/\s00:00:00.000/g, "")
       .replace(/"(\d+)(?:(\.\d*?[1-9]+)0*|\.0*)"/g, '"$1$2"'); // regex removes trailing zeros after decimal places eg 1.00 to 1
