@@ -110,8 +110,8 @@ export const assertQueryResultWithTestData = async (
   });
 
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  const curatedQueryString = `SELECT * FROM "${tableName}" WHERE vendor_id='${vendorId}' AND service_name='${serviceName}' AND year='${year}' AND month='${month}'`;
-  const curatedResponse = await queryAthena(curatedQueryString);
+  const queryString = `SELECT * FROM "${tableName}" WHERE vendor_id='${vendorId}' AND service_name='${serviceName}' AND year='${year}' AND month='${month}'`;
+  const curatedResponse = await queryAthena(queryString);
   const response = mapBillingTransactionCurated(curatedResponse);
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(billingPriceFormatted);
