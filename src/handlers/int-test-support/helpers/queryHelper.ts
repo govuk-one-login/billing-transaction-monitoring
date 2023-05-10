@@ -7,9 +7,9 @@ import { resourcePrefix } from "./envHelper";
 const prefix = resourcePrefix();
 const databaseName = `${prefix}-calculations`;
 
-export const queryAthena = async (
+export const queryAthena = async <TResponse>(
   queryString: string
-): Promise<Array<Record<string, string>>> => {
+): Promise<TResponse[]> => {
   const queryId = await startQueryExecutionCommand({
     databaseName,
     queryString,
@@ -17,12 +17,12 @@ export const queryAthena = async (
   return await waitAndGetQueryResults(queryId);
 };
 
-export const getFilteredQueryResponse = async (
+export const getFilteredQueryResponse = async <TResponse>(
   tableName: string,
   vendorId: string,
   serviceName: string,
   eventTime: string
-): Promise<Array<Record<string, string>>> => {
+): Promise<TResponse[]> => {
   const year = new Date(eventTime).getFullYear();
   const month = new Date(eventTime).toLocaleString("en-US", {
     month: "2-digit",

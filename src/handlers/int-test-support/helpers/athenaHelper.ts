@@ -10,10 +10,6 @@ import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
 
-interface StringObject {
-  [key: string]: string;
-}
-
 interface DatabaseQuery {
   databaseName: string;
   queryString: string;
@@ -66,14 +62,14 @@ export const getQueryExecutionStatus = async (
   };
 };
 
-export const getQueryResults = async (
+export const getQueryResults = async <TResponse>(
   queryId: string
-): Promise<Array<Record<string, string>>> => {
+): Promise<TResponse[]> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.getQueryResults,
       queryId
-    )) as unknown as StringObject[];
+    )) as unknown as TResponse[];
 
   const params = {
     QueryExecutionId: queryId,
@@ -88,7 +84,7 @@ export const getQueryResults = async (
   return rows
     .filter((val: Datum[] | undefined): val is Datum[] => val !== undefined)
     .map((row) =>
-      row.reduce<StringObject>((acc, _, index) => {
+      row.reduce((acc, _, index) => {
         const fieldName = columns[index].VarCharValue;
         const fieldValue = row[index].VarCharValue;
         return fieldName === undefined || fieldValue === undefined
@@ -98,12 +94,12 @@ export const getQueryResults = async (
               [fieldName]: fieldValue,
             };
       }, {})
-    );
+    ) as TResponse[];
 };
 
-export const waitAndGetQueryResults = async (
+export const waitAndGetQueryResults = async <TResponse>(
   queryId: string
-): Promise<Array<Record<string, string>>> => {
+): Promise<TResponse[]> => {
   await poll(
     async () => await getQueryExecutionStatus(queryId),
     (result) => result?.state?.match("SUCCEEDED") !== null,

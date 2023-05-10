@@ -3,7 +3,6 @@ import {
   getYearMonth,
   poll,
   TableNames,
-  mapBillingTransactionCurated,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
@@ -20,6 +19,7 @@ import {
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import crypto from "crypto";
+import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 
 const prefix = resourcePrefix();
 let eventName: string;
@@ -137,13 +137,13 @@ export const assertQueryResultWithTestData = async (
   serviceName: string
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
-  const queryResults = await getFilteredQueryResponse(
-    tableName,
-    vendorId,
-    serviceName,
-    eventTime
-  );
-  const response = mapBillingTransactionCurated(queryResults);
+  const response: BillingTransactionCurated[] =
+    await getFilteredQueryResponse<BillingTransactionCurated>(
+      tableName,
+      vendorId,
+      serviceName,
+      eventTime
+    );
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(
     expectedResults.billingPriceFormatted

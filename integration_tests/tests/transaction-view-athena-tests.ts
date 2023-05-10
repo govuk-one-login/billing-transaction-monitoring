@@ -44,31 +44,19 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       }
       const tableName = TableNames.TRANSACTION_CURATED;
       const prettyEventName = prettyEventNameMap[eventName];
-      const curatedResponse = await getFilteredQueryResponse(
+      const response = await getFilteredQueryResponse<TransactionCurated>(
         tableName,
         vendorId,
         prettyEventName,
         eventTime
       );
-      const response: TransactionCuratedView[] = curatedResponse.map((item) => {
-        return {
-          vendor_id: item.vendor_id,
-          vendor_name: item.vendor_id,
-          service_name: item.service_name,
-          price: item.price,
-          quantity: item.quantity,
-          year: item.year,
-          month: item.month,
-        };
-      });
-
       expect(response.length).toBe(1);
       expect(response[0].price).toEqual(expectedPrice);
     }
   );
 });
 
-interface TransactionCuratedView {
+interface TransactionCurated {
   vendor_id: string;
   vendor_name: string;
   service_name: string;

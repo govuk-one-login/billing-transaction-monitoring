@@ -19,7 +19,6 @@ import {
   getYearMonth,
   poll,
   TableNames,
-  mapBillingTransactionCurated,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
@@ -104,13 +103,13 @@ export const assertQueryResultWithTestData = async (
   serviceName: string
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
-  const queryResults = await getFilteredQueryResponse(
-    tableName,
-    vendorId,
-    serviceName,
-    eventTime
-  );
-  const response = mapBillingTransactionCurated(queryResults);
+  const response: BillingTransactionCurated[] =
+    await getFilteredQueryResponse<BillingTransactionCurated>(
+      tableName,
+      vendorId,
+      serviceName,
+      eventTime
+    );
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(billingPriceFormatted);
   expect(response[0].transaction_price_formatted).toEqual(
@@ -120,3 +119,14 @@ export const assertQueryResultWithTestData = async (
     priceDifferencePercentage
   );
 };
+
+export interface BillingTransactionCurated {
+  vendor_id: string;
+  vendor_name: string;
+  service_name: string;
+  year: string;
+  month: string;
+  billing_price_formatted: string;
+  transaction_price_formatted: string;
+  price_difference_percentage: string;
+}

@@ -76,7 +76,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
 
     // Check the view results match the invoice.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3'`;
-    const queryObjects = await queryAthena(queryString);
+    const queryObjects = await queryAthena<BillingCurated>(queryString);
     expect(queryObjects.length).toEqual(2);
     queryObjects.sort((q0, q1) => {
       return q0.service_name.localeCompare(q1.service_name);
@@ -162,33 +162,22 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
 
     // Step 3: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
-    const response = await queryAthena(queryString);
-    const queryObjects: BillingCurated[] = response.map((item) => {
-      return {
-        vendor_id: item.vendor_id,
-        vendor_name: item.vendor_name,
-        service_name: item.service_name,
-        quantity: item.quantity,
-        price: item.price,
-        year: item.year,
-        month: item.month,
-      };
-    });
-    expect(queryObjects.length).toEqual(2);
+    const response = await queryAthena<BillingCurated>(queryString);
+    expect(response.length).toEqual(2);
 
-    expect(queryObjects[0].vendor_name).toEqual("Vendor One");
-    expect(queryObjects[0].service_name).toEqual("Fraud check");
-    expect(queryObjects[0].quantity).toEqual("83");
-    expect(queryObjects[0].price).toEqual("327.8500");
-    expect(queryObjects[0].year).toEqual("2023");
-    expect(queryObjects[0].month).toEqual("03");
+    expect(response[0].vendor_name).toEqual("Vendor One");
+    expect(response[0].service_name).toEqual("Fraud check");
+    expect(response[0].quantity).toEqual("83");
+    expect(response[0].price).toEqual("327.8500");
+    expect(response[0].year).toEqual("2023");
+    expect(response[0].month).toEqual("03");
 
-    expect(queryObjects[1].vendor_name).toEqual("Vendor One");
-    expect(queryObjects[1].service_name).toEqual("Passport check");
-    expect(queryObjects[1].quantity).toEqual("13788");
-    expect(queryObjects[1].price).toEqual("4687.9200");
-    expect(queryObjects[1].year).toEqual("2023");
-    expect(queryObjects[1].month).toEqual("03");
+    expect(response[1].vendor_name).toEqual("Vendor One");
+    expect(response[1].service_name).toEqual("Passport check");
+    expect(response[1].quantity).toEqual("13788");
+    expect(response[1].price).toEqual("4687.9200");
+    expect(response[1].year).toEqual("2023");
+    expect(response[1].month).toEqual("03");
   });
 });
 
