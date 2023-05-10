@@ -1,5 +1,5 @@
 import { SQSEvent } from "aws-lambda";
-import { logger } from "../../shared/utils";
+import { getS3EventRecordsFromSqs, logger } from "../../shared/utils";
 
 export const handler = async (event: SQSEvent): Promise<void> => {
   // Placeholder lambda function
@@ -7,5 +7,6 @@ export const handler = async (event: SQSEvent): Promise<void> => {
   if (destinationBucket === undefined || destinationBucket.length === 0)
     throw new Error("Destination bucket not set.");
 
-  logger.info(`Process Email: ${event.Records[0].body}`);
+  const emailRecord = getS3EventRecordsFromSqs(event.Records[0]);
+  logger.info(`Process Email: ${emailRecord}`);
 };

@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  TempRawEmailBucket: # This will be replaced by the infra created in BTM-471
+  TempRawEmailBucket: # This and the policy below will be replaced by the infra created in BTM-471
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub ${AWS::StackName}-temp-raw-email-bucket
@@ -31,6 +31,23 @@ Resources:
         Rules:
           - ExpirationInDays: 1825 # Five years
             Status: Enabled
+
+  TempRawEmailBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref TempRawEmailBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Principal: '*'
+            Action: s3:*
+            Resource:
+              - !Sub ${TempRawEmailBucket.Arn}
+              - !Sub ${TempRawEmailBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: false
 
   EmailProcessingQueue: # This SQS is required as per BTM-558
     Type: AWS::SQS::Queue
