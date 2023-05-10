@@ -56,7 +56,7 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
   );
 });
 
-interface TransactionCurated {
+type TransactionCurated = Array<{
   vendor_id: string;
   vendor_name: string;
   service_name: string;
@@ -64,4 +64,4 @@ interface TransactionCurated {
   quantity: string;
   year: string;
   month: string;
-}
+}>;
