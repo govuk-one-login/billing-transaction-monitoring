@@ -14,6 +14,7 @@ export default {
     customAthenaViewResource:
       "./src/handlers/custom-athena-view-resource/handler.ts",
     intTestSupport: "./src/handlers/int-test-support/handler.ts",
+    processEmail: "./src/handlers/process-email/handler.ts",
     pdfExtract: "./src/handlers/pdf-extract/handler.ts",
     storeRawInvoiceTextractData:
       "./src/handlers/store-raw-invoice-textract-data/handler.ts",
