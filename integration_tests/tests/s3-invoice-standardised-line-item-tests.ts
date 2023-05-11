@@ -258,8 +258,7 @@ export const listS3Keys = async (
   prefix: string
 ): Promise<string[]> => {
   const result = await listS3Objects({ bucketName, prefix });
-  if (result === undefined) return [];
-  const keys: Array<string | undefined> = result.map(({ key }) => key);
+  const keys = result.map(({ key }) => key);
   return keys.filter((key) => key !== undefined) as string[];
 };
 

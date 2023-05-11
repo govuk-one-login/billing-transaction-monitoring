@@ -34,7 +34,7 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
           prefix: `${transactionsDirectory}/2023/01/01/`,
         }),
       (result) => {
-        return result.length !== undefined && result.length === happyPathCount;
+        return result.length === happyPathCount;
       },
       {
         notCompleteErrorMessage:

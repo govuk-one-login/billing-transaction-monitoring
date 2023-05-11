@@ -35,10 +35,9 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice bucket test\n"
         bucketName: rawInvoice.bucket,
         prefix: "failed",
       });
-      if (result === undefined) {
-        return false;
-      }
-      return result.some((items) => items.key?.includes(rawInvoice.key));
+      return (
+        !!result && result.some((items) => items.key?.includes(rawInvoice.key))
+      );
     };
 
     const pollOptions = {
