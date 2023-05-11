@@ -14,15 +14,20 @@ interface LogCheckParameters {
   expectedString: string;
   testStartTime: number;
 }
+interface LogEvent {
+  eventId?: string;
+  message?: string;
+  logStreamName?: string;
+}
 
 export async function getRecentCloudwatchLogs(params: {
   logName: string;
-}): Promise<FilterLogEventsCommandOutput> {
+}): Promise<LogEvent[]> {
   if (runViaLambda()) {
     return (await sendLambdaCommand(
       IntTestHelpers.getRecentCloudwatchLogs,
       params
-    )) as unknown as FilterLogEventsCommandOutput;
+    )) as unknown as LogEvent[];
   }
 
   const commandInput: FilterLogEventsCommandInput = {
@@ -30,12 +35,17 @@ export async function getRecentCloudwatchLogs(params: {
     startTime: Date.now() - 60 * 1000,
   };
 
-  return await cloudWatchLogsClient.send(
+  const response = await cloudWatchLogsClient.send(
     new FilterLogEventsCommand(commandInput)
   );
+
+  if (response.events === undefined) {
+    throw new Error("Events not found in logs");
+  }
+  return response.events;
 }
 
-async function checkGivenStringExistsInLogs(
+export async function checkGivenStringExistsInLogs(
   params: LogCheckParameters
 ): Promise<boolean> {
   if (runViaLambda())
@@ -55,5 +65,3 @@ async function checkGivenStringExistsInLogs(
     ? response.events?.some((x) => x.message?.includes(params.expectedString))
     : false;
 }
-
-export { checkGivenStringExistsInLogs };

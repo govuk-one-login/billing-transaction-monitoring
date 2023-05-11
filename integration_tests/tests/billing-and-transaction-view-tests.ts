@@ -14,7 +14,6 @@ import {
   EventName,
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import {
   generateTestEvent,
   getYearMonth,
@@ -22,6 +21,7 @@ import {
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
@@ -67,9 +67,9 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
             bucketName: storageBucket,
             prefix: standardisedFolderPrefix,
           }),
-        ({ Contents }) =>
-          Contents?.filter((s3Object) =>
-            s3Object.Key?.includes(getYearMonth(data.eventTime))
+        (Contents) =>
+          Contents?.filter((obj) =>
+            obj.key?.includes(getYearMonth(data.eventTime))
           ).length === 1,
         {
           timeout: 120000,
@@ -103,13 +103,12 @@ export const assertQueryResultWithTestData = async (
   serviceName: string
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
-  const response: BillingTransactionCurated =
-    await queryResponseFilterByVendorServiceNameYearMonth(
-      vendorId,
-      serviceName,
-      tableName,
-      eventTime
-    );
+  const response = await getFilteredQueryResponse<BillingTransactionCurated>(
+    tableName,
+    vendorId,
+    serviceName,
+    eventTime
+  );
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(billingPriceFormatted);
   expect(response[0].transaction_price_formatted).toEqual(

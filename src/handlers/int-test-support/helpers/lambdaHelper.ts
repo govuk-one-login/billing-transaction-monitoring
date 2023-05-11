@@ -1,8 +1,4 @@
-import {
-  InvocationResponse,
-  InvokeCommand,
-  InvokeCommandInput,
-} from "@aws-sdk/client-lambda";
+import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
 import { HelperDict, IntTestHelpers } from "../handler";
@@ -23,12 +19,12 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
   const result = await invokeLambda({
     functionName: `${resourcePrefix()}-int-test-support-function`,
     payload,
-    forceWithoutLambda: true
+    forceWithoutLambda: true,
   });
   // logger.info(toUtf8(result.Payload as Uint8Array));
 
-  if (result.StatusCode === 200 && result.Payload != null) {
-    return JSON.parse(toUtf8(result.Payload)).successObject;
+  if (result.statusCode === 200 && result.payload != null) {
+    return JSON.parse(toUtf8(result.payload)).successObject;
   } else {
     return "Error";
   }
@@ -40,14 +36,19 @@ export interface InvokeLambdaParams {
   forceWithoutLambda?: boolean;
 }
 
+interface InvokeLambdaResponse {
+  statusCode: number | undefined;
+  payload?: Uint8Array;
+}
+
 export const invokeLambda = async (
   params: InvokeLambdaParams
-): Promise<InvocationResponse> => {
+): Promise<InvokeLambdaResponse> => {
   if (runViaLambda() && !params.forceWithoutLambda) {
     return (await sendLambdaCommand(
       IntTestHelpers.invokeLambda,
       params
-    )) as unknown as InvocationResponse;
+    )) as unknown as InvokeLambdaResponse;
   }
   const command: InvokeCommandInput = {
     FunctionName: params.functionName,
@@ -57,7 +58,14 @@ export const invokeLambda = async (
   };
   try {
     const response = await lambdaClient.send(new InvokeCommand(command));
-    return response;
+
+    if (response === undefined) {
+      throw new Error("InvokeCommand returned undefined");
+    }
+    return {
+      statusCode: response.StatusCode,
+      payload: response.Payload,
+    };
   } catch (err) {
     console.error(err);
     throw err;
