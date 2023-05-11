@@ -16,8 +16,9 @@ async function waitForSubstringInLogs(
       await getRecentCloudwatchLogs({
         logName: logNamePrefix + logName,
       }),
+
     (results) =>
-      !!results.events?.some((event) => {
+      !!results.some((event) => {
         return event.message?.includes(subString);
       }),
     {

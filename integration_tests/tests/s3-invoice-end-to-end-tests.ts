@@ -14,17 +14,13 @@ import {
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import fs from "fs";
-import {
-  queryObject,
-  startQueryExecutionCommand,
-} from "../../src/handlers/int-test-support/helpers/athenaHelper";
+import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
 const prefix = resourcePrefix();
 
 describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view\n", () => {
   const storageBucket = `${prefix}-storage`;
   const standardisedFolderPrefix = "btm_invoice_data";
-  const databaseName = `${prefix}-calculations`;
   let filename: string;
 
   test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
@@ -64,9 +60,9 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           bucketName: storageBucket,
           prefix: standardisedFolderPrefix,
         }),
-      ({ Contents }) =>
+      (Contents) =>
         Contents?.filter((s3Object) =>
-          s3Object.Key?.includes(
+          s3Object.key?.includes(
             `${standardisedFolderPrefix}/2023/03/2023-03-vendor_testvendor3-VENDOR_3_EVENT`
           )
         ).length === 2,
@@ -80,11 +76,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
 
     // Check the view results match the invoice.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3'`;
-    const queryId = await startQueryExecutionCommand({
-      databaseName,
-      queryString,
-    });
-    const queryObjects: BillingCurated[] = await queryObject(queryId);
+    const queryObjects = await queryAthena<BillingCurated>(queryString);
     expect(queryObjects.length).toEqual(2);
     queryObjects.sort((q0, q1) => {
       return q0.service_name.localeCompare(q1.service_name);
@@ -95,9 +87,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       expect(expectedServices[i]).toEqual(queryObjects[i].service_name);
       expect(invoice.date.getFullYear()).toEqual(+queryObjects[i].year);
       expect(invoice.date.getMonth() + 1).toEqual(+queryObjects[i].month);
-      expect(queryObjects[i].quantity.toString()).toEqual(
-        queryObjects[i].quantity
-      );
       expect(queryObjects[i].price).toMatch(expectedSubtotals[i].toFixed(2));
       expect(+queryObjects[i].quantity).toEqual(expectedQuantities[i]);
     }
@@ -108,10 +97,10 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
         bucketName: s3Object.bucket,
         prefix: "successful",
       });
-      if (result.Contents === undefined) {
+      if (result === undefined) {
         return false;
       }
-      return result.Contents.some((t) => t.Key?.includes(s3Object.key));
+      return result.some((t) => t.key?.includes(s3Object.key));
     };
 
     const pollOptions = {
@@ -158,9 +147,9 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           bucketName: storageBucket,
           prefix: standardisedFolderPrefix,
         }),
-      ({ Contents }) =>
+      (Contents) =>
         Contents?.filter((s3Object) =>
-          s3Object.Key?.includes(
+          s3Object.key?.includes(
             `${standardisedFolderPrefix}/2023/03/2023-03-vendor_testvendor1-VENDOR_1_EVENT`
           )
         ).length === 2,
@@ -173,26 +162,22 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
 
     // Step 3: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
-    const queryId = await startQueryExecutionCommand({
-      databaseName,
-      queryString,
-    });
-    const queryObjects: BillingCurated[] = await queryObject(queryId);
-    expect(queryObjects.length).toEqual(2);
+    const response = await queryAthena<BillingCurated>(queryString);
+    expect(response.length).toEqual(2);
 
-    expect(queryObjects[0].vendor_name).toEqual("Vendor One");
-    expect(queryObjects[0].service_name).toEqual("Fraud check");
-    expect(queryObjects[0].quantity).toEqual("83");
-    expect(queryObjects[0].price).toEqual("327.8500");
-    expect(queryObjects[0].year).toEqual("2023");
-    expect(queryObjects[0].month).toEqual("03");
+    expect(response[0].vendor_name).toEqual("Vendor One");
+    expect(response[0].service_name).toEqual("Fraud check");
+    expect(response[0].quantity).toEqual("83");
+    expect(response[0].price).toEqual("327.8500");
+    expect(response[0].year).toEqual("2023");
+    expect(response[0].month).toEqual("03");
 
-    expect(queryObjects[1].vendor_name).toEqual("Vendor One");
-    expect(queryObjects[1].service_name).toEqual("Passport check");
-    expect(queryObjects[1].quantity).toEqual("13788");
-    expect(queryObjects[1].price).toEqual("4687.9200");
-    expect(queryObjects[1].year).toEqual("2023");
-    expect(queryObjects[1].month).toEqual("03");
+    expect(response[1].vendor_name).toEqual("Vendor One");
+    expect(response[1].service_name).toEqual("Passport check");
+    expect(response[1].quantity).toEqual("13788");
+    expect(response[1].price).toEqual("4687.9200");
+    expect(response[1].year).toEqual("2023");
+    expect(response[1].month).toEqual("03");
   });
 });
 
@@ -200,8 +185,8 @@ interface BillingCurated {
   vendor_id: string;
   vendor_name: string;
   service_name: string;
-  quantity: number;
-  price: number;
+  quantity: string;
+  price: string;
   year: string;
   month: string;
 }

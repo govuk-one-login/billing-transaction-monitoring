@@ -9,7 +9,7 @@ import {
   createInvoiceInS3,
   createInvoiceWithGivenData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
-import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
@@ -18,8 +18,8 @@ import {
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
-import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 import crypto from "crypto";
+import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 
 const prefix = resourcePrefix();
 let eventName: string;
@@ -76,9 +76,9 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
             prefix: standardisedFolderPrefix,
           }),
 
-        ({ Contents }) =>
+        (Contents) =>
           Contents?.filter((s3Object) =>
-            s3Object.Key?.includes(getYearMonth(eventTime))
+            s3Object.key?.includes(getYearMonth(eventTime))
           ).length === 1,
         {
           timeout: 120000,
@@ -137,13 +137,12 @@ export const assertQueryResultWithTestData = async (
   serviceName: string
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
-  const response: BillingTransactionCurated =
-    await queryResponseFilterByVendorServiceNameYearMonth(
-      vendorId,
-      serviceName,
-      tableName,
-      eventTime
-    );
+  const response = await getFilteredQueryResponse<BillingTransactionCurated>(
+    tableName,
+    vendorId,
+    serviceName,
+    eventTime
+  );
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(
     expectedResults.billingPriceFormatted
