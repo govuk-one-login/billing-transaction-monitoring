@@ -1,0 +1,3 @@
+export enum Env {
+  DESTINATION_BUCKET = "DESTINATION_BUCKET",
+}
