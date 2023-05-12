@@ -45,7 +45,7 @@ const makeS3Messages = async <TBody extends HandlerMessageBody>(
     }) => await fetchS3(bucketName, key)
   );
   const resolutions = await Promise.allSettled(promises);
-  const messages = resolutions.map((resolution) => {
+  const messages = resolutions.map((resolution, index) => {
     if (resolution.status === "rejected") {
       throw new Error("The object this event references could not be found.");
     }
@@ -54,7 +54,13 @@ const makeS3Messages = async <TBody extends HandlerMessageBody>(
     if (!bodyIsExpectedType) {
       throw new Error(ERROR_MESSAGE_TYPE_GUARD);
     }
-    return { body };
+    return {
+      body,
+      meta: {
+        bucketName: Records[index].s3.bucket.name,
+        key: Records[index].s3.object.key,
+      },
+    };
   });
   return messages;
 };
@@ -78,6 +84,17 @@ const isJsonObject = (x: unknown): x is Record<string, unknown> =>
 const isSqsRecord = (x: unknown): x is { messageId: unknown } =>
   isJsonObject(x) && "messageId" in x && !!x.messageId;
 
+const SQSMessageIncludesS3EventRecord = (result: {
+  incomingMessages: Array<HandlerIncomingMessage<any>>;
+  failedIds: string[];
+}): boolean => {
+  return result.incomingMessages.some((message) =>
+    message.body.Records.some((record: S3Event) =>
+      Object.keys(record).includes("s3")
+    )
+  );
+};
+
 export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
   event: S3Event | SQSEvent,
   incomingMessageBodyTypeGuard: (maybeBody: any) => maybeBody is TBody,
@@ -87,15 +104,36 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
   incomingMessages: Array<HandlerIncomingMessage<TBody>>;
   failedIds: string[];
 }> => {
-  const result = isSQSEvent(event)
-    ? makeSQSMessages(event, incomingMessageBodyTypeGuard, logger)
-    : {
+  let result: {
+    incomingMessages: Array<HandlerIncomingMessage<TBody>>;
+    failedIds: string[];
+  };
+  console.log("isSQSEvent(event)", isSQSEvent(event));
+  if (isSQSEvent(event)) {
+    result = makeSQSMessages(event, incomingMessageBodyTypeGuard, logger);
+    console.log("Result SQS event", result);
+    console.log(
+      "SQSMessageIncludesS3EventRecord(result)",
+      SQSMessageIncludesS3EventRecord(result)
+    );
+    if (SQSMessageIncludesS3EventRecord(result)) {
+      result = {
         incomingMessages: await makeS3Messages(
-          event,
+          result.incomingMessages[0].body as unknown as S3Event,
           incomingMessageBodyTypeGuard
         ),
-        failedIds: [], // S3 events have no message IDs (throw error on failure instead)
+        failedIds: [], // S3 events have no message IDs (throw error on failure instead)}
       };
+    }
+  } else {
+    result = {
+      incomingMessages: await makeS3Messages(
+        event,
+        incomingMessageBodyTypeGuard
+      ),
+      failedIds: [], // S3 events have no message IDs (throw error on failure instead)}
+    };
+  }
 
   if (!failuresAllowed && result.failedIds.length > 0)
     throw new Error(ERROR_MESSAGE_DEFAULT);

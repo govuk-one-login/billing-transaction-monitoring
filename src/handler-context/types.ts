@@ -7,6 +7,7 @@ export type HandlerMessageBody = string | {};
 export interface HandlerIncomingMessage<TBody extends HandlerMessageBody> {
   id?: string;
   body: TBody;
+  meta?: unknown;
 }
 
 export interface HandlerOutgoingMessage<TBody extends HandlerMessageBody> {
@@ -44,7 +45,8 @@ export type BusinessLogic<
   TOutgoingMessageBody extends HandlerMessageBody
 > = (
   incomingMessageBody: TIncomingMessageBody,
-  ctx: HandlerCtx<TEnvVars, TConfigElements, TOutgoingMessageBody>
+  ctx: HandlerCtx<TEnvVars, TConfigElements, TOutgoingMessageBody>,
+  meta?: unknown
 ) => Promise<TOutgoingMessageBody[]>;
 
 export interface HandlerCtx<
