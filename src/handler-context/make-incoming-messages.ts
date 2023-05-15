@@ -108,14 +108,8 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
     incomingMessages: Array<HandlerIncomingMessage<TBody>>;
     failedIds: string[];
   };
-  console.log("isSQSEvent(event)", isSQSEvent(event));
   if (isSQSEvent(event)) {
     result = makeSQSMessages(event, incomingMessageBodyTypeGuard, logger);
-    console.log("Result SQS event", result);
-    console.log(
-      "SQSMessageIncludesS3EventRecord(result)",
-      SQSMessageIncludesS3EventRecord(result)
-    );
     if (SQSMessageIncludesS3EventRecord(result)) {
       result = {
         incomingMessages: await makeS3Messages(

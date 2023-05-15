@@ -1,13 +1,15 @@
 import { buildHandler } from "../../handler-context";
 import { businessLogic } from "./business-logic";
 import { Env } from "./types";
-import { isValidIncomingMessageBody } from "./is-valid-incoming-message-body";
+import { store } from "./store";
 
 export const handler = buildHandler({
   businessLogic,
   envVars: [Env.DESTINATION_BUCKET],
-  incomingMessageBodyTypeGuard: isValidIncomingMessageBody,
-  outputs: [], // Upload attachments to Raw Invoice S3 bucket
+  incomingMessageBodyTypeGuard: (
+    maybeIncomingMessageBody: unknown
+  ): maybeIncomingMessageBody is string => true, // Talk to Mark P about this
+  outputs: [{ destination: Env.DESTINATION_BUCKET, store }],
   withBatchItemFailures: true,
   ConfigCache: [],
 });
