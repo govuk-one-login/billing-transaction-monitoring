@@ -113,11 +113,10 @@ export const getS3Object = callWithRetryAndTimeout(getS3ObjectBasic);
 const putS3ObjectBasic = async (
   dataAndTarget: DataAndTarget
 ): Promise<void> => {
-  if (runViaLambda())
-    (await sendLambdaCommand(
-      IntTestHelpers.putS3Object,
-      dataAndTarget
-    )) as unknown;
+  if (runViaLambda()) {
+    await sendLambdaCommand(IntTestHelpers.putS3Object, dataAndTarget);
+    return;
+  }
 
   const bucketParams = {
     Bucket: dataAndTarget.target.bucket,
