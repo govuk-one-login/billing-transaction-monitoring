@@ -1,32 +1,24 @@
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import crypto from "crypto";
 
-import {
-  createInvoiceInS3,
-  createInvoiceWithGivenData,
-} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
+import { createInvoiceWithGivenData } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 
-import {
-  generateEventViaFilterLambdaAndCheckEventInS3Bucket,
-  TestData,
-} from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { TestData } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import {
   EventName,
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import {
-  generateTestEvent,
   getYearMonth,
   poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import { generateTestEvents } from "./e2e-tests";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
 const standardisedFolderPrefix = "btm_invoice_data";
-let filename: string;
 
 describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data \n", () => {
   test.each`
@@ -38,27 +30,19 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
   `(
     "results retrieved from billing and transaction_curated view query should match with expected $testCase,$billingQty,$billingPriceFormatted,$transactionQty,$transactionPriceFormatted,$priceDifferencePercentage",
     async ({ ...data }) => {
-      for (let i = 0; i < data.transactionQty; i++) {
-        const eventPayload = await generateTestEvent({
-          event_name: data.eventName,
-          timestamp_formatted: data.eventTime,
-          timestamp: new Date(data.eventTime).getTime() / 1000,
-        });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
-      }
-
-      const uuid = crypto.randomBytes(3).toString("hex");
-      filename = `raw-Invoice-validFile-${uuid}`;
-
-      const invoiceData = createInvoiceWithGivenData(
+      await generateTestEvents(
+        data.eventTime,
+        data.transactionQty,
+        data.eventName
+      );
+      await createInvoiceWithGivenData(
         data,
         "Passport Check",
         data.unitPrice,
         data.vendorId,
-        data.vendorName
+        data.vendorName,
+        "pdf"
       );
-
-      await createInvoiceInS3({ invoiceData, filename: `${filename}.pdf` });
 
       // Wait for the invoice data to have been written, to some file in the standardised folder.
       await poll(
