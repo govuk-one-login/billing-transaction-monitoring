@@ -20,6 +20,11 @@ import {
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import crypto from "crypto";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
+import {
+  Invoice,
+  makeMockInvoiceCSV,
+  writeInvoiceToS3,
+} from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 
 const prefix = resourcePrefix();
 let eventName: string;
@@ -28,16 +33,15 @@ const standardisedFolderPrefix = "btm_invoice_data";
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 // Below tests can be run both in lower and higher environments
-// TODO: CSV e2e test
+
+beforeAll(async () => {
+  dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
+  eventName = dataRetrievedFromConfig.eventName;
+});
+let filename: string;
+let eventTime: string;
 
 describe("\n Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
-  beforeAll(async () => {
-    dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
-    eventName = dataRetrievedFromConfig.eventName;
-  });
-  let filename: string;
-  let eventTime: string;
-
   test.each`
     testCase                                                                               | eventTime       | transactionQty | billingQty
     ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2006/01/30"} | ${undefined}   | ${"100"}
@@ -116,6 +120,75 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
         await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
       }
       eventTime = data.eventTime;
+      const expectedResults = calculateExpectedResults(
+        data,
+        dataRetrievedFromConfig.unitPrice
+      );
+      await assertQueryResultWithTestData(
+        expectedResults,
+        eventTime,
+        dataRetrievedFromConfig.vendorId,
+        dataRetrievedFromConfig.serviceName
+      );
+    }
+  );
+});
+
+describe("\n Upload csv invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
+  test.each`
+    testCase                                                                | eventTime       | transactionQty | billingQty
+    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"} | ${"2006/02/27"} | ${"6"}         | ${"6"}
+  `(
+    "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
+    async (data) => {
+      for (let i = 0; i < data.transactionQty; i++) {
+        const eventPayload = await generateTestEvent({
+          event_name: eventName,
+          timestamp_formatted: data.eventTime,
+          timestamp: new Date(data.eventTime).getTime() / 1000,
+        });
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
+      }
+      eventTime = data.eventTime;
+      const uuid = crypto.randomBytes(3).toString("hex");
+      filename = `e2e-test-raw-Invoice-validFile-${uuid}`;
+
+      const invoiceData = createInvoiceWithGivenData(
+        data,
+        dataRetrievedFromConfig.description,
+        dataRetrievedFromConfig.unitPrice,
+        dataRetrievedFromConfig.vendorId,
+        dataRetrievedFromConfig.vendorName
+      );
+
+      const invoice = new Invoice(invoiceData);
+
+      await makeMockInvoiceCSV(writeInvoiceToS3)(
+        invoice,
+        invoiceData.vendor.id,
+        `${filename}.csv`
+      );
+
+      // Wait for the invoice data to have been written, to some file in the standardised folder.
+      await poll(
+        async () =>
+          await listS3Objects({
+            bucketName: storageBucket,
+            prefix: standardisedFolderPrefix,
+          }),
+
+        (Contents) =>
+          Contents?.filter((s3Object) =>
+            s3Object.key?.includes(getYearMonth(eventTime))
+          ).length === 1,
+        {
+          timeout: 120000,
+          interval: 10000,
+          notCompleteErrorMessage:
+            "e2e tests invoice data never appeared in standardised folder",
+        }
+      );
+
       const expectedResults = calculateExpectedResults(
         data,
         dataRetrievedFromConfig.unitPrice

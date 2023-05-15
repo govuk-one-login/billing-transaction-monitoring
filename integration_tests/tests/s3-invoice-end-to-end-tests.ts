@@ -161,8 +161,18 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
 
     // Check they were standardised
     await Promise.all([
-      checkStandardised(date, vendorId, givenVendorService1, "Passport check"),
-      checkStandardised(date, vendorId, givenVendorService2, "Kbv check"),
+      checkStandardised(
+        date,
+        vendorId,
+        givenVendorService1,
+        givenVendorService1.description
+      ),
+      checkStandardised(
+        date,
+        vendorId,
+        givenVendorService2,
+        givenVendorService2.description
+      ),
     ]);
 
     // Step 3: Check the view results match the original csv invoice.
@@ -180,7 +190,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(response[0].quantity).toEqual(
       invoice.getQuantity("Kbv check").toString()
     );
-    console.log(invoice);
     expect(response[0].price).toEqual(invoice.lineItems[0].subtotal.toFixed(4));
     expect(response[0].tax).toEqual(invoice.lineItems[0].vat.toFixed(4));
     expect(response[0].year).toEqual(invoice.date.getFullYear().toString());
