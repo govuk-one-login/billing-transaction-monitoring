@@ -13,7 +13,10 @@ import {
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
-import { randomString } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/random";
+import {
+  randomLineItem,
+  randomString,
+} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/random";
 import { getE2ETestConfig } from "../../src/handlers/int-test-support/config-utils/get-e2e-test-config";
 import {
   checkStandardised,
@@ -126,63 +129,82 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
   });
 
   test.only("upload valid csv file in raw-invoice bucket and check that we can see the data in the view", async () => {
-    // Step 1: Put the test csv file in the raw-invoice bucket. A further ticket will handle the random creation of a csv invoice, similar to the pdf invoice.
+    // Step 1: Put random creation of a csv invoice file in the raw-invoice bucket.
     // Note: For the csv invoice flow, the original does not get moved to a 'successful folder' like it does for the pdf invoice flow that invokes Textract.
     const date = getRandomInvoiceDate();
-    console.log(date);
 
     // Get vendor that uses default PDF parser
     const {
       parser_default_vendor_id: vendorId,
       parser_default_service_1: givenVendorService1,
+      parser_default_service_2: givenVendorService2,
     } = await getE2ETestConfig();
 
     const invoice = randomInvoice({
       date,
-      lineItemCount: 1,
-      lineItemOptions: {
-        description: givenVendorService1.description,
-      },
+      lineItemCount: 2,
+      lineItems: [
+        randomLineItem({ description: givenVendorService2.description }),
+        randomLineItem({ description: givenVendorService1.description }),
+      ],
       vendor: {
         id: vendorId,
         name: "Vendor Two",
       },
     });
-    console.log(invoice);
-    const mockCSVInvoice = await makeMockInvoiceCSV(writeInvoiceToS3)(
+
+    await makeMockInvoiceCSV(writeInvoiceToS3)(
       invoice,
       invoice.vendor.id,
       `${randomString(8)}.csv`
     );
 
-    console.log(mockCSVInvoice);
+    // Check they were standardised
+    await Promise.all([
+      checkStandardised(date, vendorId, givenVendorService1, "Passport check"),
+      checkStandardised(date, vendorId, givenVendorService2, "Kbv check"),
+    ]);
 
-    const standardised = await checkStandardised(
-      date,
-      invoice.vendor.id,
-      givenVendorService1,
-      "Passport check"
-    );
-    console.log(standardised);
+    // Step 3: Check the view results match the original csv invoice.
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = '${vendorId}' AND year='${date.getFullYear()}' AND month='${(
+      date.getMonth() + 1
+    ).toLocaleString("en-US", {
+      minimumIntegerDigits: 2,
+    })}' ORDER BY service_name ASC`;
 
-    // Step 3: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
-    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
     const response = await queryAthena<BillingCurated>(queryString);
     expect(response.length).toEqual(2);
 
     expect(response[0].vendor_name).toEqual(invoice.vendor.name);
-    expect(response[0].service_name).toEqual("Passport check");
-    expect(response[0].quantity).toEqual(invoice.getQuantity("Passport check"));
-    expect(response[0].price).toEqual(invoice.getSubtotal());
-    expect(response[0].year).toEqual(invoice.date.getFullYear());
-    expect(response[0].month).toEqual(invoice.date.getMonth() + 1);
+    expect(response[0].service_name).toEqual("Kbv check");
+    expect(response[0].quantity).toEqual(
+      invoice.getQuantity("Kbv check").toString()
+    );
+    console.log(invoice);
+    expect(response[0].price).toEqual(invoice.lineItems[0].subtotal.toFixed(4));
+    expect(response[0].tax).toEqual(invoice.lineItems[0].vat.toFixed(4));
+    expect(response[0].year).toEqual(invoice.date.getFullYear().toString());
+    console.log(response[0].month);
+    console.log(
+      (invoice.date.getMonth() + 1).toLocaleString("en-US", {
+        minimumIntegerDigits: 2,
+      })
+    );
+    expect(response[0].month).toEqual((invoice.date.getMonth() + 1).toString());
 
-    expect(response[1].vendor_name).toEqual("Vendor One");
+    expect(response[1].vendor_name).toEqual(invoice.vendor.name);
     expect(response[1].service_name).toEqual("Passport check");
-    expect(response[1].quantity).toEqual("13788");
-    expect(response[1].price).toEqual("4687.9200");
-    expect(response[1].year).toEqual("2023");
-    expect(response[1].month).toEqual("03");
+    expect(response[1].quantity).toEqual(
+      invoice.getQuantity("Passport check").toString()
+    );
+    expect(response[1].price).toEqual(invoice.lineItems[1].subtotal.toFixed(4));
+    expect(response[1].tax).toEqual(invoice.lineItems[1].vat.toFixed(4));
+    expect(response[1].year).toEqual(invoice.date.getFullYear().toString());
+    expect(response[1].month).toEqual(
+      (invoice.date.getMonth() + 1).toLocaleString("en-US", {
+        minimumIntegerDigits: 2,
+      })
+    );
   });
 });
 
@@ -192,6 +214,7 @@ interface BillingCurated {
   service_name: string;
   quantity: string;
   price: string;
+  tax: string;
   year: string;
   month: string;
 }
