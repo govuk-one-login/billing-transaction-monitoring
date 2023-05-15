@@ -123,7 +123,7 @@ describe("New invoice with same month, vendor, service as old line item", () => 
   });
 });
 
-const checkStandardised = async (
+export const checkStandardised = async (
   date: Date,
   vendorId: string,
   serviceConfig: E2ETestParserServiceConfig,
@@ -222,7 +222,7 @@ const deleteTextractData = async (
   await deleteExisting(bucket, [key]);
 };
 
-const getLineItemPrefix = (
+export const getLineItemPrefix = (
   date: Date,
   vendorId: string,
   eventName: string,
@@ -241,7 +241,7 @@ const getLineItemPrefix = (
 const getRandomInteger = (minInteger: number, maxInteger: number): number =>
   minInteger + Math.floor(Math.random() * (maxInteger - minInteger + 1));
 
-const getRandomInvoiceDate = (): Date => {
+export const getRandomInvoiceDate = (): Date => {
   const now = new Date();
   const currentYear = now.getFullYear();
   const maxYear = 2049;

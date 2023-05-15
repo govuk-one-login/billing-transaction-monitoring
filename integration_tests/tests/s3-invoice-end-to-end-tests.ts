@@ -1,23 +1,27 @@
-import path from "path";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkIfS3ObjectExists,
   deleteS3Objects,
   listS3Objects,
-  putS3Object,
-  S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
+  makeMockInvoiceCSV,
   randomInvoice,
   randomLineItems,
+  writeInvoiceToS3,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
-import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
-import fs from "fs";
 import {
   queryObject,
   startQueryExecutionCommand,
 } from "../../src/handlers/int-test-support/helpers/athenaHelper";
+import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
+import { randomString } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/random";
+import { getE2ETestConfig } from "../../src/handlers/int-test-support/config-utils/get-e2e-test-config";
+import {
+  checkStandardised,
+  getRandomInvoiceDate,
+} from "./s3-invoice-standardised-line-item-tests";
 
 const prefix = resourcePrefix();
 
@@ -132,44 +136,45 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     });
   });
 
-  test("upload valid csv file in raw-invoice bucket and check that we can see the data in the view", async () => {
+  test.only("upload valid csv file in raw-invoice bucket and check that we can see the data in the view", async () => {
     // Step 1: Put the test csv file in the raw-invoice bucket. A further ticket will handle the random creation of a csv invoice, similar to the pdf invoice.
     // Note: For the csv invoice flow, the original does not get moved to a 'successful folder' like it does for the pdf invoice flow that invokes Textract.
+    const date = getRandomInvoiceDate();
+    console.log(date);
 
-    filename = "valid-vendor1-invoice";
-    const folderPrefix = "vendor_testvendor1";
-    const testObject: S3Object = {
-      bucket: `${prefix}-raw-invoice`,
-      key: `${folderPrefix}/${filename}.csv`,
-    };
-    const csv = `../payloads/${filename}.csv`;
-    const filePath = path.join(__dirname, csv);
-    const fileData = fs.readFileSync(filePath);
-    await putS3Object({ data: fileData, target: testObject });
+    // Get vendor that uses default PDF parser
+    const {
+      parser_default_vendor_id: vendorId,
+      parser_default_service_1: givenVendorService1,
+    } = await getE2ETestConfig();
 
-    const checkRawCsvFileExists = await checkIfS3ObjectExists(testObject);
-    expect(checkRawCsvFileExists).toBeTruthy();
-
-    // Step 2: Wait for the invoice data to be standardised and saved in the storage bucket/btm_invoice_data.
-
-    await poll(
-      async () =>
-        await listS3Objects({
-          bucketName: storageBucket,
-          prefix: standardisedFolderPrefix,
-        }),
-      ({ Contents }) =>
-        Contents?.filter((s3Object) =>
-          s3Object.Key?.includes(
-            `${standardisedFolderPrefix}/2023/03/2023-03-vendor_testvendor1-VENDOR_1_EVENT`
-          )
-        ).length === 2,
-      {
-        timeout: 80000,
-        notCompleteErrorMessage:
-          "CSV Invoice data never appeared in standardised folder",
-      }
+    const invoice = randomInvoice({
+      date,
+      lineItemCount: 1,
+      lineItemOptions: {
+        description: givenVendorService1.description,
+      },
+      vendor: {
+        id: vendorId,
+        name: "Vendor Two",
+      },
+    });
+    console.log(invoice);
+    const mockCSVInvoice = await makeMockInvoiceCSV(writeInvoiceToS3)(
+      invoice,
+      invoice.vendor.id,
+      `${randomString(8)}.csv`
     );
+
+    console.log(mockCSVInvoice);
+
+    const standardised = await checkStandardised(
+      date,
+      invoice.vendor.id,
+      givenVendorService1,
+      "Passport check"
+    );
+    console.log(standardised);
 
     // Step 3: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
@@ -180,12 +185,14 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     const queryObjects: BillingCurated[] = await queryObject(queryId);
     expect(queryObjects.length).toEqual(2);
 
-    expect(queryObjects[0].vendor_name).toEqual("Vendor One");
-    expect(queryObjects[0].service_name).toEqual("Fraud check");
-    expect(queryObjects[0].quantity).toEqual("83");
-    expect(queryObjects[0].price).toEqual("327.8500");
-    expect(queryObjects[0].year).toEqual("2023");
-    expect(queryObjects[0].month).toEqual("03");
+    expect(queryObjects[0].vendor_name).toEqual(invoice.vendor.name);
+    expect(queryObjects[0].service_name).toEqual("Passport check");
+    expect(queryObjects[0].quantity).toEqual(
+      invoice.getQuantity("Passport check")
+    );
+    expect(queryObjects[0].price).toEqual(invoice.getSubtotal());
+    expect(queryObjects[0].year).toEqual(invoice.date.getFullYear());
+    expect(queryObjects[0].month).toEqual(invoice.date.getMonth() + 1);
 
     expect(queryObjects[1].vendor_name).toEqual("Vendor One");
     expect(queryObjects[1].service_name).toEqual("Passport check");
