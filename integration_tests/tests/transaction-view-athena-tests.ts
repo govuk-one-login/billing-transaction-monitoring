@@ -7,7 +7,7 @@ import {
   EventName,
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
@@ -44,26 +44,24 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       }
       const tableName = TableNames.TRANSACTION_CURATED;
       const prettyEventName = prettyEventNameMap[eventName];
-
-      const response: TransactionCuratedView[] =
-        await queryResponseFilterByVendorServiceNameYearMonth(
-          vendorId,
-          prettyEventName,
-          tableName,
-          eventTime
-        );
+      const response = await getFilteredQueryResponse<TransactionCurated>(
+        tableName,
+        vendorId,
+        prettyEventName,
+        eventTime
+      );
       expect(response.length).toBe(1);
       expect(response[0].price).toEqual(expectedPrice);
     }
   );
 });
 
-interface TransactionCuratedView {
+type TransactionCurated = Array<{
   vendor_id: string;
   vendor_name: string;
   service_name: string;
-  price: number;
-  quantity: number;
+  price: string;
+  quantity: string;
   year: string;
   month: string;
-}
+}>;

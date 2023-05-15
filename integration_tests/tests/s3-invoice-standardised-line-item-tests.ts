@@ -145,10 +145,10 @@ export const checkStandardised = async (
   const s3Response = await poll(
     async () => await listS3Objects({ bucketName: bucket, prefix }),
 
-    ({ Contents }) =>
+    (Contents) =>
       Contents !== undefined &&
       Contents.filter(
-        (result) => result.Key !== undefined && result.Key !== keyToExclude
+        (result) => result.key !== undefined && result.key !== keyToExclude
       ).length === 1,
 
     {
@@ -158,9 +158,9 @@ export const checkStandardised = async (
     }
   );
 
-  const result = s3Response.Contents?.[0];
-  if (result?.Key === undefined) throw new Error("Empty line item data");
-  return { bucket, key: result.Key };
+  const result = s3Response?.[0];
+  if (result?.key === undefined) throw new Error("Empty line item data");
+  return { bucket, key: result.key };
 };
 
 const deleteExisting = async (
@@ -258,8 +258,7 @@ export const listS3Keys = async (
   prefix: string
 ): Promise<string[]> => {
   const result = await listS3Objects({ bucketName, prefix });
-  if (result.Contents === undefined) return [];
-  const keys: Array<string | undefined> = result.Contents.map(({ Key }) => Key);
+  const keys = result.map(({ key }) => key);
   return keys.filter((key) => key !== undefined) as string[];
 };
 
