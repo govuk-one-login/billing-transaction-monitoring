@@ -6,17 +6,12 @@ import {
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
-  makeMockInvoiceCSV,
   randomInvoice,
   randomLineItems,
-  writeInvoiceToS3,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
-import {
-  randomLineItem,
-  randomString,
-} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/random";
+import { randomLineItem } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/random";
 import { getE2ETestConfig } from "../../src/handlers/int-test-support/config-utils/get-e2e-test-config";
 import {
   checkStandardised,
@@ -153,11 +148,13 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       },
     });
 
-    await makeMockInvoiceCSV(writeInvoiceToS3)(
-      invoice,
-      invoice.vendor.id,
-      `${randomString(8)}.csv`
-    );
+    const s3Object = await createInvoiceInS3({
+      invoiceData: invoice,
+      filename: `${filename}.csv`,
+    });
+
+    const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
+    expect(checkRawPdfFileExists).toBeTruthy();
 
     // Check they were standardised
     await Promise.all([

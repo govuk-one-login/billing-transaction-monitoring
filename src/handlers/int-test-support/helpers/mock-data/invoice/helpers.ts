@@ -1,11 +1,11 @@
 import { S3Object } from "../../s3Helper";
-import { Invoice, makeMockInvoicePDF } from "./invoice";
+import { Invoice, makeMockInvoicePDF, makeMockInvoiceCSV } from "./invoice";
 import { writeInvoiceToS3 } from "./writers";
 import { runViaLambda } from "../../envHelper";
 import { sendLambdaCommand } from "../../lambdaHelper";
 import { InvoiceData } from "./types";
 import { IntTestHelpers } from "../../../handler";
-import { randomLineItem, randomInvoice } from "./random";
+import { randomLineItem, randomInvoice, randomString } from "./random";
 import { TestData } from "../../testDataHelper";
 
 interface InvoiceDataAndFileName {
@@ -24,20 +24,31 @@ export const createInvoiceInS3 = async (
 
   const invoice = new Invoice(params.invoiceData);
 
-  return await makeMockInvoicePDF(writeInvoiceToS3)(
-    invoice,
-    invoice.vendor.id,
-    params.filename
-  );
+  if (params.filename.endsWith("pdf")) {
+    return await makeMockInvoicePDF(writeInvoiceToS3)(
+      invoice,
+      invoice.vendor.id,
+      params.filename
+    );
+  } else if (params.filename.endsWith("csv")) {
+    return await makeMockInvoiceCSV(writeInvoiceToS3)(
+      invoice,
+      invoice.vendor.id,
+      params.filename
+    );
+  } else {
+    throw new Error("Invalid file extension. Only .pdf and .csv are allowed");
+  }
 };
 
-export const createInvoiceWithGivenData = (
+export const createInvoiceWithGivenData = async (
   { eventTime, billingQty }: TestData,
   description: string,
   unitPrice: number,
   vendorId: string,
-  vendorName: string
-): InvoiceData => {
+  vendorName: string,
+  fileExtension: "pdf" | "csv"
+): Promise<S3Object> => {
   const givenBillingQty = billingQty;
   const lineItems = randomLineItem({
     description,
@@ -45,7 +56,7 @@ export const createInvoiceWithGivenData = (
     unitPrice,
   });
 
-  const givenInvoice = randomInvoice({
+  const invoiceData = randomInvoice({
     vendor: {
       id: vendorId,
       name: vendorName,
@@ -53,5 +64,8 @@ export const createInvoiceWithGivenData = (
     date: new Date(eventTime),
     lineItems: [lineItems],
   });
-  return givenInvoice;
+  const filename = `e2e-test-raw-Invoice-validFile-${randomString(
+    8
+  )}.${fileExtension}`;
+  return await createInvoiceInS3({ invoiceData, filename });
 };

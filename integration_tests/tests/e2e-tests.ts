@@ -5,10 +5,7 @@ import {
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import {
-  createInvoiceInS3,
-  createInvoiceWithGivenData,
-} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
+import { createInvoiceWithGivenData } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
@@ -18,13 +15,7 @@ import {
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
-import crypto from "crypto";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
-import {
-  Invoice,
-  makeMockInvoiceCSV,
-  writeInvoiceToS3,
-} from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 
 const prefix = resourcePrefix();
 let eventName: string;
@@ -38,8 +29,6 @@ beforeAll(async () => {
   dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
   eventName = dataRetrievedFromConfig.eventName;
 });
-let filename: string;
-let eventTime: string;
 
 describe("\n Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
   test.each`
@@ -51,26 +40,15 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      for (let i = 0; i < data.transactionQty; i++) {
-        const eventPayload = await generateTestEvent({
-          event_name: eventName,
-          timestamp_formatted: data.eventTime,
-          timestamp: new Date(data.eventTime).getTime() / 1000,
-        });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
-      }
-      eventTime = data.eventTime;
-      const uuid = crypto.randomBytes(3).toString("hex");
-      filename = `e2e-test-raw-Invoice-validFile-${uuid}`;
-
-      const invoiceData = createInvoiceWithGivenData(
+      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
+      await createInvoiceWithGivenData(
         data,
         dataRetrievedFromConfig.description,
         dataRetrievedFromConfig.unitPrice,
         dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.vendorName
+        dataRetrievedFromConfig.vendorName,
+        "pdf"
       );
-      await createInvoiceInS3({ invoiceData, filename: `${filename}.pdf` });
 
       // Wait for the invoice data to have been written, to some file in the standardised folder.
       await poll(
@@ -82,7 +60,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
 
         (Contents) =>
           Contents?.filter((s3Object) =>
-            s3Object.key?.includes(getYearMonth(eventTime))
+            s3Object.key?.includes(getYearMonth(data.eventTime))
           ).length === 1,
         {
           timeout: 120000,
@@ -98,7 +76,7 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
       );
       await assertQueryResultWithTestData(
         expectedResults,
-        eventTime,
+        data.eventTime,
         dataRetrievedFromConfig.vendorId,
         dataRetrievedFromConfig.serviceName
       );
@@ -111,22 +89,14 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      for (let i = 0; i < data.transactionQty; i++) {
-        const eventPayload = await generateTestEvent({
-          event_name: eventName,
-          timestamp_formatted: data.eventTime,
-          timestamp: new Date(data.eventTime).getTime() / 1000,
-        });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
-      }
-      eventTime = data.eventTime;
+      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
       const expectedResults = calculateExpectedResults(
         data,
         dataRetrievedFromConfig.unitPrice
       );
       await assertQueryResultWithTestData(
         expectedResults,
-        eventTime,
+        data.eventTime,
         dataRetrievedFromConfig.vendorId,
         dataRetrievedFromConfig.serviceName
       );
@@ -134,39 +104,21 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   );
 });
 
-describe("\n Upload csv invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
+describe.only("\n Upload csv invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
   test.each`
     testCase                                                                | eventTime       | transactionQty | billingQty
     ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"} | ${"2006/02/27"} | ${"6"}         | ${"6"}
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      for (let i = 0; i < data.transactionQty; i++) {
-        const eventPayload = await generateTestEvent({
-          event_name: eventName,
-          timestamp_formatted: data.eventTime,
-          timestamp: new Date(data.eventTime).getTime() / 1000,
-        });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
-      }
-      eventTime = data.eventTime;
-      const uuid = crypto.randomBytes(3).toString("hex");
-      filename = `e2e-test-raw-Invoice-validFile-${uuid}`;
-
-      const invoiceData = createInvoiceWithGivenData(
+      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
+      await createInvoiceWithGivenData(
         data,
         dataRetrievedFromConfig.description,
         dataRetrievedFromConfig.unitPrice,
         dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.vendorName
-      );
-
-      const invoice = new Invoice(invoiceData);
-
-      await makeMockInvoiceCSV(writeInvoiceToS3)(
-        invoice,
-        invoiceData.vendor.id,
-        `${filename}.csv`
+        dataRetrievedFromConfig.vendorName,
+        "csv"
       );
 
       // Wait for the invoice data to have been written, to some file in the standardised folder.
@@ -179,7 +131,7 @@ describe("\n Upload csv invoice to raw invoice bucket and generate transactions 
 
         (Contents) =>
           Contents?.filter((s3Object) =>
-            s3Object.key?.includes(getYearMonth(eventTime))
+            s3Object.key?.includes(getYearMonth(data.eventTime))
           ).length === 1,
         {
           timeout: 120000,
@@ -195,7 +147,7 @@ describe("\n Upload csv invoice to raw invoice bucket and generate transactions 
       );
       await assertQueryResultWithTestData(
         expectedResults,
-        eventTime,
+        data.eventTime,
         dataRetrievedFromConfig.vendorId,
         dataRetrievedFromConfig.serviceName
       );
@@ -269,6 +221,21 @@ const calculateExpectedResults = (
       billingPriceFormatted: formatCurrency(billingPrice),
       priceDifferencePercentage: priceDifferencePercentage.toFixed(1),
     };
+  }
+};
+
+export const generateTestEvents = async (
+  eventTime: string,
+  transactionQty: number,
+  eventName: string
+): Promise<void> => {
+  for (let i = 0; i < transactionQty; i++) {
+    const eventPayload = await generateTestEvent({
+      event_name: eventName,
+      timestamp_formatted: eventTime,
+      timestamp: new Date(eventTime).getTime() / 1000,
+    });
+    await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
   }
 };
 
