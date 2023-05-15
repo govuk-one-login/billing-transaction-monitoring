@@ -13,7 +13,7 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
       LoggingConfiguration:
-        DestinationBucketName: !Sub ${AWS::StackName}-s3-logs
+        DestinationBucketName: !Ref GlobalLogBucket
         LogFilePrefix: email-bucket/log
 
   EmailBucketPolicy:
