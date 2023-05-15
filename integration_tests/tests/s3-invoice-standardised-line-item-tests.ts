@@ -222,7 +222,7 @@ const deleteTextractData = async (
   await deleteExisting(bucket, [key]);
 };
 
-export const getLineItemPrefix = (
+const getLineItemPrefix = (
   date: Date,
   vendorId: string,
   eventName: string,

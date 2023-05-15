@@ -128,7 +128,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     });
   });
 
-  test.only("upload valid csv file in raw-invoice bucket and check that we can see the data in the view", async () => {
+  test("upload valid csv file in raw-invoice bucket and check that we can see the data in the view", async () => {
     // Step 1: Put random creation of a csv invoice file in the raw-invoice bucket.
     // Note: For the csv invoice flow, the original does not get moved to a 'successful folder' like it does for the pdf invoice flow that invokes Textract.
     const date = getRandomInvoiceDate();
@@ -184,13 +184,11 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     expect(response[0].price).toEqual(invoice.lineItems[0].subtotal.toFixed(4));
     expect(response[0].tax).toEqual(invoice.lineItems[0].vat.toFixed(4));
     expect(response[0].year).toEqual(invoice.date.getFullYear().toString());
-    console.log(response[0].month);
-    console.log(
+    expect(response[0].month).toEqual(
       (invoice.date.getMonth() + 1).toLocaleString("en-US", {
         minimumIntegerDigits: 2,
       })
     );
-    expect(response[0].month).toEqual((invoice.date.getMonth() + 1).toString());
 
     expect(response[1].vendor_name).toEqual(invoice.vendor.name);
     expect(response[1].service_name).toEqual("Passport check");

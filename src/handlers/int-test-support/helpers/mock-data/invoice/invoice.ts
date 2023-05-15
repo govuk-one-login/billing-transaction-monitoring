@@ -1,7 +1,6 @@
 import JSPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { InvoiceData } from "./types";
-import { TextEncoder } from "util";
 
 export type WriteFunc<TWriteOutput> = (
   file: ArrayBuffer,
@@ -133,12 +132,7 @@ export const makeMockInvoiceCSV =
   ): Promise<TWriteOutput> => {
     const csvData = [
       ["Vendor", invoice.vendor.name],
-      [
-        "Invoice period start",
-        invoice.date.toISOString().substring(0, 10),
-        "",
-        "",
-      ],
+      ["Invoice period start", invoice.date.toISOString().substring(0, 10)],
       ["Invoice period end", invoice.date.toISOString().substring(0, 10)],
       ["Invoice Date", invoice.date.toISOString().substring(0, 10)],
       ["Due Date", invoice.dueDate.toISOString().substring(0, 10)],
@@ -165,6 +159,6 @@ export const makeMockInvoiceCSV =
       ],
     ];
     const csvString = csvData.map((row) => row.join(",")).join("\n");
-    const csvDataArrayBuffer = new TextEncoder().encode(csvString).buffer;
+    const csvDataArrayBuffer = Buffer.from(csvString);
     return await writeOutput(csvDataArrayBuffer, folder, filename);
   };
