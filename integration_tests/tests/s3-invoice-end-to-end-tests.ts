@@ -64,14 +64,14 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
           description: invoice.lineItems[0].description,
           event_name: EventName.VENDOR_3_EVENT_6,
         },
-        "address Check"
+        "address check"
       ),
       checkStandardised(
         invoice.date,
         invoice.vendor.id,
         {
           description: invoice.lineItems[1].description,
-          event_name: EventName.VENDOR_3_EVENT_6,
+          event_name: EventName.VENDOR_3_EVENT_4,
         },
         "passport check"
       ),
@@ -130,9 +130,9 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     const invoice = randomInvoice({
       date: new Date("2023-03-31"),
       lineItems: [
-        randomLineItem({ description: "Fraud check" }),
-        randomLineItem({ description: "Passport check" }),
-        randomLineItem({ description: "Long weight" }),
+        randomLineItem({ description: "Fraud check", quantity: 100 }),
+        randomLineItem({ description: "Passport check", quantity: 100 }),
+        randomLineItem({ description: "Long weight", quantity: 100 }),
       ],
       vendor: {
         id: VendorId.vendor_testvendor1,
