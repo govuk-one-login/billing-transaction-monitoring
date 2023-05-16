@@ -1,0 +1,39 @@
+Resources:
+  EmailBucket:
+    # checkov:skip=CKV_AWS_19: SES should encrypt mail instead of S3
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-email
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: email-bucket/log
+
+  EmailBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref EmailBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ses.amazonaws.com
+            Action:
+              - s3:PutObject
+            Resource:
+              - !Sub ${EmailBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: true
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+                aws:SourceArn:
+                  - !Sub arn:aws:ses:eu-west-1:${AWS::AccountId}:receipt-rule-set/di-btm-tooling-email-${Environment}-receipt-rule-set:receipt-rule/di-btm-tooling-email-${Environment}-vendor1-receipt-rule
