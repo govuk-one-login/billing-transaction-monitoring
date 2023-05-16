@@ -22,15 +22,15 @@ export const businessLogic: BusinessLogic<
     );
 
   const vendorId = filePathParts[0];
-  const sourceFileName = filePathParts[filePathParts.length - 1]; // TO DO Remove spaces in the email name?, check with Gareth
-  logger.info(`Vendor: ${vendorId}`);
-  logger.info(`Email name: ${sourceFileName}`);
+  const sourceFileName = filePathParts[filePathParts.length - 1]; // An email with spaces in the subject line errors, check with Gareth
+  logger.info(`Vendor: ${vendorId} | Email name: ${sourceFileName}`);
 
   // Parse the email using mailparser
 
   const parsedEmail = await simpleParser(event);
+  console.log(parsedEmail);
   const attachments = parsedEmail.attachments;
-
+  console.log(attachments);
   // Extract attachments that are pdf or csv from the email
   const desiredAttachments = attachments.filter(
     (attachment) =>
@@ -38,13 +38,16 @@ export const businessLogic: BusinessLogic<
       attachment.contentType === "text/csv"
   );
 
+  if (!desiredAttachments.length) {
+    throw Error(`No pdf or csv attachments in ${sourceFileName}`);
+  }
+
   const attachmentContent = desiredAttachments.map((attachment) => ({
     content: attachment.content.toString(),
     vendorId,
     attachmentName: attachment.filename,
   }));
-
-  // To Do Reduce
+  console.log("content", attachmentContent[0].content.toString());
 
   // Return attachments and folder/filename
   return attachmentContent;
