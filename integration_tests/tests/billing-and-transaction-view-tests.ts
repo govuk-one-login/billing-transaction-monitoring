@@ -8,13 +8,13 @@ import {
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import {
+  generateTestEvents,
   getYearMonth,
   poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { generateTestEvents } from "./e2e-tests";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;

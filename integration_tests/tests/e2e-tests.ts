@@ -1,5 +1,5 @@
 import {
-  generateTestEvent,
+  generateTestEvents,
   getYearMonth,
   poll,
   TableNames,
@@ -10,7 +10,6 @@ import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/he
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
-  generateEventViaFilterLambdaAndCheckEventInS3Bucket,
   getVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
@@ -144,21 +143,6 @@ const calculateExpectedResults = (
       billingPriceFormatted: formatCurrency(billingPrice),
       priceDifferencePercentage: priceDifferencePercentage.toFixed(1),
     };
-  }
-};
-
-export const generateTestEvents = async (
-  eventTime: string,
-  transactionQty: number,
-  eventName: string
-): Promise<void> => {
-  for (let i = 0; i < transactionQty; i++) {
-    const eventPayload = await generateTestEvent({
-      event_name: eventName,
-      timestamp_formatted: eventTime,
-      timestamp: new Date(eventTime).getTime() / 1000,
-    });
-    await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
   }
 };
 

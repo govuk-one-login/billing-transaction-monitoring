@@ -1,15 +1,12 @@
 import { deleteS3Objects, listS3Objects } from "./s3Helper";
 import { resourcePrefix } from "./envHelper";
 import { EventPayload } from "./payloadHelper";
+import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "./testDataHelper";
 
 const objectsPrefix = "btm_event_data";
 
 export const generateRandomId = (): string => {
   return Math.floor(Math.random() * 10000000).toString();
-};
-
-export const validTimestamp = (date: string): number => {
-  return Math.floor(new Date(date).getTime() / 1000);
 };
 
 export enum TableNames {
@@ -85,6 +82,21 @@ export const generateTestEvent = async (
   component_id: "TEST_COMP",
   ...overrides,
 });
+
+export const generateTestEvents = async (
+  eventTime: string,
+  transactionQty: number,
+  eventName: string
+): Promise<void> => {
+  for (let i = 0; i < transactionQty; i++) {
+    const eventPayload = await generateTestEvent({
+      event_name: eventName,
+      timestamp_formatted: eventTime,
+      timestamp: new Date(eventTime).getTime() / 1000,
+    });
+    await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
+  }
+};
 
 export const deleteS3Event = async (
   eventId: string,

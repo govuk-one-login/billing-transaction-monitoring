@@ -1,6 +1,10 @@
 import path from "path";
 import fs from "fs";
-import { generateRandomId, validTimestamp } from "./commonHelpers";
+import { generateRandomId } from "./commonHelpers";
+
+export const validTimestamp = (date: string): number => {
+  return Math.floor(new Date(date).getTime() / 1000);
+};
 
 export enum VendorId {
   vendor_testvendor1 = "vendor_testvendor1",
