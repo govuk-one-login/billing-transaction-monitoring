@@ -1,4 +1,3 @@
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkIfS3ObjectExists,
   deleteS3Objects,
@@ -11,14 +10,18 @@ import {
   randomLineItems,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
+import {
+  checkStandardised,
+  createInvoiceInS3,
+} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { randomLineItem } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/random";
-
-const prefix = resourcePrefix();
+import {
+  EventName,
+  VendorId,
+  prettyVendorNameMap,
+} from "../../src/handlers/int-test-support/helpers/payloadHelper";
 
 describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view\n", () => {
-  const storageBucket = `${prefix}-storage`;
-  const standardisedFolderPrefix = "btm_invoice_data";
   let filename: string;
   let s3Object: S3Object;
 
@@ -52,27 +55,27 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
 
-    // Wait for the invoice data to have been written, to files in the standardised folder.
-    await poll(
-      async () =>
-        await listS3Objects({
-          bucketName: storageBucket,
-          prefix: standardisedFolderPrefix,
-        }),
-      (Contents) =>
-        Contents?.filter((s3Object) =>
-          s3Object.key?.includes(
-            `${standardisedFolderPrefix}/2023/03/2023-03-vendor_testvendor3-VENDOR_3_EVENT`
-          )
-        ).length === 2,
-      {
-        timeout: 120000,
-        interval: 10000,
-        notCompleteErrorMessage:
-          "PDF Invoice data never appeared in standardised folder",
-      }
-    );
-
+    // Check they were standardised
+    await Promise.all([
+      checkStandardised(
+        invoice.date,
+        invoice.vendor.id,
+        {
+          description: invoice.lineItems[0].description,
+          event_name: EventName.VENDOR_3_EVENT_6,
+        },
+        "address Check"
+      ),
+      checkStandardised(
+        invoice.date,
+        invoice.vendor.id,
+        {
+          description: invoice.lineItems[1].description,
+          event_name: EventName.VENDOR_3_EVENT_6,
+        },
+        "passport check"
+      ),
+    ]);
     // Check the view results match the invoice.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3'`;
     const queryObjects = await queryAthena<BillingCurated>(queryString);
@@ -132,8 +135,8 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
         randomLineItem({ description: "Long weight" }),
       ],
       vendor: {
-        id: "vendor_testvendor1",
-        name: "Vendor One",
+        id: VendorId.vendor_testvendor1,
+        name: prettyVendorNameMap[VendorId.vendor_testvendor1],
       },
     });
 
@@ -145,25 +148,27 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
 
-    // Wait for the invoice data to have been written, to some file in the standardised folder.
-    await poll(
-      async () =>
-        await listS3Objects({
-          bucketName: storageBucket,
-          prefix: standardisedFolderPrefix,
-        }),
-      (Contents) =>
-        Contents?.filter((s3Object) =>
-          s3Object.key?.includes(
-            `${standardisedFolderPrefix}/2023/03/2023-03-vendor_testvendor1-VENDOR_1_EVENT`
-          )
-        ).length === 2,
-      {
-        timeout: 80000,
-        notCompleteErrorMessage:
-          "CSV Invoice data never appeared in standardised folder",
-      }
-    );
+    // Check they were standardised
+    await Promise.all([
+      checkStandardised(
+        invoice.date,
+        invoice.vendor.id,
+        {
+          description: invoice.lineItems[0].description,
+          event_name: EventName.VENDOR_1_EVENT_1,
+        },
+        "Passport Check"
+      ),
+      checkStandardised(
+        invoice.date,
+        invoice.vendor.id,
+        {
+          description: invoice.lineItems[1].description,
+          event_name: EventName.VENDOR_1_EVENT_3,
+        },
+        "Fraud Check"
+      ),
+    ]);
 
     // Step 3: Check the view results match the original csv invoice.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = '${

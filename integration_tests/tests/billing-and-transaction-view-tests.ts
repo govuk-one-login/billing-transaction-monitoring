@@ -1,7 +1,7 @@
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-
-import { createInvoiceWithGivenData } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
-
+import {
+  checkStandardised,
+  createInvoiceWithGivenData,
+} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { TestData } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import {
   EventName,
@@ -9,16 +9,9 @@ import {
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import {
   generateTestEvents,
-  getYearMonth,
-  poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
-
-const prefix = resourcePrefix();
-const storageBucket = `${prefix}-storage`;
-const standardisedFolderPrefix = "btm_invoice_data";
 
 describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data \n", () => {
   test.each`
@@ -44,24 +37,15 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
         "pdf"
       );
 
-      // Wait for the invoice data to have been written, to some file in the standardised folder.
-      await poll(
-        async () =>
-          await listS3Objects({
-            bucketName: storageBucket,
-            prefix: standardisedFolderPrefix,
-          }),
-        (Contents) =>
-          Contents?.filter((obj) =>
-            obj.key?.includes(getYearMonth(data.eventTime))
-          ).length === 1,
-        {
-          timeout: 120000,
-          interval: 10000,
-          notCompleteErrorMessage:
-            "Invoice data never appeared in standardised folder",
-        }
-      );
+      // Check they were standardised
+      await Promise.all([
+        checkStandardised(
+          new Date(data.eventTime),
+          data.vendorId,
+          { description: "Passport Check", event_name: data.eventName },
+          "Passport Check"
+        ),
+      ]);
 
       const eventName: EventName = data.eventName;
       const prettyEventName = prettyEventNameMap[eventName];

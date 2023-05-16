@@ -21,6 +21,7 @@ export enum EventName {
   VENDOR_1_EVENT_3 = "VENDOR_1_EVENT_3",
   VENDOR_2_EVENT_7 = "VENDOR_2_EVENT_7",
   VENDOR_3_EVENT_6 = "VENDOR_3_EVENT_6",
+  VENDOR_3_EVENT_4 = "VENDOR_3_EVENT_4",
 }
 
 export interface EventPayload {

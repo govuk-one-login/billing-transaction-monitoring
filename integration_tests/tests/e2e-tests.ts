@@ -1,13 +1,12 @@
 import {
   generateTestEvents,
-  getYearMonth,
-  poll,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import { createInvoiceWithGivenData } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
+import {
+  checkStandardised,
+  createInvoiceWithGivenData,
+} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
   getVendorServiceAndRatesFromConfig,
@@ -16,10 +15,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 
-const prefix = resourcePrefix();
 let eventName: string;
-const storageBucket = `${prefix}-storage`;
-const standardisedFolderPrefix = "btm_invoice_data";
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 // Below tests can be run both in lower and higher environments
@@ -158,26 +154,18 @@ export const uploadInvoiceAndAssertResults = async (
     dataRetrievedFromConfig.vendorName,
     fileType
   );
-
-  // Wait for the invoice data to have been written, to some file in the standardised folder.
-  await poll(
-    async () =>
-      await listS3Objects({
-        bucketName: storageBucket,
-        prefix: standardisedFolderPrefix,
-      }),
-
-    (Contents) =>
-      Contents?.filter((s3Object) =>
-        s3Object.key?.includes(getYearMonth(data.eventTime))
-      ).length === 1,
-    {
-      timeout: 120000,
-      interval: 10000,
-      notCompleteErrorMessage:
-        "e2e tests invoice data never appeared in standardised folder",
-    }
-  );
+  // Check they were standardised
+  await Promise.all([
+    checkStandardised(
+      new Date(data.eventTime),
+      dataRetrievedFromConfig.vendorId,
+      {
+        description: dataRetrievedFromConfig.description,
+        event_name: dataRetrievedFromConfig.eventName,
+      },
+      dataRetrievedFromConfig.description
+    ),
+  ]);
 
   const expectedResults = calculateExpectedResults(
     data,
