@@ -1,6 +1,9 @@
 import path from "path";
 import fs from "fs";
-import { generateRandomId } from "./commonHelpers";
+
+export const generateRandomId = (): string => {
+  return Math.floor(Math.random() * 10000000).toString();
+};
 
 export const validTimestamp = (date: string): number => {
   return Math.floor(new Date(date).getTime() / 1000);

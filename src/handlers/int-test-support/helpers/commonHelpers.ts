@@ -1,13 +1,9 @@
 import { deleteS3Objects, listS3Objects } from "./s3Helper";
 import { resourcePrefix } from "./envHelper";
-import { EventPayload } from "./payloadHelper";
+import { EventPayload, generateRandomId } from "./payloadHelper";
 import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "./testDataHelper";
 
 const objectsPrefix = "btm_event_data";
-
-export const generateRandomId = (): string => {
-  return Math.floor(Math.random() * 10000000).toString();
-};
 
 export enum TableNames {
   BILLING_TRANSACTION_CURATED = "btm_billing_and_transactions_curated",
