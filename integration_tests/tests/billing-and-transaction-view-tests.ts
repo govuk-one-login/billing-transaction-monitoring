@@ -38,14 +38,12 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
       );
 
       // Check they were standardised
-      await Promise.all([
-        checkStandardised(
-          new Date(data.eventTime),
-          data.vendorId,
-          { description: "Passport Check", event_name: data.eventName },
-          "Passport Check"
-        ),
-      ]);
+      await checkStandardised(
+        new Date(data.eventTime),
+        data.vendorId,
+        { description: "Passport Check", event_name: data.eventName },
+        "Passport Check"
+      );
 
       const eventName: EventName = data.eventName;
       const prettyEventName = prettyEventNameMap[eventName];

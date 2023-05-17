@@ -72,21 +72,6 @@ export const createInvoiceWithGivenData = async (
   return await createInvoiceInS3({ invoiceData, filename });
 };
 
-const getRandomInteger = (minInteger: number, maxInteger: number): number =>
-  minInteger + Math.floor(Math.random() * (maxInteger - minInteger + 1));
-
-export const getRandomInvoiceDate = (): Date => {
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const maxYear = 2049;
-  const randomYear = getRandomInteger(currentYear + 1, maxYear);
-
-  const randomMonth = getRandomInteger(1, 12);
-  const randomMonthText = String(randomMonth).padStart(2, "0");
-
-  return new Date(`${randomYear}-${randomMonthText}-01`);
-};
-
 const getLineItemPrefix = (
   date: Date,
   vendorId: string,

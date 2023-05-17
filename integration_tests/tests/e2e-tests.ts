@@ -155,17 +155,15 @@ export const uploadInvoiceAndAssertResults = async (
     fileType
   );
   // Check they were standardised
-  await Promise.all([
-    checkStandardised(
-      new Date(data.eventTime),
-      dataRetrievedFromConfig.vendorId,
-      {
-        description: dataRetrievedFromConfig.description,
-        event_name: dataRetrievedFromConfig.eventName,
-      },
-      dataRetrievedFromConfig.description
-    ),
-  ]);
+  await checkStandardised(
+    new Date(data.eventTime),
+    dataRetrievedFromConfig.vendorId,
+    {
+      description: dataRetrievedFromConfig.description,
+      event_name: dataRetrievedFromConfig.eventName,
+    },
+    dataRetrievedFromConfig.description
+  );
 
   const expectedResults = calculateExpectedResults(
     data,

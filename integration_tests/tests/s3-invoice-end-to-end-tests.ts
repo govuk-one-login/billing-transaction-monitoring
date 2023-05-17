@@ -2,7 +2,6 @@ import {
   checkIfS3ObjectExists,
   deleteS3Objects,
   listS3Objects,
-  S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
@@ -23,7 +22,6 @@ import {
 
 describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view\n", () => {
   let filename: string;
-  let s3Object: S3Object;
 
   test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
     const passportCheckItems = randomLineItems(1, {
@@ -47,7 +45,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     const expectedServices = ["Address check", "Passport check"];
     filename = `s3-invoice-e2e-test-raw-Invoice-validFile`;
 
-    s3Object = await createInvoiceInS3({
+    const s3Object = await createInvoiceInS3({
       invoiceData: invoice,
       filename: `${filename}.pdf`,
     });
@@ -140,7 +138,7 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       },
     });
 
-    s3Object = await createInvoiceInS3({
+    const s3Object = await createInvoiceInS3({
       invoiceData: invoice,
       filename: `${filename}.csv`,
     });

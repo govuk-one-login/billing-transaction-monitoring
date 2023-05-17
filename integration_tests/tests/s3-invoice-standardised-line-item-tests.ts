@@ -187,7 +187,7 @@ const deleteTextractData = async (
 const getRandomInteger = (minInteger: number, maxInteger: number): number =>
   minInteger + Math.floor(Math.random() * (maxInteger - minInteger + 1));
 
-export const getRandomInvoiceDate = (): Date => {
+const getRandomInvoiceDate = (): Date => {
   const now = new Date();
   const currentYear = now.getFullYear();
   const maxYear = 2049;
