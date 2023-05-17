@@ -28,9 +28,8 @@ export const businessLogic: BusinessLogic<
   // Parse the email using mailparser
 
   const parsedEmail = await simpleParser(event);
-  console.log(parsedEmail);
   const attachments = parsedEmail.attachments;
-  console.log(attachments);
+
   // Extract attachments that are pdf or csv from the email
   const desiredAttachments = attachments.filter(
     (attachment) =>
@@ -47,7 +46,6 @@ export const businessLogic: BusinessLogic<
     vendorId,
     attachmentName: attachment.filename,
   }));
-  console.log("content", attachmentContent[0].content.toString());
 
   // Return attachments and folder/filename
   return attachmentContent;

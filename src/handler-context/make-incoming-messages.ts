@@ -16,6 +16,7 @@ const makeSQSMessages = <TBody extends HandlerMessageBody>(
 } => {
   const incomingMessages: Array<HandlerIncomingMessage<TBody>> = [];
   const failedIds: string[] = [];
+  console.log("Make SQS Message Records ", Records);
 
   for (const { messageId: id, body: rawBody } of Records) {
     try {
@@ -88,11 +89,17 @@ const SQSMessageIncludesS3EventRecord = (result: {
   incomingMessages: Array<HandlerIncomingMessage<any>>;
   failedIds: string[];
 }): boolean => {
-  return result.incomingMessages.some((message) =>
-    message.body.Records.some((record: S3Event) =>
-      Object.keys(record).includes("s3")
-    )
-  );
+  for (const incomingMessage of result.incomingMessages) {
+    const { body } = incomingMessage;
+    if (body.Records) {
+      for (const record of body.Records) {
+        if (record.s3) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 };
 
 export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
@@ -131,6 +138,6 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
 
   if (!failuresAllowed && result.failedIds.length > 0)
     throw new Error(ERROR_MESSAGE_DEFAULT);
-
+  console.log("final result", result);
   return result;
 };

@@ -59,6 +59,36 @@ describe("makeIncomingMessages", () => {
       });
     });
 
+    it("builds an S3 messages if the SQS Message contains S3 information", async () => {
+      const testSQSEventWithS3 = {
+        Records: [
+          {
+            messageId: "msg_1",
+            body: '{"Records":[{"s3":{"bucket":{"name":"some-email-bucket"},"object":{"key":"vendor/Email+with+csv.eml"}}}]}',
+          },
+        ],
+      } as unknown as SQSEvent;
+      const result = await makeIncomingMessages(
+        testSQSEventWithS3,
+        testIncomingMessageBodyTypeGuard as any,
+        testLogger,
+        testFailuresAllowed
+      );
+
+      expect(result).toEqual({
+        incomingMessages: [
+          {
+            body: mockedS3FileText,
+            meta: {
+              bucketName: "some-email-bucket",
+              key: "vendor/Email+with+csv.eml",
+            },
+          },
+        ],
+        failedIds: [],
+      });
+    });
+
     it("Throws an error by default if a given message does not conform to the specified type", async () => {
       testIncomingMessageBodyTypeGuard.mockReturnValue(false);
 
@@ -218,7 +248,15 @@ describe("makeIncomingMessages", () => {
       );
 
       expect(result).toEqual({
-        incomingMessages: [{ body: mockedS3FileText }],
+        incomingMessages: [
+          {
+            body: mockedS3FileText,
+            meta: {
+              bucketName: "test-bucket",
+              key: "test-key",
+            },
+          },
+        ],
         failedIds: [],
       });
     });
