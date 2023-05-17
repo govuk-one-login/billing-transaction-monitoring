@@ -22,7 +22,7 @@ export const businessLogic: BusinessLogic<
     );
 
   const vendorId = filePathParts[0];
-  const sourceFileName = filePathParts[filePathParts.length - 1]; // An email with spaces in the subject line errors, check with Gareth
+  const sourceFileName = filePathParts[filePathParts.length - 1];
   logger.info(`Vendor: ${vendorId} | Email name: ${sourceFileName}`);
 
   // Parse the email using mailparser
@@ -41,12 +41,20 @@ export const businessLogic: BusinessLogic<
     throw Error(`No pdf or csv attachments in ${sourceFileName}`);
   }
 
-  const attachmentContent = desiredAttachments.map((attachment) => ({
-    content: attachment.content.toString(),
-    vendorId,
-    attachmentName: attachment.filename,
-  }));
-
+  const attachmentContent = desiredAttachments.map((attachment) => {
+    let attachmentName;
+    if (attachment.filename) {
+      // This will remove any whitespaces in the filename
+      attachmentName = attachment.filename
+        .replace(/^\s+|\s+$/g, "")
+        .replace(/\s+/g, "");
+    }
+    return {
+      content: attachment.content.toString(),
+      vendorId,
+      attachmentName,
+    };
+  });
   // Return attachments and folder/filename
   return attachmentContent;
 };

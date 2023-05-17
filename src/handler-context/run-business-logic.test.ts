@@ -89,11 +89,13 @@ describe("runBusinessLogic", () => {
     expect(givenBusinessLogic).toHaveBeenCalledTimes(2);
     expect(givenBusinessLogic).toHaveBeenCalledWith(
       givenIncomingMessageBody1,
-      givenContext
+      givenContext,
+      undefined
     );
     expect(givenBusinessLogic).toHaveBeenCalledWith(
       givenIncomingMessageBody2,
-      givenContext
+      givenContext,
+      undefined
     );
     expect(givenErrorLogger).not.toHaveBeenCalled();
   });
@@ -122,11 +124,13 @@ describe("runBusinessLogic", () => {
       expect(givenBusinessLogic).toHaveBeenCalledTimes(2);
       expect(givenBusinessLogic).toHaveBeenCalledWith(
         givenIncomingMessageBody1,
-        givenContext
+        givenContext,
+        undefined
       );
       expect(givenBusinessLogic).toHaveBeenCalledWith(
         givenIncomingMessageBody2,
-        givenContext
+        givenContext,
+        undefined
       );
       expect(givenErrorLogger).toHaveBeenCalledTimes(1);
       expect(givenErrorLogger).toHaveBeenCalledWith(expectedErrorMessage, {
@@ -160,11 +164,13 @@ describe("runBusinessLogic", () => {
         expect(givenBusinessLogic).toHaveBeenCalledTimes(2);
         expect(givenBusinessLogic).toHaveBeenCalledWith(
           givenIncomingMessageBody1,
-          givenContext
+          givenContext,
+          undefined
         );
         expect(givenBusinessLogic).toHaveBeenCalledWith(
           givenIncomingMessageBody2,
-          givenContext
+          givenContext,
+          undefined
         );
         expect(givenErrorLogger).toHaveBeenCalledTimes(1);
         expect(givenErrorLogger).toHaveBeenCalledWith(expectedErrorMessage, {
@@ -190,11 +196,13 @@ describe("runBusinessLogic", () => {
           expect(givenBusinessLogic).toHaveBeenCalledTimes(2);
           expect(givenBusinessLogic).toHaveBeenCalledWith(
             givenIncomingMessageBody1,
-            givenContext
+            givenContext,
+            undefined
           );
           expect(givenBusinessLogic).toHaveBeenCalledWith(
             givenIncomingMessageBody2,
-            givenContext
+            givenContext,
+            undefined
           );
           expect(givenErrorLogger).toHaveBeenCalledTimes(1);
           expect(givenErrorLogger).toHaveBeenCalledWith(expectedErrorMessage, {
