@@ -2,13 +2,15 @@ import {
   E2ETestParserServiceConfig,
   getE2ETestConfig,
 } from "../../src/handlers/int-test-support/config-utils/get-e2e-test-config";
-import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   randomInvoice,
   randomString,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
-import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
+import {
+  checkStandardised,
+  createInvoiceInS3,
+} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import {
   deleteS3Objects,
   listS3Objects,
@@ -123,46 +125,6 @@ describe("New invoice with same month, vendor, service as old line item", () => 
   });
 });
 
-const checkStandardised = async (
-  date: Date,
-  vendorId: string,
-  serviceConfig: E2ETestParserServiceConfig,
-  itemDescription: string,
-  {
-    archived = false,
-    keyToExclude = undefined,
-  }: { archived?: boolean; keyToExclude?: string } = {}
-): Promise<S3Object> => {
-  const bucket = `${resourcePrefix()}-storage`;
-
-  const prefix = getLineItemPrefix(
-    date,
-    vendorId,
-    serviceConfig.event_name,
-    archived
-  );
-
-  const s3Response = await poll(
-    async () => await listS3Objects({ bucketName: bucket, prefix }),
-
-    (Contents) =>
-      Contents !== undefined &&
-      Contents.filter(
-        (result) => result.key !== undefined && result.key !== keyToExclude
-      ).length === 1,
-
-    {
-      interval: 10000,
-      notCompleteErrorMessage: `${itemDescription} not found`,
-      timeout: 120000,
-    }
-  );
-
-  const result = s3Response?.[0];
-  if (result?.key === undefined) throw new Error("Empty line item data");
-  return { bucket, key: result.key };
-};
-
 const deleteExisting = async (
   bucket: string,
   prefixes: string[]
@@ -220,22 +182,6 @@ const deleteTextractData = async (
   const bucket = `${resourcePrefix()}-raw-invoice-textract-data`;
   const key = `${folderName}/${fileName}`;
   await deleteExisting(bucket, [key]);
-};
-
-const getLineItemPrefix = (
-  date: Date,
-  vendorId: string,
-  eventName: string,
-  archived: boolean
-): string => {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const monthText = String(month).padStart(2, "0");
-  const filePrefix = `${year}-${monthText}-${vendorId}-${eventName}-`;
-
-  return archived
-    ? `btm_invoice_data_archived/${filePrefix}`
-    : `btm_invoice_data/${year}/${monthText}/${filePrefix}`;
 };
 
 const getRandomInteger = (minInteger: number, maxInteger: number): number =>
