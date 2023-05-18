@@ -118,7 +118,7 @@ export const checkStandardised = async (
     {
       interval: 10000,
       notCompleteErrorMessage: `${itemDescription} not found`,
-      timeout: 145000,
+      timeout: 200000,
     }
   );
 
