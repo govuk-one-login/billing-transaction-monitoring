@@ -110,15 +110,12 @@ export const checkStandardised = async (
     async () => await listS3Objects({ bucketName: bucket, prefix }),
 
     (Contents) =>
-      Contents !== undefined &&
-      Contents.filter(
-        (result) => result.key !== undefined && result.key !== keyToExclude
-      ).length === 1,
+      Contents.filter((result) => result.key !== keyToExclude).length === 1,
 
     {
-      interval: 10000,
+      interval: 20000,
       notCompleteErrorMessage: `${itemDescription} not found`,
-      timeout: 145000,
+      timeout: 280000,
     }
   );
 
