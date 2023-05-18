@@ -20,7 +20,7 @@ import {
   prettyVendorNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 
-describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view\n", () => {
+describe("\n Happy path - Upload valid mock invoice and verify data is seen in the billing view\n", () => {
   let filename: string;
 
   test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
