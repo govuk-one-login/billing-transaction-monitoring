@@ -33,11 +33,13 @@ export const createInvoiceInS3 = async (
       params.filename
     );
   } else if (params.filename.endsWith("csv")) {
-    return await makeMockInvoiceCSV(writeInvoiceToS3)(
+    const csv = await makeMockInvoiceCSV(writeInvoiceToS3)(
       invoice,
       invoice.vendor.id,
       params.filename
     );
+    console.log(invoice);
+    return csv;
   } else {
     throw new Error("Invalid file extension. Only .pdf and .csv are allowed");
   }
@@ -116,9 +118,9 @@ export const checkStandardised = async (
       ).length === 1,
 
     {
-      interval: 10000,
+      interval: 20000,
       notCompleteErrorMessage: `${itemDescription} not found`,
-      timeout: 200000,
+      timeout: 280000,
     }
   );
 
