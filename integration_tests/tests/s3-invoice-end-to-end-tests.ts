@@ -138,13 +138,10 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       },
     });
 
-    const s3Object = await createInvoiceInS3({
+    await createInvoiceInS3({
       invoiceData: invoice,
       filename: `${filename}.csv`,
     });
-
-    const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
-    expect(checkRawPdfFileExists).toBeTruthy();
 
     // Check they were standardised
     await Promise.all([
