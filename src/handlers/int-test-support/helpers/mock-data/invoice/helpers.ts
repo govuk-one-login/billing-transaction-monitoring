@@ -33,13 +33,11 @@ export const createInvoiceInS3 = async (
       params.filename
     );
   } else if (params.filename.endsWith("csv")) {
-    const csv = await makeMockInvoiceCSV(writeInvoiceToS3)(
+    return await makeMockInvoiceCSV(writeInvoiceToS3)(
       invoice,
       invoice.vendor.id,
       params.filename
     );
-    console.log(invoice);
-    return csv;
   } else {
     throw new Error("Invalid file extension. Only .pdf and .csv are allowed");
   }
@@ -112,10 +110,7 @@ export const checkStandardised = async (
     async () => await listS3Objects({ bucketName: bucket, prefix }),
 
     (Contents) =>
-      Contents !== undefined &&
-      Contents.filter(
-        (result) => result.key !== undefined && result.key !== keyToExclude
-      ).length === 1,
+      Contents.filter((result) => result.key !== keyToExclude).length === 1,
 
     {
       interval: 20000,
