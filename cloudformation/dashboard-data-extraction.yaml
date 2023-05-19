@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  #  DashboardDataExtractWorkgroup:
+  #    Type: AWS::Athena::WorkGroup
+  #    Properties:
+  #      Name: !Sub ${AWS::StackName}-dashboard-data-extract-workgroup
+  #      WorkGroupConfiguration:
+  #        EnforceWorkGroupConfiguration: true
+  #        PublishCloudWatchMetricsEnabled: false
+  #        ResultConfiguration:
+  #          EncryptionConfiguration:
+  #            EncryptionOption: SSE_KMS
+  #            KmsKey: !GetAtt KmsKey.Arn
+  #          OutputLocation: !Sub s3://${AthenaInvoiceQueryResultsBucket}/
+
+  DashboardDataExtractFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-dashboard-data-extract-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          VIEW_TO_EXTRACT: !Sub '"${AWS::StackName}-calculations"."btm_billing_and_transactions_curated"'
+          RESULTS_BUCKET: !Sub s3://${StorageBucket}/btm_extract_data/
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
+      Handler: dashboardExtract.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetBucketLocation
+              Resource:
+                - arn:aws:s3:::*
+            - Effect: Allow
+              Action:
+                - glue:Get*
+              Resource:
+                - '*'
+            - Effect: Allow
+              Action:
+                - s3:CreateBucket
+                - s3:VerifyBucket
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:PutObject
+              Resource:
+                - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}*
+            - Effect: Allow
+              Action:
+                - athena:StartQueryExecution
+                - athena:GetQueryExecution
+                - athena:GetQueryResults
+              Resource:
+                - '*'
+      ReservedConcurrentExecutions: 1
+
+  DashboardDataExtractFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-dashboard-data-extract-function-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref DashboardDataExtractFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
+
+  AthenaDashboardDataQueryResultsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-athena-dashboard-data-query-results
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: athena-dashboard-data-query-results-bucket/log
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 7
+            Status: Enabled
