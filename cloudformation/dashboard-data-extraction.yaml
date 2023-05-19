@@ -2,19 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  #  DashboardDataExtractWorkgroup:
-  #    Type: AWS::Athena::WorkGroup
-  #    Properties:
-  #      Name: !Sub ${AWS::StackName}-dashboard-data-extract-workgroup
-  #      WorkGroupConfiguration:
-  #        EnforceWorkGroupConfiguration: true
-  #        PublishCloudWatchMetricsEnabled: false
-  #        ResultConfiguration:
-  #          EncryptionConfiguration:
-  #            EncryptionOption: SSE_KMS
-  #            KmsKey: !GetAtt KmsKey.Arn
-  #          OutputLocation: !Sub s3://${AthenaInvoiceQueryResultsBucket}/
-
   DashboardDataExtractFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     Type: AWS::Serverless::Function
@@ -30,7 +17,7 @@ Resources:
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-          VIEW_TO_EXTRACT: !Sub '"${AWS::StackName}-calculations"."btm_billing_and_transactions_curated"'
+          DATABASE_NAME: !Sub ${AWS::StackName}-calculations
           RESULTS_BUCKET: !Sub s3://${StorageBucket}/btm_extract_data/
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
       Handler: dashboardExtract.handler

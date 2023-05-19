@@ -17,13 +17,10 @@ export const handler = async (): Promise<Response> => {
     batchItemFailures: [],
   };
 
-  const sql = `SELECT * FROM ${process.env.VIEW_TO_EXTRACT}`;
-
-  console.log("Query", sql);
-
-  const results = await query(sql);
-
-  console.log("Got results", results);
+  const fetchDataSql = `SELECT * FROM "${process.env.DATABASE_NAME}".btm_billing_and_transactions_curated`;
+  console.log("Query", fetchDataSql);
+  const results = await query(fetchDataSql);
+  console.log("Fetch result", results);
 
   return response;
 };
@@ -37,8 +34,6 @@ export async function query(sql: string): Promise<any> {
       OutputLocation: process.env.RESULTS_BUCKET,
     },
   };
-
-  await athena.updateDataCatalog();
 
   const queryExecution = await athena.startQueryExecution(params).promise();
   const queryExecutionId = queryExecution.QueryExecutionId;
