@@ -21,8 +21,8 @@ export interface Customer {
 export interface InvoiceData {
   vendor: Vendor;
   customer: Customer;
-  date: Date;
-  dueDate: Date;
+  dateString: string;
+  dueDateString: string;
   invoiceNumber: string;
   lineItems: LineItem[];
 }

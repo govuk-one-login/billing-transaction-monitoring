@@ -5,7 +5,7 @@ import { resourcePrefix, runViaLambda } from "../../envHelper";
 import { sendLambdaCommand } from "../../lambdaHelper";
 import { InvoiceData } from "./types";
 import { IntTestHelpers } from "../../../handler";
-import { randomLineItem, randomInvoice, randomString } from "./random";
+import { randomLineItem, randomString, randomInvoiceData } from "./random";
 import { TestData } from "../../testDataHelper";
 import { E2ETestParserServiceConfig } from "../../../config-utils/get-e2e-test-config";
 import { poll } from "../../commonHelpers";
@@ -58,7 +58,7 @@ export const createInvoiceWithGivenData = async (
     unitPrice,
   });
 
-  const invoiceData = randomInvoice({
+  const invoiceData = randomInvoiceData({
     vendor: {
       id: vendorId,
       name: vendorName,

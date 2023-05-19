@@ -12,9 +12,9 @@ export class Invoice {
   constructor(invoice: InvoiceData) {
     this.vendor = invoice.vendor;
     this.customer = invoice.customer;
-    this.date = invoice.date;
+    this.date = new Date(invoice.dateString);
     this.invoiceNumber = invoice.invoiceNumber;
-    this.dueDate = invoice.dueDate;
+    this.dueDate = new Date(invoice.dueDateString);
     this.lineItems = invoice.lineItems;
   }
 
