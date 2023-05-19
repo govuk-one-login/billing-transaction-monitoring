@@ -8,7 +8,8 @@ export const handler = buildHandler({
   envVars: [Env.DESTINATION_BUCKET],
   incomingMessageBodyTypeGuard: (
     maybeIncomingMessageBody: unknown
-  ): maybeIncomingMessageBody is string => true, // Talk to Mark P about this
+  ): maybeIncomingMessageBody is string =>
+    typeof maybeIncomingMessageBody === "string", // Talk to Mark P about this
   outputs: [{ destination: Env.DESTINATION_BUCKET, store }],
   withBatchItemFailures: true,
   ConfigCache: [],

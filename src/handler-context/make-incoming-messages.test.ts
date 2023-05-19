@@ -272,7 +272,16 @@ describe("makeIncomingMessages", () => {
           testFailuresAllowed
         );
       } catch (error) {
-        expect((error as Error).message).toContain(
+        expect((error as Error).message).toContain("Failed to make message");
+        expect(testLogger.error).toHaveBeenCalledTimes(1);
+        expect(testLogger.error).toHaveBeenCalledWith(
+          "Failed to make message",
+          {
+            error: expect.any(Error),
+            messageId: undefined,
+          }
+        );
+        expect((testLogger.error.mock.calls[0][1] as any).error.message).toBe(
           "Message did not conform to the expected type"
         );
       }

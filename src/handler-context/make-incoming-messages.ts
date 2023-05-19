@@ -10,7 +10,6 @@ interface Result<TBody> {
 }
 const makeSQSMessages = <TBody extends HandlerMessageBody>(
   { Records }: SQSEvent,
-  // incomingMessageBodyTypeGuard: (maybeBody: unknown) => maybeBody is TBody,
   logger: Logger
 ): Result<TBody> => {
   const incomingMessages: Array<HandlerIncomingMessage<TBody>> = [];
@@ -18,8 +17,6 @@ const makeSQSMessages = <TBody extends HandlerMessageBody>(
   for (const { messageId: id, body: rawBody } of Records) {
     try {
       const body = JSON.parse(rawBody);
-      // const bodyIsExpectedType = incomingMessageBodyTypeGuard(body);
-      // if (!bodyIsExpectedType) throw new Error(ERROR_MESSAGE_TYPE_GUARD);
       incomingMessages.push({ id, body });
     } catch (error) {
       logger.error(ERROR_MESSAGE_DEFAULT, { error, messageId: id });
@@ -30,8 +27,7 @@ const makeSQSMessages = <TBody extends HandlerMessageBody>(
 };
 const makeS3Messages = async ({
   Records,
-}: S3Event): // incomingMessageBodyTypeGuard: (maybeBody: unknown) => maybeBody is TBody
-Promise<Array<HandlerIncomingMessage<unknown>>> => {
+}: S3Event): Promise<Array<HandlerIncomingMessage<unknown>>> => {
   const promises = Records.map(
     async ({
       s3: {
@@ -46,10 +42,6 @@ Promise<Array<HandlerIncomingMessage<unknown>>> => {
       throw new Error("The object this event references could not be found.");
     }
     const body = resolution.value;
-    // const bodyIsExpectedType = incomingMessageBodyTypeGuard(body);
-    // if (!bodyIsExpectedType) {
-    //   throw new Error(ERROR_MESSAGE_TYPE_GUARD);
-    // }
     return {
       body,
       meta: {
@@ -97,6 +89,7 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
   let result: Result<unknown>;
   if (isSQSEvent(event)) {
     result = makeSQSMessages(event, logger);
+
     if (SQSMessageIncludesS3EventRecord(result)) {
       result = {
         incomingMessages: await makeS3Messages(
@@ -117,6 +110,7 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
       const bodyIsExpectedType = incomingMessageBodyTypeGuard(
         incomingMessage.body
       );
+
       if (!bodyIsExpectedType) {
         result.incomingMessages.pop();
         throw new Error(ERROR_MESSAGE_TYPE_GUARD);
