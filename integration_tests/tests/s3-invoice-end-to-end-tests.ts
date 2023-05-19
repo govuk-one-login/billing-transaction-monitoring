@@ -5,7 +5,8 @@ import {
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
-  randomInvoice,
+  Invoice,
+  randomInvoiceData,
   randomLineItems,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
@@ -30,10 +31,11 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
     const addressCheckItems = randomLineItems(1, {
       description: "address check",
     });
-    const invoice = randomInvoice({
+    const invoiceData = randomInvoiceData({
       date: new Date("2023-03-31"),
       lineItems: [...passportCheckItems, ...addressCheckItems],
     });
+    const invoice = new Invoice(invoiceData);
     const expectedSubtotals = [
       invoice.getSubtotal("address check"),
       invoice.getSubtotal("passport check"),
@@ -46,7 +48,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
     filename = `s3-invoice-e2e-test-raw-Invoice-validFile`;
 
     const s3Object = await createInvoiceInS3({
-      invoiceData: invoice,
+      invoiceData,
       filename: `${filename}.pdf`,
     });
 
@@ -125,7 +127,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
     // Step 1: Put random creation of a csv invoice file in the raw-invoice bucket.
     // Note: For the csv invoice flow, the original does not get moved to a 'successful folder' like it does for the pdf invoice flow that invokes Textract.
 
-    const invoice = randomInvoice({
+    const invoiceData = randomInvoiceData({
       date: new Date("2023-03-31"),
       lineItems: [
         randomLineItem({ description: "Fraud check", quantity: 100 }),
@@ -139,9 +141,11 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
     });
 
     await createInvoiceInS3({
-      invoiceData: invoice,
+      invoiceData,
       filename: `${filename}.csv`,
     });
+
+    const invoice = new Invoice(invoiceData);
 
     // Check they were standardised
     await Promise.all([

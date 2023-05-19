@@ -4,7 +4,7 @@ import {
 } from "../../src/handlers/int-test-support/config-utils/get-e2e-test-config";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
-  randomInvoice,
+  randomInvoiceData,
   randomString,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
 import {
@@ -215,7 +215,7 @@ const uploadInvoice = async (
 ): Promise<S3Object> =>
   await createInvoiceInS3({
     filename: `${randomString(8)}.pdf`,
-    invoiceData: randomInvoice({
+    invoiceData: randomInvoiceData({
       date,
       lineItemCount: 1,
       lineItemOptions: {
