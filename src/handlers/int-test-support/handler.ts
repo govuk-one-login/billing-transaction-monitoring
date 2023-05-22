@@ -112,9 +112,9 @@ export const handler = async <T extends IntTestHelpers>(
   process.env.CONFIG_NAME = event.config;
 
   console.log(
-    `Executing command "${event.command}" with parameters "${Object.keys(
-      event.parameters !== null
-    )}" in environment "${event.environment}" with config "${event.config}"`
+    `Executing command "${event.command}" with parameters "${
+      event.parameters !== null ? `${Object.keys(event.parameters)}` : null
+    }" in environment "${event.environment}" with config "${event.config}"`
   );
 
   const retVal = await callFunction(event.command, event.parameters);
