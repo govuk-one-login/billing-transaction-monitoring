@@ -26,7 +26,7 @@ export type SerializableData =
   | boolean
   | null
   | SerializableData[]
-  | {};
+  | { [key: string]: SerializableData };
 
 export interface TestSupportEvent<T extends IntTestHelpers> {
   environment: string;
@@ -95,9 +95,6 @@ const callFunction = async (
   name: IntTestHelpers,
   parameters: any
 ): Promise<any> => {
-  if (!isSerializable(parameters)) {
-    throw new Error("Invalid parameter: Non Serializable value");
-  }
   if (functionMap[name] !== undefined) {
     const func: Function = functionMap[name];
     const ret = await func(parameters);
@@ -123,22 +120,4 @@ export const handler = async <T extends IntTestHelpers>(
   const retVal = await callFunction(event.command, event.parameters);
 
   return { success: true, successObject: retVal };
-};
-
-const isSerializable = (data: unknown): SerializableData => {
-  if (
-    typeof data === "string" ||
-    typeof data === "boolean" ||
-    typeof data === "number" ||
-    data === null ||
-    Array.isArray(data)
-  ) {
-    if (Array.isArray(data)) {
-      return data.every(isSerializable);
-    }
-    return true;
-  } else if (typeof data === "object") {
-    return Object.keys(data).length === 0;
-  }
-  return false;
 };
