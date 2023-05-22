@@ -13,7 +13,7 @@ describe("process-email business logic", () => {
     logger: mockLogger,
   } as unknown as HandlerCtx<any, any, any>;
 
-  const validIncomingEventBody = "Some valid MIME email message";
+  const validIncomingEventBody = "Some valid MIME-Version email message";
 
   test("should throw error with event record that has no vendor ID folder", async () => {
     const invalidMockMeta = {
@@ -48,18 +48,18 @@ describe("process-email business logic", () => {
     });
     const validMockMeta = {
       bucketName: "given bucket name",
-      key: "some vendor id/given-file-path",
+      key: "some_vendor_id/given-file-path",
     };
 
     const mockEmailAttachment = [
       {
         content: "mock-pdf-content",
-        vendorId: "some vendor id",
+        vendorId: "some_vendor_id",
         attachmentName: "mock-pdf.pdf",
       },
       {
         content: "mock-csv-content",
-        vendorId: "some vendor id",
+        vendorId: "some_vendor_id",
         attachmentName: "mock-csv.csv",
       },
     ];
@@ -84,11 +84,42 @@ describe("process-email business logic", () => {
     });
     const validMockMeta = {
       bucketName: "given bucket name",
-      key: "some vendor id/given-file-path",
+      key: "some_vendor_id/given-file-path",
     };
 
     await expect(
       businessLogic(validIncomingEventBody, mockContext, validMockMeta)
     ).rejects.toThrowError("No pdf or csv attachments");
+  });
+
+  test("should remove any whitespaces in the attachment filename", async () => {
+    mockedSimpleParser.mockReturnValue({
+      attachments: [
+        {
+          contentType: "application/pdf",
+          filename: "mock - pdf .pdf", // space in filename
+          content: "mock-pdf-content",
+        },
+      ],
+    });
+
+    const validMockMeta = {
+      bucketName: "given bucket name",
+      key: "some_vendor_id/given-file-path",
+    };
+
+    const mockEmailAttachment = [
+      {
+        content: "mock-pdf-content",
+        vendorId: "some_vendor_id",
+        attachmentName: "mock-pdf.pdf",
+      },
+    ];
+    const result = await businessLogic(
+      validIncomingEventBody,
+      mockContext,
+      validMockMeta
+    );
+    expect(result).toEqual(mockEmailAttachment);
   });
 });

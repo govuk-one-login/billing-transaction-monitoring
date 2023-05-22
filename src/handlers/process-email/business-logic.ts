@@ -8,7 +8,7 @@ export const businessLogic: BusinessLogic<
   never,
   EmailAttachment
 > = async (event, { logger }, meta) => {
-  logger.info(`Processing email ${JSON.stringify(event)}`);
+  logger.info(`Processing email ${JSON.stringify(event)}`); // TO DO Remove logger and add decryption of email which is covered in BTM-575.
 
   // File must be in a vendor ID folder in the Raw Email bucket, which determines folder for the Raw Invoice bucket. Throw error otherwise.
   const typedMeta = meta as {
@@ -45,9 +45,7 @@ export const businessLogic: BusinessLogic<
     let attachmentName;
     if (attachment.filename) {
       // This will remove any whitespaces in the filename
-      attachmentName = attachment.filename
-        .replace(/^\s+|\s+$/g, "")
-        .replace(/\s+/g, "");
+      attachmentName = attachment.filename.replace(/\s+/g, "");
     }
     return {
       content: attachment.content.toString(),
