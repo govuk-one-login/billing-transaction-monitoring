@@ -2,7 +2,6 @@ import AWS from "aws-sdk";
 import { Athena } from "aws-sdk/clients/all";
 import { QueryExecutionState } from "aws-sdk/clients/athena";
 
-// import {Context, SQSEvent} from "aws-lambda";
 import { Response } from "../../shared/types";
 
 export const handler = async (): Promise<Response> => {
@@ -11,9 +10,7 @@ export const handler = async (): Promise<Response> => {
   };
 
   const fetchDataSql = `SELECT * FROM "${process.env.DATABASE_NAME}".btm_billing_and_transactions_curated`;
-  console.log("Query", fetchDataSql);
   const results: QueryResults = (await query(fetchDataSql)) as QueryResults;
-  console.log("Fetch result", results);
   await writeExtractToS3(results);
 
   return response;
@@ -35,8 +32,6 @@ export async function query(sql: string): Promise<object> {
   if (queryExecutionId === null || queryExecutionId === undefined) {
     throw new Error("Failed to start execution");
   }
-
-  console.log("id", queryExecutionId);
 
   let state: QueryExecutionState = "QUEUED";
   let reason: string | undefined;
