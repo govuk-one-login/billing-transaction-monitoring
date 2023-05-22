@@ -78,6 +78,7 @@ describe("makeIncomingMessages", () => {
       expect(result).toEqual({
         incomingMessages: [
           {
+            id: "msg_1",
             body: mockedS3FileText,
             meta: {
               bucketName: "some-email-bucket",
@@ -272,16 +273,7 @@ describe("makeIncomingMessages", () => {
           testFailuresAllowed
         );
       } catch (error) {
-        expect((error as Error).message).toContain("Failed to make message");
-        expect(testLogger.error).toHaveBeenCalledTimes(1);
-        expect(testLogger.error).toHaveBeenCalledWith(
-          "Failed to make message",
-          {
-            error: expect.any(Error),
-            messageId: undefined,
-          }
-        );
-        expect((testLogger.error.mock.calls[0][1] as any).error.message).toBe(
+        expect((error as Error).message).toContain(
           "Message did not conform to the expected type"
         );
       }

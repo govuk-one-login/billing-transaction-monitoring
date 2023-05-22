@@ -2,12 +2,15 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { S3Event, SQSEvent } from "aws-lambda";
 import { fetchS3 } from "../shared/utils";
 import { HandlerIncomingMessage, HandlerMessageBody } from "./types";
+
 const ERROR_MESSAGE_DEFAULT = "Failed to make message";
 const ERROR_MESSAGE_TYPE_GUARD = "Message did not conform to the expected type";
+
 interface Result<TBody> {
   incomingMessages: Array<HandlerIncomingMessage<TBody>>;
   failedIds: string[];
 }
+
 const makeSQSMessages = <TBody extends HandlerMessageBody>(
   { Records }: SQSEvent,
   logger: Logger
@@ -25,6 +28,7 @@ const makeSQSMessages = <TBody extends HandlerMessageBody>(
   }
   return { incomingMessages, failedIds };
 };
+
 const makeS3Messages = async ({
   Records,
 }: S3Event): Promise<Array<HandlerIncomingMessage<unknown>>> => {
@@ -52,8 +56,10 @@ const makeS3Messages = async ({
   });
   return messages;
 };
+
 const isSQSEvent = (event: unknown): event is SQSEvent =>
   isEvent(event) && event.Records.every(isSqsRecord);
+
 const isEvent = (
   x: unknown
 ): x is {
@@ -63,10 +69,13 @@ const isEvent = (
   "Records" in x &&
   Array.isArray(x.Records) &&
   x.Records.every(isJsonObject);
+
 const isJsonObject = (x: unknown): x is Record<string, unknown> =>
   typeof x === "object" && x !== null;
+
 const isSqsRecord = (x: unknown): x is { messageId: unknown } =>
   isJsonObject(x) && "messageId" in x && !!x.messageId;
+
 const SQSMessageIncludesS3EventRecord = (result: Result<any>): boolean => {
   for (const incomingMessage of result.incomingMessages) {
     const { body } = incomingMessage;
@@ -80,6 +89,7 @@ const SQSMessageIncludesS3EventRecord = (result: Result<any>): boolean => {
   }
   return false;
 };
+
 export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
   event: S3Event | SQSEvent,
   incomingMessageBodyTypeGuard: (maybeBody: any) => maybeBody is TBody,
@@ -87,46 +97,68 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
   failuresAllowed?: boolean
 ): Promise<Result<TBody>> => {
   let result: Result<unknown>;
+
   if (isSQSEvent(event)) {
     result = makeSQSMessages(event, logger);
 
     if (SQSMessageIncludesS3EventRecord(result)) {
-      result = {
-        incomingMessages: await makeS3Messages(
-          result.incomingMessages[0].body as S3Event
-        ),
-        failedIds: [], // S3 events have no message IDs (throw error on failure instead)}
-      };
+      const { id, body } = result.incomingMessages[0];
+      const failedIds = [...result.failedIds];
+      const incomingMessages = [];
+      try {
+        const s3Messages = await makeS3Messages(body as S3Event);
+        const s3MessagesWithIds = s3Messages.map((s3Message) => ({
+          id,
+          body: s3Message.body,
+          meta: s3Message.meta,
+        }));
+        incomingMessages.push(...s3MessagesWithIds);
+      } catch (error) {
+        logger.error(ERROR_MESSAGE_DEFAULT, { error, messageId: id });
+        if (id !== undefined && !failedIds.includes(id)) failedIds.push(id);
+      }
+
+      result = { incomingMessages, failedIds };
+    }
+
+    for (const incomingMessage of result.incomingMessages) {
+      try {
+        const bodyIsExpectedType = incomingMessageBodyTypeGuard(
+          incomingMessage.body
+        );
+        if (!bodyIsExpectedType) {
+          result.incomingMessages.pop();
+          throw new Error(ERROR_MESSAGE_TYPE_GUARD);
+        }
+      } catch (error) {
+        logger.error(ERROR_MESSAGE_DEFAULT, {
+          error,
+          messageId: incomingMessage.id,
+        });
+        if (incomingMessage.id) {
+          result.failedIds.push(incomingMessage.id);
+        }
+      }
+    }
+    if (!failuresAllowed && result.failedIds.length > 0) {
+      throw new Error(ERROR_MESSAGE_DEFAULT);
     }
   } else {
     result = {
       incomingMessages: await makeS3Messages(event),
       failedIds: [], // S3 events have no message IDs (throw error on failure instead)}
     };
-  }
 
-  for (const incomingMessage of result.incomingMessages) {
-    try {
+    for (const incomingMessage of result.incomingMessages) {
       const bodyIsExpectedType = incomingMessageBodyTypeGuard(
         incomingMessage.body
       );
-
       if (!bodyIsExpectedType) {
         result.incomingMessages.pop();
         throw new Error(ERROR_MESSAGE_TYPE_GUARD);
       }
-    } catch (error) {
-      logger.error(ERROR_MESSAGE_DEFAULT, {
-        error,
-        messageId: incomingMessage.id,
-      });
-      if (incomingMessage.id) {
-        result.failedIds.push(incomingMessage.id);
-      }
     }
   }
 
-  if (!failuresAllowed && result.failedIds.length > 0)
-    throw new Error(ERROR_MESSAGE_DEFAULT);
   return result as Result<TBody>;
 };
