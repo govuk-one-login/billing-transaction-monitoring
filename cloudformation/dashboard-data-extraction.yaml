@@ -70,6 +70,25 @@ Resources:
                 - '*'
       ReservedConcurrentExecutions: 1
 
+  DashboardDataExtractScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: DashboardDataExtractScheduledRule
+      Description: Schedules DashboardDataExtractFunction to run once per day
+      ScheduleExpression: cron(0 7 ? * * *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt DashboardDataExtractFunction.Arn
+          Id: DashboardDataExtractFunction
+
+  LambdaPermissionForEvents:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DashboardDataExtractFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt DashboardDataExtractScheduledRule.Arn
+
   DashboardDataExtractFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
