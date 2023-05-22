@@ -64,4 +64,16 @@ describe("Handler test for integration test support function", () => {
       "Function 'someUnknownCommand' is not implemented."
     );
   });
+  test("Input event with non-serializable parameters results in error", async () => {
+    inputEvent = {
+      environment: "test-env",
+      config: "test-config",
+      command: IntTestHelpers.getS3Object,
+      parameters: { some: new Date() },
+    };
+
+    await expect(handler(inputEvent, givenContext)).rejects.toThrowError(
+      "Invalid parameter: Non Serializable value"
+    );
+  });
 });
