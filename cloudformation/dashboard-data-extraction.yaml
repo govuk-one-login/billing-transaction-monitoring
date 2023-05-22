@@ -19,12 +19,31 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           DATABASE_NAME: !Sub ${AWS::StackName}-calculations
           RESULTS_BUCKET: !Sub s3://${StorageBucket}/btm_extract_data/
+          STORAGE_BUCKET: !Ref StorageBucket
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
       Handler: dashboardExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
             - Effect: Allow
               Action:
                 - s3:GetBucketLocation
@@ -37,13 +56,10 @@ Resources:
                 - '*'
             - Effect: Allow
               Action:
-                - s3:CreateBucket
-                - s3:VerifyBucket
-                - s3:GetObject
-                - s3:ListBucket
-                - s3:PutObject
+                - s3:*
               Resource:
-                - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
+                - !GetAtt StorageBucket.Arn
+                - !Sub ${StorageBucket.Arn}/*
                 - !Sub arn:aws:s3:::${ConfigStackParameter.Value}*
             - Effect: Allow
               Action:
