@@ -1,6 +1,13 @@
 import path from "path";
 import fs from "fs";
-import { generateRandomId, validTimestamp } from "./commonHelpers";
+
+export const generateRandomId = (): string => {
+  return Math.floor(Math.random() * 10000000).toString();
+};
+
+export const validTimestamp = (date: string): number => {
+  return Math.floor(new Date(date).getTime() / 1000);
+};
 
 export enum VendorId {
   vendor_testvendor1 = "vendor_testvendor1",
@@ -14,6 +21,7 @@ export enum EventName {
   VENDOR_1_EVENT_3 = "VENDOR_1_EVENT_3",
   VENDOR_2_EVENT_7 = "VENDOR_2_EVENT_7",
   VENDOR_3_EVENT_6 = "VENDOR_3_EVENT_6",
+  VENDOR_3_EVENT_4 = "VENDOR_3_EVENT_4",
 }
 
 export interface EventPayload {

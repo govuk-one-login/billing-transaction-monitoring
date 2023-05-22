@@ -12,9 +12,9 @@ export class Invoice {
   constructor(invoice: InvoiceData) {
     this.vendor = invoice.vendor;
     this.customer = invoice.customer;
-    this.date = invoice.date;
+    this.date = new Date(invoice.dateString);
     this.invoiceNumber = invoice.invoiceNumber;
-    this.dueDate = invoice.dueDate;
+    this.dueDate = new Date(invoice.dueDateString);
     this.lineItems = invoice.lineItems;
   }
 
@@ -45,6 +45,14 @@ export class Invoice {
 
   getTotal(): number {
     return this.lineItems.reduce((acc, cur) => acc + cur.subtotal + cur.vat, 0);
+  }
+
+  getTotalTax(): number {
+    return this.lineItems.reduce((acc, cur) => acc + cur.vat, 0);
+  }
+
+  getLineItemsSubTotal(): number {
+    return this.lineItems.reduce((acc, cur) => acc + cur.subtotal, 0);
   }
 }
 
@@ -113,4 +121,44 @@ export const makeMockInvoicePDF =
     });
     doc.text(`Invoice number: ${invoice.invoiceNumber}`, 2, 20);
     return await writeOutput(doc.output("arraybuffer"), folder, filename);
+  };
+
+export const makeMockInvoiceCSV =
+  <TWriteOutput>(writeOutput: WriteFunc<TWriteOutput>) =>
+  async (
+    invoice: Invoice,
+    folder: string,
+    filename: string
+  ): Promise<TWriteOutput> => {
+    const csvData = [
+      ["Vendor", invoice.vendor.name],
+      ["Invoice period start", invoice.date.toISOString().substring(0, 10)],
+      ["Invoice period end", invoice.date.toISOString().substring(0, 10)],
+      ["Invoice Date", invoice.date.toISOString().substring(0, 10)],
+      ["Due Date", invoice.dueDate.toISOString().substring(0, 10)],
+      ["VAT Number", invoice.vendor.vatNumber],
+      ["WP Number", invoice.vendor.vatNumber],
+      ["PO Number", invoice.vendor.vatNumber],
+      ["Version", "1.0.0"],
+      ["Service Name", "Unit Price", "Quantity", "Tax", "Subtotal", "Total"],
+      ...invoice.lineItems.map((lineItem) => [
+        lineItem.description,
+        lineItem.unitPrice,
+        lineItem.quantity,
+        lineItem.vat.toFixed(4),
+        lineItem.subtotal.toFixed(4),
+        invoice.getTotal().toFixed(4),
+      ]),
+      [
+        "Total",
+        "",
+        "",
+        invoice.getTotalTax(),
+        invoice.getLineItemsSubTotal(),
+        invoice.getTotal(),
+      ],
+    ];
+    const csvString = csvData.map((row) => row.join(",")).join("\n");
+    const csvDataArrayBuffer = Buffer.from(csvString);
+    return await writeOutput(csvDataArrayBuffer, folder, filename);
   };

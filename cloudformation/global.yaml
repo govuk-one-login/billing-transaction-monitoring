@@ -190,3 +190,32 @@ Resources:
           ],
         ]
       Description: !Sub Alarm topic used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
+
+  MultiRegionKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              Service:
+                - ses.amazonaws.com
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+            Resource: '*'
+      MultiRegion: true
+
+  MultiRegionKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/key-${AWS::StackName}-multi-region
+      TargetKeyId: !Ref MultiRegionKmsKey
