@@ -73,7 +73,7 @@ Resources:
   DashboardDataExtractScheduledRule:
     Type: AWS::Events::Rule
     Properties:
-      Name: DashboardDataExtractScheduledRule
+      Name: !Sub ${AWS::StackName}-dashboard-data-extract-rule
       Description: Schedules DashboardDataExtractFunction to run once per day
       ScheduleExpression: cron(0 7 ? * * *)
       State: ENABLED
