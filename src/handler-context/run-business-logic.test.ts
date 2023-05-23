@@ -13,7 +13,10 @@ describe("runBusinessLogic", () => {
   let givenIncomingMessageBody2: string;
   let givenIncomingMessageId1: string;
   let givenIncomingMessageId2: string;
-  let givenMeta1: string;
+  let givenMeta1: {
+    bucketName: string;
+    key: string;
+  };
   let givenMeta2: undefined;
   let givenIncomingMessages: Array<HandlerIncomingMessage<any>>;
   let expectedErrorMessage: string;
@@ -45,7 +48,10 @@ describe("runBusinessLogic", () => {
 
     givenIncomingMessageId1 = "given incoming message ID 1";
     givenIncomingMessageBody1 = "given incoming message body 1";
-    givenMeta1 = "given meta details";
+    givenMeta1 = {
+      bucketName: "a-bucket-name",
+      key: "a-folder-file-name",
+    };
 
     givenIncomingMessageId2 = "given incoming message ID 2";
     givenIncomingMessageBody2 = "given incoming message body 2";

@@ -11,19 +11,21 @@ export const businessLogic: BusinessLogic<
   logger.info(`Processing email ${JSON.stringify(event)}`); // TO DO Remove logger and add decryption of email which is covered in BTM-575.
 
   // File must be in a vendor ID folder in the Raw Email bucket, which determines folder for the Raw Invoice bucket. Throw error otherwise.
-  const typedMeta = meta as {
-    bucketName: string;
-    key: string;
-  };
-  const filePathParts = typedMeta.key.split("/");
-  if (filePathParts.length < 2)
-    throw Error(
-      `File not in vendor ID folder: ${typedMeta.bucketName}/${typedMeta.key}`
-    );
+  let vendorId: string;
+  let sourceFileName: string;
+  if (meta) {
+    const filePathParts = meta.key.split("/");
+    if (filePathParts.length < 2)
+      throw Error(
+        `File not in vendor ID folder: ${meta.bucketName}/${meta.key}`
+      );
 
-  const vendorId = filePathParts[0];
-  const sourceFileName = filePathParts[filePathParts.length - 1];
-  logger.info(`Vendor: ${vendorId} | Email name: ${sourceFileName}`);
+    vendorId = filePathParts[0];
+    sourceFileName = filePathParts[filePathParts.length - 1];
+    logger.info(`Vendor: ${vendorId} | Email name: ${sourceFileName}`);
+  } else {
+    throw Error(`Missing bucketName and key`);
+  }
 
   // Parse the email using mailparser
 

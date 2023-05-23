@@ -7,7 +7,10 @@ export type HandlerMessageBody = unknown;
 export interface HandlerIncomingMessage<TBody extends HandlerMessageBody> {
   id?: string;
   body: TBody;
-  meta?: unknown;
+  meta?: {
+    bucketName: string;
+    key: string;
+  };
 }
 
 export interface HandlerOutgoingMessage<TBody extends HandlerMessageBody> {
@@ -46,7 +49,10 @@ export type BusinessLogic<
 > = (
   incomingMessageBody: TIncomingMessageBody,
   ctx: HandlerCtx<TEnvVars, TConfigElements, TOutgoingMessageBody>,
-  meta?: unknown
+  meta?: {
+    bucketName: string;
+    key: string;
+  }
 ) => Promise<TOutgoingMessageBody[]>;
 
 export interface HandlerCtx<
