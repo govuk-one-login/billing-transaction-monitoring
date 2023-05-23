@@ -3,6 +3,7 @@ Transform: AWS::Serverless-2016-10-31
 
 Resources:
   DashboardDataExtractFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for scheduled lambda that does not process events
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-dashboard-data-extract-function
@@ -50,9 +51,11 @@ Resources:
                 - arn:aws:s3:::*
             - Effect: Allow
               Action:
-                - glue:Get*
-              Resource:
-                - '*'
+                - glue:CreateTable
+                - glue:GetTable
+                - glue:UpdateTable
+                - glue:GetDatabases
+              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
             - Effect: Allow
               Action:
                 - s3:*
@@ -67,6 +70,10 @@ Resources:
                 - athena:GetQueryResults
               Resource:
                 - '*'
+                  # These should work, but don't...  According to AWS doc, the access error we get is because
+                  # it can't access the workgroup, and these are the only two real workgroups we create.
+      #                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaInvoiceWorkgroup}
+      #                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaTransactionWorkgroup}
       ReservedConcurrentExecutions: 1
 
   DashboardDataExtractScheduledRule:
