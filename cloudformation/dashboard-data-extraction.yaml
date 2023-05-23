@@ -3,7 +3,6 @@ Transform: AWS::Serverless-2016-10-31
 
 Resources:
   DashboardDataExtractFunction:
-    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-dashboard-data-extract-function
