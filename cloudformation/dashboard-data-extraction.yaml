@@ -49,13 +49,18 @@ Resources:
                 - s3:GetBucketLocation
               Resource:
                 - arn:aws:s3:::*
+            #            - Effect: Allow
+            #              Action:
+            #                - glue:CreateTable
+            #                - glue:GetTable
+            #                - glue:UpdateTable
+            #                - glue:GetDatabases
+            #              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
             - Effect: Allow
               Action:
-                - glue:CreateTable
-                - glue:GetTable
-                - glue:UpdateTable
-                - glue:GetDatabases
-              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
+                - glue:Get*
+              Resource:
+                - '*'
             - Effect: Allow
               Action:
                 - s3:*
