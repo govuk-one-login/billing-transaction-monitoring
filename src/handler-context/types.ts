@@ -2,7 +2,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { ConfigElements, PickedConfigCache } from "./config";
 import { HandlerOutputs } from "./context-builder";
 
-export type HandlerMessageBody = unknown;
+export type HandlerMessageBody = string | {};
 
 export interface HandlerIncomingMessage<TBody extends HandlerMessageBody> {
   id?: string;

@@ -6,7 +6,7 @@ import { HandlerIncomingMessage, HandlerMessageBody } from "./types";
 const ERROR_MESSAGE_DEFAULT = "Failed to make message";
 const ERROR_MESSAGE_TYPE_GUARD = "Message did not conform to the expected type";
 
-interface Result<TBody> {
+interface Result<TBody extends HandlerMessageBody> {
   incomingMessages: Array<HandlerIncomingMessage<TBody>>;
   failedIds: string[];
 }
@@ -29,9 +29,9 @@ const makeSQSMessages = <TBody extends HandlerMessageBody>(
   return { incomingMessages, failedIds };
 };
 
-const makeS3Messages = async ({
+const makeS3Messages = async <TBody extends HandlerMessageBody>({
   Records,
-}: S3Event): Promise<Array<HandlerIncomingMessage<unknown>>> => {
+}: S3Event): Promise<Array<HandlerIncomingMessage<TBody>>> => {
   const promises = Records.map(
     async ({
       s3: {
@@ -45,7 +45,7 @@ const makeS3Messages = async ({
     if (resolution.status === "rejected") {
       throw new Error("The object this event references could not be found.");
     }
-    const body = resolution.value;
+    const body = resolution.value as TBody;
     return {
       body,
       meta: {
@@ -55,6 +55,29 @@ const makeS3Messages = async ({
     };
   });
   return messages;
+};
+
+const makeS3MessagesFromSqsMessages = async <TBody extends HandlerMessageBody>(
+  sqsResult: Result<TBody>,
+  logger: Logger
+): Promise<Result<TBody>> => {
+  const { id, body } = sqsResult.incomingMessages[0];
+  const failedIds = [...sqsResult.failedIds];
+  const incomingMessages: Array<HandlerIncomingMessage<TBody>> = [];
+  try {
+    const s3Messages = await makeS3Messages(body as S3Event);
+    const s3MessagesWithIds = s3Messages.map((s3Message) => ({
+      id,
+      body: s3Message.body as TBody,
+      meta: s3Message.meta,
+    }));
+    incomingMessages.push(...s3MessagesWithIds);
+  } catch (error) {
+    logger.error(ERROR_MESSAGE_DEFAULT, { error, messageId: id });
+    if (id !== undefined && !failedIds.includes(id)) failedIds.push(id);
+  }
+
+  return { incomingMessages, failedIds };
 };
 
 const isSQSEvent = (event: unknown): event is SQSEvent =>
@@ -76,7 +99,7 @@ const isJsonObject = (x: unknown): x is Record<string, unknown> =>
 const isSqsRecord = (x: unknown): x is { messageId: unknown } =>
   isJsonObject(x) && "messageId" in x && !!x.messageId;
 
-const SQSMessageIncludesS3EventRecord = (result: Result<any>): boolean => {
+const SQSMessageIncludesS3EventRecord = (result: Result<S3Event>): boolean => {
   for (const incomingMessage of result.incomingMessages) {
     const { body } = incomingMessage;
     if (body.Records) {
@@ -96,29 +119,13 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
   logger: Logger,
   failuresAllowed?: boolean
 ): Promise<Result<TBody>> => {
-  let result: Result<unknown>;
+  let result: Result<TBody>;
 
   if (isSQSEvent(event)) {
     result = makeSQSMessages(event, logger);
 
     if (SQSMessageIncludesS3EventRecord(result)) {
-      const { id, body } = result.incomingMessages[0];
-      const failedIds = [...result.failedIds];
-      const incomingMessages = [];
-      try {
-        const s3Messages = await makeS3Messages(body as S3Event);
-        const s3MessagesWithIds = s3Messages.map((s3Message) => ({
-          id,
-          body: s3Message.body,
-          meta: s3Message.meta,
-        }));
-        incomingMessages.push(...s3MessagesWithIds);
-      } catch (error) {
-        logger.error(ERROR_MESSAGE_DEFAULT, { error, messageId: id });
-        if (id !== undefined && !failedIds.includes(id)) failedIds.push(id);
-      }
-
-      result = { incomingMessages, failedIds };
+      result = await makeS3MessagesFromSqsMessages(result, logger);
     }
 
     for (const incomingMessage of result.incomingMessages) {
@@ -160,5 +167,5 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
     }
   }
 
-  return result as Result<TBody>;
+  return result;
 };
