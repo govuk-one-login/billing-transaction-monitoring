@@ -5,15 +5,25 @@ import { simpleParser } from "mailparser";
 jest.mock("mailparser");
 const mockedSimpleParser = simpleParser as jest.Mock;
 describe("process-email business logic", () => {
-  const mockLogger = {
-    info: jest.fn(),
-  };
+  let validIncomingEventBody: string;
+  let givenInfoLogger: jest.Mock;
+  let givenWarnLogger: jest.Mock;
+  let mockContext: HandlerCtx<any, any, any>;
 
-  const mockContext = {
-    logger: mockLogger,
-  } as unknown as HandlerCtx<any, any, any>;
+  beforeEach(() => {
+    jest.resetAllMocks();
+    givenInfoLogger = jest.fn();
+    givenWarnLogger = jest.fn();
 
-  const validIncomingEventBody = "Some valid MIME-Version email message";
+    validIncomingEventBody = "Some valid MIME-Version email message";
+    mockContext = {
+      config: {},
+      logger: {
+        info: givenInfoLogger,
+        warn: givenWarnLogger,
+      },
+    } as any;
+  });
 
   test("should throw error with event record that has no vendor ID folder", async () => {
     const invalidMockMeta = {
@@ -86,10 +96,15 @@ describe("process-email business logic", () => {
       bucketName: "given bucket name",
       key: "some_vendor_id/given-file-path",
     };
-
-    await expect(
-      businessLogic(validIncomingEventBody, mockContext, validMockMeta)
-    ).rejects.toThrowError("No pdf or csv attachments");
+    const result = await businessLogic(
+      validIncomingEventBody,
+      mockContext,
+      validMockMeta
+    );
+    expect(result).toEqual([]);
+    expect(givenWarnLogger).toHaveBeenCalledWith(
+      "No pdf or csv attachments in given-file-path"
+    );
   });
 
   test("should remove any whitespaces in the attachment filename", async () => {
