@@ -24,7 +24,7 @@ type BucketAndPrefix = {
 };
 
 type DataAndTarget = {
-  data: ArrayBuffer;
+  data: string;
   target: S3Object;
 };
 
@@ -121,7 +121,7 @@ const putS3ObjectBasic = async (
   const bucketParams = {
     Bucket: dataAndTarget.target.bucket,
     Key: dataAndTarget.target.key,
-    Body: Buffer.from(dataAndTarget.data),
+    Body: Buffer.from(dataAndTarget.data, "ascii"),
   };
   try {
     await s3Client.send(new PutObjectCommand(bucketParams));

@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 import { InvoiceData } from "./types";
 
 export type WriteFunc<TWriteOutput> = (
-  file: ArrayBuffer,
+  file: string,
   folder: string,
   filename: string
 ) => Promise<TWriteOutput>;
@@ -120,7 +120,7 @@ export const makeMockInvoicePDF =
       ],
     });
     doc.text(`Invoice number: ${invoice.invoiceNumber}`, 2, 20);
-    return await writeOutput(doc.output("arraybuffer"), folder, filename);
+    return await writeOutput(doc.output(), folder, filename);
   };
 
 export const makeMockInvoiceCSV =
@@ -159,6 +159,5 @@ export const makeMockInvoiceCSV =
       ],
     ];
     const csvString = csvData.map((row) => row.join(",")).join("\n");
-    const csvDataArrayBuffer = Buffer.from(csvString);
-    return await writeOutput(csvDataArrayBuffer, folder, filename);
+    return await writeOutput(csvString, folder, filename);
   };
