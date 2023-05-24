@@ -1,55 +1,17 @@
-import AWS from "aws-sdk";
 import { Athena } from "aws-sdk/clients/all";
-import { QueryExecutionState } from "aws-sdk/clients/athena";
 
 import { ResultSet } from "@aws-sdk/client-athena";
 import { putTextS3 } from "../../shared/utils";
+import { AthenaQueryExecutor } from "./athena-query-executor";
 
 export const handler = async (): Promise<void> => {
+  const athena = new Athena({ region: "eu-west-2" });
+
   const fetchDataSql = `SELECT * FROM "${process.env.DATABASE_NAME}".btm_billing_and_transactions_curated`;
-  const results: ResultSet = await query(fetchDataSql);
+  const executor = new AthenaQueryExecutor(athena);
+  const results: ResultSet = await executor.fetchResults(fetchDataSql);
   await writeExtractToS3(results);
 };
-
-const athena: Athena = new AWS.Athena();
-
-export async function query(sql: string): Promise<Athena.ResultSet> {
-  const params = {
-    QueryString: sql,
-    ResultConfiguration: {
-      OutputLocation: process.env.RESULTS_BUCKET,
-    },
-  };
-
-  const queryExecution = await athena.startQueryExecution(params).promise();
-  const queryExecutionId = queryExecution.QueryExecutionId;
-
-  if (queryExecutionId === undefined) {
-    throw new Error("Failed to start execution");
-  }
-
-  let state: QueryExecutionState = "QUEUED";
-  let reason: string | undefined;
-  while (state === "RUNNING" || state === "QUEUED") {
-    const data = await athena
-      .getQueryExecution({ QueryExecutionId: queryExecutionId })
-      .promise();
-    state = data.QueryExecution?.Status?.State ?? "Unknown";
-    reason = data.QueryExecution?.Status?.StateChangeReason;
-  }
-
-  if (state !== "SUCCEEDED") {
-    throw new Error(`Query execution failed: ${reason}`);
-  }
-
-  const results = await athena
-    .getQueryResults({ QueryExecutionId: queryExecutionId })
-    .promise();
-  if (results.ResultSet === undefined) {
-    throw new Error("Failed to fetch results");
-  }
-  return results.ResultSet;
-}
 
 async function writeExtractToS3(results: ResultSet): Promise<void> {
   const storageBucket = process.env.STORAGE_BUCKET;
