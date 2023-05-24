@@ -1,5 +1,5 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { S3Event, SQSEvent } from "aws-lambda";
+import { S3Event, S3EventRecord, SQSEvent } from "aws-lambda";
 import { fetchS3 } from "../shared/utils";
 import { HandlerIncomingMessage, HandlerMessageBody } from "./types";
 
@@ -83,6 +83,9 @@ const makeS3MessagesFromSqsMessages = async <TBody extends HandlerMessageBody>(
 const isSQSEvent = (event: unknown): event is SQSEvent =>
   isEvent(event) && event.Records.every(isSqsRecord);
 
+const isS3EventInSQSEvent = (event: unknown): event is S3Event =>
+  isEvent(event) && event.Records.every(isS3EventRecord);
+
 const isEvent = (
   x: unknown
 ): x is {
@@ -99,19 +102,13 @@ const isJsonObject = (x: unknown): x is Record<string, unknown> =>
 const isSqsRecord = (x: unknown): x is { messageId: unknown } =>
   isJsonObject(x) && "messageId" in x && !!x.messageId;
 
-const SQSMessageIncludesS3EventRecord = (result: Result<S3Event>): boolean => {
-  for (const incomingMessage of result.incomingMessages) {
-    const { body } = incomingMessage;
-    if (body.Records) {
-      for (const record of body.Records) {
-        if (record.s3) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-};
+const isS3EventRecord = (x: unknown): x is S3EventRecord =>
+  isJsonObject(x) && "s3" in x && !!x.s3;
+
+const SQSMessageIncludesS3EventRecord = <TBody extends HandlerMessageBody>(
+  result: Result<TBody>
+): boolean =>
+  result.incomingMessages.every(({ body }) => isS3EventInSQSEvent(body));
 
 export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
   event: S3Event | SQSEvent,
