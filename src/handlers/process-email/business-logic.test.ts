@@ -137,4 +137,36 @@ describe("process-email business logic", () => {
     );
     expect(result).toEqual(mockEmailAttachment);
   });
+
+  test("should use an MD5 hash of the message content to build a filename if filename is undefined ", async () => {
+    mockedSimpleParser.mockReturnValue({
+      attachments: [
+        {
+          contentType: "application/pdf",
+          filename: undefined,
+          content: "mock-pdf-content",
+          checksum: "9d4e23771d6195be7ffc7fb36c82f25a",
+        },
+      ],
+    });
+
+    const validMockMeta = {
+      bucketName: "given bucket name",
+      key: "some_vendor_id/given-file-path",
+    };
+
+    const mockEmailAttachment = [
+      {
+        content: "mock-pdf-content",
+        vendorId: "some_vendor_id",
+        attachmentName: "9d4e23771d6195be7ffc7fb36c82f25a.pdf",
+      },
+    ];
+    const result = await businessLogic(
+      validIncomingEventBody,
+      mockContext,
+      validMockMeta
+    );
+    expect(result).toEqual(mockEmailAttachment);
+  });
 });

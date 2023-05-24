@@ -48,6 +48,11 @@ export const businessLogic: BusinessLogic<
     if (attachment.filename) {
       // This will remove any whitespaces in the filename
       attachmentName = attachment.filename.replace(/\s+/g, "");
+    } else {
+      // This will generate a filename using the attachment checksum if filename is undefined
+      attachmentName = `${attachment.checksum}.${attachment.contentType.slice(
+        -3
+      )}`;
     }
     return {
       content: attachment.content.toString(),
