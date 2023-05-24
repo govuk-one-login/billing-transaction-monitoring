@@ -8,8 +8,8 @@ export interface HandlerIncomingMessage<TBody extends HandlerMessageBody> {
   id?: string;
   body: TBody;
   meta?: {
-    bucketName: string;
-    key: string;
+    bucketName?: string;
+    key?: string;
   };
 }
 
@@ -50,8 +50,8 @@ export type BusinessLogic<
   incomingMessageBody: TIncomingMessageBody,
   ctx: HandlerCtx<TEnvVars, TConfigElements, TOutgoingMessageBody>,
   meta?: {
-    bucketName: string;
-    key: string;
+    bucketName?: string;
+    key?: string;
   }
 ) => Promise<TOutgoingMessageBody[]>;
 

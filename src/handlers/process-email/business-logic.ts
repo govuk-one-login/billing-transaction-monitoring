@@ -13,7 +13,7 @@ export const businessLogic: BusinessLogic<
   // File must be in a vendor ID folder in the Raw Email bucket, which determines folder for the Raw Invoice bucket. Throw error otherwise.
   let vendorId: string;
   let sourceFileName: string;
-  if (meta) {
+  if (meta?.key) {
     const filePathParts = meta.key.split("/");
     if (filePathParts.length < 2)
       throw Error(
