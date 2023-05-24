@@ -33,8 +33,14 @@ Resources:
                 - kms:Encrypt
               Resource: !GetAtt KmsKey.Arn
             - Effect: Allow
-              Action: s3:GetObject
-              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+              Resource:
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
             - Effect: Allow
               Action:
                 - kms:Decrypt
@@ -45,40 +51,25 @@ Resources:
                 ForAnyValue:StringEquals:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
             - Effect: Allow
+              Action: glue:GetTable
+              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
+            - Effect: Allow
               Action:
                 - s3:GetBucketLocation
-              Resource:
-                - arn:aws:s3:::*
-            #            - Effect: Allow
-            #              Action:
-            #                - glue:CreateTable
-            #                - glue:GetTable
-            #                - glue:UpdateTable
-            #                - glue:GetDatabases
-            #              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
-            - Effect: Allow
-              Action:
-                - glue:Get*
-              Resource:
-                - '*'
-            - Effect: Allow
-              Action:
-                - s3:*
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+                - s3:PutObject
               Resource:
                 - !GetAtt StorageBucket.Arn
                 - !Sub ${StorageBucket.Arn}/*
-                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}*
             - Effect: Allow
               Action:
                 - athena:StartQueryExecution
                 - athena:GetQueryExecution
                 - athena:GetQueryResults
-              Resource:
-                - '*'
-                  # These should work, but don't...  According to AWS doc, the access error we get is because
-                  # it can't access the workgroup, and these are the only two real workgroups we create.
-      #                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaInvoiceWorkgroup}
-      #                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaTransactionWorkgroup}
+              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
       ReservedConcurrentExecutions: 1
 
   DashboardDataExtractScheduledRule:
