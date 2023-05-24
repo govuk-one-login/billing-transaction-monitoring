@@ -5,6 +5,7 @@ import { HandlerIncomingMessage, HandlerMessageBody } from "./types";
 
 const ERROR_MESSAGE_DEFAULT = "Failed to make message";
 const ERROR_MESSAGE_TYPE_GUARD = "Message did not conform to the expected type";
+const ERROR_MESSAGE_MISSING_ID = "Incoming message does not have an id";
 
 interface Result<TBody extends HandlerMessageBody> {
   incomingMessages: Array<HandlerIncomingMessage<TBody>>;
@@ -74,7 +75,10 @@ const makeS3MessagesFromSqsMessages = async <TBody extends HandlerMessageBody>(
     incomingMessages.push(...s3MessagesWithIds);
   } catch (error) {
     logger.error(ERROR_MESSAGE_DEFAULT, { error, messageId: id });
-    if (id !== undefined && !failedIds.includes(id)) failedIds.push(id);
+    if (id === undefined) {
+      throw new Error(ERROR_MESSAGE_MISSING_ID);
+    }
+    if (!failedIds.includes(id)) failedIds.push(id);
   }
 
   return { incomingMessages, failedIds };
@@ -139,7 +143,9 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
           error,
           messageId: incomingMessage.id,
         });
-        if (incomingMessage.id) {
+        if (incomingMessage.id === undefined) {
+          throw new Error(ERROR_MESSAGE_MISSING_ID);
+        } else {
           result.failedIds.push(incomingMessage.id);
         }
       }
