@@ -26,7 +26,8 @@ export type SerializableData =
   | boolean
   | null
   | SerializableData[]
-  | { [key: string]: SerializableData };
+  | { [key: string]: SerializableData }
+  | ArrayBuffer;
 
 export interface TestSupportEvent<T extends IntTestHelpers> {
   environment: string;

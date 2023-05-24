@@ -10,10 +10,10 @@ import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
 
-interface DatabaseQuery {
+type DatabaseQuery = {
   databaseName: string;
   queryString: string;
-}
+};
 
 interface QueryStatus {
   state?: string;

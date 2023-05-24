@@ -1,12 +1,12 @@
 import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
-import { HelperDict, IntTestHelpers } from "../handler";
+import { HelperDict, IntTestHelpers, SerializableData } from "../handler";
 import { configName, envName, resourcePrefix, runViaLambda } from "./envHelper";
 
 export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
   command: THelper,
-  parameters: Parameters<HelperDict[THelper]>[0]
+  parameters: Parameters<HelperDict[THelper]>[0] & SerializableData
 ): Promise<string> => {
   const payload = JSON.stringify({
     environment: envName(),
@@ -30,16 +30,16 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
   }
 };
 
-export interface InvokeLambdaParams {
+type InvokeLambdaParams = {
   functionName: string;
   payload: string;
   forceWithoutLambda?: boolean;
-}
+};
 
-interface InvokeLambdaResponse {
+type InvokeLambdaResponse = {
   statusCode: number | undefined;
   payload?: Uint8Array;
-}
+};
 
 export const invokeLambda = async (
   params: InvokeLambdaParams
