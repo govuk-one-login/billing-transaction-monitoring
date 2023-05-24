@@ -203,6 +203,7 @@ Resources:
                         txn.timestamp,
                         txn.year,
                         txn.month,
+                        txn.month_event_count,
                         ven.vendor_name,
                         ven.service_name,
                         rates.unit_price transaction_price
@@ -215,11 +216,11 @@ Resources:
                             AND (txn.vendor_id = rates.vendor_id)
                             AND (txn.month_event_count BETWEEN rates.volumes_from AND COALESCE(rates.volumes_to, 9999999))
                             AND (txn.timestamp BETWEEN rates.effective_from AND COALESCE(rates.effective_to, "From_iso8601_timestamp"('2049-12-31')))))
-          SELECT "MAX"(vendor_id)        vendor_id,
-                "MAX"(vendor_name)       vendor_name,
-                "MAX"(service_name)      service_name,
-                "SUM"(transaction_price) price,
-                "COUNT"(event_id)        quantity,
+          SELECT "MAX"(vendor_id)         vendor_id,
+                "MAX"(vendor_name)        vendor_name,
+                "MAX"(service_name)       service_name,
+                "SUM"(transaction_price)  price,
+                "MAX"(month_event_count)  quantity,
                 month,
                 year
           FROM   btm_transactions_harmonised
