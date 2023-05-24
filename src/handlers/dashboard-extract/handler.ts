@@ -4,25 +4,30 @@ import { ResultSet } from "@aws-sdk/client-athena";
 import { putTextS3 } from "../../shared/utils";
 import { AthenaQueryExecutor } from "./athena-query-executor";
 
+const EXTRACT_KEY = "btm_extract_data/full-extract.json";
+
 export const handler = async (): Promise<void> => {
-  const athena = new Athena({ region: "eu-west-2" });
-
-  const fetchDataSql = `SELECT * FROM "${process.env.DATABASE_NAME}".btm_billing_and_transactions_curated`;
-  const executor = new AthenaQueryExecutor(athena);
-  const results: ResultSet = await executor.fetchResults(fetchDataSql);
-  await writeExtractToS3(results);
-};
-
-async function writeExtractToS3(results: ResultSet): Promise<void> {
   const storageBucket = process.env.STORAGE_BUCKET;
 
   if (storageBucket === undefined) {
     throw new Error("STORAGE_BUCKET is undefined");
   }
 
+  const athena = new Athena({ region: "eu-west-2" });
+
+  const fetchDataSql = `SELECT * FROM "${process.env.DATABASE_NAME}".btm_billing_and_transactions_curated`;
+  const executor = new AthenaQueryExecutor(athena);
+  const results: ResultSet = await executor.fetchResults(fetchDataSql);
+  await writeExtractToS3(storageBucket, results);
+};
+
+async function writeExtractToS3(
+  storageBucket: string,
+  results: ResultSet
+): Promise<void> {
   const body = getExtractData(results);
 
-  await putTextS3(storageBucket, "btm_extract_data/full-extract.json", body);
+  await putTextS3(storageBucket, EXTRACT_KEY, body);
 }
 
 function getExtractData(results: ResultSet): string {
