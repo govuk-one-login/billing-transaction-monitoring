@@ -1,5 +1,6 @@
 import { Athena } from "aws-sdk/clients/all";
 import { QueryExecutionState } from "aws-sdk/clients/athena";
+import { resourcePrefix } from "../int-test-support/helpers/envHelper";
 
 export class AthenaQueryExecutor {
   athena: Athena;
@@ -14,6 +15,7 @@ export class AthenaQueryExecutor {
       ResultConfiguration: {
         OutputLocation: process.env.RESULTS_BUCKET,
       },
+      WorkGroup: `${resourcePrefix()}-athena-dashboard-extract-workgroup`,
     };
 
     const queryExecution = await this.athena

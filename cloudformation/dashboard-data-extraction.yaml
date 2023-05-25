@@ -2,6 +2,44 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
+  DashboardExtractWorkgroup:
+    Type: AWS::Athena::WorkGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-athena-dashboard-extract-workgroup
+      WorkGroupConfiguration:
+        EnforceWorkGroupConfiguration: true
+        PublishCloudWatchMetricsEnabled: false
+        ResultConfiguration:
+          EncryptionConfiguration:
+            EncryptionOption: SSE_KMS
+            KmsKey: !GetAtt KmsKey.Arn
+          OutputLocation: !Sub s3://${AthenaDashboardExtractQueryResultsBucket}/
+
+  AthenaDashboardExtractQueryResultsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-athena-dashboard-extract-query-results
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: athena-dashboard-extract-query-results-bucket/log
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 7
+            Status: Enabled
+
   DashboardDataExtractFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for scheduled lambda that does not process events
     Type: AWS::Serverless::Function
