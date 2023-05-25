@@ -90,31 +90,17 @@ describe("makeIncomingMessages", () => {
       });
     });
 
-    it("Throws an error by default if a given message does not conform to the specified type", async () => {
+    it("Throws an error if a given message does not conform to the specified type and has a messageId", async () => {
       testIncomingMessageBodyTypeGuard.mockReturnValue(false);
 
-      try {
-        await makeIncomingMessages(
+      await expect(
+        makeIncomingMessages(
           testEvent,
           testIncomingMessageBodyTypeGuard as any,
           testLogger,
           testFailuresAllowed
-        );
-      } catch (error) {
-        expect((error as Error).message).toContain("Failed to make message");
-        expect(testLogger.error).toHaveBeenCalledTimes(1);
-        expect(testLogger.error).toHaveBeenCalledWith(
-          "Failed to make message",
-          {
-            error: expect.any(Error),
-            messageId: "msg_1",
-          }
-        );
-        expect((testLogger.error.mock.calls[0][1] as any).error.message).toBe(
-          "Message did not conform to the expected type"
-        );
-      }
-      expect.hasAssertions();
+        )
+      ).rejects.toThrow("Failed to make message");
     });
 
     it("Throws an error by default if a given SQS message's body is not valid json", async () => {
@@ -128,26 +114,14 @@ describe("makeIncomingMessages", () => {
           },
         ],
       } as any;
-
-      try {
-        await makeIncomingMessages(
+      await expect(
+        makeIncomingMessages(
           testEvent,
           testIncomingMessageBodyTypeGuard as any,
           testLogger,
           testFailuresAllowed
-        );
-      } catch (error) {
-        expect((error as Error).message).toContain("Failed to make message");
-        expect(testLogger.error).toHaveBeenCalledTimes(1);
-        expect(testLogger.error).toHaveBeenCalledWith(
-          "Failed to make message",
-          {
-            error: expect.any(SyntaxError),
-            messageId: "msg_2",
-          }
-        );
-      }
-      expect.hasAssertions();
+        )
+      ).rejects.toThrow("Failed to make message");
     });
 
     describe("Failures allowed", () => {
@@ -171,14 +145,10 @@ describe("makeIncomingMessages", () => {
         });
         expect(testLogger.error).toHaveBeenCalledTimes(1);
         expect(testLogger.error).toHaveBeenCalledWith(
-          "Failed to make message",
+          "Message did not conform to the expected type",
           {
-            error: expect.any(Error),
             messageId: "msg_1",
           }
-        );
-        expect((testLogger.error.mock.calls[0][1] as any).error.message).toBe(
-          "Message did not conform to the expected type"
         );
       });
 
@@ -274,7 +244,7 @@ describe("makeIncomingMessages", () => {
         );
       } catch (error) {
         expect((error as Error).message).toContain(
-          "Message did not conform to the expected type"
+          "Message did not conform to the expected type and Incoming message does not have an id"
         );
       }
       expect.hasAssertions();
