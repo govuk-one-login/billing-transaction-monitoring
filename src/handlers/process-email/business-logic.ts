@@ -13,7 +13,7 @@ export const businessLogic: BusinessLogic<
   // File must be in a vendor ID folder in the Raw Email bucket, which determines folder for the Raw Invoice bucket. Throw error otherwise.
   let vendorId: string;
   let sourceFileName: string;
-  if (meta?.key) {
+  if (meta?.key && meta?.bucketName) {
     const filePathParts = meta.key.split("/");
     if (filePathParts.length < 2)
       throw Error(
@@ -24,7 +24,7 @@ export const businessLogic: BusinessLogic<
     sourceFileName = filePathParts[filePathParts.length - 1];
     logger.info(`Vendor: ${vendorId} | Email name: ${sourceFileName}`);
   } else {
-    throw Error(`Missing bucketName and key`);
+    throw Error(`Missing bucketName and/or key`);
   }
 
   // Parse the email using mailparser

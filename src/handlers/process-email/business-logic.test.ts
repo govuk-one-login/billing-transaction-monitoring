@@ -25,6 +25,13 @@ describe("process-email business logic", () => {
     } as any;
   });
 
+  test("should throw error if missing bucket name and/or key", async () => {
+    const invalidMockMeta = {};
+
+    await expect(
+      businessLogic(validIncomingEventBody, mockContext, invalidMockMeta)
+    ).rejects.toThrowError("Missing bucketName and/or key");
+  });
   test("should throw error with event record that has no vendor ID folder", async () => {
     const invalidMockMeta = {
       bucketName: "given bucket name",
