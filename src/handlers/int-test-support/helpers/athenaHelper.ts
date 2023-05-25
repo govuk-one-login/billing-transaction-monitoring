@@ -56,6 +56,8 @@ export const getQueryExecutionStatus = async (
   const response = await athenaClient.send(
     new GetQueryExecutionCommand(params)
   );
+
+  console.log(response.QueryExecution?.Status);
   return {
     state: response.QueryExecution?.Status?.State,
     stateChangeReason: response.QueryExecution?.Status?.StateChangeReason,
