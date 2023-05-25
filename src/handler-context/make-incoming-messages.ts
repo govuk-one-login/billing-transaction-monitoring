@@ -4,7 +4,8 @@ import { fetchS3 } from "../shared/utils";
 import { HandlerIncomingMessage, HandlerMessageBody } from "./types";
 const ERROR_MESSAGE_DEFAULT = "Failed to make message";
 const ERROR_MESSAGE_TYPE_GUARD = "Message did not conform to the expected type";
-const ERROR_MESSAGE_MISSING_ID = "Incoming message does not have an id";
+const ERROR_MESSAGE_MISSING_ID =
+  "Message did not conform to the expected type and Incoming message does not have an id";
 
 interface Result<TBody extends HandlerMessageBody> {
   incomingMessages: Array<HandlerIncomingMessage<TBody>>;
