@@ -13,41 +13,41 @@ import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
 import { callWithRetryAndTimeout } from "./call-wrappers";
 
-export interface S3Object {
+export type S3Object = {
   bucket: string;
   key: string;
-}
+};
 
-interface BucketAndPrefix {
+type BucketAndPrefix = {
   bucketName: string;
   prefix?: string;
-}
+};
 
-interface DataAndTarget {
-  data: ArrayBuffer;
+type DataAndTarget = {
+  data: string;
   target: S3Object;
-}
+};
 
-interface DeleteS3ObjectsByPrefix {
+type DeleteS3ObjectsByPrefix = {
   bucket: string;
   prefixes: string[];
-}
+};
 
-interface DeleteS3Objects {
+type DeleteS3Objects = {
   bucket: string;
   keys: string[];
-}
+};
 
-interface DeletedObject {
+type DeletedObject = {
   key?: string;
   versionId?: string;
-}
+};
 
-interface S3ObjectContent {
+type S3ObjectContent = {
   key?: string;
   size?: number;
   lastModified?: Date;
-}
+};
 
 const listS3ObjectsBasic = async (
   params: BucketAndPrefix
@@ -121,7 +121,7 @@ const putS3ObjectBasic = async (
   const bucketParams = {
     Bucket: dataAndTarget.target.bucket,
     Key: dataAndTarget.target.key,
-    Body: Buffer.from(dataAndTarget.data),
+    Body: Buffer.from(dataAndTarget.data, "ascii"),
   };
   try {
     await s3Client.send(new PutObjectCommand(bucketParams));

@@ -11,7 +11,7 @@ const mockedListS3Objects = listS3Objects as jest.MockedFunction<
 >;
 
 let givenContext: Context;
-let inputEvent: TestSupportEvent;
+let inputEvent: TestSupportEvent<IntTestHelpers>;
 
 beforeEach(() => {
   jest.resetAllMocks();
