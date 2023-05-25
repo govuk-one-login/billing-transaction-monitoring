@@ -93,6 +93,7 @@ Resources:
               Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
             - Effect: Allow
               Action:
+                - s3:AbortMultipartUpload
                 - s3:GetBucketLocation
                 - s3:GetObject
                 - s3:ListBucket
@@ -102,6 +103,8 @@ Resources:
               Resource:
                 - !GetAtt StorageBucket.Arn
                 - !Sub ${StorageBucket.Arn}/*
+                - !GetAtt AthenaDashboardExtractQueryResultsBucket.Arn
+                - !Sub ${AthenaDashboardExtractQueryResultsBucket.Arn}/*
             - Effect: Allow
               Action:
                 - athena:StartQueryExecution
@@ -109,6 +112,9 @@ Resources:
                 - athena:GetQueryResults
               Resource:
                 - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${DashboardExtractWorkgroup}
+                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaInvoiceWorkgroup}
+                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaTransactionWorkgroup}
+                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
       ReservedConcurrentExecutions: 1
 
   DashboardDataExtractScheduledRule:
