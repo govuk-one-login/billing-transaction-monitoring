@@ -59,23 +59,24 @@ const makeS3MessagesFromSqsMessages = async <TBody extends HandlerMessageBody>(
   sqsResult: Result<TBody>,
   logger: Logger
 ): Promise<Result<TBody>> => {
-  const { id, body } = sqsResult.incomingMessages[0];
   const failedIds = [...sqsResult.failedIds];
   const incomingMessages: Array<HandlerIncomingMessage<TBody>> = [];
-  try {
-    const s3Messages = await makeS3Messages(body as S3Event);
-    const s3MessagesWithIds = s3Messages.map((s3Message) => ({
-      id,
-      body: s3Message.body as TBody,
-      meta: s3Message.meta,
-    }));
-    incomingMessages.push(...s3MessagesWithIds);
-  } catch (error) {
-    logger.error(ERROR_MESSAGE_DEFAULT, { error, messageId: id });
-    if (id === undefined) {
-      throw new Error(ERROR_MESSAGE_MISSING_ID);
+  for (const { id, body } of sqsResult.incomingMessages) {
+    try {
+      const s3Messages = await makeS3Messages(body as S3Event);
+      const s3MessagesWithIds = s3Messages.map((s3Message) => ({
+        id,
+        body: s3Message.body as TBody,
+        meta: s3Message.meta,
+      }));
+      incomingMessages.push(...s3MessagesWithIds);
+    } catch (error) {
+      logger.error(ERROR_MESSAGE_DEFAULT, { error, messageId: id });
+      if (id === undefined) {
+        throw new Error(ERROR_MESSAGE_MISSING_ID);
+      }
+      if (!failedIds.includes(id)) failedIds.push(id);
     }
-    if (!failedIds.includes(id)) failedIds.push(id);
   }
   return { incomingMessages, failedIds };
 };
@@ -158,22 +159,19 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
     if (SQSMessageIncludesS3EventRecord(result)) {
       result = await makeS3MessagesFromSqsMessages(result, logger);
     }
-    result = validateIncomingMessages(
-      result,
-      incomingMessageBodyTypeGuard,
-      logger
-    );
   } else {
     result = {
       incomingMessages: await makeS3Messages(event),
       failedIds: [], // S3 events have no message IDs (throw error on failure instead)}
     };
-    result = validateIncomingMessages(
-      result,
-      incomingMessageBodyTypeGuard,
-      logger
-    );
   }
+
+  result = validateIncomingMessages(
+    result,
+    incomingMessageBodyTypeGuard,
+    logger
+  );
+
   if (!failuresAllowed && result.failedIds.length > 0) {
     throw new Error(ERROR_MESSAGE_DEFAULT);
   }
