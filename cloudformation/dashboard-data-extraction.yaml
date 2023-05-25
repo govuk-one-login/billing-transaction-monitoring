@@ -107,7 +107,8 @@ Resources:
                 - athena:StartQueryExecution
                 - athena:GetQueryExecution
                 - athena:GetQueryResults
-              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
+              Resource:
+                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${DashboardExtractWorkgroup}
       ReservedConcurrentExecutions: 1
 
   DashboardDataExtractScheduledRule:
