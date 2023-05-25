@@ -9,16 +9,16 @@ import { cloudWatchLogsClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
 
-interface LogCheckParameters {
+type LogCheckParameters = {
   logName: string;
   expectedString: string;
   testStartTime: number;
-}
-interface LogEvent {
+};
+type LogEvent = {
   eventId?: string;
   message?: string;
   logStreamName?: string;
-}
+};
 
 export async function getRecentCloudwatchLogs(params: {
   logName: string;

@@ -20,11 +20,19 @@ import {
 import { createInvoiceInS3 } from "./helpers/mock-data/invoice/helpers";
 import { invokeLambda } from "./helpers/lambdaHelper";
 
-export interface TestSupportEvent {
+export type SerializableData =
+  | string
+  | number
+  | boolean
+  | null
+  | SerializableData[]
+  | { [key: string]: SerializableData };
+
+export interface TestSupportEvent<T extends IntTestHelpers> {
   environment: string;
   config: string;
-  command: IntTestHelpers;
-  parameters: any;
+  command: T;
+  parameters: SerializableData;
 }
 
 export interface TestSupportReturn {
@@ -96,17 +104,17 @@ const callFunction = async (
   throw new Error(`Function '${name}' is not implemented.`);
 };
 
-export const handler = async (
-  event: TestSupportEvent,
+export const handler = async <T extends IntTestHelpers>(
+  event: TestSupportEvent<T>,
   _context: Context
 ): Promise<TestSupportReturn> => {
   process.env.ENV_NAME = event.environment;
   process.env.CONFIG_NAME = event.config;
 
   console.log(
-    `Executing command "${event.command}" with parameters "${Object.keys(
-      event.parameters
-    )}" in environment "${event.environment}" with config "${event.config}"`
+    `Executing command "${event.command}" with parameters "${
+      event.parameters !== null ? `${Object.keys(event.parameters)}` : null
+    }" in environment "${event.environment}" with config "${event.config}"`
   );
 
   const retVal = await callFunction(event.command, event.parameters);

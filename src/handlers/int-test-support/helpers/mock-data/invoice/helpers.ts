@@ -10,10 +10,10 @@ import { TestData } from "../../testDataHelper";
 import { E2ETestParserServiceConfig } from "../../../config-utils/get-e2e-test-config";
 import { poll } from "../../commonHelpers";
 
-interface InvoiceDataAndFileName {
+type InvoiceDataAndFileName = {
   invoiceData: InvoiceData;
   filename: string;
-}
+};
 
 export const createInvoiceInS3 = async (
   params: InvoiceDataAndFileName

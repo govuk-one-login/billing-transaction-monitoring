@@ -3,7 +3,7 @@ import { objectsToCSV } from "./objectsToCsv";
 import { testCases } from "./transformCSV-to-event-test-data";
 
 export const mockCsvData = (): {
-  csv: Buffer;
+  csv: string;
   happyPathCount: number;
   testCases: TestCases;
 } => {
@@ -25,5 +25,5 @@ export const mockCsvData = (): {
   const happyPathCount = testCases.filter(
     ({ expectedPath }) => expectedPath === "happy"
   ).length;
-  return { csv: Buffer.from(csvString), happyPathCount, testCases };
+  return { csv: csvString, happyPathCount, testCases };
 };
