@@ -73,29 +73,6 @@ describe("Extract data reformatter test", () => {
     );
   });
 
-  test("Row value missing", async () => {
-    const resultSet: ResultSet = {
-      Rows: [
-        {
-          Data: [{ VarCharValue: "column1" }],
-        },
-        {
-          Data: [{ VarCharValue: "valueA1" }],
-        },
-        {
-          Data: [
-            {}, // missing value
-          ],
-        },
-      ],
-    };
-
-    const reformatter = new ExtractDataReformatter();
-    await expect(reformatter.getExtractData(resultSet)).rejects.toThrow(
-      "Cell value missing"
-    );
-  });
-
   test("Happy path with valid data", async () => {
     const resultSet: ResultSet = {
       Rows: [
@@ -117,7 +94,7 @@ describe("Extract data reformatter test", () => {
           Data: [
             { VarCharValue: "valueB1" },
             { VarCharValue: "valueB2" },
-            { VarCharValue: "valueB3" },
+            {}, // Missing value should be replaced with ""
           ],
         },
       ],
@@ -125,7 +102,7 @@ describe("Extract data reformatter test", () => {
 
     const expectedResults =
       '{"column1":"valueA1","column2":"valueA2","column3":"valueA3"}\n' +
-      '{"column1":"valueB1","column2":"valueB2","column3":"valueB3"}';
+      '{"column1":"valueB1","column2":"valueB2","column3":""}';
 
     const reformatter = new ExtractDataReformatter();
     const result = await reformatter.getExtractData(resultSet);

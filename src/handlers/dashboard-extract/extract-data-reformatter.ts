@@ -29,10 +29,7 @@ export class ExtractDataReformatter {
           throw new Error("Column header missing");
         }
         const value = row[j].VarCharValue;
-        if (value === undefined) {
-          throw new Error("Cell value missing");
-        }
-        outputRow[key] = value;
+        outputRow[key] = value ?? "";
       }
       lines.push(JSON.stringify(outputRow));
     }
