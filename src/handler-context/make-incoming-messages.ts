@@ -13,11 +13,20 @@ interface Result<TBody extends HandlerMessageBody> {
   failedIds: string[];
 }
 
-const makeSQSMessages = <TBody extends HandlerMessageBody>(
+type UncheckedHandlerIncomingMessage =
+  HandlerIncomingMessage<HandlerMessageBody> & {
+    body: unknown;
+  };
+
+interface UncheckedResult extends Result<HandlerMessageBody> {
+  incomingMessages: UncheckedHandlerIncomingMessage[];
+}
+
+const makeSQSMessages = (
   { Records }: SQSEvent,
   logger: Logger
-): Result<TBody> => {
-  const incomingMessages: Array<HandlerIncomingMessage<TBody>> = [];
+): UncheckedResult => {
+  const incomingMessages: UncheckedHandlerIncomingMessage[] = [];
   const failedIds: string[] = [];
   for (const { messageId: id, body: rawBody } of Records) {
     try {
@@ -32,7 +41,7 @@ const makeSQSMessages = <TBody extends HandlerMessageBody>(
 };
 const makeS3Messages = async ({
   Records,
-}: S3Event): Promise<Array<HandlerIncomingMessage<unknown>>> => {
+}: S3Event): Promise<UncheckedHandlerIncomingMessage[]> => {
   const promises = Records.map(
     async ({
       s3: {
@@ -57,18 +66,18 @@ const makeS3Messages = async ({
   });
   return messages;
 };
-const makeS3MessagesFromSqsMessages = async <TBody extends HandlerMessageBody>(
-  sqsResult: Result<TBody>,
+const makeS3MessagesFromSqsMessages = async (
+  sqsResult: UncheckedResult,
   logger: Logger
-): Promise<Result<TBody>> => {
+): Promise<UncheckedResult> => {
   const failedIds = [...sqsResult.failedIds];
-  const incomingMessages: Array<HandlerIncomingMessage<TBody>> = [];
+  const incomingMessages: UncheckedHandlerIncomingMessage[] = [];
   for (const { id, body } of sqsResult.incomingMessages) {
     try {
       const s3Messages = await makeS3Messages(body as S3Event);
       const s3MessagesWithIds = s3Messages.map((s3Message) => ({
         id,
-        body: s3Message.body as TBody,
+        body: s3Message.body,
         meta: s3Message.meta,
       }));
       incomingMessages.push(...s3MessagesWithIds);
@@ -84,12 +93,12 @@ const makeS3MessagesFromSqsMessages = async <TBody extends HandlerMessageBody>(
 };
 
 const validateIncomingMessages = <TBody extends HandlerMessageBody>(
-  { incomingMessages, failedIds }: Result<unknown>,
+  { incomingMessages, failedIds }: UncheckedResult,
   isMessageBodyTBody: (maybeBody: unknown) => maybeBody is TBody,
   logger: Logger
 ): Result<TBody> => {
   const isHandlerIncomingMessageBodyTBody = (
-    incomingMessage: HandlerIncomingMessage<unknown>
+    incomingMessage: UncheckedHandlerIncomingMessage
   ): incomingMessage is HandlerIncomingMessage<TBody> => {
     return isMessageBodyTBody(incomingMessage.body);
   };
