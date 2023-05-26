@@ -11,11 +11,21 @@ interface Result<TBody extends HandlerMessageBody> {
   incomingMessages: Array<HandlerIncomingMessage<TBody>>;
   failedIds: string[];
 }
-const makeSQSMessages = <TBody extends HandlerMessageBody>(
+
+type UncheckedHandlerIncomingMessage =
+  HandlerIncomingMessage<HandlerMessageBody> & {
+    body: unknown;
+  };
+
+interface UncheckedResult extends Result<HandlerMessageBody> {
+  incomingMessages: UncheckedHandlerIncomingMessage[];
+}
+
+const makeSQSMessages = (
   { Records }: SQSEvent,
   logger: Logger
-): Result<TBody> => {
-  const incomingMessages: Array<HandlerIncomingMessage<TBody>> = [];
+): UncheckedResult => {
+  const incomingMessages: UncheckedHandlerIncomingMessage[] = [];
   const failedIds: string[] = [];
   for (const { messageId: id, body: rawBody } of Records) {
     try {
@@ -28,9 +38,9 @@ const makeSQSMessages = <TBody extends HandlerMessageBody>(
   }
   return { incomingMessages, failedIds };
 };
-const makeS3Messages = async <TBody extends HandlerMessageBody>({
+const makeS3Messages = async ({
   Records,
-}: S3Event): Promise<Array<HandlerIncomingMessage<TBody>>> => {
+}: S3Event): Promise<UncheckedHandlerIncomingMessage[]> => {
   const promises = Records.map(
     async ({
       s3: {
@@ -44,7 +54,7 @@ const makeS3Messages = async <TBody extends HandlerMessageBody>({
     if (resolution.status === "rejected") {
       throw new Error("The object this event references could not be found.");
     }
-    const body = resolution.value as TBody;
+    const body = resolution.value;
     return {
       body,
       meta: {
@@ -55,18 +65,18 @@ const makeS3Messages = async <TBody extends HandlerMessageBody>({
   });
   return messages;
 };
-const makeS3MessagesFromSqsMessages = async <TBody extends HandlerMessageBody>(
-  sqsResult: Result<TBody>,
+const makeS3MessagesFromSqsMessages = async (
+  sqsResult: UncheckedResult,
   logger: Logger
-): Promise<Result<TBody>> => {
+): Promise<UncheckedResult> => {
   const failedIds = [...sqsResult.failedIds];
-  const incomingMessages: Array<HandlerIncomingMessage<TBody>> = [];
+  const incomingMessages: UncheckedHandlerIncomingMessage[] = [];
   for (const { id, body } of sqsResult.incomingMessages) {
     try {
       const s3Messages = await makeS3Messages(body as S3Event);
       const s3MessagesWithIds = s3Messages.map((s3Message) => ({
         id,
-        body: s3Message.body as TBody,
+        body: s3Message.body,
         meta: s3Message.meta,
       }));
       incomingMessages.push(...s3MessagesWithIds);
@@ -82,8 +92,8 @@ const makeS3MessagesFromSqsMessages = async <TBody extends HandlerMessageBody>(
 };
 
 const validateIncomingMessages = <TBody extends HandlerMessageBody>(
-  result: Result<TBody>,
-  incomingMessageBodyTypeGuard: (maybeBody: any) => maybeBody is TBody,
+  result: UncheckedResult,
+  incomingMessageBodyTypeGuard: (maybeBody: unknown) => maybeBody is TBody,
   logger: Logger
 ): Result<TBody> => {
   const validIncomingMessages: Array<HandlerIncomingMessage<TBody>> = [];
@@ -94,7 +104,9 @@ const validateIncomingMessages = <TBody extends HandlerMessageBody>(
       incomingMessage.body
     );
     if (bodyIsExpectedType) {
-      validIncomingMessages.push(incomingMessage);
+      validIncomingMessages.push(
+        incomingMessage as HandlerIncomingMessage<TBody>
+      );
     } else {
       logger.error(ERROR_MESSAGE_TYPE_GUARD, {
         messageId: incomingMessage.id,
@@ -152,7 +164,7 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
   logger: Logger,
   failuresAllowed?: boolean
 ): Promise<Result<TBody>> => {
-  let result: Result<TBody>;
+  let result: Result<HandlerMessageBody>;
   if (isSQSEvent(event)) {
     result = makeSQSMessages(event, logger);
 
@@ -166,14 +178,14 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
     };
   }
 
-  result = validateIncomingMessages(
+  const validatedResult = validateIncomingMessages<TBody>(
     result,
     incomingMessageBodyTypeGuard,
     logger
   );
 
-  if (!failuresAllowed && result.failedIds.length > 0) {
+  if (!failuresAllowed && validatedResult.failedIds.length > 0) {
     throw new Error(ERROR_MESSAGE_DEFAULT);
   }
-  return result;
+  return validatedResult;
 };
