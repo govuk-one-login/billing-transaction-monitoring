@@ -20,7 +20,7 @@ export default async function globalSetup(): Promise<void> {
   await deleteS3ObjectsAndPoll(STORAGE_BUCKET, S3_INVOICE_ARCHIVED_FOLDER);
   await deleteAllObjects(RAW_INVOICE_BUCKET);
   await deleteAllObjects(RAW_INVOICE_TEXTRACT_BUCKET);
-  console.log("All previous data has been cleaned.");
+  console.log("All previous test data has been cleaned.");
 }
 
 const deleteS3ObjectsAndPoll = async (
@@ -54,25 +54,23 @@ const deleteAllObjects = async (bucketName: string): Promise<void> => {
     return;
   }
 
-  // Delete each s3 object in the bucket
-  for (const s3Object of s3Objects) {
-    const key = s3Object.key;
-    if (typeof key === "string") {
-      await deleteS3Objects({ bucket: bucketName, keys: [key] });
-    }
+  const keys = s3Objects
+    .map((s3Object) => s3Object.key)
+    .filter((key) => key !== undefined) as string[];
 
-    // poll to ensure that the bucket is empty
-    await poll(
-      async () =>
-        await listS3Objects({
-          bucketName,
-        }),
-      (s3Objects) => s3Objects.length === 0,
-      {
-        timeout: 60000,
-        interval: 10000,
-        notCompleteErrorMessage: `Objects could not be deleted because they still exist in the bucket`,
-      }
-    );
-  }
+  await deleteS3Objects({ bucket: bucketName, keys });
+
+  // poll to ensure that the bucket is empty
+  await poll(
+    async () =>
+      await listS3Objects({
+        bucketName,
+      }),
+    (s3Objects) => s3Objects.length === 0,
+    {
+      timeout: 60000,
+      interval: 10000,
+      notCompleteErrorMessage: `Objects could not be deleted because they still exist in the bucket`,
+    }
+  );
 };
