@@ -34,9 +34,9 @@ export const runBusinessLogic = async <
 
   const resultArrayPromises: Array<
     Promise<Array<HandlerOutgoingMessage<TOutputMessageBody>>>
-  > = incomingMessages.map(async ({ id, body }) => {
+  > = incomingMessages.map(async ({ id, body, meta }) => {
     try {
-      const outgoingMessageBodies = await businessLogic(body, ctx);
+      const outgoingMessageBodies = await businessLogic(body, ctx, meta);
       return outgoingMessageBodies.map((body) => ({ originalId: id, body }));
     } catch (error) {
       ctx.logger.error(ERROR_MESSAGE, {

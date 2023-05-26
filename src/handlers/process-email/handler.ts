@@ -1,12 +1,14 @@
-import { SQSEvent } from "aws-lambda";
-import { getS3EventRecordsFromSqs, logger } from "../../shared/utils";
+import { buildHandler } from "../../handler-context";
+import { businessLogic } from "./business-logic";
+import { Env } from "./types";
+import { store } from "./store";
+import { isValidIncomingMessageBody } from "./is-valid-incoming-message-body";
 
-export const handler = async (event: SQSEvent): Promise<void> => {
-  // Placeholder lambda function
-  const destinationBucket = process.env.DESTINATION_BUCKET;
-  if (destinationBucket === undefined || destinationBucket.length === 0)
-    throw new Error("Destination bucket not set.");
-
-  const emailRecord = getS3EventRecordsFromSqs(event.Records[0]);
-  logger.info(`Process Email: ${emailRecord}`);
-};
+export const handler = buildHandler({
+  businessLogic,
+  envVars: [Env.DESTINATION_BUCKET],
+  incomingMessageBodyTypeGuard: isValidIncomingMessageBody,
+  outputs: [{ destination: Env.DESTINATION_BUCKET, store }],
+  withBatchItemFailures: true,
+  ConfigCache: [],
+});
