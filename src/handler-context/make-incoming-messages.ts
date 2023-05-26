@@ -2,6 +2,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { S3Event, S3EventRecord, SQSEvent } from "aws-lambda";
 import { fetchS3 } from "../shared/utils";
 import { HandlerIncomingMessage, HandlerMessageBody } from "./types";
+
 const ERROR_MESSAGE_DEFAULT = "Failed to make message";
 const ERROR_MESSAGE_TYPE_GUARD = "Message did not conform to the expected type";
 const ERROR_MESSAGE_MISSING_ID =
@@ -11,6 +12,7 @@ interface Result<TBody extends HandlerMessageBody> {
   incomingMessages: Array<HandlerIncomingMessage<TBody>>;
   failedIds: string[];
 }
+
 const makeSQSMessages = <TBody extends HandlerMessageBody>(
   { Records }: SQSEvent,
   logger: Logger
@@ -28,9 +30,9 @@ const makeSQSMessages = <TBody extends HandlerMessageBody>(
   }
   return { incomingMessages, failedIds };
 };
-const makeS3Messages = async <TBody extends HandlerMessageBody>({
+const makeS3Messages = async ({
   Records,
-}: S3Event): Promise<Array<HandlerIncomingMessage<TBody>>> => {
+}: S3Event): Promise<Array<HandlerIncomingMessage<unknown>>> => {
   const promises = Records.map(
     async ({
       s3: {
@@ -44,7 +46,7 @@ const makeS3Messages = async <TBody extends HandlerMessageBody>({
     if (resolution.status === "rejected") {
       throw new Error("The object this event references could not be found.");
     }
-    const body = resolution.value as TBody;
+    const body = resolution.value;
     return {
       body,
       meta: {
@@ -82,38 +84,38 @@ const makeS3MessagesFromSqsMessages = async <TBody extends HandlerMessageBody>(
 };
 
 const validateIncomingMessages = <TBody extends HandlerMessageBody>(
-  result: Result<TBody>,
-  incomingMessageBodyTypeGuard: (maybeBody: any) => maybeBody is TBody,
+  { incomingMessages, failedIds }: Result<unknown>,
+  isMessageBodyTBody: (maybeBody: unknown) => maybeBody is TBody,
   logger: Logger
 ): Result<TBody> => {
-  const validIncomingMessages: Array<HandlerIncomingMessage<TBody>> = [];
-  const failedIds: string[] = [...result.failedIds];
-
-  for (const incomingMessage of result.incomingMessages) {
-    const bodyIsExpectedType = incomingMessageBodyTypeGuard(
-      incomingMessage.body
-    );
-    if (bodyIsExpectedType) {
-      validIncomingMessages.push(incomingMessage);
-    } else {
-      logger.error(ERROR_MESSAGE_TYPE_GUARD, {
-        messageId: incomingMessage.id,
-      });
-      if (incomingMessage.id === undefined) {
-        throw new Error(ERROR_MESSAGE_MISSING_ID);
-      } else {
-        if (!failedIds.includes(incomingMessage.id))
-          failedIds.push(incomingMessage.id);
-      }
-    }
-  }
-
-  const expectedResult = {
-    incomingMessages: validIncomingMessages,
-    failedIds,
+  const isHandlerIncomingMessageBodyTBody = (
+    incomingMessage: HandlerIncomingMessage<unknown>
+  ): incomingMessage is HandlerIncomingMessage<TBody> => {
+    return isMessageBodyTBody(incomingMessage.body);
   };
 
-  return expectedResult;
+  return incomingMessages.reduce<Result<TBody>>(
+    (acc, incomingMessage) => {
+      if (isHandlerIncomingMessageBodyTBody(incomingMessage)) {
+        return {
+          ...acc,
+          incomingMessages: [...acc.incomingMessages, incomingMessage],
+        };
+      }
+      logger.warn(ERROR_MESSAGE_TYPE_GUARD, {
+        messageId: incomingMessage.id,
+      });
+      if (!incomingMessage.id) throw new Error(ERROR_MESSAGE_MISSING_ID);
+      return {
+        ...acc,
+        failedIds: [...acc.failedIds, incomingMessage.id],
+      };
+    },
+    {
+      incomingMessages: [],
+      failedIds,
+    }
+  );
 };
 
 const isSQSEvent = (event: unknown): event is SQSEvent =>
@@ -152,7 +154,7 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
   logger: Logger,
   failuresAllowed?: boolean
 ): Promise<Result<TBody>> => {
-  let result: Result<TBody>;
+  let result;
   if (isSQSEvent(event)) {
     result = makeSQSMessages(event, logger);
 
@@ -171,6 +173,8 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
     incomingMessageBodyTypeGuard,
     logger
   );
+
+  result.failedIds = Array.from(new Set(result.failedIds));
 
   if (!failuresAllowed && result.failedIds.length > 0) {
     throw new Error(ERROR_MESSAGE_DEFAULT);

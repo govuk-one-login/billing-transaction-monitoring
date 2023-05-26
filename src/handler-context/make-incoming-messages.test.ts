@@ -21,7 +21,7 @@ describe("makeIncomingMessages", () => {
 
     testFailuresAllowed = undefined;
     testIncomingMessageBodyTypeGuard = jest.fn(() => true);
-    testLogger = { error: jest.fn() } as any;
+    testLogger = { error: jest.fn(), warn: jest.fn() } as any;
   });
 
   describe("Incoming SQS event", () => {
@@ -143,8 +143,8 @@ describe("makeIncomingMessages", () => {
           incomingMessages: [],
           failedIds: ["msg_1"],
         });
-        expect(testLogger.error).toHaveBeenCalledTimes(1);
-        expect(testLogger.error).toHaveBeenCalledWith(
+        expect(testLogger.warn).toHaveBeenCalledTimes(1);
+        expect(testLogger.warn).toHaveBeenCalledWith(
           "Message did not conform to the expected type",
           {
             messageId: "msg_1",
