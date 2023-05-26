@@ -2,17 +2,17 @@ import {
   deleteS3Event,
   poll,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { mockCsvData } from "../../src/handlers/int-test-support/helpers/mock-data/csv";
 import {
   getS3Object,
   listS3Objects,
   putS3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-
-const transactionsDirectory = "btm_event_data";
-const outputBucket = `${resourcePrefix()}-storage`;
-const inputBucket = `${resourcePrefix()}-transaction-csv`;
+import {
+  TRANSACTION_CSV_BUCKET,
+  STORAGE_BUCKET,
+  S3_TRANSACTION_FOLDER,
+} from "../../src/handlers/int-test-support/test-constants";
 
 const { csv, happyPathCount, testCases } = mockCsvData();
 
@@ -22,7 +22,7 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
 
     await putS3Object({
       target: {
-        bucket: inputBucket,
+        bucket: TRANSACTION_CSV_BUCKET,
         key: `fakeBillingReport.csv`,
       },
       data: csv,
@@ -30,8 +30,8 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
     await poll(
       async () =>
         await listS3Objects({
-          bucketName: outputBucket,
-          prefix: `${transactionsDirectory}/2023/01/01/`,
+          bucketName: STORAGE_BUCKET,
+          prefix: `${S3_TRANSACTION_FOLDER}/2023/01/01/`,
         }),
       (result) => {
         return result.length === happyPathCount;
@@ -46,8 +46,8 @@ describe("Given a csv with event data is uploaded to the transaction csv bucket"
   it("stores the events we care about in the storage bucket", async () => {
     for (const testCase of testCases) {
       const s3Object = await getS3Object({
-        bucket: outputBucket,
-        key: `${transactionsDirectory}/2023/01/01/${testCase.expectedEventId}.json`,
+        bucket: STORAGE_BUCKET,
+        key: `${S3_TRANSACTION_FOLDER}/2023/01/01/${testCase.expectedEventId}.json`,
       });
       switch (testCase.expectedPath) {
         case "happy": {

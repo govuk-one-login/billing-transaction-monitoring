@@ -1,13 +1,12 @@
 import { deleteS3Objects, listS3Objects } from "./s3Helper";
-import { resourcePrefix } from "./envHelper";
 import { EventPayload, generateRandomId } from "./payloadHelper";
 import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "./testDataHelper";
-
-const objectsPrefix = "btm_event_data";
+import { S3_TRANSACTION_FOLDER, STORAGE_BUCKET } from "../test-constants";
 
 export enum TableNames {
-  BILLING_TRANSACTION_CURATED = "btm_billing_and_transactions_curated",
+  BILLING_AND_TRANSACTION_CURATED = "btm_billing_and_transactions_curated",
   TRANSACTION_CURATED = "btm_transactions_curated",
+  BILLING_CURATED = "btm_billing_curated",
 }
 
 export const poll = async <Resolution>(
@@ -98,14 +97,14 @@ export const deleteS3Event = async (
   eventId: string,
   eventTime: string
 ): Promise<boolean> => {
-  const bucketName = `${resourcePrefix()}-storage`;
+  const bucketName = STORAGE_BUCKET;
   const date = new Date(eventTime);
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
   await deleteS3Objects({
     bucket: bucketName,
-    keys: [`${objectsPrefix}/${year}/${month}/${day}/${eventId}.json`],
+    keys: [`${S3_TRANSACTION_FOLDER}/${year}/${month}/${day}/${eventId}.json`],
   });
   return true;
 };
@@ -123,8 +122,8 @@ export const checkS3BucketForEventId = async (
 ): Promise<boolean> => {
   const pollS3BucketForEventIdString = async (): Promise<boolean> => {
     const result = await listS3Objects({
-      bucketName: `${resourcePrefix()}-storage`,
-      prefix: "btm_event_data",
+      bucketName: STORAGE_BUCKET,
+      prefix: S3_TRANSACTION_FOLDER,
     });
     if (result !== undefined) {
       return result.some((obj) => obj.key?.includes(eventIdString));

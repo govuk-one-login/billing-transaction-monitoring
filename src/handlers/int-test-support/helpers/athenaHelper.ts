@@ -5,10 +5,11 @@ import {
   StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
 import { poll } from "./commonHelpers";
-import { resourcePrefix, runViaLambda } from "./envHelper";
 import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
+import { ATHENA_WORKGROUP } from "../test-constants";
+import { runViaLambda } from "./envHelper";
 
 type DatabaseQuery = {
   databaseName: string;
@@ -33,11 +34,13 @@ export const startQueryExecutionCommand = async (
       Database: query.databaseName,
     },
     QueryString: query.queryString,
-    WorkGroup: `${resourcePrefix()}-athena-workgroup`,
+    WorkGroup: ATHENA_WORKGROUP,
   };
   const response = await athenaClient.send(
     new StartQueryExecutionCommand(params)
   );
+  console.log(params.QueryString);
+  console.log(response);
   const queryId = response.QueryExecutionId ?? "queryId not found";
   return queryId;
 };

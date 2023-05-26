@@ -1,7 +1,7 @@
 import { listS3Objects, S3Object } from "../../s3Helper";
 import { Invoice, makeMockInvoicePDF, makeMockInvoiceCSV } from "./invoice";
 import { writeInvoiceToS3 } from "./writers";
-import { resourcePrefix, runViaLambda } from "../../envHelper";
+import { runViaLambda } from "../../envHelper";
 import { sendLambdaCommand } from "../../lambdaHelper";
 import { InvoiceData } from "./types";
 import { IntTestHelpers } from "../../../handler";
@@ -9,6 +9,11 @@ import { randomLineItem, randomString, randomInvoiceData } from "./random";
 import { TestData } from "../../testDataHelper";
 import { E2ETestParserServiceConfig } from "../../../config-utils/get-e2e-test-config";
 import { poll } from "../../commonHelpers";
+import {
+  S3_INVOICE_ARCHIVED_FOLDER,
+  S3_INVOICE_FOLDER,
+  STORAGE_BUCKET,
+} from "../../../test-constants";
 
 type InvoiceDataAndFileName = {
   invoiceData: InvoiceData;
@@ -84,8 +89,8 @@ const getLineItemPrefix = (
   const filePrefix = `${year}-${monthText}-${vendorId}-${eventName}-`;
 
   return archived
-    ? `btm_invoice_data_archived/${filePrefix}`
-    : `btm_invoice_data/${year}/${monthText}/${filePrefix}`;
+    ? `${S3_INVOICE_ARCHIVED_FOLDER}/${filePrefix}`
+    : `${S3_INVOICE_FOLDER}/${year}/${monthText}/${filePrefix}`;
 };
 
 export const checkStandardised = async (
@@ -98,7 +103,7 @@ export const checkStandardised = async (
     keyToExclude = undefined,
   }: { archived?: boolean; keyToExclude?: string } = {}
 ): Promise<S3Object> => {
-  const bucket = `${resourcePrefix()}-storage`;
+  const bucket = STORAGE_BUCKET;
 
   const prefix = getLineItemPrefix(
     date,
@@ -115,7 +120,7 @@ export const checkStandardised = async (
     {
       interval: 20000,
       notCompleteErrorMessage: `${itemDescription} not found`,
-      timeout: 280000,
+      timeout: 300000,
     }
   );
 
