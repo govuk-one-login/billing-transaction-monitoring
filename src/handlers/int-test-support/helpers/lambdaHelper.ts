@@ -2,7 +2,8 @@ import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
 import { HelperDict, IntTestHelpers, SerializableData } from "../handler";
-import { configName, envName, resourcePrefix, runViaLambda } from "./envHelper";
+import { INT_TEST_SUPPORT_FUNCTION } from "../test-constants";
+import { configName, envName, runViaLambda } from "./envHelper";
 
 export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
   command: THelper,
@@ -17,7 +18,7 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
 
   // logger.info(toUtf8(commandInput.Payload as Uint8Array));
   const result = await invokeLambda({
-    functionName: `${resourcePrefix()}-int-test-support-function`,
+    functionName: INT_TEST_SUPPORT_FUNCTION,
     payload,
     forceWithoutLambda: true,
   });

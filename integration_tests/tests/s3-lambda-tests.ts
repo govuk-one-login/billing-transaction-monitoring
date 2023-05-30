@@ -1,10 +1,12 @@
 import { validEventPayload } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { getRecentCloudwatchLogs } from "../../src/handlers/int-test-support/helpers/cloudWatchHelper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
-
-const logNamePrefix = resourcePrefix();
+import {
+  FILTER_FUNCTION,
+  CLEAN_FUNCTION,
+  STORE_FUNCTION,
+} from "../../src/handlers/int-test-support/test-constants";
 
 async function waitForSubstringInLogs(
   logName: string,
@@ -14,7 +16,7 @@ async function waitForSubstringInLogs(
   await poll(
     async () =>
       await getRecentCloudwatchLogs({
-        logName: logNamePrefix + logName,
+        logName,
       }),
 
     (results) =>
@@ -43,15 +45,15 @@ describe(
     });
 
     test("Filter function cloud watch logs should contain eventid", async () => {
-      await waitForSubstringInLogs("-filter-function", eventId);
+      await waitForSubstringInLogs(FILTER_FUNCTION, eventId);
     });
 
     test("Clean function cloud watch logs should contain eventid", async () => {
-      await waitForSubstringInLogs("-clean-function", eventId);
+      await waitForSubstringInLogs(CLEAN_FUNCTION, eventId);
     });
 
     test("Store Transactions function cloud watch logs should contain eventid", async () => {
-      await waitForSubstringInLogs("-storage-function", eventId);
+      await waitForSubstringInLogs(STORE_FUNCTION, eventId);
     });
   }
 );

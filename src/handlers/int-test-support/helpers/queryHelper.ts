@@ -2,16 +2,13 @@ import {
   startQueryExecutionCommand,
   waitAndGetQueryResults,
 } from "./athenaHelper";
-import { resourcePrefix } from "./envHelper";
-
-const prefix = resourcePrefix();
-const databaseName = `${prefix}-calculations`;
+import { DATABASE_NAME } from "../test-constants";
 
 export const queryAthena = async <TResponse>(
   queryString: string
 ): Promise<TResponse[]> => {
   const queryId = await startQueryExecutionCommand({
-    databaseName,
+    databaseName: DATABASE_NAME,
     queryString,
   });
   return await waitAndGetQueryResults(queryId);
