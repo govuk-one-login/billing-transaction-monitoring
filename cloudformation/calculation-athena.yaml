@@ -191,7 +191,7 @@ Resources:
           WITH btm_transactions_standardised_with_count
             AS (SELECT *,
                         "$path" path,
-                        "COUNT"(COALESCE(credits, 1))
+                        "SUM"(COALESCE(credits, 1))
                           OVER (
                             PARTITION BY event_name, vendor_id, year, month
                             ORDER BY year ASC, month ASC) month_event_count
@@ -203,7 +203,7 @@ Resources:
                         txn.timestamp,
                         txn.year,
                         txn.month,
-                        txn.month_event_count,
+                        month_event_count,
                         ven.vendor_name,
                         ven.service_name,
                         rates.unit_price transaction_price

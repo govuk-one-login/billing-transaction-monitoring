@@ -28,6 +28,7 @@ export interface EventPayload {
   event_name: EventName | string;
   event_id: string;
   component_id: string;
+  credits?: number;
   timestamp: number;
   timestamp_formatted: string;
 }

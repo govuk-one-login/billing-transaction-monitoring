@@ -84,13 +84,18 @@ export const generateTestEvents = async (
   transactionQty: number,
   eventName: string
 ): Promise<void> => {
-  for (let i = 0; i < transactionQty; i++) {
+  let totalCredits = 0;
+  while (totalCredits < transactionQty) {
+    const creditsLeft = transactionQty - totalCredits;
+    const credits = Math.floor(Math.random() * creditsLeft + 1);
     const eventPayload = await generateTestEvent({
       event_name: eventName,
       timestamp_formatted: eventTime,
       timestamp: new Date(eventTime).getTime() / 1000,
+      credits,
     });
     await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
+    totalCredits = totalCredits + credits;
   }
 };
 
