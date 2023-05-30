@@ -1,4 +1,5 @@
 import { poll } from "./commonHelpers";
+import { resourcePrefix } from "./envHelper";
 import {
   deleteS3Objects,
   deleteS3ObjectsByPrefix,
@@ -15,6 +16,7 @@ import {
 
 export default async function globalSetup(): Promise<void> {
   console.log("Cleaning up the environment before test execution starts");
+  console.log("Environment:", resourcePrefix());
   await deleteS3ObjectsAndPoll(STORAGE_BUCKET, `${S3_TRANSACTION_FOLDER}/2005`);
   await deleteS3ObjectsAndPoll(STORAGE_BUCKET, S3_INVOICE_FOLDER);
   await deleteS3ObjectsAndPoll(STORAGE_BUCKET, S3_INVOICE_ARCHIVED_FOLDER);

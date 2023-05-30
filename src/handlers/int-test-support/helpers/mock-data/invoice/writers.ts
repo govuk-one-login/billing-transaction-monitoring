@@ -13,6 +13,8 @@ export const writeInvoiceToS3 = async (
     bucket: RAW_INVOICE_BUCKET,
     key: `${directory}/${filename}`,
   };
+
+  console.log(s3Object);
   await putS3Object({ data: file, target: s3Object });
   return s3Object;
 };
