@@ -17,13 +17,13 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice bucket test\n"
   const uniqueString = Math.random().toString(36).substring(2, 7);
   const rawInvoice: S3Object = {
     bucket: `${prefix}-raw-invoice`,
-    key: `${givenVendorIdFolder}/raw-Invoice-${uniqueString}-validFile.pdf`,
+    key: `${givenVendorIdFolder}/raw-Invoice-${uniqueString}-invalidFile.pdf`,
   };
 
   test("should move the original raw invoice to failed folder in s3 raw-invoice bucket upon uploading the invalid pdf file ", async () => {
     const file = "../payloads/invalidFileToTestTextractFailure.pdf";
     const filename = path.join(__dirname, file);
-    const fileData = fs.readFileSync(filename);
+    const fileData = fs.readFileSync(filename).toString();
 
     await putS3Object({ data: fileData, target: rawInvoice });
 
