@@ -1,21 +1,7 @@
 import { ResultSet } from "@aws-sdk/client-athena";
 import { ExtractDataReformatter } from "./extract-data-reformatter";
 
-jest.mock("aws-sdk");
-
-jest.mock("../../shared/utils/logger");
-
 describe("Extract data reformatter test", () => {
-  const OLD_ENV = process.env;
-
-  beforeEach(() => {
-    process.env = { ...OLD_ENV };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
-
   test("Column headers missing", async () => {
     const resultSet: ResultSet = {
       Rows: [

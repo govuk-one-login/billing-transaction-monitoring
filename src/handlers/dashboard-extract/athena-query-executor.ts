@@ -12,7 +12,7 @@ export class AthenaQueryExecutor {
     const params = {
       QueryString: sql,
       ResultConfiguration: {
-        OutputLocation: process.env.RESULTS_BUCKET,
+        OutputLocation: process.env.QUERY_RESULTS_BUCKET,
       },
     };
 

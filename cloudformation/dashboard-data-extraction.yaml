@@ -18,8 +18,8 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           DATABASE_NAME: !Sub ${AWS::StackName}-calculations
-          RESULTS_BUCKET: !Sub s3://${StorageBucket}/btm_extract_data/
-          STORAGE_BUCKET: !Ref StorageBucket
+          QUERY_RESULTS_BUCKET: !Sub s3://${StorageBucket}/btm_extract_data/
+          DESTINATION_BUCKET: !Ref StorageBucket
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
       Handler: dashboardExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
@@ -32,6 +32,7 @@ Resources:
                 - kms:GenerateDataKey*
                 - kms:Encrypt
               Resource: !GetAtt KmsKey.Arn
+            #TODO remove some of these?
             - Effect: Allow
               Action:
                 - s3:GetObject
@@ -108,28 +109,3 @@ Resources:
       Period: 60
       Statistic: Sum
       Threshold: 0
-
-  AthenaDashboardDataQueryResultsBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub ${AWS::StackName}-athena-dashboard-data-query-results
-      VersioningConfiguration:
-        Status: Enabled
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
-            BucketKeyEnabled: true
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      LoggingConfiguration:
-        DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: athena-dashboard-data-query-results-bucket/log
-      LifecycleConfiguration:
-        Rules:
-          - ExpirationInDays: 7
-            Status: Enabled

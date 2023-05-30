@@ -26,7 +26,7 @@ describe("Pdf Extract handler test", () => {
   beforeEach(() => {
     process.env = { ...OLD_ENV };
     process.env.DATABASE_NAME = "Database name";
-    process.env.RESULTS_BUCKET = "Results bucket";
+    process.env.QUERY_RESULTS_BUCKET = "Results bucket";
     process.env.STORAGE_BUCKET = "Storage bucket";
 
     mockStartQueryExecutionPromise = jest.fn(() => ({
