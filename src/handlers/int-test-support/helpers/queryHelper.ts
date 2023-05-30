@@ -7,6 +7,7 @@ import { DATABASE_NAME } from "../test-constants";
 export const queryAthena = async <TResponse>(
   queryString: string
 ): Promise<TResponse[]> => {
+  console.log("DATABASE_NAME:", DATABASE_NAME);
   const queryId = await startQueryExecutionCommand({
     databaseName: DATABASE_NAME,
     queryString,
