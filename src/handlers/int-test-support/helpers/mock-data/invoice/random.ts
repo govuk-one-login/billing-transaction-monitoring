@@ -108,13 +108,14 @@ export const randomInvoiceData = (options?: InvoiceOptions): InvoiceData => ({
     ...randomCustomer(),
     ...options?.customer,
   },
-  date: options?.date ?? new Date(),
+  dateString: (options?.date ?? new Date()).toISOString(),
   invoiceNumber:
     options?.invoiceNumber ??
     `${randomString(3)}-${Math.floor(Math.random() * 1_000_000_000)}`,
-  dueDate:
+  dueDateString: (
     options?.dueDate ??
-    new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
+    new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30)
+  ).toISOString(),
   lineItems:
     options?.lineItems ??
     randomLineItems(options?.lineItemCount ?? 10, options?.lineItemOptions),

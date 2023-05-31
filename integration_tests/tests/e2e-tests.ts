@@ -1,103 +1,40 @@
 import {
-  generateTestEvent,
-  getYearMonth,
-  poll,
+  generateTestEvents,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
-  createInvoiceInS3,
+  checkStandardised,
   createInvoiceWithGivenData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 import {
-  generateEventViaFilterLambdaAndCheckEventInS3Bucket,
   getVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
-import crypto from "crypto";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 
-const prefix = resourcePrefix();
 let eventName: string;
-const storageBucket = `${prefix}-storage`;
-const standardisedFolderPrefix = "btm_invoice_data";
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 // Below tests can be run both in lower and higher environments
-// TODO: CSV e2e test
+
+beforeAll(async () => {
+  dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
+  eventName = dataRetrievedFromConfig.eventName;
+});
 
 describe("\n Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
-  beforeAll(async () => {
-    dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
-    eventName = dataRetrievedFromConfig.eventName;
-  });
-  let filename: string;
-  let eventTime: string;
-
   test.each`
     testCase                                                                               | eventTime       | transactionQty | billingQty
     ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2006/01/30"} | ${undefined}   | ${"100"}
     ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                | ${"2005/09/30"} | ${"10"}        | ${"10"}
-    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}          | ${"2005/10/30"} | ${"10"}        | ${"12"}
-    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}           | ${"2005/11/30"} | ${"10"}        | ${"6"}
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      for (let i = 0; i < data.transactionQty; i++) {
-        const eventPayload = await generateTestEvent({
-          event_name: eventName,
-          timestamp_formatted: data.eventTime,
-          timestamp: new Date(data.eventTime).getTime() / 1000,
-        });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
-      }
-      eventTime = data.eventTime;
-      const uuid = crypto.randomBytes(3).toString("hex");
-      filename = `e2e-test-raw-Invoice-validFile-${uuid}`;
-
-      const invoiceData = createInvoiceWithGivenData(
-        data,
-        dataRetrievedFromConfig.description,
-        dataRetrievedFromConfig.unitPrice,
-        dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.vendorName
-      );
-      await createInvoiceInS3({ invoiceData, filename: `${filename}.pdf` });
-
-      // Wait for the invoice data to have been written, to some file in the standardised folder.
-      await poll(
-        async () =>
-          await listS3Objects({
-            bucketName: storageBucket,
-            prefix: standardisedFolderPrefix,
-          }),
-
-        (Contents) =>
-          Contents?.filter((s3Object) =>
-            s3Object.key?.includes(getYearMonth(eventTime))
-          ).length === 1,
-        {
-          timeout: 120000,
-          interval: 10000,
-          notCompleteErrorMessage:
-            "e2e tests invoice data never appeared in standardised folder",
-        }
-      );
-
-      const expectedResults = calculateExpectedResults(
-        data,
-        dataRetrievedFromConfig.unitPrice
-      );
-      await assertQueryResultWithTestData(
-        expectedResults,
-        eventTime,
-        dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.serviceName
-      );
+      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
+      await uploadInvoiceAndAssertResults(data, "pdf");
     }
   );
 
@@ -107,25 +44,31 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   `(
     "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      for (let i = 0; i < data.transactionQty; i++) {
-        const eventPayload = await generateTestEvent({
-          event_name: eventName,
-          timestamp_formatted: data.eventTime,
-          timestamp: new Date(data.eventTime).getTime() / 1000,
-        });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
-      }
-      eventTime = data.eventTime;
+      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
       const expectedResults = calculateExpectedResults(
         data,
         dataRetrievedFromConfig.unitPrice
       );
       await assertQueryResultWithTestData(
         expectedResults,
-        eventTime,
+        data.eventTime,
         dataRetrievedFromConfig.vendorId,
         dataRetrievedFromConfig.serviceName
       );
+    }
+  );
+});
+
+describe("\n Upload csv invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
+  test.each`
+    testCase                                                                      | eventTime       | transactionQty | billingQty
+    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"} | ${"2005/10/30"} | ${"10"}        | ${"12"}
+    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}  | ${"2005/11/30"} | ${"10"}        | ${"6"}
+  `(
+    "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
+    async (data) => {
+      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
+      await uploadInvoiceAndAssertResults(data, "csv");
     }
   );
 });
@@ -197,6 +140,41 @@ const calculateExpectedResults = (
       priceDifferencePercentage: priceDifferencePercentage.toFixed(1),
     };
   }
+};
+
+export const uploadInvoiceAndAssertResults = async (
+  data: TestData,
+  fileType: "pdf" | "csv"
+): Promise<void> => {
+  await createInvoiceWithGivenData(
+    data,
+    dataRetrievedFromConfig.description,
+    dataRetrievedFromConfig.unitPrice,
+    dataRetrievedFromConfig.vendorId,
+    dataRetrievedFromConfig.vendorName,
+    fileType
+  );
+  // Check they were standardised
+  await checkStandardised(
+    new Date(data.eventTime),
+    dataRetrievedFromConfig.vendorId,
+    {
+      description: dataRetrievedFromConfig.description,
+      event_name: dataRetrievedFromConfig.eventName,
+    },
+    dataRetrievedFromConfig.description
+  );
+
+  const expectedResults = calculateExpectedResults(
+    data,
+    dataRetrievedFromConfig.unitPrice
+  );
+  await assertQueryResultWithTestData(
+    expectedResults,
+    data.eventTime,
+    dataRetrievedFromConfig.vendorId,
+    dataRetrievedFromConfig.serviceName
+  );
 };
 
 interface ExpectedResults {

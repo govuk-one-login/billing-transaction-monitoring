@@ -10,10 +10,10 @@ import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
 
-interface DatabaseQuery {
+type DatabaseQuery = {
   databaseName: string;
   queryString: string;
-}
+};
 
 interface QueryStatus {
   state?: string;
@@ -28,6 +28,7 @@ export const startQueryExecutionCommand = async (
       IntTestHelpers.startQueryExecutionCommand,
       query
     );
+
   const params = {
     QueryExecutionContext: {
       Database: query.databaseName,
@@ -35,6 +36,7 @@ export const startQueryExecutionCommand = async (
     QueryString: query.queryString,
     WorkGroup: `${resourcePrefix()}-athena-workgroup`,
   };
+
   const response = await athenaClient.send(
     new StartQueryExecutionCommand(params)
   );
@@ -109,5 +111,6 @@ export const waitAndGetQueryResults = async <TResponse>(
       notCompleteErrorMessage: "Query did not succeed within the given timeout",
     }
   );
-  return await getQueryResults(queryId);
+  const result = await getQueryResults(queryId);
+  return result as TResponse[];
 };
