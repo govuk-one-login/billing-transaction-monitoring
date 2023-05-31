@@ -24,15 +24,15 @@ describe("Pdf Extract handler test", () => {
   let givenAthena: Athena;
 
   beforeEach(() => {
-    mockStartQueryExecutionPromise = jest.fn(() => ({
-      QueryExecutionId: "Execution ID",
-    }));
+    mockStartQueryExecutionPromise = jest
+      .fn()
+      .mockResolvedValue({ QueryExecutionId: "Execution ID" });
     mockStartQueryExecution = jest.fn(() => ({
       promise: mockStartQueryExecutionPromise,
     }));
 
-    mockGetQueryExecutionPromise = jest.fn();
-    mockGetQueryExecutionPromise
+    mockGetQueryExecutionPromise = jest
+      .fn()
       .mockReturnValueOnce({ QueryExecution: { Status: { State: "QUEUED" } } })
       .mockReturnValueOnce({ QueryExecution: { Status: { State: "RUNNING" } } })
       .mockReturnValueOnce({
@@ -42,7 +42,7 @@ describe("Pdf Extract handler test", () => {
       promise: mockGetQueryExecutionPromise,
     }));
 
-    mockGetQueryResultsPromise = jest.fn(() => queryResultSet);
+    mockGetQueryResultsPromise = jest.fn().mockResolvedValue(queryResultSet);
     mockGetQueryResults = jest.fn(() => ({
       promise: mockGetQueryResultsPromise,
     }));
