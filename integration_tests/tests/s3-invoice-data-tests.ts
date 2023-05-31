@@ -1,27 +1,25 @@
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { listS3Objects } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import {
-  RAW_INVOICE_BUCKET,
-  RAW_INVOICE_TEXTRACT_BUCKET,
-  STORAGE_BUCKET,
-} from "../../src/handlers/int-test-support/test-constants";
+
+const prefix = resourcePrefix();
 
 describe("\n Invoice data buckets exists in S3\n", () => {
   test("Raw invoice bucket should exists in S3", async () => {
     const response = await listS3Objects({
-      bucketName: RAW_INVOICE_BUCKET,
+      bucketName: `${prefix}-raw-invoice`,
     });
     expect(response).toBeTruthy();
   });
 
   test("Raw invoice textract data bucket should exists in S3", async () => {
     const response = await listS3Objects({
-      bucketName: RAW_INVOICE_TEXTRACT_BUCKET,
+      bucketName: `${prefix}-raw-invoice-textract-data`,
     });
     expect(response).toBeTruthy();
   });
 
   test("Storage bucket should exists in S3", async () => {
-    const response = await listS3Objects({ bucketName: STORAGE_BUCKET });
+    const response = await listS3Objects({ bucketName: `${prefix}-storage` });
     expect(response).toBeTruthy();
   });
 });

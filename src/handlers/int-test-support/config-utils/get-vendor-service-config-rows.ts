@@ -1,6 +1,5 @@
 import { getS3Object } from "../helpers/s3Helper";
 import csvtojson from "csvtojson";
-import { VENDOR_SERVICE_CONFIG_PATH } from "../test-constants";
 
 export type VendorServiceRows = VendorServiceRow[];
 
@@ -21,7 +20,7 @@ export const getVendorServiceConfigRows = async (
   if (vendorServiceRowsPromise === undefined) {
     vendorServiceRowsPromise = getS3Object({
       bucket: configBucket,
-      key: VENDOR_SERVICE_CONFIG_PATH,
+      key: "vendor_services/vendor-services.csv",
     });
   }
 
