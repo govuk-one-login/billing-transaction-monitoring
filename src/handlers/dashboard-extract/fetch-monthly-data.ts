@@ -3,14 +3,15 @@ import { Athena } from "aws-sdk/clients/all";
 import { ResultSet } from "@aws-sdk/client-athena";
 import { AthenaQueryExecutor } from "./athena-query-executor";
 import { HandlerCtx } from "../../handler-context";
+import { Env } from "./types";
 
 export const fetchMonthlyData =
-  (fetchViewDataFunction: () => Promise<ResultSet>) =>
+  (fetchViewDataFunction: (env: Record<Env, string>) => Promise<ResultSet>) =>
   async (
     _: never,
-    { logger }: HandlerCtx<any, any, any>
+    { env, logger }: HandlerCtx<Env, any, any>
   ): Promise<string[]> => {
-    const results = await fetchViewDataFunction();
+    const results = await fetchViewDataFunction(env);
 
     const body = formatResults(results);
 
@@ -19,11 +20,13 @@ export const fetchMonthlyData =
     return [body];
   };
 
-export async function fetchViewData(): Promise<ResultSet> {
+export async function fetchViewData(
+  env: Record<Env, string>
+): Promise<ResultSet> {
   const athena = new Athena({ region: "eu-west-2" });
 
-  const fetchDataSql = `SELECT * FROM "${process.env.DATABASE_NAME}".btm_billing_and_transactions_curated`;
-  const executor = new AthenaQueryExecutor(athena);
+  const fetchDataSql = `SELECT * FROM "${env.DATABASE_NAME}".btm_billing_and_transactions_curated`;
+  const executor = new AthenaQueryExecutor(athena, env.QUERY_RESULTS_BUCKET);
   return await executor.fetchResults(fetchDataSql);
 }
 

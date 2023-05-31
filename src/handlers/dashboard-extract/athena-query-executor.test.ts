@@ -6,14 +6,14 @@ jest.mock("aws-sdk");
 jest.mock("../../shared/utils/logger");
 
 describe("Pdf Extract handler test", () => {
-  const OLD_ENV = process.env;
-
   const queryResult = {
     Rows: [{ VarCharValue: "foo" }],
   };
   const queryResultSet = {
     ResultSet: { ...queryResult },
   };
+
+  const QUERY_RESULTS_BUCKET = "Query results bucket";
 
   let mockStartQueryExecution: jest.Mock;
   let mockStartQueryExecutionPromise: jest.Mock;
@@ -24,11 +24,6 @@ describe("Pdf Extract handler test", () => {
   let givenAthena: Athena;
 
   beforeEach(() => {
-    process.env = { ...OLD_ENV };
-    process.env.DATABASE_NAME = "Database name";
-    process.env.QUERY_RESULTS_BUCKET = "Results bucket";
-    process.env.STORAGE_BUCKET = "Storage bucket";
-
     mockStartQueryExecutionPromise = jest.fn(() => ({
       QueryExecutionId: "Execution ID",
     }));
@@ -59,14 +54,10 @@ describe("Pdf Extract handler test", () => {
     } as any;
   });
 
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
-
   test("No query execution id returned", async () => {
     mockStartQueryExecutionPromise.mockReturnValue({});
 
-    const executor = new AthenaQueryExecutor(givenAthena);
+    const executor = new AthenaQueryExecutor(givenAthena, QUERY_RESULTS_BUCKET);
 
     const resultPromise = executor.fetchResults("some sql string");
     await expect(resultPromise).rejects.toThrow("Failed to start execution");
@@ -83,7 +74,7 @@ describe("Pdf Extract handler test", () => {
       .mockReturnValueOnce({ QueryExecution: { Status: { State: "RUNNING" } } })
       .mockReturnValueOnce({ QueryExecution: { Status: { State: "FAILED" } } });
 
-    const executor = new AthenaQueryExecutor(givenAthena);
+    const executor = new AthenaQueryExecutor(givenAthena, QUERY_RESULTS_BUCKET);
 
     const resultPromise = executor.fetchResults("some sql string");
     await expect(resultPromise).rejects.toThrow("Query execution failed");
@@ -93,7 +84,7 @@ describe("Pdf Extract handler test", () => {
   });
 
   test("Query execution succeeds in default case", async () => {
-    const executor = new AthenaQueryExecutor(givenAthena);
+    const executor = new AthenaQueryExecutor(givenAthena, QUERY_RESULTS_BUCKET);
 
     const resultPromise = executor.fetchResults("some sql string");
     await expect(resultPromise).resolves.toEqual(queryResult);

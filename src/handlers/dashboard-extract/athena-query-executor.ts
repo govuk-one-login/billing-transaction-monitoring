@@ -3,16 +3,18 @@ import { QueryExecutionState } from "aws-sdk/clients/athena";
 
 export class AthenaQueryExecutor {
   athena: Athena;
+  queryResultsBucket: string;
 
-  constructor(athena: Athena) {
+  constructor(athena: Athena, queryResultsBucket: string) {
     this.athena = athena;
+    this.queryResultsBucket = queryResultsBucket;
   }
 
   async fetchResults(sql: string): Promise<Athena.ResultSet> {
     const params = {
       QueryString: sql,
       ResultConfiguration: {
-        OutputLocation: process.env.QUERY_RESULTS_BUCKET,
+        OutputLocation: this.queryResultsBucket,
       },
     };
 
