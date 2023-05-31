@@ -1,8 +1,8 @@
 import { writeFile } from "fs";
 import { join } from "path";
+import { resourcePrefix } from "../../envHelper";
 import { putS3Object, S3Object } from "../../s3Helper";
 import { WriteFunc } from "./invoice";
-import { RAW_INVOICE_BUCKET } from "../../../test-constants";
 
 export const writeInvoiceToS3 = async (
   file: string,
@@ -10,7 +10,7 @@ export const writeInvoiceToS3 = async (
   filename: string
 ): Promise<S3Object> => {
   const s3Object = {
-    bucket: RAW_INVOICE_BUCKET,
+    bucket: `${resourcePrefix()}-raw-invoice`,
     key: `${directory}/${filename}`,
   };
 

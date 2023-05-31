@@ -1,6 +1,5 @@
 import { getS3Object } from "../helpers/s3Helper";
 import csvtojson from "csvtojson";
-import { RATE_TABLE_CONFIG_PATH } from "../test-constants";
 
 export type RateConfigRows = RateConfigRow[];
 
@@ -12,7 +11,7 @@ export const getRatesFromConfig = async (
   if (ratesRowsPromise === undefined) {
     ratesRowsPromise = getS3Object({
       bucket: configBucket,
-      key: RATE_TABLE_CONFIG_PATH,
+      key: "rate_tables/rates.csv",
     });
   }
   const ratesConfigText = await ratesRowsPromise;

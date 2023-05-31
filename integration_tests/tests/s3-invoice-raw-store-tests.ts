@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs";
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkIfS3ObjectExists,
   deleteS3Objects,
@@ -8,13 +9,14 @@ import {
   S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { RAW_INVOICE_BUCKET } from "../../src/handlers/int-test-support/test-constants";
+
+const prefix = resourcePrefix();
 const givenVendorIdFolder = "vendor123";
 
 describe("\n Unhappy path - Upload invalid pdf to the raw invoice bucket test\n", () => {
   const uniqueString = Math.random().toString(36).substring(2, 7);
   const rawInvoice: S3Object = {
-    bucket: RAW_INVOICE_BUCKET,
+    bucket: `${prefix}-raw-invoice`,
     key: `${givenVendorIdFolder}/raw-Invoice-${uniqueString}-invalidFile.pdf`,
   };
 

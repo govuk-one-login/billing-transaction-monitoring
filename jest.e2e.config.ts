@@ -8,7 +8,7 @@ const config: Config.InitialOptions = {
   testRunner: "jasmine2",
   globalSetup: "./src/handlers/int-test-support/helpers/testSetup.ts",
   verbose: true,
-  testTimeout: 320000,
+  testTimeout: 300000,
   reporters: [
     "default",
     [

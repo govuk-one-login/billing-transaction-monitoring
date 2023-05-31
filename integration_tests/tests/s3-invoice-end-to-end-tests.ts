@@ -3,10 +3,7 @@ import {
   deleteS3Objects,
   listS3Objects,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import {
-  poll,
-  TableNames,
-} from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
   Invoice,
   randomInvoiceData,
@@ -80,7 +77,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
       ),
     ]);
     // Check the view results match the invoice.
-    const queryString = `SELECT * FROM ${TableNames.BILLING_CURATED} where vendor_id = 'vendor_testvendor3'`;
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3'`;
     const queryObjects = await queryAthena<BillingCurated>(queryString);
     expect(queryObjects.length).toEqual(2);
     queryObjects.sort((q0, q1) => {
@@ -173,9 +170,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
     ]);
 
     // Step 3: Check the view results match the original csv invoice.
-    const queryString = `SELECT * FROM ${
-      TableNames.BILLING_CURATED
-    } where vendor_id = '${
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = '${
       invoice.vendor.id
     }' AND year='${invoice.date.getFullYear()}' AND month='${(
       invoice.date.getMonth() + 1

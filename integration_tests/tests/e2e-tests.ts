@@ -79,7 +79,7 @@ export const assertQueryResultWithTestData = async (
   vendorId: string,
   serviceName: string
 ): Promise<void> => {
-  const tableName = TableNames.BILLING_AND_TRANSACTION_CURATED;
+  const tableName = TableNames.BILLING_TRANSACTION_CURATED;
   const response = await getFilteredQueryResponse<BillingTransactionCurated>(
     tableName,
     vendorId,
