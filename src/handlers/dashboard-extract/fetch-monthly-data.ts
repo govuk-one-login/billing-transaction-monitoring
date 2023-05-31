@@ -11,6 +11,8 @@ export const fetchMonthlyData =
     _: never,
     { env, logger }: HandlerCtx<Env, any, any>
   ): Promise<string[]> => {
+    logger.info(`QUERY_RESULTS_BUCKET=${env.QUERY_RESULTS_BUCKET}`);
+
     const results = await fetchViewDataFunction(env);
 
     const body = formatResults(results);

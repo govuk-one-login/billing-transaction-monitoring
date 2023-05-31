@@ -5,7 +5,11 @@ import { store } from "./store";
 
 export const handler = buildHandler({
   businessLogic,
-  envVars: [Env.DESTINATION_BUCKET],
+  envVars: [
+    Env.DESTINATION_BUCKET,
+    Env.QUERY_RESULTS_BUCKET,
+    Env.DATABASE_NAME,
+  ],
   incomingMessageBodyTypeGuard: (
     maybeIncomingMessageBody: unknown
   ): maybeIncomingMessageBody is never => true,

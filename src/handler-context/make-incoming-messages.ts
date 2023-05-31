@@ -130,7 +130,7 @@ const validateIncomingMessages = <TBody extends HandlerMessageBody>(
 const isSQSEvent = (event: unknown): event is SQSEvent =>
   isEvent(event) && event.Records.every(isSqsRecord);
 
-const isS3EventInSQSEvent = (event: unknown): event is S3Event =>
+const isS3Event = (event: unknown): event is S3Event =>
   isEvent(event) && event.Records.every(isS3EventRecord);
 
 const isEvent = (
@@ -154,8 +154,7 @@ const isS3EventRecord = (x: unknown): x is S3EventRecord =>
 
 const SQSMessageIncludesS3EventRecord = <TBody extends HandlerMessageBody>(
   result: Result<TBody>
-): boolean =>
-  result.incomingMessages.every(({ body }) => isS3EventInSQSEvent(body));
+): boolean => result.incomingMessages.every(({ body }) => isS3Event(body));
 
 export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
   event: S3Event | SQSEvent,
@@ -170,10 +169,15 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
     if (SQSMessageIncludesS3EventRecord(result)) {
       result = await makeS3MessagesFromSqsMessages(result, logger);
     }
-  } else {
+  } else if (isS3Event(event)) {
     result = {
       incomingMessages: await makeS3Messages(event),
       failedIds: [], // S3 events have no message IDs (throw error on failure instead)}
+    };
+  } else {
+    return {
+      incomingMessages: [event],
+      failedIds: [],
     };
   }
 
