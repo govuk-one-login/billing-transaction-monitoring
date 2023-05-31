@@ -10,9 +10,12 @@ export interface CleanedEventBody {
   user?: {
     transaction_id?: string;
   };
+  credits?: number;
 }
 
-export type ConfigCache = ConfigElements.services;
+export type ConfigCache =
+  | ConfigElements.services
+  | ConfigElements.creditTransforms;
 
 export enum Env {
   OUTPUT_QUEUE_URL = "OUTPUT_QUEUE_URL",

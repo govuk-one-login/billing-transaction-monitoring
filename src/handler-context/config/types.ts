@@ -1,3 +1,4 @@
+import { XformConfig } from "../../handlers/clean/xform";
 import { InferenceSpecifications } from "../../handlers/transaction-csv-to-json-event/convert/make-inferences";
 import { Transformations } from "../../handlers/transaction-csv-to-json-event/convert/perform-transformations";
 
@@ -9,6 +10,7 @@ export enum ConfigElements {
   transformations = "transformations",
   vat = "vat",
   standardisation = "standardisation",
+  creditTransforms = "creditTransforms",
 }
 
 export interface ConfigRatesRow {
@@ -43,6 +45,7 @@ export interface ConfigCache {
     vendorId: string;
     invoiceStandardisationModuleId: number;
   }>;
+  [ConfigElements.creditTransforms]: XformConfig;
 }
 
 export type GetConfigFile = <TFileName extends ConfigElements>(

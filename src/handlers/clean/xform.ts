@@ -13,7 +13,7 @@ export enum Comparitors {
   EXISTS = "EXISTS",
 }
 
-export type Primitive = string | number | boolean;
+export type Primitive = string | number | boolean | undefined;
 
 export interface ComparableCondition {
   value?: Primitive;
@@ -66,7 +66,7 @@ export const compare = (
   console.log(`Comparing ${valueA} ${comparitor} ${valueB}`);
   switch (comparitor) {
     case Comparitors.EQ: {
-      return valueB === valueA;
+      return valueA === valueB;
     }
     case Comparitors.EXISTS: {
       return !!valueA;
@@ -78,6 +78,7 @@ export const compare = (
         valueA > valueB
       );
     }
+
     case Comparitors.LT: {
       return (
         typeof valueA === "number" &&
@@ -86,7 +87,7 @@ export const compare = (
       );
     }
     case Comparitors.NEQ: {
-      return valueB !== valueA;
+      return valueA !== valueB;
     }
   }
 };
@@ -94,7 +95,22 @@ export const compare = (
 const applyValue = <TReturn>(
   conditionResult: boolean,
   value: TReturn | undefined
-): TReturn | boolean => (conditionResult ? value ?? true : false);
+): TReturn | true | undefined => {
+  console.log("🚀 ~ file: xform.ts:100 ~ conditionResult:", conditionResult);
+  console.log("🚀 ~ file: xform.ts:102 ~ value:", value);
+  if (conditionResult) {
+    if (value === undefined) {
+      console.log("returning True");
+      return true;
+    } else {
+      console.log("returning value");
+      return value;
+    }
+  } else {
+    console.log("returning undefined");
+    return undefined;
+  }
+};
 
 export const doComparison = (
   obj: unknown,
@@ -107,11 +123,14 @@ export const doComparison = (
   );
 };
 
+const combinationInitialiser = "$__INIT__$";
+
 export const combine = (
   valueA: Primitive,
   valueB: Primitive,
   combinator: Combinators
 ): boolean => {
+  if (valueA === combinationInitialiser) return Boolean(valueB);
   console.log(`Combining ${valueA} ${combinator} ${valueB}`);
   switch (combinator) {
     case Combinators.AND:
@@ -121,26 +140,29 @@ export const combine = (
   }
 };
 
+export const doCombination = (
+  obj: unknown,
+  { combinator, conditions, value }: CombinableCondition
+): Primitive =>
+  conditions.reduce<Primitive>((acc, condition) => {
+    return applyValue<Primitive>(
+      combine(acc, doOp(obj, condition), combinator),
+      value
+    );
+  }, combinationInitialiser);
+
 export const doOp = (obj: unknown, logic: Logic): Primitive =>
   isCombinableCondition(logic)
     ? doCombination(obj, logic)
     : doComparison(obj, logic);
 
-export const doCombination = (
-  obj: unknown,
-  { combinator, conditions, value }: CombinableCondition
-): Primitive => {
-  return conditions.reduce<Primitive>((acc, condition) => {
-    return applyValue<Primitive>(
-      combine(acc, doOp(obj, condition), combinator),
-      value
-    );
-  }, false);
-};
-
-export const xform = <TReturn>(obj: unknown, config: XformConfig): TReturn => {
-  return {
-    ...(obj as any),
-    [config.field]: doOp(obj, config.logic) || config.default,
-  };
-};
+export const xform = <TReturn>(obj: unknown, config: XformConfig): TReturn => ({
+  ...(obj as any),
+  [config.field]: (() => {
+    const value = doOp(obj, config.logic);
+    if (value === undefined) {
+      return config.default;
+    }
+    return value;
+  })(),
+});
