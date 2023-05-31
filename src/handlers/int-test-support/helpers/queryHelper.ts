@@ -10,7 +10,6 @@ const databaseName = `${prefix}-calculations`;
 export const queryAthena = async <TResponse>(
   queryString: string
 ): Promise<TResponse[]> => {
-  console.log("DATABASE_NAME:", DATABASE_NAME);
   const queryId = await startQueryExecutionCommand({
     databaseName,
     queryString,

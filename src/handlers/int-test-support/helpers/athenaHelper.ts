@@ -37,7 +37,6 @@ export const startQueryExecutionCommand = async (
     WorkGroup: `${resourcePrefix()}-athena-workgroup`,
   };
 
-  console.log("Athena Params:", params);
   const response = await athenaClient.send(
     new StartQueryExecutionCommand(params)
   );
@@ -113,6 +112,5 @@ export const waitAndGetQueryResults = async <TResponse>(
     }
   );
   const result = await getQueryResults(queryId);
-  console.log(result);
   return result as TResponse[];
 };
