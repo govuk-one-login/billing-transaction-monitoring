@@ -6,7 +6,7 @@ import { fetchViewData } from "./fetch-view-data";
 jest.mock("./fetch-view-data");
 const mockedFetchViewData = fetchViewData as jest.Mock;
 
-describe("Store transactions businessLogic", () => {
+describe("Dashboard extract businessLogic", () => {
   const mockLogger = {
     info: jest.fn(),
   };

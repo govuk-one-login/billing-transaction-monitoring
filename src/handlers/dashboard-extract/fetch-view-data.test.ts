@@ -2,12 +2,12 @@ import { AthenaQueryExecutor } from "./athena-query-executor";
 import { fetchViewData } from "./fetch-view-data";
 import { Env } from "./types";
 
-describe("fetchViewData", () => {
-  jest.mock("./athena-query-executor");
-  const MockedAthenaQueryExecutor = AthenaQueryExecutor as jest.MockedClass<
-    typeof AthenaQueryExecutor
-  >;
+jest.mock("./athena-query-executor");
+const MockedAthenaQueryExecutor = AthenaQueryExecutor as jest.MockedClass<
+  typeof AthenaQueryExecutor
+>;
 
+describe("fetchViewData", () => {
   const mockedAthenaQueryExecutorFetchResults = jest.fn();
   MockedAthenaQueryExecutor.mockReturnValue({
     fetchResults: mockedAthenaQueryExecutorFetchResults,

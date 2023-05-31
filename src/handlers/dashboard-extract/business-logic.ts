@@ -30,24 +30,29 @@ const formatResults = (results: ResultSet): string => {
     throw new Error("No column headers found");
   }
 
-  const lines = [];
-
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i].Data;
-    if (row === undefined) {
-      throw new Error("Row missing");
-    }
-    const outputRow: Record<string, string> = {};
-    for (let j = 0; j < columnHeaders.length; j++) {
-      const key = columnHeaders[j].VarCharValue;
-      if (key === undefined) {
-        throw new Error("Column header missing");
+  const outputRows = rows
+    .slice(1)
+    .reduce((accumulator: Array<Record<string, string>>, currentRow) => {
+      if (currentRow === undefined || currentRow.Data === undefined) {
+        throw new Error("Row missing");
       }
-      const value = row[j].VarCharValue;
-      outputRow[key] = value ?? "";
-    }
-    lines.push(JSON.stringify(outputRow));
-  }
+      const outputRow = columnHeaders.reduce(
+        (rowAccumulator: Record<string, string>, columnHeader, index) => {
+          const key = columnHeader.VarCharValue;
+          if (key === undefined) {
+            throw new Error("Column header missing");
+          }
+          if (currentRow.Data) {
+            const value = currentRow.Data[index].VarCharValue;
+            rowAccumulator[key] = value ?? "";
+          }
+          return rowAccumulator;
+        },
+        {}
+      );
+      accumulator.push(outputRow);
+      return accumulator;
+    }, []);
 
-  return lines.join("\n");
+  return outputRows.map((row) => JSON.stringify(row)).join("\n");
 };

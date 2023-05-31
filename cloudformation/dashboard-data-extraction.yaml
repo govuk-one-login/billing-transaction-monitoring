@@ -17,7 +17,6 @@ Resources:
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           DATABASE_NAME: !Sub ${AWS::StackName}-calculations
           QUERY_RESULTS_BUCKET: !Sub s3://${StorageBucket}/btm_extract_data/
           DESTINATION_BUCKET: !Ref StorageBucket
@@ -37,8 +36,6 @@ Resources:
               Action:
                 - s3:GetObject
                 - s3:ListBucket
-                - s3:ListBucketMultipartUploads
-                - s3:ListMultipartUploadParts
               Resource:
                 - !Sub arn:aws:s3:::${ConfigStackParameter.Value}
                 - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
