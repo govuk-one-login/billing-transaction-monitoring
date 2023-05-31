@@ -23,15 +23,19 @@ type InvoiceDataAndFileName = {
 export const createInvoiceInS3 = async (
   params: InvoiceDataAndFileName
 ): Promise<S3Object> => {
-  if (runViaLambda())
-    return (await sendLambdaCommand(
+  if (runViaLambda()) {
+    const result = await sendLambdaCommand(
       IntTestHelpers.createInvoiceInS3,
       params
-    )) as unknown as S3Object;
+    );
+    console.log(result);
+    return result as unknown as S3Object;
+  }
 
   const invoice = new Invoice(params.invoiceData);
 
   if (params.filename.endsWith("pdf")) {
+    console.log("params.filename.endsWith(pdf)");
     return await makeMockInvoicePDF(writeInvoiceToS3)(
       invoice,
       invoice.vendor.id,

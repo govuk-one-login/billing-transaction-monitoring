@@ -1,6 +1,5 @@
 import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
-import { logger } from "../../../shared/utils";
 import { lambdaClient } from "../clients";
 import { HelperDict, IntTestHelpers, SerializableData } from "../handler";
 import { INT_TEST_SUPPORT_FUNCTION } from "../test-constants";
@@ -23,10 +22,9 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
     payload,
     forceWithoutLambda: true,
   });
-  console.log("ResultOfInvokeLambda", result.payload);
-  logger.info(toUtf8(result.payload as Uint8Array));
-
+  // logger.info(toUtf8(result.payload as Uint8Array));
   if (result.statusCode === 200 && result.payload != null) {
+    console.log(JSON.parse(toUtf8(result.payload)).successObject);
     return JSON.parse(toUtf8(result.payload)).successObject;
   } else {
     return "Error";
@@ -65,6 +63,15 @@ export const invokeLambda = async (
     if (response === undefined) {
       throw new Error("InvokeCommand returned undefined");
     }
+    if (response.Payload !== undefined) {
+      const buffer = Buffer.from(response.Payload);
+      const paystr = buffer.toString("utf-8");
+      console.log({
+        statusCode: response.StatusCode,
+        payload: paystr,
+      });
+    }
+
     return {
       statusCode: response.StatusCode,
       payload: response.Payload,
