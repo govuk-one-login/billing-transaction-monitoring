@@ -29,7 +29,6 @@ export const startQueryExecutionCommand = async (
       IntTestHelpers.startQueryExecutionCommand,
       query
     );
-
   const params = {
     QueryExecutionContext: {
       Database: query.databaseName,
@@ -37,8 +36,6 @@ export const startQueryExecutionCommand = async (
     QueryString: query.queryString,
     WorkGroup: ATHENA_WORKGROUP,
   };
-
-  console.log("Athena Params:", params);
   const response = await athenaClient.send(
     new StartQueryExecutionCommand(params)
   );
@@ -113,7 +110,5 @@ export const waitAndGetQueryResults = async <TResponse>(
       notCompleteErrorMessage: "Query did not succeed within the given timeout",
     }
   );
-  const result = await getQueryResults(queryId);
-  console.log(result);
-  return result as TResponse[];
+  return await getQueryResults(queryId);
 };
