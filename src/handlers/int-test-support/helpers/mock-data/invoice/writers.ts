@@ -14,7 +14,6 @@ export const writeInvoiceToS3 = async (
     key: `${directory}/${filename}`,
   };
 
-  console.log("S3Object Details:", s3Object);
   await putS3Object({ data: file, target: s3Object });
   return s3Object;
 };
