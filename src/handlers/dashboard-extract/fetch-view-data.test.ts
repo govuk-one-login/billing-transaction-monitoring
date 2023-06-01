@@ -1,8 +1,8 @@
-import { AthenaQueryExecutor } from "./athena-query-executor";
+import { AthenaQueryExecutor } from "../../shared/utils/athena";
 import { fetchViewData } from "./fetch-view-data";
 import { Env } from "./types";
 
-jest.mock("./athena-query-executor");
+jest.mock("../../shared/utils/athena");
 const MockedAthenaQueryExecutor = AthenaQueryExecutor as jest.MockedClass<
   typeof AthenaQueryExecutor
 >;

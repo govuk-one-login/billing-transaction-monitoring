@@ -1,8 +1,8 @@
 import { Athena } from "aws-sdk/clients/all";
 
 import { ResultSet } from "@aws-sdk/client-athena";
-import { AthenaQueryExecutor } from "./athena-query-executor";
 import { Env } from "./types";
+import { AthenaQueryExecutor } from "../../shared/utils/athena";
 
 const athena = new Athena({ region: "eu-west-2" });
 
