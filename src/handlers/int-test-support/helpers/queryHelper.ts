@@ -14,7 +14,7 @@ export const queryAthena = async <TResponse>(
     databaseName,
     queryString,
   });
-  return await waitAndGetQueryResults(queryId);
+  return await waitAndGetQueryResults(queryId, { databaseName, queryString });
 };
 
 export const getFilteredQueryResponse = async <TResponse>(

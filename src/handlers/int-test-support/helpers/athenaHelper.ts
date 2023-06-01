@@ -100,17 +100,37 @@ export const getQueryResults = async <TResponse>(
 };
 
 export const waitAndGetQueryResults = async <TResponse>(
-  queryId: string
+  queryId: string,
+  query: DatabaseQuery
 ): Promise<TResponse[]> => {
-  await poll(
-    async () => await getQueryExecutionStatus(queryId),
-    (result) => result?.state?.match("SUCCEEDED") !== null,
-    {
-      timeout: 65000,
-      interval: 5000,
-      notCompleteErrorMessage: "Query did not succeed within the given timeout",
+  const maxRetries = 3;
+  let retryCount = 0;
+
+  const pollQueryExecutionStatus = async (): Promise<boolean> => {
+    let currentQueryId = queryId;
+    const queryStatus = await getQueryExecutionStatus(currentQueryId);
+    console.log(queryStatus);
+    if (
+      queryStatus?.state === "FAILED" &&
+      queryStatus?.stateChangeReason?.includes("NoSuchKey") &&
+      retryCount < maxRetries
+    ) {
+      console.log("Retrying due to failed state and NosuchKey stateReason");
+      currentQueryId = await startQueryExecutionCommand(query);
+      console.log(retryCount);
+      retryCount++;
+      return false;
+    } else if (queryStatus?.state === "SUCCEEDED") {
+      return true;
     }
-  );
-  const result = await getQueryResults(queryId);
-  return result as TResponse[];
+    // continue poll for other states
+    console.log("Other states", queryStatus?.state);
+    return false;
+  };
+  await poll(pollQueryExecutionStatus, (result) => result, {
+    timeout: 65000,
+    interval: 5000,
+    notCompleteErrorMessage: "Query did not succeed within the given timeout",
+  });
+  return await getQueryResults<TResponse>(queryId);
 };
