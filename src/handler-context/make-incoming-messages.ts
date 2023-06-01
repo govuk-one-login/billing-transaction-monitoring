@@ -175,7 +175,7 @@ export const makeIncomingMessages = async <TBody extends HandlerMessageBody>(
       failedIds: [], // S3 events have no message IDs (throw error on failure instead)}
     };
   } else {
-    return {
+    result = {
       incomingMessages: [event],
       failedIds: [],
     };

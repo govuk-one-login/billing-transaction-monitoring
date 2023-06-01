@@ -4,7 +4,7 @@ import { Env } from "./types";
 import { ResultSet } from "@aws-sdk/client-athena";
 
 export const businessLogic = async (
-  _: never,
+  _: unknown,
   { env, logger }: HandlerCtx<Env, any, any>
 ): Promise<string[]> => {
   const results = await fetchViewData(env);
@@ -33,7 +33,8 @@ const formatResults = (results: ResultSet): string => {
   const outputRows = rows
     .slice(1)
     .reduce((accumulator: Array<Record<string, string>>, currentRow) => {
-      if (currentRow === undefined || currentRow.Data === undefined) {
+      const currentRowData = currentRow?.Data;
+      if (currentRowData === undefined) {
         throw new Error("Row missing");
       }
       const outputRow = columnHeaders.reduce(
@@ -42,10 +43,8 @@ const formatResults = (results: ResultSet): string => {
           if (key === undefined) {
             throw new Error("Column header missing");
           }
-          if (currentRow.Data) {
-            const value = currentRow.Data[index].VarCharValue;
-            rowAccumulator[key] = value ?? "";
-          }
+          const value = currentRowData[index].VarCharValue;
+          rowAccumulator[key] = value ?? "";
           return rowAccumulator;
         },
         {}

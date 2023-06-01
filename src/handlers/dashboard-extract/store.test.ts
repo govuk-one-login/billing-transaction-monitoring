@@ -1,9 +1,7 @@
 import { putTextS3 } from "../../shared/utils";
 import { store } from "./store";
 
-jest.mock("../../shared/utils/s3", () => ({
-  putTextS3: jest.fn(),
-}));
+jest.mock("../../shared/utils");
 
 describe("store", () => {
   it("stores a message in S3 to a fixed directory and filename", async () => {

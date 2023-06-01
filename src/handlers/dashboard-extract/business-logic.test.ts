@@ -28,9 +28,9 @@ describe("Dashboard extract businessLogic", () => {
     };
     mockedFetchViewData.mockResolvedValue(resultSet);
 
-    await expect(
-      businessLogic(undefined as never, mockContext)
-    ).rejects.toThrow("No column headers found");
+    await expect(businessLogic(undefined, mockContext)).rejects.toThrow(
+      "No column headers found"
+    );
   });
 
   test("Column header missing", async () => {
@@ -49,9 +49,9 @@ describe("Dashboard extract businessLogic", () => {
     };
     mockedFetchViewData.mockResolvedValue(resultSet);
 
-    await expect(
-      businessLogic(undefined as never, mockContext)
-    ).rejects.toThrow("Column header missing");
+    await expect(businessLogic(undefined, mockContext)).rejects.toThrow(
+      "Column header missing"
+    );
   });
 
   test("Row missing", async () => {
@@ -67,9 +67,9 @@ describe("Dashboard extract businessLogic", () => {
     };
     mockedFetchViewData.mockResolvedValue(resultSet);
 
-    await expect(
-      businessLogic(undefined as never, mockContext)
-    ).rejects.toThrow("Row missing");
+    await expect(businessLogic(undefined, mockContext)).rejects.toThrow(
+      "Row missing"
+    );
   });
 
   test("Happy path with valid data", async () => {
@@ -105,7 +105,7 @@ describe("Dashboard extract businessLogic", () => {
         '{"column1":"valueB1","column2":"valueB2","column3":""}',
     ];
 
-    const result = await businessLogic(undefined as never, mockContext);
+    const result = await businessLogic(undefined, mockContext);
     expect(result).toEqual(expectedResults);
   });
 });
