@@ -70,6 +70,13 @@ describe("Clean businessLogic", () => {
   test("Clean businessLogic with valid event record that has optional values", async () => {
     validIncomingEventBody.vendor_id = "some vendor ID";
     validIncomingEventBody.user = { transaction_id: "some transaction ID" };
+    validIncomingEventBody.evidence = [
+      {
+        fish: "haddock",
+        chips: "potato",
+        isSweetPotato: false,
+      },
+    ];
 
     const result = await businessLogic(validIncomingEventBody, givenCtx);
 
@@ -84,6 +91,13 @@ describe("Clean businessLogic", () => {
         user: {
           transaction_id: "some transaction ID",
         },
+        evidence: [
+          {
+            fish: "haddock",
+            chips: "potato",
+            isSweetPotato: false,
+          },
+        ],
       },
     ]);
     expect(mockedGetVendorId).not.toHaveBeenCalled();
