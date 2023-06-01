@@ -206,7 +206,7 @@ Resources:
                         month_event_count,
                         ven.vendor_name,
                         ven.service_name,
-                        rates.unit_price transaction_price
+                        (COALESCE(credits, 1) * rates.unit_price) transaction_price
                 FROM (btm_transactions_standardised_with_count txn
                         LEFT JOIN "btm_vendor_service_standardised" ven 
                                 ON (txn.event_name = ven.event_name)

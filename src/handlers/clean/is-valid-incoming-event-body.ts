@@ -11,5 +11,6 @@ export const isValidIncomingEventBody = (x: unknown): x is IncomingEventBody =>
   typeof x.timestamp === "number" &&
   "timestamp_formatted" in x &&
   typeof x.timestamp_formatted === "string" &&
+  (!("credits" in x) || typeof x.credits === "number") &&
   "event_name" in x &&
   typeof x.event_name === "string";

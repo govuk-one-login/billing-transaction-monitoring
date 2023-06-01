@@ -15,7 +15,7 @@
       "eventSource": "aws:sqs",
       "eventSourceARN": "testPayload",
       "awsRegion": "eu-west-2",
-      "body": "{\"component_id\":\"Test_COMP\",\"event_id\":\"intTestEvents_8972459\",\"timestamp\":1677628800,\"event_name\":\"VENDOR_1_EVENT_1\",\"timestamp_formatted\":\"2023/03/01\"}"
+      "body": "{\"component_id\":\"Test_COMP\",\"event_id\":\"intTestEvents_8972459\",\"timestamp\":1677628800,\"event_name\":\"VENDOR_1_EVENT_1\",\"timestamp_formatted\":\"2023/03/01\",\"credits\":1}"
     }
   ]
 }

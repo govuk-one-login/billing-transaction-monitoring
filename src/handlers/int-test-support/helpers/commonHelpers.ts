@@ -72,7 +72,10 @@ export const poll = async <Resolution>(
 
 export const generateTestEvent = async (
   overrides: Partial<EventPayload> &
-    Pick<EventPayload, "event_name" | "timestamp_formatted" | "timestamp">
+    Pick<
+      EventPayload,
+      "event_name" | "timestamp_formatted" | "timestamp" | "credits"
+    >
 ): Promise<EventPayload> => ({
   event_id: generateRandomId(),
   component_id: "TEST_COMP",

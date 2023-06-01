@@ -80,6 +80,12 @@ describe("Valid incoming cleaned event body type guard", () => {
     expect(result).toBe(false);
   });
 
+  test("Valid incoming cleaned event body type guard with event with non-number credits", () => {
+    givenEvent.credits = null;
+    const result = isValidIncomingCleanedEventBody(givenEvent);
+    expect(result).toBe(false);
+  });
+
   test("Valid incoming cleaned event body type guard with no event_name", () => {
     delete givenEvent.event_name;
     const result = isValidIncomingCleanedEventBody(givenEvent);
@@ -92,11 +98,6 @@ describe("Valid incoming cleaned event body type guard", () => {
     expect(result).toBe(false);
   });
 
-  test("Valid incoming cleaned event body type guard with valid event", () => {
-    const result = isValidIncomingCleanedEventBody(givenEvent);
-    expect(result).toBe(true);
-  });
-
   test("Valid incoming cleaned event body type guard with no vendor_id", () => {
     delete givenEvent.vendor_id;
     const result = isValidIncomingCleanedEventBody(givenEvent);
@@ -107,5 +108,16 @@ describe("Valid incoming cleaned event body type guard", () => {
     givenEvent.vendor_id = 123;
     const result = isValidIncomingCleanedEventBody(givenEvent);
     expect(result).toBe(false);
+  });
+
+  test("Valid incoming cleaned event body type guard with event with empty credits", () => {
+    delete givenEvent.credits;
+    const result = isValidIncomingCleanedEventBody(givenEvent);
+    expect(result).toBe(true);
+  });
+
+  test("Valid incoming cleaned event body type guard with valid event", () => {
+    const result = isValidIncomingCleanedEventBody(givenEvent);
+    expect(result).toBe(true);
   });
 });
