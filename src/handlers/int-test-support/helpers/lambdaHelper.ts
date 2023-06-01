@@ -14,14 +14,13 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
     command,
     parameters,
   });
-
   // logger.info(toUtf8(commandInput.Payload as Uint8Array));
   const result = await invokeLambda({
     functionName: `${resourcePrefix()}-int-test-support-function`,
     payload,
     forceWithoutLambda: true,
   });
-  // logger.info(toUtf8(result.Payload as Uint8Array));
+  // logger.info(toUtf8(result.payload as Uint8Array));
 
   if (result.statusCode === 200 && result.payload != null) {
     return JSON.parse(toUtf8(result.payload)).successObject;

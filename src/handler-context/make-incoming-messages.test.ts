@@ -21,7 +21,7 @@ describe("makeIncomingMessages", () => {
 
     testFailuresAllowed = undefined;
     testIncomingMessageBodyTypeGuard = jest.fn(() => true);
-    testLogger = { error: jest.fn() } as any;
+    testLogger = { error: jest.fn(), warn: jest.fn() } as any;
   });
 
   describe("Incoming SQS event", () => {
@@ -59,31 +59,48 @@ describe("makeIncomingMessages", () => {
       });
     });
 
-    it("Throws an error by default if a given message does not conform to the specified type", async () => {
+    it("builds an S3 messages if the SQS Message contains S3 information", async () => {
+      const testSQSEventWithS3 = {
+        Records: [
+          {
+            messageId: "msg_1",
+            body: '{"Records":[{"s3":{"bucket":{"name":"some-email-bucket"},"object":{"key":"vendor/Email+with+csv.eml"}}}]}',
+          },
+        ],
+      } as unknown as SQSEvent;
+      const result = await makeIncomingMessages(
+        testSQSEventWithS3,
+        testIncomingMessageBodyTypeGuard as any,
+        testLogger,
+        testFailuresAllowed
+      );
+
+      expect(result).toEqual({
+        incomingMessages: [
+          {
+            id: "msg_1",
+            body: mockedS3FileText,
+            meta: {
+              bucketName: "some-email-bucket",
+              key: "vendor/Email+with+csv.eml",
+            },
+          },
+        ],
+        failedIds: [],
+      });
+    });
+
+    it("Throws an error if a given message does not conform to the specified type and has a messageId", async () => {
       testIncomingMessageBodyTypeGuard.mockReturnValue(false);
 
-      try {
-        await makeIncomingMessages(
+      await expect(
+        makeIncomingMessages(
           testEvent,
           testIncomingMessageBodyTypeGuard as any,
           testLogger,
           testFailuresAllowed
-        );
-      } catch (error) {
-        expect((error as Error).message).toContain("Failed to make message");
-        expect(testLogger.error).toHaveBeenCalledTimes(1);
-        expect(testLogger.error).toHaveBeenCalledWith(
-          "Failed to make message",
-          {
-            error: expect.any(Error),
-            messageId: "msg_1",
-          }
-        );
-        expect((testLogger.error.mock.calls[0][1] as any).error.message).toBe(
-          "Message did not conform to the expected type"
-        );
-      }
-      expect.hasAssertions();
+        )
+      ).rejects.toThrow("Failed to make message");
     });
 
     it("Throws an error by default if a given SQS message's body is not valid json", async () => {
@@ -97,26 +114,14 @@ describe("makeIncomingMessages", () => {
           },
         ],
       } as any;
-
-      try {
-        await makeIncomingMessages(
+      await expect(
+        makeIncomingMessages(
           testEvent,
           testIncomingMessageBodyTypeGuard as any,
           testLogger,
           testFailuresAllowed
-        );
-      } catch (error) {
-        expect((error as Error).message).toContain("Failed to make message");
-        expect(testLogger.error).toHaveBeenCalledTimes(1);
-        expect(testLogger.error).toHaveBeenCalledWith(
-          "Failed to make message",
-          {
-            error: expect.any(SyntaxError),
-            messageId: "msg_2",
-          }
-        );
-      }
-      expect.hasAssertions();
+        )
+      ).rejects.toThrow("Failed to make message");
     });
 
     describe("Failures allowed", () => {
@@ -138,16 +143,12 @@ describe("makeIncomingMessages", () => {
           incomingMessages: [],
           failedIds: ["msg_1"],
         });
-        expect(testLogger.error).toHaveBeenCalledTimes(1);
-        expect(testLogger.error).toHaveBeenCalledWith(
-          "Failed to make message",
+        expect(testLogger.warn).toHaveBeenCalledTimes(1);
+        expect(testLogger.warn).toHaveBeenCalledWith(
+          "Message did not conform to the expected type",
           {
-            error: expect.any(Error),
             messageId: "msg_1",
           }
-        );
-        expect((testLogger.error.mock.calls[0][1] as any).error.message).toBe(
-          "Message did not conform to the expected type"
         );
       });
 
@@ -218,7 +219,15 @@ describe("makeIncomingMessages", () => {
       );
 
       expect(result).toEqual({
-        incomingMessages: [{ body: mockedS3FileText }],
+        incomingMessages: [
+          {
+            body: mockedS3FileText,
+            meta: {
+              bucketName: "test-bucket",
+              key: "test-key",
+            },
+          },
+        ],
         failedIds: [],
       });
     });
@@ -235,7 +244,7 @@ describe("makeIncomingMessages", () => {
         );
       } catch (error) {
         expect((error as Error).message).toContain(
-          "Message did not conform to the expected type"
+          "Message did not conform to the expected type and Incoming message does not have an id"
         );
       }
       expect.hasAssertions();
