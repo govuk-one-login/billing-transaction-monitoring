@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "es2022",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "lib": ["es7"],
+    "outDir": "./dist/",
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022"
+  }
+}

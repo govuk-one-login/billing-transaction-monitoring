@@ -1,0 +1,160 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  PdfExtractFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-pdf-extract-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-pdf-extract-function
+          TEXTRACT_ROLE: !GetAtt TextractRole.Arn
+          TEXTRACT_SNS_TOPIC: !Ref AmazonTextractRawInvoiceDataTopic
+      Events:
+        PdfExtractEvent:
+          Type: SQS
+          Properties:
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+            Queue: !GetAtt PdfExtractQueue.Arn
+      Handler: pdfExtract.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt PdfExtractQueue.Arn
+            - Effect: Allow
+              Action:
+                - textract:StartExpenseAnalysis
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Join ['/', [!GetAtt RawInvoiceBucket.Arn, '*']]
+      ReservedConcurrentExecutions: 1
+
+  PdfExtractFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-pdf-extract-function-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref PdfExtractFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
+
+  PdfExtractQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-pdf-extract-queue
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt PdfExtractQueueDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  PdfExtractQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Sub arn:aws:s3:*:*:${AWS::StackName}-raw-invoice # no reference as this needs be created before the bucket
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+            Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Resource: !GetAtt PdfExtractQueue.Arn
+      Queues:
+        - !Ref PdfExtractQueue
+
+  PdfExtractQueueDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-pdf-extract-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  PdfExtractQueueDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-pdf-extract-dlq-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt PdfExtractQueueDeadLetterQueue.QueueName
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
+      Period: 60
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+
+  TextractRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${AWS::StackName}-textract-role
+      PermissionsBoundary:
+        !If [
+          UsePermissionsBoundary,
+          !Ref PermissionsBoundary,
+          !Ref AWS::NoValue,
+        ]
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - textract.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: TextractRoleAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject*
+                Resource: !GetAtt RawInvoiceBucket.Arn
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref AmazonTextractRawInvoiceDataTopic
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:GenerateDataKey*
+                  - kms:Encrypt
+                Resource: !GetAtt KmsKey.Arn

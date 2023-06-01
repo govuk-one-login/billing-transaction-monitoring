@@ -1,0 +1,221 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  AlarmDummyTopic:
+    Condition: AlertingDisabled
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub ${AWS::StackName}-alarms-dummy
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  AlarmDummyQueue:
+    Condition: AlertingDisabled
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-alarms-dummy
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  AlarmDummySQSSubscription:
+    Condition: AlertingDisabled
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt AlarmDummyQueue.Arn
+      Protocol: sqs
+      TopicArn: !Ref AlarmDummyTopic
+
+  AlarmDummyTopicToQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Condition: AlertingDisabled
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Resource: !GetAtt AlarmDummyQueue.Arn
+            Action: SQS:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref AlarmDummyTopic
+      Queues:
+        - Ref: AlarmDummyQueue
+
+  KmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              Service:
+                - cloudwatch.amazonaws.com
+                - lambda.amazonaws.com
+                - s3.amazonaws.com
+                - sns.amazonaws.com
+                - sqs.amazonaws.com
+                - logs.amazonaws.com
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+            Resource: '*'
+          - !If
+            - IsSplunkForwardingActive
+            - Effect: Allow
+              Principal:
+                AWS: arn:aws:iam::885513274347:role/csls_prodpython/csls_process_s3_logs_lambda_prodpython
+              Action: kms:Decrypt
+              Resource: '*'
+            - !Ref AWS::NoValue
+
+  KmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/key-${AWS::StackName}-general
+      TargetKeyId: !Ref KmsKey
+
+  GlobalLogBucket:
+    # checkov:skip=CKV_AWS_18: This is the log bucket for all other buckets - no need for a log bucket of the log bucket
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-s3-logs
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
+      NotificationConfiguration:
+        QueueConfigurations:
+          - !If
+            - IsSplunkForwardingActive
+            - Event: s3:ObjectCreated:*
+              Queue: arn:aws:sqs:eu-west-2:885513274347:cyber-security-s3-to-splunk-prodpython
+            - !Ref AWS::NoValue
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825 # Five years
+            Status: Enabled
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+
+  GlobalAccessLogsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref GlobalLogBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Principal: '*'
+            Action: s3:*
+            Resource:
+              - !Sub ${GlobalLogBucket.Arn}
+              - !Sub ${GlobalLogBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+          - Sid: EnableS3Logging
+            Effect: Allow
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Action: s3:PutObject
+            Resource: !Sub ${GlobalLogBucket.Arn}/*
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+          - !If
+            - IsSplunkForwardingActive
+            - Effect: Allow
+              Principal:
+                AWS: arn:aws:iam::885513274347:role/csls_prodpython/csls_process_s3_logs_lambda_prodpython
+              Action:
+                - s3:ListBucket
+                - s3:GetObject
+              Resource:
+                - !Sub ${GlobalLogBucket.Arn}
+                - !Sub ${GlobalLogBucket.Arn}/*
+            - !Ref AWS::NoValue
+
+  ConfigStackParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub ${AWS::StackName}-config-stack
+      Type: String
+      Value:
+        !Join [
+          '-',
+          [
+            di-btm-cfg,
+            !If [
+              UsePrivateConfigStack,
+              !Ref PrivateConfigStack,
+              !If [IsDev, dev, !Ref Environment],
+            ],
+          ],
+        ]
+      Description: !Sub Config stack used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
+
+  AlarmTopicParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub ${AWS::StackName}-alarm-topic
+      Type: String
+      Value:
+        !If [
+          AlertingDisabled,
+          !Ref AlarmDummyTopic,
+          !Join [
+            '-',
+            [
+              !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:di-btm-tooling',
+              !If [IsDev, dev, !Ref Environment],
+              alarms,
+            ],
+          ],
+        ]
+      Description: !Sub Alarm topic used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
+
+  MultiRegionKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              Service:
+                - ses.amazonaws.com
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+            Resource: '*'
+      MultiRegion: true
+
+  MultiRegionKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/key-${AWS::StackName}-multi-region
+      TargetKeyId: !Ref MultiRegionKmsKey

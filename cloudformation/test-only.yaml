@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  TestTxMASNS:
+    Type: AWS::SNS::Topic
+    Condition: IsLowerEnv
+    Properties:
+      TopicName: !Sub ${AWS::StackName}-test-TxMA-topic
+      DisplayName: Test TxMA SNS topic
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  TestTxMASNSToFilterQueueSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: IsLowerEnv
+    Properties:
+      TopicArn: !Ref TestTxMASNS
+      Endpoint: !GetAtt FilterQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: true
+
+  TestTxMASNSToFilterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Condition: IsLowerEnv
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: TestSnsToFilterQueuePolicy
+            Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Resource: !GetAtt FilterQueue.Arn
+            Action: SQS:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref TestTxMASNS
+      Queues:
+        - Ref: FilterQueue

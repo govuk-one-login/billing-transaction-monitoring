@@ -1,0 +1,110 @@
+name: Deploy CF-stack and run integration tests on PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches-ignore:
+      - 'no-int-test/**'
+
+env:
+  AWS_REGION: eu-west-2
+  ENV_NAME: pr-${{ github.event.pull_request.number }}
+
+jobs:
+  build-and-deploy:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm test
+      - name: Build lambdas
+        run: npm run build
+      - name: SAM setup
+        uses: aws-actions/setup-sam@v2
+        with:
+          version: 1.59.0
+      - name: Merge template files into template.yaml
+        run: npm run build:template
+      - name: Check for potential CloudFormation security issues
+        uses: bridgecrewio/checkov-action@master
+        with:
+          file: template.yaml
+          framework: cloudformation
+          quiet: true
+          soft_fail: false
+      - name: SAM build
+        run: sam build
+      - name: Assume AWS GitHub actions tooling role in dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
+      - name: SAM validate
+        run: sam validate
+      - name: SAM deploy
+        run: npm run sam:deploy
+
+  run-integration-tests:
+    needs: [build-and-deploy]
+    permissions:
+      contents: write
+      id-token: write
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: true
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - name: Assume AWS GitHub actions tooling role in dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
+      - name: Run integration tests
+        run: npm run test:integration
+      - name: Deploy Jest HTML report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./reports
+          commit_message: 'Deploy Jest HTML report to gh-pages'
+          keep_files: true
+      - name: Check out gh-pages branch
+        if: always()
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+      - name: Keep only last 5 jest-html reports in gh-pages
+        env:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "Github Actions"
+          git fetch
+          git branch
+          git checkout origin/main -- integration_tests/cleanup-jest-html-reports.sh
+          cd jest-html-reports
+          ../integration_tests/cleanup-jest-html-reports.sh 5
+          if git diff --exit-code >/dev/null; then
+            echo "No directories were deleted.Skipping commit."
+          else
+            git add -A
+            git commit -m "cleanup old reports" --allow-empty
+            git push origin gh-pages
+          fi
+        if: always()

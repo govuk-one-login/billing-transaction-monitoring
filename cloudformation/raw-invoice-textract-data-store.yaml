@@ -1,0 +1,198 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  AmazonTextractRawInvoiceDataTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub ${AWS::StackName}-amazon-textract-raw-invoice-data-topic
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  AmazonTextractRawInvoiceDataTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt RawInvoiceTextractDataQueue.Arn
+      Protocol: sqs
+      TopicArn: !Ref AmazonTextractRawInvoiceDataTopic
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue.Arn
+
+  AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-amazon-textract-raw-invoice-data-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
+            Effect: Allow
+            Principal: '*'
+            Resource: !GetAtt AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue.Arn
+      Queues:
+        - !Ref AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue
+
+  RawInvoiceTextractDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-raw-invoice-textract-data
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: raw-invoice-textract-data-bucket/log
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.json'
+            Queue: !GetAtt PdfStandardisationQueue.Arn
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825 # Five years
+            Status: Enabled
+
+  RawInvoiceTextractDataQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-raw-invoice-textract-data-queue
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt RawInvoiceTextractDataDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  RawInvoiceTextractDataQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
+            Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
+      Queues:
+        - !Ref RawInvoiceTextractDataQueue
+
+  RawInvoiceTextractDataDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-raw-invoice-textract-data-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  RawInvoiceTextractDataDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-raw-invoice-textract-data-dlq-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt RawInvoiceTextractDataDeadLetterQueue.QueueName
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
+      Period: 60
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+
+  RawInvoiceTextractDataStorageFunction:
+    # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-raw-textract-storage-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
+      Environment:
+        Variables:
+          DESTINATION_BUCKET: !Ref RawInvoiceTextractDataBucket
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-raw-textract-storage-function
+      Events:
+        RawInvoiceTextractDataEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt RawInvoiceTextractDataQueue.Arn
+      Handler: storeRawInvoiceTextractData.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt RawInvoiceTextractDataQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - textract:GetExpenseAnalysis
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - s3:DeleteObject
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:PutObject
+              Resource:
+                - !GetAtt RawInvoiceBucket.Arn
+                - !Join ['/', [!GetAtt RawInvoiceBucket.Arn, '*']]
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+              Resource:
+                !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
+      ReservedConcurrentExecutions: 1
+
+  RawInvoiceTextractDataStorageFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-raw-textract-storage-function-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref RawInvoiceTextractDataStorageFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0

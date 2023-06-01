@@ -1,0 +1,19 @@
+extends:
+  - standard-with-typescript
+  - prettier
+ignorePatterns:
+  - dist
+rules:
+  '@typescript-eslint/strict-boolean-expressions': off
+  '@typescript-eslint/restrict-template-expressions': off
+  '@typescript-eslint/naming-convention': off
+  '@typescript-eslint/consistent-type-definitions': off
+overrides:
+  - files: '*.ts'
+    parserOptions:
+      project: ./tsconfig.json
+    rules:
+      '@typescript-eslint/no-unused-vars':
+        - error
+        - argsIgnorePattern: '^_'
+          varsIgnorePattern: '^_'

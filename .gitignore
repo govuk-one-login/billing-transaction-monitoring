@@ -1,0 +1,8 @@
+.aws-sam
+.DS_Store
+node_modules
+.idea
+dist
+coverage
+template.yaml
+reports

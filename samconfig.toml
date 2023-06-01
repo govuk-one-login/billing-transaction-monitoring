@@ -1,0 +1,16 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "di-btm"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1h6qgs4rg2fke"
+s3_prefix = "di-btm"
+region = "eu-west-2"
+capabilities = "CAPABILITY_NAMED_IAM"
+image_repositories = []
+parameter_overrides = "CodeSigningConfigArn=\"none\" Environment=\"dev\" PermissionsBoundary=\"none\" VpcStackName=\"vpc\""
+
+[local.deploy.parameters]
+stack_name = "di-btm"
+s3_bucket = ""
+parameter_overrides = "Environment=\"local\""

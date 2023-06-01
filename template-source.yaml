@@ -1,0 +1,120 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for infrastructure to monitor user identity verification events for billing purposes
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Description: Environment type
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - build
+      - staging
+      - integration
+      - production
+  CodeSigningConfigArn:
+    Description: ARN of Code Signing Config from deployment pipeline
+    Type: String
+    Default: none
+  PermissionsBoundary:
+    Description: ARN of permissions boundary for new roles
+    Type: String
+    Default: none
+  TestRoleArn:
+    Type: String
+    Description: The ARN of the role that will used for integration tests
+    Default: none
+    AllowedPattern: (none)|(arn:aws:iam::.*:role/.*)
+  EnableAlerting:
+    Description: Whether to send errors and alarms to Slack
+    Type: String
+    Default: true
+  PrivateConfigStack:
+    Description: Private config stack to use for configuration
+    Type: String
+    Default: none
+
+  # Codes for error cases returned in response to queries from Grafana to BillingAndTransactionsCuratedView.
+  QueryMessageNoChargeForThisMonth:
+    Type: String
+    Default: -1234567.01
+  QueryMessageRateCardDataMissing:
+    Type: String
+    Default: -1234567.02
+  QueryMessageInvoiceDataMissing:
+    Type: String
+    Default: -1234567.03
+  QueryMessageTransactionDataMissing:
+    Type: String
+    Default: -1234567.04
+
+Conditions:
+  UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
+  UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
+  AlertingDisabled: !Not [!Equals [!Ref EnableAlerting, true]]
+  IsEnvWithAutoTests: !Not [!Equals [!Ref TestRoleArn, none]]
+  UsePrivateConfigStack: !Not [!Equals [!Ref PrivateConfigStack, none]]
+  IsLocal: !Equals [!Ref Environment, local]
+  # This is a workaround for the pipeline in dev being deployed with Environment=build due to hardcoded permissions
+  IsDev: !Equals [!Select [2, !Split ['-', !Ref AWS::StackName]], dev]
+  IsBuild: !Equals [!Ref Environment, build]
+  IsStaging: !Equals [!Ref Environment, staging]
+  IsIntegration: !Equals [!Ref Environment, integration]
+  IsProduction: !Equals [!Ref Environment, production]
+  IsNotProduction: !Not [!Equals [!Ref Environment, production]]
+  IsLowerEnv:
+    !Not [
+      !Or [
+        !Equals [!Ref Environment, production],
+        !Equals [!Ref Environment, staging],
+        !Equals [!Ref Environment, integration],
+      ],
+    ]
+  IsHigherEnv:
+    !Or [
+      !Equals [!Ref Environment, production],
+      !Equals [!Ref Environment, staging],
+      !Equals [!Ref Environment, integration],
+    ]
+  IsSplunkForwardingActive:
+    !Or [
+      !Equals [!Ref AWS::StackName, di-btm-dev],
+      !Equals [!Ref AWS::StackName, di-btm-build],
+      !Equals [!Ref AWS::StackName, di-btm-staging],
+      !Equals [!Ref AWS::StackName, di-btm-integration],
+      !Equals [!Ref AWS::StackName, di-btm-production],
+    ]
+
+Globals:
+  Function:
+    CodeSigningConfigArn:
+      !If [UseCodeSigning, !Ref CodeSigningConfigArn, !Ref AWS::NoValue]
+    KmsKeyArn: !GetAtt KmsKey.Arn
+    PermissionsBoundary:
+      !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
+    Runtime: nodejs16.x
+    Timeout: 30
+    CodeUri: dist/
+    Environment:
+      Variables:
+        NODE_OPTIONS: --enable-source-maps
+
+Resources: !YAMLInclude ./cloudformation/global.yaml,
+  ./cloudformation/test-only.yaml,
+  ./cloudformation/filtering.yaml,
+  ./cloudformation/cleaning.yaml,
+  ./cloudformation/transaction-csv-to-json-event.yaml,
+  ./cloudformation/transaction-storage.yaml,
+  ./cloudformation/intTestSupport.yaml#NO_LOCAL,
+  ./cloudformation/email-processing.yaml,
+  ./cloudformation/raw-invoice-store.yaml,
+  ./cloudformation/pdf-extraction.yaml,
+  ./cloudformation/raw-invoice-textract-data-store.yaml,
+  ./cloudformation/pdf-standardisation.yaml,
+  ./cloudformation/csv-extraction.yaml,
+  ./cloudformation/standardised-invoice-storage.yaml,
+  ./cloudformation/calculation-athena.yaml#NO_LOCAL,
+  ./cloudformation/custom-athena-view-resource.yaml#NO_LOCAL,
+  ./cloudformation/invoice-athena.yaml#NO_LOCAL,
+  ./cloudformation/email.yaml

@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  FilterQueue:
+    Type: AWS::SQS::Queue
+    Condition: IsLowerEnv
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-filter-queue
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt FilterDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  FilterDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Condition: IsLowerEnv
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-filter-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  # Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
+  FilterDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsLowerEnv
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-filter-dlq-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt FilterDeadLetterQueue.QueueName
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
+      Period: 60
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+
+  FilterFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-filter-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
+      Events:
+        FilterEvent:
+          Type: SQS
+          Properties:
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+            Queue:
+              !If [
+                IsHigherEnv,
+                !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-queue-arn}}',
+                !GetAtt FilterQueue.Arn,
+              ]
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          OUTPUT_QUEUE_URL: !Ref CleanQueue
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-filter-function
+      Handler: filter.handler
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource:
+                !If [
+                  IsHigherEnv,
+                  !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-queue-arn}}',
+                  !GetAtt FilterQueue.Arn,
+                ]
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !GetAtt CleanQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource:
+                - !GetAtt KmsKey.Arn
+                - !If [
+                    IsHigherEnv,
+                    !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-kms-key-arn}}',
+                    !Ref AWS::NoValue,
+                  ]
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+      ReservedConcurrentExecutions: 10
+
+  FilterFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-filter-function-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref FilterFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
