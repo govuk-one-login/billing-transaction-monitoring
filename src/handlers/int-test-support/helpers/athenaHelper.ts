@@ -107,8 +107,7 @@ export const waitAndGetQueryResults = async <TResponse>(
   let retryCount = 0;
 
   const pollQueryExecutionStatus = async (): Promise<boolean> => {
-    let currentQueryId = queryId;
-    const queryStatus = await getQueryExecutionStatus(currentQueryId);
+    const queryStatus = await getQueryExecutionStatus(queryId);
     console.log(queryStatus);
     if (
       queryStatus?.state === "FAILED" &&
@@ -116,7 +115,7 @@ export const waitAndGetQueryResults = async <TResponse>(
       retryCount < maxRetries
     ) {
       console.log("Retrying due to failed state and NosuchKey stateReason");
-      currentQueryId = await startQueryExecutionCommand(query);
+      queryId = await startQueryExecutionCommand(query);
       console.log(retryCount);
       retryCount++;
       return false;
