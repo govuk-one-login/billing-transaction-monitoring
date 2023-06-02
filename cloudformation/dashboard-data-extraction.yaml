@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  DashboardDataExtractFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for scheduled lambda that does not process events
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-dashboard-data-extract-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          DATABASE_NAME: !Sub ${AWS::StackName}-calculations
+          QUERY_RESULTS_BUCKET: !Sub s3://${StorageBucket}/btm_extract_data/
+          DESTINATION_BUCKET: !Ref StorageBucket
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
+      Handler: dashboardExtract.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              Resource:
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+            - Effect: Allow
+              Action: glue:GetTable
+              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
+            - Effect: Allow
+              Action:
+                - s3:AbortMultipartUpload
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+                - s3:PutObject
+              Resource:
+                - !GetAtt StorageBucket.Arn
+                - !Sub ${StorageBucket.Arn}/*
+            - Effect: Allow
+              Action:
+                - athena:StartQueryExecution
+                - athena:GetQueryExecution
+                - athena:GetQueryResults
+              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
+      ReservedConcurrentExecutions: 1
+
+  DashboardDataExtractScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub ${AWS::StackName}-dashboard-data-extract-rule
+      Description: Schedules DashboardDataExtractFunction to run once per day
+      ScheduleExpression: cron(0 7 ? * * *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt DashboardDataExtractFunction.Arn
+          Id: DashboardDataExtractFunction
+
+  LambdaPermissionForEvents:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DashboardDataExtractFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt DashboardDataExtractScheduledRule.Arn
+
+  DashboardDataExtractFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-dashboard-data-extract-function-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref DashboardDataExtractFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
