@@ -1,5 +1,5 @@
 import {
-  generateTestEvents,
+  generateTestEvent,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
@@ -33,7 +33,14 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       eventTime: string;
     }) => {
       const expectedPrice = (numberOfTestCredits * unitPrice).toFixed(4);
-      await generateTestEvents(eventTime, numberOfTestCredits, eventName);
+      for (let i = 0; i < numberOfTestCredits; i++) {
+        const eventPayload = await generateTestEvent({
+          event_name: eventName,
+          timestamp_formatted: eventTime,
+          timestamp: new Date(eventTime).getTime() / 1000,
+        });
+        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
+      }
       const tableName = TableNames.TRANSACTION_CURATED;
       const prettyEventName = prettyEventNameMap[eventName];
       const response = await getFilteredQueryResponse<TransactionCurated>(
@@ -42,9 +49,6 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
         prettyEventName,
         eventTime
       );
-      console.log(`quantity: ${JSON.stringify(numberOfTestCredits)}`);
-      console.log(`response: ${JSON.stringify(response)}`);
-      console.log(`response[0].price: ${response[0].price}`);
       expect(response.length).toBe(1);
       expect(response[0].price).toEqual(expectedPrice);
     }

@@ -14,7 +14,6 @@ export const businessLogic: BusinessLogic<
     event_name,
     timestamp,
     timestamp_formatted,
-    credits,
     user,
     vendor_id,
   },
@@ -29,7 +28,6 @@ export const businessLogic: BusinessLogic<
     timestamp: timestamp * 1000,
     event_id,
     timestamp_formatted,
-    credits,
     vendor_id: vendorId,
     user: {
       transaction_id: user?.transaction_id,

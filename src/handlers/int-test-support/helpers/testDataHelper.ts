@@ -74,7 +74,7 @@ export interface TestDataRetrievedFromConfig {
 
 export interface TestData {
   eventTime: string;
-  numberOfTestCredits: number;
+  numberOfTestEvents: number;
   billingQty: number;
   transactionQty: number;
   description: string;

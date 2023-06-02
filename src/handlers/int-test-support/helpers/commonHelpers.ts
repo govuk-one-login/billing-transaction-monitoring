@@ -72,10 +72,7 @@ export const poll = async <Resolution>(
 
 export const generateTestEvent = async (
   overrides: Partial<EventPayload> &
-    Pick<
-      EventPayload,
-      "event_name" | "timestamp_formatted" | "timestamp" | "credits"
-    >
+    Pick<EventPayload, "event_name" | "timestamp_formatted" | "timestamp">
 ): Promise<EventPayload> => ({
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
@@ -87,18 +84,13 @@ export const generateTestEvents = async (
   transactionQty: number,
   eventName: string
 ): Promise<void> => {
-  let totalCredits = 0;
-  while (totalCredits < transactionQty) {
-    const creditsLeft = transactionQty - totalCredits;
-    const credits = Math.floor(Math.random() * creditsLeft + 1);
+  for (let i = 0; i < transactionQty; i++) {
     const eventPayload = await generateTestEvent({
       event_name: eventName,
       timestamp_formatted: eventTime,
       timestamp: new Date(eventTime).getTime() / 1000,
-      credits,
     });
     await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
-    totalCredits = totalCredits + credits;
   }
 };
 

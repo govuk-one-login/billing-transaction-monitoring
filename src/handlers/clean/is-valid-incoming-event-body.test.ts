@@ -9,7 +9,6 @@ describe("Valid incoming event body type guard", () => {
       event_id: "given event ID",
       timestamp: 123,
       timestamp_formatted: "given formatted timestamp",
-      credits: 1,
       event_name: "given event name",
     };
   });
@@ -90,12 +89,6 @@ describe("Valid incoming event body type guard", () => {
     givenEvent.event_name = true;
     const result = isValidIncomingEventBody(givenEvent);
     expect(result).toBe(false);
-  });
-
-  test("Valid incoming event body type guard with no credits (which is valid, assumed to be 1 credit)", () => {
-    delete givenEvent.credits;
-    const result = isValidIncomingEventBody(givenEvent);
-    expect(result).toBe(true);
   });
 
   test("Valid incoming event body type guard with valid event", () => {

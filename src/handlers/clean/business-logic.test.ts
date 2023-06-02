@@ -37,7 +37,6 @@ describe("Clean businessLogic", () => {
       timestamp: 123,
       event_id: "abc-123-id",
       timestamp_formatted: "2023-02-13T09:26:18.000Z",
-      credits: 1,
     };
   });
 
@@ -51,7 +50,6 @@ describe("Clean businessLogic", () => {
         timestamp: validIncomingEventBody.timestamp * 1000,
         event_id: validIncomingEventBody.event_id,
         timestamp_formatted: validIncomingEventBody.timestamp_formatted,
-        credits: validIncomingEventBody.credits,
         vendor_id: mockedVendorId,
         user: {
           transaction_id: undefined,
@@ -82,7 +80,6 @@ describe("Clean businessLogic", () => {
         timestamp: validIncomingEventBody.timestamp * 1000,
         event_id: validIncomingEventBody.event_id,
         timestamp_formatted: validIncomingEventBody.timestamp_formatted,
-        credits: validIncomingEventBody.credits,
         vendor_id: "some vendor ID",
         user: {
           transaction_id: "some transaction ID",

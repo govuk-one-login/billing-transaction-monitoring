@@ -7,7 +7,6 @@ export interface CleanedEventBody {
   event_name: string;
   timestamp: number;
   timestamp_formatted: string;
-  credits?: number;
   user?: {
     transaction_id?: string;
   };

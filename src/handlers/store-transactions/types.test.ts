@@ -11,6 +11,7 @@ describe("Valid incoming cleaned event body type guard", () => {
       timestamp_formatted: "given formatted timestamp",
       event_name: "given event name",
       vendor_id: "a vendor id",
+      credits: 2,
     };
   });
 
@@ -80,12 +81,6 @@ describe("Valid incoming cleaned event body type guard", () => {
     expect(result).toBe(false);
   });
 
-  test("Valid incoming cleaned event body type guard with event with non-number credits", () => {
-    givenEvent.credits = null;
-    const result = isValidIncomingCleanedEventBody(givenEvent);
-    expect(result).toBe(false);
-  });
-
   test("Valid incoming cleaned event body type guard with no event_name", () => {
     delete givenEvent.event_name;
     const result = isValidIncomingCleanedEventBody(givenEvent);
@@ -110,7 +105,13 @@ describe("Valid incoming cleaned event body type guard", () => {
     expect(result).toBe(false);
   });
 
-  test("Valid incoming cleaned event body type guard with event with empty credits", () => {
+  test("Valid incoming cleaned event body type guard with event with non-number credits", () => {
+    givenEvent.credits = null;
+    const result = isValidIncomingCleanedEventBody(givenEvent);
+    expect(result).toBe(false);
+  });
+
+  test("Valid incoming cleaned event body type guard with event with no credits field", () => {
     delete givenEvent.credits;
     const result = isValidIncomingCleanedEventBody(givenEvent);
     expect(result).toBe(true);
