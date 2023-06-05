@@ -18,8 +18,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           DATABASE_NAME: !Sub ${AWS::StackName}-calculations
-          QUERY_RESULTS_BUCKET:
-            !Join ['', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
+          QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
           DESTINATION_BUCKET: !Ref StorageBucket
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
       Handler: dashboardExtract.handler
