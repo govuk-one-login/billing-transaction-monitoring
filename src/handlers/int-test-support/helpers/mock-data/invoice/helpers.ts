@@ -113,7 +113,7 @@ export const checkStandardised = async (
       Contents.filter((result) => result.key !== keyToExclude).length === 1,
 
     {
-      interval: 30000,
+      interval: 20000,
       notCompleteErrorMessage: `Item: ${itemDescription} prefix:${prefix} not found`,
       timeout: 280000,
     }
