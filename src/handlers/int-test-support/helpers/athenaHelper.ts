@@ -8,7 +8,6 @@ import { resourcePrefix, runViaLambda } from "./envHelper";
 import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
-import { poll } from "./commonHelpers";
 
 type DatabaseQuery = {
   databaseName: string;
@@ -97,34 +96,4 @@ export const getQueryResults = async <TResponse>(
             };
       }, {})
     ) as TResponse[];
-};
-
-export const waitAndGetQueryResults = async <TResponse>(
-  queryId: string,
-  query: DatabaseQuery
-): Promise<TResponse[]> => {
-  const maxRetries = 3;
-  let retryCount = 0;
-
-  const pollQueryExecutionStatus = async (): Promise<boolean> => {
-    const queryStatus = await getQueryExecutionStatus(queryId);
-    if (
-      queryStatus?.state === "FAILED" &&
-      queryStatus?.stateChangeReason?.includes("NoSuchKey") &&
-      retryCount < maxRetries
-    ) {
-      console.log("Retrying due to failed state and NoSuchKey stateReason");
-      queryId = await startQueryExecutionCommand(query);
-      retryCount++;
-    } else if (queryStatus?.state === "SUCCEEDED") {
-      return true;
-    }
-    return false;
-  };
-  await poll(pollQueryExecutionStatus, (result) => result, {
-    timeout: 65000,
-    interval: 5000,
-    notCompleteErrorMessage: "Query did not succeed within the given timeout",
-  });
-  return await getQueryResults<TResponse>(queryId);
 };
