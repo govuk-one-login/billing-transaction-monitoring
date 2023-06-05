@@ -106,8 +106,6 @@ export const checkStandardised = async (
     serviceConfig.event_name,
     archived
   );
-
-  console.log(`Checking for item:`, itemDescription, prefix);
   const s3Response = await poll(
     async () => await listS3Objects({ bucketName: bucket, prefix }),
 
@@ -119,10 +117,6 @@ export const checkStandardised = async (
       notCompleteErrorMessage: `Item: ${itemDescription} prefix:${prefix} not found`,
       timeout: 280000,
     }
-  );
-  console.log(
-    `S3 Response:`,
-    s3Response.map((result) => result.key)
   );
   const result = s3Response?.[0];
   if (result?.key === undefined) throw new Error("Empty line item data");
