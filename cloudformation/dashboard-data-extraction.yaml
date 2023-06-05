@@ -23,6 +23,7 @@ Resources:
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
       Handler: dashboardExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
+      Timeout: 120
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:
