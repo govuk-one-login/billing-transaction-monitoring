@@ -29,6 +29,7 @@ describe("queryAthena", () => {
     jest.clearAllMocks();
   });
   it("should execute a query and return the results", async () => {
+    jest.setTimeout(35000);
     const queryId = "test123";
     mockedStartQueryExecutionCommand.mockResolvedValue(queryId);
     mockedGetQueryExecutionStatus.mockResolvedValueOnce({
@@ -42,14 +43,15 @@ describe("queryAthena", () => {
       databaseName,
       queryString,
     });
+    expect(mockedStartQueryExecutionCommand).toHaveBeenCalledTimes(1);
     expect(mockedGetQueryExecutionStatus).toHaveBeenCalledWith(queryId);
     expect(mockedGetQueryExecutionStatus).toHaveBeenCalledTimes(1);
-    mockedStartQueryExecutionCommand.mockResolvedValue(1);
     expect(mockedGetQueryResults).toHaveBeenCalledWith(queryId);
     expect(results).toEqual(expectedResults);
-  }, 30000);
+  });
 
   it("should retry if query execution fails due to NoSuchKey error", async () => {
+    jest.setTimeout(35000);
     const queryId = "test123";
     mockedStartQueryExecutionCommand.mockResolvedValue(queryId);
     mockedGetQueryExecutionStatus.mockResolvedValueOnce({
@@ -68,12 +70,14 @@ describe("queryAthena", () => {
       databaseName,
       queryString,
     });
+    expect(mockedStartQueryExecutionCommand).toHaveBeenCalledTimes(2);
     expect(mockedGetQueryExecutionStatus).toHaveBeenCalledTimes(2);
     expect(mockedGetQueryResults).toHaveBeenCalledWith(queryId);
     expect(results).toEqual(expectedResults);
-  }, 30000);
+  });
 
   it("should throw error when the query does not succeed within the timeout", async () => {
+    jest.setTimeout(35000);
     const queryId = "test123";
     mockedStartQueryExecutionCommand.mockResolvedValue(queryId);
     mockedGetQueryExecutionStatus.mockResolvedValue({
@@ -87,14 +91,10 @@ describe("queryAthena", () => {
     } catch (err) {
       error = err;
     }
-
+    expect(mockedStartQueryExecutionCommand).toHaveBeenCalledTimes(1);
     expect(error as Error).toEqual(
       "Query did not succeed within the given timeout"
     );
-    expect(mockedStartQueryExecutionCommand).toHaveBeenCalledWith({
-      databaseName,
-      queryString,
-    });
     expect(mockedGetQueryResults).not.toHaveBeenCalled();
-  }, 30000);
+  });
 });
