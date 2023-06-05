@@ -4,14 +4,13 @@ import {
   GetQueryResultsCommand,
   StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
-
 import { resourcePrefix, runViaLambda } from "./envHelper";
 import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
 import { poll } from "./commonHelpers";
 
-export type DatabaseQuery = {
+type DatabaseQuery = {
   databaseName: string;
   queryString: string;
 };
