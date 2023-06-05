@@ -16,17 +16,18 @@ export const queryAthena = async <TResponse>(
   let retryCount = 0;
   let queryId: string = "";
 
-  queryId = await startQueryExecutionCommand({ databaseName, queryString });
-
   const pollQueryExecutionStatus = async (): Promise<boolean> => {
+    if (!queryId)
+      queryId = await startQueryExecutionCommand({ databaseName, queryString });
     const queryStatus = await getQueryExecutionStatus(queryId);
     if (
       queryStatus?.state === "FAILED" &&
-      queryStatus?.stateChangeReason?.includes("NoSuchKey") &&
-      retryCount < maxRetries
+      queryStatus?.stateChangeReason?.includes("NoSuchKey")
     ) {
+      if (retryCount >= maxRetries)
+        throw Error(`Failed with NoSuchKey after ${retryCount} retries`);
       console.log("Retrying due to failed state and NoSuchKey stateReason");
-      queryId = await startQueryExecutionCommand({ databaseName, queryString });
+      queryId = "";
       retryCount++;
     } else if (queryStatus?.state === "SUCCEEDED") {
       return true;

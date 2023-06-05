@@ -6,15 +6,7 @@ import {
 import { resourcePrefix } from "./envHelper";
 import { queryAthena } from "./queryHelper";
 
-jest.mock("./athenaHelper", () => {
-  const original = jest.requireActual("./athenaHelper");
-  return {
-    ...original,
-    getQueryExecutionStatus: jest.fn(),
-    startQueryExecutionCommand: jest.fn(),
-    getQueryResults: jest.fn(),
-  };
-});
+jest.mock("./athenaHelper");
 const mockedGetQueryExecutionStatus = getQueryExecutionStatus as jest.Mock;
 const mockedStartQueryExecutionCommand =
   startQueryExecutionCommand as jest.Mock;
@@ -25,11 +17,11 @@ const expectedResults = [{ id: 1, name: test }];
 describe("queryAthena", () => {
   const prefix = resourcePrefix();
   const databaseName = `${prefix}-calculations`;
+  jest.setTimeout(35000);
   beforeEach(() => {
     jest.clearAllMocks();
   });
   it("should execute a query and return the results", async () => {
-    jest.setTimeout(35000);
     const queryId = "test123";
     mockedStartQueryExecutionCommand.mockResolvedValue(queryId);
     mockedGetQueryExecutionStatus.mockResolvedValueOnce({
@@ -51,14 +43,14 @@ describe("queryAthena", () => {
   });
 
   it("should retry if query execution fails due to NoSuchKey error", async () => {
-    jest.setTimeout(35000);
-    const queryId = "test123";
-    mockedStartQueryExecutionCommand.mockResolvedValue(queryId);
+    const initialQueryId = "test123";
+    const newQueryId = "newQueryId";
+    mockedStartQueryExecutionCommand.mockResolvedValueOnce(initialQueryId);
+    mockedStartQueryExecutionCommand.mockResolvedValueOnce(newQueryId);
     mockedGetQueryExecutionStatus.mockResolvedValueOnce({
       state: "FAILED",
       stateChangeReason: "NoSuchKey",
     } as any);
-    mockedStartQueryExecutionCommand.mockResolvedValueOnce("newQueryId");
     mockedGetQueryExecutionStatus.mockResolvedValueOnce({
       state: "SUCCEEDED",
     } as any);
@@ -72,12 +64,12 @@ describe("queryAthena", () => {
     });
     expect(mockedStartQueryExecutionCommand).toHaveBeenCalledTimes(2);
     expect(mockedGetQueryExecutionStatus).toHaveBeenCalledTimes(2);
-    expect(mockedGetQueryResults).toHaveBeenCalledWith(queryId);
+    expect(mockedGetQueryExecutionStatus).toHaveBeenCalledWith(initialQueryId);
+    expect(mockedGetQueryResults).toHaveBeenCalledWith(newQueryId);
     expect(results).toEqual(expectedResults);
   });
 
   it("should throw error when the query does not succeed within the timeout", async () => {
-    jest.setTimeout(35000);
     const queryId = "test123";
     mockedStartQueryExecutionCommand.mockResolvedValue(queryId);
     mockedGetQueryExecutionStatus.mockResolvedValue({
