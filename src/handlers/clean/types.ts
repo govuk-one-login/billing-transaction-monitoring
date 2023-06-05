@@ -10,6 +10,7 @@ export interface CleanedEventBody {
   user?: {
     transaction_id?: string;
   };
+  evidence?: unknown[];
 }
 
 export type ConfigCache = ConfigElements.services;

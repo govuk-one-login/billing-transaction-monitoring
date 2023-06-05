@@ -16,6 +16,7 @@ export const businessLogic: BusinessLogic<
     timestamp_formatted,
     user,
     vendor_id,
+    evidence,
   },
   { config, logger }
 ) => {
@@ -32,6 +33,7 @@ export const businessLogic: BusinessLogic<
     user: {
       transaction_id: user?.transaction_id,
     },
+    evidence,
   };
 
   logger.info(`Cleaned event ${event_id}`);
