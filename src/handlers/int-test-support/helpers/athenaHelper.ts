@@ -4,13 +4,14 @@ import {
   GetQueryResultsCommand,
   StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
-import { poll } from "./commonHelpers";
+
 import { resourcePrefix, runViaLambda } from "./envHelper";
 import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
+import { poll } from "./commonHelpers";
 
-type DatabaseQuery = {
+export type DatabaseQuery = {
   databaseName: string;
   queryString: string;
 };
@@ -108,22 +109,17 @@ export const waitAndGetQueryResults = async <TResponse>(
 
   const pollQueryExecutionStatus = async (): Promise<boolean> => {
     const queryStatus = await getQueryExecutionStatus(queryId);
-    console.log(queryStatus);
     if (
       queryStatus?.state === "FAILED" &&
       queryStatus?.stateChangeReason?.includes("NoSuchKey") &&
       retryCount < maxRetries
     ) {
-      console.log("Retrying due to failed state and NosuchKey stateReason");
+      console.log("Retrying due to failed state and NoSuchKey stateReason");
       queryId = await startQueryExecutionCommand(query);
-      console.log(retryCount);
       retryCount++;
-      return false;
     } else if (queryStatus?.state === "SUCCEEDED") {
       return true;
     }
-    // continue poll for other states
-    console.log("Other states", queryStatus?.state);
     return false;
   };
   await poll(pollQueryExecutionStatus, (result) => result, {
