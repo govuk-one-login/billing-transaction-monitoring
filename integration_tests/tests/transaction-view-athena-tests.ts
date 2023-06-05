@@ -8,6 +8,9 @@ import {
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import {
+  generateEventViaStorageLambdaAndCheckEventInS3Bucket
+} from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
   test.each`
@@ -33,13 +36,18 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       eventTime: string;
     }) => {
       const expectedPrice = (numberOfTestCredits * unitPrice).toFixed(4);
-      for (let i = 0; i < numberOfTestCredits; i++) {
+      let totalCredits = 0;
+      while (totalCredits < numberOfTestCredits) {
+        const creditsLeft = numberOfTestCredits - totalCredits;
+        const credits = Math.floor(Math.random() * creditsLeft + 1);
         const eventPayload = await generateTestEvent({
           event_name: eventName,
           timestamp_formatted: eventTime,
           timestamp: new Date(eventTime).getTime() / 1000,
+          credits,
         });
-        await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
+        await generateEventViaStorageLambdaAndCheckEventInS3Bucket(eventPayload);
+        totalCredits = totalCredits + credits;
       }
       const tableName = TableNames.TRANSACTION_CURATED;
       const prettyEventName = prettyEventNameMap[eventName];

@@ -46,9 +46,21 @@ export interface GenerateEventsResult {
 export const generateEventViaFilterLambdaAndCheckEventInS3Bucket = async (
   payload: EventPayload
 ): Promise<GenerateEventsResult> => {
+  return await generateEventAndCheckEventInS3Bucket(payload, `${resourcePrefix()}-filter-function`);
+};
+
+export const generateEventViaStorageLambdaAndCheckEventInS3Bucket = async (
+  payload: EventPayload
+): Promise<GenerateEventsResult> => {
+  return await generateEventAndCheckEventInS3Bucket(payload, `${resourcePrefix()}-storage-function`);
+};
+
+export const generateEventAndCheckEventInS3Bucket = async (
+  payload: EventPayload,
+  functionName: string
+): Promise<GenerateEventsResult> => {
   try {
     const updatedSQSEventPayload = await updateSQSEventPayloadBody(payload);
-    const functionName = `${resourcePrefix()}-filter-function`;
     await invokeLambda({ functionName, payload: updatedSQSEventPayload });
     const json = JSON.parse(updatedSQSEventPayload);
     const eventId = JSON.parse(json.Records[0].body).event_id;
