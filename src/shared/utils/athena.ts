@@ -1,13 +1,17 @@
 import { Athena } from "aws-sdk/clients/all";
 
+const INTERVAL_MS = 1000;
+
 export class AthenaQueryExecutor {
   athena: Athena;
 
-  INTERVAL_MS = 1000;
+  intervalMillis: number;
+
   MAX_ATTEMPTS = 10;
 
-  constructor(athena: Athena) {
+  constructor(athena: Athena, intervalMillis = INTERVAL_MS) {
     this.athena = athena;
+    this.intervalMillis = intervalMillis;
   }
 
   async fetchResults(
@@ -80,7 +84,9 @@ export class AthenaQueryExecutor {
           `Unrecognised query execution state: ${queryExecutionState}`
         );
 
-      await new Promise((resolve) => setTimeout(resolve, this.INTERVAL_MS));
+      console.log(`Continuing to wait after ${queryExecutionState} received.`);
+
+      await new Promise((resolve) => setTimeout(resolve, this.intervalMillis));
     }
 
     throw new Error(
