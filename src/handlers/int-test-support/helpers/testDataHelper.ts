@@ -1,6 +1,10 @@
 import { configStackName, resourcePrefix } from "./envHelper";
 import { invokeLambda } from "./lambdaHelper";
-import { EventPayload, updateSQSEventPayloadBody } from "./payloadHelper";
+import {
+  EventPayload,
+  StorageEventPayload,
+  updateSQSEventPayloadBody,
+} from "./payloadHelper";
 import { getRatesFromConfig } from "../config-utils/get-rate-config-rows";
 import { getVendorServiceConfigRows } from "../config-utils/get-vendor-service-config-rows";
 import { getE2ETestConfig } from "../config-utils/get-e2e-test-config";
@@ -46,21 +50,34 @@ export interface GenerateEventsResult {
 export const generateEventViaFilterLambdaAndCheckEventInS3Bucket = async (
   payload: EventPayload
 ): Promise<GenerateEventsResult> => {
-  return await generateEventAndCheckEventInS3Bucket(payload, `${resourcePrefix()}-filter-function`);
+  const updatedSQSEventPayload = await updateSQSEventPayloadBody(
+    payload,
+    "../../../../integration_tests/payloads/validSQSEventPayload.json"
+  );
+  return await generateEventAndCheckEventInS3Bucket(
+    updatedSQSEventPayload,
+    `${resourcePrefix()}-filter-function`
+  );
 };
 
 export const generateEventViaStorageLambdaAndCheckEventInS3Bucket = async (
-  payload: EventPayload
+  payload: StorageEventPayload
 ): Promise<GenerateEventsResult> => {
-  return await generateEventAndCheckEventInS3Bucket(payload, `${resourcePrefix()}-storage-function`);
+  const updatedSQSEventPayload = await updateSQSEventPayloadBody(
+    payload,
+    "../../../../integration_tests/payloads/validSQSStorageEventPayload.json"
+  );
+  return await generateEventAndCheckEventInS3Bucket(
+    updatedSQSEventPayload,
+    `${resourcePrefix()}-storage-function`
+  );
 };
 
-export const generateEventAndCheckEventInS3Bucket = async (
-  payload: EventPayload,
+const generateEventAndCheckEventInS3Bucket = async (
+  updatedSQSEventPayload: string,
   functionName: string
 ): Promise<GenerateEventsResult> => {
   try {
-    const updatedSQSEventPayload = await updateSQSEventPayloadBody(payload);
     await invokeLambda({ functionName, payload: updatedSQSEventPayload });
     const json = JSON.parse(updatedSQSEventPayload);
     const eventId = JSON.parse(json.Records[0].body).event_id;

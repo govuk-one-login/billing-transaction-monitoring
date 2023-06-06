@@ -11,7 +11,7 @@ import {
   generateTestEvents,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
 describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data \n", () => {
   test.each`
@@ -69,7 +69,7 @@ export const assertQueryResultWithTestData = async (
   serviceName: string
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
-  const response = await getFilteredQueryResponse<BillingTransactionCurated>(
+  const response = await getQueryResponse<BillingTransactionCurated>(
     tableName,
     vendorId,
     serviceName,

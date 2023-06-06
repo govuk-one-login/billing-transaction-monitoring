@@ -1,5 +1,5 @@
 import {
-  generateTestEvent,
+  generateTestStorageEvent,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
@@ -7,10 +7,8 @@ import {
   EventName,
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import {
-  generateEventViaStorageLambdaAndCheckEventInS3Bucket
-} from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import { generateEventViaStorageLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
   test.each`
@@ -40,23 +38,27 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       while (totalCredits < numberOfTestCredits) {
         const creditsLeft = numberOfTestCredits - totalCredits;
         const credits = Math.floor(Math.random() * creditsLeft + 1);
-        const eventPayload = await generateTestEvent({
+        const eventPayload = await generateTestStorageEvent({
           event_name: eventName,
+          vendor_id: vendorId,
           timestamp_formatted: eventTime,
           timestamp: new Date(eventTime).getTime() / 1000,
           credits,
         });
-        await generateEventViaStorageLambdaAndCheckEventInS3Bucket(eventPayload);
+        await generateEventViaStorageLambdaAndCheckEventInS3Bucket(
+          eventPayload
+        );
         totalCredits = totalCredits + credits;
       }
       const tableName = TableNames.TRANSACTION_CURATED;
       const prettyEventName = prettyEventNameMap[eventName];
-      const response = await getFilteredQueryResponse<TransactionCurated>(
+      const response = await getQueryResponse<TransactionCurated>(
         tableName,
         vendorId,
         prettyEventName,
         eventTime
       );
+      console.log(JSON.stringify(response));
       expect(response.length).toBe(1);
       expect(response[0].price).toEqual(expectedPrice);
     }
