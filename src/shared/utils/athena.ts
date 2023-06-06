@@ -1,23 +1,27 @@
 import { Athena } from "aws-sdk/clients/all";
-import { QueryExecutionState } from "aws-sdk/clients/athena";
+
+const INTERVAL_MS = 1000;
 
 export class AthenaQueryExecutor {
   athena: Athena;
-  queryResultsBucket: string | undefined;
 
-  INTERVAL_MS = 1000;
+  intervalMillis: number;
+
   MAX_ATTEMPTS = 10;
 
-  constructor(athena: Athena, queryResultsBucket?: string) {
+  constructor(athena: Athena, intervalMillis = INTERVAL_MS) {
     this.athena = athena;
-    if (queryResultsBucket) this.queryResultsBucket = queryResultsBucket;
+    this.intervalMillis = intervalMillis;
   }
 
-  async fetchResults(sql: string): Promise<Athena.ResultSet> {
+  async fetchResults(
+    sql: string,
+    queryResultsBucket: string
+  ): Promise<Athena.ResultSet> {
     const params = {
       QueryString: sql,
       ResultConfiguration: {
-        OutputLocation: this.queryResultsBucket,
+        OutputLocation: queryResultsBucket,
       },
     };
 
@@ -30,19 +34,7 @@ export class AthenaQueryExecutor {
       throw new Error("Failed to start execution");
     }
 
-    let state: QueryExecutionState = "QUEUED";
-    let reason: string | undefined;
-    while (state === "RUNNING" || state === "QUEUED") {
-      const data = await this.athena
-        .getQueryExecution({ QueryExecutionId: queryExecutionId })
-        .promise();
-      state = data.QueryExecution?.Status?.State ?? "Unknown";
-      reason = data.QueryExecution?.Status?.StateChangeReason;
-    }
-
-    if (state !== "SUCCEEDED") {
-      throw new Error(`Query execution failed: ${reason}`);
-    }
+    await this.validate(queryExecutionId);
 
     const results = await this.athena
       .getQueryResults({ QueryExecutionId: queryExecutionId })
@@ -92,7 +84,9 @@ export class AthenaQueryExecutor {
           `Unrecognised query execution state: ${queryExecutionState}`
         );
 
-      await new Promise((resolve) => setTimeout(resolve, this.INTERVAL_MS));
+      console.log(`Continuing to wait after ${queryExecutionState} received.`);
+
+      await new Promise((resolve) => setTimeout(resolve, this.intervalMillis));
     }
 
     throw new Error(

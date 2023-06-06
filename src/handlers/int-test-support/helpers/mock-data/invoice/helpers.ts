@@ -114,11 +114,10 @@ export const checkStandardised = async (
 
     {
       interval: 20000,
-      notCompleteErrorMessage: `${itemDescription} not found`,
+      notCompleteErrorMessage: `Item: ${itemDescription} prefix:${prefix} not found`,
       timeout: 280000,
     }
   );
-
   const result = s3Response?.[0];
   if (result?.key === undefined) throw new Error("Empty line item data");
   return { bucket, key: result.key };

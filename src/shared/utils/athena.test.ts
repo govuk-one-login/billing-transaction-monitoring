@@ -288,12 +288,12 @@ describe("Athena", () => {
     test("No query execution id returned", async () => {
       mockStartQueryExecutionPromise.mockReturnValue({});
 
-      const executor = new AthenaQueryExecutor(
-        givenAthena,
+      const executor = new AthenaQueryExecutor(givenAthena);
+
+      const resultPromise = executor.fetchResults(
+        "some sql string",
         QUERY_RESULTS_BUCKET
       );
-
-      const resultPromise = executor.fetchResults("some sql string");
       await expect(resultPromise).rejects.toThrow("Failed to start execution");
       expect(mockStartQueryExecution).toHaveBeenCalledTimes(1);
       expect(mockedAthenaGetQueryExecution).not.toHaveBeenCalled();
@@ -314,12 +314,12 @@ describe("Athena", () => {
           QueryExecution: { Status: { State: "FAILED" } },
         });
 
-      const executor = new AthenaQueryExecutor(
-        givenAthena,
+      const executor = new AthenaQueryExecutor(givenAthena);
+
+      const resultPromise = executor.fetchResults(
+        "some sql string",
         QUERY_RESULTS_BUCKET
       );
-
-      const resultPromise = executor.fetchResults("some sql string");
       await expect(resultPromise).rejects.toThrow("Query execution failed");
       expect(mockStartQueryExecution).toHaveBeenCalledTimes(1);
       expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(3);
@@ -327,12 +327,12 @@ describe("Athena", () => {
     });
 
     test("Query execution succeeds in default case", async () => {
-      const executor = new AthenaQueryExecutor(
-        givenAthena,
+      const executor = new AthenaQueryExecutor(givenAthena);
+
+      const resultPromise = executor.fetchResults(
+        "some sql string",
         QUERY_RESULTS_BUCKET
       );
-
-      const resultPromise = executor.fetchResults("some sql string");
       await expect(resultPromise).resolves.toEqual(queryResult);
       expect(mockStartQueryExecution).toHaveBeenCalledTimes(1);
       expect(mockedAthenaGetQueryExecution).toHaveBeenCalledTimes(3);

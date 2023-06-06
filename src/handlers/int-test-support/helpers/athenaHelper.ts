@@ -4,7 +4,6 @@ import {
   GetQueryResultsCommand,
   StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
-import { poll } from "./commonHelpers";
 import { resourcePrefix, runViaLambda } from "./envHelper";
 import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
@@ -97,20 +96,4 @@ export const getQueryResults = async <TResponse>(
             };
       }, {})
     ) as TResponse[];
-};
-
-export const waitAndGetQueryResults = async <TResponse>(
-  queryId: string
-): Promise<TResponse[]> => {
-  await poll(
-    async () => await getQueryExecutionStatus(queryId),
-    (result) => result?.state?.match("SUCCEEDED") !== null,
-    {
-      timeout: 65000,
-      interval: 5000,
-      notCompleteErrorMessage: "Query did not succeed within the given timeout",
-    }
-  );
-  const result = await getQueryResults(queryId);
-  return result as TResponse[];
 };
