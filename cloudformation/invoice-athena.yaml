@@ -100,6 +100,8 @@ Resources:
               Type: int
             - Name: price
               Type: decimal(12,4)
+            - Name: event_name
+              Type: string
           Compressed: 'true'
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
           Location: !Sub s3://${StorageBucket}/btm_invoice_data/
@@ -124,11 +126,12 @@ Resources:
             vendor_id,
             vendor_name,
             service_name,
+            event_name,
             sum(quantity) AS quantity,
             sum(price) AS price,
             sum(tax) AS tax,
             year,
             month
           FROM btm_billing_standardised
-          GROUP BY vendor_id,vendor_name,service_name,year,month
+          GROUP BY vendor_id,vendor_name,service_name,event_name,year,month
         Workgroup: !Ref AthenaInvoiceWorkgroup
