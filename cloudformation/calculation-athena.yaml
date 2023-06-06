@@ -215,6 +215,7 @@ Resources:
                             AND (txn.timestamp BETWEEN rates.effective_from AND COALESCE(rates.effective_to, "From_iso8601_timestamp"('2049-12-31')))))
           SELECT "MAX"(vendor_id)        vendor_id,
                 "MAX"(vendor_name)       vendor_name,
+                "MAX"(event_name)        event_name,
                 "MAX"(service_name)      service_name,
                 "SUM"(transaction_price) price,
                 "COUNT"(event_id)        quantity,
@@ -240,11 +241,11 @@ Resources:
         Name: btm_billing_and_transactions_curated
         Query: !Sub |
           SELECT
-            COALESCE(invoice.vendor_id, txn.vendor_id) vendor_id
-            , COALESCE(invoice.vendor_name, txn.vendor_name) vendor_name
-            , COALESCE(invoice.service_name, txn.service_name) service_name
-            , COALESCE(invoice.year, txn.year) year
-            , COALESCE(invoice.month, txn.month) month
+            txn.vendor_id
+            , txn.vendor_name
+            , txn.service_name
+            , txn.year
+            , txn.month
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(invoice.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(txn.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) transaction_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price - txn.price) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) price_difference
@@ -259,7 +260,7 @@ Resources:
               (btm_transactions_curated txn
                 FULL JOIN btm_billing_curated invoice ON
                       ((((txn.vendor_id = invoice.vendor_id) AND
-                      (txn.service_name = invoice.service_name)) AND
+                      (txn.event_name = invoice.event_name)) AND
                       (txn.year = invoice.year)) AND
                       (txn.month = invoice.month)))
         Workgroup: !Ref AthenaTransactionWorkgroup
