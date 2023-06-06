@@ -2,8 +2,8 @@ import {
   invalidEventPayloadEventName,
   validEventPayload,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
-import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nGenerate valid event and execute athena query\n", () => {
   test("should contain eventId in the generated query results", async () => {

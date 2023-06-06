@@ -9,7 +9,6 @@ import {
   randomInvoiceData,
   randomLineItems,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
-import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import {
   checkStandardised,
   createInvoiceInS3,
@@ -20,6 +19,7 @@ import {
   VendorId,
   prettyVendorNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
+import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
 describe("\n Happy path - Upload valid mock invoice and verify data is seen in the billing view\n", () => {
   let filename: string;
