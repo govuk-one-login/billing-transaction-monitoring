@@ -47,8 +47,7 @@ describe("convert", () => {
         {
           inputKey: "dateOfManufacture",
           outputKey: "timestampOfManufacture",
-          condition:
-            "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}(.\\d{1,2})?Z?",
+          condition: "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z?",
           // These will be covered by the above condition [ "2023-03-05 08:00:07.82","2023-03-05 08:02:41.465","2023-03-02 09:43:19.5","2023-03-05 19:04:38","2022-11-01T00:27:41.186Z"]
           steps: [
             {
