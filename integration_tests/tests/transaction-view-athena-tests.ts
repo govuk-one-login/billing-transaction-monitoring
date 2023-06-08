@@ -42,12 +42,14 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
           event_name: eventName,
           vendor_id: vendorId,
           timestamp_formatted: eventTime,
-          timestamp: new Date(eventTime).getTime() / 1000,
+          timestamp: new Date(eventTime).getTime(),
           credits,
         });
-        await generateEventViaStorageLambdaAndCheckEventInS3Bucket(
-          eventPayload
-        );
+        const result =
+          await generateEventViaStorageLambdaAndCheckEventInS3Bucket(
+            eventPayload
+          );
+        expect(result.success).toBe(true);
         totalCredits = totalCredits + credits;
       }
       const tableName = TableNames.TRANSACTION_CURATED;
@@ -58,7 +60,6 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
         prettyEventName,
         eventTime
       );
-      console.log(JSON.stringify(response));
       expect(response.length).toBe(1);
       expect(response[0].price).toEqual(expectedPrice);
     }

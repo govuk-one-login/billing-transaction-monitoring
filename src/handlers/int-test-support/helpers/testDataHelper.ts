@@ -67,6 +67,7 @@ export const generateEventViaStorageLambdaAndCheckEventInS3Bucket = async (
     payload,
     "../../../../integration_tests/payloads/validSQSStorageEventPayload.json"
   );
+  console.log(`updatedSQSEventPayload=${updatedSQSEventPayload}`);
   return await generateEventAndCheckEventInS3Bucket(
     updatedSQSEventPayload,
     `${resourcePrefix()}-storage-function`
