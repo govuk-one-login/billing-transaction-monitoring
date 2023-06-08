@@ -133,7 +133,7 @@ const destroyStack = async (
 
   const totalResources: StackResourceSummary[] = [];
   let nextToken: string | undefined;
-  while (true) {
+  do {
     await wait(10000);
     const result = await cfClient
       .send(
@@ -164,28 +164,31 @@ const destroyStack = async (
     }
 
     totalResources.push(...result.StackResourceSummaries);
-
-    const numberDeleted = result.StackResourceSummaries.filter(
-      (r) => r.ResourceStatus === "DELETE_COMPLETE"
-    ).length;
-    const numberLeft = result.StackResourceSummaries.length - numberDeleted;
-    const resourcesFailed = result.StackResourceSummaries.filter(
-      (r) => r.ResourceStatus === "DELETE_FAILED"
-    );
-
-    console.log(
-      `Resources: total: ${totalResources.length}  deleted: ${numberDeleted}  remaining: ${numberLeft}  failed: ${resourcesFailed.length}`
-    );
-
-    if (resourcesFailed.length === numberLeft) {
-      console.log(
-        `First run completed, could not delete ${resourcesFailed.length} resource(s).`
-      );
-      return resourcesFailed;
-    }
-    if (!result.NextToken) return [];
     nextToken = result.NextToken;
+  } while (nextToken);
+
+  const numberDeleted = totalResources.filter(
+    (r) => r.ResourceStatus === "DELETE_COMPLETE"
+  ).length;
+  const numberLeft = totalResources.length - numberDeleted;
+  const resourcesFailed = totalResources.filter(
+    (r) => r.ResourceStatus === "DELETE_FAILED"
+  );
+
+  console.log(
+    `Resources: total: ${totalResources.length}  deleted: ${numberDeleted}  remaining: ${numberLeft}  failed: ${resourcesFailed.length}`
+  );
+
+  if (resourcesFailed.length === numberLeft) {
+    console.log(
+      `First run completed, could not delete ${resourcesFailed.length} resource(s).`
+    );
+    return resourcesFailed;
   }
+  if (numberLeft === 0) {
+    console.log(`All resources deleted.`);
+  }
+  return [];
 };
 
 const deleteAthenaWorkgroup = async (
