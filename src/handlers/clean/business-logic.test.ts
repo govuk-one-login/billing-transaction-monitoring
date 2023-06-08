@@ -2,7 +2,6 @@ import { ConfigElements, HandlerCtx } from "../../handler-context";
 import { getVendorId } from "../../shared/utils";
 import { businessLogic } from "./business-logic";
 import { IncomingEventBody } from "./types";
-import { Comparitors, XformConfig } from "./xform";
 
 jest.mock("../../shared/utils");
 const mockedGetVendorId = getVendorId as jest.Mock;
@@ -12,7 +11,7 @@ describe("Clean businessLogic", () => {
   let givenCtx: HandlerCtx<any, any, any>;
   let givenInfoLogger: jest.Mock;
   let givenServicesConfig: any;
-  let givenCreditTransformConfig: XformConfig;
+  let givenCreditTransformConfig: any;
   let validIncomingEventBody: IncomingEventBody;
 
   beforeEach(() => {
@@ -24,13 +23,12 @@ describe("Clean businessLogic", () => {
     givenInfoLogger = jest.fn();
     givenServicesConfig = "given services config";
     givenCreditTransformConfig = {
-      field: "credits",
-      default: 1,
-      logic: {
-        value: 2,
-        path: "$.user.transaction_id",
-        comparitor: Comparitors.EXISTS,
-      },
+      credits: [
+        "!If",
+        ["!Not", ["!Equals", ["!Path", "$.user.transaction_id"], []]],
+        2,
+        1,
+      ],
     };
 
     givenCtx = {

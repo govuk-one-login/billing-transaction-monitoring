@@ -1,168 +1,88 @@
-import jp from "jsonpath";
+import jsonpath from "jsonpath";
 
-export enum Combinators {
-  AND = "AND",
-  OR = "OR",
-}
-
-export enum Comparitors {
-  EQ = "EQ",
-  NEQ = "NEQ",
-  LT = "LT",
-  GT = "GT",
-  EXISTS = "EXISTS",
-}
-
-export type Primitive = string | number | boolean | undefined;
-
-export interface ComparableCondition {
-  value?: Primitive;
-  path: string;
-  comparitor: Comparitors;
-  comparisonValue?: Primitive;
-}
-
-export interface CombinableCondition {
-  value?: Primitive;
-  combinator: Combinators;
-  conditions: Conditions;
-}
-
-export type Logic = ComparableCondition | CombinableCondition;
-
-export type Conditions = Logic[];
-
-export interface XformConfig {
-  field: string;
-  default: Primitive;
-  logic: ComparableCondition | CombinableCondition;
-}
-
-export const isComparableCondition = (
-  condition: Logic
-): condition is ComparableCondition => {
-  return (
-    typeof condition === "object" &&
-    !!(condition as ComparableCondition)?.path &&
-    !!(condition as ComparableCondition)?.comparitor
-  );
+export const deepWrite = (target: any, key: string, value: unknown): any => {
+  const [topKey, ...subsequentKeys] = key.split(".");
+  return {
+    ...target,
+    [topKey]: key.includes(".")
+      ? deepWrite(target?.[topKey], subsequentKeys.join("."), value)
+      : value,
+  };
 };
 
-export const isCombinableCondition = (
-  condition: Logic
-): condition is CombinableCondition => {
-  return (
-    typeof condition === "object" &&
-    !!(condition as CombinableCondition)?.combinator &&
-    !!(condition as CombinableCondition)?.conditions
-  );
-};
-
-export const compare = (
-  comparitor: Comparitors,
-  valueA: Primitive,
-  valueB?: Primitive
+export const areArraysEqual = (
+  arrAInit: any[],
+  arrBInit: any[],
+  { ensureOrder }: { ensureOrder: boolean } = { ensureOrder: false }
 ): boolean => {
-  console.log(`Comparing ${valueA} ${comparitor} ${valueB}`);
-  switch (comparitor) {
-    case Comparitors.EQ: {
-      return valueA === valueB;
-    }
-    case Comparitors.EXISTS: {
-      return !!valueA;
-    }
-    case Comparitors.GT: {
-      return (
-        typeof valueA === "number" &&
-        typeof valueB === "number" &&
-        valueA > valueB
-      );
-    }
+  const arrA = [...arrAInit];
+  const arrB = [...arrBInit];
+  if (!ensureOrder) {
+    arrA.sort();
+    arrB.sort();
+  }
+  return arrA.reduce((_, cur, i) => {
+    console.log(cur, arrB[i]);
+    return cur === arrB[i];
+  }, true);
+};
 
-    case Comparitors.LT: {
-      return (
-        typeof valueA === "number" &&
-        typeof valueB === "number" &&
-        valueA < valueB
-      );
+const primitives = ["boolean", "number", "string"];
+const isPrimitive = (value: any): boolean => primitives.includes(typeof value);
+
+const commands = ["!Path", "!Equals", "!Not", "!If"];
+const isCommand = (value: any): boolean =>
+  Array.isArray(value) &&
+  typeof value[0] === "string" &&
+  commands.includes(value[0]);
+
+const doCommand = (command: any, thing: any): any => {
+  // console.log("🚀 ~ file: xform.ts:40 ~ doCommand ~ command:", command);
+  if (isPrimitive(command)) return command;
+  switch (command[0]) {
+    case "!Path":
+      return jsonpath.query(thing, doCommand(command[1], thing));
+    case "!Equals": {
+      let comparitorA = command[1];
+      let comparitorB = command[2];
+      if (isPrimitive(comparitorA) && isPrimitive(comparitorB))
+        return comparitorA === comparitorB;
+      if (isCommand(comparitorA)) {
+        comparitorA = doCommand(comparitorA, thing);
+      }
+      if (isCommand(comparitorB)) {
+        comparitorB = doCommand(comparitorB, thing);
+      }
+      if (Array.isArray(comparitorA) || Array.isArray(comparitorB))
+        return areArraysEqual(comparitorA, comparitorB, command?.[3]);
+      // One could, if one were so inclined, add some mechanism by
+      // which one might compare objects. I've not bothered because
+      // our use case doesn't require it but it would make a fun
+      // exercise of an interested reader.
+      throw new Error("Tried to compare to incomparable items");
     }
-    case Comparitors.NEQ: {
-      return valueA !== valueB;
+    case "!Not": {
+      return !doCommand(command[1], thing);
+    }
+    case "!If": {
+      const condition = doCommand(command[1], thing);
+      return condition
+        ? doCommand(command[2], thing)
+        : doCommand(command[3], thing);
     }
   }
 };
 
-const applyValue = <TReturn>(
-  conditionResult: boolean,
-  value: TReturn | undefined
-): TReturn | true | undefined => {
-  console.log("🚀 ~ file: xform.ts:100 ~ conditionResult:", conditionResult);
-  console.log("🚀 ~ file: xform.ts:102 ~ value:", value);
-  if (conditionResult) {
-    if (value === undefined) {
-      console.log("returning True");
-      return true;
-    } else {
-      console.log("returning value");
-      return value;
-    }
-  } else {
-    console.log("returning undefined");
-    return undefined;
-  }
-};
-
-export const doComparison = (
-  obj: unknown,
-  { path, comparitor, comparisonValue, value }: ComparableCondition
-): Primitive => {
-  const [inputValue] = jp.query(obj, path);
-  return applyValue<Primitive>(
-    compare(comparitor, inputValue, comparisonValue),
-    value
-  );
-};
-
-const combinationInitialiser = "$__INIT__$";
-
-export const combine = (
-  valueA: Primitive,
-  valueB: Primitive,
-  combinator: Combinators
-): boolean => {
-  if (valueA === combinationInitialiser) return Boolean(valueB);
-  console.log(`Combining ${valueA} ${combinator} ${valueB}`);
-  switch (combinator) {
-    case Combinators.AND:
-      return !!valueA && !!valueB;
-    case Combinators.OR:
-      return !!valueA || !!valueB;
-  }
-};
-
-export const doCombination = (
-  obj: unknown,
-  { combinator, conditions, value }: CombinableCondition
-): Primitive =>
-  conditions.reduce<Primitive>((acc, condition) => {
-    return applyValue<Primitive>(
-      combine(acc, doOp(obj, condition), combinator),
-      value
+export const xform =
+  (config: any) =>
+  (thing: any): any =>
+    Object.entries(config).reduce(
+      (acc, [key, value]) => {
+        if (isCommand(value)) {
+          const commandRes = doCommand(value, thing);
+          return deepWrite(acc, key, commandRes);
+        }
+        return deepWrite(acc, key, value);
+      },
+      { ...thing }
     );
-  }, combinationInitialiser);
-
-export const doOp = (obj: unknown, logic: Logic): Primitive =>
-  isCombinableCondition(logic)
-    ? doCombination(obj, logic)
-    : doComparison(obj, logic);
-
-export const xform = <TReturn>(obj: unknown, config: XformConfig): TReturn => ({
-  ...(obj as any),
-  [config.field]: (() => {
-    const value = doOp(obj, config.logic);
-    if (value === undefined) {
-      return config.default;
-    }
-    return value;
-  })(),
-});
