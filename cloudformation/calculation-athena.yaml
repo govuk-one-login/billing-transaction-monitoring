@@ -241,11 +241,11 @@ Resources:
         Name: btm_billing_and_transactions_curated
         Query: !Sub |
           SELECT
-            txn.vendor_id
-            , txn.vendor_name
-            , txn.service_name
-            , txn.year
-            , txn.month
+            COALESCE(txn.vendor_id, invoice.vendor_id) vendor_id
+            , COALESCE(txn.vendor_name, invoice.vendor_name) vendor_name
+            , COALESCE(txn.service_name, invoice.service_name) service_name
+            , COALESCE(txn.year, invoice.year) year
+            , COALESCE(txn.month, invoice.month) month
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(invoice.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(txn.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) transaction_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price - txn.price) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) price_difference
