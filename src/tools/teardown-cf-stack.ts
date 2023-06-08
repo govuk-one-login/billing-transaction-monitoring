@@ -134,7 +134,7 @@ const destroyStack = async (
   const totalResources: StackResourceSummary[] = [];
   let nextToken: string | undefined;
   do {
-    await wait(10000);
+    await wait(20000);
     const result = await cfClient
       .send(
         new ListStackResourcesCommand({
@@ -183,12 +183,8 @@ const destroyStack = async (
     console.log(
       `First run completed, could not delete ${resourcesFailed.length} resource(s).`
     );
-    return resourcesFailed;
   }
-  if (numberLeft === 0) {
-    console.log(`All resources deleted.`);
-  }
-  return [];
+  return resourcesFailed;
 };
 
 const deleteAthenaWorkgroup = async (
@@ -259,25 +255,26 @@ await wait(5000);
 console.log(`Starting teardown of stack "${stackName}"...`);
 
 const resourcesFailed = await destroyStack(stackName);
+if (resourcesFailed.length > 0) {
+  let resourcesRemainingAfterRemediation = (
+    await Promise.all(resourcesFailed.map(async (r) => await tryToDelete(r)))
+  ).filter(isStackResourceSummary);
 
-let resourcesRemainingAfterRemediation = (
-  await Promise.all(resourcesFailed.map(async (r) => await tryToDelete(r)))
-).filter(isStackResourceSummary);
+  if (resourcesRemainingAfterRemediation.length === 0) {
+    console.log("Retrying to delete stack...");
+    resourcesRemainingAfterRemediation = await destroyStack(stackName);
+  }
 
-if (resourcesRemainingAfterRemediation.length === 0) {
-  console.log("Retrying to delete stack...");
-  resourcesRemainingAfterRemediation = await destroyStack(stackName);
-}
-
-if (resourcesRemainingAfterRemediation.length > 0) {
-  console.log(
-    "Please remove the following resources manually and rerun this command:"
-  );
-  console.log(
-    resourcesRemainingAfterRemediation.map((r) => [
-      r.LogicalResourceId,
-      r.PhysicalResourceId,
-      r.ResourceStatus,
-    ])
-  );
+  if (resourcesRemainingAfterRemediation.length > 0) {
+    console.log(
+      "Please remove the following resources manually and rerun this command:"
+    );
+    console.log(
+      resourcesRemainingAfterRemediation.map((r) => [
+        r.LogicalResourceId,
+        r.PhysicalResourceId,
+        r.ResourceStatus,
+      ])
+    );
+  }
 }
