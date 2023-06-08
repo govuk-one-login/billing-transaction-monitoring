@@ -183,11 +183,8 @@ const destroyStack = async (
       );
       return resourcesFailed;
     }
-    if (result.NextToken) {
-      nextToken = result.NextToken;
-    } else {
-      return [];
-    }
+    if (!result.NextToken) return [];
+    nextToken = result.NextToken;
   }
 };
 
