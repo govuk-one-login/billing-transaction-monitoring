@@ -223,7 +223,6 @@ const tryToDelete = async (
   switch (resource.ResourceType) {
     case "AWS::S3::Bucket":
       console.log(`Trying to remove S3 Bucket ${resourceId}...`);
-      await clearBucket(resource);
       return await deleteBucket(resource);
     case "Custom::S3Object":
       console.log(`S3-Object ${resourceId} should already be gone...`);
