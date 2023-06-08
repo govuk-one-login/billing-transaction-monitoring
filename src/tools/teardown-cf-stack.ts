@@ -14,8 +14,8 @@ import {
 import {
   CloudFormationClient,
   DeleteStackCommand,
-  DescribeStackResourcesCommand,
-  StackResource,
+  ListStackResourcesCommand,
+  StackResourceSummary,
 } from "@aws-sdk/client-cloudformation";
 import { AthenaClient, DeleteWorkGroupCommand } from "@aws-sdk/client-athena";
 
@@ -26,7 +26,7 @@ interface AWSError {
 const isAWSError = (object: any): object is AWSError =>
   (object as AWSError).error;
 
-const isStackResource = (object: any): object is StackResource =>
+const isStackResourceSummary = (object: any): object is StackResourceSummary =>
   object?.ResourceStatus;
 
 const isNull = (object: any): object is null => object === null;
@@ -63,8 +63,8 @@ const deleteObject = async (
 };
 
 const deleteEmptyBucket = async (
-  resource: StackResource
-): Promise<StackResource | null> => {
+  resource: StackResourceSummary
+): Promise<StackResourceSummary | null> => {
   const bucket = resource.PhysicalResourceId ?? "";
   const result = await s3Client
     .send(new DeleteBucketCommand({ Bucket: bucket }))
@@ -79,8 +79,8 @@ const deleteEmptyBucket = async (
 };
 
 const clearBucket = async (
-  resource: StackResource
-): Promise<StackResource | null> => {
+  resource: StackResourceSummary
+): Promise<StackResourceSummary | null> => {
   const bucket = resource.PhysicalResourceId ?? "";
   const result = await s3Client
     .send(new ListObjectVersionsCommand({ Bucket: bucket }))
@@ -113,13 +113,15 @@ const clearBucket = async (
 };
 
 const deleteBucket = async (
-  resource: StackResource
-): Promise<StackResource | null> => {
+  resource: StackResourceSummary
+): Promise<StackResourceSummary | null> => {
   await clearBucket(resource);
   return await deleteEmptyBucket(resource);
 };
 
-const destroyStack = async (stackName: string): Promise<StackResource[]> => {
+const destroyStack = async (
+  stackName: string
+): Promise<StackResourceSummary[]> => {
   const deleteResult = await cfClient.send(
     new DeleteStackCommand({ StackName: stackName })
   );
@@ -129,10 +131,17 @@ const destroyStack = async (stackName: string): Promise<StackResource[]> => {
     process.exit(-1);
   }
 
+  const totalResources: StackResourceSummary[] = [];
+  let nextToken: string | undefined;
   while (true) {
     await wait(10000);
     const result = await cfClient
-      .send(new DescribeStackResourcesCommand({ StackName: stackName }))
+      .send(
+        new ListStackResourcesCommand({
+          StackName: stackName,
+          NextToken: nextToken,
+        })
+      )
       .catch((err) => {
         return { error: err };
       });
@@ -149,32 +158,42 @@ const destroyStack = async (stackName: string): Promise<StackResource[]> => {
         process.exit(-1);
       }
     }
-    if (result.StackResources === undefined) {
+    if (result.StackResourceSummaries === undefined) {
       console.log("Got empty response from AWS, aborting...");
       process.exit(-1);
     }
-    const numberDeleted = result.StackResources.filter(
+
+    totalResources.push(...result.StackResourceSummaries);
+
+    const numberDeleted = result.StackResourceSummaries.filter(
       (r) => r.ResourceStatus === "DELETE_COMPLETE"
     ).length;
-    const numberLeft = result.StackResources.length - numberDeleted;
-    const resourcesFailed = result.StackResources.filter(
+    const numberLeft = result.StackResourceSummaries.length - numberDeleted;
+    const resourcesFailed = result.StackResourceSummaries.filter(
       (r) => r.ResourceStatus === "DELETE_FAILED"
     );
+
     console.log(
-      `Resources: total: ${result.StackResources.length}  deleted: ${numberDeleted}  remaining: ${numberLeft}  failed: ${resourcesFailed.length}`
+      `Resources: total: ${totalResources.length}  deleted: ${numberDeleted}  remaining: ${numberLeft}  failed: ${resourcesFailed.length}`
     );
+
     if (resourcesFailed.length === numberLeft) {
       console.log(
         `First run completed, could not delete ${resourcesFailed.length} resource(s).`
       );
       return resourcesFailed;
     }
+    if (result.NextToken) {
+      nextToken = result.NextToken;
+    } else {
+      return [];
+    }
   }
 };
 
 const deleteAthenaWorkgroup = async (
-  workgroup: StackResource
-): Promise<StackResource | null> => {
+  workgroup: StackResourceSummary
+): Promise<StackResourceSummary | null> => {
   const result = await athenaClient
     .send(
       new DeleteWorkGroupCommand({
@@ -199,8 +218,8 @@ const deleteAthenaWorkgroup = async (
 };
 
 const tryToDelete = async (
-  resource: StackResource
-): Promise<StackResource | null> => {
+  resource: StackResourceSummary
+): Promise<StackResourceSummary | null> => {
   const resourceId = resource.PhysicalResourceId ?? "";
   switch (resource.ResourceType) {
     case "AWS::S3::Bucket":
@@ -243,7 +262,7 @@ const resourcesFailed = await destroyStack(stackName);
 
 let resourcesRemainingAfterRemediation = (
   await Promise.all(resourcesFailed.map(async (r) => await tryToDelete(r)))
-).filter(isStackResource);
+).filter(isStackResourceSummary);
 
 if (resourcesRemainingAfterRemediation.length === 0) {
   console.log("Retrying to delete stack...");
