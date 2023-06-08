@@ -119,75 +119,81 @@ const deleteBucket = async (
   return await deleteEmptyBucket(resource);
 };
 
+const listAllStackResources = async (
+  stackName: string
+): Promise<StackResourceSummary[]> => {
+  const resources: StackResourceSummary[] = [];
+  let nextToken: string | undefined;
+  do {
+    await wait(10000);
+    const result = await cfClient
+      .send(
+        new ListStackResourcesCommand({
+          StackName: stackName,
+          NextToken: nextToken,
+        })
+      )
+      .catch((err) => {
+        return { error: err };
+      });
+    if (isAWSError(result)) {
+      if (
+        (result.error as string)
+          .toString()
+          .includes(`Stack with id ${stackName} does not exist`)
+      ) {
+        console.log(`Stack ${stackName} successfully destroyed.`);
+        process.exit(0);
+      } else {
+        console.log(result.error.toString());
+        process.exit(-1);
+      }
+    }
+    if (result.StackResourceSummaries === undefined) {
+      console.log("Got empty response from AWS, aborting...");
+      process.exit(-1);
+    }
+
+    resources.push(...result.StackResourceSummaries);
+    nextToken = result.NextToken;
+  } while (nextToken);
+  return resources;
+};
+
 const destroyStack = async (
   stackName: string
 ): Promise<StackResourceSummary[]> => {
   const deleteResult = await cfClient.send(
     new DeleteStackCommand({ StackName: stackName })
   );
-  // console.log('destroyStack: ', result);
   if (isAWSError(deleteResult)) {
     console.log(deleteResult.error.toString());
     process.exit(-1);
   }
   let resourcesFailed: StackResourceSummary[] = [];
   while (true) {
-    const totalResources: StackResourceSummary[] = [];
-    let nextToken: string | undefined;
-    do {
-      await wait(10000);
-      const result = await cfClient
-        .send(
-          new ListStackResourcesCommand({
-            StackName: stackName,
-            NextToken: nextToken,
-          })
-        )
-        .catch((err) => {
-          return { error: err };
-        });
-      if (isAWSError(result)) {
-        if (
-          (result.error as string)
-            .toString()
-            .includes(`Stack with id ${stackName} does not exist`)
-        ) {
-          console.log(`Stack ${stackName} successfully destroyed.`);
-          process.exit(0);
-        } else {
-          console.log(result.error.toString());
-          process.exit(-1);
-        }
-      }
-      if (result.StackResourceSummaries === undefined) {
-        console.log("Got empty response from AWS, aborting...");
-        process.exit(-1);
-      }
-
-      totalResources.push(...result.StackResourceSummaries);
-      nextToken = result.NextToken;
-    } while (nextToken);
-
-    const numberDeleted = totalResources.filter(
+    const resources: StackResourceSummary[] = await listAllStackResources(
+      stackName
+    );
+    const numberDeleted = resources.filter(
       (r) => r.ResourceStatus === "DELETE_COMPLETE"
     ).length;
-    const numberLeft = totalResources.length - numberDeleted;
-    resourcesFailed = totalResources.filter(
+    const numberLeft = resources.length - numberDeleted;
+    resourcesFailed = resources.filter(
       (r) => r.ResourceStatus === "DELETE_FAILED"
     );
 
     console.log(
-      `Resources: total: ${totalResources.length}  deleted: ${numberDeleted}  remaining: ${numberLeft}  failed: ${resourcesFailed.length}`
+      `Resources: total: ${resources.length}  deleted: ${numberDeleted}  remaining: ${numberLeft}  failed: ${resourcesFailed.length}`
     );
 
     if (resourcesFailed.length === numberLeft) {
       console.log(
         `First run completed, could not delete ${resourcesFailed.length} resource(s).`
       );
-      break;
+      return resourcesFailed;
     }
   }
-  return resourcesFailed;
 };
 
 const deleteAthenaWorkgroup = async (
