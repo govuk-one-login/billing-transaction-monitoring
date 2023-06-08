@@ -130,59 +130,62 @@ const destroyStack = async (
     console.log(deleteResult.error.toString());
     process.exit(-1);
   }
-
-  const totalResources: StackResourceSummary[] = [];
-  let nextToken: string | undefined;
-  do {
-    await wait(20000);
-    const result = await cfClient
-      .send(
-        new ListStackResourcesCommand({
-          StackName: stackName,
-          NextToken: nextToken,
-        })
-      )
-      .catch((err) => {
-        return { error: err };
-      });
-    if (isAWSError(result)) {
-      if (
-        (result.error as string)
-          .toString()
-          .includes(`Stack with id ${stackName} does not exist`)
-      ) {
-        console.log(`Stack ${stackName} successfully destroyed.`);
-        process.exit(0);
-      } else {
-        console.log(result.error.toString());
+  let resourcesFailed: StackResourceSummary[] = [];
+  while (true) {
+    const totalResources: StackResourceSummary[] = [];
+    let nextToken: string | undefined;
+    do {
+      await wait(10000);
+      const result = await cfClient
+        .send(
+          new ListStackResourcesCommand({
+            StackName: stackName,
+            NextToken: nextToken,
+          })
+        )
+        .catch((err) => {
+          return { error: err };
+        });
+      if (isAWSError(result)) {
+        if (
+          (result.error as string)
+            .toString()
+            .includes(`Stack with id ${stackName} does not exist`)
+        ) {
+          console.log(`Stack ${stackName} successfully destroyed.`);
+          process.exit(0);
+        } else {
+          console.log(result.error.toString());
+          process.exit(-1);
+        }
+      }
+      if (result.StackResourceSummaries === undefined) {
+        console.log("Got empty response from AWS, aborting...");
         process.exit(-1);
       }
-    }
-    if (result.StackResourceSummaries === undefined) {
-      console.log("Got empty response from AWS, aborting...");
-      process.exit(-1);
-    }
 
-    totalResources.push(...result.StackResourceSummaries);
-    nextToken = result.NextToken;
-  } while (nextToken);
+      totalResources.push(...result.StackResourceSummaries);
+      nextToken = result.NextToken;
+    } while (nextToken);
 
-  const numberDeleted = totalResources.filter(
-    (r) => r.ResourceStatus === "DELETE_COMPLETE"
-  ).length;
-  const numberLeft = totalResources.length - numberDeleted;
-  const resourcesFailed = totalResources.filter(
-    (r) => r.ResourceStatus === "DELETE_FAILED"
-  );
-
-  console.log(
-    `Resources: total: ${totalResources.length}  deleted: ${numberDeleted}  remaining: ${numberLeft}  failed: ${resourcesFailed.length}`
-  );
-
-  if (resourcesFailed.length === numberLeft) {
-    console.log(
-      `First run completed, could not delete ${resourcesFailed.length} resource(s).`
+    const numberDeleted = totalResources.filter(
+      (r) => r.ResourceStatus === "DELETE_COMPLETE"
+    ).length;
+    const numberLeft = totalResources.length - numberDeleted;
+    resourcesFailed = totalResources.filter(
+      (r) => r.ResourceStatus === "DELETE_FAILED"
     );
+
+    console.log(
+      `Resources: total: ${totalResources.length}  deleted: ${numberDeleted}  remaining: ${numberLeft}  failed: ${resourcesFailed.length}`
+    );
+
+    if (resourcesFailed.length === numberLeft) {
+      console.log(
+        `First run completed, could not delete ${resourcesFailed.length} resource(s).`
+      );
+      break;
+    }
   }
   return resourcesFailed;
 };
@@ -220,6 +223,7 @@ const tryToDelete = async (
   switch (resource.ResourceType) {
     case "AWS::S3::Bucket":
       console.log(`Trying to remove S3 Bucket ${resourceId}...`);
+      await clearBucket(resource);
       return await deleteBucket(resource);
     case "Custom::S3Object":
       console.log(`S3-Object ${resourceId} should already be gone...`);
