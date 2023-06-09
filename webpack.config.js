@@ -1,10 +1,7 @@
-import CopyPlugin from "copy-webpack-plugin";
-import path from "path";
-import { fileURLToPath } from "url";
+const CopyPlugin = require('copy-webpack-plugin')
+const path = require('path');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-export default {
+module.exports = {
   devtool: "source-map",
   entry: {
     filter: "./src/handlers/filter/handler.ts",
@@ -25,6 +22,7 @@ export default {
     storeStandardisedInvoices:
       "./src/handlers/store-standardised-invoices/handler.ts",
     frontend: "./src/handlers/frontend/handler.ts",
+    server: "./src/frontend/server.ts",
   },
   externals: "aws-sdk",
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
@@ -32,6 +30,20 @@ export default {
     rules: [
       { test: /.node$/, loader: "node-loader" },
       { test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          // Creates `style` nodes from JS strings
+          "style-loader",
+          // Translates CSS into CommonJS
+          "css-loader",
+          // Compiles Sass to CSS
+          "sass-loader",
+
+          // Hack to attempt to load app.scss
+          path.resolve(__dirname, "./src/loader"),
+        ],
+      },
     ],
   },
   output: {
