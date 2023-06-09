@@ -4,16 +4,21 @@ Transform: AWS::Serverless-2016-10-31
 Resources:
   CsvExtractFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-csv-extract-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
-          DESTINATION_BUCKET: !Ref StorageBucket
-          DESTINATION_FOLDER: btm_billing_standardised
+          OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
           LOCAL_ENDPOINT:
             !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-csv-extract-function
@@ -27,7 +32,7 @@ Resources:
       Handler: csvExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
-        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action:
@@ -35,6 +40,10 @@ Resources:
                 - sqs:GetQueueAttributes
                 - sqs:ReceiveMessage
               Resource: !GetAtt CsvExtractQueue.Arn
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !GetAtt StandardisedInvoiceStorageQueue.Arn
             - Effect: Allow
               Action:
                 - kms:Decrypt
@@ -55,11 +64,6 @@ Resources:
                 - s3:GetObject
               Resource:
                 - !Join ['/', [!GetAtt RawInvoiceBucket.Arn, '*']]
-            - Effect: Allow
-              Action:
-                - s3:PutObject
-              Resource:
-                - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
             - Effect: Allow
               Action: s3:GetObject
               Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*

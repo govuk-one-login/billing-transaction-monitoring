@@ -2,7 +2,7 @@ import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
 import { Athena } from "aws-sdk";
 import { logger, sendCustomResourceResult } from "../../shared/utils";
 import { getAthenaViewResourceData } from "./get-athena-view-resource-data";
-import { QueryExecutionValidator } from "./query-execution-validator";
+import { AthenaQueryExecutor } from "../../shared/utils/athena";
 
 export const handler = async (
   event: CloudFormationCustomResourceEvent,
@@ -30,7 +30,7 @@ export const handler = async (
     if (queryExecutionId === undefined)
       throw new Error("Failed to start query execution and get ID.");
 
-    const validator = new QueryExecutionValidator(athena);
+    const validator = new AthenaQueryExecutor(athena);
     await validator.validate(queryExecutionId);
 
     await sendCustomResourceResult({

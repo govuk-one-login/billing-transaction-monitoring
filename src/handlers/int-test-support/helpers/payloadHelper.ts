@@ -1,6 +1,13 @@
 import path from "path";
 import fs from "fs";
-import { generateRandomId, validTimestamp } from "./commonHelpers";
+
+export const generateRandomId = (): string => {
+  return Math.floor(Math.random() * 10000000).toString();
+};
+
+export const validTimestamp = (date: string): number => {
+  return Math.floor(new Date(date).getTime() / 1000);
+};
 
 export enum VendorId {
   vendor_testvendor1 = "vendor_testvendor1",
@@ -14,10 +21,11 @@ export enum EventName {
   VENDOR_1_EVENT_3 = "VENDOR_1_EVENT_3",
   VENDOR_2_EVENT_7 = "VENDOR_2_EVENT_7",
   VENDOR_3_EVENT_6 = "VENDOR_3_EVENT_6",
+  VENDOR_3_EVENT_4 = "VENDOR_3_EVENT_4",
 }
 
-export interface SNSEventPayload {
-  event_name: EventName;
+export interface EventPayload {
+  event_name: EventName | string;
   event_id: string;
   component_id: string;
   timestamp: number;
@@ -41,66 +49,49 @@ export const prettyEventNameMap = {
   VENDOR_4_EVENT_5: "Passport check",
 };
 
-const snsValidEventPayload: SNSEventPayload = {
+export const validEventPayload: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
+  timestamp: validTimestamp("2005-01-30"),
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
 };
 
-const snsInvalidEventPayloadEventName: SNSEventPayload = {
+export const invalidEventPayloadEventName: EventPayload = {
   event_name: "TESTGGHYJKIK" as EventName,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
+  timestamp: validTimestamp("2005-01-30"),
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
 };
 
-const snsInvalidEventPayloadTimeStamp: SNSEventPayload = {
+export const invalidEventPayloadTimeStamp: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: "somestring" as unknown as number,
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
 };
 
-const snsInvalidEventPayloadComponentId: SNSEventPayload = {
+export const invalidEventPayloadComponentId: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: 5678 as unknown as string,
-  timestamp: validTimestamp(),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
+  timestamp: validTimestamp("2005-01-30"),
+  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
 };
 
-const snsInvalidEventPayloadEventId: SNSEventPayload = {
-  event_name: EventName.VENDOR_1_EVENT_1,
-  event_id: 123 as unknown as string,
-  component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp())),
-};
-
-const snsInvalidEventPayloadTimestampFormatted: SNSEventPayload = {
+export const invalidEventPayloadTimestampFormatted: EventPayload = {
   event_name: EventName.VENDOR_1_EVENT_1,
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
-  timestamp: validTimestamp(),
+  timestamp: validTimestamp("2005-01-30"),
   timestamp_formatted: 123 as unknown as string,
 };
 
 export const updateSQSEventPayloadBody = async (
-  eventTime: string,
-  eventName: string
+  eventPayload: EventPayload
 ): Promise<string> => {
-  const eventPayload = {
-    component_id: "Test_COMP",
-    event_id: `e2eTestEvents_${generateRandomId()}`,
-    timestamp: new Date(eventTime).getTime() / 1000,
-    event_name: eventName,
-    timestamp_formatted: eventTime,
-  };
-
   // update SQS Event body value with eventPayload
   const sqsEventFilePath = path.join(
     __dirname,
@@ -109,16 +100,5 @@ export const updateSQSEventPayloadBody = async (
   const sqsEventPayloadFileContent = fs.readFileSync(sqsEventFilePath, "utf-8");
   const sqsEventPayload = JSON.parse(sqsEventPayloadFileContent);
   sqsEventPayload.Records[0].body = JSON.stringify(eventPayload);
-  const updatedSQSEventPayload = JSON.stringify(sqsEventPayload);
-  return updatedSQSEventPayload;
-};
-
-export {
-  snsValidEventPayload,
-  snsInvalidEventPayloadEventName,
-  snsInvalidEventPayloadComponentId,
-  snsInvalidEventPayloadTimeStamp,
-  snsInvalidEventPayloadEventId,
-  snsInvalidEventPayloadTimestampFormatted,
-  generateRandomId,
+  return JSON.stringify(sqsEventPayload);
 };

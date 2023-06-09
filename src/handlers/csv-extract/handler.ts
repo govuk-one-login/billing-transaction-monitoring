@@ -4,8 +4,8 @@ import {
   fetchS3,
   getS3EventRecordsFromSqs,
   getVendorServiceConfigRows,
-  putTextS3,
   logger,
+  sendRecord,
 } from "../../shared/utils";
 import { parseCsv } from "./parsing-utils/parse-csv";
 import {
@@ -19,14 +19,9 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   if (configBucket === undefined || configBucket.length === 0)
     throw new Error("Config bucket not set.");
 
-  const destinationBucket = process.env.DESTINATION_BUCKET;
-  if (destinationBucket === undefined || destinationBucket.length === 0) {
-    throw new Error("Destination bucket not set.");
-  }
-
-  const destinationFolder = process.env.DESTINATION_FOLDER;
-  if (destinationFolder === undefined || destinationFolder.length === 0) {
-    throw new Error("Destination folder not set.");
+  const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
+  if (outputQueueUrl === undefined || outputQueueUrl.length === 0) {
+    throw new Error("Output queue URL not set.");
   }
 
   const response: Response = {
@@ -73,18 +68,12 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           throw new Error("No matching line items in csv invoice.");
         }
 
-        // Convert line items to new-line-separated JSON object text, to work with Glue/Athena.
-        const standardisedInvoiceText = standardisedInvoice
-          .map((lineItem) => JSON.stringify(lineItem))
-          .join("\n");
-        // Since that text block is not valid JSON, use a file extension that is not `.json`.
-        const destinationFileName = sourceFileName.replace(/\.csv$/g, ".txt");
+        const lineItemPromises = standardisedInvoice.map(async (item) => {
+          const standardisedInvoiceText = JSON.stringify(item);
+          await sendRecord(outputQueueUrl, standardisedInvoiceText);
+        });
 
-        await putTextS3(
-          destinationBucket,
-          `${destinationFolder}/${destinationFileName}`,
-          standardisedInvoiceText
-        );
+        await Promise.all(lineItemPromises);
       });
 
       await Promise.all(recordPromises);
@@ -100,19 +89,19 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
 const isValidCsvObject = (x: any): x is CsvObject =>
   typeof x === "object" &&
-  typeof x.Vendor === "string" &&
-  typeof x["Invoice Date"] === "string" &&
-  typeof x["Due Date"] === "string" &&
-  typeof x["VAT Number"] === "string" &&
-  typeof x["PO Number"] === "string" &&
-  typeof x.Version === "string" &&
+  typeof x.vendor === "string" &&
+  typeof x["invoice date"] === "string" &&
+  typeof x["due date"] === "string" &&
+  typeof x["vat number"] === "string" &&
+  typeof x["po number"] === "string" &&
+  typeof x.version === "string" &&
   Array.isArray(x.lineItems) &&
   x.lineItems.every((lineItem: any) => isValidLineItem(lineItem));
 
 const isValidLineItem = (x: any): x is LineItem =>
   typeof x === "object" &&
-  typeof x["Service Name"] === "string" &&
-  typeof x["Unit Price"] === "string" &&
-  typeof x.Quantity === "string" &&
-  typeof x.Tax === "string" &&
-  typeof x.Subtotal === "string";
+  typeof x["service name"] === "string" &&
+  typeof x["unit price"] === "string" &&
+  typeof x.quantity === "string" &&
+  typeof x.tax === "string" &&
+  typeof x.subtotal === "string";

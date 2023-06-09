@@ -19,7 +19,7 @@
     ]
   },
   "description": "",
-  "editable": true,
+  "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": 142,
@@ -29,7 +29,7 @@
   "panels": [
     {
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 11,
         "x": 0,
         "y": 0
@@ -44,14 +44,14 @@
     },
     {
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 5,
         "x": 11,
         "y": 0
       },
       "id": 4,
       "options": {
-        "content": "<table style=\"border-collapse: collapse; border: none;\">\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: red; border: none;\">Red</span></td><td style=\"border: none;\">Above 1%</td></tr>\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: #59A94F; border: none;\">Green</span></td><td style=\"border: none;\">Less than or equal to 1%</td></tr>\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: #676b71; border: none;\">Grey</span></td><td style=\"border: none;\">One or more data points is missing</td></tr>\n</table>",
+        "content": "<table style=\"border-collapse: collapse; border: none;\">\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: red; border: none;\">Red</span></td><td style=\"border: none;\">Discrepancy is more than 1%</td></tr>\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: #59A94F; border: none;\">Green</span></td><td style=\"border: none;\">Discrepancy is between -1% and 1%</td></tr>\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: #648fff; border: none;\">Blue</span></td><td style=\"border: none;\">Discrepancy is less than -1%</td></tr>\n<tr style=\"border: none;\"><td style=\"border: none; text-align: right\"><span style=\"color: #676b71; border: none;\">Grey</span></td><td style=\"border: none;\">One or more data points is missing</td></tr>\n</table>",
         "mode": "markdown"
       },
       "pluginVersion": "8.4.7",
@@ -101,7 +101,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
               },
               {
@@ -122,7 +122,7 @@
         "h": 8,
         "w": 16,
         "x": 0,
-        "y": 4
+        "y": 5
       },
       "id": 2,
       "links": [],
@@ -155,9 +155,9 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  price_difference_percentage\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  price_difference_percentage\nFROM \"btm_monthly_extract\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
-          "table": "btm_billing_and_transactions_curated"
+          "table": "btm_monthly_extract"
         }
       ],
       "transformations": [
@@ -173,7 +173,7 @@
         "h": 4,
         "w": 16,
         "x": 0,
-        "y": 12
+        "y": 13
       },
       "id": 8,
       "options": {
@@ -255,7 +255,7 @@
         "h": 5,
         "w": 16,
         "x": 0,
-        "y": 16
+        "y": 17
       },
       "id": 10,
       "options": {
@@ -279,9 +279,9 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Invoiced Amount\",\n  transaction_price_formatted AS \"Expected Amount\",\n  price_difference_percentage AS \"% Discrepancy\",\n  price_difference AS \"Discrepancy in £\",\n  billing_amount_with_tax AS \"Total Invoice + VAT\"\nFROM \"btm_billing_and_transactions_curated\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Invoiced Amount\",\n  transaction_price_formatted AS \"Expected Amount\",\n  price_difference AS \"Discrepancy in £\",\n  price_difference_percentage AS \"% Discrepancy\",\n  billing_amount_with_tax AS \"Total Invoice + VAT\"\nFROM \"btm_monthly_extract\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
-          "table": "btm_billing_and_transactions_curated"
+          "table": "btm_monthly_extract"
         }
       ],
       "type": "table"
@@ -318,8 +318,8 @@
             "region": "__default"
           },
           "format": 1,
-          "rawSQL": "SELECT vendor_name FROM \"btm_billing_and_transactions_curated\" ORDER BY vendor_name ASC ",
-          "table": "btm_billing_and_transactions_curated"
+          "rawSQL": "SELECT vendor_name FROM \"btm_monthly_extract\" ORDER BY vendor_name ASC ",
+          "table": "btm_monthly_extract"
         },
         "refresh": 1,
         "regex": "",
@@ -351,8 +351,8 @@
             "region": "__default"
           },
           "format": 1,
-          "rawSQL": "SELECT DISTINCT CONCAT(year, '/', month) as yearMonth FROM \"btm_billing_and_transactions_curated\" ORDER BY yearMonth ASC",
-          "table": "btm_billing_and_transactions_curated"
+          "rawSQL": "SELECT DISTINCT CONCAT(year, '/', month) as yearMonth FROM \"btm_monthly_extract\" ORDER BY yearMonth ASC",
+          "table": "btm_monthly_extract"
         },
         "refresh": 1,
         "regex": "",

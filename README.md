@@ -133,6 +133,20 @@ npm ci
 npm run test:integration:local
 ```
 
+To delete generated jest html reports locally. This will delete all the reports except last 3 reports
+```sh
+npm run test:cleanup:reports 
+```
+
+To run a single test file
+```sh
+JEST_ARGS="s3-vat-tests.ts" npm run test:integration
+```
+or
+
+```sh
+JEST_ARGS="--testPathPattern s3-vat-tests.ts" npm run test:integration
+```
 ## Deploy
 
 ### To dev, build, staging, production

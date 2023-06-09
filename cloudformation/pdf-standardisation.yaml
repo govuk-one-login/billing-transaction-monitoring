@@ -55,16 +55,21 @@ Resources:
 
   PdfStandardisationFunction:
     # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-pdf-standardisation-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
-          DESTINATION_BUCKET: !Ref StorageBucket
-          DESTINATION_FOLDER: btm_billing_standardised
+          OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
           PARSER_0_VERSION: '1.2.0'
           PARSER_DEFAULT_VERSION: '1.2.0'
           LOCAL_ENDPOINT:
@@ -79,7 +84,7 @@ Resources:
             Queue: !GetAtt PdfStandardisationQueue.Arn
       Handler: pdfStandardisation.handler
       Policies:
-        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action:
@@ -87,6 +92,10 @@ Resources:
                 - sqs:GetQueueAttributes
                 - sqs:ReceiveMessage
               Resource: !GetAtt PdfStandardisationQueue.Arn
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !GetAtt StandardisedInvoiceStorageQueue.Arn
             - Effect: Allow
               Action:
                 - kms:Decrypt
@@ -105,11 +114,8 @@ Resources:
             - Effect: Allow
               Action:
                 - s3:GetObject
-                - s3:ListBucket
-                - s3:PutObject
               Resource:
                 - !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
-                - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
             - Effect: Allow
               Action: s3:GetObject
               Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*

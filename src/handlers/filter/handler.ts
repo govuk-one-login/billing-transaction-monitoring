@@ -1,29 +1,16 @@
-import { SQSEvent } from "aws-lambda";
-import { Response } from "../../shared/types";
-import { logger, sendRecord } from "../../shared/utils";
-import { fetchEventNames } from "../../shared/utils/config-utils/fetch-event-names";
+import { buildHandler, ConfigElements } from "../../handler-context";
+import { stringifyAndSendRecord } from "../../shared/utils";
+import { businessLogic } from "./business-logic";
+import { Env } from "./types";
+import { isValidIncomingMessageBody } from "./is-valid-incoming-message-body";
 
-export const handler = async (event: SQSEvent): Promise<Response> => {
-  const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
-  if (outputQueueUrl === undefined || outputQueueUrl.length === 0)
-    throw new Error("No OUTPUT_QUEUE_URL defined in this environment");
-
-  const response: Response = { batchItemFailures: [] };
-
-  const validEventNames = await fetchEventNames();
-
-  const promises = event.Records.filter((record) => {
-    const body = JSON.parse(record.body);
-    logger.info(String(body.event_name));
-    return Boolean(body?.event_name) && validEventNames.has(body.event_name);
-  }).map(async (record) => {
-    try {
-      await sendRecord(outputQueueUrl, record.body);
-    } catch (e) {
-      response.batchItemFailures.push({ itemIdentifier: record.messageId });
-    }
-  });
-
-  await Promise.all(promises);
-  return response;
-};
+export const handler = buildHandler({
+  businessLogic,
+  envVars: [Env.OUTPUT_QUEUE_URL],
+  incomingMessageBodyTypeGuard: isValidIncomingMessageBody,
+  outputs: [
+    { destination: Env.OUTPUT_QUEUE_URL, store: stringifyAndSendRecord },
+  ],
+  withBatchItemFailures: true,
+  ConfigCache: [ConfigElements.services],
+});

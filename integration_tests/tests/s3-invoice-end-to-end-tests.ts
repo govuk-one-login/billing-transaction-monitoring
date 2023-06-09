@@ -1,43 +1,41 @@
-import path from "path";
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkIfS3ObjectExists,
-  deleteS3Object,
-  getS3Object,
+  deleteS3Objects,
   listS3Objects,
-  putS3Object,
-  S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 import {
-  randomInvoice,
+  Invoice,
+  randomInvoiceData,
   randomLineItems,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
-import { createInvoiceInS3 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
-import fs from "fs";
 import {
-  queryObject,
-  startQueryExecutionCommand,
-} from "../../src/handlers/int-test-support/helpers/athenaHelper";
+  checkStandardised,
+  createInvoiceInS3,
+} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
+import { randomLineItem } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/random";
+import {
+  EventName,
+  VendorId,
+  prettyVendorNameMap,
+} from "../../src/handlers/int-test-support/helpers/payloadHelper";
+import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
-const prefix = resourcePrefix();
-
-describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen in the billing view\n", () => {
-  const storageBucket = `${prefix}-storage`;
-  const standardisedFolderPrefix = "btm_billing_standardised";
-  const databaseName = `${prefix}-calculations`;
+describe("\n Happy path - Upload valid mock invoice and verify data is seen in the billing view\n", () => {
   let filename: string;
 
   test("upload valid pdf file in raw-invoice bucket and see that we can see the data in the view", async () => {
-    const passportCheckItems = randomLineItems(8, {
+    const passportCheckItems = randomLineItems(1, {
       description: "passport check",
     });
-    const addressCheckItems = randomLineItems(10, {
+    const addressCheckItems = randomLineItems(1, {
       description: "address check",
     });
-    const invoice = randomInvoice({
+    const invoiceData = randomInvoiceData({
+      date: new Date("2023-03-31"),
       lineItems: [...passportCheckItems, ...addressCheckItems],
     });
+    const invoice = new Invoice(invoiceData);
     const expectedSubtotals = [
       invoice.getSubtotal("address check"),
       invoice.getSubtotal("passport check"),
@@ -50,57 +48,37 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     filename = `s3-invoice-e2e-test-raw-Invoice-validFile`;
 
     const s3Object = await createInvoiceInS3({
-      invoiceData: invoice,
+      invoiceData,
       filename: `${filename}.pdf`,
     });
-    console.log("e2e test invoice filename:", filename);
+
     const checkRawPdfFileExists = await checkIfS3ObjectExists(s3Object);
     expect(checkRawPdfFileExists).toBeTruthy();
 
-    // Wait for the invoice data to have been written, to some file in the standardised folder.
-    await poll(
-      async () =>
-        await listS3Objects({
-          bucketName: storageBucket,
-          prefix: standardisedFolderPrefix,
-        }),
-      ({ Contents }) =>
-        !!Contents?.some(
-          (s3Object) =>
-            s3Object.Key !== undefined &&
-            s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
-        ),
-      {
-        timeout: 70000,
-        nonCompleteErrorMessage:
-          "Invoice data never appeared in standardised folder",
-      }
-    );
-
-    // Check the original PDF file name and the event_name key is saved.
-    const standardisedLineItemsText = await getS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
-    });
-    const standardisedLineItems = standardisedLineItemsText
-      ?.split("\n")
-      .filter((line) => line.trim().length > 0)
-      .map((line) => JSON.parse(line));
-    expect(standardisedLineItems).not.toBeUndefined();
-    expect(standardisedLineItems?.length).toBeGreaterThan(0);
-    expect(standardisedLineItems?.[0]).toHaveProperty(
-      "originalInvoiceFile",
-      `${filename}.pdf`
-    );
-    expect(standardisedLineItems?.[0]).toHaveProperty("event_name");
-
+    // Check they were standardised
+    await Promise.all([
+      checkStandardised(
+        invoice.date,
+        invoice.vendor.id,
+        {
+          description: invoice.lineItems[0].description,
+          event_name: EventName.VENDOR_3_EVENT_6,
+        },
+        "address check"
+      ),
+      checkStandardised(
+        invoice.date,
+        invoice.vendor.id,
+        {
+          description: invoice.lineItems[1].description,
+          event_name: EventName.VENDOR_3_EVENT_4,
+        },
+        "passport check"
+      ),
+    ]);
     // Check the view results match the invoice.
     const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor3'`;
-    const queryId = await startQueryExecutionCommand({
-      databaseName,
-      queryString,
-    });
-    const queryObjects: BillingCurated[] = await queryObject(queryId);
+    const queryObjects = await queryAthena<BillingCurated>(queryString);
     expect(queryObjects.length).toEqual(2);
     queryObjects.sort((q0, q1) => {
       return q0.service_name.localeCompare(q1.service_name);
@@ -111,9 +89,6 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
       expect(expectedServices[i]).toEqual(queryObjects[i].service_name);
       expect(invoice.date.getFullYear()).toEqual(+queryObjects[i].year);
       expect(invoice.date.getMonth() + 1).toEqual(+queryObjects[i].month);
-      expect(queryObjects[i].quantity.toString()).toEqual(
-        queryObjects[i].quantity
-      );
       expect(queryObjects[i].price).toMatch(expectedSubtotals[i].toFixed(2));
       expect(+queryObjects[i].quantity).toEqual(expectedQuantities[i]);
     }
@@ -124,14 +99,14 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
         bucketName: s3Object.bucket,
         prefix: "successful",
       });
-      if (result.Contents === undefined) {
+      if (result === undefined) {
         return false;
       }
-      return result.Contents.some((t) => t.Key?.includes(s3Object.key));
+      return result.some((t) => t.key?.includes(s3Object.key));
     };
 
     const pollOptions = {
-      nonCompleteErrorMessage:
+      notCompleteErrorMessage:
         "File was not moved to successful folder within the timeout",
     };
 
@@ -142,101 +117,97 @@ describe("\n Happy path - Upload valid mock invoice pdf and verify data is seen 
     );
 
     expect(originalFileExistsInSuccessfulFolder).toBeTruthy();
-    await deleteS3Object({
+    await deleteS3Objects({
       bucket: s3Object.bucket,
-      key: `successful/${s3Object.key}`,
+      keys: [`successful/${s3Object.key}`],
     });
   });
 
   test("upload valid csv file in raw-invoice bucket and check that we can see the data in the view", async () => {
-    // Step 1: Put the test csv file in the raw-invoice bucket. A further ticket will handle the random creation of a csv invoice, similar to the pdf invoice.
+    // Step 1: Put random creation of a csv invoice file in the raw-invoice bucket.
     // Note: For the csv invoice flow, the original does not get moved to a 'successful folder' like it does for the pdf invoice flow that invokes Textract.
 
-    filename = "valid-invoice";
-    const folderPrefix = "vendor_testvendor1";
-    const testObject: S3Object = {
-      bucket: `${prefix}-raw-invoice`,
-      key: `${folderPrefix}/${filename}.csv`,
-    };
-    const csv = `../payloads/${filename}.csv`;
-    const filePath = path.join(__dirname, csv);
-    const fileData = fs.readFileSync(filePath);
-    await putS3Object({ data: fileData, target: testObject });
+    const invoiceData = randomInvoiceData({
+      date: new Date("2023-03-31"),
+      lineItems: [
+        randomLineItem({ description: "Fraud check", quantity: 100 }),
+        randomLineItem({ description: "Passport check", quantity: 100 }),
+        randomLineItem({ description: "Long weight", quantity: 100 }),
+      ],
+      vendor: {
+        id: VendorId.vendor_testvendor1,
+        name: prettyVendorNameMap[VendorId.vendor_testvendor1],
+      },
+    });
 
-    const checkRawCsvFileExists = await checkIfS3ObjectExists(testObject);
-    expect(checkRawCsvFileExists).toBeTruthy();
+    await createInvoiceInS3({
+      invoiceData,
+      filename: `${filename}.csv`,
+    });
 
-    // Step 2: Wait for the invoice data to be standardised and saved in the storage bucket/btm_billing_standardised.
+    const invoice = new Invoice(invoiceData);
 
-    await poll(
-      async () =>
-        await listS3Objects({
-          bucketName: storageBucket,
-          prefix: standardisedFolderPrefix,
-        }),
-      ({ Contents }) =>
-        !!Contents?.some(
-          (s3Object) =>
-            s3Object.Key !== undefined &&
-            s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
-        ),
-      {
-        timeout: 50000,
-        nonCompleteErrorMessage:
-          "Invoice data never appeared in standardised folder",
-      }
+    // Check they were standardised
+    await Promise.all([
+      checkStandardised(
+        invoice.date,
+        invoice.vendor.id,
+        {
+          description: invoice.lineItems[0].description,
+          event_name: EventName.VENDOR_1_EVENT_1,
+        },
+        "Passport Check"
+      ),
+      checkStandardised(
+        invoice.date,
+        invoice.vendor.id,
+        {
+          description: invoice.lineItems[1].description,
+          event_name: EventName.VENDOR_1_EVENT_3,
+        },
+        "Fraud Check"
+      ),
+    ]);
+
+    // Step 3: Check the view results match the original csv invoice.
+    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = '${
+      invoice.vendor.id
+    }' AND year='${invoice.date.getFullYear()}' AND month='${(
+      invoice.date.getMonth() + 1
+    ).toLocaleString("en-US", {
+      minimumIntegerDigits: 2,
+    })}' ORDER BY service_name ASC`;
+
+    const response = await queryAthena<BillingCurated>(queryString);
+    expect(response.length).toEqual(2);
+
+    expect(response[0].vendor_name).toEqual(invoice.vendor.name);
+    expect(response[0].service_name).toEqual("Fraud check");
+    expect(response[0].quantity).toEqual(
+      invoice.getQuantity("Fraud check").toString()
+    );
+    expect(response[0].price).toEqual(invoice.lineItems[0].subtotal.toFixed(4));
+    expect(response[0].tax).toEqual(invoice.lineItems[0].vat.toFixed(4));
+    expect(response[0].year).toEqual(invoice.date.getFullYear().toString());
+    expect(response[0].month).toEqual(
+      (invoice.date.getMonth() + 1).toLocaleString("en-US", {
+        minimumIntegerDigits: 2,
+      })
     );
 
-    // Step 3: Check the original CSV file name and the event_name key is saved.
-    const standardisedLineItemsText = await getS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
-    });
-    const standardisedLineItems = standardisedLineItemsText
-      ?.split("\n")
-      .filter((line) => line.trim().length > 0)
-      .map((line) => JSON.parse(line));
-    expect(standardisedLineItems).not.toBeUndefined();
-    expect(standardisedLineItems?.length).toBeGreaterThan(0);
-    expect(standardisedLineItems?.[0]).toHaveProperty(
-      "originalInvoiceFile",
-      `${filename}.csv`
+    expect(response[1].vendor_name).toEqual(invoice.vendor.name);
+    expect(response[1].service_name).toEqual("Passport check");
+    expect(response[1].quantity).toEqual(
+      invoice.getQuantity("Passport check").toString()
     );
-    expect(standardisedLineItems?.[0]).toHaveProperty("event_name");
-
-    // Step 4: Check the view results match the original csv invoice. Hard coded for now based on the csv in the payloads folder.
-    const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id = 'vendor_testvendor1' AND year='${"2023"}' AND month='${"03"}' ORDER BY service_name ASC`;
-    const queryId = await startQueryExecutionCommand({
-      databaseName,
-      queryString,
-    });
-    const queryObjects: BillingCurated[] = await queryObject(queryId);
-    expect(queryObjects.length).toEqual(2);
-
-    expect(queryObjects[0].vendor_name).toEqual("Vendor One");
-    expect(queryObjects[0].service_name).toEqual("Fraud check");
-    expect(queryObjects[0].quantity).toEqual("83");
-    expect(queryObjects[0].price).toEqual("327.8500");
-    expect(queryObjects[0].year).toEqual("2023");
-    expect(queryObjects[0].month).toEqual("03");
-
-    expect(queryObjects[1].vendor_name).toEqual("Vendor One");
-    expect(queryObjects[1].service_name).toEqual("Passport check");
-    expect(queryObjects[1].quantity).toEqual("13788");
-    expect(queryObjects[1].price).toEqual("4687.9200");
-    expect(queryObjects[1].year).toEqual("2023");
-    expect(queryObjects[1].month).toEqual("03");
-  });
-
-  afterAll(async () => {
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
-    });
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/valid-invoice.txt`,
-    });
+    expect(response[1].price).toEqual(invoice.lineItems[1].subtotal.toFixed(4));
+    expect(response[1].tax).toEqual(invoice.lineItems[1].vat.toFixed(4));
+    expect(response[1].year).toEqual(invoice.date.getFullYear().toString());
+    expect(response[1].month).toEqual(
+      (invoice.date.getMonth() + 1).toLocaleString("en-US", {
+        minimumIntegerDigits: 2,
+      })
+    );
   });
 });
 
@@ -244,8 +215,9 @@ interface BillingCurated {
   vendor_id: string;
   vendor_name: string;
   service_name: string;
-  quantity: number;
-  price: number;
+  quantity: string;
+  price: string;
+  tax: string;
   year: string;
   month: string;
 }

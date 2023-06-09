@@ -8,6 +8,52 @@ Resources:
       DatabaseInput:
         Name: !Sub ${AWS::StackName}-calculations
 
+  MonthlyExtractTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref CalculationsDB
+      TableInput:
+        Name: btm_monthly_extract
+        TableType: EXTERNAL_TABLE
+        Parameters:
+          has_encrypted_data: true
+          storage.location.template: !Sub s3://${StorageBucket}/btm_extract_data/full-extract.json
+        StorageDescriptor:
+          Columns:
+            - Name: vendor_id
+              Type: string
+            - Name: vendor_name
+              Type: string
+            - Name: service_name
+              Type: string
+            - Name: year
+              Type: string
+            - Name: month
+              Type: string
+            - Name: billing_price_formatted
+              Type: string
+            - Name: transaction_price_formatted
+              Type: string
+            - Name: price_difference
+              Type: string
+            - Name: billing_amount_with_tax
+              Type: string
+            - Name: price_difference_percentage
+              Type: double
+          Compressed: true
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Sub s3://${StorageBucket}/btm_extract_data/
+          StoredAsSubDirectories: false
+          OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          SerdeInfo:
+            Parameters:
+              ignore.malformed.json: true
+              serialization.format: 1
+              field.delim: ','
+              timestamp.formats: yyyy-MM-dd
+            SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
   TransactionTable:
     Type: AWS::Glue::Table
     Properties:
@@ -18,19 +64,21 @@ Resources:
         TableType: EXTERNAL_TABLE
         Parameters:
           has_encrypted_data: true
+          partition_filtering.enabled: true
           projection.enabled: true
-          projection.datetime.type: date
-          projection.datetime.range: 2022-01-01,NOW
-          projection.datetime.format: yyyy-MM-dd
-          projection.datetime.interval: 1
-          projection.datetime.interval.unit: DAYS
+          projection.year.type: integer
+          projection.year.range: 2005,2050
+          projection.month.type: integer
+          projection.month.digits: 2
+          projection.month.range: 1,12
           storage.location.template:
             !Join [
               '',
-              ['s3://', !Ref StorageBucket, '/btm_transactions/${datetime}/'],
+              ['s3://', !Ref StorageBucket, '/btm_event_data/${year}/${month}'],
             ]
         PartitionKeys:
-          - { Name: datetime, Type: date }
+          - { Name: year, Type: string }
+          - { Name: month, Type: string }
         StorageDescriptor:
           Columns:
             - Name: vendor_id
@@ -47,16 +95,14 @@ Resources:
               Type: string
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Join ['', ['s3://', !Ref StorageBucket, '/']]
+          Location: !Sub s3://${StorageBucket}/btm_event_data/
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
             Parameters:
-              {
-                ignore.malformed.json: true,
-                serialization.format: 1,
-                field.delim: '',
-              }
+              ignore.malformed.json: true
+              serialization.format: 1
+              field.delim: ''
             SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
 
   RateTableTable:
@@ -145,19 +191,19 @@ Resources:
                         "$path" path,
                         "COUNT"(event_id)
                           OVER (
-                            PARTITION BY event_name, vendor_id, "DATE_TRUNC"('month', timestamp)
-                            ORDER BY "DATE_TRUNC"('month', timestamp) ASC) month_event_count
+                            PARTITION BY event_name, vendor_id, year, month
+                            ORDER BY year ASC, month ASC) month_event_count
                 FROM   "btm_transactions_standardised"),
             btm_transactions_harmonised
             AS (SELECT txn.vendor_id,
                         txn.event_id,
                         txn.event_name,
                         txn.timestamp,
+                        txn.year,
+                        txn.month,
                         ven.vendor_name,
                         ven.service_name,
-                        rates.unit_price transaction_price,
-                        "Date_format"(timestamp, '%m') month,
-                        "Date_format"(timestamp, '%Y') year
+                        rates.unit_price transaction_price
                 FROM (btm_transactions_standardised_with_count txn
                         LEFT JOIN "btm_vendor_service_standardised" ven 
                                 ON (txn.event_name = ven.event_name)
@@ -169,6 +215,7 @@ Resources:
                             AND (txn.timestamp BETWEEN rates.effective_from AND COALESCE(rates.effective_to, "From_iso8601_timestamp"('2049-12-31')))))
           SELECT "MAX"(vendor_id)        vendor_id,
                 "MAX"(vendor_name)       vendor_name,
+                "MAX"(event_name)        event_name,
                 "MAX"(service_name)      service_name,
                 "SUM"(transaction_price) price,
                 "COUNT"(event_id)        quantity,
@@ -194,11 +241,11 @@ Resources:
         Name: btm_billing_and_transactions_curated
         Query: !Sub |
           SELECT
-            COALESCE(invoice.vendor_id, txn.vendor_id) vendor_id
-            , COALESCE(invoice.vendor_name, txn.vendor_name) vendor_name
-            , COALESCE(invoice.service_name, txn.service_name) service_name
-            , COALESCE(invoice.year, txn.year) year
-            , COALESCE(invoice.month, txn.month) month
+            COALESCE(txn.vendor_id, invoice.vendor_id) vendor_id
+            , COALESCE(txn.vendor_name, invoice.vendor_name) vendor_name
+            , COALESCE(txn.service_name, invoice.service_name) service_name
+            , COALESCE(txn.year, invoice.year) year
+            , COALESCE(txn.month, invoice.month) month
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(invoice.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(txn.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) transaction_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price - txn.price) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) price_difference
@@ -213,7 +260,7 @@ Resources:
               (btm_transactions_curated txn
                 FULL JOIN btm_billing_curated invoice ON
                       ((((txn.vendor_id = invoice.vendor_id) AND
-                      (txn.service_name = invoice.service_name)) AND
+                      (txn.event_name = invoice.event_name)) AND
                       (txn.year = invoice.year)) AND
                       (txn.month = invoice.month)))
         Workgroup: !Ref AthenaTransactionWorkgroup

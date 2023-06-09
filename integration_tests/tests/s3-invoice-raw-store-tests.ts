@@ -3,7 +3,7 @@ import fs from "fs";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkIfS3ObjectExists,
-  deleteS3Object,
+  deleteS3Objects,
   listS3Objects,
   putS3Object,
   S3Object,
@@ -17,13 +17,13 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice bucket test\n"
   const uniqueString = Math.random().toString(36).substring(2, 7);
   const rawInvoice: S3Object = {
     bucket: `${prefix}-raw-invoice`,
-    key: `${givenVendorIdFolder}/raw-Invoice-${uniqueString}-validFile.pdf`,
+    key: `${givenVendorIdFolder}/raw-Invoice-${uniqueString}-invalidFile.pdf`,
   };
 
   test("should move the original raw invoice to failed folder in s3 raw-invoice bucket upon uploading the invalid pdf file ", async () => {
     const file = "../payloads/invalidFileToTestTextractFailure.pdf";
     const filename = path.join(__dirname, file);
-    const fileData = fs.readFileSync(filename);
+    const fileData = fs.readFileSync(filename).toString();
 
     await putS3Object({ data: fileData, target: rawInvoice });
 
@@ -35,17 +35,14 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice bucket test\n"
         bucketName: rawInvoice.bucket,
         prefix: "failed",
       });
-      if (result.Contents === undefined) {
-        return false;
-      }
-      return result.Contents.some((items) =>
-        items.Key?.includes(rawInvoice.key)
+      return (
+        !!result && result.some((items) => items.key?.includes(rawInvoice.key))
       );
     };
 
     const pollOptions = {
       timeout: 40000,
-      nonCompleteErrorMessage:
+      notCompleteErrorMessage:
         "File was not moved to failed folder within the specified timeout",
     };
 
@@ -55,9 +52,9 @@ describe("\n Unhappy path - Upload invalid pdf to the raw invoice bucket test\n"
       pollOptions
     );
     expect(originalFileExistsInFailedFolder).toBeTruthy();
-    await deleteS3Object({
+    await deleteS3Objects({
       bucket: rawInvoice.bucket,
-      key: "failed/" + rawInvoice.key,
+      keys: ["failed/" + rawInvoice.key],
     });
   });
 });

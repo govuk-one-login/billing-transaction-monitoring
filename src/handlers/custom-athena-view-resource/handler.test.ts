@@ -3,7 +3,7 @@ import { Athena } from "aws-sdk";
 import { sendCustomResourceResult } from "../../shared/utils";
 import { getAthenaViewResourceData } from "./get-athena-view-resource-data";
 import { handler } from "./handler";
-import { QueryExecutionValidator } from "./query-execution-validator";
+import { AthenaQueryExecutor } from "../../shared/utils/athena";
 
 jest.mock("aws-sdk");
 const MockedAthenaClass = Athena as jest.MockedClass<typeof Athena>;
@@ -17,9 +17,10 @@ const mockedSendCustomResourceResult =
 jest.mock("./get-athena-view-resource-data");
 const mockedGetAthenaViewResourceData = getAthenaViewResourceData as jest.Mock;
 
-jest.mock("./query-execution-validator");
-const MockedQueryExecutionValidator =
-  QueryExecutionValidator as jest.MockedClass<typeof QueryExecutionValidator>;
+jest.mock("../../shared/utils/athena");
+const MockedQueryExecutionValidator = AthenaQueryExecutor as jest.MockedClass<
+  typeof AthenaQueryExecutor
+>;
 
 describe("Custom Athena view resource handler", () => {
   let mockedAthena: any;

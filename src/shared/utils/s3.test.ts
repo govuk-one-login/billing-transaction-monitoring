@@ -5,11 +5,13 @@ import {
   DeleteObjectCommand,
   CopyObjectCommand,
   GetObjectCommand,
+  ListObjectsCommand,
 } from "@aws-sdk/client-s3";
 import {
   deleteS3,
   fetchS3,
   getS3EventRecordsFromSqs,
+  listS3Keys,
   moveS3,
   moveToFolderS3,
   putS3,
@@ -167,7 +169,7 @@ test("Move object without callback error", async () => {
   });
 });
 
-test("Move object to folder", async () => {
+test("Move object not in folder to folder", async () => {
   s3Mock.on(CopyObjectCommand).resolves({});
   s3Mock.on(DeleteObjectCommand).resolves({});
 
@@ -179,6 +181,28 @@ test("Move object to folder", async () => {
 
   expect(s3Mock.calls()[0].firstArg.input).toEqual({
     Key: `${folder}/${key}`,
+    Bucket: bucket,
+    CopySource: `${bucket}/${key}`,
+  });
+  expect(s3Mock.calls()[1].firstArg.input).toEqual({
+    Key: key,
+    Bucket: bucket,
+  });
+});
+
+test("Move object in folder to another folder", async () => {
+  s3Mock.on(CopyObjectCommand).resolves({});
+  s3Mock.on(DeleteObjectCommand).resolves({});
+
+  const bucket = "given-bucket-name";
+  const fileName = "given-file-name";
+  const key = `given-starting-folder/${fileName}`;
+  const folder = "given-folder";
+
+  await moveToFolderS3(bucket, key, folder);
+
+  expect(s3Mock.calls()[0].firstArg.input).toEqual({
+    Key: `${folder}/${fileName}`,
     Bucket: bucket,
     CopySource: `${bucket}/${key}`,
   });
@@ -323,5 +347,49 @@ describe("S3 event records getter tests", () => {
   test("S3 event records getter with valid record", () => {
     const result = getS3EventRecordsFromSqs(givenQueueRecord);
     expect(result).toEqual(givenBody.Records);
+  });
+});
+
+describe("S3 keys lister tests", () => {
+  let givenBucket: any;
+  let givenPrefix: any;
+
+  beforeEach(() => {
+    givenBucket = "given bucket";
+    givenPrefix = "given prefix";
+  });
+
+  test("S3 keys lister with callback error", async () => {
+    const mockedErrorMessage = "mocked error message";
+    const mockedError = new Error(mockedErrorMessage);
+    s3Mock.on(ListObjectsCommand).rejects(mockedError);
+
+    const resultPromise = listS3Keys(givenBucket, givenPrefix);
+
+    await expect(resultPromise).rejects.toThrowError(mockedErrorMessage);
+    expect(s3Mock.calls()[0].firstArg.input).toEqual({
+      Bucket: givenBucket,
+      Prefix: givenPrefix,
+    });
+  });
+
+  test("S3 keys lister with undefined callback contents", async () => {
+    s3Mock.on(ListObjectsCommand).resolves({ Contents: undefined });
+    const result = await listS3Keys(givenBucket, givenPrefix);
+    expect(result).toEqual([]);
+  });
+
+  test("S3 keys lister with some defined and some undefined callback content keys", async () => {
+    const mockedDefinedKey1 = "mocked defined key 1";
+    const mockedDefinedKey2 = "mocked defined key 2";
+    const mockedContents = [
+      { Key: mockedDefinedKey1 },
+      { Key: undefined },
+      { Key: mockedDefinedKey2 },
+    ];
+    s3Mock.on(ListObjectsCommand).resolves({ Contents: mockedContents });
+
+    const result = await listS3Keys(givenBucket, givenPrefix);
+    expect(result).toEqual([mockedDefinedKey1, mockedDefinedKey2]);
   });
 });

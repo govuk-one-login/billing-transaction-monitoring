@@ -1,0 +1,173 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  TempRawEmailBucket: # This and the policy below will be replaced by the infra created in BTM-471
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-temp-raw-email-bucket
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt KmsKey.Arn
+            BucketKeyEnabled: true
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: temp-raw-email-bucket/log
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: s3:ObjectCreated:*
+            Queue: !GetAtt EmailProcessingQueue.Arn
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 1825 # Five years
+            Status: Enabled
+
+  TempRawEmailBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref TempRawEmailBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Principal: '*'
+            Action: s3:*
+            Resource:
+              - !Sub ${TempRawEmailBucket.Arn}
+              - !Sub ${TempRawEmailBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+
+  EmailProcessingQueue: # This SQS is required as per BTM-558
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-email-processing-queue
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt EmailProcessingDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  EmailProcessingQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:SendMessage
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Sub arn:aws:s3:*:*:${AWS::StackName}-temp-raw-email-bucket # no reference as this needs to be created before the bucket
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+            Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Resource: !GetAtt EmailProcessingQueue.Arn
+      Queues:
+        - !Ref EmailProcessingQueue
+
+  EmailProcessingDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-email-processing-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  EmailProcessingDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-email-processing-dlq-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt EmailProcessingDeadLetterQueue.QueueName
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
+      Period: 60
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+
+  EmailProcessingFunction:
+    # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-email-processing-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          DESTINATION_BUCKET: !Ref RawInvoiceBucket
+          LOCAL_ENDPOINT:
+            !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-email-processing-function
+      Events:
+        EmailProcessingEvent:
+          Type: SQS
+          Properties:
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+            Queue: !GetAtt EmailProcessingQueue.Arn
+      Handler: processEmail.handler
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt EmailProcessingQueue.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              Resource:
+                - !GetAtt TempRawEmailBucket.Arn
+                - !Join ['/', [!GetAtt TempRawEmailBucket.Arn, '*']]
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+              Resource: !Join ['/', [!GetAtt RawInvoiceBucket.Arn, '*']]
+      ReservedConcurrentExecutions: 1
+
+  EmailProcessingFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-email-processing-function-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref EmailProcessingFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0

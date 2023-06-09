@@ -1,137 +1,76 @@
 import {
-  deleteS3Events,
-  poll,
+  generateTestEvents,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
-  createInvoiceInS3,
+  checkStandardised,
   createInvoiceWithGivenData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
-import { queryResponseFilterByVendorServiceNameYearMonth } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import {
-  deleteS3Object,
-  listS3Objects,
-} from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
 import {
-  generateTransactionEventsViaFilterLambda,
   getVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 
-const prefix = resourcePrefix();
-const storageBucket = `${prefix}-storage`;
-const standardisedFolderPrefix = "btm_billing_standardised";
 let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 // Below tests can be run both in lower and higher environments
-// TODO: CSV e2e test
+
+beforeAll(async () => {
+  dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
+  eventName = dataRetrievedFromConfig.eventName;
+});
 
 describe("\n Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
-  beforeAll(async () => {
-    dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
-    eventName = dataRetrievedFromConfig.eventName;
-  });
-  let filename: string;
-  let eventIds: string[];
-  let eventTime: string;
-
   test.each`
     testCase                                                                               | eventTime       | transactionQty | billingQty
-    ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2022/10/30"} | ${undefined}   | ${"100"}
-    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                | ${"2022/11/30"} | ${"10"}        | ${"10"}
-    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}          | ${"2022/12/01"} | ${"10"}        | ${"12"}
-    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}           | ${"2023/01/02"} | ${"10"}        | ${"6"}
+    ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2006/01/30"} | ${undefined}   | ${"100"}
+    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                | ${"2005/09/30"} | ${"10"}        | ${"10"}
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      eventIds = await generateTransactionEventsViaFilterLambda(
-        data.eventTime,
-        data.transactionQty,
-        eventName
-      );
-      eventTime = data.eventTime;
-
-      filename = `e2e-test-raw-Invoice-validFile`;
-
-      const invoiceData = createInvoiceWithGivenData(
-        data,
-        dataRetrievedFromConfig.description,
-        dataRetrievedFromConfig.unitPrice,
-        dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.vendorName
-      );
-      await createInvoiceInS3({ invoiceData, filename: `${filename}.pdf` });
-
-      // Wait for the invoice data to have been written, to some file in the standardised folder.
-      await poll(
-        async () =>
-          await listS3Objects({
-            bucketName: storageBucket,
-            prefix: standardisedFolderPrefix,
-          }),
-        ({ Contents }) =>
-          !!Contents?.some(
-            (s3Object) =>
-              s3Object.Key !== undefined &&
-              s3Object.Key === `${standardisedFolderPrefix}/${filename}.txt`
-          ),
-        {
-          timeout: 60000,
-          nonCompleteErrorMessage:
-            "Invoice data never appeared in standardised folder",
-        }
-      );
-
-      const expectedResults = calculateExpectedResults(
-        data,
-        dataRetrievedFromConfig.unitPrice
-      );
-      await assertQueryResultWithTestData(
-        expectedResults,
-        eventTime,
-        dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.serviceName
-      );
+      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
+      await uploadInvoiceAndAssertResults(data, "pdf");
     }
   );
 
   test.each`
     testCase                                                                                 | eventTime       | transactionQty | billingQty
-    ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2023/02/28"} | ${"1"}         | ${undefined}
+    ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2005/12/28"} | ${"1"}         | ${undefined}
   `(
     "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      eventIds = await generateTransactionEventsViaFilterLambda(
-        data.eventTime,
-        data.transactionQty,
-        eventName
-      );
-      eventTime = data.eventTime;
+      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
       const expectedResults = calculateExpectedResults(
         data,
         dataRetrievedFromConfig.unitPrice
       );
       await assertQueryResultWithTestData(
         expectedResults,
-        eventTime,
+        data.eventTime,
         dataRetrievedFromConfig.vendorId,
         dataRetrievedFromConfig.serviceName
       );
     }
   );
+});
 
-  afterEach(async () => {
-    await deleteS3Events(eventIds, eventTime);
-    await deleteS3Object({
-      bucket: storageBucket,
-      key: `${standardisedFolderPrefix}/${filename}.txt`,
-    });
-  });
+describe("\n Upload csv invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
+  test.each`
+    testCase                                                                      | eventTime       | transactionQty | billingQty
+    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"} | ${"2005/10/30"} | ${"10"}        | ${"12"}
+    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}  | ${"2005/11/30"} | ${"10"}        | ${"6"}
+  `(
+    "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
+    async (data) => {
+      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
+      await uploadInvoiceAndAssertResults(data, "csv");
+    }
+  );
 });
 
 export const assertQueryResultWithTestData = async (
@@ -141,14 +80,13 @@ export const assertQueryResultWithTestData = async (
   serviceName: string
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
-  const response: BillingTransactionCurated =
-    await queryResponseFilterByVendorServiceNameYearMonth(
-      vendorId,
-      serviceName,
-      tableName,
-      eventTime
-    );
-
+  const response = await getFilteredQueryResponse<BillingTransactionCurated>(
+    tableName,
+    vendorId,
+    serviceName,
+    eventTime
+  );
+  expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(
     expectedResults.billingPriceFormatted
   );
@@ -202,6 +140,41 @@ const calculateExpectedResults = (
       priceDifferencePercentage: priceDifferencePercentage.toFixed(1),
     };
   }
+};
+
+export const uploadInvoiceAndAssertResults = async (
+  data: TestData,
+  fileType: "pdf" | "csv"
+): Promise<void> => {
+  await createInvoiceWithGivenData(
+    data,
+    dataRetrievedFromConfig.description,
+    dataRetrievedFromConfig.unitPrice,
+    dataRetrievedFromConfig.vendorId,
+    dataRetrievedFromConfig.vendorName,
+    fileType
+  );
+  // Check they were standardised
+  await checkStandardised(
+    new Date(data.eventTime),
+    dataRetrievedFromConfig.vendorId,
+    {
+      description: dataRetrievedFromConfig.description,
+      event_name: dataRetrievedFromConfig.eventName,
+    },
+    dataRetrievedFromConfig.description
+  );
+
+  const expectedResults = calculateExpectedResults(
+    data,
+    dataRetrievedFromConfig.unitPrice
+  );
+  await assertQueryResultWithTestData(
+    expectedResults,
+    data.eventTime,
+    dataRetrievedFromConfig.vendorId,
+    dataRetrievedFromConfig.serviceName
+  );
 };
 
 interface ExpectedResults {

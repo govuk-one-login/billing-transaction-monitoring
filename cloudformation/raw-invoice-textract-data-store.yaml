@@ -124,10 +124,16 @@ Resources:
 
   RawInvoiceTextractDataStorageFunction:
     # checkov:skip=CKV_AWS_116: dead letter queue not needed for lambda
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-raw-textract-storage-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
       Environment:
         Variables:
           DESTINATION_BUCKET: !Ref RawInvoiceTextractDataBucket
@@ -140,7 +146,7 @@ Resources:
       Handler: storeRawInvoiceTextractData.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
-        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action:

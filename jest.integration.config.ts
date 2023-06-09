@@ -6,8 +6,9 @@ const config: Config.InitialOptions = {
   coveragePathIgnorePatterns: ["/node_modules/"],
   preset: "ts-jest",
   testRunner: "jasmine2",
+  globalSetup: "./src/handlers/int-test-support/helpers/testSetup.ts",
   verbose: true,
-  testTimeout: 120000,
+  testTimeout: 300000,
   reporters: [
     "default",
     [
@@ -15,6 +16,16 @@ const config: Config.InitialOptions = {
       {
         outputDirectory: "reports",
         outputName: "testReport.xml",
+      },
+    ],
+    [
+      "jest-html-reporters",
+      {
+        publicPath: `./reports/jest-html-reports/test-report-${new Date().toISOString()}`,
+        filename: "index.html",
+        expand: true,
+        openReport: true,
+        pageTitle: "BTM INTEGRATION TEST REPORT",
       },
     ],
   ],

@@ -4,10 +4,16 @@ Transform: AWS::Serverless-2016-10-31
 Resources:
   PdfExtractFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-pdf-extract-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-pdf-extract-function
@@ -23,6 +29,7 @@ Resources:
       Handler: pdfExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action:

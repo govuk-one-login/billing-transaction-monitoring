@@ -1,28 +1,28 @@
-export interface LineItem {
+export type LineItem = {
   description: string;
   quantity: number;
   unitPrice: number;
   vat: number;
   subtotal: number;
-}
+};
 
-export interface Vendor {
+export type Vendor = {
   id: string;
   name: string;
   address: string[];
   vatNumber: string;
-}
+};
 
-export interface Customer {
+export type Customer = {
   name: string;
   address: string[];
-}
+};
 
-export interface InvoiceData {
+export type InvoiceData = {
   vendor: Vendor;
   customer: Customer;
-  date: Date;
-  dueDate: Date;
+  dateString: string;
+  dueDateString: string;
   invoiceNumber: string;
   lineItems: LineItem[];
-}
+};

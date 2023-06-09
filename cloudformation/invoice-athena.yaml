@@ -48,7 +48,26 @@ Resources:
         Name: btm_billing_standardised
         TableType: EXTERNAL_TABLE
         Parameters:
-          has_encrypted_data: 'true'
+          has_encrypted_data: true
+          partition_filtering.enabled: true
+          projection.enabled: true
+          projection.year.type: integer
+          projection.year.range: 2005,2050
+          projection.month.type: integer
+          projection.month.digits: 2
+          projection.month.range: 01,12
+          storage.location.template:
+            !Join [
+              '',
+              [
+                's3://',
+                !Ref StorageBucket,
+                '/btm_invoice_data/${year}/${month}',
+              ],
+            ]
+        PartitionKeys:
+          - { Name: year, Type: string }
+          - { Name: month, Type: string }
         StorageDescriptor:
           Columns:
             - Name: invoice_receipt_id
@@ -81,9 +100,11 @@ Resources:
               Type: int
             - Name: price
               Type: decimal(12,4)
+            - Name: event_name
+              Type: string
           Compressed: 'true'
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
-          Location: !Sub s3://${StorageBucket}/btm_billing_standardised/
+          Location: !Sub s3://${StorageBucket}/btm_invoice_data/
           StoredAsSubDirectories: false
           OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
           SerdeInfo:
@@ -105,18 +126,12 @@ Resources:
             vendor_id,
             vendor_name,
             service_name,
+            event_name,
             sum(quantity) AS quantity,
             sum(price) AS price,
             sum(tax) AS tax,
             year,
             month
-          FROM (
-            -- Adds year and month columns to standardised billing
-            SELECT
-              *,
-              date_format(invoice_receipt_date,'%m') AS month,
-              date_format(invoice_receipt_date,'%Y') AS year
-            FROM btm_billing_standardised
-          )
-          GROUP BY vendor_id,vendor_name,service_name,year,month
+          FROM btm_billing_standardised
+          GROUP BY vendor_id,vendor_name,service_name,event_name,year,month
         Workgroup: !Ref AthenaInvoiceWorkgroup

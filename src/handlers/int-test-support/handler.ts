@@ -3,12 +3,11 @@ import {
   listS3Objects,
   getS3Object,
   deleteS3Objects,
-  deleteS3Object,
   getS3Objects,
   checkIfS3ObjectExists,
   putS3Object,
+  deleteS3ObjectsByPrefix,
 } from "./helpers/s3Helper";
-import { publishToTestTopic } from "./helpers/snsHelper";
 import {
   getRecentCloudwatchLogs,
   checkGivenStringExistsInLogs,
@@ -21,11 +20,19 @@ import {
 import { createInvoiceInS3 } from "./helpers/mock-data/invoice/helpers";
 import { invokeLambda } from "./helpers/lambdaHelper";
 
-export interface TestSupportEvent {
+export type SerializableData =
+  | string
+  | number
+  | boolean
+  | null
+  | SerializableData[]
+  | { [key: string]: SerializableData };
+
+export interface TestSupportEvent<T extends IntTestHelpers> {
   environment: string;
   config: string;
-  command: IntTestHelpers;
-  parameters: any;
+  command: T;
+  parameters: SerializableData;
 }
 
 export interface TestSupportReturn {
@@ -38,10 +45,9 @@ export enum IntTestHelpers {
   getS3Objects = "getS3Objects",
   listS3Objects = "listS3Objects",
   putS3Object = "putS3Object",
-  deleteS3Object = "deleteS3Object",
+  deleteS3ObjectsByPrefix = "deleteS3ObjectsByPrefix",
   deleteS3Objects = "deleteS3Objects",
   checkIfS3ObjectExists = "checkIfS3ObjectExists",
-  publishToTestTopic = "publishToTestTopic",
   checkGivenStringExistsInLogs = "checkGivenStringExistsInLogs",
   getRecentCloudwatchLogs = "getRecentCloudwatchLogs",
   startQueryExecutionCommand = "startQueryExecutionCommand",
@@ -56,10 +62,9 @@ export interface HelperDict {
   [IntTestHelpers.getS3Objects]: typeof getS3Objects;
   [IntTestHelpers.listS3Objects]: typeof listS3Objects;
   [IntTestHelpers.putS3Object]: typeof putS3Object;
-  [IntTestHelpers.deleteS3Object]: typeof deleteS3Object;
+  [IntTestHelpers.deleteS3ObjectsByPrefix]: typeof deleteS3ObjectsByPrefix;
   [IntTestHelpers.deleteS3Objects]: typeof deleteS3Objects;
   [IntTestHelpers.checkIfS3ObjectExists]: typeof checkIfS3ObjectExists;
-  [IntTestHelpers.publishToTestTopic]: typeof publishToTestTopic;
   [IntTestHelpers.checkGivenStringExistsInLogs]: typeof checkGivenStringExistsInLogs;
   [IntTestHelpers.getRecentCloudwatchLogs]: typeof getRecentCloudwatchLogs;
   [IntTestHelpers.startQueryExecutionCommand]: typeof startQueryExecutionCommand;
@@ -74,10 +79,9 @@ const functionMap: HelperDict = {
   [IntTestHelpers.getS3Objects]: getS3Objects,
   [IntTestHelpers.listS3Objects]: listS3Objects,
   [IntTestHelpers.putS3Object]: putS3Object,
-  [IntTestHelpers.deleteS3Object]: deleteS3Object,
+  [IntTestHelpers.deleteS3ObjectsByPrefix]: deleteS3ObjectsByPrefix,
   [IntTestHelpers.deleteS3Objects]: deleteS3Objects,
   [IntTestHelpers.checkIfS3ObjectExists]: checkIfS3ObjectExists,
-  [IntTestHelpers.publishToTestTopic]: publishToTestTopic,
   [IntTestHelpers.checkGivenStringExistsInLogs]: checkGivenStringExistsInLogs,
   [IntTestHelpers.getRecentCloudwatchLogs]: getRecentCloudwatchLogs,
   [IntTestHelpers.startQueryExecutionCommand]: startQueryExecutionCommand,
@@ -100,12 +104,18 @@ const callFunction = async (
   throw new Error(`Function '${name}' is not implemented.`);
 };
 
-export const handler = async (
-  event: TestSupportEvent,
+export const handler = async <T extends IntTestHelpers>(
+  event: TestSupportEvent<T>,
   _context: Context
 ): Promise<TestSupportReturn> => {
   process.env.ENV_NAME = event.environment;
   process.env.CONFIG_NAME = event.config;
+
+  console.log(
+    `Executing command "${event.command}" with parameters "${
+      event.parameters !== null ? `${Object.keys(event.parameters)}` : null
+    }" in environment "${event.environment}" with config "${event.config}"`
+  );
 
   const retVal = await callFunction(event.command, event.parameters);
 

@@ -2,26 +2,24 @@ import {
   Datum,
   GetQueryExecutionCommand,
   GetQueryResultsCommand,
-  GetQueryResultsCommandOutput,
-  QueryExecutionStatus,
   StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
-import { poll } from "./commonHelpers";
 import { resourcePrefix, runViaLambda } from "./envHelper";
 import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
 
-interface StringObject {
-  [key: string]: string;
-}
-
-interface DatabaseQuery {
+type DatabaseQuery = {
   databaseName: string;
   queryString: string;
+};
+
+interface QueryStatus {
+  state?: string;
+  stateChangeReason?: string;
 }
 
-const startQueryExecutionCommand = async (
+export const startQueryExecutionCommand = async (
   query: DatabaseQuery
 ): Promise<string> => {
   if (runViaLambda())
@@ -29,6 +27,7 @@ const startQueryExecutionCommand = async (
       IntTestHelpers.startQueryExecutionCommand,
       query
     );
+
   const params = {
     QueryExecutionContext: {
       Database: query.databaseName,
@@ -36,6 +35,7 @@ const startQueryExecutionCommand = async (
     QueryString: query.queryString,
     WorkGroup: `${resourcePrefix()}-athena-workgroup`,
   };
+
   const response = await athenaClient.send(
     new StartQueryExecutionCommand(params)
   );
@@ -43,60 +43,41 @@ const startQueryExecutionCommand = async (
   return queryId;
 };
 
-const getQueryExecutionStatus = async (
+export const getQueryExecutionStatus = async (
   queryId: string
-): Promise<QueryExecutionStatus | undefined> => {
+): Promise<QueryStatus | undefined> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.getQueryExecutionStatus,
       queryId
-    )) as QueryExecutionStatus;
+    )) as QueryStatus;
   const params = {
     QueryExecutionId: queryId,
   };
-
   const response = await athenaClient.send(
     new GetQueryExecutionCommand(params)
   );
-  return response.QueryExecution?.Status;
+  return {
+    state: response.QueryExecution?.Status?.State,
+    stateChangeReason: response.QueryExecution?.Status?.StateChangeReason,
+  };
 };
 
-const getQueryResults = async (
+export const getQueryResults = async <TResponse>(
   queryId: string
-): Promise<GetQueryResultsCommandOutput | undefined> => {
+): Promise<TResponse[]> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.getQueryResults,
       queryId
-    )) as unknown as GetQueryResultsCommandOutput;
+    )) as unknown as TResponse[];
 
   const params = {
     QueryExecutionId: queryId,
   };
-  return await athenaClient.send(new GetQueryResultsCommand(params));
-};
-
-const waitAndGetQueryResults = async (
-  queryId: string
-): Promise<GetQueryResultsCommandOutput | undefined> => {
-  const checkState = async (): Promise<boolean> => {
-    const result = await getQueryExecutionStatus(queryId);
-    return result?.State?.match("SUCCEEDED") !== null;
-  };
-  const queryStatusSuccess = await poll(checkState, (state) => state, {
-    timeout: 65000,
-    interval: 5000,
-    nonCompleteErrorMessage: "Query did not succeed within the given timeout",
-  });
-  if (queryStatusSuccess) {
-    return await getQueryResults(queryId);
-  }
-};
-
-const formattedQueryResults = async (
-  queryId: string
-): Promise<StringObject[]> => {
-  const queryResults = await waitAndGetQueryResults(queryId);
+  const queryResults = await athenaClient.send(
+    new GetQueryResultsCommand(params)
+  );
   if (queryResults?.ResultSet?.Rows?.[0]?.Data === undefined)
     throw new Error("Invalid query results");
   const columns = queryResults.ResultSet.Rows[0].Data;
@@ -104,7 +85,7 @@ const formattedQueryResults = async (
   return rows
     .filter((val: Datum[] | undefined): val is Datum[] => val !== undefined)
     .map((row) =>
-      row.reduce<StringObject>((acc, _, index) => {
+      row.reduce((acc, _, index) => {
         const fieldName = columns[index].VarCharValue;
         const fieldValue = row[index].VarCharValue;
         return fieldName === undefined || fieldValue === undefined
@@ -114,20 +95,5 @@ const formattedQueryResults = async (
               [fieldName]: fieldValue,
             };
       }, {})
-    );
-};
-
-const queryObject = async (queryId: string): Promise<any> => {
-  const queryResults: StringObject[] = await formattedQueryResults(queryId);
-  const strFromQuery = JSON.stringify(queryResults);
-  return JSON.parse(strFromQuery);
-};
-
-export {
-  startQueryExecutionCommand,
-  getQueryExecutionStatus,
-  getQueryResults,
-  waitAndGetQueryResults,
-  formattedQueryResults,
-  queryObject,
+    ) as TResponse[];
 };

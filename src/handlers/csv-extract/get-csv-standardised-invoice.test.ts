@@ -34,36 +34,36 @@ describe("CSV Standardised invoice getter", () => {
 
   test("should return StandardisedLineItems when given a valid CsvObject that has 3 line items, with two that have service_names in the vendor service config", () => {
     givenValidCsvObject = {
-      Vendor: "Vendor One",
-      "Invoice Date": "2023/02/28",
-      "Due Date": "2023/03/28",
-      "VAT Number": "123 4567 89",
-      "PO Number": "370 000",
-      Version: "1.0.0",
+      vendor: "Vendor One",
+      "invoice date": "2023/02/28",
+      "due date": "28/03/2023",
+      "vat number": "123 4567 89",
+      "po number": "370 000",
+      version: "1.0.0",
       lineItems: [
         {
-          "Service Name": "Check one",
-          "Unit Price": "0.34",
-          Quantity: "13788",
-          Tax: "937.584",
-          Subtotal: "4687.92",
-          Total: "5625.504",
+          "service name": "Check one",
+          "unit price": "0.34",
+          quantity: "13788",
+          tax: "937.584",
+          subtotal: "4687.92",
+          total: "5625.504",
         },
         {
-          "Service Name": "Check two",
-          "Unit Price": "3.95",
-          Quantity: "83",
-          Tax: "65.57",
-          Subtotal: "327.85",
-          Total: "393.42",
+          "service name": "Check two",
+          "unit price": "3.95",
+          quantity: "83",
+          tax: "65.57",
+          subtotal: "327.85",
+          total: "393.42",
         },
         {
-          "Service Name": "Check three",
-          "Unit Price": "20",
-          Quantity: "3",
-          Tax: "12",
-          Subtotal: "60",
-          Total: "72",
+          "service name": "Check three",
+          "unit price": "20",
+          quantity: "3",
+          tax: "12",
+          subtotal: "60",
+          total: "72",
         },
       ],
     };
@@ -118,20 +118,20 @@ describe("CSV Standardised invoice getter", () => {
 
   test("should throw error when given a valid CsvObject that has an invalid date", () => {
     givenCsvObjectWithInvalidDate = {
-      Vendor: "Vendor One",
-      "Invoice Date": "2023/02/28",
-      "Due Date": "an invalid date", // <- invalid date
-      "VAT Number": "123 4567 89",
-      "PO Number": "370 000",
-      Version: "1.0.0",
+      vendor: "Vendor One",
+      "invoice date": "2023/02/28",
+      "due date": "an invalid date", // <- invalid date
+      "vat number": "123 4567 89",
+      "po number": "370 000",
+      version: "1.0.0",
       lineItems: [
         {
-          "Service Name": "Check one",
-          "Unit Price": "0.34",
-          Quantity: "13788",
-          Tax: "937.584",
-          Subtotal: "4687.92",
-          Total: "5625.504",
+          "service name": "Check one",
+          "unit price": "0.34",
+          quantity: "13788",
+          tax: "937.584",
+          subtotal: "4687.92",
+          total: "5625.504",
         },
       ],
     };
@@ -148,20 +148,20 @@ describe("CSV Standardised invoice getter", () => {
 
   test("should throw error when given a valid CsvObject that has an invalid number", () => {
     givenCsvObjectWithInvalidNumber = {
-      Vendor: "Vendor One",
-      "Invoice Date": "2023/02/28",
-      "Due Date": "2023/03/28",
-      "VAT Number": "123 4567 89",
-      "PO Number": "370 000",
-      Version: "1.0.0",
+      vendor: "Vendor One",
+      "invoice date": "2023/02/28",
+      "due date": "2023/03/28",
+      "vat number": "123 4567 89",
+      "po number": "370 000",
+      version: "1.0.0",
       lineItems: [
         {
-          "Service Name": "Check one",
-          "Unit Price": "x", // <- invalid number
-          Quantity: "13788",
-          Tax: "937.584",
-          Subtotal: "4687.92",
-          Total: "5625.504",
+          "service name": "Check one",
+          "unit price": "x", // <- invalid number
+          quantity: "13788",
+          tax: "937.584",
+          subtotal: "4687.92",
+          total: "5625.504",
         },
       ],
     };
@@ -177,20 +177,20 @@ describe("CSV Standardised invoice getter", () => {
 
   test("should throw error when given a valid CsvObject that has an empty number field", () => {
     givenCsvObjectWithInvalidNumber = {
-      Vendor: "Vendor One",
-      "Invoice Date": "2023/02/28",
-      "Due Date": "2023/03/28",
-      "VAT Number": "123 4567 89",
-      "PO Number": "370 000",
-      Version: "1.0.0",
+      vendor: "Vendor One",
+      "invoice date": "2023/02/28",
+      "due date": "2023/03/28",
+      "vat number": "123 4567 89",
+      "po number": "370 000",
+      version: "1.0.0",
       lineItems: [
         {
-          "Service Name": "Check one",
-          "Unit Price": "", // <- empty field
-          Quantity: "13788",
-          Tax: "937.584",
-          Subtotal: "4687.92",
-          Total: "5625.504",
+          "service name": "Check one",
+          "unit price": "", // <- empty field
+          quantity: "13788",
+          tax: "937.584",
+          subtotal: "4687.92",
+          total: "5625.504",
         },
       ],
     };
