@@ -8,7 +8,7 @@ import {
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { generateEventViaStorageLambdaAndCheckEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { invokeStorageLambdaAndVerifyEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
 describe("\nExecute athena transaction curated query to retrieve price \n", () => {
   test.each`
@@ -45,10 +45,9 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
           timestamp: new Date(eventTime).getTime(),
           credits,
         });
-        const result =
-          await generateEventViaStorageLambdaAndCheckEventInS3Bucket(
-            eventPayload
-          );
+        const result = await invokeStorageLambdaAndVerifyEventInS3Bucket(
+          eventPayload
+        );
         expect(result.success).toBe(true);
         totalCredits = totalCredits + credits;
       }

@@ -5,7 +5,7 @@ import {
   generateRandomId,
   StorageEventPayload,
 } from "./payloadHelper";
-import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "./testDataHelper";
+import { invokeFilterLambdaAndVerifyEventInS3Bucket } from "./testDataHelper";
 
 const objectsPrefix = "btm_event_data";
 
@@ -94,7 +94,7 @@ export const generateTestEvents = async (
       timestamp_formatted: eventTime,
       timestamp: new Date(eventTime).getTime() / 1000,
     });
-    await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
+    await invokeFilterLambdaAndVerifyEventInS3Bucket(eventPayload);
   }
 };
 
