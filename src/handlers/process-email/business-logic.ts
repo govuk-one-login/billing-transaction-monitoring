@@ -8,8 +8,6 @@ export const businessLogic: BusinessLogic<
   never,
   EmailAttachment
 > = async (event, { logger }, meta) => {
-  logger.info(`Processing email ${JSON.stringify(event)}`); // TO DO Remove logger.info and add decryption of email which is covered in BTM-575.
-
   // File must be in a vendor ID folder in the Raw Email bucket, which determines folder for the Raw Invoice bucket. Throw error otherwise.
   let vendorId: string;
   let sourceFileName: string;

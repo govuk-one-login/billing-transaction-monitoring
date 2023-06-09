@@ -2,53 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  TempRawEmailBucket: # This and the policy below will be replaced by the infra created in BTM-471
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub ${AWS::StackName}-temp-raw-email-bucket
-      AccessControl: Private
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt KmsKey.Arn
-            BucketKeyEnabled: true
-      VersioningConfiguration:
-        Status: Enabled
-      LoggingConfiguration:
-        DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: temp-raw-email-bucket/log
-      NotificationConfiguration:
-        QueueConfigurations:
-          - Event: s3:ObjectCreated:*
-            Queue: !GetAtt EmailProcessingQueue.Arn
-      LifecycleConfiguration:
-        Rules:
-          - ExpirationInDays: 1825 # Five years
-            Status: Enabled
-
-  TempRawEmailBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref TempRawEmailBucket
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Deny
-            Principal: '*'
-            Action: s3:*
-            Resource:
-              - !Sub ${TempRawEmailBucket.Arn}
-              - !Sub ${TempRawEmailBucket.Arn}/*
-            Condition:
-              Bool:
-                aws:SecureTransport: false
-
   EmailProcessingQueue: # This SQS is required as per BTM-558
     Type: AWS::SQS::Queue
     Properties:
@@ -66,7 +19,7 @@ Resources:
           - Action: SQS:SendMessage
             Condition:
               ArnLike:
-                aws:SourceArn: !Sub arn:aws:s3:*:*:${AWS::StackName}-temp-raw-email-bucket # no reference as this needs to be created before the bucket
+                aws:SourceArn: !Sub arn:aws:s3:*:*:${AWS::StackName}-email # no reference as this needs to be created before the bucket
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
             Effect: Allow
@@ -117,7 +70,11 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           DESTINATION_BUCKET: !Ref RawInvoiceBucket
           LOCAL_ENDPOINT:
-            !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
+            !If [
+              IsLocal,
+              'http://s3.localhost.localstack.cloud:4566',
+              !Ref AWS::NoValue,
+            ]
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-email-processing-function
       Events:
         EmailProcessingEvent:
@@ -141,14 +98,16 @@ Resources:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
-              Resource: !GetAtt KmsKey.Arn
+              Resource:
+                - !GetAtt KmsKey.Arn
+                - !GetAtt MultiRegionKmsKey.Arn
             - Effect: Allow
               Action:
                 - s3:GetObject
                 - s3:ListBucket
               Resource:
-                - !GetAtt TempRawEmailBucket.Arn
-                - !Join ['/', [!GetAtt TempRawEmailBucket.Arn, '*']]
+                - !GetAtt EmailBucket.Arn
+                - !Sub ${EmailBucket.Arn}/*
             - Effect: Allow
               Action:
                 - s3:PutObject

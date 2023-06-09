@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { mockClient } from "aws-sdk-client-mock";
 import {
   S3Client,
@@ -17,6 +18,10 @@ import {
   putS3,
   putTextS3,
 } from "./s3";
+import { decryptKms } from "./kms";
+
+jest.mock("./kms");
+const mockedDecryptKms = decryptKms as jest.Mock;
 
 jest.mock("./logger");
 
@@ -27,6 +32,7 @@ const key = "given/key";
 const record = { record: "given record" };
 
 beforeEach(() => {
+  jest.resetAllMocks();
   s3Mock = mockClient(S3Client);
 });
 
@@ -242,15 +248,84 @@ test("Fetch object without callback error", async () => {
 });
 
 test("Fetch object with undefined error", async () => {
-  s3Mock.on(GetObjectCommand).resolves({
-    Body: {
-      transformToString: () => undefined,
-    },
-  } as any);
+  s3Mock.on(GetObjectCommand).resolves({} as any);
 
   await expect(fetchS3(bucket, key)).rejects.toThrowError(
     `No data found in ${bucket}/${key}`
   );
+});
+
+describe("Fetch encrypted object", () => {
+  let mockedAuthTagBitCountText: string;
+  let mockedBody: string;
+  let mockedEncryptedBytes: Uint8Array;
+  let mockedEncryptedKey: string;
+  let mockedEncryptionAlgorithmName: string;
+  let mockedEncryptionKey: Uint8Array;
+  let mockedEncryptionKeyContext: {};
+  let mockedEncryptionKeyContextText: string;
+  let mockedInitialisationVectorBase64Text: string;
+  let mockedS3Response: any;
+
+  beforeEach(() => {
+    mockedBody = "mocked body";
+    ({
+      mockedAuthTagBitCountText,
+      mockedEncryptedBytes,
+      mockedEncryptionAlgorithmName,
+      mockedEncryptionKey,
+      mockedInitialisationVectorBase64Text,
+    } = mockEncryptedS3ObjectData(mockedBody));
+    mockedEncryptedKey = "mocked encrypted key";
+    mockedEncryptionKeyContext = { foo: "bar" };
+    mockedEncryptionKeyContextText = JSON.stringify(mockedEncryptionKeyContext);
+    mockedDecryptKms.mockResolvedValue(mockedEncryptionKey);
+    mockedS3Response = {
+      Body: {
+        transformToByteArray: async () => mockedEncryptedBytes,
+      },
+      Metadata: {
+        "x-amz-cek-alg": mockedEncryptionAlgorithmName,
+        "x-amz-iv": mockedInitialisationVectorBase64Text,
+        "x-amz-key-v2": mockedEncryptedKey,
+        "x-amz-matdesc": mockedEncryptionKeyContextText,
+        "x-amz-tag-len": mockedAuthTagBitCountText,
+      },
+    };
+    s3Mock.on(GetObjectCommand).resolves(mockedS3Response);
+  });
+
+  it("Fetch encrypted object", async () => {
+    const result = await fetchS3(bucket, key);
+
+    expect(result).toBe(mockedBody);
+    expect(mockedDecryptKms).toHaveBeenCalledTimes(1);
+    expect(mockedDecryptKms).toHaveBeenCalledWith(
+      Buffer.from(mockedEncryptedKey, "base64"),
+      mockedEncryptionKeyContext
+    );
+  });
+
+  it("Fetch encrypted object with invalid encryption algorithm", async () => {
+    mockedS3Response.Metadata["x-amz-cek-alg"] =
+      "mocked invalid encryption algorithm name";
+
+    const resultPromise = fetchS3(bucket, key);
+
+    await expect(resultPromise).rejects.toThrow(
+      "Unsupported encryption algorithm"
+    );
+    expect(mockedDecryptKms).not.toHaveBeenCalled();
+  });
+
+  it("Fetch encrypted object with invalid encryption key context", async () => {
+    mockedS3Response.Metadata["x-amz-matdesc"] = "null";
+
+    const resultPromise = fetchS3(bucket, key);
+
+    await expect(resultPromise).rejects.toThrow("Invalid key context");
+    expect(mockedDecryptKms).not.toHaveBeenCalled();
+  });
 });
 
 describe("S3 event records getter tests", () => {
@@ -393,3 +468,46 @@ describe("S3 keys lister tests", () => {
     expect(result).toEqual([mockedDefinedKey1, mockedDefinedKey2]);
   });
 });
+
+const mockEncryptedS3ObjectData = (
+  body: string
+): {
+  mockedAuthTagBitCountText: string;
+  mockedEncryptedBytes: Uint8Array;
+  mockedEncryptionAlgorithmName: string;
+  mockedEncryptionKey: Uint8Array;
+  mockedInitialisationVectorBase64Text: string;
+} => {
+  const keyBuffer = crypto.randomBytes(32);
+  const key = new Uint8Array(keyBuffer);
+
+  const initialisationVector = crypto.randomBytes(123);
+
+  const authTagLength = 12;
+
+  const cipher = crypto.createCipheriv(
+    "aes-256-gcm",
+    key,
+    initialisationVector,
+    { authTagLength }
+  );
+
+  const encryptedBodyBuffer1 = cipher.update(body);
+  const encryptedBodyBuffer2 = cipher.final();
+  const authTagBuffer = cipher.getAuthTag();
+
+  const encryptedBuffer = Buffer.concat([
+    encryptedBodyBuffer1,
+    encryptedBodyBuffer2,
+    authTagBuffer,
+  ]);
+
+  return {
+    mockedAuthTagBitCountText: String(authTagLength * 8),
+    mockedEncryptedBytes: new Uint8Array(encryptedBuffer),
+    mockedEncryptionAlgorithmName: "AES/GCM/NoPadding",
+    mockedEncryptionKey: key,
+    mockedInitialisationVectorBase64Text:
+      initialisationVector.toString("base64"),
+  };
+};

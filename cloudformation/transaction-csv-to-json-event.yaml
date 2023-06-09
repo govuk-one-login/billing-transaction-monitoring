@@ -64,7 +64,8 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           OUTPUT_QUEUE_URL: !Ref CleanQueue
-          LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+          LOCAL_ENDPOINT:
+            !If [IsLocal, 'http://localhost:4566', !Ref AWS::NoValue]
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-transaction-csv-to-json-event-function
       Handler: transactionCsvToJsonEvent.handler
