@@ -6,7 +6,7 @@ import {
   checkStandardised,
   createInvoiceWithGivenData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
-import { getFilteredQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
 import {
   getVendorServiceAndRatesFromConfig,
@@ -80,7 +80,7 @@ export const assertQueryResultWithTestData = async (
   serviceName: string
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
-  const response = await getFilteredQueryResponse<BillingTransactionCurated>(
+  const response = await getQueryResponse<BillingTransactionCurated>(
     tableName,
     vendorId,
     serviceName,

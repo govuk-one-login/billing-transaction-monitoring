@@ -1,0 +1,21 @@
+{
+  "Records": [
+    {
+      "messageId": "a81a7828-579c-4958-b67a",
+      "receiptHandle": "some internal handle",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "AWSTraceHeader": "Root=1;Parent=399a;Sampled=0",
+        "SentTimestamp": "1678100513623",
+        "SenderId": "some",
+        "ApproximateFirstReceiveTimestamp": "1678100513624"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "85ad2f0e387ac27df",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "testPayload",
+      "awsRegion": "eu-west-2",
+      "body": "{\"component_id\":\"Test_COMP\",\"event_id\":\"intTestEvents_8972459\",\"timestamp\":1677628800,\"event_name\":\"VENDOR_1_EVENT_1\",\"timestamp_formatted\":\"2023/03/01\"}"
+    }
+  ]
+}

@@ -89,16 +89,27 @@ export const invalidEventPayloadTimestampFormatted: EventPayload = {
   timestamp_formatted: 123 as unknown as string,
 };
 
-export const updateSQSEventPayloadBody = async (
-  eventPayload: EventPayload
+export const updateSQSEventPayloadBody = async <TPayload>(
+  eventPayload: TPayload,
+  validEventPayloadFilename: string
 ): Promise<string> => {
   // update SQS Event body value with eventPayload
-  const sqsEventFilePath = path.join(
-    __dirname,
-    "../../../../integration_tests/payloads/validSQSEventPayload.json"
-  );
+  const sqsEventFilePath = path.join(__dirname, validEventPayloadFilename);
   const sqsEventPayloadFileContent = fs.readFileSync(sqsEventFilePath, "utf-8");
   const sqsEventPayload = JSON.parse(sqsEventPayloadFileContent);
   sqsEventPayload.Records[0].body = JSON.stringify(eventPayload);
   return JSON.stringify(sqsEventPayload);
 };
+
+export interface StorageEventPayload {
+  vendor_id: string;
+  component_id: string;
+  event_id: string;
+  event_name: string;
+  timestamp: number;
+  timestamp_formatted: string;
+  credits?: number;
+  user?: {
+    transaction_id?: string;
+  };
+}
