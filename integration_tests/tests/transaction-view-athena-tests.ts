@@ -1,16 +1,22 @@
 import {
-  generateTestStorageEvent,
+  checkS3BucketForEventId,
+  generateTestCleanedEvent,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   VendorId,
   EventName,
+  CleanedEventPayload,
   prettyEventNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
+import {
+  S3Object,
+  putS3Object,
+} from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { invokeStorageLambdaAndVerifyEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 
-describe("\nExecute athena transaction curated query to retrieve price \n", () => {
+describe("\nUpload events to s3 directly and check the transaction curated view \n", () => {
   test.each`
     eventName             | vendorId                | numberOfTestCredits | unitPrice | eventTime
     ${"VENDOR_1_EVENT_1"} | ${"vendor_testvendor1"} | ${2}                | ${1.23}   | ${"2005/06/30 10:00"}
@@ -38,17 +44,31 @@ describe("\nExecute athena transaction curated query to retrieve price \n", () =
       while (totalCredits < numberOfTestCredits) {
         const creditsLeft = numberOfTestCredits - totalCredits;
         const credits = Math.floor(Math.random() * creditsLeft + 1);
-        const eventPayload = await generateTestStorageEvent({
-          event_name: eventName,
-          vendor_id: vendorId,
-          timestamp_formatted: eventTime,
-          timestamp: new Date(eventTime).getTime(),
-          credits,
+        const eventPayload: CleanedEventPayload =
+          await generateTestCleanedEvent({
+            event_name: eventName,
+            vendor_id: vendorId,
+            timestamp_formatted: eventTime,
+            timestamp: new Date(eventTime).getTime(),
+            credits,
+          });
+        const prefix = resourcePrefix();
+        const s3Object: S3Object = {
+          bucket: `${prefix}-storage`,
+          key: `${"btm_event_data"}/${eventPayload.timestamp_formatted.slice(
+            0,
+            10
+          )}/${eventPayload.event_id}.json`,
+        };
+        await putS3Object({
+          data: JSON.stringify(eventPayload),
+          target: s3Object,
         });
-        const result = await invokeStorageLambdaAndVerifyEventInS3Bucket(
-          eventPayload
+        const eventExistsInS3 = await checkS3BucketForEventId(
+          eventPayload.event_id,
+          7000
         );
-        expect(result.success).toBe(true);
+        expect(eventExistsInS3).toBe(true);
         totalCredits = totalCredits + credits;
       }
       const tableName = TableNames.TRANSACTION_CURATED;

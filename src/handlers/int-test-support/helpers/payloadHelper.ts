@@ -30,6 +30,10 @@ export interface EventPayload {
   component_id: string;
   timestamp: number;
   timestamp_formatted: string;
+  user?: {
+    transaction_id?: string;
+  };
+  evidence?: unknown[];
 }
 
 export const prettyVendorNameMap = {
@@ -54,7 +58,7 @@ export const validEventPayload: EventPayload = {
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: validTimestamp("2005-01-30"),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
+  timestamp_formatted: "2005-01-30",
 };
 
 export const invalidEventPayloadEventName: EventPayload = {
@@ -62,7 +66,7 @@ export const invalidEventPayloadEventName: EventPayload = {
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: validTimestamp("2005-01-30"),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
+  timestamp_formatted: "2005-01-30",
 };
 
 export const invalidEventPayloadTimeStamp: EventPayload = {
@@ -70,7 +74,7 @@ export const invalidEventPayloadTimeStamp: EventPayload = {
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   timestamp: "somestring" as unknown as number,
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
+  timestamp_formatted: "2005-01-30",
 };
 
 export const invalidEventPayloadComponentId: EventPayload = {
@@ -78,7 +82,7 @@ export const invalidEventPayloadComponentId: EventPayload = {
   event_id: generateRandomId(),
   component_id: 5678 as unknown as string,
   timestamp: validTimestamp("2005-01-30"),
-  timestamp_formatted: JSON.stringify(new Date(validTimestamp("2005-01-30"))),
+  timestamp_formatted: "2005-01-30",
 };
 
 export const invalidEventPayloadTimestampFormatted: EventPayload = {
@@ -87,6 +91,18 @@ export const invalidEventPayloadTimestampFormatted: EventPayload = {
   component_id: "TEST_COMP",
   timestamp: validTimestamp("2005-01-30"),
   timestamp_formatted: 123 as unknown as string,
+};
+
+export const validCleanedEventPayload: CleanedEventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-01-30"),
+  timestamp_formatted: "2005-01-30",
+  vendor_id: VendorId.vendor_testvendor1,
+  user: {
+    transaction_id: "12345",
+  },
 };
 
 export const updateSQSEventPayloadBody = async <TPayload>(
@@ -101,7 +117,7 @@ export const updateSQSEventPayloadBody = async <TPayload>(
   return JSON.stringify(sqsEventPayload);
 };
 
-export interface StorageEventPayload {
+export interface CleanedEventPayload {
   vendor_id: string;
   component_id: string;
   event_id: string;

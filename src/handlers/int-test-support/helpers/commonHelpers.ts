@@ -3,7 +3,7 @@ import { resourcePrefix } from "./envHelper";
 import {
   EventPayload,
   generateRandomId,
-  StorageEventPayload,
+  CleanedEventPayload,
 } from "./payloadHelper";
 import { invokeFilterLambdaAndVerifyEventInS3Bucket } from "./testDataHelper";
 
@@ -140,13 +140,13 @@ export const checkS3BucketForEventId = async (
   }
 };
 
-export const generateTestStorageEvent = async (
-  overrides: Partial<StorageEventPayload> &
+export const generateTestCleanedEvent = async (
+  overrides: Partial<CleanedEventPayload> &
     Pick<
-      StorageEventPayload,
+      CleanedEventPayload,
       "event_name" | "timestamp_formatted" | "timestamp" | "vendor_id"
     >
-): Promise<StorageEventPayload> => ({
+): Promise<CleanedEventPayload> => ({
   event_id: generateRandomId(),
   component_id: "TEST_COMP",
   ...overrides,
