@@ -1,5 +1,6 @@
-const CopyPlugin = require('copy-webpack-plugin')
-const path = require('path');
+const CopyPlugin = require("copy-webpack-plugin");
+const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   devtool: "source-map",
@@ -31,17 +32,28 @@ module.exports = {
       { test: /.node$/, loader: "node-loader" },
       { test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ },
       {
+        test: /\.css$/i,
+        loader: "css-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
+      {
         test: /\.s[ac]ss$/i,
         use: [
-          // Creates `style` nodes from JS strings
-          "style-loader",
+          // // Creates `style` nodes from JS strings
+          // "style-loader",
+
+          MiniCssExtractPlugin.loader,
+
           // Translates CSS into CommonJS
           "css-loader",
-          // Compiles Sass to CSS
-          "sass-loader",
 
-          // Hack to attempt to load app.scss
-          path.resolve(__dirname, "./src/loader"),
+          // // Compiles Sass to CSS
+          // "sass-loader",
+          //
+          // // Hack to attempt to load app.scss
+          // path.resolve(__dirname, "./src/loader"),
         ],
       },
     ],
@@ -65,6 +77,7 @@ module.exports = {
         },
       ],
     }),
+    new MiniCssExtractPlugin(),
   ],
   resolve: {
     extensions: [".js", ".ts"],

@@ -3,6 +3,7 @@ import nunjucks from "nunjucks";
 import path from "path";
 import { fileURLToPath } from "url";
 import "./assets/styles/app.scss";
+// import "./assets/styles/style.css"
 
 let dirname;
 try {

@@ -43,6 +43,7 @@
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.28",
     "lint-staged": "^13.1.0",
+    "mini-css-extract-plugin": "^2.7.6",
     "node-cache": "^5.1.2",
     "node-loader": "^2.0.0",
     "node-sass": "^9.0.0",
