@@ -78,9 +78,8 @@ export const invokeStorageLambdaAndVerifyEventInS3Bucket = async (
 ): Promise<GenerateEventsResult> => {
   const updatedSQSEventPayload = await updateSQSEventPayloadBody(
     payload,
-    "../../../../integration_tests/payloads/validSQSStorageEventPayload.json"
+    "../../../../integration_tests/payloads/validSQSEventPayload.json"
   );
-  console.log(`updatedSQSEventPayload=${updatedSQSEventPayload}`);
   return await invokeLambdaAndVerifyEventInS3Bucket(
     updatedSQSEventPayload,
     `${resourcePrefix()}-storage-function`
