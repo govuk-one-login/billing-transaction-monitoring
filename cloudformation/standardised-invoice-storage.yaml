@@ -80,7 +80,11 @@ Resources:
           DESTINATION_BUCKET: !Ref StorageBucket
           DESTINATION_FOLDER: btm_invoice_data
           LOCAL_ENDPOINT:
-            !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
+            !If [
+              IsLocal,
+              'http://s3.localhost.localstack.cloud:4566',
+              !Ref AWS::NoValue,
+            ]
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-standardised-invoice-storage-function
       Events:
         InvoiceStorageEvent:

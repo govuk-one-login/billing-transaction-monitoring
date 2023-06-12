@@ -50,7 +50,8 @@ Resources:
       Environment:
         Variables:
           OUTPUT_QUEUE_URL: !Ref StorageQueue
-          LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', '']
+          LOCAL_ENDPOINT:
+            !If [IsLocal, 'http://localhost:4566', !Ref AWS::NoValue]
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-clean-function
       Events:
