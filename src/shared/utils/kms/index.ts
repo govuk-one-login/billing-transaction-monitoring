@@ -1,10 +1,11 @@
+import { KMS } from "aws-sdk";
 import { Blob } from "node:buffer";
 import { TextEncoder } from "node:util";
 import { kms } from "./client";
 
 export const decryptKms = async (
   encryptedBytes: Uint8Array,
-  context: {}
+  context: KMS.EncryptionContextType
 ): Promise<Uint8Array> => {
   const request = {
     CiphertextBlob: encryptedBytes,
