@@ -170,7 +170,6 @@ const destroyStack = async (
     console.log(deleteResult.error.toString());
     process.exit(-1);
   }
-  let resourcesFailed: StackResourceSummary[] = [];
   while (true) {
     const resources: StackResourceSummary[] = await listAllStackResources(
       stackName
@@ -179,7 +178,7 @@ const destroyStack = async (
       (r) => r.ResourceStatus === "DELETE_COMPLETE"
     ).length;
     const numberLeft = resources.length - numberDeleted;
-    resourcesFailed = resources.filter(
+    const resourcesFailed = resources.filter(
       (r) => r.ResourceStatus === "DELETE_FAILED"
     );
 
