@@ -11,34 +11,56 @@ export const deepWrite = (target: any, key: string, value: unknown): any => {
 };
 
 export const areArraysEqual = (
-  arrAInit: any[],
-  arrBInit: any[],
-  { ensureOrder }: { ensureOrder: boolean } = { ensureOrder: false }
+  arrAInit: unknown[],
+  arrBInit: unknown[],
+  { ignoreOrder }: { ignoreOrder: boolean } = { ignoreOrder: false }
 ): boolean => {
   const arrA = [...arrAInit];
   const arrB = [...arrBInit];
-  if (!ensureOrder) {
+  if (ignoreOrder) {
     arrA.sort();
     arrB.sort();
   }
-  return arrA.reduce((_, cur, i) => {
-    console.log(cur, arrB[i]);
+  return arrA.reduce<boolean>((_, cur, i) => {
     return cur === arrB[i];
   }, true);
 };
 
+type Primitive = boolean | number | string;
 const primitives = ["boolean", "number", "string"];
-const isPrimitive = (value: any): boolean => primitives.includes(typeof value);
+const isPrimitive = (value: unknown): value is Primitive =>
+  primitives.includes(typeof value);
+
+type PathCommand = ["!Path", Primitive | Command];
+type EqualsCommand = ["!Equals", Primitive | Command, Primitive | Command];
+type NotCommand = ["!Not", Primitive | Command];
+type IfCommand = [
+  "!If",
+  Primitive | Command,
+  Primitive | Command,
+  Primitive | Command
+];
+
+type Command = PathCommand | EqualsCommand | NotCommand | IfCommand;
 
 const commands = ["!Path", "!Equals", "!Not", "!If"];
-const isCommand = (value: any): boolean =>
+
+const isCommand = (value: unknown): value is Command =>
   Array.isArray(value) &&
   typeof value[0] === "string" &&
   commands.includes(value[0]);
 
-const doCommand = (command: any, thing: any): any => {
-  // console.log("🚀 ~ file: xform.ts:40 ~ doCommand ~ command:", command);
-  if (isPrimitive(command)) return command;
+const _isSpecificCommand = <TCommand extends Command>(
+  value: unknown,
+  commandKeyWord: TCommand[0]
+): value is TCommand =>
+  Array.isArray(value) &&
+  typeof value[0] === "string" &&
+  commands.includes(value[0]) &&
+  value[0] === commandKeyWord;
+
+const doCommand = (command: Primitive | Command, thing: any): any => {
+  if (!isCommand(command)) return command;
   switch (command[0]) {
     case "!Path":
       return jsonpath.query(thing, doCommand(command[1], thing));
@@ -77,12 +99,6 @@ export const xform =
   (config: any) =>
   (thing: any): any =>
     Object.entries(config).reduce(
-      (acc, [key, value]) => {
-        if (isCommand(value)) {
-          const commandRes = doCommand(value, thing);
-          return deepWrite(acc, key, commandRes);
-        }
-        return deepWrite(acc, key, value);
-      },
+      (acc, [key, value]) => deepWrite(acc, key, doCommand(value, thing)),
       { ...thing }
     );

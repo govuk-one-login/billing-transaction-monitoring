@@ -118,6 +118,13 @@ describe("xform v2", () => {
       };
       expect(xform(xformConfig)(i)).toEqual(o);
     });
+
+    test("returns an empty array for empty paths", () => {
+      const res = xform({ a: ["!Path", "$.b"], c: ["!Path", "$.d"] })({
+        d: undefined,
+      });
+      expect(res).toEqual({ a: [], c: [] });
+    });
   });
 
   describe("!Equals", () => {
@@ -173,7 +180,7 @@ describe("xform v2", () => {
           xform({
             b: ["!Equals", [1, 3, 2], [1, 2, 3]],
           })({})
-        ).toEqual({ b: true });
+        ).toEqual({ b: false });
       });
 
       test("non-matching arrays ", () => {
@@ -184,12 +191,12 @@ describe("xform v2", () => {
         ).toEqual({ c: false });
       });
 
-      test("matching arrays in different orders with ensureOrder option on", () => {
+      test("matching arrays in different orders with ignoreOrder option on", () => {
         expect(
           xform({
-            d: ["!Equals", [1, 3, 2], [1, 2, 3], { ensureOrder: true }],
+            d: ["!Equals", [1, 3, 2], [1, 2, 3], { ignoreOrder: true }],
           })({})
-        ).toEqual({ d: false });
+        ).toEqual({ d: true });
       });
     });
 
