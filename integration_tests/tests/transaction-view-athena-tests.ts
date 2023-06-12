@@ -9,6 +9,7 @@ import {
   EventName,
   CleanedEventPayload,
   prettyEventNameMap,
+  prettyVendorNameMap,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import {
   S3Object,
@@ -24,7 +25,7 @@ describe("\nUpload events to s3 directly and check the transaction curated view 
     ${"VENDOR_3_EVENT_4"} | ${"vendor_testvendor3"} | ${7}                | ${4.0}    | ${"2005/08/10 10:00"}
     ${"VENDOR_3_EVENT_6"} | ${"vendor_testvendor3"} | ${14}               | ${8.88}   | ${"2005/09/10 10:00"}
   `(
-    "price retrieved from transaction_curated athena view query should match with expected calculated price for $numberOfTestCredits",
+    "data retrieved from transaction_curated athena view should match the input data $eventName, $vendorId, $numberOfTestCredits, $eventTime",
     async ({
       eventName,
       vendorId,
@@ -80,7 +81,19 @@ describe("\nUpload events to s3 directly and check the transaction curated view 
         eventTime
       );
       expect(response.length).toBe(1);
+      expect(response[0].vendor_id).toBe(vendorId);
+      expect(response[0].vendor_name).toBe(prettyVendorNameMap[vendorId]);
+      expect(response[0].event_name).toBe(eventName);
       expect(response[0].price).toEqual(expectedPrice);
+      expect(response[0].quantity).toBe(numberOfTestCredits.toString());
+      expect(response[0].year).toEqual(
+        new Date(eventTime).getFullYear().toString()
+      );
+      expect(response[0].month).toEqual(
+        new Date(eventTime).toLocaleString("en-US", {
+          month: "2-digit",
+        })
+      );
     }
   );
 });
@@ -88,6 +101,7 @@ describe("\nUpload events to s3 directly and check the transaction curated view 
 type TransactionCurated = Array<{
   vendor_id: string;
   vendor_name: string;
+  event_name: string;
   service_name: string;
   price: string;
   quantity: string;
