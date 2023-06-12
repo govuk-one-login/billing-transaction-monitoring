@@ -75,7 +75,8 @@
     "sam:deploy": "sam deploy --disable-rollback --no-fail-on-empty-changeset --stack-name di-btm-${ENV_NAME} --parameter-overrides Environment=dev PrivateConfigStack=${CONFIG_NAME:-none} TestRoleArn=${TEST_ROLE_ARN:-none} EnableAlerting=${ENABLE_ALERTING:-false} --s3-prefix ${ENV_NAME}",
     "sam:teardown": "ts-node --esm src/tools/teardown-cf-stack.ts",
     "typecheck": "tsc --noEmit",
-    "start": "nodemon --esm --experimental-specifier-resolution=node src/frontend/server.ts"
+    "start": "nodemon --esm --experimental-specifier-resolution=node src/frontend/server.ts",
+    "dev": "node dist/server.js"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",

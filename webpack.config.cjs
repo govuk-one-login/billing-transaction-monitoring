@@ -45,12 +45,11 @@ module.exports = {
           // "style-loader",
 
           MiniCssExtractPlugin.loader,
-
           // Translates CSS into CommonJS
           "css-loader",
 
-          // // Compiles Sass to CSS
-          // "sass-loader",
+          // Compiles Sass to CSS
+          "sass-loader",
           //
           // // Hack to attempt to load app.scss
           // path.resolve(__dirname, "./src/loader"),
@@ -77,7 +76,9 @@ module.exports = {
         },
       ],
     }),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: "app.css",
+    }),
   ],
   resolve: {
     extensions: [".js", ".ts"],

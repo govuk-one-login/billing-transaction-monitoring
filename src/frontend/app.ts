@@ -3,7 +3,6 @@ import nunjucks from "nunjucks";
 import path from "path";
 import { fileURLToPath } from "url";
 import "./assets/styles/app.scss";
-// import "./assets/styles/style.css"
 
 let dirname;
 try {
@@ -15,9 +14,6 @@ try {
 
 const app = express();
 
-const imageDir = path.join(dirname, "assets/images");
-const scriptDir = path.join(dirname, "assets/scripts");
-const styleDir = path.join(dirname, "assets/styles");
 const viewDir = path.join(dirname, "views");
 
 nunjucks.configure(["node_modules/govuk-frontend/", viewDir], {
@@ -31,10 +27,8 @@ app.get("/", (_, response) => {
   response.render("index.njk");
 });
 
-app.use("/images", express.static(imageDir));
-app.use("/scripts", express.static(scriptDir));
-app.use("/styles", express.static(styleDir));
-
-console.log("styleDir", styleDir);
+app.use("/images", express.static(dirname));
+app.use("/scripts", express.static(dirname));
+app.use("/styles", express.static(dirname));
 
 export { app };
