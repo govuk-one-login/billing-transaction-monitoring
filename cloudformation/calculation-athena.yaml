@@ -93,6 +93,8 @@ Resources:
               Type: string
             - Name: component_id
               Type: string
+            - Name: credits
+              Type: int
           Compressed: true
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
           Location: !Sub s3://${StorageBucket}/btm_event_data/
@@ -189,7 +191,7 @@ Resources:
           WITH btm_transactions_standardised_with_count
             AS (SELECT *,
                         "$path" path,
-                        "COUNT"(event_id)
+                        "SUM"(COALESCE(credits, 1))
                           OVER (
                             PARTITION BY event_name, vendor_id, year, month
                             ORDER BY year ASC, month ASC) month_event_count
@@ -201,9 +203,10 @@ Resources:
                         txn.timestamp,
                         txn.year,
                         txn.month,
+                        month_event_count,
                         ven.vendor_name,
                         ven.service_name,
-                        rates.unit_price transaction_price
+                        (COALESCE(credits, 1) * rates.unit_price) transaction_price
                 FROM (btm_transactions_standardised_with_count txn
                         LEFT JOIN "btm_vendor_service_standardised" ven 
                                 ON (txn.event_name = ven.event_name)
@@ -218,7 +221,7 @@ Resources:
                 "MAX"(event_name)        event_name,
                 "MAX"(service_name)      service_name,
                 "SUM"(transaction_price) price,
-                "COUNT"(event_id)        quantity,
+                "MAX"(month_event_count) quantity,
                 month,
                 year
           FROM   btm_transactions_harmonised

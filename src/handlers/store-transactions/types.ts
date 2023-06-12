@@ -5,6 +5,7 @@ export interface CleanedEventBody {
   event_name: string;
   timestamp: number;
   timestamp_formatted: string;
+  credits?: number;
   user?: {
     transaction_id?: string;
   };
@@ -28,6 +29,7 @@ export const isValidIncomingCleanedEventBody = (
   typeof x.timestamp === "number" &&
   "timestamp_formatted" in x &&
   typeof x.timestamp_formatted === "string" &&
+  (!("credits" in x) || typeof x.credits === "number") &&
   "event_name" in x &&
   typeof x.event_name === "string" &&
   "vendor_id" in x &&

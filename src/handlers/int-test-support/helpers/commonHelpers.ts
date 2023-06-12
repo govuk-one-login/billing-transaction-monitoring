@@ -1,7 +1,11 @@
 import { deleteS3Objects, listS3Objects } from "./s3Helper";
 import { resourcePrefix } from "./envHelper";
-import { EventPayload, generateRandomId } from "./payloadHelper";
-import { generateEventViaFilterLambdaAndCheckEventInS3Bucket } from "./testDataHelper";
+import {
+  EventPayload,
+  generateRandomId,
+  StorageEventPayload,
+} from "./payloadHelper";
+import { invokeFilterLambdaAndVerifyEventInS3Bucket } from "./testDataHelper";
 
 const objectsPrefix = "btm_event_data";
 
@@ -90,7 +94,7 @@ export const generateTestEvents = async (
       timestamp_formatted: eventTime,
       timestamp: new Date(eventTime).getTime() / 1000,
     });
-    await generateEventViaFilterLambdaAndCheckEventInS3Bucket(eventPayload);
+    await invokeFilterLambdaAndVerifyEventInS3Bucket(eventPayload);
   }
 };
 
@@ -109,13 +113,6 @@ export const deleteS3Event = async (
   });
   return true;
 };
-
-export function getYearMonth(dateStr: string): string {
-  const date = new Date(dateStr);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  return `${year}-${month}`;
-}
 
 export const checkS3BucketForEventId = async (
   eventIdString: string,
@@ -142,3 +139,15 @@ export const checkS3BucketForEventId = async (
     return false;
   }
 };
+
+export const generateTestStorageEvent = async (
+  overrides: Partial<StorageEventPayload> &
+    Pick<
+      StorageEventPayload,
+      "event_name" | "timestamp_formatted" | "timestamp" | "vendor_id"
+    >
+): Promise<StorageEventPayload> => ({
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  ...overrides,
+});
