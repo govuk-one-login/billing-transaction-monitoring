@@ -37,6 +37,7 @@ Parameters:
   FrontEndApi:
     Description: API for our frontend
     Type: AWS::Serverless::HttpApi
+    Default: none
 
   # Codes for error cases returned in response to queries from Grafana to BillingAndTransactionsCuratedView.
   QueryMessageNoChargeForThisMonth:
