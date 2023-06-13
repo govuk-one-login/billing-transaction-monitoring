@@ -26,7 +26,12 @@ app.get("/", (_, response) => {
   response.render("index.njk");
 });
 app.get("/contracts", (_, response) => {
-  response.render("contracts.njk");
+  response.render("contracts.njk", {
+    contracts: [
+      { name: "foo", id: 1 },
+      { name: "bar", id: 2 },
+    ],
+  });
 });
 app.get("/invoices", (_, response) => {
   response.render("invoices.njk");

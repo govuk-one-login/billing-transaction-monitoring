@@ -79,7 +79,9 @@
     "typecheck": "tsc --noEmit",
     "dev:ts": "nodemon --esm --experimental-specifier-resolution=node src/frontend/server.ts",
     "dev:css": "node-sass src/ -o src/ -w -r",
-    "dev": "npm-run-all -p dev:css dev:ts"
+    "dev": "npm-run-all -p dev:css dev:ts",
+    "build:css": "node-sass src/ -o src/",
+    "predev": "npm run build:css"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
