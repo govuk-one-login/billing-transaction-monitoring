@@ -122,7 +122,7 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/custom-athena-view-resource.yaml#NO_LOCAL,
   ./cloudformation/invoice-athena.yaml#NO_LOCAL,
   ./cloudformation/email-storage.yaml,
-  ./cloudformation/dashboard-data-extraction.yaml#NO_LOCAL
+  ./cloudformation/dashboard-data-extraction.yaml#NO_LOCAL,
   ./cloudformation/frontend.yaml
 
 Outputs:

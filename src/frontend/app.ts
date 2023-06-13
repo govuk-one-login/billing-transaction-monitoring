@@ -25,6 +25,16 @@ app.engine("njk", nunjucks.render);
 app.get("/", (_, response) => {
   response.render("index.njk");
 });
+app.get("/contracts", (_, response) => {
+  response.render("contracts.njk");
+});
+app.get("/invoices", (_, response) => {
+  response.render("invoices.njk");
+});
+app.get("/invoices/:id", (_, response) => {
+  console.log(_.params);
+  response.render("invoice.njk");
+});
 
 app.use("/images", express.static(dirname));
 app.use("/scripts", express.static(dirname));
