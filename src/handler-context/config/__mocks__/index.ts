@@ -1,4 +1,3 @@
-import { Combinators, Comparitors } from "../../../handlers/clean/xform";
 import { Transformations } from "../../../handlers/transaction-csv-to-json-event/convert/perform-transformations";
 import {
   Constructables,
@@ -48,34 +47,13 @@ const config: ConfigCache = {
   ] as Transformations<{}, {}>,
   vat: [{ rate: 20, start: "string" }],
   standardisation: [],
-  creditTransforms: {
-    field: "credits",
-    default: 1,
-    logic: {
-      value: 2,
-      combinator: Combinators.OR,
-      conditions: [
-        {
-          combinator: Combinators.AND,
-          conditions: [
-            {
-              path: "$..sorted_rate",
-              comparitor: Comparitors.NEQ,
-              comparisonValue: "Not available",
-            },
-            {
-              path: "$..sorted_rate",
-              comparitor: Comparitors.EXISTS,
-            },
-          ],
-        },
-        {
-          path: "$.timestamp",
-          comparitor: Comparitors.LT,
-          comparisonValue: 0,
-        },
-      ],
-    },
+  eventCleaningTransform: {
+    credits: [
+      "!If",
+      ["!Not", ["!Equals", ["!Path", "$.user.transaction_id"], []]],
+      2,
+      1,
+    ],
   },
 };
 

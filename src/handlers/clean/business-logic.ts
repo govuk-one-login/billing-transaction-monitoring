@@ -18,7 +18,10 @@ export const businessLogic: BusinessLogic<
     user,
     vendor_id,
     credits,
-  } = xform(config[ConfigElements.creditTransforms])(event);
+  } = xform(config[ConfigElements.eventCleaningTransform])<
+    IncomingEventBody,
+    IncomingEventBody & { credits: number }
+  >(event);
 
   const vendorId =
     vendor_id ?? getVendorId(event_name, config[ConfigElements.services]);

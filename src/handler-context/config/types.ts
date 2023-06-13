@@ -9,7 +9,7 @@ export enum ConfigElements {
   transformations = "transformations",
   vat = "vat",
   standardisation = "standardisation",
-  creditTransforms = "creditTransforms",
+  eventCleaningTransform = "eventCleaningTransform",
 }
 
 export interface ConfigRatesRow {
@@ -44,7 +44,7 @@ export interface ConfigCache {
     vendorId: string;
     invoiceStandardisationModuleId: number;
   }>;
-  [ConfigElements.creditTransforms]: any;
+  [ConfigElements.eventCleaningTransform]: any;
 }
 
 export type GetConfigFile = <TFileName extends ConfigElements>(

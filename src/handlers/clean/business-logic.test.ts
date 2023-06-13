@@ -34,7 +34,7 @@ describe("Clean businessLogic", () => {
     givenCtx = {
       config: {
         [ConfigElements.services]: givenServicesConfig,
-        [ConfigElements.creditTransforms]: givenCreditTransformConfig,
+        [ConfigElements.eventCleaningTransform]: givenCreditTransformConfig,
       },
       logger: {
         info: givenInfoLogger,
