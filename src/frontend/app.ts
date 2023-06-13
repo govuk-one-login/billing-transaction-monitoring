@@ -2,7 +2,6 @@ import express from "express";
 import nunjucks from "nunjucks";
 import path from "path";
 import { fileURLToPath } from "url";
-import "./assets/styles/app.scss";
 
 let dirname;
 try {
@@ -29,6 +28,8 @@ app.get("/", (_, response) => {
 
 app.use("/images", express.static(dirname));
 app.use("/scripts", express.static(dirname));
-app.use("/styles", express.static(dirname));
+app.use("/styles", express.static(path.join(dirname, "./assets/styles")));
+
+console.log("boab?");
 
 export { app };

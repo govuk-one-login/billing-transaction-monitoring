@@ -4,6 +4,16 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   devtool: "source-map",
+  devServer: {
+    devMiddleware: {
+      writeToDisk: true,
+    },
+    watchFiles: [
+      "./src/frontend/**/*",
+      "./src/frontend/app.ts",
+      "src/frontend/app.ts",
+    ],
+  },
   entry: {
     filter: "./src/handlers/filter/handler.ts",
     clean: "./src/handlers/clean/handler.ts",
@@ -77,7 +87,7 @@ module.exports = {
       ],
     }),
     new MiniCssExtractPlugin({
-      filename: "app.css",
+      filename: "./assets/styles/app.css",
     }),
   ],
   resolve: {

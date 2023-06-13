@@ -2,6 +2,7 @@
   "name": "di-billing-transaction-monitoring",
   "description": "Monitors user identity verification events for billing purposes",
   "version": "0.0.1",
+  "type": "module",
   "devDependencies": {
     "@aws-sdk/client-athena": "^3.188.0",
     "@aws-sdk/client-cloudformation": "^3.188.0",
@@ -75,8 +76,9 @@
     "sam:deploy": "sam deploy --disable-rollback --no-fail-on-empty-changeset --stack-name di-btm-${ENV_NAME} --parameter-overrides Environment=dev PrivateConfigStack=${CONFIG_NAME:-none} TestRoleArn=${TEST_ROLE_ARN:-none} EnableAlerting=${ENABLE_ALERTING:-false} --s3-prefix ${ENV_NAME}",
     "sam:teardown": "ts-node --esm src/tools/teardown-cf-stack.ts",
     "typecheck": "tsc --noEmit",
-    "start": "nodemon --esm --experimental-specifier-resolution=node src/frontend/server.ts",
-    "dev": "node dist/server.js"
+    "dev:ts": "nodemon --esm --experimental-specifier-resolution=node src/frontend/server.ts",
+    "dev:css": "node-sass src/ -o src/ -w -r",
+    "dev": "npm-run-all -p dev:css dev:ts"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
