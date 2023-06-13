@@ -34,10 +34,6 @@ Parameters:
     Description: Private config stack to use for configuration
     Type: String
     Default: none
-  FrontEndApiSubdomain:
-    Description: API for our frontend
-    Type: AWS::Serverless::HttpApi
-    Default: none
 
   # Codes for error cases returned in response to queries from Grafana to BillingAndTransactionsCuratedView.
   QueryMessageNoChargeForThisMonth:
@@ -124,7 +120,6 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/email-storage.yaml,
   ./cloudformation/dashboard-data-extraction.yaml#NO_LOCAL,
   ./cloudformation/frontend.yaml
-
-Outputs:
-  FrontEndUrl:
-    Value: !Sub https://${FrontEndApiSubdomain}.execute-api.${AWS::Region}.amazonaws.com
+# Outputs:
+#   FrontEndUrl:
+#     Value: !Sub https://${FrontEndApiSubdomain}.execute-api.${AWS::Region}.amazonaws.com
