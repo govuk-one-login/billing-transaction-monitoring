@@ -30,6 +30,4 @@ app.use("/images", express.static(dirname));
 app.use("/scripts", express.static(dirname));
 app.use("/styles", express.static(path.join(dirname, "./assets/styles")));
 
-console.log("boab?");
-
 export { app };
