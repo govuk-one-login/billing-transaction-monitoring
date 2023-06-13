@@ -20,7 +20,11 @@ Resources:
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
           LOCAL_ENDPOINT:
-            !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', '']
+            !If [
+              IsLocal,
+              'http://s3.localhost.localstack.cloud:4566',
+              !Ref AWS::NoValue,
+            ]
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-csv-extract-function
       Events:
         CsvExtractEvent:
