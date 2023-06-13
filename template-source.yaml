@@ -34,7 +34,7 @@ Parameters:
     Description: Private config stack to use for configuration
     Type: String
     Default: none
-  FrontEndApi:
+  FrontEndApiSubdomain:
     Description: API for our frontend
     Type: AWS::Serverless::HttpApi
     Default: none
@@ -127,4 +127,4 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
 
 Outputs:
   FrontEndUrl:
-    Value: !Sub https://${FrontEndApi}.execute-api.${AWS::Region}.amazonaws.com
+    Value: !Sub https://${FrontEndApiSubdomain}.execute-api.${AWS::Region}.amazonaws.com
