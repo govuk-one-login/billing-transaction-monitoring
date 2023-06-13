@@ -3,7 +3,7 @@ export enum Env {
 }
 
 export interface EmailAttachment {
-  content: string;
+  content: Uint8Array;
   vendorId: string;
   attachmentName: string | undefined;
 }

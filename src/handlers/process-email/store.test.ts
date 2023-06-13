@@ -1,9 +1,9 @@
-import { putTextS3 } from "../../shared/utils";
+import { putBytesS3 } from "../../shared/utils";
 import { store } from "./store";
 import { EmailAttachment } from "./types";
 
 jest.mock("../../shared/utils/s3", () => ({
-  putTextS3: jest.fn(),
+  putBytesS3: jest.fn(),
 }));
 
 describe("store", () => {
@@ -16,7 +16,7 @@ describe("store", () => {
     } as unknown as EmailAttachment;
 
     await store(bucket, message);
-    expect(putTextS3).toHaveBeenCalledWith(
+    expect(putBytesS3).toHaveBeenCalledWith(
       bucket,
       "vendor_testVendor1/vendor1_service_feb_23.csv",
       "some invoice data"
