@@ -188,19 +188,10 @@ export const moveToFolderS3 = async (
   await moveS3(bucket, key, bucket, `${folder}/${fileName}`);
 };
 
-export async function putS3(
+export async function putBytesS3(
   bucket: string,
   key: string,
-  item: Object
-): Promise<void> {
-  const body = JSON.stringify(item);
-  await putTextS3(bucket, key, body);
-}
-
-export async function putTextS3(
-  bucket: string,
-  key: string,
-  body: string
+  body: Uint8Array
 ): Promise<void> {
   const putCommand = new PutObjectCommand({
     Bucket: bucket,
@@ -210,6 +201,21 @@ export async function putTextS3(
 
   await send(putCommand);
 }
+
+export async function putS3(
+  bucket: string,
+  key: string,
+  item: Object
+): Promise<void> {
+  const body = JSON.stringify(item);
+  await putTextS3(bucket, key, body);
+}
+
+export const putTextS3 = async (
+  bucket: string,
+  key: string,
+  body: string
+): Promise<void> => await putBytesS3(bucket, key, Buffer.from(body));
 
 const send = async <T extends ServiceInputTypes, U extends ServiceOutputTypes>(
   command: Command<T, U, SmithyConfiguration<{}>>

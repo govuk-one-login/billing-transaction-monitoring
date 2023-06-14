@@ -53,7 +53,7 @@ export const businessLogic: BusinessLogic<
       )}`;
     }
     return {
-      content: attachment.content.toString(),
+      content: attachment.content,
       vendorId,
       attachmentName,
     };

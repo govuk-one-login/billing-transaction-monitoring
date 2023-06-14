@@ -145,6 +145,7 @@ Resources:
             Queue: !GetAtt RawInvoiceTextractDataQueue.Arn
       Handler: storeRawInvoiceTextractData.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
+      MemorySize: 256
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:

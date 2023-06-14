@@ -1,4 +1,4 @@
-import { putTextS3 } from "../../shared/utils";
+import { putBytesS3 } from "../../shared/utils";
 import { EmailAttachment } from "./types";
 
 export const store = async (
@@ -6,5 +6,5 @@ export const store = async (
   message: EmailAttachment
 ): Promise<void> => {
   const { vendorId, attachmentName, content } = message;
-  await putTextS3(bucket, `${vendorId}/${attachmentName}`, content);
+  await putBytesS3(bucket, `${vendorId}/${attachmentName}`, content);
 };
