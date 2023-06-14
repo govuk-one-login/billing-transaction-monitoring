@@ -6,3 +6,5 @@ dist
 coverage
 template.yaml
 reports
+
+/src/frontend/assets/styles/*.css
