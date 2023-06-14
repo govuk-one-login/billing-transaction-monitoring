@@ -27,6 +27,7 @@ export interface ConfigServicesRow {
   service_name: string;
   service_regex: string;
   event_name: string;
+  contract_id: string;
 }
 
 export interface ConfigCache {

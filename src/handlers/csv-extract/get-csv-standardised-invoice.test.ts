@@ -19,6 +19,7 @@ describe("CSV Standardised invoice getter", () => {
         service_name: "Check one",
         service_regex: "Check one",
         event_name: "VENDOR_1_EVENT_1",
+        contract_id: "1",
       },
       {
         vendor_name: "Vendor One",
@@ -26,6 +27,7 @@ describe("CSV Standardised invoice getter", () => {
         service_name: "Check two",
         service_regex: "Check two",
         event_name: "VENDOR_1_EVENT_3",
+        contract_id: "1",
       },
     ];
 

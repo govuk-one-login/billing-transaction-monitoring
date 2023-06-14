@@ -14,6 +14,7 @@ describe("Filter businessLogic", () => {
             service_name: "Tartan Paint",
             service_regex: "SDH[0-9]{0,5} paint",
             event_name: "EXECUTIVE_ENDUNKENING_COMPLETED",
+            contract_id: "1",
           },
           {
             vendor_name: "Skippy's",
@@ -21,6 +22,7 @@ describe("Filter businessLogic", () => {
             service_name: "Spirit Level Bubbles",
             service_regex: "SDH[0-9]{0,5} bubble",
             event_name: "SPIRIT_CONSUMPTION_EXECUTION_TASK_START",
+            contract_id: "1",
           },
         ],
       },

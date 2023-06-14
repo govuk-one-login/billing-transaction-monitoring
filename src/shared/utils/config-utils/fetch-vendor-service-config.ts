@@ -8,6 +8,7 @@ export interface VendorServiceConfigRow {
   service_name: string;
   service_regex: string;
   event_name: string;
+  contract_id: string;
 }
 
 export type VendorServiceConfig = VendorServiceConfigRow[];
@@ -41,4 +42,5 @@ export const isVendorServiceConfigRow = (x: any): x is VendorServiceConfigRow =>
   typeof x.vendor_id === "string" &&
   typeof x.service_name === "string" &&
   typeof x.service_regex === "string" &&
-  typeof x.event_name === "string";
+  typeof x.event_name === "string" &&
+  typeof x.contract_id === "string";
