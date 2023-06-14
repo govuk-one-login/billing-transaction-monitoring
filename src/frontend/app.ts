@@ -25,6 +25,7 @@ app.engine("njk", nunjucks.render);
 app.get("/", (_, response) => {
   response.render("index.njk");
 });
+
 app.get("/contracts", (_, response) => {
   response.render("contracts.njk", {
     contracts: [
@@ -33,9 +34,11 @@ app.get("/contracts", (_, response) => {
     ],
   });
 });
+
 app.get("/invoices", (_, response) => {
   response.render("invoices.njk");
 });
+
 app.get("/invoices/:id", (_, response) => {
   console.log(_.params);
   response.render("invoice.njk");
