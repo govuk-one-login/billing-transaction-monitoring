@@ -15,6 +15,10 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
         LogFilePrefix: email-bucket/log
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: s3:ObjectCreated:*
+            Queue: !GetAtt EmailProcessingQueue.Arn
 
   EmailBucketPolicy:
     Type: AWS::S3::BucketPolicy

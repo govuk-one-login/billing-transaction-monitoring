@@ -24,6 +24,26 @@ describe("makeIncomingMessages", () => {
     testLogger = { error: jest.fn(), warn: jest.fn() } as any;
   });
 
+  describe("Incoming event that is not SQS or S3", () => {
+    beforeEach(() => {
+      testEvent = "a non sqs or S3 event" as any;
+    });
+
+    it("returns the event", async () => {
+      const result = await makeIncomingMessages(
+        testEvent,
+        testIncomingMessageBodyTypeGuard as any,
+        testLogger,
+        testFailuresAllowed
+      );
+
+      expect(result).toEqual({
+        incomingMessages: ["a non sqs or S3 event"],
+        failedIds: [],
+      });
+    });
+  });
+
   describe("Incoming SQS event", () => {
     beforeEach(() => {
       testEvent = {

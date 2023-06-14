@@ -76,6 +76,7 @@
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "^1.6.0",
+    "@aws-sdk/util-utf8-node": "^3.259.0",
     "jsonpath": "^1.1.1",
     "mailparser": "^3.6.4",
     "redux-thunk": "^2.4.2"
