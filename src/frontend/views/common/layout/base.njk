@@ -1,26 +1,17 @@
 {% extends "govuk/template.njk" %}
-
 {% block head %}
   <link href="/styles/app.css" rel="stylesheet">
-{% endblock %}
-
+{% endblock head %}
 {% block pageTitle %}
-  {% if errors %}
-    Error:
-  {% endif %}
-
-  {% if pageTitle %}
-    {{ pageTitle }} -
-  {% endif %}
-
+  {% if errors %}Error:{% endif %}
+  {% if pageTitle %}{{ pageTitle }} -{% endif %}
   Digital Identity Billing Dashboard
-{% endblock %}
-
-{% block content %}{% endblock %}
-
+{% endblock pageTitle %}
+{% block content %}
+{% endblock content %}
 {% block bodyEnd %}
   <script src="/scripts/gov.uk.js"></script>
   <script>window.GOVUKFrontend.initAll();</script>
-
-  {% block scripts %}{% endblock %}
-{% endblock %}
+  {% block scripts %}
+  {% endblock scripts %}
+{% endblock bodyEnd %}

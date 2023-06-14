@@ -44,8 +44,14 @@ app.get("/invoices/:id", (_, response) => {
   response.render("invoice.njk");
 });
 
-app.use("/images", express.static(dirname));
-app.use("/scripts", express.static(dirname));
-app.use("/styles", express.static(path.join(dirname, "./assets/styles")));
+const imageDir = path.join(dirname, "./assets/images");
+const scriptDir = path.join(dirname, "./assets/scripts");
+const styleDir = path.join(dirname, "./assets/styles");
+const fontDir = path.join(dirname, "./assets/fonts");
+
+app.use("/scripts", express.static(scriptDir));
+app.use("/styles", express.static(styleDir));
+app.use("/assets/images", express.static(imageDir));
+app.use("/assets/fonts", express.static(fontDir));
 
 export { app };
