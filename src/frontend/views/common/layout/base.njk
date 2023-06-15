@@ -1,6 +1,6 @@
 {% extends "govuk/template.njk" %}
 {% block head %}
-  <link href="/styles/app.css" rel="stylesheet">
+  <link href="/styles/all.css" rel="stylesheet">
 {% endblock head %}
 {% block pageTitle %}
   {% if errors %}Error:{% endif %}
@@ -10,7 +10,7 @@
 {% block content %}
 {% endblock content %}
 {% block bodyEnd %}
-  <script src="/scripts/gov.uk.js"></script>
+  <script src="/scripts/all.js"></script>
   <script>window.GOVUKFrontend.initAll();</script>
   {% block scripts %}
   {% endblock scripts %}

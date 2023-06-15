@@ -1,8 +1,8 @@
-const CopyPlugin = require("copy-webpack-plugin");
-const path = require("path");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+import CopyPlugin from "copy-webpack-plugin";
+import path from "path";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
-module.exports = {
+export default {
   devtool: "source-map",
   entry: {
     filter: "./src/handlers/filter/handler.ts",
@@ -32,20 +32,12 @@ module.exports = {
       { test: /.node$/, loader: "node-loader" },
       { test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ },
       {
-        test: /\.css$/i,
-        loader: "css-loader",
-        options: {
-          sourceMap: true,
-        },
-      },
-      {
         test: /\.s[ac]ss$/i,
         use: [
+          // Creates css files from commonJS
           MiniCssExtractPlugin.loader,
-
-          // Translates CSS into CommonJS
+          // Creates commonJS form CSS
           "css-loader",
-
           // Compiles Sass to CSS
           "sass-loader",
         ],
@@ -56,14 +48,14 @@ module.exports = {
     clean: true,
     filename: "[name].js",
     libraryTarget: "commonjs2",
-    path: path.resolve(__dirname, "./dist"),
+    path: path.resolve(import.meta.url, "./dist"),
   },
   plugins: [
     new CopyPlugin({
       patterns: [
         {
-          from: "./node_modules/govuk-frontend",
-          to: "node_modules/govuk-frontend",
+          from: "./node_modules/govuk-frontend/govuk/assets",
+          to: "./assets/",
         },
         {
           from: "./src/frontend/views",
