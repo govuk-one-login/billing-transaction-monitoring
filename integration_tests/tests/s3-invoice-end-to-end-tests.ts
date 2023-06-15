@@ -211,7 +211,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
   });
 });
 
-interface BillingCurated {
+export interface BillingCurated {
   vendor_id: string;
   vendor_name: string;
   service_name: string;
