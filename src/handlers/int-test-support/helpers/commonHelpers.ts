@@ -136,7 +136,6 @@ export const checkS3BucketForEventId = async (
         "EventId does not exist in S3 bucket within the timeout",
     });
   } catch (error) {
-    console.log("EEEEError", error);
     return false;
   }
 };
