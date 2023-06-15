@@ -15,7 +15,12 @@ const app = express();
 
 const viewDir = path.join(dirname, "views");
 
-nunjucks.configure(["node_modules/govuk-frontend/", viewDir], {
+const templatePath =
+  process.env.NODE_ENV === "development"
+    ? "node_modules/govuk-frontend"
+    : dirname;
+
+nunjucks.configure([templatePath, viewDir], {
   autoescape: true,
   express: app,
 });
@@ -44,12 +49,23 @@ app.get("/invoices/:id", (_, response) => {
   response.render("invoice.njk");
 });
 
-const govukFrontendNodeModulePath = "node_modules/govuk-frontend/govuk";
-app.use("/scripts", express.static(govukFrontendNodeModulePath));
-app.use("/styles", express.static(govukFrontendNodeModulePath));
-app.use(
-  "/assets",
-  express.static(path.join(govukFrontendNodeModulePath, "./assets"))
-);
+const assetsPath =
+  process.env.NODE_ENV === "development"
+    ? path.join("node_modules/govuk-frontend/govuk", "./assets")
+    : path.join(dirname, "./assets");
+
+const scriptsPath =
+  process.env.NODE_ENV === "development"
+    ? "node_modules/govuk-frontend/govuk"
+    : assetsPath;
+
+const stylesPath =
+  process.env.NODE_ENV === "development"
+    ? "node_modules/govuk-frontend/govuk"
+    : assetsPath;
+
+app.use("/assets", express.static(assetsPath));
+app.use("/assets/scripts", express.static(scriptsPath));
+app.use("/assets/styles", express.static(stylesPath));
 
 export { app };

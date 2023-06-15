@@ -83,9 +83,11 @@
     "typecheck": "tsc --noEmit",
     "dev:ts": "nodemon --esm --experimental-specifier-resolution=node src/frontend/server.ts",
     "dev:css": "node-sass node_modules/govuk-frontend/govuk/all.scss -o node_modules/govuk-frontend/govuk/ -w -r",
-    "dev": "npm-run-all -p dev:css dev:ts",
+    "dev": "NODE_ENV=development npm-run-all -p dev:css dev:ts",
     "build:css": "node-sass node_modules/govuk-frontend/govuk/all.scss -o node_modules/govuk-frontend/govuk/",
-    "predev": "npm run build:css"
+    "predev": "npm run build:css",
+    "prebuild": "npm run build:css",
+    "runbuilt": "node dist/server.js"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",

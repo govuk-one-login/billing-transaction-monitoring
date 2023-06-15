@@ -1,6 +1,9 @@
 import CopyPlugin from "copy-webpack-plugin";
 import path from "path";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default {
   devtool: "source-map",
@@ -29,30 +32,39 @@ export default {
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
   module: {
     rules: [
-      { test: /.node$/, loader: "node-loader" },
       { test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ },
-      {
-        test: /\.s[ac]ss$/i,
-        use: [
-          // Creates css files from commonJS
-          MiniCssExtractPlugin.loader,
-          // Creates commonJS form CSS
-          "css-loader",
-          // Compiles Sass to CSS
-          "sass-loader",
-        ],
-      },
+      { test: /.node$/, loader: "node-loader" },
     ],
   },
   output: {
     clean: true,
     filename: "[name].js",
     libraryTarget: "commonjs2",
-    path: path.resolve(import.meta.url, "./dist"),
+    path: path.resolve(__dirname, "./dist"),
   },
   plugins: [
     new CopyPlugin({
       patterns: [
+        {
+          from: "./node_modules/govuk-frontend/govuk/components",
+          to: "./govuk/components",
+        },
+        {
+          from: "./node_modules/govuk-frontend/govuk/template.njk",
+          to: "./govuk",
+        },
+        {
+          from: "./node_modules/govuk-frontend/govuk/all.css",
+          to: "./assets/styles",
+        },
+        {
+          from: "./node_modules/govuk-frontend/govuk/all.js.map",
+          to: "./assets/scripts",
+        },
+        {
+          from: "./node_modules/govuk-frontend/govuk/all.js",
+          to: "./assets/scripts",
+        },
         {
           from: "./node_modules/govuk-frontend/govuk/assets",
           to: "./assets/",
