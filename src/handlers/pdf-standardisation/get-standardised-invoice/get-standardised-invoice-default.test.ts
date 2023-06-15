@@ -385,6 +385,7 @@ describe("Standardised invoice default getter", () => {
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
+        contract_id: "1",
         event_name: "DONKEY_KONG",
         subtotal: "mocked subtotal",
         tax: "mocked tax",

@@ -11,8 +11,8 @@ describe("poll", () => {
             Promise.reject(err),
           () => true
         );
-      } catch (error) {
-        expect(error).toBe(err);
+      } catch ({ message }) {
+        expect(message).toBe("Error: " + err.message);
       }
       expect.hasAssertions();
     });

@@ -87,6 +87,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
       expect(invoice.vendor.id).toEqual(queryObjects[i].vendor_id);
       expect(invoice.vendor.name).toEqual(queryObjects[i].vendor_name);
       expect(expectedServices[i]).toEqual(queryObjects[i].service_name);
+      expect("C01236").toEqual(queryObjects[i].contract_name);
       expect(invoice.date.getFullYear()).toEqual(+queryObjects[i].year);
       expect(invoice.date.getMonth() + 1).toEqual(+queryObjects[i].month);
       expect(queryObjects[i].price).toMatch(expectedSubtotals[i].toFixed(2));
@@ -183,6 +184,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
 
     expect(response[0].vendor_name).toEqual(invoice.vendor.name);
     expect(response[0].service_name).toEqual("Fraud check");
+    expect(response[0].contract_name).toEqual("C01234");
     expect(response[0].quantity).toEqual(
       invoice.getQuantity("Fraud check").toString()
     );
@@ -197,6 +199,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
 
     expect(response[1].vendor_name).toEqual(invoice.vendor.name);
     expect(response[1].service_name).toEqual("Passport check");
+    expect(response[0].contract_name).toEqual("C01234");
     expect(response[1].quantity).toEqual(
       invoice.getQuantity("Passport check").toString()
     );
@@ -215,6 +218,7 @@ interface BillingCurated {
   vendor_id: string;
   vendor_name: string;
   service_name: string;
+  contract_name: string;
   quantity: string;
   price: string;
   tax: string;

@@ -27,7 +27,7 @@ describe("getVendorServiceConfigRows", () => {
           service_name: "Passport check",
           service_regex: "Passport.*check",
           event_name: "EVENT_1",
-          contract_id: "1",
+          contract_id: "3",
         },
         {
           vendor_name: "Vendor Three",
@@ -35,7 +35,7 @@ describe("getVendorServiceConfigRows", () => {
           service_name: "Address check",
           service_regex: "Address.*check",
           event_name: "EVENT_6",
-          contract_id: "1",
+          contract_id: "3",
         },
       ]);
     });

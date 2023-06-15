@@ -67,7 +67,7 @@ export const poll = async <Resolution>(
           // clear down and pass the rejection up
           clearInterval(intervalHandle);
           clearTimeout(timeoutHandle);
-          reject(error);
+          reject(new Error(error));
         }
       );
     }, interval);
@@ -136,6 +136,7 @@ export const checkS3BucketForEventId = async (
         "EventId does not exist in S3 bucket within the timeout",
     });
   } catch (error) {
+    console.log("EEEEError", error);
     return false;
   }
 };

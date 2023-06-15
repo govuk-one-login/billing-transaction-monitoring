@@ -121,6 +121,7 @@ const getStandardisedLineItems = (
       service_name: serviceName,
       service_regex: serviceRegexPattern,
       event_name: eventName,
+      contract_id: contractId,
     } of vendorServiceConfigRows) {
       const serviceRegex = new RegExp(serviceRegexPattern, "i");
       const itemDescription = getItemDescription(itemFields);
@@ -153,6 +154,7 @@ const getStandardisedLineItems = (
           price: getPrice(itemFields),
           quantity,
           service_name: serviceName,
+          contract_id: contractId,
           unit_price: unitPrice,
         },
       ];

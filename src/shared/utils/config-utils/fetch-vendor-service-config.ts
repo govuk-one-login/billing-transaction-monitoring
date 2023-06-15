@@ -43,4 +43,4 @@ export const isVendorServiceConfigRow = (x: any): x is VendorServiceConfigRow =>
   typeof x.service_name === "string" &&
   typeof x.service_regex === "string" &&
   typeof x.event_name === "string" &&
-  typeof x.contract_id === "string";
+  (x.contract_id === undefined || typeof x.contract_id === "string");

@@ -94,6 +94,8 @@ Resources:
               Type: string
             - Name: service_name
               Type: string
+            - Name: contract_id
+              Type: string
             - Name: unit_price
               Type: decimal(12,4)
             - Name: quantity
@@ -123,15 +125,18 @@ Resources:
         Name: btm_billing_curated
         Query: |
           SELECT 
-            vendor_id,
+            btm.vendor_id,
             vendor_name,
             service_name,
+            contract.name contract_name,
             event_name,
             sum(quantity) AS quantity,
             sum(price) AS price,
             sum(tax) AS tax,
             year,
             month
-          FROM btm_billing_standardised
-          GROUP BY vendor_id,vendor_name,service_name,event_name,year,month
+          FROM btm_billing_standardised btm
+          LEFT JOIN "btm_contracts_standardised" contract
+                  ON (contract_id = contract.id)
+          GROUP BY btm.vendor_id,vendor_name,contract.name,service_name,event_name,year,month
         Workgroup: !Ref AthenaInvoiceWorkgroup

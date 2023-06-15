@@ -69,6 +69,7 @@ type TransactionCurated = Array<{
   vendor_id: string;
   vendor_name: string;
   service_name: string;
+  contract_name: string;
   price: string;
   quantity: string;
   year: string;

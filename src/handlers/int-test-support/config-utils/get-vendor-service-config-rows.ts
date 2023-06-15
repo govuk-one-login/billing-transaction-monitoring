@@ -9,6 +9,7 @@ export interface VendorServiceRow {
   vendor_name: string;
   vendor_id: string;
   service_name: string;
+  contract_name: string;
   service_regex: string;
   event_name: string;
   contract_id: string;

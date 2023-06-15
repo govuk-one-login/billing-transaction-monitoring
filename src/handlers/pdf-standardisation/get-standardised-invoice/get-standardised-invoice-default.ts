@@ -50,6 +50,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
       service_name: serviceName,
       service_regex: serviceRegexPattern,
       event_name: eventName,
+      contract_id: contractId,
     } of vendorServiceConfigRows) {
       const serviceRegex = new RegExp(serviceRegexPattern, "i");
       const itemDescription = getItemDescription(itemFields);
@@ -66,6 +67,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
           price: getPrice(itemFields),
           quantity: getQuantity(itemFields),
           service_name: serviceName,
+          contract_id: contractId,
           unit_price: getUnitPrice(itemFields),
         },
       ];

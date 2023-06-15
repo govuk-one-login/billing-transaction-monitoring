@@ -49,6 +49,7 @@ export const getCsvStandardisedInvoice = (
       service_name: serviceName,
       service_regex: serviceRegexPattern,
       event_name: eventName,
+      contract_id: contractId,
     } of vendorServiceConfigRows) {
       const serviceRegex = new RegExp(serviceRegexPattern, "i");
       if (!itemDescription?.match(serviceRegex)) {
@@ -65,6 +66,7 @@ export const getCsvStandardisedInvoice = (
           price: formatNumber(item.subtotal),
           quantity: formatNumber(item.quantity),
           service_name: serviceName,
+          contract_id: contractId,
           unit_price: formatNumber(item["unit price"]),
           tax: formatNumber(item.tax),
           total: formatNumber(item.total),

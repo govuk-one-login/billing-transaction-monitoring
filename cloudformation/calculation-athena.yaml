@@ -182,6 +182,36 @@ Resources:
               skip.header.line.count: 1
             SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
 
+  ContractsMappingTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref CalculationsDB
+      TableInput:
+        Name: btm_contracts_standardised
+        TableType: EXTERNAL_TABLE
+        Parameters:
+          has_encrypted_data: true
+          storage.location.template: !Sub s3://${ConfigStackParameter.Value}/contracts/contracts.csv
+        StorageDescriptor:
+          Columns:
+            - Name: id
+              Type: string
+            - Name: name
+              Type: string
+            - Name: vendor_id
+              Type: string
+          Compressed: true
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Sub s3://${ConfigStackParameter.Value}/contracts/
+          StoredAsSubDirectories: false
+          OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          SerdeInfo:
+            Parameters:
+              field.delim: ','
+              skip.header.line.count: 1
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+
   TransactionsCuratedView:
     Type: Custom::AthenaView
     Properties:
@@ -208,11 +238,14 @@ Resources:
                         month_event_count,
                         ven.vendor_name,
                         ven.service_name,
+                        contract.name contract_name,
                         (COALESCE(credits, 1) * rates.unit_price) transaction_price
                 FROM (btm_transactions_standardised_with_count txn
                         LEFT JOIN "btm_vendor_service_standardised" ven 
                                 ON (txn.event_name = ven.event_name)
                                   AND (txn.vendor_id = ven.vendor_id)
+                        LEFT JOIN "btm_contracts_standardised" contract
+                                ON (ven.contract_id = contract.id)
                         LEFT JOIN "btm_rates_standardised" rates
                           ON (txn.event_name = rates.event_name)
                             AND (txn.vendor_id = rates.vendor_id)
@@ -222,6 +255,7 @@ Resources:
                 "MAX"(vendor_name)       vendor_name,
                 "MAX"(event_name)        event_name,
                 "MAX"(service_name)      service_name,
+                "MAX"(contract_name)     contract_name,
                 "SUM"(transaction_price) price,
                 "MAX"(month_event_count) quantity,
                 month,
@@ -249,6 +283,7 @@ Resources:
             COALESCE(txn.vendor_id, invoice.vendor_id) vendor_id
             , COALESCE(txn.vendor_name, invoice.vendor_name) vendor_name
             , COALESCE(txn.service_name, invoice.service_name) service_name
+            , COALESCE(txn.contract_name, invoice.contract_name) contract_name
             , COALESCE(txn.year, invoice.year) year
             , COALESCE(txn.month, invoice.month) month
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(invoice.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
