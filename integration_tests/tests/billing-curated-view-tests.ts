@@ -26,7 +26,7 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
         item_description: "Five Data validation Application",
         price: 96,
         quantity: 300,
-        service_name: "Passport check",
+        service_name: "Five Data validation Application",
         unit_price: 0.32,
       },
       {
@@ -45,7 +45,7 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
         item_description: "Five Data validation Application",
         price: 160,
         quantity: 500,
-        service_name: "Passport check",
+        service_name: "Five Data validation Application",
         unit_price: 0.32,
       },
     ];
@@ -74,13 +74,14 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
       const queryString = `SELECT * FROM "btm_billing_curated" where vendor_id ='${standardisedObject.vendor_id}' AND year='${year}' AND month='${month}'`;
       const response = await queryAthena<BillingCurated>(queryString);
       expect(response.length).toEqual(1);
-
+      expect(response[0].vendor_id).toEqual(standardisedObject.vendor_id);
       expect(response[0].vendor_name).toEqual(standardisedObject.vendor_name);
       expect(response[0].service_name).toEqual(standardisedObject.service_name);
+      expect(response[0].event_name).toEqual(standardisedObject.event_name);
       expect(response[0].quantity).toEqual(
         standardisedObject.quantity.toString()
       );
-      expect(response[0].price).toEqual(standardisedObject.subtotal.toFixed(4));
+      expect(response[0].price).toEqual(standardisedObject.price.toFixed(4));
       expect(response[0].tax).toEqual(standardisedObject.tax.toFixed(4));
       expect(response[0].year).toEqual(year.toString());
       expect(response[0].month).toEqual(month.toString());
