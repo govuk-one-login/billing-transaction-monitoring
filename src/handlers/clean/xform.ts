@@ -23,11 +23,7 @@ type IfCommand = [
 type Command = PathCommand | EqualsCommand | NotCommand | IfCommand;
 
 interface Config {
-  [field: string]:
-    | Primitive
-    | Command
-    | Record<string, unknown>
-    | unknown[];
+  [field: string]: Primitive | Command | Record<string, unknown> | unknown[];
 }
 
 export const deepWrite = <TReturn>(
@@ -99,8 +95,10 @@ const doCommand = (command: unknown, thing: any): any => {
 
 export const xform =
   (config: Config) =>
-  <TIn extends Record<string, unknown>, TOut extends TIn>(thing: TIn): TOut =>
-    Object.entries(config).reduce<TOut>(
+  <TIn extends Record<string, unknown>, TAdded extends Record<string, unknown>>(
+    thing: TIn
+  ): TIn & TAdded =>
+    Object.entries(config).reduce<TIn & TAdded>(
       (acc, [key, value]) => deepWrite(acc, key, doCommand(value, thing)),
       { ...thing }
     );
