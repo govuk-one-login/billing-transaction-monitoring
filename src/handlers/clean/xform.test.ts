@@ -1,3 +1,4 @@
+import { Logger } from "@aws-lambda-powertools/logger";
 import { xform } from "./xform";
 
 describe("xform v2", () => {
@@ -272,5 +273,20 @@ describe("xform v2", () => {
         })({ b: undefined })
       ).toEqual({ a: 1, b: undefined });
     });
+  });
+
+  test("malformed command", () => {
+    const logger = { warn: jest.fn() } as unknown as Logger;
+    expect(xform({ a: ["!Equals", 1, 2, 3, 4, 5] }, logger)({})).toEqual({
+      a: ["!Equals", 1, 2, 3, 4, 5],
+    });
+    // logged warning knows command we invoked it with
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining("!Equals")
+    );
+    // logged output knows how many args command should have
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining("2"));
+    // logged output knows how many args command _did_ have
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining("5"));
   });
 });

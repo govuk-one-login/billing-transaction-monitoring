@@ -1,23 +1,14 @@
 import jsonpath from "jsonpath";
 import { isEqual } from "lodash";
+import { HandlerCtx } from "../../handler-context";
+import { Logger } from "@aws-lambda-powertools/logger";
 
 type Primitive = boolean | null | number | string;
 
-type CommandArg =
-  | Primitive
-  | Command
-  | Array<Primitive>
-  | Record<string, unknown>;
-
-type PathCommand = ["!Path", CommandArg];
-type EqualsCommand = [
-  "!Equals",
-  CommandArg,
-  CommandArg,
-  { ignoreOrder?: boolean }?
-];
-type NotCommand = ["!Not", CommandArg];
-type IfCommand = ["!If", CommandArg, CommandArg, CommandArg];
+type PathCommand = ["!Path", unknown];
+type EqualsCommand = ["!Equals", unknown, unknown];
+type NotCommand = ["!Not", unknown];
+type IfCommand = ["!If", unknown, unknown, unknown];
 
 export type Command = PathCommand | EqualsCommand | NotCommand | IfCommand;
 
@@ -26,20 +17,54 @@ type Config<TKey extends string | number | symbol> = Record<
   Primitive | Record<string, unknown> | unknown[]
 >;
 
-const commands = ["!Path", "!Equals", "!Not", "!If"];
+type CommandKeyword = "!Path" | "!Equals" | "!Not" | "!If";
+const commands: CommandKeyword[] = ["!Path", "!Equals", "!Not", "!If"];
+const isCommandKeyword = (value: unknown): value is CommandKeyword =>
+  typeof value === "string" && commands.includes(value as CommandKeyword);
 
-const isCommand = (value: unknown): value is Command =>
-  Array.isArray(value) &&
-  typeof value[0] === "string" &&
-  commands.includes(value[0]);
+const commandLengthMap: Record<CommandKeyword, number> = {
+  "!Path": 2,
+  "!Equals": 3,
+  "!Not": 2,
+  "!If": 4,
+};
 
-const doCommand = (command: unknown, thing: any): any => {
-  if (!isCommand(command)) return command;
+const isCorrectlyFormedCommand = (
+  value: Array<unknown>,
+  logger?: Logger
+): boolean => {
+  if (!isCommandKeyword(value[0])) return false;
+  let res = value.length === commandLengthMap[value[0]];
+
+  if (res === false)
+    (logger || console).warn(
+      `It looks like you tried to use a ${value[0]} command but you provided ${
+        value.length - 1
+      } arguments. The ${value[0]} command expects ${
+        commandLengthMap[value[0]] - 1
+      } arguments.`
+    );
+  return res;
+};
+
+const isCommand = (value: unknown, logger?: Logger): value is Command =>
+  Array.isArray(value) && isCorrectlyFormedCommand(value, logger);
+
+const doCommand = (
+  command: unknown,
+  thing: unknown,
+  logger?: Logger
+): unknown => {
+  if (!isCommand(command, logger)) return command;
   switch (command[0]) {
     case "!Path":
-      return jsonpath.query(thing, doCommand(command[1], thing));
+      const query = doCommand(command[1], thing);
+      if (typeof query !== "string")
+        throw new Error(
+          "Attempted to invoke jsonpath query with a query that was not a string"
+        );
+      return jsonpath.query(thing, query);
     case "!Equals":
-      console.log("isEqual", doCommand(command[1], thing), command[2]);
       return isEqual(
         doCommand(command[1], thing),
         doCommand(command[2], thing)
@@ -56,9 +81,15 @@ const doCommand = (command: unknown, thing: any): any => {
 };
 
 export const xform =
-  <TAdded extends Record<string, unknown>>(config: Config<keyof TAdded>) =>
+  <TAdded extends Record<string, unknown>>(
+    config: Config<keyof TAdded>,
+    logger?: Logger
+  ) =>
   <TIn extends Record<string, unknown>>(thing: TIn): TIn & TAdded =>
     Object.entries(config).reduce<TIn & TAdded>(
-      (acc, [key, value]) => ({ ...acc, [key]: doCommand(value, thing) }),
+      (acc, [key, value]) => ({
+        ...acc,
+        [key]: doCommand(value, thing, logger),
+      }),
       { ...thing } as TIn & TAdded
     );
