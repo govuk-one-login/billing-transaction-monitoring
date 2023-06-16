@@ -32,15 +32,19 @@ describe("process-email business logic", () => {
       businessLogic(validIncomingEventBody, mockContext, invalidMockMeta)
     ).rejects.toThrowError("Missing bucketName and/or key");
   });
-  test("should throw error with event record that has no vendor ID folder", async () => {
-    const invalidMockMeta = {
+  test("should return empty array with event record that has no vendor ID folder", async () => {
+    const mockMeta = {
       bucketName: "given bucket name",
       key: "given-file-path-with-no-folder",
     };
 
-    await expect(
-      businessLogic(validIncomingEventBody, mockContext, invalidMockMeta)
-    ).rejects.toThrowError("File not in vendor ID folder");
+    const result = await businessLogic(
+      validIncomingEventBody,
+      mockContext,
+      mockMeta
+    );
+
+    expect(result).toEqual([]);
   });
 
   test("should return attachments that are pdf or csv ", async () => {
