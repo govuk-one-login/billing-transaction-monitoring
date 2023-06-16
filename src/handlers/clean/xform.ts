@@ -1,9 +1,9 @@
 import jsonpath from "jsonpath";
 
-type Primitive = boolean | number | string;
+type Primitive = boolean | null | number | string;
 const primitives = ["boolean", "number", "string"];
 const isPrimitive = (value: unknown): value is Primitive =>
-  primitives.includes(typeof value);
+  primitives.includes(typeof value) || value === null;
 
 type PathCommand = ["!Path", Primitive | Command];
 type EqualsCommand = [
@@ -27,7 +27,7 @@ interface Config {
     | Primitive
     | Command
     | Record<string, unknown>
-    | Array<unknown>;
+    | unknown[];
 }
 
 export const deepWrite = <TReturn>(
@@ -73,8 +73,8 @@ const doCommand = (command: unknown, thing: any): any => {
     case "!Path":
       return jsonpath.query(thing, doCommand(command[1], thing));
     case "!Equals": {
-      let comparitorA = doCommand(command[1], thing);
-      let comparitorB = doCommand(command[2], thing);
+      const comparitorA = doCommand(command[1], thing);
+      const comparitorB = doCommand(command[2], thing);
       if (isPrimitive(comparitorA) && isPrimitive(comparitorB))
         return comparitorA === comparitorB;
       if (Array.isArray(comparitorA) || Array.isArray(comparitorB))
@@ -102,5 +102,5 @@ export const xform =
   <TIn extends Record<string, unknown>, TOut extends TIn>(thing: TIn): TOut =>
     Object.entries(config).reduce<TOut>(
       (acc, [key, value]) => deepWrite(acc, key, doCommand(value, thing)),
-      { ...thing } as TOut
+      { ...thing }
     );
