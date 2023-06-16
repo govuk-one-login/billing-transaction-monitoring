@@ -112,6 +112,18 @@ describe("xform v2", () => {
             c: ["!Equals", [1, 2, 3], [1, 2, 4]],
           })({})
         ).toEqual({ c: false });
+
+        expect(
+          xform({
+            c: ["!Equals", [1, 2, 3, 4], [1, 2, 3]],
+          })({})
+        ).toEqual({ c: false });
+
+        expect(
+          xform({
+            c: ["!Equals", [1, 2, 3], [1, 2, 3, 4]],
+          })({})
+        ).toEqual({ c: false });
       });
     });
 
