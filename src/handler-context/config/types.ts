@@ -44,7 +44,7 @@ export interface ConfigCache {
     vendorId: string;
     invoiceStandardisationModuleId: number;
   }>;
-  [ConfigElements.eventCleaningTransform]: any;
+  [ConfigElements.eventCleaningTransform]: {};
 }
 
 export type GetConfigFile = <TFileName extends ConfigElements>(
