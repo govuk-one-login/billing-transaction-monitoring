@@ -1,27 +1,4 @@
-import { deepWrite, xform } from "./xform";
-
-test("deepWrite", () => {
-  // writes to deep keys
-  expect(deepWrite({}, "a", 1)).toEqual({ a: 1 });
-  expect(deepWrite({}, "a.b", 1)).toEqual({ a: { b: 1 } });
-  expect(deepWrite({}, "a.b.c", 1)).toEqual({ a: { b: { c: 1 } } });
-  // preserves existing keys
-  expect(deepWrite({ x: "x" }, "a", 1)).toEqual({ x: "x", a: 1 });
-  expect(deepWrite({ x: "x" }, "a.b", 1)).toEqual({ x: "x", a: { b: 1 } });
-  expect(deepWrite({ x: "x" }, "a.b.c", 1)).toEqual({
-    x: "x",
-    a: { b: { c: 1 } },
-  });
-  // overwrites existing keys
-  expect(deepWrite({ a: "a" }, "a", 1)).toEqual({ a: 1 });
-  expect(deepWrite({ a: { b: "b" } }, "a.b", 1)).toEqual({ a: { b: 1 } });
-  expect(deepWrite({ a: { b: { c: "c" } } }, "a.b.c", 1)).toEqual({
-    a: { b: { c: 1 } },
-  });
-  expect(deepWrite({ a: { b: { c: "c" } } }, "a", 1)).toEqual({
-    a: 1,
-  });
-});
+import { xform } from "./xform";
 
 describe("xform v2", () => {
   describe("simple writes", () => {
@@ -36,29 +13,11 @@ describe("xform v2", () => {
       expect(xform(xformConfig)(i)).toEqual(o);
     });
 
-    test("nested hardcode primitive value", () => {
-      const i = { d: "d" };
-      const o = { d: "d", a: { b: "a" } };
-      const xformConfig = {
-        "a.b": "a",
-      };
-      expect(xform(xformConfig)(i)).toEqual(o);
-    });
-
     test("hardcode object value", () => {
       const i = { d: "d" };
       const o = { d: "d", a: { b: "b" } };
       const xformConfig = {
         a: { b: "b" },
-      };
-      expect(xform(xformConfig)(i)).toEqual(o);
-    });
-
-    test("nested hardcode object value", () => {
-      const i = { d: "d" };
-      const o = { d: "d", a: { b: { c: "c" } } };
-      const xformConfig = {
-        "a.b": { c: "c" },
       };
       expect(xform(xformConfig)(i)).toEqual(o);
     });
@@ -71,15 +30,6 @@ describe("xform v2", () => {
       };
       expect(xform(xformConfig)(i)).toEqual(o);
     });
-
-    test("nested hardcode array value", () => {
-      const i = { d: "d" };
-      const o = { d: "d", a: { b: [1, 2, 3] } };
-      const xformConfig = {
-        "a.b": [1, 2, 3],
-      };
-      expect(xform(xformConfig)(i)).toEqual(o);
-    });
   });
 
   describe("!Path", () => {
@@ -88,33 +38,6 @@ describe("xform v2", () => {
       const o = { d: "d", a: ["d"] };
       const xformConfig = {
         a: ["!Path", "$.d"],
-      };
-      expect(xform(xformConfig)(i)).toEqual(o);
-    });
-
-    test("copy value to nested key", () => {
-      const i = { d: "d" };
-      const o = { d: "d", a: { b: ["d"] } };
-      const xformConfig = {
-        "a.b": ["!Path", "$.d"],
-      };
-      expect(xform(xformConfig)(i)).toEqual(o);
-    });
-
-    test("copy nested value to nested key", () => {
-      const i = { d: { e: "e" } };
-      const o = { d: { e: "e" }, a: { b: ["e"] } };
-      const xformConfig = {
-        "a.b": ["!Path", "$..e"],
-      };
-      expect(xform(xformConfig)(i)).toEqual(o);
-    });
-
-    test("copy nested, complex value to nested key", () => {
-      const i = { d: { e: [1, 2, 3] } };
-      const o = { d: { e: [1, 2, 3] }, a: { b: [[1, 2, 3]] } };
-      const xformConfig = {
-        "a.b": ["!Path", "$..e"],
       };
       expect(xform(xformConfig)(i)).toEqual(o);
     });
@@ -190,14 +113,6 @@ describe("xform v2", () => {
           })({})
         ).toEqual({ c: false });
       });
-
-      test("matching arrays in different orders with ignoreOrder option on", () => {
-        expect(
-          xform({
-            d: ["!Equals", [1, 3, 2], [1, 2, 3], { ignoreOrder: true }],
-          })({})
-        ).toEqual({ d: true });
-      });
     });
 
     test("compares !Paths", () => {
@@ -220,12 +135,30 @@ describe("xform v2", () => {
       ).toEqual({ a: "a", b: true, c: false });
     });
 
-    test("can't compare objects", () => {
-      expect(() =>
+    test("compares objects", () => {
+      expect(
         xform({
           a: ["!Equals", {}, {}],
         })({})
-      ).toThrow();
+      ).toEqual({ a: true });
+
+      expect(
+        xform({
+          a: ["!Equals", { b: { c: { d: 1 } } }, { b: { c: { d: 1 } } }],
+        })({})
+      ).toEqual({ a: true });
+
+      expect(
+        xform({
+          a: ["!Equals", { b: { c: { d: 2 } } }, { b: { c: { d: 1 } } }],
+        })({})
+      ).toEqual({ a: false });
+
+      expect(
+        xform({
+          a: ["!Equals", { b: { c: { e: 1 } } }, { b: { c: { d: 1 } } }],
+        })({})
+      ).toEqual({ a: false });
     });
   });
 
@@ -257,20 +190,20 @@ describe("xform v2", () => {
 
       expect(
         xform({
-          a: ["!Not", ["!Equals", ["!Path", "$.b"], "b"]],
+          a: ["!Not", ["!Equals", ["!Path", "$.b"], ["b"]]],
         })({ b: "b" })
       ).toEqual({ a: false, b: "b" });
 
       expect(
         xform({
-          a: ["!Not", ["!Equals", ["!Path", "$.b"], "b"]],
+          a: ["!Not", ["!Equals", ["!Path", "$.b"], ["b"]]],
         })({ b: "c" })
       ).toEqual({ a: true, b: "c" });
     });
   });
 
   describe("!If", () => {
-    test("if statement 1 returns statement 2 else returns statement 3", () => {
+    test("if statement 1 then returns statement 2 else returns statement 3", () => {
       expect(
         xform({
           a: ["!If", true, 1, 2],
@@ -285,31 +218,29 @@ describe("xform v2", () => {
 
       expect(
         xform({
-          a: ["!If", ["!Equals", ["!Path", "$.b"], "b"], 1, 2],
+          a: ["!If", ["!Equals", ["!Path", "$.b"], ["b"]], 1, 2],
         })({ b: "b" })
       ).toEqual({ a: 1, b: "b" });
 
       expect(
         xform({
-          a: ["!If", ["!Equals", ["!Path", "$.b"], "b"], 1, 2],
+          a: ["!If", ["!Equals", ["!Path", "$.b"], ["b"]], 1, 2],
         })({ b: "c" })
       ).toEqual({ a: 2, b: "c" });
 
       expect(
         xform({
-          a: ["!If", ["!Not", ["!Equals", ["!Path", "$.b"], "b"]], 1, 2],
+          a: ["!If", ["!Not", ["!Equals", ["!Path", "$.b"], ["b"]]], 1, 2],
         })({ b: "b" })
       ).toEqual({ a: 2, b: "b" });
 
       expect(
         xform({
-          a: ["!If", ["!Not", ["!Equals", ["!Path", "$.b"], "b"]], 1, 2],
+          a: ["!If", ["!Not", ["!Equals", ["!Path", "$.b"], ["b"]]], 1, 2],
         })({ b: "c" })
       ).toEqual({ a: 1, b: "c" });
     });
 
-    // I'm not sure this is a desired behavior to be honest
-    // but I could only think of hacky ways to negate it so
     test("!Paths are always truthy", () => {
       expect(
         xform({

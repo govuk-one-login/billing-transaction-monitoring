@@ -1,61 +1,29 @@
 import jsonpath from "jsonpath";
-import * as _ from "lodash";
+import { isEqual } from "lodash";
 
 type Primitive = boolean | null | number | string;
-const primitives = ["boolean", "number", "string"];
-const isPrimitive = (value: unknown): value is Primitive =>
-  primitives.includes(typeof value) || value === null;
 
-type PathCommand = ["!Path", Primitive | Command];
+type CommandArg =
+  | Primitive
+  | Command
+  | Array<Primitive>
+  | Record<string, unknown>;
+
+type PathCommand = ["!Path", CommandArg];
 type EqualsCommand = [
   "!Equals",
-  Primitive | Command,
-  Primitive | Command,
+  CommandArg,
+  CommandArg,
   { ignoreOrder?: boolean }?
 ];
-type NotCommand = ["!Not", Primitive | Command];
-type IfCommand = [
-  "!If",
-  Primitive | Command,
-  Primitive | Command,
-  Primitive | Command
-];
+type NotCommand = ["!Not", CommandArg];
+type IfCommand = ["!If", CommandArg, CommandArg, CommandArg];
 
 type Command = PathCommand | EqualsCommand | NotCommand | IfCommand;
 
 interface Config {
   [field: string]: Primitive | Record<string, unknown> | unknown[];
 }
-
-export const deepWrite = <TReturn>(
-  target: any,
-  key: string,
-  value: unknown
-): TReturn => {
-  const [topKey, ...subsequentKeys] = key.split(".");
-  return {
-    ...target,
-    [topKey]: key.includes(".")
-      ? deepWrite(target?.[topKey], subsequentKeys.join("."), value)
-      : value,
-  };
-};
-
-const areArraysEqual = (
-  arrAInit: unknown[],
-  arrBInit: unknown[],
-  { ignoreOrder }: { ignoreOrder?: boolean } = { ignoreOrder: false }
-): boolean => {
-  const arrA = [...arrAInit];
-  const arrB = [...arrBInit];
-  if (ignoreOrder) {
-    arrA.sort();
-    arrB.sort();
-  }
-  return arrA.reduce<boolean>((_, cur, i) => {
-    return cur === arrB[i];
-  }, true);
-};
 
 const commands = ["!Path", "!Equals", "!Not", "!If"];
 
@@ -69,22 +37,14 @@ const doCommand = (command: unknown, thing: any): any => {
   switch (command[0]) {
     case "!Path":
       return jsonpath.query(thing, doCommand(command[1], thing));
-    case "!Equals": {
-      const comparitorA = doCommand(command[1], thing);
-      const comparitorB = doCommand(command[2], thing);
-      if (isPrimitive(comparitorA) && isPrimitive(comparitorB))
-        return _.isEqual(comparitorA, comparitorB);
-      if (Array.isArray(comparitorA) || Array.isArray(comparitorB))
-        return areArraysEqual(comparitorA, comparitorB, command?.[3]);
-      // One could, if one were so inclined, add some mechanism by
-      // which one might compare objects. I've not bothered because
-      // our use case doesn't require it but it would make a fun
-      // exercise for an interested reader.
-      throw new Error("Tried to compare to incomparable items");
-    }
-    case "!Not": {
+    case "!Equals":
+      console.log("isEqual", doCommand(command[1], thing), command[2]);
+      return isEqual(
+        doCommand(command[1], thing),
+        doCommand(command[2], thing)
+      );
+    case "!Not":
       return !doCommand(command[1], thing);
-    }
     case "!If": {
       const condition = doCommand(command[1], thing);
       return condition
@@ -100,6 +60,6 @@ export const xform =
     thing: TIn
   ): TIn & TAdded =>
     Object.entries(config).reduce<TIn & TAdded>(
-      (acc, [key, value]) => deepWrite(acc, key, doCommand(value, thing)),
+      (acc, [key, value]) => ({ ...acc, [key]: doCommand(value, thing) }),
       { ...thing } as TIn & TAdded
     );
