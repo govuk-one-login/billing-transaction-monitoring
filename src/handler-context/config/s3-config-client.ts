@@ -42,7 +42,7 @@ const parserMap = {
       service_name: { type: "string", required: true },
       service_regex: { type: "string", required: true },
       event_name: { type: "string", required: true },
-      contract_id: { type: "string", required: false },
+      contract_id: { type: "string", required: true },
     }),
   [ConfigElements.renamingMap]: parseJsonFile,
   [ConfigElements.inferences]: parseJsonFile,
