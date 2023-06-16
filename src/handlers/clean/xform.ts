@@ -1,6 +1,5 @@
 import jsonpath from "jsonpath";
 import { isEqual } from "lodash";
-import { HandlerCtx } from "../../handler-context";
 import { Logger } from "@aws-lambda-powertools/logger";
 
 type Primitive = boolean | null | number | string;
