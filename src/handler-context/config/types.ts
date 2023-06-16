@@ -64,7 +64,7 @@ export type ConfigParser<TConfig extends {} | Array<{}>> = (
 
 export interface CsvParserColumnOptions {
   type: CsvColumnTypeName;
-  required?: boolean;
+  required: boolean;
 }
 
 export type CsvParserOptions<

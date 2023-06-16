@@ -30,7 +30,7 @@ const parserMap = {
       vendor_id: { type: "string", required: true },
       event_name: { type: "string", required: true },
       volumes_from: { type: "number", required: true },
-      volumes_to: { type: "number" },
+      volumes_to: { type: "number", required: false },
       unit_price: { type: "number", required: true },
       effective_from: { type: "date", required: true },
       effective_to: { type: "date", required: true },
