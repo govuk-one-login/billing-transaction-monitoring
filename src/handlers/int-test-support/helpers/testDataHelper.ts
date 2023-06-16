@@ -2,8 +2,8 @@ import { configStackName, resourcePrefix } from "./envHelper";
 import { invokeLambda } from "./lambdaHelper";
 import {
   EventPayload,
-  StorageEventPayload,
   updateSQSEventPayloadBody,
+  CleanedEventPayload,
 } from "./payloadHelper";
 import { getRatesFromConfig } from "../config-utils/get-rate-config-rows";
 import { getVendorServiceConfigRows } from "../config-utils/get-vendor-service-config-rows";
@@ -60,14 +60,26 @@ export const invokeFilterLambdaAndVerifyEventInS3Bucket = async (
   );
 };
 
-export const invokeStorageLambdaAndVerifyEventInS3Bucket = async (
-  payload: StorageEventPayload
+export const invokeCleanLambdaAndVerifyEventInS3Bucket = async (
+  payload: EventPayload
 ): Promise<GenerateEventsResult> => {
   const updatedSQSEventPayload = await updateSQSEventPayloadBody(
     payload,
-    "../../../../integration_tests/payloads/validSQSStorageEventPayload.json"
+    "../../../../integration_tests/payloads/validSQSEventPayload.json"
   );
-  console.log(`updatedSQSEventPayload=${updatedSQSEventPayload}`);
+  return await invokeLambdaAndVerifyEventInS3Bucket(
+    updatedSQSEventPayload,
+    `${resourcePrefix()}-clean-function`
+  );
+};
+
+export const invokeStorageLambdaAndVerifyEventInS3Bucket = async (
+  payload: CleanedEventPayload
+): Promise<GenerateEventsResult> => {
+  const updatedSQSEventPayload = await updateSQSEventPayloadBody(
+    payload,
+    "../../../../integration_tests/payloads/validSQSEventPayload.json"
+  );
   return await invokeLambdaAndVerifyEventInS3Bucket(
     updatedSQSEventPayload,
     `${resourcePrefix()}-storage-function`
