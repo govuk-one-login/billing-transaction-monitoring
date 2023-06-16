@@ -1,3 +1,4 @@
+import { Command } from "../../handlers/clean/xform";
 import { InferenceSpecifications } from "../../handlers/transaction-csv-to-json-event/convert/make-inferences";
 import { Transformations } from "../../handlers/transaction-csv-to-json-event/convert/perform-transformations";
 
@@ -44,7 +45,7 @@ export interface ConfigCache {
     vendorId: string;
     invoiceStandardisationModuleId: number;
   }>;
-  [ConfigElements.eventCleaningTransform]: {};
+  [ConfigElements.eventCleaningTransform]: { credits: Command };
 }
 
 export type GetConfigFile = <TFileName extends ConfigElements>(

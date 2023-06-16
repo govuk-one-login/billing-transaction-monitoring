@@ -19,11 +19,12 @@ type EqualsCommand = [
 type NotCommand = ["!Not", CommandArg];
 type IfCommand = ["!If", CommandArg, CommandArg, CommandArg];
 
-type Command = PathCommand | EqualsCommand | NotCommand | IfCommand;
+export type Command = PathCommand | EqualsCommand | NotCommand | IfCommand;
 
-interface Config {
-  [field: string]: Primitive | Record<string, unknown> | unknown[];
-}
+type Config<TKey extends string | number | symbol> = Record<
+  TKey,
+  Primitive | Record<string, unknown> | unknown[]
+>;
 
 const commands = ["!Path", "!Equals", "!Not", "!If"];
 
@@ -55,10 +56,8 @@ const doCommand = (command: unknown, thing: any): any => {
 };
 
 export const xform =
-  (config: Config) =>
-  <TIn extends Record<string, unknown>, TAdded extends Record<string, unknown>>(
-    thing: TIn
-  ): TIn & TAdded =>
+  <TAdded extends Record<string, unknown>>(config: Config<keyof TAdded>) =>
+  <TIn extends Record<string, unknown>>(thing: TIn): TIn & TAdded =>
     Object.entries(config).reduce<TIn & TAdded>(
       (acc, [key, value]) => ({ ...acc, [key]: doCommand(value, thing) }),
       { ...thing } as TIn & TAdded
