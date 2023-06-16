@@ -101,5 +101,5 @@ export const xform =
   ): TIn & TAdded =>
     Object.entries(config).reduce<TIn & TAdded>(
       (acc, [key, value]) => deepWrite(acc, key, doCommand(value, thing)),
-      { ...thing }
+      { ...thing } as TIn & TAdded
     );
