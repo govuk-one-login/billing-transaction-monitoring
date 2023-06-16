@@ -1,4 +1,5 @@
 import jsonpath from "jsonpath";
+import * as _ from "lodash";
 
 type Primitive = boolean | null | number | string;
 const primitives = ["boolean", "number", "string"];
@@ -23,7 +24,7 @@ type IfCommand = [
 type Command = PathCommand | EqualsCommand | NotCommand | IfCommand;
 
 interface Config {
-  [field: string]: Primitive | Command | Record<string, unknown> | unknown[];
+  [field: string]: Primitive | Record<string, unknown> | unknown[];
 }
 
 export const deepWrite = <TReturn>(
@@ -72,7 +73,7 @@ const doCommand = (command: unknown, thing: any): any => {
       const comparitorA = doCommand(command[1], thing);
       const comparitorB = doCommand(command[2], thing);
       if (isPrimitive(comparitorA) && isPrimitive(comparitorB))
-        return comparitorA === comparitorB;
+        return _.isEqual(comparitorA, comparitorB);
       if (Array.isArray(comparitorA) || Array.isArray(comparitorB))
         return areArraysEqual(comparitorA, comparitorB, command?.[3]);
       // One could, if one were so inclined, add some mechanism by
@@ -100,5 +101,5 @@ export const xform =
   ): TIn & TAdded =>
     Object.entries(config).reduce<TIn & TAdded>(
       (acc, [key, value]) => deepWrite(acc, key, doCommand(value, thing)),
-      { ...thing } as TIn & TAdded
+      { ...thing }
     );
