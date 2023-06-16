@@ -1,6 +1,5 @@
 import CopyPlugin from "copy-webpack-plugin";
 import path from "path";
-import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -74,9 +73,6 @@ export default {
           to: "views",
         },
       ],
-    }),
-    new MiniCssExtractPlugin({
-      filename: "./assets/styles/app.css",
     }),
   ],
   resolve: {
