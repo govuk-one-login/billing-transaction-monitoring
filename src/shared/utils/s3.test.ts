@@ -15,6 +15,7 @@ import {
   listS3Keys,
   moveS3,
   moveToFolderS3,
+  putBytesS3,
   putS3,
   putTextS3,
 } from "./s3";
@@ -36,6 +37,35 @@ beforeEach(() => {
   s3Mock = mockClient(S3Client);
 });
 
+test("Put bytes without callback error", async () => {
+  s3Mock.on(PutObjectCommand).resolves({});
+
+  const givenBytes = crypto.randomBytes(123);
+
+  await putBytesS3(bucket, key, givenBytes);
+
+  expect(s3Mock.calls()[0].firstArg.input).toEqual({
+    Body: givenBytes,
+    Key: key,
+    Bucket: bucket,
+  });
+});
+
+test("Put bytes with callback error", async () => {
+  s3Mock.on(PutObjectCommand).rejects("An error");
+
+  const givenBytes = crypto.randomBytes(123);
+
+  await expect(putBytesS3(bucket, key, givenBytes)).rejects.toMatchObject({
+    message: "An error",
+  });
+  expect(s3Mock.calls()[0].firstArg.input).toEqual({
+    Body: givenBytes,
+    Key: key,
+    Bucket: bucket,
+  });
+});
+
 test("Put object with callback error", async () => {
   s3Mock.on(PutObjectCommand).rejects("An error");
 
@@ -43,7 +73,7 @@ test("Put object with callback error", async () => {
     message: "An error",
   });
   expect(s3Mock.calls()[0].firstArg.input).toEqual({
-    Body: JSON.stringify(record),
+    Body: Buffer.from(JSON.stringify(record)),
     Key: key,
     Bucket: bucket,
   });
@@ -57,7 +87,7 @@ test("Put text without callback error", async () => {
   await putTextS3(bucket, key, givenText);
 
   expect(s3Mock.calls()[0].firstArg.input).toEqual({
-    Body: givenText,
+    Body: Buffer.from(givenText),
     Key: key,
     Bucket: bucket,
   });
@@ -72,7 +102,7 @@ test("Put text with callback error", async () => {
     message: "An error",
   });
   expect(s3Mock.calls()[0].firstArg.input).toEqual({
-    Body: givenText,
+    Body: Buffer.from(givenText),
     Key: key,
     Bucket: bucket,
   });
@@ -84,7 +114,7 @@ test("Put object without callback error", async () => {
   await putS3(bucket, key, record);
 
   expect(s3Mock.calls()[0].firstArg.input).toEqual({
-    Body: JSON.stringify(record),
+    Body: Buffer.from(JSON.stringify(record)),
     Key: key,
     Bucket: bucket,
   });

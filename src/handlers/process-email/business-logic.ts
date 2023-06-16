@@ -8,15 +8,19 @@ export const businessLogic: BusinessLogic<
   never,
   EmailAttachment
 > = async (event, { logger }, meta) => {
-  // File must be in a vendor ID folder in the Raw Email bucket, which determines folder for the Raw Invoice bucket. Throw error otherwise.
+  // Invoice email file must be in a vendor ID folder in the Raw Email bucket, which determines folder for the Raw Invoice bucket
+  // If it is not in a folder, assume it is an email sent by Amazon to verify a sender address and ignore it
   let vendorId: string;
   let sourceFileName: string;
   if (meta?.key && meta?.bucketName) {
     const filePathParts = meta.key.split("/");
-    if (filePathParts.length < 2)
-      throw Error(
+
+    if (filePathParts.length < 2) {
+      logger.info(
         `File not in vendor ID folder: ${meta.bucketName}/${meta.key}`
       );
+      return [];
+    }
 
     vendorId = filePathParts[0];
     sourceFileName = filePathParts[filePathParts.length - 1];
@@ -53,7 +57,7 @@ export const businessLogic: BusinessLogic<
       )}`;
     }
     return {
-      content: attachment.content.toString(),
+      content: attachment.content,
       vendorId,
       attachmentName,
     };
