@@ -26,7 +26,6 @@
     "aws-sdk-client-mock": "^2.0.0",
     "babel-jest": "^29.0.3",
     "copy-webpack-plugin": "^11.0.0",
-    "css-loader": "^6.8.1",
     "csvtojson": "^2.0.10",
     "delay": "^5.0.0",
     "djlint": "^1.31.0",
@@ -45,7 +44,6 @@
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.28",
     "lint-staged": "^13.1.0",
-    "mini-css-extract-plugin": "^2.7.6",
     "node-cache": "^5.1.2",
     "node-loader": "^2.0.0",
     "node-sass": "^9.0.0",
@@ -54,8 +52,6 @@
     "prettier": "^2.7.1",
     "react-test-renderer": "^18.2.0",
     "sass": "^1.63.2",
-    "sass-loader": "^13.3.1",
-    "style-loader": "^3.3.3",
     "ts-jest": "^29.0.0",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
@@ -86,8 +82,7 @@
     "dev": "NODE_ENV=development npm-run-all -p dev:css dev:ts",
     "build:css": "node-sass node_modules/govuk-frontend/govuk/all.scss -o node_modules/govuk-frontend/govuk/",
     "predev": "npm run build:css",
-    "prebuild": "npm run build:css",
-    "runbuilt": "node dist/server.js"
+    "prebuild": "npm run build:css"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
