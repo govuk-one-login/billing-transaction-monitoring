@@ -1,3 +1,4 @@
+import CopyPlugin from "copy-webpack-plugin";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -23,11 +24,16 @@ export default {
     dashboardExtract: "./src/handlers/dashboard-extract/handler.ts",
     storeStandardisedInvoices:
       "./src/handlers/store-standardised-invoices/handler.ts",
+    frontend: "./src/handlers/frontend/handler.ts",
+    server: "./src/frontend/server.ts",
   },
   externals: "aws-sdk",
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
   module: {
-    rules: [{ test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ }],
+    rules: [
+      { test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ },
+      { test: /.node$/, loader: "node-loader" },
+    ],
   },
   output: {
     clean: true,
@@ -35,6 +41,40 @@ export default {
     libraryTarget: "commonjs2",
     path: path.resolve(__dirname, "./dist"),
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "./node_modules/govuk-frontend/govuk/components",
+          to: "./govuk/components",
+        },
+        {
+          from: "./node_modules/govuk-frontend/govuk/template.njk",
+          to: "./govuk",
+        },
+        {
+          from: "./node_modules/govuk-frontend/govuk/all.css",
+          to: "./assets/styles",
+        },
+        {
+          from: "./node_modules/govuk-frontend/govuk/all.js.map",
+          to: "./assets/scripts",
+        },
+        {
+          from: "./node_modules/govuk-frontend/govuk/all.js",
+          to: "./assets/scripts",
+        },
+        {
+          from: "./node_modules/govuk-frontend/govuk/assets",
+          to: "./assets/",
+        },
+        {
+          from: "./src/frontend/views",
+          to: "views",
+        },
+      ],
+    }),
+  ],
   resolve: {
     extensions: [".js", ".ts"],
   },
