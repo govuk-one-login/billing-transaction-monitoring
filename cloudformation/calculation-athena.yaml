@@ -27,6 +27,8 @@ Resources:
               Type: string
             - Name: service_name
               Type: string
+            - Name: contract_name
+              Type: string
             - Name: year
               Type: string
             - Name: month
