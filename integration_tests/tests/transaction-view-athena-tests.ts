@@ -10,6 +10,7 @@ import {
   CleanedEventPayload,
   prettyEventNameMap,
   prettyVendorNameMap,
+  ContractName,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import {
   S3Object,
@@ -83,6 +84,7 @@ describe("\nUpload events to s3 directly and check the transaction curated view 
       expect(response.length).toBe(1);
       expect(response[0].vendor_id).toBe(vendorId);
       expect(response[0].vendor_name).toBe(prettyVendorNameMap[vendorId]);
+      expect(response[0].contract_name).toBe(ContractName[vendorId]);
       expect(response[0].event_name).toBe(eventName);
       expect(response[0].price).toEqual(expectedPrice);
       expect(response[0].quantity).toBe(numberOfTestCredits.toString());
@@ -103,7 +105,7 @@ type TransactionCurated = Array<{
   vendor_name: string;
   event_name: string;
   service_name: string;
-  contract_name: string;
+  contract_name: ContractName;
   price: string;
   quantity: string;
   year: string;

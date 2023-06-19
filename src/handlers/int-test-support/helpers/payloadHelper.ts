@@ -24,6 +24,14 @@ export enum EventName {
   VENDOR_3_EVENT_4 = "VENDOR_3_EVENT_4",
 }
 
+export enum ContractName {
+  vendor_testvendor1 = "C01234",
+  vendor_testvendor2 = "C01235",
+  vendor_testvendor3 = "C01236",
+  vendor_testvendor4 = "FOOBAR1",
+  vendor_testvendor5 = "FOOBAR2",
+}
+
 export interface EventPayload {
   event_name: EventName | string;
   event_id: string;
