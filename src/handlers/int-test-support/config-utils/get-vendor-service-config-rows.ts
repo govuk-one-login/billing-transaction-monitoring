@@ -11,6 +11,7 @@ export interface VendorServiceRow {
   service_name: string;
   service_regex: string;
   event_name: string;
+  contract_id: string;
 }
 
 export const getVendorServiceConfigRows = async (

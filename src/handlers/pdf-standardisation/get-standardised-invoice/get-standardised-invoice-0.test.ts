@@ -105,6 +105,7 @@ describe("Standardised invoice getter 0", () => {
         service_name: "Lying About Speedruns",
         service_regex: "lying about speedruns",
         event_name: "DONKEY_KONG",
+        contract_id: "1",
       },
       {
         vendor_name: "Billy Mitchell LLC",
@@ -112,6 +113,7 @@ describe("Standardised invoice getter 0", () => {
         service_name: "Making fake Donkey Kong cabinets",
         service_regex: "fake Donkey",
         event_name: "donkey_kong",
+        contract_id: "1",
       },
     ];
   });
@@ -404,6 +406,7 @@ describe("Standardised invoice getter 0", () => {
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
+        contract_id: "1",
         event_name: "DONKEY_KONG",
         subtotal: "mocked subtotal",
         tax: "mocked tax",
@@ -514,6 +517,7 @@ describe("Standardised invoice getter 0", () => {
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
+        contract_id: "1",
         event_name: "DONKEY_KONG",
         subtotal: "mocked subtotal",
         tax: "mocked tax",
@@ -628,6 +632,7 @@ describe("Standardised invoice getter 0", () => {
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
+        contract_id: "1",
         event_name: "DONKEY_KONG",
         subtotal: "mocked subtotal",
         tax: "mocked tax",
@@ -709,6 +714,7 @@ describe("Standardised invoice getter 0", () => {
         price: "mocked price",
         quantity: mockedQuantity,
         service_name: "Lying About Speedruns",
+        contract_id: "1",
         event_name: "DONKEY_KONG",
         subtotal: "mocked subtotal",
         tax: "mocked tax",

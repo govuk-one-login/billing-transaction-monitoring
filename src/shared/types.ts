@@ -25,6 +25,7 @@ export interface StandardisedLineItem extends StandardisedLineItemSummary {
   item_id?: number;
   item_description?: string;
   service_name?: string;
+  contract_id?: string;
   unit_price?: number;
   quantity?: number;
   price?: number;

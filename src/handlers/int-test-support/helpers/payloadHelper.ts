@@ -14,6 +14,7 @@ export enum VendorId {
   vendor_testvendor2 = "vendor_testvendor2",
   vendor_testvendor3 = "vendor_testvendor3",
   vendor_testvendor4 = "vendor_testvendor4",
+  vendor_testvendor5 = "vendor_testvendor5",
 }
 
 export enum EventName {
@@ -22,6 +23,14 @@ export enum EventName {
   VENDOR_2_EVENT_7 = "VENDOR_2_EVENT_7",
   VENDOR_3_EVENT_6 = "VENDOR_3_EVENT_6",
   VENDOR_3_EVENT_4 = "VENDOR_3_EVENT_4",
+}
+
+export enum ContractName {
+  vendor_testvendor1_contract1 = "C01234",
+  vendor_testvendor2_contract1 = "C01235",
+  vendor_testvendor3_contract1 = "C01236",
+  vendor_testvendor4_contract1 = "FOOBAR1",
+  vendor_testvendor5_contract1 = "FOOBAR2",
 }
 
 export interface EventPayload {
@@ -41,6 +50,7 @@ export const prettyVendorNameMap = {
   vendor_testvendor2: "Vendor Two",
   vendor_testvendor3: "Vendor Three",
   vendor_testvendor4: "Vendor Four",
+  vendor_testvendor5: "Vendor Five",
 };
 
 export const prettyEventNameMap = {

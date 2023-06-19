@@ -27,6 +27,7 @@ export interface ConfigServicesRow {
   service_name: string;
   service_regex: string;
   event_name: string;
+  contract_id: string;
 }
 
 export interface ConfigCache {
@@ -63,7 +64,7 @@ export type ConfigParser<TConfig extends {} | Array<{}>> = (
 
 export interface CsvParserColumnOptions {
   type: CsvColumnTypeName;
-  required?: boolean;
+  required: boolean;
 }
 
 export type CsvParserOptions<

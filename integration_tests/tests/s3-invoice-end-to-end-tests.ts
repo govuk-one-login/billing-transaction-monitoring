@@ -18,6 +18,7 @@ import {
   EventName,
   VendorId,
   prettyVendorNameMap,
+  ContractName,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 
@@ -87,6 +88,9 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
       expect(invoice.vendor.id).toEqual(queryObjects[i].vendor_id);
       expect(invoice.vendor.name).toEqual(queryObjects[i].vendor_name);
       expect(expectedServices[i]).toEqual(queryObjects[i].service_name);
+      expect(ContractName.vendor_testvendor3_contract1).toEqual(
+        queryObjects[i].contract_name
+      );
       expect(invoice.date.getFullYear()).toEqual(+queryObjects[i].year);
       expect(invoice.date.getMonth() + 1).toEqual(+queryObjects[i].month);
       expect(queryObjects[i].price).toMatch(expectedSubtotals[i].toFixed(2));
@@ -183,6 +187,9 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
 
     expect(response[0].vendor_name).toEqual(invoice.vendor.name);
     expect(response[0].service_name).toEqual("Fraud check");
+    expect(response[0].contract_name).toEqual(
+      ContractName.vendor_testvendor1_contract1
+    );
     expect(response[0].quantity).toEqual(
       invoice.getQuantity("Fraud check").toString()
     );
@@ -197,6 +204,9 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
 
     expect(response[1].vendor_name).toEqual(invoice.vendor.name);
     expect(response[1].service_name).toEqual("Passport check");
+    expect(response[1].contract_name).toEqual(
+      ContractName.vendor_testvendor1_contract1
+    );
     expect(response[1].quantity).toEqual(
       invoice.getQuantity("Passport check").toString()
     );
@@ -215,6 +225,7 @@ export interface BillingCurated {
   vendor_id: string;
   vendor_name: string;
   service_name: string;
+  contract_name: string;
   event_name: string;
   quantity: string;
   price: string;

@@ -12,7 +12,8 @@ describe("poll", () => {
           () => true
         );
       } catch (error) {
-        expect(error).toBe(err);
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe("Error: " + err.message);
       }
       expect.hasAssertions();
     });
