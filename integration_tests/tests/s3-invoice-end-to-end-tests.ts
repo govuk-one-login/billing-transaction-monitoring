@@ -88,7 +88,7 @@ describe("\n Happy path - Upload valid mock invoice and verify data is seen in t
       expect(invoice.vendor.id).toEqual(queryObjects[i].vendor_id);
       expect(invoice.vendor.name).toEqual(queryObjects[i].vendor_name);
       expect(expectedServices[i]).toEqual(queryObjects[i].service_name);
-      expect(ContractName.vendor_testvendor1).toEqual(
+      expect(ContractName.vendor_testvendor3).toEqual(
         queryObjects[i].contract_name
       );
       expect(invoice.date.getFullYear()).toEqual(+queryObjects[i].year);

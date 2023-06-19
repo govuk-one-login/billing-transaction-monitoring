@@ -14,6 +14,7 @@ export enum VendorId {
   vendor_testvendor2 = "vendor_testvendor2",
   vendor_testvendor3 = "vendor_testvendor3",
   vendor_testvendor4 = "vendor_testvendor4",
+  vendor_testvendor5 = "vendor_testvendor5",
 }
 
 export enum EventName {
@@ -49,6 +50,7 @@ export const prettyVendorNameMap = {
   vendor_testvendor2: "Vendor Two",
   vendor_testvendor3: "Vendor Three",
   vendor_testvendor4: "Vendor Four",
+  vendor_testvendor5: "Vendor Five",
 };
 
 export const prettyEventNameMap = {
