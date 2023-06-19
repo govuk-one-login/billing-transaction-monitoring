@@ -81,7 +81,7 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
       expect(response[0].vendor_name).toEqual(standardisedObject.vendor_name);
       expect(response[0].service_name).toEqual(standardisedObject.service_name);
       expect(response[0].contract_name).toEqual(
-        ContractName.vendor_testvendor5
+        ContractName.vendor_testvendor5_contract1
       );
       expect(response[0].event_name).toEqual(standardisedObject.event_name);
       expect(response[0].quantity).toEqual(

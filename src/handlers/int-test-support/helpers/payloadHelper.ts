@@ -26,11 +26,11 @@ export enum EventName {
 }
 
 export enum ContractName {
-  vendor_testvendor1 = "C01234",
-  vendor_testvendor2 = "C01235",
-  vendor_testvendor3 = "C01236",
-  vendor_testvendor4 = "FOOBAR1",
-  vendor_testvendor5 = "FOOBAR2",
+  vendor_testvendor1_contract1 = "C01234",
+  vendor_testvendor2_contract1 = "C01235",
+  vendor_testvendor3_contract1 = "C01236",
+  vendor_testvendor4_contract1 = "FOOBAR1",
+  vendor_testvendor5_contract1 = "FOOBAR2",
 }
 
 export interface EventPayload {

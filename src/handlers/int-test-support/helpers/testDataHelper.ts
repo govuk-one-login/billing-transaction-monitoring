@@ -24,7 +24,6 @@ export const getVendorServiceAndRatesFromConfig =
       vendorName: vendorServiceRows[1].vendor_name,
       eventName: vendorServiceRows[1].event_name,
       serviceName: vendorServiceRows[1].service_name,
-      contractName: vendorServiceRows[1].contract_name,
       description: vendorServiceRows[1].service_name,
     };
 
@@ -39,8 +38,6 @@ export const getVendorServiceAndRatesFromConfig =
       testDataRetrievedFromConfig.eventName = vendorServiceRows[0].event_name;
       testDataRetrievedFromConfig.serviceName =
         vendorServiceRows[0].service_name;
-      testDataRetrievedFromConfig.contractName =
-        vendorServiceRows[0].contract_name;
     }
     return testDataRetrievedFromConfig;
   };
