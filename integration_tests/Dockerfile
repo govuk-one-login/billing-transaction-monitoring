@@ -32,7 +32,7 @@ COPY --from=builder /usr/local/lib/ /usr/local/lib/
 COPY --from=builder /usr/local/aws-cli/ /usr/local/aws-cli/
 COPY --from=builder /aws-cli-bin/ /usr/local/bin/
 
-RUN alias python3="${where python}"
+RUN alias python3='${which python}'
 
 RUN apk update && \
       apk upgrade && \
