@@ -32,12 +32,14 @@ COPY --from=builder /usr/local/lib/ /usr/local/lib/
 COPY --from=builder /usr/local/aws-cli/ /usr/local/aws-cli/
 COPY --from=builder /aws-cli-bin/ /usr/local/bin/
 
-RUN alias python3='${which python}'
-
 RUN apk update && \
       apk upgrade && \
       apk add --no-cache \
-      bash
+      bash \
+      python3
+
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
 
 WORKDIR /test-app
 
