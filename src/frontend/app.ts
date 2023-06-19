@@ -2,6 +2,8 @@ import express from "express";
 import nunjucks from "nunjucks";
 import path from "path";
 import { fileURLToPath } from "url";
+import { makeCtxConfig } from "../handler-context/context-builder";
+import { ConfigElements } from "../handler-context";
 
 let dirname;
 try {
@@ -31,12 +33,25 @@ app.get("/", (_, response) => {
   response.render("index.njk");
 });
 
+const config = await makeCtxConfig([
+  ConfigElements.services,
+  ConfigElements.contracts,
+]);
+
+const contracts = config.contracts.map((contract) => {
+  return {
+    name: `${contract.name} - ${
+      config.services.find((svc) => svc.vendor_id === contract.vendor_id)
+        ?.vendor_name
+    }`,
+    contract_id: contract.id,
+  };
+});
+
 app.get("/contracts", (_, response) => {
+  console.log("config", config);
   response.render("contracts.njk", {
-    contracts: [
-      { name: "foo", id: 1 },
-      { name: "bar", id: 2 },
-    ],
+    contracts,
   });
 });
 
