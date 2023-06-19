@@ -19,6 +19,7 @@ describe("CSV Standardised invoice getter", () => {
         service_name: "Check one",
         service_regex: "Check one",
         event_name: "VENDOR_1_EVENT_1",
+        contract_id: "1",
       },
       {
         vendor_name: "Vendor One",
@@ -26,6 +27,7 @@ describe("CSV Standardised invoice getter", () => {
         service_name: "Check two",
         service_regex: "Check two",
         event_name: "VENDOR_1_EVENT_3",
+        contract_id: "1",
       },
     ];
 
@@ -90,6 +92,7 @@ describe("CSV Standardised invoice getter", () => {
         price: 4687.92,
         quantity: 13788,
         service_name: "Check one",
+        contract_id: "1",
         unit_price: 0.34,
         total: 5625.504,
         event_name: "VENDOR_1_EVENT_1",
@@ -109,6 +112,7 @@ describe("CSV Standardised invoice getter", () => {
         price: 327.85,
         quantity: 83,
         service_name: "Check two",
+        contract_id: "1",
         unit_price: 3.95,
         total: 393.42,
         event_name: "VENDOR_1_EVENT_3",

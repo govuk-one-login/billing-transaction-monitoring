@@ -26,7 +26,7 @@ const parseConfigCsvRow = <
   const parsedRow: Partial<TRow> = {};
 
   for (const columnName in options) {
-    if (!(columnName in row))
+    if (options[columnName].required && !(columnName in row))
       throw new Error(`Column \`${columnName}\` not in CSV`);
 
     const cell = row[columnName as keyof typeof row];
