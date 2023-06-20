@@ -22,8 +22,7 @@ Resources:
     Properties:
       Environment:
         Variables:
-          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-          CONFIG_BUCKET: !Sub di-btm-cfg-${AWS::StackName}
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
         ProxyApiRoot:
@@ -31,4 +30,19 @@ Resources:
           Properties:
             ApiId: !Ref FrontEndApi
       Handler: frontend.handler
-      ReservedConcurrentExecutions: 1
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+      ReservedConcurrentExecutions: 10
