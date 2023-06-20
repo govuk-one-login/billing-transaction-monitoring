@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { makeCtxConfig } from "../handler-context/context-builder";
 import { ConfigElements } from "../handler-context";
+import "dotenv/config";
 
 let dirname;
 try {
