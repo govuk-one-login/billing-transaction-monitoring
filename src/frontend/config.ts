@@ -6,7 +6,6 @@ const config = await makeCtxConfig([
   ConfigElements.contracts,
 ]);
 
-console.log(config);
 export const contracts = config.contracts.map((contract) => {
   return {
     name: `${contract.name} - ${
