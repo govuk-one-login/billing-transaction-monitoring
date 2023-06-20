@@ -1,16 +1,21 @@
-import { Athena } from "aws-sdk/clients/all";
+import {
+  AthenaClient,
+  GetQueryExecutionCommand,
+  GetQueryResultsCommand,
+  ResultSet,
+  StartQueryExecutionCommand,
+} from "@aws-sdk/client-athena";
 
 const INTERVAL_MS = 1000;
 
-/** @deprecated Use athenaV3 version instead */
 export class AthenaQueryExecutor {
-  athena: Athena;
+  athena: AthenaClient;
 
   intervalMillis: number;
 
   MAX_ATTEMPTS = 10;
 
-  constructor(athena: Athena, intervalMillis = INTERVAL_MS) {
+  constructor(athena: AthenaClient, intervalMillis = INTERVAL_MS) {
     this.athena = athena;
     this.intervalMillis = intervalMillis;
   }
@@ -18,7 +23,7 @@ export class AthenaQueryExecutor {
   async fetchResults(
     sql: string,
     queryResultsBucket: string
-  ): Promise<Athena.ResultSet> {
+  ): Promise<ResultSet> {
     const params = {
       QueryString: sql,
       ResultConfiguration: {
@@ -26,9 +31,8 @@ export class AthenaQueryExecutor {
       },
     };
 
-    const queryExecution = await this.athena
-      .startQueryExecution(params)
-      .promise();
+    const startQueryExecutionCommand = new StartQueryExecutionCommand(params);
+    const queryExecution = await this.athena.send(startQueryExecutionCommand);
     const queryExecutionId = queryExecution.QueryExecutionId;
 
     if (queryExecutionId === undefined) {
@@ -37,9 +41,11 @@ export class AthenaQueryExecutor {
 
     await this.validate(queryExecutionId);
 
-    const results = await this.athena
-      .getQueryResults({ QueryExecutionId: queryExecutionId })
-      .promise();
+    const getQueryResultsCommand = new GetQueryResultsCommand({
+      QueryExecutionId: queryExecutionId,
+    });
+    const results = await this.athena.send(getQueryResultsCommand);
+
     if (results.ResultSet === undefined) {
       throw new Error("Failed to fetch results");
     }
@@ -51,9 +57,12 @@ export class AthenaQueryExecutor {
     let attempts = 0;
 
     while (attempts < this.MAX_ATTEMPTS) {
-      const { QueryExecution: queryExecution } = await this.athena
-        .getQueryExecution({ QueryExecutionId: id })
-        .promise();
+      const getQueryExecutionCommand = new GetQueryExecutionCommand({
+        QueryExecutionId: id,
+      });
+      const { QueryExecution: queryExecution } = await this.athena.send(
+        getQueryExecutionCommand
+      );
 
       attempts += 1;
 

@@ -4,7 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import "dotenv/config";
 import { contractsHandler } from "./handlers/contracts";
-import { getInvoicesHandler } from "./handler";
+import { getInvoicesHandler } from "./handlers/invoices";
 
 let dirname;
 try {
