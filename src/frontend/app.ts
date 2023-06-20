@@ -3,7 +3,7 @@ import nunjucks from "nunjucks";
 import path from "path";
 import { fileURLToPath } from "url";
 import "dotenv/config";
-import { getContracts } from "./config";
+import { contractsHandler } from "./handlers/contracts";
 
 let dirname;
 try {
@@ -33,12 +33,7 @@ app.get("/", (_, response) => {
   response.render("index.njk");
 });
 
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-app.get("/contracts", async (_, response) => {
-  response.render("contracts.njk", {
-    contracts: await getContracts(),
-  });
-});
+app.get("/contracts", contractsHandler);
 
 app.get("/invoices", (_, response) => {
   response.render("invoices.njk");
