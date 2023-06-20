@@ -6,3 +6,4 @@ dist
 coverage
 template.yaml
 reports
+.env

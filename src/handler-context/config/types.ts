@@ -4,6 +4,7 @@ import { Transformations } from "../../handlers/transaction-csv-to-json-event/co
 export enum ConfigElements {
   rates = "rates",
   services = "services",
+  contracts = "contracts",
   renamingMap = "renamingMap",
   inferences = "inferences",
   transformations = "transformations",
@@ -30,9 +31,16 @@ export interface ConfigServicesRow {
   contract_id: string;
 }
 
+export interface ConfigContractsRow {
+  id: string;
+  name: string;
+  vendor_id: string;
+}
+
 export interface ConfigCache {
   [ConfigElements.rates]: ConfigRatesRow[];
   [ConfigElements.services]: ConfigServicesRow[];
+  [ConfigElements.contracts]: ConfigContractsRow[];
   [ConfigElements.renamingMap]: Array<[string, string]>;
   [ConfigElements.inferences]: InferenceSpecifications<
     {}, // I'm avoiding including this type as the field names are sensitive

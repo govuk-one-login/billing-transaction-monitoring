@@ -1,6 +1,7 @@
 Resources:
   FrontEndApi:
     Type: AWS::Serverless::HttpApi
+    Condition: IsLowerEnv
     Properties:
       AccessLogSettings:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
@@ -8,6 +9,7 @@ Resources:
 
   FrontEndApiLogGroup:
     Type: AWS::Logs::LogGroup
+    Condition: IsLowerEnv
     Properties:
       KmsKeyId: !GetAtt KmsKey.Arn
       RetentionInDays: 90
@@ -16,7 +18,12 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
+    Condition: IsLowerEnv
     Properties:
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          CONFIG_BUCKET: !Sub di-btm-cfg-${AWS::StackName}
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
         ProxyApiRoot:

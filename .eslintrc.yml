@@ -8,6 +8,9 @@ rules:
   '@typescript-eslint/restrict-template-expressions': off
   '@typescript-eslint/naming-convention': off
   '@typescript-eslint/consistent-type-definitions': off
+  '@typescript-eslint/no-misused-promises':
+    - error
+    - checksVoidReturn: false
 overrides:
   - files: '*.ts'
     parserOptions:

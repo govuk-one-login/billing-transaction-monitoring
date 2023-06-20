@@ -49,6 +49,7 @@ const config: ConfigCache = {
   ] as Transformations<{}, {}>,
   vat: [{ rate: 20, start: "string" }],
   standardisation: [],
+  contracts: [],
 };
 
 let configOverrides = Object.create(null);

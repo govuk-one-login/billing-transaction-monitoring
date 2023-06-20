@@ -2,6 +2,8 @@ import express from "express";
 import nunjucks from "nunjucks";
 import path from "path";
 import { fileURLToPath } from "url";
+import "dotenv/config";
+import { contractsHandler } from "./handlers/contracts";
 
 let dirname;
 try {
@@ -31,14 +33,7 @@ app.get("/", (_, response) => {
   response.render("index.njk");
 });
 
-app.get("/contracts", (_, response) => {
-  response.render("contracts.njk", {
-    contracts: [
-      { name: "foo", id: 1 },
-      { name: "bar", id: 2 },
-    ],
-  });
-});
+app.get("/contracts", contractsHandler);
 
 app.get("/invoices", (_, response) => {
   response.render("invoices.njk");
