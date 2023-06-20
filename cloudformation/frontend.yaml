@@ -22,6 +22,7 @@ Resources:
     Properties:
       Environment:
         Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           CONFIG_BUCKET: !Sub di-btm-cfg-${AWS::StackName}
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
