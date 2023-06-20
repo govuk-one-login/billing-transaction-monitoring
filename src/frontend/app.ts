@@ -3,7 +3,7 @@ import nunjucks from "nunjucks";
 import path from "path";
 import { fileURLToPath } from "url";
 import "dotenv/config";
-import { contracts } from "./config";
+import { contractsHandler } from "./handlers/contracts";
 import { getInvoicesHandler } from "./handler";
 
 let dirname;
@@ -34,11 +34,7 @@ app.get("/", (_, response) => {
   response.render("index.njk");
 });
 
-app.get("/contracts", (_, response) => {
-  response.render("contracts.njk", {
-    contracts,
-  });
-});
+app.get("/contracts", contractsHandler);
 
 app.get("/invoices", getInvoicesHandler);
 
