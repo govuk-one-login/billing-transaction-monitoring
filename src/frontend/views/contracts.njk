@@ -3,6 +3,11 @@
   <h1 class="govuk-heading-l">Contracts</h1>
   <h2 class="govuk-heading-m">Contract Numbers</h2>
   <ul class="govuk-list">
-    {% for contract in contracts %}<li><a class="govuk-link" href="/invoices?contract_id={{ contract.contract_id }}">{{ contract.name }}</a></li>{% endfor %}
+    {% for contract in contracts %}
+      <li>
+        <a class="govuk-link"
+           href="/invoices?contract_id={{ contract.contract_id }}">{{ contract.name }}</a>
+      </li>
+    {% endfor %}
   </ul>
 {% endblock content %}
