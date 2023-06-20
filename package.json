@@ -67,7 +67,7 @@
     "test:cleanup:reports": "cd reports/jest-html-reports && ../../integration_tests/cleanup-jest-html-reports.sh 3",
     "test:integration:local": "jest --setupFiles=./integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --config jest.integration.config.ts",
     "build": "webpack",
-    "lint": "lint:ts && lint:njk",
+    "lint": "npm run lint:ts && npm run lint:njk",
     "lint:ts": "eslint . --fix",
     "lint:njk": "djlint ./src/frontend/views/* --reformat",
     "build:template": "node ./src/tools/yaml-import.js",
@@ -86,7 +86,8 @@
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
-    "*.{js,json,ts,yaml,yml}": "prettier --write"
+    "*.{js,json,ts,yaml,yml}": "prettier --write",
+    "*.njk": "djlint --reformat"
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "^1.6.0",
