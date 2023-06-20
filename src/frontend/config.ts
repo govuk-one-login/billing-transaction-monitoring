@@ -1,28 +1,53 @@
 import { ConfigElements } from "../handler-context";
 import { makeCtxConfig } from "../handler-context/context-builder";
 import { AthenaQueryExecutor } from "../shared/utils/athenaV3";
-import { AthenaClient } from "@aws-sdk/client-athena";
+import { AthenaClient, Datum } from "@aws-sdk/client-athena";
 
 // TODO Figure out caching
 export const getContracts = async (): Promise<
   Array<{
+    id: string;
     name: string;
-    contract_id: string;
+    vendorName: string;
   }>
 > => {
   const config = await makeCtxConfig([
     ConfigElements.services,
     ConfigElements.contracts,
   ]);
+
   return config.contracts.map((contract) => {
     return {
-      name: `${contract.name} - ${
+      id: contract.id,
+      name: contract.name,
+      vendorName:
         config.services.find((svc) => svc.vendor_id === contract.vendor_id)
-          ?.vendor_name
-      }`,
-      contract_id: contract.id,
+          ?.vendor_name || "",
     };
   });
+};
+
+export const getContractAndVendorName = async (
+  contractId: string
+): Promise<{ vendorName: string; contractName: string }> => {
+  const config = await makeCtxConfig([
+    ConfigElements.services,
+    ConfigElements.contracts,
+  ]);
+
+  const contract = config.contracts.find(
+    (contract) => contract.id === contractId
+  );
+
+  if (contract === undefined) {
+    throw new Error("No contract found");
+  }
+
+  const vendorName =
+    config.services.find((svc) => svc.vendor_id === contract.vendor_id)
+      ?.vendor_name || "";
+
+  return { vendorName, contractName: contract.name };
 };
 
 export const getContractPrettyName = async (id: string): Promise<string> => {
@@ -39,6 +64,7 @@ export const getContractPrettyName = async (id: string): Promise<string> => {
       ?.vendor_name
   }`;
 };
+
 export const getContractName = async (id: string): Promise<string> => {
   const config = await makeCtxConfig([
     ConfigElements.services,
@@ -51,20 +77,43 @@ export const getContractName = async (id: string): Promise<string> => {
   return contract.name;
 };
 
+const isCompleteDatum = (datum: Datum): datum is { VarCharValue: string } =>
+  !!datum.VarCharValue;
+
+const isCompleteDataArray = (
+  data: Datum[] | undefined
+): data is Array<{ VarCharValue: string }> =>
+  !!data?.every((datum) => datum !== undefined && isCompleteDatum(datum));
+
 const athena = new AthenaClient({ region: "eu-west-2" });
 
 const QUERY_WAIT = 30 * 1000; // Thirty seconds
 
+const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 // Write getContractData which will return the display name and all the months/years
-export const getContractData = async (
+export const getContractPeriods = async (
   contractName: string
-): Promise<Array<{ month: string; year: string }>> => {
+): Promise<Array<{ month: string; year: string; prettyMonth: string }>> => {
   if (process.env.QUERY_RESULTS_BUCKET === undefined)
     throw new Error("No QUERY_RESULTS_BUCKET defined in this environment");
 
   console.log("contract name", contractName);
 
-  const fetchDataSql = `SELECT year, month FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_name='${contractName}'`;
+  const fetchDataSql = `SELECT year, month FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_name LIKE '${contractName}'`;
   const executor = new AthenaQueryExecutor(athena, QUERY_WAIT);
   const results = await executor.fetchResults(
     fetchDataSql,
@@ -76,14 +125,15 @@ export const getContractData = async (
 
   console.log(results.Rows);
 
-  const outputRows = new Array<{ month: string; year: string }>();
-  // const outputRows = results.Rows
-  //   .slice(1)
-  //   .map((row) => {
-  //     return {
-  //       month: row[0],
-  //       year: row[1]
-  //     }
-  //   });
+  const outputRows = results.Rows.slice(1).map(({ Data }) => {
+    const isDataComplete = isCompleteDataArray(Data);
+    if (!isDataComplete) throw new Error("Some data was missing");
+
+    return {
+      month: Data[0].VarCharValue,
+      prettyMonth: months[Number(Data[0].VarCharValue) - 1],
+      year: Data[1].VarCharValue,
+    };
+  });
   return outputRows;
 };

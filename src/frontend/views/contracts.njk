@@ -5,8 +5,7 @@
   <ul class="govuk-list">
     {% for contract in contracts %}
       <li>
-        <a class="govuk-link"
-           href="/invoices?contract_id={{ contract.contract_id }}">{{ contract.name }}</a>
+        <a class="govuk-link" href="/invoices?contract_id={{ contract.id }}">{{ contract.name }} - {{ contract.vendorName }}</a>
       </li>
     {% endfor %}
   </ul>
