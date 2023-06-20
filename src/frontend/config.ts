@@ -15,3 +15,16 @@ export const contracts = config.contracts.map((contract) => {
     contract_id: contract.id,
   };
 });
+
+export const getContractName = (id: string): string => {
+  const contract = config.contracts.find((contract) => contract.id === id);
+  if (contract === undefined) {
+    throw new Error("No contract found");
+  }
+  return `${contract.name} - ${
+    config.services.find((svc) => svc.vendor_id === contract.vendor_id)
+      ?.vendor_name
+  }`;
+};
+
+// Write getContractData which will return the display name and all the months/years

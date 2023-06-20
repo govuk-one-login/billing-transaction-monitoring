@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import "dotenv/config";
 import { contracts } from "./config";
+import { getInvoicesHandler } from "./handler";
 
 let dirname;
 try {
@@ -39,12 +40,10 @@ app.get("/contracts", (_, response) => {
   });
 });
 
-app.get("/invoices", (_, response) => {
-  response.render("invoices.njk");
-});
+app.get("/invoices", getInvoicesHandler);
 
-app.get("/invoices/:id", (_, response) => {
-  console.log(_.params);
+app.get("/invoice/:id", (_, response) => {
+  // console.log(_.params);
   response.render("invoice.njk");
 });
 
