@@ -113,7 +113,7 @@ export const getContractPeriods = async (
 
   console.log("contract name", contractName);
 
-  const fetchDataSql = `SELECT year, month FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_name LIKE '${contractName}'`;
+  const fetchDataSql = `SELECT DISTINCT month, year FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_name LIKE '${contractName}'`;
   const executor = new AthenaQueryExecutor(athena, QUERY_WAIT);
   const results = await executor.fetchResults(
     fetchDataSql,

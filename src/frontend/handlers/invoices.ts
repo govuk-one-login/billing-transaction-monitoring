@@ -11,9 +11,11 @@ export const getInvoicesHandler: RequestHandler<
     request.query.contract_id
   );
   response.render("invoices.njk", {
-    id: request.query.contract_id,
-    name: contractName,
-    vendorName,
+    contract: {
+      id: request.query.contract_id,
+      name: contractName,
+      vendorName,
+    },
     periods: await getContractPeriods(contractName),
   });
 };
