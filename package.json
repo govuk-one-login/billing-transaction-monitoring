@@ -87,7 +87,7 @@
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
     "*.{js,json,ts,yaml,yml}": "prettier --write",
-    "*.njk": "djlint --reformat"
+    "*.{njk}": "djlint --reformat"
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "^1.6.0",
