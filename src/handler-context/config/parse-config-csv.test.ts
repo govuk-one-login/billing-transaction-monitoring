@@ -6,14 +6,15 @@ describe("parseConfigCsv", () => {
   let givenOptions: CsvParserOptions<any, any>;
 
   beforeEach(() => {
-    givenCsv = `dateColumn,numberColumn,stringColumn
-2000-01-01,,foo
-,123,`;
+    givenCsv = `dateColumn,numberColumn,stringColumn,optionalColumn
+2000-01-01,123,foo,bar
+2000-01-02,456,baz,`;
 
     givenOptions = {
-      dateColumn: { type: "date" },
-      numberColumn: { type: "number" },
-      stringColumn: { type: "string" },
+      dateColumn: { type: "date", required: true },
+      numberColumn: { type: "number", required: true },
+      stringColumn: { type: "string", required: true },
+      optionalColumn: { type: "string", required: false },
     };
   });
 
@@ -24,21 +25,22 @@ describe("parseConfigCsv", () => {
       expect(result).toEqual([
         {
           dateColumn: new Date("2000-01-01"),
-          numberColumn: undefined,
+          numberColumn: 123,
           stringColumn: "foo",
+          optionalColumn: "bar",
         },
         {
-          dateColumn: undefined,
-          numberColumn: 123,
-          stringColumn: undefined,
+          dateColumn: new Date("2000-01-02"),
+          numberColumn: 456,
+          stringColumn: "baz",
         },
       ]);
     });
   });
 
-  describe("column in options not in file", () => {
+  describe("required column in options not in file", () => {
     beforeEach(() => {
-      givenOptions.missingColumn = { type: "string" };
+      givenOptions.missingColumn = { type: "string", required: true };
     });
 
     it("throws error", async () => {
@@ -52,7 +54,7 @@ describe("parseConfigCsv", () => {
 
   describe("required column empty", () => {
     beforeEach(() => {
-      givenOptions.numberColumn.required = true;
+      givenOptions.optionalColumn.required = true;
     });
 
     it("throws error", async () => {
@@ -63,7 +65,7 @@ describe("parseConfigCsv", () => {
 
   describe("invalid date", () => {
     beforeEach(() => {
-      givenCsv += "\ninvalid date,,";
+      givenCsv += "\ninvalid date,123,foo,";
     });
 
     it("throws error", async () => {
@@ -74,7 +76,7 @@ describe("parseConfigCsv", () => {
 
   describe("invalid number", () => {
     beforeEach(() => {
-      givenCsv += "\n,invalid number,";
+      givenCsv += "\n2000-01-01,invalid number,foo,";
     });
 
     it("throws error", async () => {

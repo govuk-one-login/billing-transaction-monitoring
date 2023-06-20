@@ -1,0 +1,27 @@
+Resources:
+  FrontEndApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      AccessLogSettings:
+        DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
+        Format: '{ "requestId":"$context.requestId", "requestTime":"$context.requestTime", "routeKey":"$context.routeKey", "status":"$context.status" }'
+
+  FrontEndApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      KmsKeyId: !GetAtt KmsKey.Arn
+      RetentionInDays: 90
+
+  FrontEndFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-frontend-function
+      Events:
+        ProxyApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FrontEndApi
+      Handler: frontend.handler
+      ReservedConcurrentExecutions: 1

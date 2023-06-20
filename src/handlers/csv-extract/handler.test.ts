@@ -70,6 +70,7 @@ describe("CSV Extract handler tests", () => {
       service_name: "Horse Hoof Whittling",
       service_regex: "Horse Hoof Whittling",
       event_name: "VENDOR_1_EVENT_1",
+      contract_id: "1",
     },
   ];
 
@@ -282,6 +283,7 @@ describe("CSV Extract handler tests", () => {
         service_name: "Horse Hoof Whittling",
         service_regex: "Non matching regex",
         event_name: "VENDOR_1_EVENT_1",
+        contract_id: "1",
       },
     ]);
 
@@ -333,6 +335,7 @@ describe("CSV Extract handler tests", () => {
         price: 348.6,
         quantity: 28,
         service_name: "Horse Hoof Whittling",
+        contract_id: "1",
         unit_price: 12.45,
         tax: 69.72,
         total: 418.32,
@@ -373,6 +376,7 @@ describe("CSV Extract handler tests", () => {
         price: 348.6,
         quantity: 28,
         service_name: "Horse Hoof Whittling",
+        contract_id: "1",
         unit_price: 12.45,
         tax: 69.72,
         total: 418.32,

@@ -6,6 +6,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { BillingCurated } from "./s3-invoice-end-to-end-tests";
 import crypto from "crypto";
+import { ContractName } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 
 describe("\n Upload invoice standardised data to s3 directly and check the billing curated view", () => {
   test("Uploaded invoice standardised data should match the results from billing curated view", async () => {
@@ -23,10 +24,11 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
         originalInvoiceFile: "invoice1.pdf",
         tax: 20.1,
         event_name: "VENDOR_5_EVENT_1",
-        item_description: "Five Data validation Application",
+        item_description: "Five Data Validation Application",
         price: 96,
         quantity: 300,
-        service_name: "Five Data validation Application",
+        service_name: "Five Data Validation Application",
+        contract_id: "5",
         unit_price: 0.32,
       },
       {
@@ -42,10 +44,11 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
         originalInvoiceFile: "invoice2.pdf",
         tax: 20.1,
         event_name: "VENDOR_5_EVENT_1",
-        item_description: "Five Data validation Application",
+        item_description: "Five Data Validation Application",
         price: 160,
         quantity: 500,
-        service_name: "Five Data validation Application",
+        service_name: "Five Data Validation Application",
+        contract_id: "5",
         unit_price: 0.32,
       },
     ];
@@ -77,6 +80,9 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
       expect(response[0].vendor_id).toEqual(standardisedObject.vendor_id);
       expect(response[0].vendor_name).toEqual(standardisedObject.vendor_name);
       expect(response[0].service_name).toEqual(standardisedObject.service_name);
+      expect(response[0].contract_name).toEqual(
+        ContractName.vendor_testvendor5_contract1
+      );
       expect(response[0].event_name).toEqual(standardisedObject.event_name);
       expect(response[0].quantity).toEqual(
         standardisedObject.quantity.toString()

@@ -67,7 +67,7 @@ export const poll = async <Resolution>(
           // clear down and pass the rejection up
           clearInterval(intervalHandle);
           clearTimeout(timeoutHandle);
-          reject(error);
+          reject(new Error(error));
         }
       );
     }, interval);

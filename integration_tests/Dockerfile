@@ -35,7 +35,11 @@ COPY --from=builder /aws-cli-bin/ /usr/local/bin/
 RUN apk update && \
       apk upgrade && \
       apk add --no-cache \
-      bash
+      bash \
+      python3
+
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
 
 WORKDIR /test-app
 

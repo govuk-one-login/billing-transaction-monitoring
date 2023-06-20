@@ -155,7 +155,7 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  price_difference_percentage\nFROM \"btm_monthly_extract\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  CONCAT(service_name, ' - ', contract_name) AS \"Service\",\n  price_difference_percentage\nFROM \"btm_monthly_extract\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
           "table": "btm_monthly_extract"
         }
@@ -279,7 +279,7 @@
             "uid": "--BnYST4z"
           },
           "format": 1,
-          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  service_name AS \"Service\",\n  billing_price_formatted AS \"Invoiced Amount\",\n  transaction_price_formatted AS \"Expected Amount\",\n  price_difference AS \"Discrepancy in £\",\n  price_difference_percentage AS \"% Discrepancy\",\n  billing_amount_with_tax AS \"Total Invoice + VAT\"\nFROM \"btm_monthly_extract\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
+          "rawSQL": "SELECT \n  vendor_name AS \"Vendor\",\n  CONCAT(service_name, ' - ', contract_name) AS \"Service\",\n  billing_price_formatted AS \"Invoiced Amount\",\n  transaction_price_formatted AS \"Expected Amount\",\n  price_difference AS \"Discrepancy in £\",\n  price_difference_percentage AS \"% Discrepancy\",\n  billing_amount_with_tax AS \"Total Invoice + VAT\"\nFROM \"btm_monthly_extract\" \nWHERE\n  vendor_name IN (${vendorNames:singlequote}) AND\n   year = SUBSTRING(${yearMonth:singlequote},1,4) AND\n   month = SUBSTRING(${yearMonth:singlequote},6,2)\nORDER BY vendor_name, year, month",
           "refId": "A",
           "table": "btm_monthly_extract"
         }
