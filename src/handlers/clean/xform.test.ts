@@ -275,6 +275,38 @@ describe("xform v2", () => {
     });
   });
 
+  describe("!Or", () => {
+    test("2 falsy values", () => {
+      expect(
+        xform({
+          a: ["!Or", ["!Equals", 1, 2], ["!Equals", 1, 2]],
+        })({})
+      ).toEqual({ a: false });
+    });
+
+    test("2 truthy values", () => {
+      expect(
+        xform({
+          a: ["!Or", ["!Path", "$.b"], ["!Equals", 1, 1]],
+        })({})
+      ).toEqual({ a: true });
+    });
+
+    test("1 truthy value, 1 falsy value", () => {
+      expect(
+        xform({
+          a: ["!Or", ["!Path", "$.b"], ["!Equals", 1, 2]],
+        })({})
+      ).toEqual({ a: true });
+
+      expect(
+        xform({
+          a: ["!Or", ["!Equals", 1, 2], ["!Path", "$.b"]],
+        })({})
+      ).toEqual({ a: true });
+    });
+  });
+
   test("malformed command", () => {
     const logger = { warn: jest.fn() } as unknown as Logger;
     expect(xform({ a: ["!Equals", 1, 2, 3, 4, 5] }, logger)({})).toEqual({
