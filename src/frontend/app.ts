@@ -38,8 +38,7 @@ app.get("/contracts", contractsHandler);
 
 app.get("/invoices", getInvoicesHandler);
 
-app.get("/invoice/:id", (_, response) => {
-  // console.log(_.params);
+app.get("/invoice", (_, response) => {
   response.render("invoice.njk");
 });
 
