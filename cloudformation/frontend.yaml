@@ -23,6 +23,8 @@ Resources:
       Environment:
         Variables:
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+          QUERY_RESULTS_BUCKET: !Join ['', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
+          DATABASE_NAME="di-btm-marks-2-calculations"
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
         ProxyApiRoot:
