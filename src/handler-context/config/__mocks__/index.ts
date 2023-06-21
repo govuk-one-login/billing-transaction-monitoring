@@ -57,6 +57,7 @@ const config: ConfigCache = {
       1,
     ],
   },
+  contracts: [],
 };
 
 let configOverrides = Object.create(null);
