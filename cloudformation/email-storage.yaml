@@ -41,7 +41,7 @@ Resources:
                 aws:SourceAccount: !Ref AWS::AccountId
                 aws:SourceArn: !If
                   - IsDev
-                  - - !Sub arn:aws:ses:eu-west-1:${AWS::AccountId}:receipt-rule-set/di-btm-tooling-email-dev-receipt-rule-set:receipt-rule/di-btm-tooling-email-dev-sender-verification-receipt-rule
+                  - - !Sub arn:aws:ses:eu-west-1:${AWS::AccountId}:receipt-rule-set/di-btm-tooling-email-dev-receipt-rule-set:receipt-rule/di-btm-tooling-email-dev-sender-verification
                     - !Sub arn:aws:ses:eu-west-1:${AWS::AccountId}:receipt-rule-set/di-btm-tooling-email-dev-receipt-rule-set:receipt-rule/di-btm-tooling-email-dev-vendor1-receipt-rule
-                  - - !Sub arn:aws:ses:eu-west-1:${AWS::AccountId}:receipt-rule-set/di-btm-tooling-email-${Environment}-receipt-rule-set:receipt-rule/di-btm-tooling-email-${Environment}-sender-verification-receipt-rule
+                  - - !Sub arn:aws:ses:eu-west-1:${AWS::AccountId}:receipt-rule-set/di-btm-tooling-email-${Environment}-receipt-rule-set:receipt-rule/di-btm-tooling-email-${Environment}-sender-verification
                     - !Sub arn:aws:ses:eu-west-1:${AWS::AccountId}:receipt-rule-set/di-btm-tooling-email-${Environment}-receipt-rule-set:receipt-rule/di-btm-tooling-email-${Environment}-vendor1-receipt-rule
