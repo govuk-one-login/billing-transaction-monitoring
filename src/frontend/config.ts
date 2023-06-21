@@ -45,7 +45,7 @@ export const getContractAndVendorName = async (
 
   const vendorName =
     config.services.find((svc) => svc.vendor_id === contract.vendor_id)
-      ?.vendor_name || "";
+      ?.vendor_name ?? "";
 
   return { vendorName, contractName: contract.name };
 };
@@ -87,7 +87,7 @@ const isCompleteDataArray = (
 
 const athena = new AthenaClient({ region: "eu-west-2" });
 
-const QUERY_WAIT = 30 * 1000; // Thirty seconds
+const QUERY_WAIT = 250; // 0.25 second
 
 const months = [
   "Jan",
@@ -111,9 +111,7 @@ export const getContractPeriods = async (
   if (process.env.QUERY_RESULTS_BUCKET === undefined)
     throw new Error("No QUERY_RESULTS_BUCKET defined in this environment");
 
-  console.log("contract name", contractName);
-
-  const fetchDataSql = `SELECT DISTINCT month, year FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_name LIKE '${contractName}'`;
+  const fetchDataSql = `SELECT DISTINCT month, year FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_name LIKE '${contractName}' ORDER BY year DESC, month DESC`;
   const executor = new AthenaQueryExecutor(athena, QUERY_WAIT);
   const results = await executor.fetchResults(
     fetchDataSql,
@@ -123,9 +121,7 @@ export const getContractPeriods = async (
     throw new Error("No results in result set");
   }
 
-  console.log(results.Rows);
-
-  const outputRows = results.Rows.slice(1).map(({ Data }) => {
+  return results.Rows.slice(1).map(({ Data }) => {
     const isDataComplete = isCompleteDataArray(Data);
     if (!isDataComplete) throw new Error("Some data was missing");
 
@@ -135,5 +131,4 @@ export const getContractPeriods = async (
       year: Data[1].VarCharValue,
     };
   });
-  return outputRows;
 };

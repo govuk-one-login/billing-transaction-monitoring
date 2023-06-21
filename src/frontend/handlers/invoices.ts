@@ -7,15 +7,22 @@ export const getInvoicesHandler: RequestHandler<
   unknown,
   { contract_id: string }
 > = async (request, response) => {
+  console.time("config");
   const { contractName, vendorName } = await getContractAndVendorName(
     request.query.contract_id
   );
+  console.timeEnd("config");
+
+  console.time("athena");
+  const periods = await getContractPeriods(contractName);
+  console.timeEnd("athena");
+
   response.render("invoices.njk", {
     contract: {
       id: request.query.contract_id,
       name: contractName,
       vendorName,
     },
-    periods: await getContractPeriods(contractName),
+    periods,
   });
 };
