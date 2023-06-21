@@ -28,9 +28,14 @@ export interface Attachment {
   ContentType: string;
 }
 
-export const sendEmail = async (params: EmailParams): Promise<void> => {
+export const sendEmail = async (params: EmailParams): Promise<string> => {
   try {
-    await sesClient.send(new SendEmailCommand(params));
+    const response = await sesClient.send(new SendEmailCommand(params));
+    console.log(response);
+    if (response.MessageId === undefined) {
+      throw new Error("Error in sending the mail");
+    }
+    return response.MessageId;
   } catch (error) {
     throw new Error(`Failed to send mail: ${error}`);
   }

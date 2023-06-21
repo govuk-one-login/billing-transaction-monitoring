@@ -23,4 +23,4 @@ export const s3Client = new S3Client({
 
 export const lambdaClient = new LambdaClient({ region });
 
-export const sesClient = new SESClient({ region });
+export const sesClient = new SESClient({ region: "eu-west-1" });
