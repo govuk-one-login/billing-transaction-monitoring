@@ -22,7 +22,7 @@ export const getContracts = async (): Promise<
       name: contract.name,
       vendorName:
         config.services.find((svc) => svc.vendor_id === contract.vendor_id)
-          ?.vendor_name || "",
+          ?.vendor_name ?? "",
     };
   });
 };
