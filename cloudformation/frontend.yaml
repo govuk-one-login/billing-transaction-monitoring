@@ -36,6 +36,12 @@ Resources:
       Policies:
         - Statement:
             - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
               Action: s3:GetObject
               Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
             - Effect: Allow
