@@ -60,6 +60,8 @@ Resources:
                 - s3:ListMultipartUploadParts
                 - s3:PutObject
               Resource:
+                - !GetAtt StorageBucket.Arn
+                - !Sub ${StorageBucket.Arn}/*
                 - !GetAtt AthenaQueryResultsBucket.Arn
                 - !Sub ${AthenaQueryResultsBucket.Arn}/*
             - Effect: Allow
