@@ -297,7 +297,9 @@ Resources:
                 WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN ${QueryMessageInvoiceDataMissing}
                 WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN ${QueryMessageTransactionDataMissing}
                 WHEN (txn.price IS NULL) THEN ${QueryMessageRateCardDataMissing}
-                ELSE (CASE WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE null END) ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price) END) END) price_difference_percentage
+                WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE ${UnexpectedInvoiceCharge} END)
+                ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price)
+              END) price_difference_percentage
           FROM
               (btm_transactions_curated txn
                 FULL JOIN btm_billing_curated invoice ON

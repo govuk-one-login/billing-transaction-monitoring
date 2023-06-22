@@ -48,6 +48,9 @@ Parameters:
   QueryMessageTransactionDataMissing:
     Type: String
     Default: -1234567.04
+  UnexpectedInvoiceCharge:
+    Type: String
+    Default: -1234567.05
 
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]

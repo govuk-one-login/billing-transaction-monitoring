@@ -92,6 +92,11 @@
                   "color": "#676b71",
                   "index": 3,
                   "text": "Transaction data missing"
+                },
+                "-1234567.05": {
+                  "color": "#676b71",
+                  "index": 4,
+                  "text": "Unexpected invoice charge"
                 }
               },
               "type": "value"
@@ -216,6 +221,10 @@
                 "-1234567.04": {
                   "index": 3,
                   "text": "Transaction data missing"
+                },
+                "-1234567.05": {
+                  "index": 4,
+                  "text": "Unexpected invoice charge"
                 }
               },
               "type": "value"
