@@ -30,7 +30,7 @@ export default {
   },
   externals: [
     webpackNodeExternals({
-      allowlist: [/^(?:(?!jsonpath).)*$/, "aws-sdk"],
+      allowlist: ["jsonpath", "aws-sdk"],
     }),
   ],
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
