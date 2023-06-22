@@ -38,7 +38,7 @@ RUN apk update && \
       bash \
       python3
 
-RUN python3 -m ensurepip
+RUN python3 -m ensurepip --upgrade
 RUN pip3 install --no-cache --upgrade pip setuptools
 
 WORKDIR /test-app
