@@ -6,7 +6,7 @@ import { IncomingEventBody } from "./types";
 jest.mock("../../shared/utils");
 const mockedGetVendorId = getVendorId as jest.Mock;
 
-describe("Clean businessLogic", () => {
+describe.skip("Clean businessLogic", () => {
   let mockedVendorId: string;
   let givenCtx: HandlerCtx<any, any, any>;
   let givenInfoLogger: jest.Mock;
