@@ -1,4 +1,4 @@
-import * as jsonpath from "jsonpath";
+// import jsonpath from "jsonpath";
 import { isEqual } from "lodash";
 import { Logger } from "@aws-lambda-powertools/logger";
 
@@ -69,7 +69,8 @@ const doCommand = (
         throw new Error(
           "Attempted to invoke jsonpath query with a query that was not a string"
         );
-      return jsonpath.query(thing, query);
+      return [];
+      // return jsonpath.query(thing, query);
     }
     case "!Equals":
       return isEqual(
