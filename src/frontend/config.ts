@@ -78,7 +78,7 @@ const months = [
 ];
 
 export const getContractPeriods = async (
-  contractName: string
+  contractId: string
 ): Promise<Array<{ month: string; year: string; prettyMonth: string }>> => {
   // 1. Check variables are defined
   if (process.env.QUERY_RESULTS_BUCKET === undefined)
@@ -86,7 +86,7 @@ export const getContractPeriods = async (
   if (process.env.DATABASE_NAME === undefined)
     throw new Error("No DATABASE_NAME defined in this environment");
 
-  const fetchDataSql = `SELECT DISTINCT month, year FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_name LIKE '${contractName}' ORDER BY year DESC, month DESC`;
+  const fetchDataSql = `SELECT DISTINCT month, year FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_id LIKE '${contractId}' ORDER BY year DESC, month DESC`;
   const executor = new AthenaQueryExecutor(athena, QUERY_WAIT);
   const results = await executor.fetchResults(
     fetchDataSql,

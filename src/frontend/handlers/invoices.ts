@@ -14,7 +14,7 @@ export const getInvoicesHandler: RequestHandler<
   console.timeEnd("config");
 
   console.time("athena");
-  const periods = await getContractPeriods(contractName);
+  const periods = await getContractPeriods(request.query.contract_id);
   console.timeEnd("athena");
 
   response.render("invoices.njk", {
