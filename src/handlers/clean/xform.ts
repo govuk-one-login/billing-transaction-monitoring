@@ -1,4 +1,4 @@
-import jsonpath from "jsonpath";
+import * as jsonpath from "jsonpath";
 import { isEqual } from "lodash";
 import { Logger } from "@aws-lambda-powertools/logger";
 
