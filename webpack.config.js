@@ -1,6 +1,7 @@
 import CopyPlugin from "copy-webpack-plugin";
 import path from "path";
 import { fileURLToPath } from "url";
+import webpackNodeExternals from "webpack-node-externals";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -27,7 +28,11 @@ export default {
     frontend: "./src/handlers/frontend/handler.ts",
     server: "./src/frontend/server.ts",
   },
-  externals: "aws-sdk",
+  externals: [
+    webpackNodeExternals({
+      allowlist: [/^(?:(?!jsonpath|aws-sdk).)*$/],
+    }),
+  ],
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
   module: {
     rules: [
