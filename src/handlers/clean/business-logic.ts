@@ -19,7 +19,7 @@ export const businessLogic: BusinessLogic<
     vendor_id,
     credits,
   } = xform<{ credits: number }>(
-    config[ConfigElements.eventCleaningTransform],
+    config.eventCleaningTransform,
     logger
   )<IncomingEventBody>(event);
 

@@ -97,9 +97,10 @@ export const xform =
     config: Config<keyof TAdded>,
     logger?: Logger
   ) =>
-  <TIn extends Record<string, unknown>>(thing: TIn): TIn & TAdded =>
+  <TIn extends Record<string, unknown>>(thing: TIn): TIn & TAdded => {
+    console.log("🚀 ~ file: xform.ts:98 ~ config:", config);
     // @ts-expect-error
-    Object.entries(config).reduce<TIn & TAdded>(
+    return Object.entries(config).reduce<TIn & TAdded>(
       (acc, [key, value]) => ({
         ...acc,
         [key]: doCommand(value, thing, logger),
@@ -107,3 +108,4 @@ export const xform =
       // @ts-expect-error
       thing
     );
+  };
