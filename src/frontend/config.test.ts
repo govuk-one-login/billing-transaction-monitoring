@@ -123,6 +123,21 @@ describe("frontend config", () => {
         "No results in result set"
       );
     });
-    test("should throw an error if there is data missing", async () => {});
+    test("should throw an error if there is data missing", async () => {
+      // Act
+      mockedAthenaQueryExecutorFetchResults.mockResolvedValue({
+        ColumnInfos: [],
+        ResultRows: [],
+        ResultSetMetadata: { ColumnInfo: [] },
+        Rows: [
+          { Data: [{ VarCharValue: "month" }, { VarCharValue: "year" }] },
+          { Data: [{ VarCharValue: "03" }, {}] }, // Missing year
+        ],
+      });
+      // Assert
+      await expect(getContractPeriods(contractId)).rejects.toThrowError(
+        "Some data was missing"
+      );
+    });
   });
 });
