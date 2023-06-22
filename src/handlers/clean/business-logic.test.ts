@@ -6,7 +6,7 @@ import { IncomingEventBody } from "./types";
 jest.mock("../../shared/utils");
 const mockedGetVendorId = getVendorId as jest.Mock;
 
-describe.skip("Clean businessLogic", () => {
+describe("Clean businessLogic", () => {
   let mockedVendorId: string;
   let givenCtx: HandlerCtx<any, any, any>;
   let givenInfoLogger: jest.Mock;
@@ -25,7 +25,14 @@ describe.skip("Clean businessLogic", () => {
     givenCreditTransformConfig = {
       credits: [
         "!If",
-        ["!Not", ["!Equals", ["!Path", "$.user.transaction_id"], []]],
+        [
+          "!Not",
+          [
+            "!Or",
+            ["!Equals", ["!Path", "$..sorted_mate"], ["Not available"]],
+            ["!Equals", ["!Path", "$..sorted_mate"], []],
+          ],
+        ],
         2,
         1,
       ],
@@ -81,6 +88,7 @@ describe.skip("Clean businessLogic", () => {
   test("Clean businessLogic with valid event record that has optional values", async () => {
     validIncomingEventBody.vendor_id = "some vendor ID";
     validIncomingEventBody.user = { transaction_id: "some transaction ID" };
+    validIncomingEventBody.evidence = { sorted_mate: "123" };
 
     const result = await businessLogic(validIncomingEventBody, givenCtx);
 

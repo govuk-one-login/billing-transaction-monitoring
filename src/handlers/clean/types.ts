@@ -26,4 +26,5 @@ export type IncomingEventBody = Omit<
   "vendor_id" | "credits"
 > & {
   vendor_id?: string;
+  evidence?: any;
 };
