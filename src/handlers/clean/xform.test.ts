@@ -1,7 +1,7 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { xform } from "./xform";
 
-describe.skip("xform v2", () => {
+describe("xform v2", () => {
   describe("simple writes", () => {
     test("hardcode primitive value", () => {
       const i = { d: "d" };

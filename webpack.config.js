@@ -27,10 +27,7 @@ export default {
     frontend: "./src/handlers/frontend/handler.ts",
     server: "./src/frontend/server.ts",
   },
-  externals: {
-    jsonpath: "jsonpath",
-    "aws-sdk": "aws-sdk",
-  },
+  externals: "aws-sdk",
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
   module: {
     rules: [

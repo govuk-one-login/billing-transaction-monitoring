@@ -1,4 +1,4 @@
-import jsonpath from "jsonpath";
+import { JSONPath } from "jsonpath-plus";
 import { isEqual } from "lodash";
 import { Logger } from "@aws-lambda-powertools/logger";
 
@@ -37,19 +37,19 @@ const commandLengthMap: Record<CommandKeyword, number> = {
 
 const isCorrectlyFormedCommand = (
   value: unknown[],
-  _logger?: Logger
+  logger?: Logger
 ): boolean => {
   if (!isCommandKeyword(value[0])) return false;
   const res = value.length === commandLengthMap[value[0]];
 
-  if (!res) console.log("oops");
-  // (logger ?? console).warn(
-  //   `It looks like you tried to use a ${value[0]} command but you provided ${
-  //     value.length - 1
-  //   } arguments. The ${value[0]} command expects ${
-  //     commandLengthMap[value[0]] - 1
-  //   } arguments.`
-  // );
+  if (!res)
+    (logger ?? console).warn(
+      `It looks like you tried to use a ${value[0]} command but you provided ${
+        value.length - 1
+      } arguments. The ${value[0]} command expects ${
+        commandLengthMap[value[0]] - 1
+      } arguments.`
+    );
   return res;
 };
 
@@ -69,7 +69,10 @@ const doCommand = (
         throw new Error(
           "Attempted to invoke jsonpath query with a query that was not a string"
         );
-      return jsonpath.query(thing, query);
+      return JSONPath({
+        path: query,
+        json: thing as string | number | boolean | object | any[] | null,
+      });
     }
     case "!Equals":
       return isEqual(
