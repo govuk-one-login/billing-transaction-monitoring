@@ -50,33 +50,6 @@ export const getContractAndVendorName = async (
   return { vendorName, contractName: contract.name };
 };
 
-export const getContractPrettyName = async (id: string): Promise<string> => {
-  const config = await makeCtxConfig([
-    ConfigElements.services,
-    ConfigElements.contracts,
-  ]);
-  const contract = config.contracts.find((contract) => contract.id === id);
-  if (contract === undefined) {
-    throw new Error("No contract found");
-  }
-  return `${contract.name} - ${
-    config.services.find((svc) => svc.vendor_id === contract.vendor_id)
-      ?.vendor_name
-  }`;
-};
-
-export const getContractName = async (id: string): Promise<string> => {
-  const config = await makeCtxConfig([
-    ConfigElements.services,
-    ConfigElements.contracts,
-  ]);
-  const contract = config.contracts.find((contract) => contract.id === id);
-  if (contract === undefined) {
-    throw new Error("No contract found");
-  }
-  return contract.name;
-};
-
 const isCompleteDatum = (datum: Datum): datum is { VarCharValue: string } =>
   !!datum.VarCharValue;
 
@@ -104,12 +77,14 @@ const months = [
   "Dec",
 ];
 
-// Write getContractData which will return the display name and all the months/years
 export const getContractPeriods = async (
   contractName: string
 ): Promise<Array<{ month: string; year: string; prettyMonth: string }>> => {
+  // 1. Check variables are defined
   if (process.env.QUERY_RESULTS_BUCKET === undefined)
     throw new Error("No QUERY_RESULTS_BUCKET defined in this environment");
+  if (process.env.DATABASE_NAME === undefined)
+    throw new Error("No DATABASE_NAME defined in this environment");
 
   const fetchDataSql = `SELECT DISTINCT month, year FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_name LIKE '${contractName}' ORDER BY year DESC, month DESC`;
   const executor = new AthenaQueryExecutor(athena, QUERY_WAIT);
