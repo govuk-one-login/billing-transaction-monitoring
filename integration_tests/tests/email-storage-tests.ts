@@ -10,7 +10,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/sesHelper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 
-const vendorEmailMap = {
+const vendorEmailMap: Record<string, VendorId> = {
   vendor1: VendorId.vendor_testvendor1,
   vendor2: VendorId.vendor_testvendor2,
   vendor3: VendorId.vendor_testvendor3,
@@ -18,8 +18,10 @@ const vendorEmailMap = {
 
 describe("\n Email storage \n", () => {
   test.each`
-    vendor       |
+    vendor
     ${"vendor1"}
+    ${"vendor2"}
+    ${"vendor3"}
   `(
     "should store the received email in the corresponding directory in the email bucket",
     async ({ vendor }) => {
@@ -29,7 +31,7 @@ describe("\n Email storage \n", () => {
       const emailBucket = `${prefix}-email`;
       const sourceEmail = `no-reply@btm.${extractedValue}.account.gov.uk`;
       const toEmail = `${vendor}_invoices@btm.${extractedValue}.account.gov.uk`;
-      const directory = vendorEmailMap.vendor1;
+      const directory = vendorEmailMap[vendor];
 
       console.log(sourceEmail);
       console.log(toEmail);
@@ -66,8 +68,7 @@ describe("\n Email storage \n", () => {
             bucketName: s3Params.bucket,
             prefix: `${directory}`,
           }),
-        (Contents) =>
-          Contents.filter((result) => result.key === s3Params.key).length === 1,
+        (Contents) => Contents.some((obj) => obj.key?.includes(messageId)),
         {
           interval: 10000,
           notCompleteErrorMessage: `${s3Params.key} not found`,
