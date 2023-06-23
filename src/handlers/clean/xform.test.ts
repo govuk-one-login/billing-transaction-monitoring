@@ -49,6 +49,13 @@ describe("xform v2", () => {
       });
       expect(res).toEqual({ a: [], c: [] });
     });
+
+    test("returns an array containing an array when the selected value is an array", () => {
+      expect(xform({ a: ["!Path", "$.b"] })({ b: [] })).toEqual({
+        a: [[]],
+        b: [],
+      });
+    });
   });
 
   describe("!Equals", () => {
@@ -320,5 +327,53 @@ describe("xform v2", () => {
     expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining("2"));
     // logged output knows how many args command _did_ have
     expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining("5"));
+  });
+
+  describe("A big combo", () => {
+    const config = {
+      credits: [
+        "!If",
+        [
+          "!Not",
+          [
+            "!Or",
+            ["!Equals", ["!Path", "$..sorted_mate"], ["Not available"]],
+            ["!Equals", ["!Path", "$..sorted_mate"], []],
+          ],
+        ],
+        2,
+        1,
+      ],
+    };
+
+    test("cond 1", () => {
+      expect(
+        xform(config)({ coleslaw: { sorted_mate: "Not available" } })
+      ).toEqual({
+        coleslaw: { sorted_mate: "Not available" },
+        credits: 1,
+      });
+    });
+
+    test("cond 2", () => {
+      expect(xform(config)({ coleslaw: { sorted_mate: [] } })).toEqual({
+        coleslaw: { sorted_mate: [] },
+        credits: 1,
+      });
+    });
+
+    test("cond 3", () => {
+      expect(xform(config)({ coleslaw: {} })).toEqual({
+        coleslaw: {},
+        credits: 1,
+      });
+    });
+
+    test("cond 4", () => {
+      expect(xform(config)({ coleslaw: { sorted_mate: 1234 } })).toEqual({
+        coleslaw: { sorted_mate: 1234 },
+        credits: 2,
+      });
+    });
   });
 });
