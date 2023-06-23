@@ -356,22 +356,22 @@ describe("xform v2", () => {
     });
 
     test("cond 2", () => {
-      expect(xform(config)({ coleslaw: { sorted_mate: [] } })).toEqual({
-        coleslaw: { sorted_mate: [] },
-        credits: 1,
-      });
-    });
-
-    test("cond 3", () => {
       expect(xform(config)({ coleslaw: {} })).toEqual({
         coleslaw: {},
         credits: 1,
       });
     });
 
-    test("cond 4", () => {
+    test("cond 3", () => {
       expect(xform(config)({ coleslaw: { sorted_mate: 1234 } })).toEqual({
         coleslaw: { sorted_mate: 1234 },
+        credits: 2,
+      });
+    });
+
+    test("cond 4", () => {
+      expect(xform(config)({ coleslaw: { sorted_mate: [] } })).toEqual({
+        coleslaw: { sorted_mate: [] },
         credits: 2,
       });
     });
