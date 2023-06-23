@@ -1,6 +1,5 @@
 module.exports = {
-  //   preset: "ts-jest",
-  testRegex: ".*\\.test\\.ts",
+  testRegex: ".*\\.test\\.ts$",
   transform: {
     "^.+\\.ts$": [
       "ts-jest",

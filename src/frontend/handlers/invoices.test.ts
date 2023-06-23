@@ -65,11 +65,8 @@ describe("invoices handler", () => {
     const request = supertest(app);
     const response = await request.get("/invoices?contract_id=1");
     expect(response.status).toBe(200);
+    expect(response.text).toContain("C01234 - Vendor One");
     expect(response.text).toContain("Mar 2023");
-
     expect(response.text).toMatchSnapshot();
   });
 });
-// mock data sources for config bucket and athena
-// when visiting /invoices?contract_id=1
-// expect to see the months years that i'd expect to see for contract_id 1
