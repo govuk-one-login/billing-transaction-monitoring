@@ -2,6 +2,7 @@ import supertest from "supertest";
 import { app } from "../app";
 import { makeCtxConfig } from "../../handler-context/context-builder";
 import { AthenaQueryExecutor } from "../../shared/utils/athenaV3";
+import { initApp } from "../init-app";
 
 jest.mock("../../handler-context/context-builder");
 const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
@@ -22,6 +23,8 @@ describe("invoices handler", () => {
   let contractId: string;
 
   beforeEach(() => {
+    initApp(app);
+
     process.env = {
       QUERY_RESULTS_BUCKET: "given query results bucket",
       DATABASE_NAME: "given database name",
@@ -58,14 +61,13 @@ describe("invoices handler", () => {
     };
     mockedAthenaQueryExecutorFetchResults.mockResolvedValue(givenQueryResults);
   });
-  test("what am i testing?", async () => {
+  test("Page displays months and years of invoices", async () => {
     const request = supertest(app);
     const response = await request.get("/invoices?contract_id=1");
-    console.log("RESPONSE", response);
     expect(response.status).toBe(200);
-    expect(response.body.contract).toBe("contracts???");
-    expect(response.body.periods).toBe("periods???");
-    expect(response.text).toContain("something");
+    expect(response.text).toContain("Mar 2023");
+
+    expect(response.text).toMatchSnapshot();
   });
 });
 // mock data sources for config bucket and athena
