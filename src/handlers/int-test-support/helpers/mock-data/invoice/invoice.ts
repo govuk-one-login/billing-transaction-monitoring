@@ -56,6 +56,67 @@ export class Invoice {
   }
 }
 
+export const makeMockInvoicePdfData = (invoice: Invoice): string => {
+  const doc = new JSPDF({
+    unit: "cm",
+  });
+
+  const date = new Date(invoice.date);
+  const dueDate = new Date(invoice.dueDate);
+
+  doc.setFontSize(24);
+  doc.text(`Tax Invoice`, 2, 2);
+
+  doc.setFontSize(8);
+  invoice.customer.address.forEach((line, i) => {
+    doc.text(line, 2, 3 + i / 2);
+  });
+  invoice.vendor.address.forEach((line, i) => {
+    doc.text(line, 16, 2 + i / 2);
+  });
+  doc.text(`Invoice Number:\n${invoice.invoiceNumber}`, 12, 2);
+  doc.text(`Invoice Date:\n${date.toLocaleDateString("en-GB")}`, 12, 3);
+  doc.text(`Due Date:\n${dueDate.toLocaleDateString("en-GB")}`, 12, 4);
+  doc.text(`VAT Number:\n${invoice.vendor.vatNumber}`, 12, 5);
+
+  autoTable(doc, {
+    startY: 8,
+    head: [["Description", "Quantity", "Unit Price", "VAT", "Amount"]],
+    body: invoice.lineItems.map((lineItem) => [
+      lineItem.description,
+      lineItem.quantity,
+      lineItem.unitPrice.toLocaleString("en-GB", {
+        style: "currency",
+        currency: "gbp",
+      }),
+      lineItem.vat.toLocaleString("en-GB", {
+        style: "currency",
+        currency: "gbp",
+      }),
+      lineItem.subtotal.toLocaleString("en-GB", {
+        style: "currency",
+        currency: "gbp",
+      }),
+    ]),
+    foot: [
+      [
+        `Subtotal: ${invoice.getSubtotal().toLocaleString("en-GB", {
+          style: "currency",
+          currency: "gbp",
+        })}`,
+      ],
+      [
+        `Total: ${invoice.getTotal().toLocaleString("en-GB", {
+          style: "currency",
+          currency: "gbp",
+        })}`,
+      ],
+    ],
+  });
+  doc.text(`Invoice number: ${invoice.invoiceNumber}`, 2, 20);
+  return doc.output();
+};
+
 export const makeMockInvoicePDF =
   <TWriteOutput>(writeOutput: WriteFunc<TWriteOutput>) =>
   async (
@@ -63,64 +124,8 @@ export const makeMockInvoicePDF =
     folder: string,
     filename: string
   ): Promise<TWriteOutput> => {
-    const doc = new JSPDF({
-      unit: "cm",
-    });
-
-    const date = new Date(invoice.date);
-    const dueDate = new Date(invoice.dueDate);
-
-    doc.setFontSize(24);
-    doc.text(`Tax Invoice`, 2, 2);
-
-    doc.setFontSize(8);
-    invoice.customer.address.forEach((line, i) => {
-      doc.text(line, 2, 3 + i / 2);
-    });
-    invoice.vendor.address.forEach((line, i) => {
-      doc.text(line, 16, 2 + i / 2);
-    });
-    doc.text(`Invoice Number:\n${invoice.invoiceNumber}`, 12, 2);
-    doc.text(`Invoice Date:\n${date.toLocaleDateString("en-GB")}`, 12, 3);
-    doc.text(`Due Date:\n${dueDate.toLocaleDateString("en-GB")}`, 12, 4);
-    doc.text(`VAT Number:\n${invoice.vendor.vatNumber}`, 12, 5);
-
-    autoTable(doc, {
-      startY: 8,
-      head: [["Description", "Quantity", "Unit Price", "VAT", "Amount"]],
-      body: invoice.lineItems.map((lineItem) => [
-        lineItem.description,
-        lineItem.quantity,
-        lineItem.unitPrice.toLocaleString("en-GB", {
-          style: "currency",
-          currency: "gbp",
-        }),
-        lineItem.vat.toLocaleString("en-GB", {
-          style: "currency",
-          currency: "gbp",
-        }),
-        lineItem.subtotal.toLocaleString("en-GB", {
-          style: "currency",
-          currency: "gbp",
-        }),
-      ]),
-      foot: [
-        [
-          `Subtotal: ${invoice.getSubtotal().toLocaleString("en-GB", {
-            style: "currency",
-            currency: "gbp",
-          })}`,
-        ],
-        [
-          `Total: ${invoice.getTotal().toLocaleString("en-GB", {
-            style: "currency",
-            currency: "gbp",
-          })}`,
-        ],
-      ],
-    });
-    doc.text(`Invoice number: ${invoice.invoiceNumber}`, 2, 20);
-    return await writeOutput(doc.output(), folder, filename);
+    const data = makeMockInvoicePdfData(invoice);
+    return await writeOutput(data, folder, filename);
   };
 
 export const makeMockInvoiceCSV =
