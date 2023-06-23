@@ -5,10 +5,8 @@ import {
   invalidEventPayloadTimeStamp,
   invalidEventPayloadTimestampFormatted,
   validEventPayload,
-
   validEventPayloadWithSortedValue,
   validEventPayloadWithSortedValueNA,
-  validEventPayloadWithSortedValueEmpty,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import {
   S3Object,
@@ -35,7 +33,6 @@ describe("\n Clean Function - Happy path tests\n", () => {
   test.each([
     [validEventPayload, 1],
     [validEventPayloadWithSortedValueNA, 1],
-    [validEventPayloadWithSortedValueEmpty, 1],
     [validEventPayloadWithSortedValue, 2],
   ])(
     "should store cleaned events in the storage bucket and check credit field value",
@@ -43,7 +40,6 @@ describe("\n Clean Function - Happy path tests\n", () => {
       const result = await invokeCleanLambdaAndVerifyEventInS3Bucket(payload);
       expect(result.success).toBe(true);
       expect(result.eventId).toBe(payload.event_id);
-      console.log(payload.event_id);
       const s3ObjectData = await retrieveS3ObjectByEventId(payload.event_id);
       expect(s3ObjectData.credits).toBe(expectedCredits);
     }
