@@ -14,7 +14,7 @@ try {
   dirname = path.dirname(filePath);
 }
 
-const app = express();
+export const app = express();
 
 const viewDir = path.join(dirname, "views");
 
@@ -60,5 +60,3 @@ const stylesPath =
 app.use("/assets", express.static(assetsPath));
 app.use("/assets/scripts", express.static(scriptsPath));
 app.use("/assets/styles", express.static(stylesPath));
-
-export { app };
