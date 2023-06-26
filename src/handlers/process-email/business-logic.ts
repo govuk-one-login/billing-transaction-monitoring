@@ -38,13 +38,11 @@ export const businessLogic: BusinessLogic<
   const desiredAttachments = attachments.filter(
     (attachment) =>
       attachment.contentType === "application/pdf" ||
-      attachment.contentType === "image/jpeg" ||
-      attachment.contentType === "image/png" ||
       attachment.contentType === "text/csv"
   );
 
   if (!desiredAttachments.length) {
-    logger.warn(`No CSV, JPEG, PDF, or PNG attachments in ${sourceFileName}`);
+    logger.warn(`No pdf or csv attachments in ${sourceFileName}`);
   }
 
   const attachmentContent = desiredAttachments.map((attachment) => {

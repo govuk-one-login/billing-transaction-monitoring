@@ -17,7 +17,7 @@ const givenVendorId = "vendor123";
 
 describe("Email", () => {
   test("CSV attachment", async () => {
-    const givenCsvName = `email-test-raw-invoice-validFile-${makeUniqueString()}.csv`;
+    const givenCsvName = `email-test-raw-invoice-${makeUniqueString()}.csv`;
     const givenEmail = makeEmailWithAttachments([
       {
         data: "test CSV data",
@@ -40,8 +40,8 @@ describe("Email", () => {
     expect(csvIsInRawInvoiceBucket).toBe(true);
   });
 
-  it("PDF attachment", async () => {
-    const givenPdfName = `email-test-raw-invoice-validFile-${makeUniqueString()}.pdf`;
+  test("PDF attachment", async () => {
+    const givenPdfName = `email-test-raw-invoice-${makeUniqueString()}.pdf`;
     const email = makeEmailWithAttachments([
       {
         data: makeRandomInvoicePdfData(),
@@ -64,9 +64,9 @@ describe("Email", () => {
     expect(pdfIsInRawInvoiceBucket).toBe(true);
   });
 
-  it("CSV and PDF", async () => {
-    const givenCsvName = `email-test-raw-invoice-validFile-${makeUniqueString()}.csv`;
-    const givenPdfName = `email-test-raw-invoice-validFile-${makeUniqueString()}.pdf`;
+  test("CSV and PDF", async () => {
+    const givenCsvName = `email-test-raw-invoice-${makeUniqueString()}.csv`;
+    const givenPdfName = `email-test-raw-invoice-${makeUniqueString()}.pdf`;
     const email = makeEmailWithAttachments([
       {
         data: "test CSV data",
@@ -95,10 +95,10 @@ describe("Email", () => {
     expect(pdfIsInRawInvoiceBucket).toBe(true);
   });
 
-  it("CSV, PDF and JPEG", async () => {
-    const givenCsvName = `email-test-raw-invoice-validFile-${makeUniqueString()}.csv`;
-    const givenJpegName = `email-test-raw-invoice-validFile-${makeUniqueString()}.jpeg`;
-    const givenPdfName = `email-test-raw-invoice-validFile-${makeUniqueString()}.pdf`;
+  test("CSV, PDF and JPEG", async () => {
+    const givenCsvName = `email-test-raw-invoice-${makeUniqueString()}.csv`;
+    const givenJpegName = `email-test-image-${makeUniqueString()}.jpeg`;
+    const givenPdfName = `email-test-raw-invoice-${makeUniqueString()}.pdf`;
     const email = makeEmailWithAttachments([
       {
         data: "test CSV data",
@@ -122,27 +122,28 @@ describe("Email", () => {
       },
     });
 
-    const [
-      csvIsInRawInvoiceBucket,
-      jpegIsInRawInvoiceBucket,
-      pdfIsInRawInvoiceBucket,
-    ] = await Promise.all([
-      waitForRawInvoice(givenVendorId, givenCsvName),
-      waitForRawInvoice(givenVendorId, givenJpegName),
-      waitForRawInvoice(givenVendorId, givenPdfName),
-    ]);
+    const [csvIsInRawInvoiceBucket, pdfIsInRawInvoiceBucket] =
+      await Promise.all([
+        waitForRawInvoice(givenVendorId, givenCsvName),
+        waitForRawInvoice(givenVendorId, givenPdfName),
+      ]);
     expect(csvIsInRawInvoiceBucket).toBe(true);
-    expect(jpegIsInRawInvoiceBucket).toBe(true);
     expect(pdfIsInRawInvoiceBucket).toBe(true);
+
+    const jpegIsInRawInvoiceBucket = await checkForRawInvoice(
+      givenVendorId,
+      givenJpegName
+    );
+    expect(jpegIsInRawInvoiceBucket).toBe(false);
   });
 
-  it("Various attachments", async () => {
-    const givenCsvName1 = `email-test-raw-invoice-validFile-${makeUniqueString()}.csv`;
-    const givenCsvName2 = `email-test-raw-invoice-validFile-${makeUniqueString()}.csv`;
-    const givenJpegName = `email-test-raw-invoice-validFile-${makeUniqueString()}.jpeg`;
-    const givenPdfName1 = `email-test-raw-invoice-validFile-${makeUniqueString()}.pdf`;
-    const givenPdfName2 = `email-test-raw-invoice-validFile-${makeUniqueString()}.pdf`;
-    const givenPngName = `email-test-raw-invoice-validFile-${makeUniqueString()}.png`;
+  test("Various attachments", async () => {
+    const givenCsvName1 = `email-test-raw-invoice-${makeUniqueString()}.csv`;
+    const givenCsvName2 = `email-test-raw-invoice-${makeUniqueString()}.csv`;
+    const givenJpegName = `email-test-image-${makeUniqueString()}.jpeg`;
+    const givenPdfName1 = `email-test-raw-invoice-${makeUniqueString()}.pdf`;
+    const givenPdfName2 = `email-test-raw-invoice-${makeUniqueString()}.pdf`;
+    const givenPngName = `email-test-image-${makeUniqueString()}.png`;
     const email = makeEmailWithAttachments([
       {
         data: "test CSV data 1",
@@ -181,24 +182,26 @@ describe("Email", () => {
     const [
       csv1IsInRawInvoiceBucket,
       csv2IsInRawInvoiceBucket,
-      jpegIsInRawInvoiceBucket,
       pdf1IsInRawInvoiceBucket,
       pdf2IsInRawInvoiceBucket,
-      pngIsInRawInvoiceBucket,
     ] = await Promise.all([
       waitForRawInvoice(givenVendorId, givenCsvName1),
       waitForRawInvoice(givenVendorId, givenCsvName2),
-      waitForRawInvoice(givenVendorId, givenJpegName),
       waitForRawInvoice(givenVendorId, givenPdfName1),
       waitForRawInvoice(givenVendorId, givenPdfName2),
-      waitForRawInvoice(givenVendorId, givenPngName),
     ]);
     expect(csv1IsInRawInvoiceBucket).toBe(true);
     expect(csv2IsInRawInvoiceBucket).toBe(true);
-    expect(jpegIsInRawInvoiceBucket).toBe(true);
     expect(pdf1IsInRawInvoiceBucket).toBe(true);
     expect(pdf2IsInRawInvoiceBucket).toBe(true);
-    expect(pngIsInRawInvoiceBucket).toBe(true);
+
+    const [jpegIsInRawInvoiceBucket, pngIsInRawInvoiceBucket] =
+      await Promise.all([
+        checkForRawInvoice(givenVendorId, givenJpegName),
+        checkForRawInvoice(givenVendorId, givenPngName),
+      ]);
+    expect(jpegIsInRawInvoiceBucket).toBe(false);
+    expect(pngIsInRawInvoiceBucket).toBe(false);
   });
 });
 

@@ -47,7 +47,7 @@ describe("process-email business logic", () => {
     expect(result).toEqual([]);
   });
 
-  test("should return attachments that are CSV, JPEG, PDF, or PNG ", async () => {
+  test("should return attachments that are pdf or csv ", async () => {
     mockedSimpleParser.mockReturnValue({
       attachments: [
         {
@@ -64,16 +64,6 @@ describe("process-email business logic", () => {
           contentType: "image/jpeg",
           filename: "mock-image.jpg",
           content: "mock-image-content",
-        },
-        {
-          contentType: "image/png",
-          filename: "mock-image.png",
-          content: "mock-image-content",
-        },
-        {
-          contentType: "text/html",
-          filename: "mock-html.html",
-          content: "mock-html-content",
         },
       ],
     });
@@ -93,16 +83,6 @@ describe("process-email business logic", () => {
         vendorId: "some_vendor_id",
         attachmentName: "mock-csv.csv",
       },
-      {
-        content: "mock-image-content",
-        vendorId: "some_vendor_id",
-        attachmentName: "mock-image.jpg",
-      },
-      {
-        content: "mock-image-content",
-        vendorId: "some_vendor_id",
-        attachmentName: "mock-image.png",
-      },
     ];
 
     const result = await businessLogic(
@@ -113,13 +93,13 @@ describe("process-email business logic", () => {
     expect(result).toEqual(mockEmailAttachment);
   });
 
-  test("should not return attachments that are not CSV, JPEG, PDF, or PNG", async () => {
+  test("should not return attachments that are not pdf or csv ", async () => {
     mockedSimpleParser.mockReturnValue({
       attachments: [
         {
-          contentType: "image/html",
-          filename: "mock-html.html",
-          content: "mock-html-content",
+          contentType: "image/jpeg",
+          filename: "mock-image.jpg",
+          content: "mock-image-content",
         },
       ],
     });
@@ -134,7 +114,7 @@ describe("process-email business logic", () => {
     );
     expect(result).toEqual([]);
     expect(givenWarnLogger).toHaveBeenCalledWith(
-      "No CSV, JPEG, PDF, or PNG attachments in given-file-path"
+      "No pdf or csv attachments in given-file-path"
     );
   });
 
