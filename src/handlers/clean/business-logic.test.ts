@@ -11,6 +11,7 @@ describe("Clean businessLogic", () => {
   let givenCtx: HandlerCtx<any, any, any>;
   let givenInfoLogger: jest.Mock;
   let givenServicesConfig: any;
+  let givenCreditTransformConfig: any;
   let validIncomingEventBody: IncomingEventBody;
 
   beforeEach(() => {
@@ -21,10 +22,26 @@ describe("Clean businessLogic", () => {
 
     givenInfoLogger = jest.fn();
     givenServicesConfig = "given services config";
+    givenCreditTransformConfig = {
+      credits: [
+        "!If",
+        [
+          "!Not",
+          [
+            "!Or",
+            ["!Equals", ["!Path", "$..sorted_mate"], ["Not available"]],
+            ["!Equals", ["!Path", "$..sorted_mate"], []],
+          ],
+        ],
+        2,
+        1,
+      ],
+    };
 
     givenCtx = {
       config: {
         [ConfigElements.services]: givenServicesConfig,
+        [ConfigElements.eventCleaningTransform]: givenCreditTransformConfig,
       },
       logger: {
         info: givenInfoLogger,
@@ -54,6 +71,7 @@ describe("Clean businessLogic", () => {
         user: {
           transaction_id: undefined,
         },
+        credits: 1,
       },
     ]);
     expect(mockedGetVendorId).toHaveBeenCalledTimes(1);
@@ -70,13 +88,7 @@ describe("Clean businessLogic", () => {
   test("Clean businessLogic with valid event record that has optional values", async () => {
     validIncomingEventBody.vendor_id = "some vendor ID";
     validIncomingEventBody.user = { transaction_id: "some transaction ID" };
-    validIncomingEventBody.evidence = [
-      {
-        fish: "haddock",
-        chips: "potato",
-        isSweetPotato: false,
-      },
-    ];
+    validIncomingEventBody.evidence = { sorted_mate: "123" };
 
     const result = await businessLogic(validIncomingEventBody, givenCtx);
 
@@ -91,13 +103,7 @@ describe("Clean businessLogic", () => {
         user: {
           transaction_id: "some transaction ID",
         },
-        evidence: [
-          {
-            fish: "haddock",
-            chips: "potato",
-            isSweetPotato: false,
-          },
-        ],
+        credits: 2,
       },
     ]);
     expect(mockedGetVendorId).not.toHaveBeenCalled();

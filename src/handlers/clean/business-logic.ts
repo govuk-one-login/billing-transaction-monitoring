@@ -1,14 +1,15 @@
 import { BusinessLogic, ConfigElements } from "../../handler-context";
 import { getVendorId } from "../../shared/utils";
 import { CleanedEventBody, ConfigCache, Env, IncomingEventBody } from "./types";
+import { xform } from "./xform";
 
 export const businessLogic: BusinessLogic<
   IncomingEventBody,
   Env,
   ConfigCache,
   CleanedEventBody
-> = async (
-  {
+> = async (event, { config, logger }) => {
+  const {
     component_id,
     event_id,
     event_name,
@@ -16,10 +17,12 @@ export const businessLogic: BusinessLogic<
     timestamp_formatted,
     user,
     vendor_id,
-    evidence,
-  },
-  { config, logger }
-) => {
+    credits,
+  } = xform<{ credits: number }>(
+    config.eventCleaningTransform,
+    logger
+  )<IncomingEventBody>(event);
+
   const vendorId =
     vendor_id ?? getVendorId(event_name, config[ConfigElements.services]);
 
@@ -33,7 +36,7 @@ export const businessLogic: BusinessLogic<
     user: {
       transaction_id: user?.transaction_id,
     },
-    evidence,
+    credits,
   };
 
   logger.info(`Cleaned event ${event_id}`);

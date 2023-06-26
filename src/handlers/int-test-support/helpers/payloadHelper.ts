@@ -71,6 +71,32 @@ export const validEventPayload: EventPayload = {
   timestamp_formatted: "2005-01-30",
 };
 
+export const validEventPayloadWithSortedValue: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-01-30"),
+  timestamp_formatted: "2005-01-30",
+  evidence: [
+    {
+      sorted_mate: "1111",
+    },
+  ],
+};
+
+export const validEventPayloadWithSortedValueNA: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-01-30"),
+  timestamp_formatted: "2005-01-30",
+  evidence: [
+    {
+      sorted_mate: "Not available",
+    },
+  ],
+};
+
 export const invalidEventPayloadEventName: EventPayload = {
   event_name: "TESTGGHYJKIK" as EventName,
   event_id: generateRandomId(),

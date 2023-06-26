@@ -10,15 +10,21 @@ export interface CleanedEventBody {
   user?: {
     transaction_id?: string;
   };
-  evidence?: unknown[];
+  credits?: number;
 }
 
-export type ConfigCache = ConfigElements.services;
+export type ConfigCache =
+  | ConfigElements.services
+  | ConfigElements.eventCleaningTransform;
 
 export enum Env {
   OUTPUT_QUEUE_URL = "OUTPUT_QUEUE_URL",
 }
 
-export type IncomingEventBody = Omit<CleanedEventBody, "vendor_id"> & {
+export type IncomingEventBody = Omit<
+  CleanedEventBody,
+  "vendor_id" | "credits"
+> & {
   vendor_id?: string;
+  evidence?: any;
 };
