@@ -41,7 +41,7 @@ describe("\n Email storage \n", () => {
     };
     const givenStringExists = await checkS3BucketForGivenStringExists(
       stringToCheckInEmailContents,
-      80000,
+      30000,
       s3Params,
       testTime
     );
