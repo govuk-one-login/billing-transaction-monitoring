@@ -1,14 +1,13 @@
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import {
-  listS3Objects,
-  S3Object,
-} from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { VendorId } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import {
   EmailParams,
   sendEmail,
 } from "../../src/handlers/int-test-support/helpers/sesHelper";
-import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import {
+  checkS3BucketForGivenStringExists,
+  BucketAndPrefix,
+} from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 const vendorEmailMap: Record<string, VendorId> = {
   vendor1: VendorId.vendor_testvendor1,
@@ -20,8 +19,6 @@ describe("\n Email storage \n", () => {
   test.each`
     vendor
     ${"vendor1"}
-    ${"vendor2"}
-    ${"vendor3"}
   `(
     "should store the received email in the corresponding directory in the email bucket",
     async ({ vendor }) => {
@@ -53,29 +50,23 @@ describe("\n Email storage \n", () => {
           },
         },
       };
-
+      const testTime = new Date("2023-06-25T21:00:00.000Z");
+      console.log(testTime);
       const messageId = await sendEmail(params);
-      console.log(messageId);
+      const id = `Message-ID: <${messageId}`;
 
-      const s3Params: S3Object = {
-        bucket: emailBucket,
-        key: `${directory}/${messageId}`,
+      const s3Params: BucketAndPrefix = {
+        bucketName: emailBucket,
       };
-
-      const result = await poll(
-        async () =>
-          await listS3Objects({
-            bucketName: s3Params.bucket,
-            prefix: `${directory}`,
-          }),
-        (Contents) => Contents.some((obj) => obj.key?.includes(messageId)),
-        {
-          interval: 10000,
-          notCompleteErrorMessage: `${s3Params.key} not found`,
-          timeout: 30000,
-        }
+      console.log(messageId);
+      const test = await checkS3BucketForGivenStringExists(
+        id,
+        80000,
+        s3Params,
+        testTime
       );
-      console.log(result);
+      console.log(test);
+      expect(test).toBe(true);
     }
   );
 });

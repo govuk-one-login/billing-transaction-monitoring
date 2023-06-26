@@ -3,6 +3,7 @@ import { CloudWatchLogsClient } from "@aws-sdk/client-cloudwatch-logs";
 import { LambdaClient } from "@aws-sdk/client-lambda";
 import { S3Client } from "@aws-sdk/client-s3";
 import { SESClient } from "@aws-sdk/client-ses";
+import { KMS } from "aws-sdk";
 
 export const region = "eu-west-2";
 
@@ -24,3 +25,7 @@ export const s3Client = new S3Client({
 export const lambdaClient = new LambdaClient({ region });
 
 export const sesClient = new SESClient({ region: "eu-west-1" });
+
+export const kms = new KMS({
+  region: "eu-west-2",
+});

@@ -12,13 +12,16 @@ import { s3Client } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { IntTestHelpers } from "../handler";
 import { callWithRetryAndTimeout } from "./call-wrappers";
+import { poll } from "./commonHelpers";
+import { decryptKms } from "./kmsHelper";
+import crypto from "crypto";
 
 export type S3Object = {
   bucket: string;
   key: string;
 };
 
-type BucketAndPrefix = {
+export type BucketAndPrefix = {
   bucketName: string;
   prefix?: string;
 };
@@ -100,7 +103,20 @@ const getS3ObjectBasic = async (
     const getObjectResult = await s3Client.send(
       new GetObjectCommand(bucketParams)
     );
-    return await getObjectResult.Body?.transformToString();
+    const responseBody = getObjectResult.Body;
+    if (responseBody === undefined)
+      throw new Error(
+        `No data found in ${bucketParams.Bucket}/${bucketParams.Key}`
+      );
+
+    const metadata = getObjectResult.Metadata ?? {};
+
+    if (isEncryptedS3ObjectMetadata(metadata)) {
+      const responseBodyBytes = await responseBody.transformToByteArray();
+      return await getDecrypted(responseBodyBytes, metadata);
+    }
+
+    return await responseBody.transformToString();
   } catch (err) {
     if (err instanceof Error) return err.name;
   }
@@ -246,7 +262,8 @@ export const checkIfS3ObjectExists = callWithRetryAndTimeout(
 );
 
 export const getS3Objects = async (
-  params: BucketAndPrefix
+  params: BucketAndPrefix,
+  lastModifiedAfter?: Date
 ): Promise<string[]> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
@@ -256,6 +273,7 @@ export const getS3Objects = async (
 
   const content = [];
   const response = await listS3Objects(params);
+  console.log(response);
   if (response === undefined) {
     throw new Error("Invalid results");
   } else {
@@ -263,16 +281,23 @@ export const getS3Objects = async (
       if (currentValue.size === null || currentValue.key === undefined) {
         continue;
       }
+      if (
+        lastModifiedAfter &&
+        currentValue.lastModified &&
+        currentValue.lastModified < lastModifiedAfter
+      ) {
+        continue;
+      }
       const res = await getS3Object({
         bucket: params.bucketName,
         key: currentValue.key,
       });
+      console.log(res);
       if (res !== undefined) {
         content.push(res);
       }
     }
   }
-
   return content;
 };
 
@@ -301,3 +326,105 @@ export const getS3ObjectsAsArray = async (
   const s3String = s3Response.join("").replace(/\n/g, "").replace(/}{/g, "},{");
   return JSON.parse("[" + s3String + "]");
 };
+
+export const checkS3BucketForGivenStringExists = async (
+  givenString: string,
+  timeoutMs: number,
+  s3Params: BucketAndPrefix,
+  testTime: Date
+): Promise<boolean> => {
+  const pollS3BucketForGivenString = async (): Promise<boolean> => {
+    const objects = await getS3Objects(
+      {
+        bucketName: s3Params.bucketName,
+        prefix: s3Params.prefix,
+      },
+      testTime
+    );
+    for (const object of objects) {
+      console.log(object);
+      if (object.includes(givenString)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  try {
+    const result = await poll(pollS3BucketForGivenString, (result) => result, {
+      timeout: timeoutMs,
+      notCompleteErrorMessage:
+        "given string does not exist in S3 bucket within the timeout",
+    });
+    console.log(result);
+    return result;
+  } catch (error) {
+    return false;
+  }
+};
+
+const getDecrypted = async (
+  encryptedBytes: Uint8Array,
+  metadata: EncryptedS3ObjectMetadata
+): Promise<string> => {
+  const {
+    "x-amz-cek-alg": encryptionAlgorithmName,
+    "x-amz-iv": initialisationVectorBase64Text,
+    "x-amz-key-v2": encryptedKey,
+    "x-amz-matdesc": keyContextText,
+    "x-amz-tag-len": authTagBitCountText,
+  } = metadata;
+
+  if (encryptionAlgorithmName !== "AES/GCM/NoPadding")
+    throw Error(`Unsupported encryption algorithm: ${encryptionAlgorithmName}`);
+
+  const encryptedKeyBuffer = Buffer.from(encryptedKey, "base64");
+
+  const keyContext = JSON.parse(keyContextText);
+  if (typeof keyContext !== "object" || keyContext === null)
+    throw Error("Invalid key context");
+
+  const key = await decryptKms(encryptedKeyBuffer, keyContext);
+
+  const authTagLength = parseInt(authTagBitCountText, 10) / 8;
+  const authTag = encryptedBytes.slice(-authTagLength);
+  const data = encryptedBytes.slice(0, -authTagLength);
+
+  const initialisationVector = Buffer.from(
+    initialisationVectorBase64Text,
+    "base64"
+  );
+
+  const decipher = crypto.createDecipheriv(
+    "aes-256-gcm",
+    key,
+    initialisationVector
+  );
+
+  if (authTagLength > 0) decipher.setAuthTag(authTag);
+
+  return decipher.update(data, undefined, "utf-8") + decipher.final("utf-8");
+};
+
+type EncryptedS3ObjectMetadata = {
+  "x-amz-cek-alg": string;
+  "x-amz-iv": string;
+  "x-amz-key-v2": string;
+  "x-amz-matdesc": string;
+  "x-amz-tag-len": string;
+};
+
+const isEncryptedS3ObjectMetadata = (
+  x: unknown
+): x is EncryptedS3ObjectMetadata =>
+  typeof x === "object" &&
+  x !== null &&
+  "x-amz-cek-alg" in x &&
+  typeof x["x-amz-cek-alg"] === "string" &&
+  "x-amz-iv" in x &&
+  typeof x["x-amz-iv"] === "string" &&
+  "x-amz-key-v2" in x &&
+  typeof x["x-amz-key-v2"] === "string" &&
+  "x-amz-matdesc" in x &&
+  typeof x["x-amz-matdesc"] === "string" &&
+  "x-amz-tag-len" in x &&
+  typeof x["x-amz-tag-len"] === "string";
