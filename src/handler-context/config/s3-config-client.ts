@@ -20,6 +20,7 @@ export const configFileMap: Record<ConfigElements, string> = {
     "csv_transactions/event-transformation.json",
   [ConfigElements.vat]: "uk-vat.json",
   [ConfigElements.standardisation]: "vendor-invoice-standardisation.json",
+  [ConfigElements.eventCleaningTransform]: "event_transforms/config.json",
 };
 
 const parseJsonFile = async (rawFile: string): Promise<Json> => {
@@ -60,6 +61,7 @@ const parserMap = {
   [ConfigElements.transformations]: parseJsonFile,
   [ConfigElements.vat]: parseJsonFile,
   [ConfigElements.standardisation]: parseJsonFile,
+  [ConfigElements.eventCleaningTransform]: parseJsonFile,
 };
 
 const parseConfigFile = async <TFileName extends ConfigElements>(
