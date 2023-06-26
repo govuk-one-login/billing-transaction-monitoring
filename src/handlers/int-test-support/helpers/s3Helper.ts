@@ -273,7 +273,6 @@ export const getS3Objects = async (
 
   const content = [];
   const response = await listS3Objects(params);
-  console.log(response);
   if (response === undefined) {
     throw new Error("Invalid results");
   } else {
@@ -284,17 +283,16 @@ export const getS3Objects = async (
       if (
         lastModifiedAfter &&
         currentValue.lastModified &&
-        currentValue.lastModified < lastModifiedAfter
+        currentValue.lastModified > lastModifiedAfter
       ) {
-        continue;
-      }
-      const res = await getS3Object({
-        bucket: params.bucketName,
-        key: currentValue.key,
-      });
-      console.log(res);
-      if (res !== undefined) {
-        content.push(res);
+        const res = await getS3Object({
+          bucket: params.bucketName,
+          key: currentValue.key,
+        });
+        console.log(res);
+        if (res !== undefined) {
+          content.push(res);
+        }
       }
     }
   }
