@@ -342,7 +342,6 @@ export const checkS3BucketForGivenStringExists = async (
       testTime
     );
     for (const object of objects) {
-      console.log(object);
       if (object.includes(givenString)) {
         return true;
       }
@@ -352,10 +351,8 @@ export const checkS3BucketForGivenStringExists = async (
   try {
     const result = await poll(pollS3BucketForGivenString, (result) => result, {
       timeout: timeoutMs,
-      notCompleteErrorMessage:
-        "given string does not exist in S3 bucket within the timeout",
+      notCompleteErrorMessage: `given string does not exist in ${s3Params.bucketName} and ${s3Params.prefix} within the timeout`,
     });
-    console.log(result);
     return result;
   } catch (error) {
     return false;
