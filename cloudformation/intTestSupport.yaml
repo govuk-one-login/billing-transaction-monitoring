@@ -84,6 +84,11 @@ Resources:
                 - lambda:InvokeFunction
               Resource:
                 - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-*
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+              Resource:
+                - !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:${AWS::StackName}-*
       ReservedConcurrentExecutions: 10
 
   AllowTestingContainerToInvoke:
