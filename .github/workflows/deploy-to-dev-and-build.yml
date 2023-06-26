@@ -1,6 +1,7 @@
 name: Post-merge deploy to dev and build
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
