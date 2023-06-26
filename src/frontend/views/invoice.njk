@@ -1,5 +1,11 @@
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
 {% extends "common/layout/base.njk" %}
+
 {% block content %}
-  <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
-  <p class="govuk-body">Welcome to the selected invoice page!</p>
+
+  {{ govukPanel({
+    titleText: invoice.statusText + " (" + invoice.bannerColour + ")",
+    html: "Reference number<br><strong>" + invoice.contractName + "</strong>"
+  }) }}
+
 {% endblock content %}

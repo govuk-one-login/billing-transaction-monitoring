@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import "dotenv/config";
 import { contractsHandler } from "./handlers/contracts";
 import { getInvoicesHandler } from "./handlers/invoices";
+import { getInvoiceHandler } from "./handlers/invoice";
 
 let dirname: string;
 try {
@@ -39,9 +40,7 @@ export const initApp = (app: Express): void => {
 
   app.get("/invoices", getInvoicesHandler);
 
-  app.get("/invoice", (_, response) => {
-    response.render("invoice.njk");
-  });
+  app.get("/invoice", getInvoiceHandler);
 
   const assetsPath = shouldLoadFromNodeModules
     ? path.join("node_modules/govuk-frontend/govuk", "./assets")

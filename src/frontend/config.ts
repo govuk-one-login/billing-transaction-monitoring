@@ -107,3 +107,44 @@ export const getContractPeriods = async (
     };
   });
 };
+
+export const getLineItems = async (
+  contractId: string,
+  year: string,
+  month: string
+): Promise<
+  Array<{
+    serviceName: string;
+    priceDifference: string;
+    priceDifferencePercentage: string;
+  }>
+> => {
+  // 1. Check variables are defined
+  if (process.env.QUERY_RESULTS_BUCKET === undefined)
+    throw new Error("No QUERY_RESULTS_BUCKET defined in this environment");
+  if (process.env.DATABASE_NAME === undefined)
+    throw new Error("No DATABASE_NAME defined in this environment");
+
+  const fetchDataSql = `SELECT service_name, price_difference, price_difference_percentage FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_id LIKE '${contractId}' AND year LIKE '${year}' AND month LIKE '${month}'`;
+  const executor = new AthenaQueryExecutor(athena, QUERY_WAIT);
+  const results = await executor.fetchResults(
+    fetchDataSql,
+    process.env.QUERY_RESULTS_BUCKET
+  );
+  if (results.Rows === undefined) {
+    throw new Error("No results in result set");
+  }
+
+  console.log(JSON.stringify(results.Rows));
+
+  return results.Rows.slice(1).map(({ Data }) => {
+    const isDataComplete = isCompleteDataArray(Data);
+    if (!isDataComplete) throw new Error("Some data was missing");
+
+    return {
+      serviceName: Data[0].VarCharValue,
+      priceDifference: Data[1].VarCharValue,
+      priceDifferencePercentage: Data[2].VarCharValue,
+    };
+  });
+};
