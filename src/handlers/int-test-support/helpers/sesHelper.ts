@@ -34,7 +34,6 @@ export const sendEmail = async (params: EmailParams): Promise<string> => {
     )) as unknown as string;
   try {
     const response = await sesClient.send(new SendEmailCommand(params));
-    console.log(response);
     if (response.MessageId === undefined) {
       throw new Error("Error in sending the mail");
     }

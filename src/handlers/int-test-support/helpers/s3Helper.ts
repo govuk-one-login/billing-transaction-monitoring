@@ -289,7 +289,6 @@ export const getS3Objects = async (
           bucket: params.bucketName,
           key: currentValue.key,
         });
-        console.log(res);
         if (res !== undefined) {
           content.push(res);
         }
