@@ -83,6 +83,19 @@ exports[`contracts handler Page displays all contracts 1`] = `
     
       <div class="govuk-width-container ">
         
+  <div class="govuk-breadcrumbs">
+  <ol class="govuk-breadcrumbs__list">
+  
+    
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+    </li>
+    
+  
+  </ol>
+</div>
+
+
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
   <h1 class="govuk-heading-l">Contracts</h1>
