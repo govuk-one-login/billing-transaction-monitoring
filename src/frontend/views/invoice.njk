@@ -1,11 +1,11 @@
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
 {% extends "common/layout/base.njk" %}
-
 {% block content %}
-
   {{ govukPanel({
-    titleText: invoice.statusText + " (" + invoice.bannerColour + ")",
-    html: "Reference number<br><strong>" + invoice.contractName + "</strong>"
-  }) }}
-
+    titleText: invoice.statusText,
+    html: "Reference number
+    <br>
+    <strong>" + invoice.contractName + "</strong>",
+    classes: classes
+    }) }}
 {% endblock content %}

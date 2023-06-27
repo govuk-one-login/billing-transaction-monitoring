@@ -16,29 +16,28 @@ export const getInvoiceHandler: RequestHandler<
     ),
   ]);
 
-  let bannerColour;
+  let bannerClass;
   if (
     lineItems.find((lineItem) =>
       lineItem.priceDifferencePercentage.startsWith("-1234567.")
     )
   )
-    bannerColour = "grey";
+    bannerClass = "warning";
   else if (
     lineItems.find((lineItem) => +lineItem.priceDifferencePercentage >= 1)
   )
-    bannerColour = "red";
+    bannerClass = "error";
   else if (
     lineItems.find((lineItem) => +lineItem.priceDifferencePercentage <= 1)
   )
-    bannerColour = "blue";
-  else bannerColour = "green";
+    bannerClass = "notice";
+  else bannerClass = "payable";
 
   response.render("invoice.njk", {
-    bannerColour,
+    classes: bannerClass,
     invoice: {
       statusText: "foo",
       contractName: config.contractName,
-      bannerColour,
     },
   });
 };
