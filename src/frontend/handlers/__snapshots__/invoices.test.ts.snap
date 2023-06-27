@@ -96,6 +96,20 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
         </a>
       </li>
     
+      <li>
+        <a class="govuk-link"
+           href="/invoice?contract_id=1&year=2023&month=04">
+          Apr 2023
+        </a>
+      </li>
+    
+      <li>
+        <a class="govuk-link"
+           href="/invoice?contract_id=1&year=2023&month=10">
+          Oct 2023
+        </a>
+      </li>
+    
   </ul>
 
         </main>

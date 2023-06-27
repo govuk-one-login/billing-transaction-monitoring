@@ -57,6 +57,8 @@ describe("invoices handler", () => {
       Rows: [
         { Data: [{ VarCharValue: "month" }, { VarCharValue: "year" }] },
         { Data: [{ VarCharValue: "03" }, { VarCharValue: "2023" }] },
+        { Data: [{ VarCharValue: "04" }, { VarCharValue: "2023" }] },
+        { Data: [{ VarCharValue: "10" }, { VarCharValue: "2023" }] },
       ],
     };
     mockedAthenaQueryExecutorFetchResults.mockResolvedValue(givenQueryResults);
@@ -67,6 +69,9 @@ describe("invoices handler", () => {
     expect(response.status).toBe(200);
     expect(response.text).toContain("C01234 - Vendor One");
     expect(response.text).toContain("Mar 2023");
+    expect(response.text).toContain("Apr 2023");
+    expect(response.text).toContain("Oct 2023");
+    expect(response.text).not.toContain("May 2023");
     expect(response.text).toMatchSnapshot();
   });
 });
