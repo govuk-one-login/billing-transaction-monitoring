@@ -3,8 +3,11 @@ import {
   getContractAndVendorName,
   getContractPeriods,
   getContracts,
+  getDashboardExtract,
 } from "./config";
 import { AthenaQueryExecutor } from "../shared/utils/athenaV3";
+import { describe } from "node:test";
+import { fetchS3 } from "../shared/utils";
 
 jest.mock("../handler-context/context-builder");
 const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
@@ -17,6 +20,10 @@ const mockedAthenaQueryExecutorFetchResults = jest.fn();
 MockedAthenaQueryExecutor.mockReturnValue({
   fetchResults: mockedAthenaQueryExecutorFetchResults,
 } as any);
+
+jest.mock("../shared/utils");
+const mockedFetchS3 = fetchS3 as jest.Mock;
+
 describe("frontend config", () => {
   let givenContractsConfig;
   let givenServicesConfig;
@@ -60,6 +67,7 @@ describe("frontend config", () => {
     };
     mockedAthenaQueryExecutorFetchResults.mockResolvedValue(givenQueryResults);
   });
+
   describe("getContracts", () => {
     test("should return the contracts id, contracts name and the vendor name", async () => {
       // Act
@@ -99,6 +107,7 @@ describe("frontend config", () => {
         { month: "03", prettyMonth: "Mar", year: "2023" },
       ]);
     });
+
     test("should throw an error if there is no QUERY_RESULTS_BUCKET", async () => {
       // Act
       delete process.env.QUERY_RESULTS_BUCKET;
@@ -107,6 +116,7 @@ describe("frontend config", () => {
         "No QUERY_RESULTS_BUCKET defined in this environment"
       );
     });
+
     test("should throw an error if there is no DATABASE_NAME", async () => {
       // Act
       delete process.env.DATABASE_NAME;
@@ -115,6 +125,7 @@ describe("frontend config", () => {
         "No DATABASE_NAME defined in this environment"
       );
     });
+
     test("should throw an error if there are no results in result set", async () => {
       // Act
       mockedAthenaQueryExecutorFetchResults.mockResolvedValue({});
@@ -123,6 +134,7 @@ describe("frontend config", () => {
         "No results in result set"
       );
     });
+
     test("should throw an error if there is data missing", async () => {
       // Act
       mockedAthenaQueryExecutorFetchResults.mockResolvedValue({
@@ -138,6 +150,15 @@ describe("frontend config", () => {
       await expect(getContractPeriods(contractId)).rejects.toThrowError(
         "Some data was missing"
       );
+    });
+  });
+
+  describe("getDashboardExtract", () => {
+    test("Should parse multi-line JSON into object", async () => {
+      const mockedS3FileText = '{"a":"b","c":"d"}\n{"e":"f"}\n{"g":"h"}';
+      const expectedExtract = [{ a: "b", c: "d" }, { e: "f" }, { g: "h" }];
+      mockedFetchS3.mockReturnValue(mockedS3FileText);
+      expect(await getDashboardExtract()).toEqual(expectedExtract);
     });
   });
 });

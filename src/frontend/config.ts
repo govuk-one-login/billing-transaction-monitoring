@@ -2,6 +2,7 @@ import { ConfigElements } from "../handler-context";
 import { makeCtxConfig } from "../handler-context/context-builder";
 import { AthenaQueryExecutor } from "../shared/utils/athenaV3";
 import { AthenaClient, Datum } from "@aws-sdk/client-athena";
+import { fetchS3 } from "../shared/utils";
 
 // TODO Figure out caching
 export const getContracts = async (): Promise<
@@ -108,48 +109,28 @@ export const getContractPeriods = async (
   });
 };
 
-const isCompleteLineItem = (
-  data: Datum[] | undefined
-): data is Array<{ VarCharValue: string }> =>
-  !!data?.every((datum) => datum !== undefined); // TODO more complete check
-
 export const getLineItems = async (
   contractId: string,
   year: string,
   month: string
-): Promise<
-  Array<{
-    serviceName: string;
-    priceDifference: string;
-    priceDifferencePercentage: string;
-  }>
-> => {
-  // 1. Check variables are defined
-  if (process.env.QUERY_RESULTS_BUCKET === undefined)
-    throw new Error("No QUERY_RESULTS_BUCKET defined in this environment");
-  if (process.env.DATABASE_NAME === undefined)
-    throw new Error("No DATABASE_NAME defined in this environment");
-
-  const fetchDataSql = `SELECT service_name, price_difference, price_difference_percentage FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_id LIKE '${contractId}' AND year LIKE '${year}' AND month LIKE '${month}'`;
-  const executor = new AthenaQueryExecutor(athena, QUERY_WAIT);
-  const results = await executor.fetchResults(
-    fetchDataSql,
-    process.env.QUERY_RESULTS_BUCKET
-  );
-  if (results.Rows === undefined) {
-    throw new Error("No results in result set");
-  }
-
-  console.log(JSON.stringify(results.Rows));
-
-  return results.Rows.slice(1).map(({ Data }) => {
-    const isDataComplete = isCompleteLineItem(Data);
-    if (!isDataComplete) throw new Error("Line item data missing");
-
-    return {
-      serviceName: Data[0].VarCharValue,
-      priceDifference: Data[1].VarCharValue,
-      priceDifferencePercentage: Data[2].VarCharValue,
-    };
+): Promise<any[]> => {
+  const dashboardData = await getDashboardExtract();
+  return dashboardData.filter((row) => {
+    return (
+      row.contract_id === contractId && row.year === year && row.month === month
+    );
   });
+};
+
+export const getDashboardExtract = async (): Promise<any[]> => {
+  if (process.env.STORAGE_BUCKET === undefined)
+    throw new Error("No STORAGE_BUCKET defined in this environment");
+
+  const extract = await fetchS3(
+    process.env.STORAGE_BUCKET,
+    "btm_extract_data/full-extract.json"
+  );
+
+  const jsonArray = "[" + extract.replace(/\n/g, ",") + "]";
+  return JSON.parse(jsonArray);
 };

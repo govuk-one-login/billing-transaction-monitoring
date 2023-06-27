@@ -2,7 +2,7 @@
 {% extends "common/layout/base.njk" %}
 {% block content %}
   {{ govukPanel({
-    titleText: invoice.statusText,
+    titleText: title,
     html: "Reference number
     <br>
     <strong>" + invoice.contractName + "</strong>",

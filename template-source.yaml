@@ -48,7 +48,7 @@ Parameters:
   QueryMessageTransactionDataMissing:
     Type: String
     Default: -1234567.04
-  UnexpectedInvoiceCharge:
+  QueryMessageUnexpectedInvoiceCharge:
     Type: String
     Default: -1234567.05
 
