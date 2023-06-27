@@ -25,12 +25,13 @@ Resources:
                 Rules:
                   - Name: suffix
                     Value: '.txt'
-      Environment Variables:
-        # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-        DATABASE_NAME: !Sub ${AWS::StackName}-calculations
-        QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
-        DESTINATION_BUCKET: !Ref StorageBucket
-        POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          DATABASE_NAME: !Sub ${AWS::StackName}-calculations
+          QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
+          DESTINATION_BUCKET: !Ref StorageBucket
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
       Handler: dashboardExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Timeout: 180
