@@ -63,10 +63,13 @@ describe("invoices handler", () => {
     };
     mockedAthenaQueryExecutorFetchResults.mockResolvedValue(givenQueryResults);
   });
+
   test("Page displays months and years of invoices", async () => {
     const request = supertest(app);
     const response = await request.get("/invoices?contract_id=1");
     expect(response.status).toBe(200);
+    expect(response.text).toContain("Home");
+    expect(response.text).toContain("Contracts");
     expect(response.text).toContain("C01234 - Vendor One");
     expect(response.text).toContain("Mar 2023");
     expect(response.text).toContain("Apr 2023");

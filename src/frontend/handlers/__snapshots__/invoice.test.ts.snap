@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`invoices handler Page displays months and years of invoices 1`] = `
+exports[`invoice handler Page displays invoice info 1`] = `
 "<!DOCTYPE html>
 <html lang="en" class="govuk-template ">
   <head>
@@ -98,6 +98,12 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
     </li>
     
   
+    
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/invoices?contract_id=1">C01234 - Vendor One</a>
+    </li>
+    
+  
   </ol>
 </div>
 
@@ -105,31 +111,7 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
   <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
-  <h2 class="govuk-heading-m">C01234 - Vendor One</h2>
-  <ul class="govuk-list">
-    
-      <li>
-        <a class="govuk-link"
-           href="/invoice?contract_id=1&year=2023&month=03">
-          Mar 2023
-        </a>
-      </li>
-    
-      <li>
-        <a class="govuk-link"
-           href="/invoice?contract_id=1&year=2023&month=04">
-          Apr 2023
-        </a>
-      </li>
-    
-      <li>
-        <a class="govuk-link"
-           href="/invoice?contract_id=1&year=2023&month=10">
-          Oct 2023
-        </a>
-      </li>
-    
-  </ul>
+  <p class="govuk-body">Welcome to the selected invoice page!</p>
 
         </main>
       </div>

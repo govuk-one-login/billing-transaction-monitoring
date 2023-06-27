@@ -1,4 +1,8 @@
+{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% extends "common/layout/base.njk" %}
+{% block beforeContent %}
+  {{ govukBreadcrumbs({"items": [{"text": "Home", "href": "/"}, {"text": "Contracts", "href": "/contracts"}]}) }}
+{% endblock beforeContent %}
 {% block content %}
   <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
   <h2 class="govuk-heading-m">{{ contract.name }} - {{ contract.vendorName }}</h2>
