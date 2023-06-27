@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`contracts handler Page displays all contracts 1`] = `
+exports[`invoice handler Page displays invoice info 1`] = `
 "<!DOCTYPE html>
 <html lang="en" class="govuk-template ">
   <head>
@@ -85,32 +85,33 @@ exports[`contracts handler Page displays all contracts 1`] = `
         
   <div class="govuk-breadcrumbs">
   <ol class="govuk-breadcrumbs__list">
-
-
+  
+    
     <li class="govuk-breadcrumbs__list-item">
       <a class="govuk-breadcrumbs__link" href="/">Home</a>
     </li>
-
-
+    
+  
+    
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/contracts">Contracts</a>
+    </li>
+    
+  
+    
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="/invoices?contract_id=1">C01234 - Vendor One</a>
+    </li>
+    
+  
   </ol>
 </div>
 
 
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
-  <h1 class="govuk-heading-l">Contracts</h1>
-  <h2 class="govuk-heading-m">Contract Numbers</h2>
-  <ul class="govuk-list">
-    
-      <li>
-        <a class="govuk-link" href="/invoices?contract_id=1">C01234 - Vendor One</a>
-      </li>
-    
-      <li>
-        <a class="govuk-link" href="/invoices?contract_id=2">C01235 - Vendor Two</a>
-      </li>
-    
-  </ul>
+  <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
+  <p class="govuk-body">Welcome to the selected invoice page!</p>
 
         </main>
       </div>

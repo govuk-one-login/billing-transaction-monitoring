@@ -49,6 +49,9 @@ export const getInvoiceHandler: RequestHandler<
   ) {
     title = "Invoice undercharge";
     bannerClass = "notice";
+  } else if (lineItems.length === 0) {
+    title = "No data";
+    bannerClass = "warning";
   } else {
     title = "This invoice is payable";
     bannerClass = "payable";
@@ -56,10 +59,13 @@ export const getInvoiceHandler: RequestHandler<
 
   response.render("invoice.njk", {
     classes: bannerClass,
-    title,
     invoice: {
-      statusText: "foo",
+      title,
+      vendorName: config.vendorName,
       contractName: config.contractName,
+      contractId: request.query.contract_id,
+      year: request.query.year,
+      month: request.query.month,
     },
   });
 };

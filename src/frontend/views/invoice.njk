@@ -1,8 +1,28 @@
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% extends "common/layout/base.njk" %}
+{% block beforeContent %}
+  {{ govukBreadcrumbs({
+    items: [
+    {
+    text: "Home",
+    href: "/"
+    },
+    {
+    text: "Contracts",
+    href: "/contracts"
+    },
+    {
+    text: invoice.contractName + " - " + invoice.vendorName,
+    href: "/invoices?contract_id=" + invoice.contractId
+    }
+    ]
+    }) }}
+{% endblock beforeContent %}
 {% block content %}
+  <h1 class="govuk-heading-xl">{{ invoice.vendorName }} {{ invoice.month }} {{ invoice.year }} Invoice</h1>
   {{ govukPanel({
-    titleText: title,
+    titleText: invoice.title,
     html: "Reference number
     <br>
     <strong>" + invoice.contractName + "</strong>",
