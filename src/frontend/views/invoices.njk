@@ -1,5 +1,15 @@
 {% extends "common/layout/base.njk" %}
 {% block content %}
   <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
-  <p class="govuk-body">Welcome to the invoices page!</p>
+  <h2 class="govuk-heading-m">{{ contract.name }} - {{ contract.vendorName }}</h2>
+  <ul class="govuk-list">
+    {% for period in periods %}
+      <li>
+        <a class="govuk-link"
+           href="/invoice?contract_id={{ contract.id }}&year={{ period.year }}&month={{ period.month }}">
+          {{ period.prettyMonth }} {{ period.year }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
 {% endblock content %}

@@ -23,6 +23,8 @@ Resources:
       Environment:
         Variables:
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+          QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
+          DATABASE_NAME: !Sub ${AWS::StackName}-calculations
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
         ProxyApiRoot:
@@ -33,6 +35,12 @@ Resources:
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
             - Effect: Allow
               Action: s3:GetObject
               Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
@@ -45,4 +53,27 @@ Resources:
               Condition:
                 ForAnyValue:StringEquals:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+            - Effect: Allow
+              Action: glue:GetTable
+              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
+            - Effect: Allow
+              Action:
+                - s3:AbortMultipartUpload
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+                - s3:PutObject
+              Resource:
+                - !GetAtt StorageBucket.Arn
+                - !Sub ${StorageBucket.Arn}/*
+                - !GetAtt AthenaQueryResultsBucket.Arn
+                - !Sub ${AthenaQueryResultsBucket.Arn}/*
+            - Effect: Allow
+              Action:
+                - athena:StartQueryExecution
+                - athena:GetQueryExecution
+                - athena:GetQueryResults
+              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
       ReservedConcurrentExecutions: 10
