@@ -108,6 +108,11 @@ export const getContractPeriods = async (
   });
 };
 
+const isCompleteLineItem = (
+  data: Datum[] | undefined
+): data is Array<{ VarCharValue: string }> =>
+  !!data?.every((datum) => datum !== undefined); // TODO more complete check
+
 export const getLineItems = async (
   contractId: string,
   year: string,
@@ -138,8 +143,8 @@ export const getLineItems = async (
   console.log(JSON.stringify(results.Rows));
 
   return results.Rows.slice(1).map(({ Data }) => {
-    const isDataComplete = isCompleteDataArray(Data);
-    if (!isDataComplete) throw new Error("Some data was missing");
+    const isDataComplete = isCompleteLineItem(Data);
+    if (!isDataComplete) throw new Error("Line item data missing");
 
     return {
       serviceName: Data[0].VarCharValue,

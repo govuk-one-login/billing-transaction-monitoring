@@ -38,6 +38,7 @@ export const getInvoiceHandler: RequestHandler<
     invoice: {
       statusText: "foo",
       contractName: config.contractName,
+      bannerColour,
     },
   });
 };
