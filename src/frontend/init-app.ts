@@ -51,7 +51,7 @@ export const initApp = (app: Express): void => {
     : assetsPath;
 
   const stylesPath = shouldLoadFromNodeModules
-    ? "node_modules/govuk-frontend/govuk"
+    ? path.join(dirname, "./styles")
     : assetsPath;
 
   app.use("/assets", express.static(assetsPath));

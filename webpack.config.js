@@ -53,12 +53,8 @@ export default {
           to: "./govuk",
         },
         {
-          from: "./node_modules/govuk-frontend/govuk/all.css",
+          from: "./src/frontend/styles/all.css",
           to: "./assets/styles",
-        },
-        {
-          from: "./node_modules/govuk-frontend/govuk/all.js.map",
-          to: "./assets/scripts",
         },
         {
           from: "./node_modules/govuk-frontend/govuk/all.js",

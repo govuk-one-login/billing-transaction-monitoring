@@ -82,9 +82,9 @@
     "sam:teardown": "ts-node --esm src/tools/teardown-cf-stack.ts",
     "typecheck": "tsc --noEmit",
     "dev:ts": "nodemon --esm --experimental-specifier-resolution=node src/frontend/server.ts",
-    "dev:css": "sass node_modules/govuk-frontend/govuk/all.scss node_modules/govuk-frontend/govuk/all.css -w",
+    "dev:css": "sass src/frontend/styles/all.scss src/frontend/styles/all.css -w",
     "dev": "NODE_ENV=development npm-run-all -p dev:css dev:ts",
-    "build:css": "sass node_modules/govuk-frontend/govuk/all.scss node_modules/govuk-frontend/govuk/all.css",
+    "build:css": "sass src/frontend/styles/all.scss src/frontend/styles/all.css",
     "predev": "npm run build:css",
     "prebuild": "npm run build:css",
     "fetch-s3": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/fetch-s3.ts"
