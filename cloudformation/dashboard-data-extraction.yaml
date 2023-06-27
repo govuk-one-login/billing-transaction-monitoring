@@ -14,13 +14,23 @@ Resources:
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
-      Environment:
-        Variables:
-          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-          DATABASE_NAME: !Sub ${AWS::StackName}-calculations
-          QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
-          DESTINATION_BUCKET: !Ref StorageBucket
-          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
+      Events:
+        S3Event:
+          Type: S3
+          Properties:
+            Bucket: !Sub s3://${StorageBucket}
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.txt'
+      Environment Variables:
+        # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+        DATABASE_NAME: !Sub ${AWS::StackName}-calculations
+        QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
+        DESTINATION_BUCKET: !Ref StorageBucket
+        POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
       Handler: dashboardExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Timeout: 180
@@ -85,21 +95,13 @@ Resources:
         - Arn: !GetAtt DashboardDataExtractFunction.Arn
           Id: DashboardDataExtractFunction
 
-  LambdaPermissionForScheduledRule:
+  LambdaPermissionForEvents:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref DashboardDataExtractFunction
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt DashboardDataExtractScheduledRule.Arn
-
-  LambdaPermissionForEvents:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref DashboardDataExtractFunction
-      Action: lambda:InvokeFunction
-      Principal: s3.amazonaws.com
-      SourceArn: !Sub arn:aws:s3:::${StorageBucket}
 
   DashboardDataExtractFunctionAlarm:
     Type: AWS::CloudWatch::Alarm

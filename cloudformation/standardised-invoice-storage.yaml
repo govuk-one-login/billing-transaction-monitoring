@@ -31,7 +31,7 @@ Resources:
                 Rules:
                   - Name: suffix
                     Value: '.txt'
-            Function: !GetAtt DashboardDataExtractFunction.Arn
+            Function: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-dashboard-data-extract-function
       LifecycleConfiguration:
         Rules:
           - ExpirationInDays: 1825 # Five years
