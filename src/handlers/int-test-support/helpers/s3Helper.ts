@@ -282,8 +282,7 @@ export const getS3Objects = async (
       }
       if (
         !lastModifiedAfter ||
-        (lastModifiedAfter &&
-          currentValue.lastModified &&
+        (currentValue.lastModified &&
           currentValue.lastModified > lastModifiedAfter)
       ) {
         const res = await getS3Object({
