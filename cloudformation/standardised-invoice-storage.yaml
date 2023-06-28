@@ -36,7 +36,6 @@ Resources:
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt StandardisedInvoiceStorageDeadLetterQueue.Arn
         maxReceiveCount: 3
-      VisibilityTimeout: 180
 
   StandardisedInvoiceStorageDeadLetterQueue:
     Type: AWS::SQS::Queue
