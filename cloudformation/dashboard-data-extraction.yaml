@@ -14,17 +14,6 @@ Resources:
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
-      Events:
-        S3Event:
-          Type: S3
-          Properties:
-            Bucket: !Sub s3://${StorageBucket}
-            Events: s3:ObjectCreated:*
-            Filter:
-              S3Key:
-                Rules:
-                  - Name: suffix
-                    Value: '.txt'
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
@@ -32,12 +21,25 @@ Resources:
           QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
           DESTINATION_BUCKET: !Ref StorageBucket
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
+      Events:
+        InvoiceStorageEvent:
+          Type: SQS
+          Properties:
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+            Queue: !GetAtt StandardisedInvoiceStorageQueue.Arn
       Handler: dashboardExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Timeout: 180
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt StandardisedInvoiceStorageQueue.Arn
             - Effect: Allow
               Action:
                 - kms:Decrypt
@@ -103,6 +105,14 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt DashboardDataExtractScheduledRule.Arn
+
+  # LambdaPermissionForInvoiceStorage:
+  #   Type: AWS::Lambda::Permission
+  #   Properties:
+  #     FunctionName: !Ref DashboardDataExtractFunction
+  #     Action: lambda:InvokeFunction
+  #     Principal: s3.amazonaws.com
+  #     SourceArn: !Sub arn:aws:s3:::${StorageBucket}
 
   DashboardDataExtractFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
