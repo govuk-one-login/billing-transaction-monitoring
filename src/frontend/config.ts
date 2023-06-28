@@ -1,6 +1,6 @@
 import { ConfigElements } from "../handler-context";
 import { makeCtxConfig } from "../handler-context/context-builder";
-import { AthenaQueryExecutor } from "../shared/utils/athenaV3";
+import { AthenaQueryExecutor } from "../shared/utils/athena";
 import { AthenaClient, Datum } from "@aws-sdk/client-athena";
 
 // TODO Figure out caching

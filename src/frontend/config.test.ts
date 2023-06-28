@@ -4,12 +4,12 @@ import {
   getContractPeriods,
   getContracts,
 } from "./config";
-import { AthenaQueryExecutor } from "../shared/utils/athenaV3";
+import { AthenaQueryExecutor } from "../shared/utils/athena";
 
 jest.mock("../handler-context/context-builder");
 const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
 
-jest.mock("../shared/utils/athenaV3");
+jest.mock("../shared/utils/athena");
 const MockedAthenaQueryExecutor = AthenaQueryExecutor as jest.MockedClass<
   typeof AthenaQueryExecutor
 >;
@@ -17,6 +17,7 @@ const mockedAthenaQueryExecutorFetchResults = jest.fn();
 MockedAthenaQueryExecutor.mockReturnValue({
   fetchResults: mockedAthenaQueryExecutorFetchResults,
 } as any);
+
 describe("frontend config", () => {
   let givenContractsConfig;
   let givenServicesConfig;
@@ -60,6 +61,7 @@ describe("frontend config", () => {
     };
     mockedAthenaQueryExecutorFetchResults.mockResolvedValue(givenQueryResults);
   });
+
   describe("getContracts", () => {
     test("should return the contracts id, contracts name and the vendor name", async () => {
       // Act
@@ -99,6 +101,7 @@ describe("frontend config", () => {
         { month: "03", prettyMonth: "Mar", year: "2023" },
       ]);
     });
+
     test("should throw an error if there is no QUERY_RESULTS_BUCKET", async () => {
       // Act
       delete process.env.QUERY_RESULTS_BUCKET;
@@ -107,6 +110,7 @@ describe("frontend config", () => {
         "No QUERY_RESULTS_BUCKET defined in this environment"
       );
     });
+
     test("should throw an error if there is no DATABASE_NAME", async () => {
       // Act
       delete process.env.DATABASE_NAME;
@@ -115,6 +119,7 @@ describe("frontend config", () => {
         "No DATABASE_NAME defined in this environment"
       );
     });
+
     test("should throw an error if there are no results in result set", async () => {
       // Act
       mockedAthenaQueryExecutorFetchResults.mockResolvedValue({});
@@ -123,6 +128,7 @@ describe("frontend config", () => {
         "No results in result set"
       );
     });
+
     test("should throw an error if there is data missing", async () => {
       // Act
       mockedAthenaQueryExecutorFetchResults.mockResolvedValue({

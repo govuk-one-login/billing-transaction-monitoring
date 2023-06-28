@@ -1,13 +1,13 @@
 import supertest from "supertest";
 import { app } from "../app";
 import { makeCtxConfig } from "../../handler-context/context-builder";
-import { AthenaQueryExecutor } from "../../shared/utils/athenaV3";
+import { AthenaQueryExecutor } from "../../shared/utils/athena";
 import { initApp } from "../init-app";
 
 jest.mock("../../handler-context/context-builder");
 const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
 
-jest.mock("../../shared/utils/athenaV3");
+jest.mock("../../shared/utils/athena");
 const MockedAthenaQueryExecutor = AthenaQueryExecutor as jest.MockedClass<
   typeof AthenaQueryExecutor
 >;
@@ -63,6 +63,7 @@ describe("invoices handler", () => {
     };
     mockedAthenaQueryExecutorFetchResults.mockResolvedValue(givenQueryResults);
   });
+
   test("Page displays months and years of invoices", async () => {
     const request = supertest(app);
     const response = await request.get("/invoices?contract_id=1");

@@ -1,8 +1,11 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
-import { Athena } from "aws-sdk";
 import { logger, sendCustomResourceResult } from "../../shared/utils";
 import { getAthenaViewResourceData } from "./get-athena-view-resource-data";
 import { AthenaQueryExecutor } from "../../shared/utils/athena";
+import {
+  AthenaClient,
+  StartQueryExecutionCommand,
+} from "@aws-sdk/client-athena";
 
 export const handler = async (
   event: CloudFormationCustomResourceEvent,
@@ -12,10 +15,10 @@ export const handler = async (
     const { database, name, query, workgroup } =
       getAthenaViewResourceData(event);
 
-    const athena = new Athena({ region: "eu-west-2" });
+    const athena = new AthenaClient({ region: "eu-west-2" });
 
-    const { QueryExecutionId: queryExecutionId } = await athena
-      .startQueryExecution({
+    const { QueryExecutionId: queryExecutionId } = await athena.send(
+      new StartQueryExecutionCommand({
         QueryExecutionContext: {
           Database: database,
         },
@@ -25,7 +28,7 @@ export const handler = async (
             : `CREATE OR REPLACE VIEW "${name}" AS ${query}`,
         WorkGroup: workgroup,
       })
-      .promise();
+    );
 
     if (queryExecutionId === undefined)
       throw new Error("Failed to start query execution and get ID.");
