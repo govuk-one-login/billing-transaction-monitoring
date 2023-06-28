@@ -23,7 +23,7 @@
     "@types/nunjucks": "^3.2.2",
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^5.41.0",
-    "@typescript-eslint/parser": "^5.38.0",
+    "@typescript-eslint/parser": "^5.60.1",
     "aws-lambda": "^1.0.7",
     "aws-sdk-client-mock": "^2.0.0",
     "babel-jest": "^29.0.3",
