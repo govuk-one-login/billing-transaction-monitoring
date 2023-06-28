@@ -87,8 +87,9 @@ Resources:
             - Effect: Allow
               Action:
                 - ses:SendEmail
+                - ses:SendRawEmail
               Resource:
-                - !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:${AWS::StackName}-*
+                - !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
       ReservedConcurrentExecutions: 10
 
   AllowTestingContainerToInvoke:
