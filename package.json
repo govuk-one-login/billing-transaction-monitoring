@@ -9,6 +9,7 @@
     "@aws-sdk/client-cloudwatch-logs": "^3.188.0",
     "@aws-sdk/client-lambda": "^3.188.0",
     "@aws-sdk/client-s3": "^3.188.0",
+    "@aws-sdk/client-ses": "^3.354.0",
     "@aws-sdk/client-sns": "^3.188.0",
     "@aws-sdk/client-sqs": "^3.188.0",
     "@aws-sdk/signature-v4-crt": "^3.226.0",
@@ -67,6 +68,7 @@
   "scripts": {
     "husky:install": "husky install",
     "test": "jest --maxWorkers=4 --silent",
+    "test:ephemeralEnvs": "jest --config jest.integration.config.ts --testPathIgnorePatterns email-storage-tests --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
     "test:integration": "jest --config jest.integration.config.ts --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
     "test:end2end": "jest --config jest.e2e.config.ts",
     "test:cleanup:reports": "cd reports/jest-html-reports && ../../integration_tests/cleanup-jest-html-reports.sh 3",
