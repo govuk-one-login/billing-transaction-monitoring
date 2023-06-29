@@ -49,6 +49,15 @@ const config: ConfigCache = {
   ] as Transformations<{}, {}>,
   vat: [{ rate: 20, start: "string" }],
   standardisation: [],
+  eventCleaningTransform: {
+    credits: [
+      "!If",
+      ["!Not", ["!Equals", ["!Path", "$.user.transaction_id"], []]],
+      2,
+      1,
+    ],
+  },
+  contracts: [],
 };
 
 let configOverrides = Object.create(null);

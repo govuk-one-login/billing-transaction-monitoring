@@ -1,22 +1,48 @@
 Resources:
   FrontEndApi:
     Type: AWS::Serverless::HttpApi
+    Condition: IsLowerEnv
     Properties:
       AccessLogSettings:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
         Format: '{ "requestId":"$context.requestId", "requestTime":"$context.requestTime", "routeKey":"$context.routeKey", "status":"$context.status" }'
+      Auth:
+        Authorizers:
+          LambdaAuthorizer:
+            AuthorizerPayloadFormatVersion: '2.0'
+            EnableFunctionDefaultPermissions: true
+            EnableSimpleResponses: true
+            FunctionArn: !GetAtt FrontEndAuthFunction.Arn
+        DefaultAuthorizer: LambdaAuthorizer
 
   FrontEndApiLogGroup:
     Type: AWS::Logs::LogGroup
+    Condition: IsLowerEnv
     Properties:
       KmsKeyId: !GetAtt KmsKey.Arn
       RetentionInDays: 90
+
+  FrontEndAuthFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Condition: IsLowerEnv
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
+      Handler: frontendAuth.handler
+      ReservedConcurrentExecutions: 10
 
   FrontEndFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
+    Condition: IsLowerEnv
     Properties:
+      Environment:
+        Variables:
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+          QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
+          DATABASE_NAME: !Sub ${AWS::StackName}-calculations
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
         ProxyApiRoot:
@@ -24,4 +50,48 @@ Resources:
           Properties:
             ApiId: !Ref FrontEndApi
       Handler: frontend.handler
-      ReservedConcurrentExecutions: 1
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+            - Effect: Allow
+              Action: glue:GetTable
+              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
+            - Effect: Allow
+              Action:
+                - s3:AbortMultipartUpload
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+                - s3:PutObject
+              Resource:
+                - !GetAtt StorageBucket.Arn
+                - !Sub ${StorageBucket.Arn}/*
+                - !GetAtt AthenaQueryResultsBucket.Arn
+                - !Sub ${AthenaQueryResultsBucket.Arn}/*
+            - Effect: Allow
+              Action:
+                - athena:StartQueryExecution
+                - athena:GetQueryExecution
+                - athena:GetQueryResults
+              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
+      ReservedConcurrentExecutions: 10

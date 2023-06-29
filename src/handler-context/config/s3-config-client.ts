@@ -1,5 +1,6 @@
 import {
   ConfigCache,
+  ConfigContractsRow,
   ConfigElements,
   ConfigRatesRow,
   ConfigServicesRow,
@@ -12,12 +13,14 @@ import { parseConfigCsv } from "./parse-config-csv";
 export const configFileMap: Record<ConfigElements, string> = {
   [ConfigElements.rates]: "rate_tables/rates.csv",
   [ConfigElements.services]: "vendor_services/vendor-services.csv",
+  [ConfigElements.contracts]: "contracts/contracts.csv",
   [ConfigElements.renamingMap]: "csv_transactions/header-row-renaming-map.json",
   [ConfigElements.inferences]: "csv_transactions/event-inferences.json",
   [ConfigElements.transformations]:
     "csv_transactions/event-transformation.json",
   [ConfigElements.vat]: "uk-vat.json",
   [ConfigElements.standardisation]: "vendor-invoice-standardisation.json",
+  [ConfigElements.eventCleaningTransform]: "event_transforms/config.json",
 };
 
 const parseJsonFile = async (rawFile: string): Promise<Json> => {
@@ -44,11 +47,21 @@ const parserMap = {
       event_name: { type: "string", required: true },
       contract_id: { type: "string", required: true },
     }),
+  [ConfigElements.contracts]: async (rawFile: string) =>
+    await parseConfigCsv<keyof ConfigContractsRow, ConfigContractsRow>(
+      rawFile,
+      {
+        id: { type: "string", required: true },
+        name: { type: "string", required: true },
+        vendor_id: { type: "string", required: true },
+      }
+    ),
   [ConfigElements.renamingMap]: parseJsonFile,
   [ConfigElements.inferences]: parseJsonFile,
   [ConfigElements.transformations]: parseJsonFile,
   [ConfigElements.vat]: parseJsonFile,
   [ConfigElements.standardisation]: parseJsonFile,
+  [ConfigElements.eventCleaningTransform]: parseJsonFile,
 };
 
 const parseConfigFile = async <TFileName extends ConfigElements>(

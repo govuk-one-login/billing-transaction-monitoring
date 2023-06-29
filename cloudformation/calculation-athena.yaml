@@ -27,6 +27,8 @@ Resources:
               Type: string
             - Name: service_name
               Type: string
+            - Name: contract_id
+              Type: string
             - Name: contract_name
               Type: string
             - Name: year
@@ -240,6 +242,7 @@ Resources:
                         month_event_count,
                         ven.vendor_name,
                         ven.service_name,
+                        contract.id contract_id,
                         contract.name contract_name,
                         (COALESCE(credits, 1) * rates.unit_price) transaction_price
                 FROM (btm_transactions_standardised_with_count txn
@@ -257,6 +260,7 @@ Resources:
                 "MAX"(vendor_name)       vendor_name,
                 "MAX"(event_name)        event_name,
                 "MAX"(service_name)      service_name,
+                "MAX"(contract_id)       contract_id,                
                 "MAX"(contract_name)     contract_name,
                 "SUM"(transaction_price) price,
                 "MAX"(month_event_count) quantity,
@@ -285,6 +289,7 @@ Resources:
             COALESCE(txn.vendor_id, invoice.vendor_id) vendor_id
             , COALESCE(txn.vendor_name, invoice.vendor_name) vendor_name
             , COALESCE(txn.service_name, invoice.service_name) service_name
+            , COALESCE(txn.contract_id, invoice.contract_id) contract_id
             , COALESCE(txn.contract_name, invoice.contract_name) contract_name
             , COALESCE(txn.year, invoice.year) year
             , COALESCE(txn.month, invoice.month) month
@@ -297,7 +302,9 @@ Resources:
                 WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN ${QueryMessageInvoiceDataMissing}
                 WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN ${QueryMessageTransactionDataMissing}
                 WHEN (txn.price IS NULL) THEN ${QueryMessageRateCardDataMissing}
-                ELSE (CASE WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE null END) ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price) END) END) price_difference_percentage
+                WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE ${UnexpectedInvoiceCharge} END)
+                ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price)
+              END) price_difference_percentage
           FROM
               (btm_transactions_curated txn
                 FULL JOIN btm_billing_curated invoice ON

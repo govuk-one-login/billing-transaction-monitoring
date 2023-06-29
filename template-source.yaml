@@ -48,6 +48,9 @@ Parameters:
   QueryMessageTransactionDataMissing:
     Type: String
     Default: -1234567.04
+  UnexpectedInvoiceCharge:
+    Type: String
+    Default: -1234567.05
 
 Conditions:
   UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
@@ -120,3 +123,8 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/email-storage.yaml,
   ./cloudformation/dashboard-data-extraction.yaml#NO_LOCAL,
   ./cloudformation/frontend.yaml
+
+Outputs:
+  FrontEndUrl:
+    Condition: IsLowerEnv
+    Value: !Sub https://${FrontEndApi}.execute-api.${AWS::Region}.amazonaws.com

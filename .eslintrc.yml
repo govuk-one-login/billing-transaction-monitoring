@@ -3,11 +3,16 @@ extends:
   - prettier
 ignorePatterns:
   - dist
+plugins:
+  - 'jest-formatting'
 rules:
   '@typescript-eslint/strict-boolean-expressions': off
   '@typescript-eslint/restrict-template-expressions': off
   '@typescript-eslint/naming-convention': off
   '@typescript-eslint/consistent-type-definitions': off
+  '@typescript-eslint/require-array-sort-compare': off
+  'jest-formatting/padding-around-describe-blocks': warn
+  'jest-formatting/padding-around-test-blocks': warn
 overrides:
   - files: '*.ts'
     parserOptions:
@@ -17,3 +22,6 @@ overrides:
         - error
         - argsIgnorePattern: '^_'
           varsIgnorePattern: '^_'
+      '@typescript-eslint/no-misused-promises':
+        - error
+        - checksVoidReturn: false

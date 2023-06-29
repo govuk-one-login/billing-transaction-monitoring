@@ -12,5 +12,5 @@ export const handler = buildHandler({
     { destination: Env.OUTPUT_QUEUE_URL, store: stringifyAndSendRecord },
   ],
   withBatchItemFailures: true,
-  ConfigCache: [ConfigElements.services],
+  ConfigCache: [ConfigElements.services, ConfigElements.eventCleaningTransform],
 });

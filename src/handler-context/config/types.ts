@@ -1,14 +1,17 @@
+import { Command } from "../../handlers/clean/xform";
 import { InferenceSpecifications } from "../../handlers/transaction-csv-to-json-event/convert/make-inferences";
 import { Transformations } from "../../handlers/transaction-csv-to-json-event/convert/perform-transformations";
 
 export enum ConfigElements {
   rates = "rates",
   services = "services",
+  contracts = "contracts",
   renamingMap = "renamingMap",
   inferences = "inferences",
   transformations = "transformations",
   vat = "vat",
   standardisation = "standardisation",
+  eventCleaningTransform = "eventCleaningTransform",
 }
 
 export interface ConfigRatesRow {
@@ -30,9 +33,16 @@ export interface ConfigServicesRow {
   contract_id: string;
 }
 
+export interface ConfigContractsRow {
+  id: string;
+  name: string;
+  vendor_id: string;
+}
+
 export interface ConfigCache {
   [ConfigElements.rates]: ConfigRatesRow[];
   [ConfigElements.services]: ConfigServicesRow[];
+  [ConfigElements.contracts]: ConfigContractsRow[];
   [ConfigElements.renamingMap]: Array<[string, string]>;
   [ConfigElements.inferences]: InferenceSpecifications<
     {}, // I'm avoiding including this type as the field names are sensitive
@@ -44,6 +54,7 @@ export interface ConfigCache {
     vendorId: string;
     invoiceStandardisationModuleId: number;
   }>;
+  [ConfigElements.eventCleaningTransform]: { credits: Command };
 }
 
 export type GetConfigFile = <TFileName extends ConfigElements>(
