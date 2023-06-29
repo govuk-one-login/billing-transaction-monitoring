@@ -23,6 +23,15 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
         LogFilePrefix: storage-bucket/log
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.txt'
+            Function: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-dashboard-data-extract-function
       LifecycleConfiguration:
         Rules:
           - ExpirationInDays: 1825 # Five years
