@@ -110,8 +110,21 @@ exports[`invoice handler Page displays invoice info 1`] = `
 
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
-  <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
-  <p class="govuk-body">Welcome to the selected invoice page!</p>
+  <h1 class="govuk-heading-xl">Vendor One Mar 2023 Invoice</h1>
+  
+<div class="govuk-panel govuk-panel--confirmation payable">
+  <h1 class="govuk-panel__title">
+    Invoice within threshold
+  </h1>
+  
+  <div class="govuk-panel__body">
+    Reference number
+    <br>
+    <strong>C01234</strong>
+  </div>
+  
+</div>
+
 
         </main>
       </div>

@@ -1,5 +1,7 @@
 import { RequestHandler } from "express";
-import { getContractAndVendorName, getLineItems, MONTHS } from "../config";
+import { getContractAndVendorName } from "../config";
+import { getLineItems } from "../extract-helper";
+import { MONTHS } from "../globals";
 
 // Note that these are just the magic numbers that we want to show a warning for --
 // there is at least one other in use that we don't show a warning for.
@@ -33,6 +35,7 @@ export const getInvoiceHandler: RequestHandler<
 
   let status;
   let bannerClass;
+  console.log("lineItems", JSON.stringify(lineItems));
   if (lineItems.length === 0) {
     status = "Invoice and events missing";
     bannerClass = "warning";
