@@ -20,9 +20,9 @@
     }) }}
 {% endblock beforeContent %}
 {% block content %}
-  <h1 class="govuk-heading-xl">{{ invoice.vendorName }} {{ invoice.month }} {{ invoice.year }} Invoice</h1>
+  <h1 class="govuk-heading-xl">{{ invoice.title }}</h1>
   {{ govukPanel({
-    titleText: invoice.title,
+    titleText: invoice.status,
     html: "Reference number
     <br>
     <strong>" + invoice.contractName + "</strong>",

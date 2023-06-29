@@ -1,10 +1,7 @@
 import { ConfigElements } from "../handler-context";
 import { makeCtxConfig } from "../handler-context/context-builder";
-import { AthenaQueryExecutor } from "../shared/utils/athenaV3";
-import { AthenaClient, Datum } from "@aws-sdk/client-athena";
 import { fetchS3 } from "../shared/utils";
 
-// TODO Figure out caching
 export const getContracts = async (): Promise<
   Array<{
     id: string;
@@ -50,20 +47,7 @@ export const getContractAndVendorName = async (
 
   return { vendorName, contractName: contract.name };
 };
-
-const isCompleteDatum = (datum: Datum): datum is { VarCharValue: string } =>
-  !!datum.VarCharValue;
-
-const isCompleteDataArray = (
-  data: Datum[] | undefined
-): data is Array<{ VarCharValue: string }> =>
-  !!data?.every((datum) => datum !== undefined && isCompleteDatum(datum));
-
-const athena = new AthenaClient({ region: "eu-west-2" });
-
-const QUERY_WAIT = 250; // 0.25 second
-
-const months = [
+export const MONTHS = [
   "Jan",
   "Feb",
   "Mar",
@@ -81,32 +65,25 @@ const months = [
 export const getContractPeriods = async (
   contractId: string
 ): Promise<Array<{ month: string; year: string; prettyMonth: string }>> => {
-  // 1. Check variables are defined
-  if (process.env.QUERY_RESULTS_BUCKET === undefined)
-    throw new Error("No QUERY_RESULTS_BUCKET defined in this environment");
-  if (process.env.DATABASE_NAME === undefined)
-    throw new Error("No DATABASE_NAME defined in this environment");
-
-  const fetchDataSql = `SELECT DISTINCT month, year FROM "${process.env.DATABASE_NAME}".btm_monthly_extract WHERE contract_id LIKE '${contractId}' ORDER BY year DESC, month DESC`;
-  const executor = new AthenaQueryExecutor(athena, QUERY_WAIT);
-  const results = await executor.fetchResults(
-    fetchDataSql,
-    process.env.QUERY_RESULTS_BUCKET
-  );
-  if (results.Rows === undefined) {
-    throw new Error("No results in result set");
-  }
-
-  return results.Rows.slice(1).map(({ Data }) => {
-    const isDataComplete = isCompleteDataArray(Data);
-    if (!isDataComplete) throw new Error("Some data was missing");
-
-    return {
-      month: Data[0].VarCharValue,
-      prettyMonth: months[Number(Data[0].VarCharValue) - 1],
-      year: Data[1].VarCharValue,
-    };
-  });
+  const dashboardData = await getDashboardExtract();
+  return dashboardData
+    .filter((row) => row.contract_id === contractId)
+    .map((row) => ({
+      year: row.year,
+      month: row.month,
+      prettyMonth: MONTHS[Number(row.month) - 1],
+    }))
+    .filter(
+      (row, i, rows) =>
+        rows.findIndex((r) => r.prettyMonth === row.prettyMonth) === i
+    ) // removes duplicates
+    .sort((a, b) => {
+      if (a.year === b.year) {
+        return a.month - b.month;
+      } else {
+        return a.year - b.year;
+      }
+    });
 };
 
 export const getLineItems = async (
@@ -115,11 +92,10 @@ export const getLineItems = async (
   month: string
 ): Promise<any[]> => {
   const dashboardData = await getDashboardExtract();
-  return dashboardData.filter((row) => {
-    return (
+  return dashboardData.filter(
+    (row) =>
       row.contract_id === contractId && row.year === year && row.month === month
-    );
-  });
+  );
 };
 
 export const getDashboardExtract = async (): Promise<any[]> => {

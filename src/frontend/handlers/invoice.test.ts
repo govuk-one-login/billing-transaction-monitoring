@@ -14,11 +14,6 @@ describe("invoice handler", () => {
   beforeEach(() => {
     initApp(app);
 
-    process.env = {
-      QUERY_RESULTS_BUCKET: "given query results bucket",
-      DATABASE_NAME: "given database name",
-    };
-
     contractId = "1";
     givenContractsConfig = [
       { id: contractId, name: "C01234", vendor_id: "vendor_testvendor1" },

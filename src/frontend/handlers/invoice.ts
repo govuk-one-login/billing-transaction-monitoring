@@ -1,12 +1,19 @@
 import { RequestHandler } from "express";
-import { getContractAndVendorName, getLineItems } from "../config";
+import { getContractAndVendorName, getLineItems, MONTHS } from "../config";
 
-const WARNINGS: Record<string, string> = {
-  "-1234567.01": "No Charge For This Month",
-  "-1234567.02": "Rate Card Data Missing",
-  "-1234567.03": "Invoice Data Missing",
-  "-1234567.04": "Transaction Data Missing",
-  "-1234567.05": "Unexpected Invoice Charge",
+// Note that these are just the magic numbers that we want to show a warning for --
+// there is at least one other in use that we don't show a warning for.
+type PriceDifferencePercentageMagicNumber =
+  | "-1234567.02"
+  | "-1234567.03"
+  | "-1234567.04"
+  | "-1234567.05";
+
+const WARNINGS: Record<PriceDifferencePercentageMagicNumber, string> = {
+  "-1234567.03": "Invoice missing",
+  "-1234567.04": "Events missing",
+  "-1234567.02": "Unable to find rate",
+  "-1234567.05": "Invoice has unexpected charge",
 };
 
 export const getInvoiceHandler: RequestHandler<
@@ -24,43 +31,52 @@ export const getInvoiceHandler: RequestHandler<
     ),
   ]);
 
-  let title;
+  let status;
   let bannerClass;
-  if (
-    lineItems.find((lineItem) =>
-      lineItem.price_difference_percentage.startsWith("-1234567.")
+  if (lineItems.length === 0) {
+    status = "Invoice and events missing";
+    bannerClass = "warning";
+  } else if (
+    lineItems.find(
+      (lineItem) => lineItem.price_difference_percentage in WARNINGS
     )
   ) {
-    title = lineItems
-      .filter((lineItem) =>
-        lineItem.price_difference_percentage.startsWith("-1234567.")
-      )
-      .map((lineItem) => WARNINGS[lineItem.price_difference_percentage])
-      .filter((t, i, arr) => arr.indexOf(t) === i) // Remove dupes
-      .join(",\n");
+    // We know at this point that at least one line item contains a warning, but
+    // we want to find the one with the highest priority warning.
+    const warningKey: string | undefined = Object.keys(WARNINGS).find((key) =>
+      lineItems.find((lineItem) => lineItem.price_difference_percentage === key)
+    );
+    if (!warningKey) {
+      throw new Error("Couldn't find line item with warning");
+    }
+    status = WARNINGS[warningKey as PriceDifferencePercentageMagicNumber];
     bannerClass = "warning";
   } else if (
     lineItems.find((lineItem) => +lineItem.price_difference_percentage >= 1)
   ) {
-    title = "Out of threshold";
+    status = "Invoice above threshold";
     bannerClass = "error";
   } else if (
     lineItems.find((lineItem) => +lineItem.price_difference_percentage <= -1)
   ) {
-    title = "Invoice undercharge";
+    status = "Invoice below threshold";
     bannerClass = "notice";
-  } else if (lineItems.length === 0) {
-    title = "No data";
-    bannerClass = "warning";
   } else {
-    title = "This invoice is payable";
+    status = "Invoice within threshold";
     bannerClass = "payable";
   }
 
   response.render("invoice.njk", {
     classes: bannerClass,
     invoice: {
-      title,
+      title:
+        config.vendorName +
+        " " +
+        MONTHS[Number(request.query.month) - 1] +
+        " " +
+        request.query.year +
+        " Invoice",
+      status,
       vendorName: config.vendorName,
       contractName: config.contractName,
       contractId: request.query.contract_id,
