@@ -61,6 +61,7 @@ Resources:
                 - s3:ListBucketMultipartUploads
                 - s3:ListMultipartUploadParts
                 - s3:PutObject
+                - s3:GetBucketNotification
               Resource:
                 - !GetAtt StorageBucket.Arn
                 - !Sub ${StorageBucket.Arn}/*
@@ -92,6 +93,14 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt DashboardDataExtractScheduledRule.Arn
+
+  LambdaPermissionForS3DashboardDataExtractFunction:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DashboardDataExtractFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub arn:aws:s3:::${AWS::StackName}-storage
 
   DashboardDataExtractFunctionAlarm:
     Type: AWS::CloudWatch::Alarm

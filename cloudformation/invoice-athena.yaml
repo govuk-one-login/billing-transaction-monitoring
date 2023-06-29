@@ -118,6 +118,8 @@ Resources:
 
   InvoiceLineItemView:
     Type: Custom::AthenaView
+    DependsOn:
+      - InvoiceLineItemTable
     Properties:
       ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
       View:
