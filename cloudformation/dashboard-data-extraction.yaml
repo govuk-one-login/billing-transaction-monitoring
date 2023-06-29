@@ -19,7 +19,7 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           DATABASE_NAME: !Sub ${AWS::StackName}-calculations
           QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
-          DESTINATION_BUCKET: !Ref StorageBucket
+          DESTINATION_BUCKET: !Sub ${AWS::StackName}-storage
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
       Handler: dashboardExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
@@ -63,8 +63,8 @@ Resources:
                 - s3:PutObject
                 - s3:GetBucketNotification
               Resource:
-                - !GetAtt StorageBucket.Arn
-                - !Sub ${StorageBucket.Arn}/*
+                - !Sub arn:aws:s3:::${AWS::StackName}-storage
+                - !Sub arn:aws:s3:::${AWS::StackName}-storage/*
                 - !GetAtt AthenaQueryResultsBucket.Arn
                 - !Sub ${AthenaQueryResultsBucket.Arn}/*
             - Effect: Allow
