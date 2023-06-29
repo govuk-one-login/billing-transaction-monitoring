@@ -1,4 +1,5 @@
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+{% from "../macros/table/macro.njk" import govukTable %}
 {% extends "common/layout/base.njk" %}
 {% block beforeContent %}
   {{ govukBreadcrumbs({
@@ -21,4 +22,41 @@
 {% block content %}
   <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
   <p class="govuk-body">Welcome to the selected invoice page!</p>
+  {{ govukTable({
+    "head": [
+      {
+        "text": "Line item"
+      },
+      {
+        "text": "Quantity"
+      },
+      {
+        "text": "Price"
+      }
+    ],
+    "rows": [
+      [
+        {
+          "text": "Schmoobly"
+        },
+        {
+          "text": 12
+        },
+        {
+          "text": "£40.55"
+        }
+      ]
+    ],
+    "footer": [
+      {
+        "text": "Total"
+      },
+      {
+        "text": 12
+      },
+      {
+        "text": "£40.55"
+      }
+    ]
+  }) }}
 {% endblock content %}

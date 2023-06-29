@@ -20,12 +20,13 @@ const shouldLoadFromNodeModules =
 
 export const initApp = (app: Express): void => {
   const viewDir = path.join(dirname, "views");
+  const macrosDir = path.join(dirname, "macros");
 
   const templatePath = shouldLoadFromNodeModules
     ? "node_modules/govuk-frontend"
     : dirname;
 
-  nunjucks.configure([templatePath, viewDir], {
+  nunjucks.configure([templatePath, viewDir, macrosDir], {
     autoescape: true,
     express: app,
   });
