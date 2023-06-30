@@ -50,7 +50,7 @@ export const createInvoiceWithGivenData = async (
   vendorId: string,
   vendorName: string,
   fileExtension: "pdf" | "csv"
-): Promise<S3Object> => {
+): Promise<InvoiceDataAndFileName> => {
   const givenBillingQty = billingQty;
   const lineItems = randomLineItem({
     description,
@@ -69,7 +69,7 @@ export const createInvoiceWithGivenData = async (
   const filename = `e2e-test-raw-Invoice-validFile-${randomString(
     8
   )}.${fileExtension}`;
-  return await createInvoiceInS3({ invoiceData, filename });
+  return { invoiceData, filename };
 };
 
 const getLineItemPrefix = (

@@ -2,11 +2,13 @@ import {
   generateTestEvents,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkStandardised,
   createInvoiceWithGivenData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import { sendEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
 
 import {
   getVendorServiceAndRatesFromConfig,
@@ -18,8 +20,7 @@ import { BillingTransactionCurated } from "./billing-and-transaction-view-tests"
 let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
-// Below tests can be run both in lower and higher environments
-
+// Below tests can be run both in Dev, build and staging but does not run in PR stack
 beforeAll(async () => {
   dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
   eventName = dataRetrievedFromConfig.eventName;
@@ -34,7 +35,8 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       await generateTestEvents(data.eventTime, data.transactionQty, eventName);
-      await uploadInvoiceAndAssertResults(data, "pdf");
+      await emailInvoice(data, "pdf");
+      await assertResults(data);
     }
   );
 
@@ -68,7 +70,8 @@ describe("\n Upload csv invoice to raw invoice bucket and generate transactions 
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       await generateTestEvents(data.eventTime, data.transactionQty, eventName);
-      await uploadInvoiceAndAssertResults(data, "csv");
+      await emailInvoice(data, "csv");
+      await assertResults(data);
     }
   );
 });
@@ -142,18 +145,57 @@ const calculateExpectedResults = (
   }
 };
 
-export const uploadInvoiceAndAssertResults = async (
+export const emailInvoice = async (
   data: TestData,
   fileType: "pdf" | "csv"
 ): Promise<void> => {
-  await createInvoiceWithGivenData(
-    data,
-    dataRetrievedFromConfig.description,
-    dataRetrievedFromConfig.unitPrice,
-    dataRetrievedFromConfig.vendorId,
-    dataRetrievedFromConfig.vendorName,
-    fileType
-  );
+  const { invoiceData: attachmentContent, filename: attachmentFilename } =
+    await createInvoiceWithGivenData(
+      data,
+      dataRetrievedFromConfig.description,
+      dataRetrievedFromConfig.unitPrice,
+      dataRetrievedFromConfig.vendorId,
+      dataRetrievedFromConfig.vendorName,
+      fileType
+    );
+  const prefix = resourcePrefix();
+  const extractedEnvValue = prefix.split("-").pop();
+  let sourceEmail = "";
+  let toEmail = "";
+
+  if (
+    extractedEnvValue?.includes("dev") ??
+    extractedEnvValue?.includes("build")
+  ) {
+    sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
+    toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
+  } else if (extractedEnvValue?.includes("staging")) {
+    sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
+    toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
+  }
+
+  await sendEmail({
+    Source: sourceEmail,
+    Destination: {
+      ToAddresses: [toEmail],
+    },
+    Message: {
+      Subject: {
+        Data: "Invoice",
+      },
+      Body: {
+        Text: {
+          Data: "Please find the attached invoice",
+        },
+      },
+      Attachment: {
+        Filename: attachmentFilename,
+        Content: JSON.stringify(attachmentContent),
+        ContentType: `application/${fileType}`,
+      },
+    },
+  });
+
   // Check they were standardised
   await checkStandardised(
     new Date(data.eventTime),
@@ -164,7 +206,9 @@ export const uploadInvoiceAndAssertResults = async (
     },
     dataRetrievedFromConfig.description
   );
+};
 
+export const assertResults = async (data: TestData): Promise<void> => {
   const expectedResults = calculateExpectedResults(
     data,
     dataRetrievedFromConfig.unitPrice
