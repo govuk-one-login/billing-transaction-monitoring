@@ -78,10 +78,12 @@ export const getQueryResults = async <TResponse>(
   const queryResults = await athenaClient.send(
     new GetQueryResultsCommand(params)
   );
+  console.log("QueryResults:", queryResults.ResultSet?.Rows);
   if (queryResults?.ResultSet?.Rows?.[0]?.Data === undefined)
     throw new Error("Invalid query results");
   const columns = queryResults.ResultSet.Rows[0].Data;
   const rows = queryResults.ResultSet.Rows.slice(1).map((d) => d.Data);
+  console.log("Rows:", rows);
   return rows
     .filter((val: Datum[] | undefined): val is Datum[] => val !== undefined)
     .map((row) =>

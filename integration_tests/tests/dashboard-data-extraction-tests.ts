@@ -51,7 +51,9 @@ describe("\n DashboardDataExtractFunction", () => {
 
     // Check the btm_monthly_extract table results match with uploaded standardised invoice data object.
     const queryString = `SELECT * FROM "btm_monthly_extract" where vendor_id ='${standardisedInvoiceObject.vendor_id}' AND year='${year}' AND month='${month}'`;
+    console.log(queryString);
     const response = await queryAthena<BtmMonthlyExtract>(queryString);
+    console.log(response);
     expect(response.length).toEqual(1);
     expect(response[0].vendor_id).toEqual(standardisedInvoiceObject.vendor_id);
     expect(response[0].vendor_name).toEqual(
