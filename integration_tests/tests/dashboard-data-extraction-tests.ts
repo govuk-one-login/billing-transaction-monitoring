@@ -2,10 +2,12 @@ import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envH
 import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import {
   S3Object,
+  getS3Object,
   putS3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import crypto from "crypto";
 import { ContractName } from "../../src/handlers/int-test-support/helpers/payloadHelper";
+import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
 
 describe("\n DashboardDataExtractFunction", () => {
   test("should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised invoice data is stored in s3", async () => {
@@ -49,11 +51,26 @@ describe("\n DashboardDataExtractFunction", () => {
       target: s3Object,
     });
 
+    // Wait for the DashboardDataExtractFunction to have stored the data in full-extract.json
+    await poll(
+      async () =>
+        await getS3Object({
+          bucket: `${resourcePrefix()}-storage`,
+          key: `btm_extract_data/full-extract.json`,
+        }),
+      (result) => {
+        return result?.includes("£4,110.94") ?? false;
+      },
+      {
+        timeout: 280000,
+        interval: 70000,
+        notCompleteErrorMessage: `Standardised Invoice data not found in storage/btm_extract_data/full-extract.json`,
+      }
+    );
+
     // Check the btm_monthly_extract table results match with uploaded standardised invoice data object.
     const queryString = `SELECT * FROM "btm_monthly_extract" where vendor_id ='${standardisedInvoiceObject.vendor_id}' AND year='${year}' AND month='${month}'`;
-    console.log(queryString);
     const response = await queryAthena<BtmMonthlyExtract>(queryString);
-    console.log(response);
     expect(response.length).toEqual(1);
     expect(response[0].vendor_id).toEqual(standardisedInvoiceObject.vendor_id);
     expect(response[0].vendor_name).toEqual(

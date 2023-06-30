@@ -12,6 +12,7 @@ export default async function globalSetup(): Promise<void> {
   await Promise.all([
     deleteS3ObjectsAndPoll(storageBucket, "btm_event_data/2005"),
     deleteS3ObjectsAndPoll(storageBucket, "btm_invoice_data"),
+    deleteS3ObjectsAndPoll(storageBucket, "btm_extract_data"),
     deleteS3ObjectsAndPoll(rawInvoiceBucket),
     deleteS3ObjectsAndPoll(rawInvoiceTextractBucket),
   ]);

@@ -20,7 +20,6 @@ export const queryAthena = async <TResponse>(
     if (!queryId)
       queryId = await startQueryExecutionCommand({ databaseName, queryString });
     const queryStatus = await getQueryExecutionStatus(queryId);
-    console.log("QueryStatus:", queryStatus);
     if (
       queryStatus?.state === "FAILED" &&
       queryStatus?.stateChangeReason?.includes("NoSuchKey")
@@ -31,7 +30,6 @@ export const queryAthena = async <TResponse>(
       queryId = "";
       retryCount++;
     } else if (queryStatus?.state === "SUCCEEDED") {
-      console.log("QueryStatus is SUCCEEDED");
       return true;
     }
     return false;

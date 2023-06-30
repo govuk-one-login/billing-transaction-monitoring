@@ -78,31 +78,22 @@ export const getQueryResults = async <TResponse>(
   const queryResults = await athenaClient.send(
     new GetQueryResultsCommand(params)
   );
-  console.log("QueryResults:", queryResults.ResultSet?.Rows);
   if (queryResults?.ResultSet?.Rows?.[0]?.Data === undefined)
     throw new Error("Invalid query results");
   const columns = queryResults.ResultSet.Rows[0].Data;
-  console.log("Columns:", columns);
   const rows = queryResults.ResultSet.Rows.slice(1).map((d) => d.Data);
-  console.log("Rows:", rows);
-  const filteredRows = rows.filter(
-    (val: Datum[] | undefined): val is Datum[] => val !== undefined
-  );
-  console.log("FilteredRows:", filteredRows);
-
-  const parsedRows = filteredRows.map((row) =>
-    row.reduce((acc, _, index) => {
-      const fieldName = columns[index].VarCharValue;
-      const fieldValue = row[index].VarCharValue;
-      return fieldName === undefined || fieldValue === undefined
-        ? acc
-        : {
-            ...acc,
-            [fieldName]: fieldValue,
-          };
-    }, {})
-  ) as TResponse[];
-
-  console.log("Parsed Rows:", parsedRows);
-  return parsedRows;
+  return rows
+    .filter((val: Datum[] | undefined): val is Datum[] => val !== undefined)
+    .map((row) =>
+      row.reduce((acc, _, index) => {
+        const fieldName = columns[index].VarCharValue;
+        const fieldValue = row[index].VarCharValue;
+        return fieldName === undefined || fieldValue === undefined
+          ? acc
+          : {
+              ...acc,
+              [fieldName]: fieldValue,
+            };
+      }, {})
+    ) as TResponse[];
 };
