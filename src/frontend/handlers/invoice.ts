@@ -1,22 +1,27 @@
 import { RequestHandler } from "express";
 import { getContractAndVendorName } from "../config";
 import { getLineItems } from "../extract-helper";
-import { MONTHS } from "../globals";
+import {
+  MN_EVENTS_MISSING,
+  MN_INVOICE_MISSING,
+  MN_RATES_MISSING,
+  MN_UNEXPECTED_CHARGE,
+  MONTHS,
+  PriceDifferencePercentageSpecialCase,
+} from "../globals";
 
-// Note that these are just the magic numbers that we want to show a warning for --
+// Note that these are just the special cases that we want to show a warning for --
 // there is at least one other in use that we don't show a warning for.
-type PriceDifferencePercentageMagicNumber =
-  | "-1234567.02"
-  | "-1234567.03"
-  | "-1234567.04"
-  | "-1234567.05";
+const WARNINGS_BY_PRIORITY = [
+  MN_INVOICE_MISSING,
+  MN_EVENTS_MISSING,
+  MN_RATES_MISSING,
+  MN_UNEXPECTED_CHARGE,
+];
 
-const WARNINGS: Record<PriceDifferencePercentageMagicNumber, string> = {
-  "-1234567.03": "Invoice missing",
-  "-1234567.04": "Events missing",
-  "-1234567.02": "Unable to find rate",
-  "-1234567.05": "Invoice has unexpected charge",
-};
+const WARNING_CODES = WARNINGS_BY_PRIORITY.map(
+  (warning) => warning.magicNumber
+);
 
 export const getInvoiceHandler: RequestHandler<
   unknown,
@@ -40,19 +45,24 @@ export const getInvoiceHandler: RequestHandler<
     status = "Invoice and events missing";
     bannerClass = "warning";
   } else if (
-    lineItems.find(
-      (lineItem) => lineItem.price_difference_percentage in WARNINGS
+    lineItems.find((lineItem) =>
+      WARNING_CODES.includes(lineItem.price_difference_percentage)
     )
   ) {
     // We know at this point that at least one line item contains a warning, but
     // we want to find the one with the highest priority warning.
-    const warningKey: string | undefined = Object.keys(WARNINGS).find((key) =>
-      lineItems.find((lineItem) => lineItem.price_difference_percentage === key)
+    const highestPriorityWarning:
+      | PriceDifferencePercentageSpecialCase
+      | undefined = WARNINGS_BY_PRIORITY.find((warning) =>
+      lineItems.find(
+        (lineItem) =>
+          lineItem.price_difference_percentage === warning.magicNumber
+      )
     );
-    if (!warningKey) {
+    if (!highestPriorityWarning) {
       throw new Error("Couldn't find line item with warning");
     }
-    status = WARNINGS[warningKey as PriceDifferencePercentageMagicNumber];
+    status = highestPriorityWarning.bannerText;
     bannerClass = "warning";
   } else if (
     lineItems.find((lineItem) => +lineItem.price_difference_percentage >= 1)
