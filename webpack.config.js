@@ -26,6 +26,7 @@ export default {
       "./src/handlers/store-standardised-invoices/handler.ts",
     frontend: "./src/handlers/frontend/handler.ts",
     server: "./src/frontend/server.ts",
+    frontendAuth: "./src/handlers/frontend-auth/handler.ts",
   },
   externals: "aws-sdk",
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
