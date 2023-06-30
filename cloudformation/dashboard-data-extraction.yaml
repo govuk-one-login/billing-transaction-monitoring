@@ -61,7 +61,6 @@ Resources:
                 - s3:ListBucketMultipartUploads
                 - s3:ListMultipartUploadParts
                 - s3:PutObject
-                - s3:GetBucketNotification
               Resource:
                 - !Sub arn:aws:s3:::${AWS::StackName}-storage
                 - !Sub arn:aws:s3:::${AWS::StackName}-storage/*
