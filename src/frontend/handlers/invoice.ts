@@ -8,7 +8,7 @@ import {
   MN_UNEXPECTED_CHARGE,
   MONTHS,
   PriceDifferencePercentageSpecialCase,
-} from "../globals";
+} from "../frontend-utils";
 
 // Note that these are just the special cases that we want to show a warning for --
 // there is at least one other in use that we don't show a warning for.

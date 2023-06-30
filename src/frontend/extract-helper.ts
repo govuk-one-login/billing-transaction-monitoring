@@ -1,5 +1,5 @@
 import { fetchS3 } from "../shared/utils";
-import { MONTHS } from "./globals";
+import { MONTHS } from "./frontend-utils";
 
 export const getContractPeriods = async (
   contractId: string

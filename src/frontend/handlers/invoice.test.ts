@@ -8,7 +8,7 @@ import {
   MN_INVOICE_MISSING,
   MN_RATES_MISSING,
   MN_UNEXPECTED_CHARGE,
-} from "../globals";
+} from "../frontend-utils";
 
 jest.mock("../../handler-context/context-builder");
 const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
