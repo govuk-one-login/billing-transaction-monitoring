@@ -11,7 +11,7 @@ import {
 } from "../frontend-utils";
 
 // Note that these are just the special cases that we want to show a warning for --
-// there is at least one other in use that we don't show a warning for.
+// MN_NO_CHARGE is also a possible value in a line item but, it doesn't cause a warning.
 const WARNINGS_BY_PRIORITY = [
   MN_INVOICE_MISSING,
   MN_EVENTS_MISSING,
@@ -40,7 +40,6 @@ export const getInvoiceHandler: RequestHandler<
 
   let status;
   let bannerClass;
-  console.log("lineItems", JSON.stringify(lineItems));
   if (lineItems.length === 0) {
     status = "Invoice and events missing";
     bannerClass = "warning";
