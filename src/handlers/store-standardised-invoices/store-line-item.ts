@@ -30,6 +30,9 @@ export async function storeLineItem(
     bodyObject
   );
   const staleItemKeys = await listS3Keys(bucket, itemKeyPrefix);
+  console.log("bucket", bucket);
+  console.log("itemKey", itemKey);
+  console.log("record.body", record.body);
 
   await putTextS3(bucket, itemKey, record.body);
 
