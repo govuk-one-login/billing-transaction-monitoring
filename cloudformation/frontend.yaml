@@ -14,6 +14,19 @@ Resources:
             EnableSimpleResponses: true
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
         DefaultAuthorizer: LambdaAuthorizer
+      Domain: !If
+        - UseCustomDomain
+        - CertificateArn: !Ref FrontEndCertificateArn
+          DomainName: !If
+            - IsProduction
+            - btm.account.gov.uk
+            - !Sub btm.${Environment}.account.gov.uk
+          Route53:
+            HostedZoneName: !If
+              - IsProduction
+              - btm.account.gov.uk.
+              - !Sub btm.${Environment}.account.gov.uk.
+        - !Ref AWS::NoValue
 
   FrontEndApiLogGroup:
     Type: AWS::Logs::LogGroup
