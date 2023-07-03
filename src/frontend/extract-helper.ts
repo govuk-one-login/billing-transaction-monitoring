@@ -14,22 +14,38 @@ export const getContractPeriods = async (
     }))
     .filter(
       (row, i, rows) =>
-        rows.findIndex((r) => r.prettyMonth === row.prettyMonth) === i
+        rows.findIndex((r) => r.month === row.month && r.year === row.year) ===
+        i
     ) // removes duplicates
     .sort((a, b) => {
       if (a.year === b.year) {
-        return a.month - b.month;
+        return +a.month - +b.month;
       } else {
-        return a.year - b.year;
+        return +a.year - +b.year;
       }
     });
 };
+
+export interface FullExtractLineItem {
+  vendor_id: string;
+  vendor_name: string;
+  service_name: string;
+  contract_id: string;
+  contract_name: string;
+  year: string;
+  month: string;
+  billing_price_formatted: string;
+  transaction_price_formatted: string;
+  price_difference: string;
+  billing_amount_with_tax: string;
+  price_difference_percentage: string;
+}
 
 export const getLineItems = async (
   contractId: string,
   year: string,
   month: string
-): Promise<any[]> => {
+): Promise<FullExtractLineItem[]> => {
   const dashboardData = await getDashboardExtract();
   return dashboardData.filter(
     (row) =>
@@ -37,7 +53,7 @@ export const getLineItems = async (
   );
 };
 
-export const getDashboardExtract = async (): Promise<any[]> => {
+const getDashboardExtract = async (): Promise<FullExtractLineItem[]> => {
   if (process.env.STORAGE_BUCKET === undefined)
     throw new Error("No STORAGE_BUCKET defined in this environment");
 

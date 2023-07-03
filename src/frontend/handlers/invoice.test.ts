@@ -48,23 +48,16 @@ describe("invoice handler", () => {
       contracts: givenContractsConfig,
     });
 
-    givenExtractResults =
-      '{"month":"10","year":"2023","contract_id":"' +
-      contractId +
-      '","price_difference_percentage":"0"}\n' +
-      '{"month":"03","year":"2023","contract_id":"' +
-      contractId +
-      '","price_difference_percentage":"0"}\n' +
-      '{"month":"04","year":"2023","contract_id":"' +
-      contractId +
-      '","price_difference_percentage":"0"}';
+    givenExtractResults = `{"month":"10","year":"2023","contract_id":"${contractId}","price_difference_percentage":"0"}
+{"month":"03","year":"2023","contract_id":"${contractId}","price_difference_percentage":"0"}
+{"month":"04","year":"2023","contract_id":"${contractId}","price_difference_percentage":"0"}`;
     mockedFetchS3.mockResolvedValue(givenExtractResults);
   });
 
   test("Page displays invoice info", async () => {
     const request = supertest(app);
     const response = await request.get(
-      "/invoice?contract_id=1&year=2023&month=03"
+      `/invoice?contract_id=${contractId}&year=2023&month=03`
     );
     expect(response.status).toBe(200);
     expect(response.text).toContain("Home");
@@ -193,12 +186,7 @@ describe("invoice handler", () => {
   });
 
   test("Page displays within threshold message", async () => {
-    // No items are outside threshold, so we should get the nominal message.
-    givenExtractResults = `{"month":"03","year":"2023","contract_id":"${contractId}","price_difference_percentage":"0"}
-{"month":"03","year":"2023","contract_id":"${contractId}","price_difference_percentage":"0"}
-{"month":"03","year":"2023","contract_id":"${contractId}","price_difference_percentage":"0"}`;
-    mockedFetchS3.mockResolvedValue(givenExtractResults);
-
+    // No items are outside threshold in the default data set, so we should get the nominal message.
     const request = supertest(app);
     const response = await request.get(
       `/invoice?contract_id=${contractId}&year=2023&month=03`
