@@ -22,7 +22,7 @@ export class PriceDifferencePercentageSpecialCase {
 
 export const MN_NO_CHARGE = new PriceDifferencePercentageSpecialCase(
   "-1234567.01",
-  "Unable to find rate"
+  "No charge"
 );
 export const MN_RATES_MISSING = new PriceDifferencePercentageSpecialCase(
   "-1234567.02",
