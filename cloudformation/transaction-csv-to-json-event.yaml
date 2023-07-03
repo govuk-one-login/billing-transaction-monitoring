@@ -4,6 +4,8 @@ Transform: AWS::Serverless-2016-10-31
 Resources:
   TransactionCsvBucket:
     Type: AWS::S3::Bucket
+    DependsOn:
+      - LambdaPermissionForS3TransactionCsvToJsonEventFunction
     Properties:
       BucketName: !Sub ${AWS::StackName}-transaction-csv
       AccessControl: Private
@@ -49,17 +51,6 @@ Resources:
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
-      Events:
-        S3Event:
-          Type: S3
-          Properties:
-            Bucket: !Ref TransactionCsvBucket
-            Events: s3:ObjectCreated:*
-            Filter:
-              S3Key:
-                Rules:
-                  - Name: suffix
-                    Value: '.csv'
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
@@ -99,6 +90,14 @@ Resources:
       ReservedConcurrentExecutions: 1
       MemorySize: 4096
       Timeout: 900
+
+  LambdaPermissionForS3TransactionCsvToJsonEventFunction:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref TransactionCsvToJsonEventFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub arn:aws:s3:::${AWS::StackName}-transaction-csv
 
   TransactionCsvToJsonEventFunctionAlarm:
     Type: AWS::CloudWatch::Alarm

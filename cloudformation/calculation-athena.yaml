@@ -218,6 +218,8 @@ Resources:
 
   TransactionsCuratedView:
     Type: Custom::AthenaView
+    DependsOn:
+      - TransactionTable
     Properties:
       ServiceToken: !GetAtt CustomAthenaViewResourceFunction.Arn
       View:
