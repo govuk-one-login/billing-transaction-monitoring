@@ -41,6 +41,12 @@ Resources:
               Type: string
             - Name: price_difference
               Type: string
+            - Name: transaction_quantity
+              Type: string
+            - Name: invoice_quantity
+              Type: string
+            - Name: quantity_difference
+              Type: string
             - Name: billing_amount_with_tax
               Type: string
             - Name: price_difference_percentage
@@ -298,13 +304,16 @@ Resources:
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(invoice.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(txn.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) transaction_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price - txn.price) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) price_difference
+            , txn.quantity transaction_quantity
+            , invoice.quantity invoice_quantity
+            , REGEXP_REPLACE(CAST(CAST((invoice.quantity - txn.quantity) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,') quantity_difference
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price + invoice.tax) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) billing_amount_with_tax
             , (CASE
                 WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN ${QueryMessageNoChargeForThisMonth}
                 WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN ${QueryMessageInvoiceDataMissing}
                 WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN ${QueryMessageTransactionDataMissing}
                 WHEN (txn.price IS NULL) THEN ${QueryMessageRateCardDataMissing}
-                WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE ${UnexpectedInvoiceCharge} END)
+                WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE ${QueryMessageUnexpectedInvoiceCharge} END)
                 ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price)
               END) price_difference_percentage
           FROM
