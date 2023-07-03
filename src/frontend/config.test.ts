@@ -1,6 +1,5 @@
 import { makeCtxConfig } from "../handler-context/context-builder";
 import { getContractAndVendorName, getContracts } from "./config";
-import { describe } from "node:test";
 import { fetchS3 } from "../shared/utils";
 
 jest.mock("../handler-context/context-builder");

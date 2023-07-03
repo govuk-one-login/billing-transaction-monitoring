@@ -1,5 +1,4 @@
 import { getContractPeriods, getDashboardExtract } from "./extract-helper";
-import { describe } from "node:test";
 import { fetchS3 } from "../shared/utils";
 
 jest.mock("../shared/utils");
