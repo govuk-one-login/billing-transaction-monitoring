@@ -17,6 +17,7 @@ export const getE2ETestConfig = async (): Promise<E2ETestConfig> => {
 
 export interface E2ETestConfig {
   parser_0_service_description: string;
+  parser_0_toEmailId: string;
   parser_default_service_1: E2ETestParserServiceConfig;
   parser_default_service_2: E2ETestParserServiceConfig;
   parser_default_vendor_id: string;

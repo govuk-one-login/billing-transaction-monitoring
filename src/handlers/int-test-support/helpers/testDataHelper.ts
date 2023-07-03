@@ -12,7 +12,7 @@ import { checkS3BucketForEventId } from "./commonHelpers";
 
 const configBucket = configStackName();
 
-export const getVendorServiceAndRatesFromConfig =
+export const getVendorServiceAndRatesAndE2ETestEmailFromConfig =
   async (): Promise<TestDataRetrievedFromConfig> => {
     const [vendorServiceRows, rateConfigRows] = await Promise.all([
       getVendorServiceConfigRows(configBucket, {}),
@@ -25,12 +25,14 @@ export const getVendorServiceAndRatesFromConfig =
       eventName: vendorServiceRows[1].event_name,
       serviceName: vendorServiceRows[1].service_name,
       description: vendorServiceRows[1].service_name,
+      toEmailId: "",
     };
 
     if (configBucket.includes("staging" || "integration")) {
       await getE2ETestConfig().then((result) => {
         testDataRetrievedFromConfig.description =
           result.parser_0_service_description;
+        testDataRetrievedFromConfig.toEmailId = result.parser_0_toEmailId;
       });
       testDataRetrievedFromConfig.unitPrice = rateConfigRows[0].unit_price;
       testDataRetrievedFromConfig.vendorId = vendorServiceRows[0].vendor_id;
@@ -112,6 +114,7 @@ export interface TestDataRetrievedFromConfig {
   vendorName: string;
   eventName: string;
   serviceName: string;
+  toEmailId: string;
 }
 
 export interface TestData {

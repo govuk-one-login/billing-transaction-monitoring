@@ -8,10 +8,14 @@ import {
   createInvoiceWithGivenData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
+import {
+  BucketAndPrefix,
+  checkS3BucketForGivenStringExists,
+} from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { sendEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
 
 import {
-  getVendorServiceAndRatesFromConfig,
+  getVendorServiceAndRatesAndE2ETestEmailFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
@@ -22,7 +26,8 @@ let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 // Below tests can be run both in Dev, build and staging but does not run in PR stack
 beforeAll(async () => {
-  dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
+  dataRetrievedFromConfig =
+    await getVendorServiceAndRatesAndE2ETestEmailFromConfig();
   eventName = dataRetrievedFromConfig.eventName;
 });
 
@@ -160,21 +165,34 @@ export const emailInvoice = async (
     );
   const prefix = resourcePrefix();
   const extractedEnvValue = prefix.split("-").pop();
-  let sourceEmail = "";
-  let toEmail = "";
+  let sourceEmail: string = "";
+  let toEmail: string = "";
 
+  if (extractedEnvValue === undefined) {
+    throw new Error("Env is undefined");
+  }
   if (
-    extractedEnvValue?.includes("dev") ??
-    extractedEnvValue?.includes("build")
+    extractedEnvValue.includes("dev") ||
+    extractedEnvValue.includes("build")
   ) {
     sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
     toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
-  } else if (extractedEnvValue?.includes("staging")) {
+  } else if (
+    extractedEnvValue?.includes("staging") ||
+    extractedEnvValue?.includes("integration")
+  ) {
     sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
-    toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
+    toEmail = dataRetrievedFromConfig.toEmailId;
+    console.log("EmailId from config:", toEmail);
+  } else {
+    console.error(`Email domains are not exists for the given ${prefix}`);
   }
 
-  await sendEmail({
+  console.log("SourceEmail:", sourceEmail);
+  console.log("ToEmail:", toEmail);
+
+  const testTime = new Date();
+  const messageId = await sendEmail({
     Source: sourceEmail,
     Destination: {
       ToAddresses: [toEmail],
@@ -195,6 +213,19 @@ export const emailInvoice = async (
       },
     },
   });
+
+  const stringToCheckInEmailContents = `Message-ID: <${messageId}`;
+  const s3Params: BucketAndPrefix = {
+    bucketName: `${prefix}-email`,
+    prefix: dataRetrievedFromConfig.vendorId,
+  };
+  const givenStringExists = await checkS3BucketForGivenStringExists(
+    stringToCheckInEmailContents,
+    30000,
+    s3Params,
+    testTime
+  );
+  expect(givenStringExists).toBe(true);
 
   // Check they were standardised
   await checkStandardised(
