@@ -21,6 +21,7 @@ Resources:
     Properties:
       KmsKeyId: !GetAtt KmsKey.Arn
       RetentionInDays: 90
+      LogGroupName: !Sub '/aws/vendedlogs/${AWS::StackName}-FE-API-Log-Group'
 
   FrontEndAuthFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
