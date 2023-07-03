@@ -25,6 +25,10 @@ describe("invoice handler", () => {
   beforeEach(() => {
     initApp(app);
 
+    process.env = {
+      STORAGE_BUCKET: "given storage bucket",
+    };
+
     contractId = "1";
     givenContractsConfig = [
       { id: contractId, name: "C01234", vendor_id: "vendor_testvendor1" },
