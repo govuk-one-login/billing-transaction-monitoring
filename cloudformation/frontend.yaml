@@ -40,6 +40,7 @@ Resources:
     Properties:
       Environment:
         Variables:
+          STORAGE_BUCKET: !Ref StorageBucket
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
           DATABASE_NAME: !Sub ${AWS::StackName}-calculations
