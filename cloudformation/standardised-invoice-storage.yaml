@@ -4,6 +4,8 @@ Transform: AWS::Serverless-2016-10-31
 Resources:
   StorageBucket:
     Type: AWS::S3::Bucket
+    DependsOn:
+      - LambdaPermissionForS3DashboardDataExtractFunction
     Properties:
       BucketName: !Sub ${AWS::StackName}-storage
       AccessControl: Private
@@ -23,6 +25,15 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
         LogFilePrefix: storage-bucket/log
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.txt'
+            Function: !GetAtt DashboardDataExtractFunction.Arn
       LifecycleConfiguration:
         Rules:
           - ExpirationInDays: 1825 # Five years
