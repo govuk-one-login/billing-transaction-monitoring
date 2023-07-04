@@ -41,6 +41,12 @@ Resources:
               Type: string
             - Name: price_difference
               Type: string
+            - Name: billing_quantity
+              Type: string
+            - Name: transaction_quantity
+              Type: string
+            - Name: quantity_difference
+              Type: string
             - Name: billing_amount_with_tax
               Type: string
             - Name: price_difference_percentage
@@ -298,6 +304,9 @@ Resources:
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(invoice.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(txn.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) transaction_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price - txn.price) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) price_difference
+            , invoice.quantity billing_quantity
+            , txn.quantity transaction_quantity
+            , REGEXP_REPLACE(CAST(CAST((invoice.quantity - txn.quantity) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,') quantity_difference
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price + invoice.tax) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) billing_amount_with_tax
             , (CASE
                 WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN ${QueryMessageNoChargeForThisMonth}
