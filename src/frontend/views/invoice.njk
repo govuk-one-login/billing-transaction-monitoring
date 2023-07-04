@@ -1,3 +1,4 @@
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% extends "common/layout/base.njk" %}
 {% block beforeContent %}
@@ -12,13 +13,19 @@
     href: "/contracts"
     },
     {
-    text: contractName + " - " + vendorName,
-    href: "/invoices?contract_id=" + contractId
+    text: invoice.contractName + " - " + invoice.vendorName,
+    href: "/invoices?contract_id=" + invoice.contractId
     }
     ]
     }) }}
 {% endblock beforeContent %}
 {% block content %}
-  <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
-  <p class="govuk-body">Welcome to the selected invoice page!</p>
+  <h1 class="govuk-heading-xl">{{ invoice.title }}</h1>
+  {{ govukPanel({
+    titleText: invoice.status,
+    html: "Reference number
+    <br>
+    <strong>" + invoice.contractName + "</strong>",
+    classes: classes
+    }) }}
 {% endblock content %}

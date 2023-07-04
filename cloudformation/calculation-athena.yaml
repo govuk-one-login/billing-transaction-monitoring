@@ -313,7 +313,7 @@ Resources:
                 WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN ${QueryMessageInvoiceDataMissing}
                 WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN ${QueryMessageTransactionDataMissing}
                 WHEN (txn.price IS NULL) THEN ${QueryMessageRateCardDataMissing}
-                WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE ${UnexpectedInvoiceCharge} END)
+                WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE ${QueryMessageUnexpectedInvoiceCharge} END)
                 ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price)
               END) price_difference_percentage
           FROM

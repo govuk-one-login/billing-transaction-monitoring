@@ -4,6 +4,7 @@ You'll need to create a .env file at the top level of the project containing som
 following, to tell the front end app where to find the config:
 
 ```
+STORAGE_BUCKET="di-btm-<yourstack>-storage"
 CONFIG_BUCKET="di-btm-cfg-<yourstack>"
 ```
 
