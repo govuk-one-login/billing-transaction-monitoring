@@ -1,4 +1,6 @@
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
+{%- from "govuk/components/tag/macro.njk" import govukTag -%}
+{% from "govuk/components/table/macro.njk" import govukTable %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% extends "common/layout/base.njk" %}
 {% block beforeContent %}
@@ -20,7 +22,9 @@
     }) }}
 {% endblock beforeContent %}
 {% block content %}
-  <h1 class="govuk-heading-xl">{{ invoice.title }}</h1>
+  <h1 class="govuk-heading-xl">
+    {{ invoice.vendorName + " " + invoice.prettyMonth + " " + invoice.year + " Invoice" }}
+  </h1>
   {{ govukPanel({
     titleText: invoice.status,
     html: "Reference number
@@ -28,4 +32,31 @@
     <strong>" + invoice.contractName + "</strong>",
     classes: classes
     }) }}
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Percentage Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Status</th>
+      </tr>
+    </thead>
+    {% for row in reconciliationRows %}
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">{{ row.serviceName }}</td>
+          <td class="govuk-table__cell">{{ row.quantityDiscrepancy }}</td>
+          <td class="govuk-table__cell">{{ row.priceDiscrepancy }}</td>
+          <td class="govuk-table__cell">{{ row.percentageDiscrepancy }}</td>
+          <td class="govuk-table__cell">
+            {{ govukTag({
+                        text: row.status.statusMessage,
+                        classes: row.status.statusClasses
+                        }) }}
+          </td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
 {% endblock content %}
