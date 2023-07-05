@@ -102,7 +102,7 @@ const getPercentageDiscrepancyMessage = (
   return (
     PERCENTAGE_DISCREPANCY.find(
       (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
-    )?.bannerText ?? percentageDiscrepancy
+    )?.bannerText ?? percentageDiscrepancy + "%"
   );
 };
 

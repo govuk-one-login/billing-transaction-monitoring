@@ -306,7 +306,7 @@ Resources:
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price - txn.price) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) price_difference
             , invoice.quantity billing_quantity
             , txn.quantity transaction_quantity
-            , REGEXP_REPLACE(CAST(CAST((invoice.quantity - txn.quantity) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,') quantity_difference
+            , REGEXP_REPLACE(CAST(invoice.quantity - txn.quantity AS varchar), '(\d)(?=(\d{3})+\.)', '$1,') quantity_difference
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price + invoice.tax) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) billing_amount_with_tax
             , (CASE
                 WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN ${QueryMessageNoChargeForThisMonth}
