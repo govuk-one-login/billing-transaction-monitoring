@@ -1,13 +1,13 @@
 import { RequestHandler } from "express";
 import { getContractAndVendorName } from "../config";
-import { getLineItems } from "../extract-helper";
+import { getLineItems, getReconciliationRows } from "../extract-helper";
 import {
   MN_EVENTS_MISSING,
   MN_INVOICE_MISSING,
   MN_RATES_MISSING,
   MN_UNEXPECTED_CHARGE,
   MONTHS,
-  PriceDifferencePercentageSpecialCase,
+  PercentageDiscrepancySpecialCase,
 } from "../frontend-utils";
 
 // Note that these are just the special cases that we want to show a warning for --
@@ -50,14 +50,13 @@ export const getInvoiceHandler: RequestHandler<
   ) {
     // We know at this point that at least one line item contains a warning, but
     // we want to find the one with the highest priority warning.
-    const highestPriorityWarning:
-      | PriceDifferencePercentageSpecialCase
-      | undefined = WARNINGS_BY_PRIORITY.find((warning) =>
-      lineItems.find(
-        (lineItem) =>
-          lineItem.price_difference_percentage === warning.magicNumber
-      )
-    );
+    const highestPriorityWarning: PercentageDiscrepancySpecialCase | undefined =
+      WARNINGS_BY_PRIORITY.find((warning) =>
+        lineItems.find(
+          (lineItem) =>
+            lineItem.price_difference_percentage === warning.magicNumber
+        )
+      );
     if (!highestPriorityWarning) {
       throw new Error("Couldn't find line item with warning");
     }
@@ -78,22 +77,19 @@ export const getInvoiceHandler: RequestHandler<
     bannerClass = "payable";
   }
 
+  const reconciliationRows = getReconciliationRows(lineItems);
+
   response.render("invoice.njk", {
     classes: bannerClass,
     invoice: {
-      title:
-        config.vendorName +
-        " " +
-        MONTHS[Number(request.query.month) - 1] +
-        " " +
-        request.query.year +
-        " Invoice",
       status,
       vendorName: config.vendorName,
       contractName: config.contractName,
       contractId: request.query.contract_id,
       year: request.query.year,
+      prettyMonth: MONTHS[Number(request.query.month) - 1],
       month: request.query.month,
     },
+    reconciliationRows,
   });
 };

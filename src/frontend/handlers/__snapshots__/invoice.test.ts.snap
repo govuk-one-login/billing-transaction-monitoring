@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`invoice handler Page displays invoice info 1`] = `
+exports[`invoice handler Page displays invoice page header 1`] = `
 "<!DOCTYPE html>
 <html lang="en" class="govuk-template ">
   <head>
@@ -110,7 +110,9 @@ exports[`invoice handler Page displays invoice info 1`] = `
 
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
-  <h1 class="govuk-heading-xl">Vendor One Mar 2023 Invoice</h1>
+  <h1 class="govuk-heading-xl">
+    Vendor One Mar 2023 Invoice
+  </h1>
   
 <div class="govuk-panel govuk-panel--confirmation payable">
   <h1 class="govuk-panel__title">
@@ -125,6 +127,33 @@ exports[`invoice handler Page displays invoice info 1`] = `
   
 </div>
 
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Percentage Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Status</th>
+      </tr>
+    </thead>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">-9</td>
+          <td class="govuk-table__cell"></td>
+          <td class="govuk-table__cell">0</td>
+          <td class="govuk-table__cell">
+            <strong class="govuk-tag govuk-tag--green">
+  Within Threshold
+</strong>
+
+          </td>
+        </tr>
+      </tbody>
+    
+  </table>
 
         </main>
       </div>
