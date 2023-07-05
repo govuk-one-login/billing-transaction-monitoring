@@ -231,7 +231,9 @@ const getPayloadData = (fileName: string): Buffer => {
   return fs.readFileSync(filePath);
 };
 
-const makeEmailWithAttachments = (options: AttachmentOption[]): string => {
+export const makeEmailWithAttachments = (
+  options: AttachmentOption[]
+): string => {
   const boundary = "0";
 
   const attachmentStrings = options.map(({ data, name }) => {
@@ -252,7 +254,7 @@ const makeEmailWithAttachments = (options: AttachmentOption[]): string => {
     const attachmentLines = [
       `--${boundary}`,
       `Content-Type: ${contentType}`,
-      `Content-Disposition: attachment; filename="${name}`,
+      `Content-Disposition: attachment; filename="${name}"`,
       "Content-Transfer-Encoding: base64",
       "",
       ...encodedLines,

@@ -12,7 +12,7 @@ import {
   BucketAndPrefix,
   checkS3BucketForGivenStringExists,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import { sendEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
+import { sendRawEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
 
 import {
   getVendorServiceAndRatesAndE2ETestEmailFromConfig,
@@ -20,6 +20,11 @@ import {
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
+import {
+  Invoice,
+  makeMockInvoicePdfData,
+} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/invoice";
+import { makeEmailWithAttachments } from "./email-tests";
 
 let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
@@ -154,15 +159,6 @@ export const emailInvoice = async (
   data: TestData,
   fileType: "pdf" | "csv"
 ): Promise<void> => {
-  const { invoiceData: attachmentContent, filename: attachmentFilename } =
-    await createInvoiceWithGivenData(
-      data,
-      dataRetrievedFromConfig.description,
-      dataRetrievedFromConfig.unitPrice,
-      dataRetrievedFromConfig.vendorId,
-      dataRetrievedFromConfig.vendorName,
-      fileType
-    );
   const prefix = resourcePrefix();
   const extractedEnvValue = prefix.split("-").pop();
   let sourceEmail: string = "";
@@ -192,25 +188,43 @@ export const emailInvoice = async (
   console.log("ToEmail:", toEmail);
 
   const testTime = new Date();
-  const messageId = await sendEmail({
+  const { invoiceData, filename } = await createInvoiceWithGivenData(
+    data,
+    dataRetrievedFromConfig.description,
+    dataRetrievedFromConfig.unitPrice,
+    dataRetrievedFromConfig.vendorId,
+    dataRetrievedFromConfig.vendorName,
+    fileType
+  );
+  const invoice = new Invoice(invoiceData);
+  console.log(invoice);
+
+  const pdfInvoice = makeMockInvoicePdfData(invoice);
+  const attachmentOption = [
+    {
+      data: pdfInvoice,
+      name: filename,
+    },
+  ];
+
+  const rawEmailContent = makeEmailWithAttachments(attachmentOption);
+
+  const emailHeaders = [
+    `To:${toEmail}`,
+    "Subject: Invoice",
+    "MIME-Version 1.0",
+    `Content-Type: multipart/mixed; boundary= "0"`,
+  ].join("\n");
+
+  const fullRawMailContent = `${emailHeaders}\n\n${rawEmailContent}`;
+
+  const messageId = await sendRawEmail({
     Source: sourceEmail,
     Destination: {
       ToAddresses: [toEmail],
     },
-    Message: {
-      Subject: {
-        Data: "Invoice",
-      },
-      Body: {
-        Text: {
-          Data: "Please find the attached invoice",
-        },
-      },
-      Attachment: {
-        Filename: attachmentFilename,
-        Content: JSON.stringify(attachmentContent),
-        ContentType: `application/${fileType}`,
-      },
+    RawMessage: {
+      Data: Uint8Array.from(Buffer.from(fullRawMailContent)),
     },
   });
 
