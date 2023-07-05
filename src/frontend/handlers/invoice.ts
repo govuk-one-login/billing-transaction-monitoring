@@ -23,7 +23,7 @@ const WARNING_CODES = WARNINGS_BY_PRIORITY.map(
   (warning) => warning.magicNumber
 );
 
-export const getInvoiceHandler: RequestHandler<
+export const invoiceHandler: RequestHandler<
   unknown,
   unknown,
   unknown,
