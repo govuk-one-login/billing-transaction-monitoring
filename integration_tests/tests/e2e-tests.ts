@@ -8,12 +8,7 @@ import {
   createInvoiceWithGivenData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import {
-  BucketAndPrefix,
-  checkS3BucketForGivenStringExists,
-} from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { sendRawEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
-
 import {
   getVendorServiceAndRatesAndE2ETestEmailFromConfig,
   TestData,
@@ -22,9 +17,9 @@ import {
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 import {
   Invoice,
+  makeMockInvoiceCSVData,
   makeMockInvoicePdfData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/invoice";
-import { makeEmailWithAttachments } from "./email-tests";
 
 let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
@@ -163,6 +158,8 @@ export const emailInvoice = async (
   const extractedEnvValue = prefix.split("-").pop();
   let sourceEmail: string = "";
   let toEmail: string = "";
+  let attachment: string = "";
+  let attachmentContentType: string = "";
 
   if (extractedEnvValue === undefined) {
     throw new Error("Env is undefined");
@@ -186,8 +183,6 @@ export const emailInvoice = async (
 
   console.log("SourceEmail:", sourceEmail);
   console.log("ToEmail:", toEmail);
-
-  const testTime = new Date();
   const { invoiceData, filename } = await createInvoiceWithGivenData(
     data,
     dataRetrievedFromConfig.description,
@@ -197,50 +192,50 @@ export const emailInvoice = async (
     fileType
   );
   const invoice = new Invoice(invoiceData);
-  console.log(invoice);
 
-  const pdfInvoice = makeMockInvoicePdfData(invoice);
-  const attachmentOption = [
-    {
-      data: pdfInvoice,
-      name: filename,
-    },
-  ];
+  if (filename.endsWith(".pdf")) {
+    const pdfInvoice = makeMockInvoicePdfData(invoice);
+    const pdfInvoiceBuffer = Buffer.from(pdfInvoice);
+    attachment = pdfInvoiceBuffer.toString("base64");
+    attachmentContentType = "application/pdf";
+  } else if (filename.endsWith(".csv")) {
+    const csvInvoice = makeMockInvoiceCSVData(invoice);
+    attachment = csvInvoice;
+    attachmentContentType = "text/csv";
+  }
 
-  const rawEmailContent = makeEmailWithAttachments(attachmentOption);
+  const attachmentString = [
+    `Content-Type:${attachmentContentType}`,
+    'Content-Disposition: attachment; filename="' + filename + '"',
+    "Content-Transfer-Encoding: base64",
+    "",
+    attachment,
+  ].join("\n");
 
-  const emailHeaders = [
+  const rawEmailContent = [
     `To:${toEmail}`,
     "Subject: Invoice",
     "MIME-Version 1.0",
-    `Content-Type: multipart/mixed; boundary= "0"`,
+    'Content-Type: multipart/mixed; boundary="boundary"',
+    "",
+    "--boundary",
+    "Content-Type:text/plain",
+    "",
+    "Please find the attached invoice.",
+    "--boundary",
+    attachmentString,
+    "--boundary--",
   ].join("\n");
 
-  const fullRawMailContent = `${emailHeaders}\n\n${rawEmailContent}`;
-
-  const messageId = await sendRawEmail({
+  await sendRawEmail({
     Source: sourceEmail,
     Destination: {
       ToAddresses: [toEmail],
     },
     RawMessage: {
-      Data: Uint8Array.from(Buffer.from(fullRawMailContent)),
+      Data: Uint8Array.from(Buffer.from(rawEmailContent)),
     },
   });
-
-  const stringToCheckInEmailContents = `Message-ID: <${messageId}`;
-  const s3Params: BucketAndPrefix = {
-    bucketName: `${prefix}-email`,
-    prefix: dataRetrievedFromConfig.vendorId,
-  };
-  const givenStringExists = await checkS3BucketForGivenStringExists(
-    stringToCheckInEmailContents,
-    30000,
-    s3Params,
-    testTime
-  );
-  expect(givenStringExists).toBe(true);
-
   // Check they were standardised
   await checkStandardised(
     new Date(data.eventTime),

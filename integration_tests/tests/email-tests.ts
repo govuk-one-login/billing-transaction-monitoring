@@ -210,7 +210,7 @@ type AttachmentOption = {
   name: string;
 };
 
-const CONTENT_TYPES_BY_FILE_EXTENSION = {
+export const CONTENT_TYPES_BY_FILE_EXTENSION = {
   csv: "text/csv",
   jpeg: "image/jpeg",
   pdf: "application/pdf",
@@ -231,9 +231,7 @@ const getPayloadData = (fileName: string): Buffer => {
   return fs.readFileSync(filePath);
 };
 
-export const makeEmailWithAttachments = (
-  options: AttachmentOption[]
-): string => {
+const makeEmailWithAttachments = (options: AttachmentOption[]): string => {
   const boundary = "0";
 
   const attachmentStrings = options.map(({ data, name }) => {
@@ -254,7 +252,7 @@ export const makeEmailWithAttachments = (
     const attachmentLines = [
       `--${boundary}`,
       `Content-Type: ${contentType}`,
-      `Content-Disposition: attachment; filename="${name}"`,
+      `Content-Disposition: attachment; filename="${name}`,
       "Content-Transfer-Encoding: base64",
       "",
       ...encodedLines,

@@ -54,10 +54,8 @@ export type rawEmailParams = {
 };
 
 export const sendRawEmail = async (params: rawEmailParams): Promise<string> => {
-  console.log(params);
   try {
     const response = await sesClient.send(new SendRawEmailCommand(params));
-    console.log(response);
     if (response.MessageId === undefined) {
       throw new Error("Error in sending the mail");
     }
