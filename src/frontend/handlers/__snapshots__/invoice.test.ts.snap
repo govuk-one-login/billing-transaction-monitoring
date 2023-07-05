@@ -143,7 +143,7 @@ exports[`invoice handler Page displays invoice page header 1`] = `
           <td class="govuk-table__cell">Passport check</td>
           <td class="govuk-table__cell">-9</td>
           <td class="govuk-table__cell"></td>
-          <td class="govuk-table__cell">0</td>
+          <td class="govuk-table__cell">0%</td>
           <td class="govuk-table__cell">
             <strong class="govuk-tag govuk-tag--green">
   Within Threshold

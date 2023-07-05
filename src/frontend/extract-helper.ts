@@ -108,7 +108,7 @@ const getPercentageDiscrepancyMessage = (
 
 const getStatus = (percentageDiscrepancy: string): StatusLabel => {
   const warning = PERCENTAGE_DISCREPANCY.find(
-    (situation) => situation.magicNumber === percentageDiscrepancy
+    (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
   );
   if (warning) return warning.statusLabel;
   if (+percentageDiscrepancy >= 1) return STATUS_LABEL_ABOVE_THRESHOLD;

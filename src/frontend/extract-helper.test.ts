@@ -127,7 +127,7 @@ describe("extract helper", () => {
           serviceName: "Passport check",
           quantityDiscrepancy: "-9",
           priceDiscrepancy: "£-27.50",
-          percentageDiscrepancy: "-100.0",
+          percentageDiscrepancy: "-100.0%",
           status: {
             statusMessage: "Below Threshold",
             statusClasses: "govuk-tag--blue",
