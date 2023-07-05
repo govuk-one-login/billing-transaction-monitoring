@@ -6,6 +6,7 @@ import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envH
 import {
   checkStandardised,
   createInvoiceWithGivenData,
+  waitForRawInvoice,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import { sendRawEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
@@ -15,6 +16,7 @@ import {
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
+import { InvoiceData } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/types";
 import {
   Invoice,
   makeMockInvoiceCSVData,
@@ -80,6 +82,151 @@ describe("\n Upload csv invoice to raw invoice bucket and generate transactions 
     }
   );
 });
+
+export const getEmailAddresses = (): {
+  sourceEmail: string;
+  toEmail: string;
+} => {
+  const prefix = resourcePrefix();
+  const extractedEnvValue = prefix.split("-").pop();
+
+  if (extractedEnvValue === undefined) {
+    throw new Error("Env is undefined");
+  }
+  let sourceEmail = "";
+  let toEmail = "";
+  if (
+    extractedEnvValue.includes("dev") ||
+    extractedEnvValue.includes("build")
+  ) {
+    sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
+    toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
+  } else if (
+    extractedEnvValue?.includes("staging") ||
+    extractedEnvValue?.includes("integration")
+  ) {
+    sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
+    toEmail = dataRetrievedFromConfig.toEmailId;
+    console.log("EmailId from config:", toEmail);
+  } else {
+    console.error(`Email domains are not exists for the given ${prefix}`);
+  }
+  return { sourceEmail, toEmail };
+};
+
+export const emailInvoice = async (
+  data: TestData,
+  fileType: "pdf" | "csv"
+): Promise<void> => {
+  const { sourceEmail, toEmail } = getEmailAddresses();
+  const { invoiceData, filename } = await createInvoiceWithGivenData(
+    data,
+    dataRetrievedFromConfig.description,
+    dataRetrievedFromConfig.unitPrice,
+    dataRetrievedFromConfig.vendorId,
+    dataRetrievedFromConfig.vendorName,
+    fileType
+  );
+  const attachmentString = createAttachment(invoiceData, filename);
+  const emailContent = constructRawEmailContent(toEmail, attachmentString);
+
+  await sendRawEmail({
+    Source: sourceEmail,
+    Destination: {
+      ToAddresses: [toEmail],
+    },
+    RawMessage: {
+      Data: Uint8Array.from(Buffer.from(emailContent)),
+    },
+  });
+
+  const isInRawInvoiceBucket = await waitForRawInvoice(
+    invoiceData.vendor.id,
+    filename
+  );
+  expect(isInRawInvoiceBucket).toBe(true);
+
+  // Check they were standardised
+  await checkStandardised(
+    new Date(data.eventTime),
+    dataRetrievedFromConfig.vendorId,
+    {
+      description: dataRetrievedFromConfig.description,
+      event_name: dataRetrievedFromConfig.eventName,
+    },
+    dataRetrievedFromConfig.description
+  );
+};
+
+const createAttachment = (
+  invoiceData: InvoiceData,
+  filename: string
+): string => {
+  let attachment = "";
+  let attachmentContentType = "";
+  if (filename.endsWith(".pdf")) {
+    const pdfInvoice = makeMockInvoicePdfData(new Invoice(invoiceData));
+    const pdfInvoiceBuffer = Buffer.from(pdfInvoice);
+    attachment = pdfInvoiceBuffer.toString("base64");
+    attachmentContentType = "application/pdf";
+  } else if (filename.endsWith(".csv")) {
+    const csvInvoice = makeMockInvoiceCSVData(new Invoice(invoiceData));
+    attachment = csvInvoice;
+    attachmentContentType = "text/csv";
+  }
+
+  const attachmentString = [
+    `Content-Type:${attachmentContentType}`,
+    'Content-Disposition: attachment; filename="' + filename + '"',
+    "Content-Transfer-Encoding: base64",
+    "",
+    attachment,
+  ].join("\n");
+
+  return attachmentString;
+};
+const constructRawEmailContent = (
+  toEmail: string,
+  attachmentString: string
+): string => {
+  const rawEmailContent = [
+    `To:${toEmail}`,
+    "Subject: Invoice",
+    "MIME-Version 1.0",
+    'Content-Type: multipart/mixed; boundary="boundary"',
+    "",
+    "--boundary",
+    "Content-Type:text/plain",
+    "",
+    "Please find the attached invoice.",
+    "--boundary",
+    attachmentString,
+    "--boundary--",
+  ].join("\n");
+
+  return rawEmailContent;
+};
+
+interface ExpectedResults {
+  billingQty: number | undefined;
+  transactionQty: number | undefined;
+  transactionPriceFormatted: string | undefined;
+  billingPriceFormatted: number | undefined | string;
+  priceDifferencePercentage: string | undefined;
+}
+
+export const assertResults = async (data: TestData): Promise<void> => {
+  const expectedResults = calculateExpectedResults(
+    data,
+    dataRetrievedFromConfig.unitPrice
+  );
+  await assertQueryResultWithTestData(
+    expectedResults,
+    data.eventTime,
+    dataRetrievedFromConfig.vendorId,
+    dataRetrievedFromConfig.serviceName
+  );
+};
 
 export const assertQueryResultWithTestData = async (
   expectedResults: Record<string, any>,
@@ -149,122 +296,3 @@ const calculateExpectedResults = (
     };
   }
 };
-
-export const emailInvoice = async (
-  data: TestData,
-  fileType: "pdf" | "csv"
-): Promise<void> => {
-  const prefix = resourcePrefix();
-  const extractedEnvValue = prefix.split("-").pop();
-  let sourceEmail: string = "";
-  let toEmail: string = "";
-  let attachment: string = "";
-  let attachmentContentType: string = "";
-
-  if (extractedEnvValue === undefined) {
-    throw new Error("Env is undefined");
-  }
-  if (
-    extractedEnvValue.includes("dev") ||
-    extractedEnvValue.includes("build")
-  ) {
-    sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
-    toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
-  } else if (
-    extractedEnvValue?.includes("staging") ||
-    extractedEnvValue?.includes("integration")
-  ) {
-    sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
-    toEmail = dataRetrievedFromConfig.toEmailId;
-    console.log("EmailId from config:", toEmail);
-  } else {
-    console.error(`Email domains are not exists for the given ${prefix}`);
-  }
-
-  console.log("SourceEmail:", sourceEmail);
-  console.log("ToEmail:", toEmail);
-  const { invoiceData, filename } = await createInvoiceWithGivenData(
-    data,
-    dataRetrievedFromConfig.description,
-    dataRetrievedFromConfig.unitPrice,
-    dataRetrievedFromConfig.vendorId,
-    dataRetrievedFromConfig.vendorName,
-    fileType
-  );
-  const invoice = new Invoice(invoiceData);
-
-  if (filename.endsWith(".pdf")) {
-    const pdfInvoice = makeMockInvoicePdfData(invoice);
-    const pdfInvoiceBuffer = Buffer.from(pdfInvoice);
-    attachment = pdfInvoiceBuffer.toString("base64");
-    attachmentContentType = "application/pdf";
-  } else if (filename.endsWith(".csv")) {
-    const csvInvoice = makeMockInvoiceCSVData(invoice);
-    attachment = csvInvoice;
-    attachmentContentType = "text/csv";
-  }
-
-  const attachmentString = [
-    `Content-Type:${attachmentContentType}`,
-    'Content-Disposition: attachment; filename="' + filename + '"',
-    "Content-Transfer-Encoding: base64",
-    "",
-    attachment,
-  ].join("\n");
-
-  const rawEmailContent = [
-    `To:${toEmail}`,
-    "Subject: Invoice",
-    "MIME-Version 1.0",
-    'Content-Type: multipart/mixed; boundary="boundary"',
-    "",
-    "--boundary",
-    "Content-Type:text/plain",
-    "",
-    "Please find the attached invoice.",
-    "--boundary",
-    attachmentString,
-    "--boundary--",
-  ].join("\n");
-
-  await sendRawEmail({
-    Source: sourceEmail,
-    Destination: {
-      ToAddresses: [toEmail],
-    },
-    RawMessage: {
-      Data: Uint8Array.from(Buffer.from(rawEmailContent)),
-    },
-  });
-  // Check they were standardised
-  await checkStandardised(
-    new Date(data.eventTime),
-    dataRetrievedFromConfig.vendorId,
-    {
-      description: dataRetrievedFromConfig.description,
-      event_name: dataRetrievedFromConfig.eventName,
-    },
-    dataRetrievedFromConfig.description
-  );
-};
-
-export const assertResults = async (data: TestData): Promise<void> => {
-  const expectedResults = calculateExpectedResults(
-    data,
-    dataRetrievedFromConfig.unitPrice
-  );
-  await assertQueryResultWithTestData(
-    expectedResults,
-    data.eventTime,
-    dataRetrievedFromConfig.vendorId,
-    dataRetrievedFromConfig.serviceName
-  );
-};
-
-interface ExpectedResults {
-  billingQty: number | undefined;
-  transactionQty: number | undefined;
-  transactionPriceFormatted: string | undefined;
-  billingPriceFormatted: number | undefined | string;
-  priceDifferencePercentage: string | undefined;
-}

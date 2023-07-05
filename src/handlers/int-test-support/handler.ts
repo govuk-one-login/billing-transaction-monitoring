@@ -19,7 +19,7 @@ import {
 } from "./helpers/athenaHelper";
 import { createInvoiceInS3 } from "./helpers/mock-data/invoice/helpers";
 import { invokeLambda } from "./helpers/lambdaHelper";
-import { sendEmail } from "./helpers/sesHelper";
+import { sendRawEmail, sendEmail } from "./helpers/sesHelper";
 
 export type SerializableData =
   | string
@@ -57,6 +57,7 @@ export enum IntTestHelpers {
   createInvoiceInS3 = "createInvoiceInS3",
   invokeLambda = "invokeLambda",
   sendEmail = "sendEmail",
+  sendRawEmail = "sendRawEmail",
 }
 
 export interface HelperDict {
@@ -75,6 +76,7 @@ export interface HelperDict {
   [IntTestHelpers.createInvoiceInS3]: typeof createInvoiceInS3;
   [IntTestHelpers.invokeLambda]: typeof invokeLambda;
   [IntTestHelpers.sendEmail]: typeof sendEmail;
+  [IntTestHelpers.sendRawEmail]: typeof sendRawEmail;
 }
 
 const functionMap: HelperDict = {
@@ -93,6 +95,7 @@ const functionMap: HelperDict = {
   [IntTestHelpers.createInvoiceInS3]: createInvoiceInS3,
   [IntTestHelpers.invokeLambda]: invokeLambda,
   [IntTestHelpers.sendEmail]: sendEmail,
+  [IntTestHelpers.sendRawEmail]: sendRawEmail,
 };
 
 const callFunction = async (
