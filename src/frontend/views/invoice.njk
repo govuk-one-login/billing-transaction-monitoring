@@ -33,6 +33,7 @@
     classes: classes
     }) }}
   <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Reconciliation</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
@@ -55,6 +56,27 @@
                         classes: row.status.statusClasses
                         }) }}
           </td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Quantity (events)</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Invoiced Quantity</th>
+        <th class="govuk-table__header" scope="col">Measured Quantity</th>
+        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
+      </tr>
+    </thead>
+    {% for row in reconciliationRows %}
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">{{ row.serviceName }}</td>
+          <td class="govuk-table__cell">{{ row.billingQuantity }}</td>
+          <td class="govuk-table__cell">{{ row.transactionQuantity }}</td>
+          <td class="govuk-table__cell">{{ row.quantityDiscrepancy }}</td>
         </tr>
       </tbody>
     {% endfor %}

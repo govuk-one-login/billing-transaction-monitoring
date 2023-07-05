@@ -128,6 +128,7 @@ exports[`invoice handler Page displays invoice page header 1`] = `
 </div>
 
   <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Reconciliation</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
@@ -150,6 +151,27 @@ exports[`invoice handler Page displays invoice page header 1`] = `
 </strong>
 
           </td>
+        </tr>
+      </tbody>
+    
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Quantity (events)</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Invoiced Quantity</th>
+        <th class="govuk-table__header" scope="col">Measured Quantity</th>
+        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
+      </tr>
+    </thead>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">2</td>
+          <td class="govuk-table__cell">11</td>
+          <td class="govuk-table__cell">-9</td>
         </tr>
       </tbody>
     

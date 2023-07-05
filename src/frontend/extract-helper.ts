@@ -86,6 +86,8 @@ interface ReconciliationRow {
   priceDiscrepancy: string;
   percentageDiscrepancy: string;
   status: StatusLabel;
+  billingQuantity: string;
+  transactionQuantity: string;
 }
 
 const PERCENTAGE_DISCREPANCY = [
@@ -104,6 +106,17 @@ const getPercentageDiscrepancyMessage = (
       (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
     )?.bannerText ?? percentageDiscrepancy + "%"
   );
+};
+
+const getQuantity = (
+  quantity: string,
+  percentageDiscrepancy: string
+): string => {
+  return quantity !== ""
+    ? quantity
+    : PERCENTAGE_DISCREPANCY.find(
+        (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
+      )?.bannerText ?? "";
 };
 
 const getStatus = (percentageDiscrepancy: string): StatusLabel => {
@@ -129,6 +142,14 @@ export const getReconciliationRows = (
         item.price_difference_percentage
       ),
       status: getStatus(item.price_difference_percentage),
+      billingQuantity: getQuantity(
+        item.billing_quantity,
+        item.price_difference_percentage
+      ),
+      transactionQuantity: getQuantity(
+        item.transaction_quantity,
+        item.price_difference_percentage
+      ),
     };
     rows.push(row);
   }
