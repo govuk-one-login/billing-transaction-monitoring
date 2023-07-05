@@ -1,4 +1,5 @@
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
+import { getEmailAddresses } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import {
   EmailParams,
   sendEmail,
@@ -11,10 +12,8 @@ import {
 describe.skip("\n Email storage \n", () => {
   test("should store the received email in the corresponding directory in the email bucket", async () => {
     const prefix = resourcePrefix();
-    const extractedEnvValue = prefix.split("-").pop();
     const emailBucket = `${prefix}-email`;
-    const sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
-    const toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
+    const { sourceEmail, toEmail } = await getEmailAddresses();
     const directory = "vendor_testvendor1";
     const params: EmailParams = {
       Source: sourceEmail,

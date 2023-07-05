@@ -12,7 +12,7 @@ import { checkS3BucketForEventId } from "./commonHelpers";
 
 const configBucket = configStackName();
 
-export const getVendorServiceAndRatesAndE2ETestEmailFromConfig =
+export const getVendorServiceAndRatesFromConfig =
   async (): Promise<TestDataRetrievedFromConfig> => {
     const [vendorServiceRows, rateConfigRows] = await Promise.all([
       getVendorServiceConfigRows(configBucket, {}),
@@ -25,14 +25,12 @@ export const getVendorServiceAndRatesAndE2ETestEmailFromConfig =
       eventName: vendorServiceRows[1].event_name,
       serviceName: vendorServiceRows[1].service_name,
       description: vendorServiceRows[1].service_name,
-      toEmailId: "",
     };
 
     if (configBucket.includes("staging" || "integration")) {
       await getE2ETestConfig().then((result) => {
         testDataRetrievedFromConfig.description =
           result.parser_0_service_description;
-        testDataRetrievedFromConfig.toEmailId = result.parser_0_toEmailId;
       });
       testDataRetrievedFromConfig.unitPrice = rateConfigRows[0].unit_price;
       testDataRetrievedFromConfig.vendorId = vendorServiceRows[0].vendor_id;
@@ -114,7 +112,6 @@ export interface TestDataRetrievedFromConfig {
   vendorName: string;
   eventName: string;
   serviceName: string;
-  toEmailId: string;
 }
 
 export interface TestData {
@@ -131,3 +128,34 @@ export interface TestData {
   billingPriceFormatted: string;
   transactionPriceFormatted: string;
 }
+
+export const getEmailAddresses = async (): Promise<{
+  sourceEmail: string;
+  toEmail: string;
+}> => {
+  const prefix = resourcePrefix();
+  const extractedEnvValue = prefix.split("-").pop();
+
+  if (extractedEnvValue === undefined) {
+    throw new Error("Env is undefined");
+  }
+  let sourceEmail = "";
+  let toEmail = "";
+  if (
+    extractedEnvValue.includes("dev") ||
+    extractedEnvValue.includes("build")
+  ) {
+    sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
+    toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
+  } else if (
+    extractedEnvValue?.includes("staging") ||
+    extractedEnvValue?.includes("integration")
+  ) {
+    sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
+    toEmail = (await getE2ETestConfig()).parser_0_toEmailId;
+    console.log("EmailId from config:", toEmail);
+  } else {
+    console.error(`Email domains are not exists for the given ${prefix}`);
+  }
+  return { sourceEmail, toEmail };
+};

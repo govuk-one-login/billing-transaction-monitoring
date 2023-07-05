@@ -2,7 +2,6 @@ import {
   generateTestEvents,
   TableNames,
 } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   checkStandardised,
   createInvoiceWithGivenData,
@@ -11,7 +10,8 @@ import {
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import { sendRawEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
 import {
-  getVendorServiceAndRatesAndE2ETestEmailFromConfig,
+  getEmailAddresses,
+  getVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
@@ -28,8 +28,7 @@ let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
 // Below tests can be run both in Dev, build and staging but does not run in PR stack
 beforeAll(async () => {
-  dataRetrievedFromConfig =
-    await getVendorServiceAndRatesAndE2ETestEmailFromConfig();
+  dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
   eventName = dataRetrievedFromConfig.eventName;
 });
 
@@ -83,42 +82,11 @@ describe("\n Upload csv invoice to raw invoice bucket and generate transactions 
   );
 });
 
-export const getEmailAddresses = (): {
-  sourceEmail: string;
-  toEmail: string;
-} => {
-  const prefix = resourcePrefix();
-  const extractedEnvValue = prefix.split("-").pop();
-
-  if (extractedEnvValue === undefined) {
-    throw new Error("Env is undefined");
-  }
-  let sourceEmail = "";
-  let toEmail = "";
-  if (
-    extractedEnvValue.includes("dev") ||
-    extractedEnvValue.includes("build")
-  ) {
-    sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
-    toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
-  } else if (
-    extractedEnvValue?.includes("staging") ||
-    extractedEnvValue?.includes("integration")
-  ) {
-    sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
-    toEmail = dataRetrievedFromConfig.toEmailId;
-    console.log("EmailId from config:", toEmail);
-  } else {
-    console.error(`Email domains are not exists for the given ${prefix}`);
-  }
-  return { sourceEmail, toEmail };
-};
-
 export const emailInvoice = async (
   data: TestData,
   fileType: "pdf" | "csv"
 ): Promise<void> => {
-  const { sourceEmail, toEmail } = getEmailAddresses();
+  const { sourceEmail, toEmail } = await getEmailAddresses();
   const { invoiceData, filename } = await createInvoiceWithGivenData(
     data,
     dataRetrievedFromConfig.description,
