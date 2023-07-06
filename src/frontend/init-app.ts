@@ -3,7 +3,7 @@ import nunjucks from "nunjucks";
 import path from "path";
 import { fileURLToPath } from "url";
 import "dotenv/config";
-import { getPagePath, PAGES } from "./pages";
+import { getHandler, getPagePath, PAGES } from "./pages";
 
 let dirname: string;
 try {
@@ -31,7 +31,7 @@ export const initApp = (app: Express): void => {
   app.engine("njk", nunjucks.render);
 
   PAGES.forEach((page) => {
-    app.get(getPagePath(page), page.handler);
+    app.get(getPagePath(page), getHandler(page));
   });
 
   const assetsPath = shouldLoadFromNodeModules

@@ -1,23 +1,31 @@
 import { getPagePath, Page } from "./pages";
 
 describe("Page", () => {
-  const homePage: Page = {
+  const homePage: Page<{}> = {
+    title: "homePage",
     relativePath: "",
-    handler: () => {},
+    njk: "",
+    paramsGetter: async (_) => {},
   };
-  const childPage1: Page = {
+  const childPage1: Page<{}> = {
+    title: "child1",
     relativePath: "child1",
-    handler: () => {},
+    paramsGetter: async (_) => {},
+    njk: "",
     parent: homePage,
   };
-  const childPage2: Page = {
+  const childPage2: Page<{}> = {
+    title: "child2",
     relativePath: "child2",
-    handler: () => {},
+    paramsGetter: async (_) => {},
+    njk: "",
     parent: homePage,
   };
-  const grandchildPage1: Page = {
+  const grandchildPage1: Page<{}> = {
+    title: "grandchild1",
     relativePath: "grandchild1",
-    handler: () => {},
+    paramsGetter: async (_) => {},
+    njk: "",
     parent: childPage1,
   };
 

@@ -1,4 +1,3 @@
-import { RequestHandler } from "express";
 import { getContractAndVendorName } from "../config";
 import { getLineItems } from "../extract-helper";
 import {
@@ -9,6 +8,7 @@ import {
   MONTHS,
   PriceDifferencePercentageSpecialCase,
 } from "../frontend-utils";
+import { PageParamsGetter } from "../pages";
 
 // Note that these are just the special cases that we want to show a warning for --
 // MN_NO_CHARGE is also a possible value in a line item but, it doesn't cause a warning.
@@ -23,12 +23,11 @@ const WARNING_CODES = WARNINGS_BY_PRIORITY.map(
   (warning) => warning.magicNumber
 );
 
-export const invoiceHandler: RequestHandler<
-  unknown,
-  unknown,
-  unknown,
-  { contract_id: string; year: string; month: string }
-> = async (request, response) => {
+export const invoiceParamsGetter: PageParamsGetter<{
+  contract_id: string;
+  year: string;
+  month: string;
+}> = async (request) => {
   const [config, lineItems] = await Promise.all([
     getContractAndVendorName(request.query.contract_id),
     getLineItems(
@@ -78,7 +77,7 @@ export const invoiceHandler: RequestHandler<
     bannerClass = "payable";
   }
 
-  response.render("invoice.njk", {
+  return {
     classes: bannerClass,
     invoice: {
       title:
@@ -95,5 +94,5 @@ export const invoiceHandler: RequestHandler<
       year: request.query.year,
       month: request.query.month,
     },
-  });
+  };
 };

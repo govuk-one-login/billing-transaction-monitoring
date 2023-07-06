@@ -103,11 +103,13 @@ exports[`contracts handler Page displays all contracts 1`] = `
   <ul class="govuk-list">
     
       <li>
-        <a class="govuk-link" href="/invoices?contract_id=1">C01234 - Vendor One</a>
+        <a class="govuk-link"
+           href="/contracts/invoices?contract_id=1">C01234 - Vendor One</a>
       </li>
     
       <li>
-        <a class="govuk-link" href="/invoices?contract_id=2">C01235 - Vendor Two</a>
+        <a class="govuk-link"
+           href="/contracts/invoices?contract_id=2">C01235 - Vendor Two</a>
       </li>
     
   </ul>

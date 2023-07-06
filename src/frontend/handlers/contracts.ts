@@ -1,9 +1,8 @@
-import { RequestHandler } from "express";
 import { getContracts } from "../config";
+import { PageParamsGetter } from "../pages";
 
-export const contractsHandler: RequestHandler = async (_, response) => {
-  response.render("contracts.njk", {
-    // breadcrumbData: getBreadcrumbData(id),
+export const contractsParamsGetter: PageParamsGetter<{}> = async (_) => {
+  return {
     contracts: await getContracts(),
-  });
+  };
 };
