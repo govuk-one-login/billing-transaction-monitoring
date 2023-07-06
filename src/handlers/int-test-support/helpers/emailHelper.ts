@@ -45,7 +45,7 @@ export const encodeAttachment = (
   let attachmentContentType = "";
   if (filename.endsWith(".pdf")) {
     const pdfInvoice = makeMockInvoicePdfData(new Invoice(invoiceData));
-    const pdfInvoiceBuffer = Buffer.from(pdfInvoice);
+    const pdfInvoiceBuffer = Buffer.from(pdfInvoice, "ascii");
     attachment = pdfInvoiceBuffer.toString("base64");
     attachmentContentType = "application/pdf";
   } else if (filename.endsWith(".csv")) {
