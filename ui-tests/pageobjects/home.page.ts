@@ -1,4 +1,5 @@
-import Page from "./basePage.js";
+import Page from "./page.js";
+import { ChainablePromiseElement } from "webdriverio";
 
 /**
  * sub page containing specific selectors and methods for a specific page
@@ -7,26 +8,21 @@ class HomePage extends Page {
   /**
    * define selectors using getter methods
    */
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  public get inputUsername() {
-    return $("#username");
+
+  public get pageTitle(): ChainablePromiseElement<WebdriverIO.Element> {
+    return $("h1.govuk-heading-l");
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  public get inputPassword() {
-    return $("#password");
+  public get welcomeMessage(): ChainablePromiseElement<WebdriverIO.Element> {
+    return $("p.govuk-body");
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  public get btnSubmit() {
-    return $('button[type="submit"]');
+  public get linkToContractsPage(): ChainablePromiseElement<WebdriverIO.Element> {
+    return $('a[href$="/contracts"]');
   }
 
-  /**
-   * overwrite specific options to adapt it to page object
-   */
-  public open(): void {
-    return super.open();
+  public async clickOnContractsPageLink(): Promise<void> {
+    await this.linkToContractsPage.click();
   }
 }
 
