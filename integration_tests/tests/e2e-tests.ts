@@ -10,29 +10,28 @@ import {
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import { sendRawEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
 import {
-  getEmailAddresses,
   getVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
-import { InvoiceData } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/types";
 import {
-  Invoice,
-  makeMockInvoiceCSVData,
-  makeMockInvoicePdfData,
-} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/invoice";
+  encodeAttachment,
+  createRawEmailContent,
+  getEmailAddresses,
+} from "../../src/handlers/int-test-support/helpers/emailHelper";
 
 let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
-// Below tests can be run both in Dev, build and staging but does not run in PR stack
+// Below tests can be run in Dev, build and staging envs but should not be run in the PR stack
 beforeAll(async () => {
   dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
   eventName = dataRetrievedFromConfig.eventName;
 });
 
-describe("\n Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
+describe.only("\n Email pdf invoice and verify that the BillingAndTransactionsCuratedView results match the expected data \n", () => {
+  // Test cases for PDF invoices
   test.each`
     testCase                                                                               | eventTime       | transactionQty | billingQty
     ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2006/01/30"} | ${undefined}   | ${"100"}
@@ -67,13 +66,14 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   );
 });
 
-describe("\n Upload csv invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
+// Test cases for CSV invoices
+describe("\n Email csv invoice and verify that the BillingAndTransactionsCuratedView results match the expected data \n", () => {
   test.each`
     testCase                                                                      | eventTime       | transactionQty | billingQty
     ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"} | ${"2005/10/30"} | ${"10"}        | ${"12"}
     ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}  | ${"2005/11/30"} | ${"10"}        | ${"6"}
   `(
-    "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
+    "results retrieved from BillingAndTransactionsCuratedView view should match the expected values for $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       await generateTestEvents(data.eventTime, data.transactionQty, eventName);
       await emailInvoice(data, "csv");
@@ -95,8 +95,9 @@ export const emailInvoice = async (
     dataRetrievedFromConfig.vendorName,
     fileType
   );
-  const attachmentString = createAttachment(invoiceData, filename);
-  const emailContent = constructRawEmailContent(toEmail, attachmentString);
+  const attachmentString = encodeAttachment(invoiceData, filename);
+
+  const emailContent = createRawEmailContent(toEmail, attachmentString);
 
   await sendRawEmail({
     Source: sourceEmail,
@@ -124,55 +125,6 @@ export const emailInvoice = async (
     },
     dataRetrievedFromConfig.description
   );
-};
-
-const createAttachment = (
-  invoiceData: InvoiceData,
-  filename: string
-): string => {
-  let attachment = "";
-  let attachmentContentType = "";
-  if (filename.endsWith(".pdf")) {
-    const pdfInvoice = makeMockInvoicePdfData(new Invoice(invoiceData));
-    const pdfInvoiceBuffer = Buffer.from(pdfInvoice);
-    attachment = pdfInvoiceBuffer.toString("base64");
-    attachmentContentType = "application/pdf";
-  } else if (filename.endsWith(".csv")) {
-    const csvInvoice = makeMockInvoiceCSVData(new Invoice(invoiceData));
-    attachment = csvInvoice;
-    attachmentContentType = "text/csv";
-  }
-
-  const attachmentString = [
-    `Content-Type:${attachmentContentType}`,
-    'Content-Disposition: attachment; filename="' + filename + '"',
-    "Content-Transfer-Encoding: base64",
-    "",
-    attachment,
-  ].join("\n");
-
-  return attachmentString;
-};
-const constructRawEmailContent = (
-  toEmail: string,
-  attachmentString: string
-): string => {
-  const rawEmailContent = [
-    `To:${toEmail}`,
-    "Subject: Invoice",
-    "MIME-Version 1.0",
-    'Content-Type: multipart/mixed; boundary="boundary"',
-    "",
-    "--boundary",
-    "Content-Type:text/plain",
-    "",
-    "Please find the attached invoice.",
-    "--boundary",
-    attachmentString,
-    "--boundary--",
-  ].join("\n");
-
-  return rawEmailContent;
 };
 
 interface ExpectedResults {

@@ -16,9 +16,10 @@ export type RawEmailParams = {
   RawMessage: RawMessage;
 };
 
+// Sends a raw email with attachments using the provided parameters
 export const sendRawEmail = async (params: RawEmailParams): Promise<string> => {
   if (runViaLambda()) {
-    const serialisedParams = {
+    const serializedParams = {
       ...params,
       RawMessage: {
         Data: params.RawMessage.Data,
@@ -26,7 +27,7 @@ export const sendRawEmail = async (params: RawEmailParams): Promise<string> => {
     } as unknown as RawEmailParams & SerializableData;
     return await sendLambdaCommand(
       IntTestHelpers.sendRawEmail,
-      serialisedParams
+      serializedParams
     );
   }
 
@@ -58,7 +59,10 @@ export type EmailParams = {
   };
 };
 
-export const sendEmail = async (params: EmailParams): Promise<string> => {
+// Sends an email without attachments using the provided parameters
+export const sendEmailWithoutAttachments = async (
+  params: EmailParams
+): Promise<string> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.sendEmail,

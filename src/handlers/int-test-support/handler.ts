@@ -19,7 +19,7 @@ import {
 } from "./helpers/athenaHelper";
 import { createInvoiceInS3 } from "./helpers/mock-data/invoice/helpers";
 import { invokeLambda } from "./helpers/lambdaHelper";
-import { sendRawEmail, sendEmail } from "./helpers/sesHelper";
+import { sendRawEmail, sendEmailWithoutAttachments } from "./helpers/sesHelper";
 
 export type SerializableData =
   | string
@@ -75,7 +75,7 @@ export interface HelperDict {
   [IntTestHelpers.getQueryResults]: typeof getQueryResults;
   [IntTestHelpers.createInvoiceInS3]: typeof createInvoiceInS3;
   [IntTestHelpers.invokeLambda]: typeof invokeLambda;
-  [IntTestHelpers.sendEmail]: typeof sendEmail;
+  [IntTestHelpers.sendEmail]: typeof sendEmailWithoutAttachments;
   [IntTestHelpers.sendRawEmail]: typeof sendRawEmail;
 }
 
@@ -94,7 +94,7 @@ const functionMap: HelperDict = {
   [IntTestHelpers.getQueryResults]: getQueryResults,
   [IntTestHelpers.createInvoiceInS3]: createInvoiceInS3,
   [IntTestHelpers.invokeLambda]: invokeLambda,
-  [IntTestHelpers.sendEmail]: sendEmail,
+  [IntTestHelpers.sendEmail]: sendEmailWithoutAttachments,
   [IntTestHelpers.sendRawEmail]: sendRawEmail,
 };
 

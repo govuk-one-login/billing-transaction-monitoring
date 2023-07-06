@@ -1,13 +1,13 @@
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import { getEmailAddresses } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import {
   EmailParams,
-  sendEmail,
+  sendEmailWithoutAttachments,
 } from "../../src/handlers/int-test-support/helpers/sesHelper";
 import {
   checkS3BucketForGivenStringExists,
   BucketAndPrefix,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { getEmailAddresses } from "../../src/handlers/int-test-support/helpers/emailHelper";
 
 describe.skip("\n Email storage \n", () => {
   test("should store the received email in the corresponding directory in the email bucket", async () => {
@@ -32,7 +32,7 @@ describe.skip("\n Email storage \n", () => {
       },
     };
     const testTime = new Date();
-    const messageId = await sendEmail(params);
+    const messageId = await sendEmailWithoutAttachments(params);
     const stringToCheckInEmailContents = `Message-ID: <${messageId}`;
     const s3Params: BucketAndPrefix = {
       bucketName: emailBucket,
