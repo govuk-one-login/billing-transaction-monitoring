@@ -30,7 +30,7 @@ beforeAll(async () => {
   eventName = dataRetrievedFromConfig.eventName;
 });
 
-describe.only("\n Email pdf invoice and verify that the BillingAndTransactionsCuratedView results match the expected data \n", () => {
+describe("\n Email pdf invoice and verify that the BillingAndTransactionsCuratedView results match the expected data \n", () => {
   // Test cases for PDF invoices
   test.each`
     testCase                                                                               | eventTime       | transactionQty | billingQty
@@ -101,9 +101,7 @@ export const emailInvoice = async (
 
   await sendRawEmail({
     Source: sourceEmail,
-    Destination: {
-      ToAddresses: [toEmail],
-    },
+    Destinations: [toEmail],
     RawMessage: {
       Data: Uint8Array.from(Buffer.from(emailContent)),
     },

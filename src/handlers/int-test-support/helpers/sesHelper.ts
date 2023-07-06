@@ -9,10 +9,8 @@ export type RawMessage = {
 };
 
 export type RawEmailParams = {
-  Source: string;
-  Destination: {
-    ToAddresses: string[];
-  };
+  Source?: string;
+  Destinations?: string[];
   RawMessage: RawMessage;
 };
 
