@@ -2,6 +2,7 @@ import { Request, RequestHandler } from "express";
 import { contractsParamsGetter } from "./handlers/contracts";
 import { invoicesParamsGetter } from "./handlers/invoices";
 import { invoiceParamsGetter } from "./handlers/invoice";
+import path from "node:path";
 
 export type PageParamsGetter<TQuery> = (
   request: Request<unknown, unknown, unknown, TQuery>
@@ -20,7 +21,8 @@ export interface Page<TQuery> {
 }
 
 export const getPagePath = (page: Page<any>): string => {
-  return page.parent ? getPathRecursive(page) : "/";
+  const parentPath = page.parent ? getPagePath(page.parent) : "/";
+  return path.join(parentPath, page.relativePath);
 };
 
 const getBreadcrumbData = (
@@ -54,12 +56,6 @@ export const getHandler = (page: Page<any>): RequestHandler => {
   return async (request, response) => {
     response.render(page.njk, await getPageParams(page, request));
   };
-};
-
-const getPathRecursive = (page: Page<any>): string => {
-  return (
-    (page.parent ? getPathRecursive(page.parent) + "/" : "") + page.relativePath
-  );
 };
 
 const indexOptionsGetter: PageParamsGetter<{}> = (_) => ({});
