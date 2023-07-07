@@ -1,4 +1,5 @@
-import { getPagePath, Page } from "./pages";
+import { NextFunction, Request, RequestHandler, Response } from "express";
+import { getHandler, getPagePath, Page } from "./pages";
 
 describe("Page", () => {
   const homePage: Page<{}> = {
@@ -29,10 +30,42 @@ describe("Page", () => {
     parent: childPage1,
   };
 
-  test("getPath", () => {
+  test("getPagePath", () => {
     expect(getPagePath(homePage)).toEqual("/");
     expect(getPagePath(childPage1)).toEqual("/child1");
     expect(getPagePath(childPage2)).toEqual("/child2");
     expect(getPagePath(grandchildPage1)).toEqual("/child1/grandchild1");
+  });
+
+  test("getHandler", async () => {
+    const getPageParams = jest
+      .fn()
+      .mockResolvedValue({ someField: "someValue" });
+
+    const myPage: Page<{}> = {
+      title: "myPage",
+      relativePath: "myPage",
+      paramsGetter: getPageParams,
+      njk: "myPage.njk",
+    };
+
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const mockedRequest: Request = {} as jest.MockedObject<Request>;
+
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const mockedResponse: Response = {
+      render: jest.fn(),
+    } as jest.MockedObject<Response>;
+
+    const mockedNextFunction: NextFunction =
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      {} as jest.MockedObject<NextFunction>;
+
+    const handler: RequestHandler = getHandler(myPage);
+    await handler(mockedRequest, mockedResponse, mockedNextFunction);
+
+    expect(mockedResponse.render).toHaveBeenCalledWith(myPage.njk, {
+      someField: "someValue",
+    });
   });
 });

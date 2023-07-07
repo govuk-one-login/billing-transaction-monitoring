@@ -25,30 +25,14 @@ export const getPagePath = (page: Page<any>): string => {
   return path.join(parentPath, page.relativePath);
 };
 
-const getBreadcrumbData = (
-  page: Page<any>
-): { items: Array<{ text: string; href: string }> } => {
-  const breadcrumbs: Array<{ text: string; href: string }> = [];
-  let currentPage: Page<any> | undefined = page.parent;
-  while (currentPage) {
-    breadcrumbs.unshift({
-      text: currentPage.title,
-      href: getPagePath(currentPage),
-    });
-    currentPage = currentPage.parent;
-  }
-  return { items: breadcrumbs };
-};
-
 const getPageParams = async <TParams>(
   page: Page<TParams>,
   request: Request<TParams, unknown, unknown, unknown>
 ): Promise<object> => {
   const options = await page.paramsGetter(request);
-  const breadcrumbData = getBreadcrumbData(page);
   return {
     ...options,
-    breadcrumbData,
+    // TODO breadcrumb data will be added here as part of BTM-648.
   };
 };
 
