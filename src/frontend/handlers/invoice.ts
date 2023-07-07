@@ -29,11 +29,11 @@ export const invoiceParamsGetter: PageParamsGetter<{
   month: string;
 }> = async (request) => {
   const [config, lineItems] = await Promise.all([
-    getContractAndVendorName(request.query.contract_id),
+    getContractAndVendorName(request.params.contract_id),
     getLineItems(
-      request.query.contract_id,
-      request.query.year,
-      request.query.month
+      request.params.contract_id,
+      request.params.year,
+      request.params.month
     ),
   ]);
 
@@ -83,16 +83,16 @@ export const invoiceParamsGetter: PageParamsGetter<{
       title:
         config.vendorName +
         " " +
-        MONTHS[Number(request.query.month) - 1] +
+        MONTHS[Number(request.params.month) - 1] +
         " " +
-        request.query.year +
+        request.params.year +
         " Invoice",
       status,
       vendorName: config.vendorName,
       contractName: config.contractName,
-      contractId: request.query.contract_id,
-      year: request.query.year,
-      month: request.query.month,
+      contractId: request.params.contract_id,
+      year: request.params.year,
+      month: request.params.month,
     },
   };
 };

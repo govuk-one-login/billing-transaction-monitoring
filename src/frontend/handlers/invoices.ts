@@ -5,14 +5,15 @@ import { PageParamsGetter } from "../pages";
 export const invoicesParamsGetter: PageParamsGetter<{
   contract_id: string;
 }> = async (request) => {
+  console.log(request);
   const [{ contractName, vendorName }, periods] = await Promise.all([
-    getContractAndVendorName(request.query.contract_id),
-    getContractPeriods(request.query.contract_id),
+    getContractAndVendorName(request.params.contract_id),
+    getContractPeriods(request.params.contract_id),
   ]);
 
   return {
     contract: {
-      id: request.query.contract_id,
+      id: request.params.contract_id,
       name: contractName,
       vendorName,
     },

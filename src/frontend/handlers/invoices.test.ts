@@ -52,7 +52,7 @@ describe("invoices handler", () => {
 
   test("Page displays months and years of invoices", async () => {
     const request = supertest(app);
-    const response = await request.get("/contracts/invoices?contract_id=1");
+    const response = await request.get(`/contracts/${contractId}/invoices`);
     expect(response.status).toBe(200);
     expect(response.text).toContain("Home");
     expect(response.text).toContain("Contracts");

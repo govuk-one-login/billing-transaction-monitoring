@@ -4,18 +4,18 @@ import { invoicesParamsGetter } from "./handlers/invoices";
 import { invoiceParamsGetter } from "./handlers/invoice";
 import path from "node:path";
 
-export type PageParamsGetter<TQuery> = (
-  request: Request<unknown, unknown, unknown, TQuery>
+export type PageParamsGetter<TParams> = (
+  request: Request<TParams, unknown, unknown, unknown>
 ) => object;
 
-export interface Page<TQuery> {
+export interface Page<TParams> {
   parent?: Page<any>;
 
   title: string;
 
   relativePath: string;
 
-  paramsGetter: PageParamsGetter<TQuery>;
+  paramsGetter: PageParamsGetter<TParams>;
 
   njk: string;
 }
@@ -40,9 +40,9 @@ const getBreadcrumbData = (
   return { items: breadcrumbs };
 };
 
-const getPageParams = async <TQuery>(
-  page: Page<TQuery>,
-  request: Request<unknown, unknown, unknown, TQuery>
+const getPageParams = async <TParams>(
+  page: Page<TParams>,
+  request: Request<TParams, unknown, unknown, unknown>
 ): Promise<object> => {
   const options = await page.paramsGetter(request);
   const breadcrumbData = getBreadcrumbData(page);
@@ -58,9 +58,9 @@ export const getHandler = (page: Page<any>): RequestHandler => {
   };
 };
 
-const indexOptionsGetter: PageParamsGetter<{}> = (_) => ({});
+const indexOptionsGetter: PageParamsGetter<any> = (_) => ({});
 
-const homePage: Page<{}> = {
+const homePage: Page<any> = {
   title: "Home",
   relativePath: "",
   njk: "index.njk",
@@ -78,7 +78,7 @@ const contractsPage: Page<{}> = {
 const invoicesPage: Page<{ contract_id: string }> = {
   title: "Invoices",
   parent: contractsPage,
-  relativePath: "invoices",
+  relativePath: ":contract_id/invoices",
   njk: "invoices.njk",
   paramsGetter: invoicesParamsGetter,
 };
@@ -86,7 +86,7 @@ const invoicesPage: Page<{ contract_id: string }> = {
 const invoicePage: Page<any> = {
   title: "Invoice",
   parent: invoicesPage,
-  relativePath: "invoice",
+  relativePath: ":year-:month",
   njk: "invoice.njk",
   paramsGetter: invoiceParamsGetter,
 };

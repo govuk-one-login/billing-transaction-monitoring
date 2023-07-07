@@ -57,7 +57,7 @@ describe("invoice handler", () => {
   test("Page displays invoice info", async () => {
     const request = supertest(app);
     const response = await request.get(
-      `/contracts/invoices/invoice?contract_id=${contractId}&year=2023&month=03`
+      `/contracts/${contractId}/invoices/2023-03`
     );
     expect(response.status).toBe(200);
     expect(response.text).toContain("Home");
@@ -72,7 +72,7 @@ describe("invoice handler", () => {
 
     const request = supertest(app);
     const response = await request.get(
-      "/contracts/invoices/invoice?contract_id=1&year=2023&month=03"
+      `/contracts/${contractId}/invoices/2023-03`
     );
     expect(response.status).toBe(200);
     expect(response.text).toContain("Invoice and events missing");
@@ -90,7 +90,7 @@ describe("invoice handler", () => {
 
     const request = supertest(app);
     const response = await request.get(
-      `/contracts/invoices/invoice?contract_id=${contractId}&year=2023&month=03`
+      `/contracts/${contractId}/invoices/2023-03`
     );
     expect(response.status).toBe(200);
     expect(response.text).toContain(MN_INVOICE_MISSING.bannerText);
@@ -110,7 +110,7 @@ describe("invoice handler", () => {
 
     const request = supertest(app);
     const response = await request.get(
-      `/contracts/invoices/invoice?contract_id=${contractId}&year=2023&month=03`
+      `/contracts/${contractId}/invoices/2023-03`
     );
     expect(response.status).toBe(200);
     expect(response.text).toContain(MN_EVENTS_MISSING.bannerText);
@@ -128,7 +128,7 @@ describe("invoice handler", () => {
 
     const request = supertest(app);
     const response = await request.get(
-      `/contracts/invoices/invoice?contract_id=${contractId}&year=2023&month=03`
+      `/contracts/${contractId}/invoices/2023-03`
     );
     expect(response.status).toBe(200);
     expect(response.text).toContain(MN_RATES_MISSING.bannerText);
@@ -143,7 +143,7 @@ describe("invoice handler", () => {
 
     const request = supertest(app);
     const response = await request.get(
-      `/contracts/invoices/invoice?contract_id=${contractId}&year=2023&month=03`
+      `/contracts/${contractId}/invoices/2023-03`
     );
     expect(response.status).toBe(200);
     expect(response.text).toContain(MN_UNEXPECTED_CHARGE.bannerText);
@@ -160,7 +160,7 @@ describe("invoice handler", () => {
 
     const request = supertest(app);
     const response = await request.get(
-      `/contracts/invoices/invoice?contract_id=${contractId}&year=2023&month=03`
+      `/contracts/${contractId}/invoices/2023-03`
     );
     expect(response.status).toBe(200);
     expect(response.text).toContain("Invoice above threshold");
@@ -178,7 +178,7 @@ describe("invoice handler", () => {
 
     const request = supertest(app);
     const response = await request.get(
-      `/contracts/invoices/invoice?contract_id=${contractId}&year=2023&month=03`
+      `/contracts/${contractId}/invoices/2023-03`
     );
     expect(response.status).toBe(200);
     expect(response.text).toContain("Invoice below threshold");
@@ -189,7 +189,7 @@ describe("invoice handler", () => {
     // No items are outside threshold in the default data set, so we should get the nominal message.
     const request = supertest(app);
     const response = await request.get(
-      `/contracts/invoices/invoice?contract_id=${contractId}&year=2023&month=03`
+      `/contracts/${contractId}/invoices/2023-03`
     );
     expect(response.status).toBe(200);
     expect(response.text).toContain("Invoice within threshold");
