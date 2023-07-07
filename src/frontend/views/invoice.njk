@@ -81,4 +81,25 @@
       </tbody>
     {% endfor %}
   </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Price</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Invoiced Price</th>
+        <th class="govuk-table__header" scope="col">Measured Price</th>
+        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
+      </tr>
+    </thead>
+    {% for row in reconciliationRows %}
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">{{ row.serviceName }}</td>
+          <td class="govuk-table__cell">{{ row.billingPrice }}</td>
+          <td class="govuk-table__cell">{{ row.transactionPrice }}</td>
+          <td class="govuk-table__cell">{{ row.priceDiscrepancy }}</td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
 {% endblock content %}

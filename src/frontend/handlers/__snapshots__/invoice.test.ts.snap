@@ -176,6 +176,27 @@ exports[`invoice handler Page displays invoice page header 1`] = `
       </tbody>
     
   </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Price</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Invoiced Price</th>
+        <th class="govuk-table__header" scope="col">Measured Price</th>
+        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
+      </tr>
+    </thead>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">£650.00</td>
+          <td class="govuk-table__cell"></td>
+          <td class="govuk-table__cell"></td>
+        </tr>
+      </tbody>
+    
+  </table>
 
         </main>
       </div>

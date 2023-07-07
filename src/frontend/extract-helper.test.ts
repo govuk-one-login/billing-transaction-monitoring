@@ -101,7 +101,7 @@ describe("extract helper", () => {
   });
 
   describe("getReconciliationRows", () => {
-    test("Should return the data for the Reconciliation Table when all billing and transaction data is available", async () => {
+    test("Should return the data for the Reconciliation Tables when all billing and transaction data is available", async () => {
       // Arrange
       const givenLineItems = [
         {
@@ -134,6 +134,8 @@ describe("extract helper", () => {
           },
           billingQuantity: "2",
           transactionQuantity: "11",
+          billingPrice: "£0.00",
+          transactionPrice: "£27.50",
         },
       ];
       // Act
@@ -142,7 +144,7 @@ describe("extract helper", () => {
       expect(result).toEqual(expectedReconciliationRow);
     });
 
-    test("Should return the data for the Reconciliation Table when Invoice data is missing", async () => {
+    test("Should return the data for the Reconciliation Tables when Invoice data is missing", async () => {
       // Arrange
       const givenLineItems = [
         {
@@ -175,6 +177,8 @@ describe("extract helper", () => {
           },
           billingQuantity: "Invoice data missing",
           transactionQuantity: "11",
+          billingPrice: "Invoice data missing",
+          transactionPrice: "£27.50",
         },
       ];
       // Act
@@ -183,7 +187,7 @@ describe("extract helper", () => {
       expect(result).toEqual(expectedReconciliationRow);
     });
 
-    test("Should return the data for the Reconciliation Table when transaction events are missing", async () => {
+    test("Should return the data for the Reconciliation Tables when transaction events are missing", async () => {
       // Arrange
       const givenLineItems = [
         {
@@ -216,6 +220,8 @@ describe("extract helper", () => {
           },
           billingQuantity: "300",
           transactionQuantity: "Events missing",
+          billingPrice: "£96",
+          transactionPrice: "Events missing",
         },
       ];
       // Act
@@ -236,7 +242,7 @@ describe("extract helper", () => {
           year: "2005",
           month: "02",
           billing_price_formatted: "£27.50",
-          transaction_price_formatted: "0.00",
+          transaction_price_formatted: "£0.00",
           price_difference: "£27.50",
           billing_quantity: "11",
           transaction_quantity: "2",
@@ -253,7 +259,7 @@ describe("extract helper", () => {
           year: "2005",
           month: "02",
           billing_price_formatted: "£100.00",
-          transaction_price_formatted: "100.00",
+          transaction_price_formatted: "£100.00",
           price_difference: "£0.00",
           billing_quantity: "11",
           transaction_quantity: "11",
@@ -274,6 +280,8 @@ describe("extract helper", () => {
           },
           billingQuantity: "11",
           transactionQuantity: "2",
+          billingPrice: "£27.50",
+          transactionPrice: "£0.00",
         },
         {
           serviceName: "Standard Charge",
@@ -286,6 +294,8 @@ describe("extract helper", () => {
           },
           billingQuantity: "11",
           transactionQuantity: "11",
+          billingPrice: "£100.00",
+          transactionPrice: "£100.00",
         },
       ];
       // Act
