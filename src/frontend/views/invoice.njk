@@ -26,11 +26,11 @@
     {{ invoice.vendorName + " " + invoice.prettyMonth + " " + invoice.year + " Invoice" }}
   </h1>
   {{ govukPanel({
-    titleText: invoice.status,
+    titleText: invoiceStatus,
     html: "Reference number
     <br>
     <strong>" + invoice.contractName + "</strong>",
-    classes: classes
+    classes: bannerClass
     }) }}
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Reconciliation</caption>
