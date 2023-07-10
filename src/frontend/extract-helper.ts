@@ -81,19 +81,6 @@ const getDashboardExtract = async (): Promise<FullExtractLineItem[]> => {
   return JSON.parse(jsonArray);
 };
 
-// Note that these are just the special cases that we want to show a warning for --
-// MN_NO_CHARGE is also a possible value in a line item but, it doesn't cause a warning.
-const WARNINGS_BY_PRIORITY = [
-  MN_INVOICE_MISSING,
-  MN_EVENTS_MISSING,
-  MN_RATES_MISSING,
-  MN_UNEXPECTED_CHARGE,
-];
-
-const WARNING_CODES = WARNINGS_BY_PRIORITY.map(
-  (warning) => warning.magicNumber
-);
-
 interface InvoiceBanner {
   status: string;
   bannerClass: string;
@@ -102,6 +89,19 @@ interface InvoiceBanner {
 export const getInvoiceBanner = (
   lineItems: FullExtractLineItem[]
 ): InvoiceBanner => {
+  // Note that these are just the special cases that we want to show a warning for --
+  // MN_NO_CHARGE is also a possible value in a line item but, it doesn't cause a warning.
+  const WARNINGS_BY_PRIORITY = [
+    MN_INVOICE_MISSING,
+    MN_EVENTS_MISSING,
+    MN_RATES_MISSING,
+    MN_UNEXPECTED_CHARGE,
+  ];
+
+  const WARNING_CODES = WARNINGS_BY_PRIORITY.map(
+    (warning) => warning.magicNumber
+  );
+
   let status;
   let bannerClass;
   if (lineItems.length === 0) {

@@ -1,9 +1,16 @@
 import {
   getContractPeriods,
+  getInvoiceBanner,
   getLineItems,
   getReconciliationRows,
 } from "./extract-helper";
 import { fetchS3 } from "../shared/utils";
+import {
+  MN_EVENTS_MISSING,
+  MN_INVOICE_MISSING,
+  MN_RATES_MISSING,
+  MN_UNEXPECTED_CHARGE,
+} from "./frontend-utils";
 
 jest.mock("../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
@@ -20,30 +27,58 @@ describe("extract helper", () => {
     return `{"month":"${month}", "year":"${year}", "contract_id":"${contractId}", "vendor_id": "${prefix}_vendor_id", "vendor_name": "${prefix} vendor_name", "service_name": "${prefix} service_name", "contract_name": "${prefix} contract_name", "billing_price_formatted": "${prefix} bpf", "transaction_price_formatted": "${prefix} tpf", "price_difference": "${prefix} pd", "billing_quantity":"2", "transaction_quantity":"11", "quantity_difference":"-9", "billing_amount_with_tax": "${prefix} bawt", "price_difference_percentage": "${prefix} pdp"}`;
   };
 
+  const buildLineItem = <T>(
+    lineItem: T,
+    updates: Array<[keyof T, T[keyof T]]>
+  ): T => {
+    const updatedLineItem = { ...lineItem };
+    updates.forEach(([field, value]) => {
+      updatedLineItem[field] = value;
+    });
+    return updatedLineItem;
+  };
+
+  const lineItem = {
+    vendor_id: "vendor_testvendor4",
+    vendor_name: "Vendor Four",
+    service_name: "Passport check",
+    contract_id: "4",
+    contract_name: "FOOBAR1",
+    year: "2005",
+    month: "02",
+    billing_price_formatted: "£0.00",
+    transaction_price_formatted: "£27.50",
+    price_difference: "£-27.50",
+    billing_quantity: "2",
+    transaction_quantity: "11",
+    quantity_difference: "-9",
+    billing_amount_with_tax: "",
+    price_difference_percentage: "",
+  };
+
   beforeEach(() => {
     process.env = {
       STORAGE_BUCKET: "given storage bucket",
     };
-
-    contractId = "1";
-
-    mockedFetchS3.mockResolvedValue(
-      fakeDataRow("2023", "03", "1", "test1") +
-        "\n" +
-        fakeDataRow("2023", "03", "2", "test1") +
-        "\n" +
-        fakeDataRow("2023", "04", "1", "test1") +
-        "\n" +
-        fakeDataRow("2023", "05", "1", "test1") +
-        "\n" +
-        fakeDataRow("2023", "05", "1", "test2") +
-        "\n" +
-        fakeDataRow("2023", "06", "1", "test1")
-    );
   });
 
   describe("getContractPeriods", () => {
     test("should return the month, year and prettyMonth", async () => {
+      // Arrange
+      contractId = "1";
+      mockedFetchS3.mockResolvedValue(
+        fakeDataRow("2023", "03", contractId, "test1") +
+          "\n" +
+          fakeDataRow("2023", "03", "2", "test1") +
+          "\n" +
+          fakeDataRow("2023", "04", contractId, "test1") +
+          "\n" +
+          fakeDataRow("2023", "05", contractId, "test1") +
+          "\n" +
+          fakeDataRow("2023", "05", contractId, "test2") +
+          "\n" +
+          fakeDataRow("2023", "06", contractId, "test1")
+      );
       // Act
       const result = await getContractPeriods(contractId);
       // Assert
@@ -57,7 +92,18 @@ describe("extract helper", () => {
   });
 
   describe("getLineItems", () => {
-    test("should return the month, year and prettyMonth", async () => {
+    test("should return the line items for a given contract id, year and month", async () => {
+      // Arrange
+      contractId = "1";
+      mockedFetchS3.mockResolvedValue(
+        fakeDataRow("2023", "03", contractId, "test1") +
+          "\n" +
+          fakeDataRow("2023", "04", contractId, "test1") +
+          "\n" +
+          fakeDataRow("2023", "05", contractId, "test1") +
+          "\n" +
+          fakeDataRow("2023", "05", contractId, "test2")
+      );
       // Act
       const result = await getLineItems(contractId, "2023", "05");
       // Assert
@@ -100,28 +146,171 @@ describe("extract helper", () => {
     });
   });
 
+  describe("getInvoiceBanner", () => {
+    test("should return the expected message and warning banner class if there are no line items", () => {
+      // Act
+      const result = getInvoiceBanner([]);
+      // Assert
+      expect(result).toEqual({
+        bannerClass: "warning",
+        status: "Invoice and events missing",
+      });
+    });
+
+    test("should return the expected invoice status and the warning banner class when Invoice data is missing", () => {
+      // Arrange
+      // There are multiple different line items with problems, but only the invoice
+      // missing message should appear as it's the highest priority.
+      const givenLineItems = [
+        buildLineItem(lineItem, [
+          ["price_difference_percentage", MN_RATES_MISSING.magicNumber],
+        ]),
+        buildLineItem(lineItem, [
+          ["price_difference_percentage", MN_INVOICE_MISSING.magicNumber],
+        ]),
+        buildLineItem(lineItem, [
+          ["price_difference_percentage", MN_EVENTS_MISSING.magicNumber],
+        ]),
+        buildLineItem(lineItem, [
+          ["price_difference_percentage", MN_UNEXPECTED_CHARGE.magicNumber],
+        ]),
+        buildLineItem(lineItem, [["price_difference_percentage", "0.00"]]),
+      ];
+      // Act
+      const result = getInvoiceBanner(givenLineItems);
+      // Assert
+      expect(result).toEqual({
+        bannerClass: "warning",
+        status: "Invoice data missing",
+      });
+    });
+
+    test("should return the expected invoice status and the warning banner class when events data is missing", () => {
+      // Arrange
+      // There are multiple different line items with problems, but only the events
+      // missing message should appear as it has higher priority than the others.
+      const givenLineItems = [
+        buildLineItem(lineItem, [
+          ["price_difference_percentage", MN_RATES_MISSING.magicNumber],
+        ]),
+        buildLineItem(lineItem, [
+          ["price_difference_percentage", MN_EVENTS_MISSING.magicNumber],
+        ]),
+        buildLineItem(lineItem, [
+          ["price_difference_percentage", MN_UNEXPECTED_CHARGE.magicNumber],
+        ]),
+        buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
+      ];
+      // Act
+      const result = getInvoiceBanner(givenLineItems);
+      // Assert
+      expect(result).toEqual({
+        bannerClass: "warning",
+        status: "Events missing",
+      });
+    });
+
+    test("should return the expected invoice status and the warning banner class when rates are missing", () => {
+      // Arrange
+      // There are two different line items with problems, but only the rates
+      // missing message should appear as it has higher priority than the other.
+      const givenLineItems = [
+        buildLineItem(lineItem, [
+          ["price_difference_percentage", MN_UNEXPECTED_CHARGE.magicNumber],
+        ]),
+        buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
+        buildLineItem(lineItem, [
+          ["price_difference_percentage", MN_RATES_MISSING.magicNumber],
+        ]),
+      ];
+      // Act
+      const result = getInvoiceBanner(givenLineItems);
+      // Assert
+      expect(result).toEqual({
+        bannerClass: "warning",
+        status: "Unable to find rate",
+      });
+    });
+
+    test("should return the expected invoice status and the warning banner class when rates are missing", () => {
+      // Arrange
+      // The unexpected charge line should take precedence over the line item that's over threshold.
+      const givenLineItems = [
+        buildLineItem(lineItem, [
+          ["price_difference_percentage", MN_UNEXPECTED_CHARGE.magicNumber],
+        ]),
+        buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
+        buildLineItem(lineItem, [["price_difference_percentage", "-2"]]),
+      ];
+      // Act
+      const result = getInvoiceBanner(givenLineItems);
+      // Assert
+      expect(result).toEqual({
+        bannerClass: "warning",
+        status: "Unexpected invoice charge",
+      });
+    });
+
+    test("should return the expected invoice status and the error banner class when there is a line item above threshold ", () => {
+      // Arrange
+      // The single line item that's over threshold should cause the warning
+      // even though the other line items are okay or below threshold.
+      const givenLineItems = [
+        buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
+        buildLineItem(lineItem, [["price_difference_percentage", "0"]]),
+        buildLineItem(lineItem, [["price_difference_percentage", "-2"]]),
+      ];
+      // Act
+      const result = getInvoiceBanner(givenLineItems);
+      // Assert
+      expect(result).toEqual({
+        bannerClass: "error",
+        status: "Invoice above threshold",
+      });
+    });
+
+    test("should return the expected invoice status and the notice banner class when there is a line item below threshold ", () => {
+      // Arrange
+      // The single line item that's below threshold should cause the warning
+      // even though the other line items are within threshold.
+      const givenLineItems = [
+        buildLineItem(lineItem, [["price_difference_percentage", "0.35"]]),
+        buildLineItem(lineItem, [["price_difference_percentage", "0.00"]]),
+        buildLineItem(lineItem, [["price_difference_percentage", "-2"]]),
+      ];
+      // Act
+      const result = getInvoiceBanner(givenLineItems);
+      // Assert
+      expect(result).toEqual({
+        bannerClass: "notice",
+        status: "Invoice below threshold",
+      });
+    });
+
+    test("should return the expected invoice status and the payable banner class when there is a line item within threshold ", () => {
+      // Arrange
+      // No items are outside threshold in the default data set, so we should get the nominal message.
+      const givenLineItems = [
+        buildLineItem(lineItem, [["price_difference_percentage", "0.35"]]),
+        buildLineItem(lineItem, [["price_difference_percentage", "0.00"]]),
+      ];
+      // Act
+      const result = getInvoiceBanner(givenLineItems);
+      // Assert
+      expect(result).toEqual({
+        bannerClass: "payable",
+        status: "Invoice within threshold",
+      });
+    });
+  });
+
   describe("getReconciliationRows", () => {
     test("Should return the data for the Reconciliation Tables when all billing and transaction data is available", async () => {
       // Arrange
       const givenLineItems = [
-        {
-          vendor_id: "vendor_testvendor4",
-          vendor_name: "Vendor Four",
-          service_name: "Passport check",
-          contract_id: "4",
-          contract_name: "FOOBAR1",
-          year: "2005",
-          month: "02",
-          billing_price_formatted: "£0.00",
-          transaction_price_formatted: "£27.50",
-          price_difference: "£-27.50",
-          billing_quantity: "2",
-          transaction_quantity: "11",
-          quantity_difference: "-9",
-          billing_amount_with_tax: "",
-          price_difference_percentage: "-100.0",
-        },
+        buildLineItem(lineItem, [["price_difference_percentage", "-100.0"]]),
       ];
+
       const expectedReconciliationRow = [
         {
           serviceName: "Passport check",
@@ -147,24 +336,15 @@ describe("extract helper", () => {
     test("Should return the data for the Reconciliation Tables when Invoice data is missing", async () => {
       // Arrange
       const givenLineItems = [
-        {
-          vendor_id: "vendor_testvendor4",
-          vendor_name: "Vendor Four",
-          service_name: "Passport check",
-          contract_id: "4",
-          contract_name: "FOOBAR1",
-          year: "2005",
-          month: "02",
-          billing_price_formatted: "",
-          transaction_price_formatted: "£27.50",
-          price_difference: "",
-          billing_quantity: "",
-          transaction_quantity: "11",
-          quantity_difference: "",
-          billing_amount_with_tax: "",
-          price_difference_percentage: "-1234567.03",
-        },
+        buildLineItem(lineItem, [
+          ["billing_price_formatted", ""],
+          ["price_difference", ""],
+          ["billing_quantity", ""],
+          ["quantity_difference", ""],
+          ["price_difference_percentage", "-1234567.03"], // MN for Invoice data missing
+        ]),
       ];
+
       const expectedReconciliationRow = [
         {
           serviceName: "Passport check",
@@ -190,23 +370,16 @@ describe("extract helper", () => {
     test("Should return the data for the Reconciliation Tables when transaction events are missing", async () => {
       // Arrange
       const givenLineItems = [
-        {
-          vendor_id: "vendor_testvendor4",
-          vendor_name: "Vendor Four",
-          service_name: "Passport check",
-          contract_id: "4",
-          contract_name: "FOOBAR1",
-          year: "2005",
-          month: "02",
-          billing_price_formatted: "£96",
-          transaction_price_formatted: "",
-          price_difference: "",
-          billing_quantity: "300",
-          transaction_quantity: "",
-          quantity_difference: "",
-          billing_amount_with_tax: "£116.10",
-          price_difference_percentage: "-1234567.04",
-        },
+        buildLineItem(lineItem, [
+          ["billing_price_formatted", "£96"],
+          ["billing_quantity", "300"],
+          ["transaction_price_formatted", ""],
+          ["price_difference", ""],
+          ["transaction_quantity", ""],
+          ["quantity_difference", ""],
+          ["billing_amount_with_tax", "£116.10"],
+          ["price_difference_percentage", "-1234567.04"], // MN for Events missing
+        ]),
       ];
       const expectedReconciliationRow = [
         {
@@ -233,40 +406,28 @@ describe("extract helper", () => {
     test("Should return the data for the Reconciliation Table when there are two line items, one with an unexpected invoice charge and one within threshold.", async () => {
       // Arrange
       const givenLineItems = [
-        {
-          vendor_id: "vendor_testvendor4",
-          vendor_name: "Vendor Four",
-          service_name: "Passport check",
-          contract_id: "4",
-          contract_name: "FOOBAR1",
-          year: "2005",
-          month: "02",
-          billing_price_formatted: "£27.50",
-          transaction_price_formatted: "£0.00",
-          price_difference: "£27.50",
-          billing_quantity: "11",
-          transaction_quantity: "2",
-          quantity_difference: "9",
-          billing_amount_with_tax: "£30.00",
-          price_difference_percentage: "-1234567.05",
-        },
-        {
-          vendor_id: "vendor_testvendor4",
-          vendor_name: "Vendor Four",
-          service_name: "Standard Charge",
-          contract_id: "4",
-          contract_name: "FOOBAR1",
-          year: "2005",
-          month: "02",
-          billing_price_formatted: "£100.00",
-          transaction_price_formatted: "£100.00",
-          price_difference: "£0.00",
-          billing_quantity: "11",
-          transaction_quantity: "11",
-          quantity_difference: "0",
-          billing_amount_with_tax: "£105.00",
-          price_difference_percentage: "0.0",
-        },
+        buildLineItem(lineItem, [
+          ["service_name", "Passport check"],
+          ["billing_price_formatted", "£27.50"],
+          ["billing_quantity", "11"],
+          ["transaction_price_formatted", "£0.00"],
+          ["price_difference", "£27.50"],
+          ["transaction_quantity", "2"],
+          ["quantity_difference", "9"],
+          ["billing_amount_with_tax", "£30.00"],
+          ["price_difference_percentage", "-1234567.05"], // MN for unexpected charge
+        ]),
+        buildLineItem(lineItem, [
+          ["service_name", "Standard Charge"],
+          ["billing_price_formatted", "£100.00"],
+          ["billing_quantity", "11"],
+          ["transaction_price_formatted", "£100.00"],
+          ["price_difference", "£0.00"],
+          ["transaction_quantity", "11"],
+          ["quantity_difference", "0"],
+          ["billing_amount_with_tax", "£105.00"],
+          ["price_difference_percentage", "0.0"],
+        ]),
       ];
       const expectedReconciliationRow = [
         {
