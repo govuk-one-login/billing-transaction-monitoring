@@ -1,5 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
-import { getHandler, getPagePath, Page } from "./pages";
+import { getHandler, getRoute, Page } from "./pages";
 
 describe("Page", () => {
   const homePage: Page<{}> = {
@@ -31,10 +31,10 @@ describe("Page", () => {
   };
 
   test("getPagePath", () => {
-    expect(getPagePath(homePage)).toEqual("/");
-    expect(getPagePath(childPage1)).toEqual("/child1");
-    expect(getPagePath(childPage2)).toEqual("/child2");
-    expect(getPagePath(grandchildPage1)).toEqual("/child1/grandchild1");
+    expect(getRoute(homePage)).toEqual("/");
+    expect(getRoute(childPage1)).toEqual("/child1");
+    expect(getRoute(childPage2)).toEqual("/child2");
+    expect(getRoute(grandchildPage1)).toEqual("/child1/grandchild1");
   });
 
   test("getHandler", async () => {

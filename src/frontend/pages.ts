@@ -20,9 +20,39 @@ export interface Page<TParams> {
   njk: string;
 }
 
-export const getPagePath = (page: Page<any>): string => {
-  const parentPath = page.parent ? getPagePath(page.parent) : "/";
+export const getRoute = (page: Page<any>): string => {
+  const parentPath = page.parent ? getRoute(page.parent) : "/";
   return path.join(parentPath, page.relativePath);
+};
+
+const getUrl = <TParams>(
+  page: Page<any>,
+  request: Request<TParams, unknown, unknown, unknown>
+): string => {
+  const parentRoute = page.parent ? getRoute(page.parent) : "/";
+  let url = path.join(parentRoute, page.relativePath);
+  const regex = /:([A-Za-z_]+)/;
+  const params = request.params as Record<string, string>;
+  while (url.match(regex)) {
+    url = url.replace(regex, (a, b) => params[b]);
+  }
+  return url;
+};
+
+const getBreadcrumbData = <TParams>(
+  page: Page<any>,
+  request: Request<TParams, unknown, unknown, unknown>
+): { items: Array<{ text: string; href: string }> } => {
+  const breadcrumbs: Array<{ text: string; href: string }> = [];
+  let currentPage: Page<any> | undefined = page.parent;
+  while (currentPage) {
+    breadcrumbs.unshift({
+      text: currentPage.title,
+      href: getUrl(currentPage, request),
+    });
+    currentPage = currentPage.parent;
+  }
+  return { items: breadcrumbs };
 };
 
 const getPageParams = async <TParams>(
@@ -30,9 +60,10 @@ const getPageParams = async <TParams>(
   request: Request<TParams, unknown, unknown, unknown>
 ): Promise<object> => {
   const options = await page.paramsGetter(request);
+  const breadcrumbData = getBreadcrumbData(page, request);
   return {
     ...options,
-    // TODO breadcrumb data will be added here as part of BTM-648.
+    breadcrumbData,
   };
 };
 
