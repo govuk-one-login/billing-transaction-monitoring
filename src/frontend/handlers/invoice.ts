@@ -21,20 +21,17 @@ export const getInvoiceHandler: RequestHandler<
       request.query.month
     ),
   ]);
-  console.log("line items", lineItems);
+
   const invoiceBanner = getInvoiceBanner(lineItems);
-  console.log("invoiceBanner", invoiceBanner);
+
   const reconciliationRows = getReconciliationRows(lineItems);
 
   response.render("invoice.njk", {
-    invoice: {
-      vendorName: config.vendorName,
-      contractName: config.contractName,
-      contractId: request.query.contract_id,
-      year: request.query.year,
-      prettyMonth: MONTHS[Number(request.query.month) - 1],
-      month: request.query.month,
-    },
+    vendorName: config.vendorName,
+    contractName: config.contractName,
+    contractId: request.query.contract_id,
+    year: request.query.year,
+    prettyMonth: MONTHS[Number(request.query.month) - 1],
     bannerClass: invoiceBanner.bannerClass,
     invoiceStatus: invoiceBanner.status,
     reconciliationRows,

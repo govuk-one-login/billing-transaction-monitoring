@@ -15,21 +15,19 @@
     href: "/contracts"
     },
     {
-    text: invoice.contractName + " - " + invoice.vendorName,
-    href: "/invoices?contract_id=" + invoice.contractId
+    text: contractName + " - " + vendorName,
+    href: "/invoices?contract_id=" + contractId
     }
     ]
     }) }}
 {% endblock beforeContent %}
 {% block content %}
-  <h1 class="govuk-heading-xl">
-    {{ invoice.vendorName + " " + invoice.prettyMonth + " " + invoice.year + " Invoice" }}
-  </h1>
+  <h1 class="govuk-heading-xl">{{ vendorName + " " + prettyMonth + " " + year + " Invoice" }}</h1>
   {{ govukPanel({
     titleText: invoiceStatus,
     html: "Reference number
     <br>
-    <strong>" + invoice.contractName + "</strong>",
+    <strong>" + contractName + "</strong>",
     classes: bannerClass
     }) }}
   <table class="govuk-table">
@@ -98,6 +96,23 @@
           <td class="govuk-table__cell">{{ row.billingPrice }}</td>
           <td class="govuk-table__cell">{{ row.transactionPrice }}</td>
           <td class="govuk-table__cell">{{ row.priceDiscrepancy }}</td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Measured (events)</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Quantity</th>
+      </tr>
+    </thead>
+    {% for row in reconciliationRows %}
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">{{ row.serviceName }}</td>
+          <td class="govuk-table__cell">{{ row.transactionQuantity }}</td>
         </tr>
       </tbody>
     {% endfor %}
