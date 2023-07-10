@@ -4,22 +4,7 @@
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% extends "common/layout/base.njk" %}
 {% block beforeContent %}
-  {{ govukBreadcrumbs({
-    items: [
-    {
-    text: "Home",
-    href: "/"
-    },
-    {
-    text: "Contracts",
-    href: "/contracts"
-    },
-    {
-    text: invoice.contractName + " - " + invoice.vendorName,
-    href: "/invoices?contract_id=" + invoice.contractId
-    }
-    ]
-    }) }}
+  {{ govukBreadcrumbs(breadcrumbData) }}
 {% endblock beforeContent %}
 {% block content %}
   <h1 class="govuk-heading-xl">

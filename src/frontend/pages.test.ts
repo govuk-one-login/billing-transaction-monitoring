@@ -1,6 +1,12 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { getHandler, getRoute, Page } from "./pages";
 
+// export const invoicesParamsGetter: PageParamsGetter<{
+//   contract_id: string;
+// }> = async (request) => {
+//
+// };
+
 describe("Page", () => {
   const homePage: Page<{}> = {
     title: "homePage",
@@ -8,47 +14,38 @@ describe("Page", () => {
     njk: "",
     paramsGetter: async (_) => {},
   };
-  const childPage1: Page<{}> = {
-    title: "child1",
-    relativePath: "child1",
+  const childType1Page: Page<{}> = {
+    title: ":some_id/childType1",
+    relativePath: "childType1",
     paramsGetter: async (_) => {},
     njk: "",
     parent: homePage,
   };
-  const childPage2: Page<{}> = {
-    title: "child2",
-    relativePath: "child2",
+  const childType2Page: Page<{}> = {
+    title: "childType2",
+    relativePath: "childType2",
     paramsGetter: async (_) => {},
     njk: "",
     parent: homePage,
   };
-  const grandchildPage1: Page<{}> = {
-    title: "grandchild1",
-    relativePath: "grandchild1",
-    paramsGetter: async (_) => {},
-    njk: "",
-    parent: childPage1,
+  const grandchildTypePage: Page<{}> = {
+    title: "grandchildType",
+    relativePath: "grandchildType",
+    paramsGetter: jest.fn().mockResolvedValue({ some_id: "someValue" }),
+    njk: "grandchild.njk",
+    parent: childType1Page,
   };
 
-  test("getPagePath", () => {
+  test("getRoute", () => {
     expect(getRoute(homePage)).toEqual("/");
-    expect(getRoute(childPage1)).toEqual("/child1");
-    expect(getRoute(childPage2)).toEqual("/child2");
-    expect(getRoute(grandchildPage1)).toEqual("/child1/grandchild1");
+    expect(getRoute(childType1Page)).toEqual("/childType1");
+    expect(getRoute(childType2Page)).toEqual("/childType2");
+    expect(getRoute(grandchildTypePage)).toEqual(
+      "/childType1/:some_id/grandchildType"
+    );
   });
 
   test("getHandler", async () => {
-    const getPageParams = jest
-      .fn()
-      .mockResolvedValue({ someField: "someValue" });
-
-    const myPage: Page<{}> = {
-      title: "myPage",
-      relativePath: "myPage",
-      paramsGetter: getPageParams,
-      njk: "myPage.njk",
-    };
-
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const mockedRequest: Request = {} as jest.MockedObject<Request>;
 
@@ -61,10 +58,22 @@ describe("Page", () => {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       {} as jest.MockedObject<NextFunction>;
 
-    const handler: RequestHandler = getHandler(myPage);
+    const handler: RequestHandler = getHandler(grandchildTypePage);
     await handler(mockedRequest, mockedResponse, mockedNextFunction);
 
-    expect(mockedResponse.render).toHaveBeenCalledWith(myPage.njk, {
+    expect(mockedResponse.render).toHaveBeenCalledWith(grandchildTypePage.njk, {
+      breadcrumbData: {
+        items: [
+          {
+            href: "/",
+            text: "homePage",
+          },
+          {
+            href: "/childType1",
+            text: "/someId/childType1",
+          },
+        ],
+      },
       someField: "someValue",
     });
   });
