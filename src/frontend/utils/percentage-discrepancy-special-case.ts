@@ -1,40 +1,10 @@
-export const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-export class StatusLabel {
-  constructor(
-    public readonly statusMessage: string,
-    public readonly statusClasses: string
-  ) {}
-}
-export const STATUS_LABEL_WITHIN_THRESHOLD = new StatusLabel(
-  "Within Threshold",
-  "govuk-tag--green"
-);
-export const STATUS_LABEL_BELOW_THRESHOLD = new StatusLabel(
-  "Below Threshold",
-  "govuk-tag--blue"
-);
-export const STATUS_LABEL_ABOVE_THRESHOLD = new StatusLabel(
-  "Above Threshold",
-  "govuk-tag--red"
-);
-export const STATUS_LABEL_PENDING = new StatusLabel(
-  "Pending",
-  "govuk-tag--grey"
-);
-export const STATUS_LABEL_ERROR = new StatusLabel("Error", "govuk-tag--grey");
+import {
+  StatusLabel,
+  STATUS_LABEL_WITHIN_THRESHOLD,
+  STATUS_LABEL_ERROR,
+  STATUS_LABEL_PENDING,
+  STATUS_LABEL_ABOVE_THRESHOLD,
+} from "./status-label";
 
 export class PercentageDiscrepancySpecialCase {
   constructor(

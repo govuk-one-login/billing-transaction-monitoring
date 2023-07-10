@@ -7,7 +7,7 @@ import {
   STATUS_LABEL_ABOVE_THRESHOLD,
   STATUS_LABEL_BELOW_THRESHOLD,
   STATUS_LABEL_WITHIN_THRESHOLD,
-} from "../frontend-utils";
+} from "../utils";
 
 jest.mock("../../handler-context/context-builder");
 const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;

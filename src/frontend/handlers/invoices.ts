@@ -1,6 +1,8 @@
 import { RequestHandler } from "express";
-import { getContractAndVendorName } from "../config";
-import { getContractPeriods } from "../extract-helper";
+import {
+  getContractAndVendorName,
+  getContractPeriods,
+} from "../extract-helpers";
 
 export const getInvoicesHandler: RequestHandler<
   unknown,
