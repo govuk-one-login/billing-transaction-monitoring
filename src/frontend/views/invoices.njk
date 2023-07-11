@@ -4,8 +4,7 @@
   {{ govukBreadcrumbs(breadcrumbData) }}
 {% endblock beforeContent %}
 {% block content %}
-  <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
-  <h2 class="govuk-heading-m">{{ contract.name }} - {{ contract.vendorName }}</h2>
+  <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
   <ul class="govuk-list">
     {% for period in periods %}
       <li>

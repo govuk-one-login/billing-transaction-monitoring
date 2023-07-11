@@ -15,7 +15,7 @@ describe("Page", () => {
     paramsGetter: async (_) => {},
   };
   const childType1Page: Page<{}> = {
-    title: "childType1",
+    title: "ChildType1 :child_id Title",
     relativePath: ":child_id/childType1",
     paramsGetter: async (_) => {},
     njk: "",
@@ -73,7 +73,7 @@ describe("Page", () => {
             href: "/",
           },
           {
-            text: "childType1",
+            text: "ChildType1 someId Title",
             href: "/someId/childType1",
           },
         ],

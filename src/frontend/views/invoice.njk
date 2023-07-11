@@ -7,9 +7,7 @@
   {{ govukBreadcrumbs(breadcrumbData) }}
 {% endblock beforeContent %}
 {% block content %}
-  <h1 class="govuk-heading-xl">
-    {{ invoice.vendorName + " " + invoice.prettyMonth + " " + invoice.year + " Invoice" }}
-  </h1>
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
   {{ govukPanel({
     titleText: invoice.status,
     html: "Reference number

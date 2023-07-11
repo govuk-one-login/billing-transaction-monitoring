@@ -4,8 +4,7 @@
   {{ govukBreadcrumbs(breadcrumbData) }}
 {% endblock beforeContent %}
 {% block content %}
-  <h1 class="govuk-heading-l">Contracts</h1>
-  <h2 class="govuk-heading-m">Contract Numbers</h2>
+  <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
   <ul class="govuk-list">
     {% for contract in contracts %}
       <li>

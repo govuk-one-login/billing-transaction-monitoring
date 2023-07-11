@@ -12,6 +12,7 @@ export const invoicesParamsGetter: PageParamsGetter<{
   ]);
 
   return {
+    pageTitle: contractName + " - " + vendorName,
     contract: {
       id: request.params.contract_id,
       name: contractName,

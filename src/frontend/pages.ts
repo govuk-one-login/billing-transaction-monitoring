@@ -6,12 +6,10 @@ import path from "node:path";
 
 export type PageParamsGetter<TParams> = (
   request: Request<TParams, unknown, unknown, unknown>
-) => object;
+) => Promise<{ pageTitle: string; [key: string]: any }>;
 
 export interface Page<TParams> {
   parent?: Page<any>;
-
-  title: string;
 
   relativePath: string;
 
@@ -25,29 +23,43 @@ export const getRoute = (page: Page<any>): string => {
   return path.join(parentPath, page.relativePath);
 };
 
+const formatParams = <TParams>(
+  request: Request<TParams, unknown, unknown, unknown>,
+  s: string
+): string => {
+  const regex = /:([A-Za-z_]+)/;
+  const params = request.params as Record<string, string>;
+  while (s.match(regex)) {
+    s = s.replace(regex, (a, b) => params[b]);
+  }
+  return s;
+};
+
 const getUrl = <TParams>(
   page: Page<any>,
   request: Request<TParams, unknown, unknown, unknown>
 ): string => {
   const parentRoute = page.parent ? getRoute(page.parent) : "/";
-  let url = path.join(parentRoute, page.relativePath);
-  const regex = /:([A-Za-z_]+)/;
-  const params = request.params as Record<string, string>;
-  while (url.match(regex)) {
-    url = url.replace(regex, (a, b) => params[b]);
-  }
-  return url;
+  const url = path.join(parentRoute, page.relativePath);
+  return formatParams(request, url);
 };
 
-const getBreadcrumbData = <TParams>(
+const getTitle = async <TParams>(
   page: Page<any>,
   request: Request<TParams, unknown, unknown, unknown>
-): { items: Array<{ text: string; href: string }> } => {
+): Promise<string> => {
+  return (await page.paramsGetter(request)).pageTitle;
+};
+
+const getBreadcrumbData = async <TParams>(
+  page: Page<any>,
+  request: Request<TParams, unknown, unknown, unknown>
+): Promise<{ items: Array<{ text: string; href: string }> }> => {
   const breadcrumbs: Array<{ text: string; href: string }> = [];
   let currentPage: Page<any> | undefined = page.parent;
   while (currentPage) {
     breadcrumbs.unshift({
-      text: currentPage.title,
+      text: await getTitle(currentPage, request),
       href: getUrl(currentPage, request),
     });
     currentPage = currentPage.parent;
@@ -60,7 +72,7 @@ const getPageParams = async <TParams>(
   request: Request<TParams, unknown, unknown, unknown>
 ): Promise<object> => {
   const options = await page.paramsGetter(request);
-  const breadcrumbData = getBreadcrumbData(page, request);
+  const breadcrumbData = await getBreadcrumbData(page, request);
   return {
     ...options,
     breadcrumbData,
@@ -73,17 +85,19 @@ export const getHandler = (page: Page<any>): RequestHandler => {
   };
 };
 
-const indexOptionsGetter: PageParamsGetter<any> = (_) => ({});
+export const indexOptionsGetter: PageParamsGetter<any> = async (_) => {
+  return {
+    pageTitle: "Billings and reconciliation",
+  };
+};
 
 const homePage: Page<any> = {
-  title: "Home",
   relativePath: "",
   njk: "index.njk",
   paramsGetter: indexOptionsGetter,
 };
 
 const contractsPage: Page<{}> = {
-  title: "Contracts",
   parent: homePage,
   relativePath: "contracts",
   njk: "contracts.njk",
@@ -91,7 +105,6 @@ const contractsPage: Page<{}> = {
 };
 
 const invoicesPage: Page<{ contract_id: string }> = {
-  title: "Invoices",
   parent: contractsPage,
   relativePath: ":contract_id/invoices",
   njk: "invoices.njk",
@@ -99,7 +112,6 @@ const invoicesPage: Page<{ contract_id: string }> = {
 };
 
 const invoicePage: Page<any> = {
-  title: "Invoice",
   parent: invoicesPage,
   relativePath: ":year-:month",
   njk: "invoice.njk",
