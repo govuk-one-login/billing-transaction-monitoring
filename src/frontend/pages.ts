@@ -85,7 +85,7 @@ export const getHandler = (page: Page<any>): RequestHandler => {
   };
 };
 
-export const indexOptionsGetter: PageParamsGetter<any> = async (_) => ({
+const indexOptionsGetter: PageParamsGetter<any> = async (_) => ({
   pageTitle: "Billings and reconciliation",
 });
 
