@@ -1,14 +1,4 @@
-import {
-  StatusLabel,
-  MN_NO_CHARGE,
-  MN_INVOICE_MISSING,
-  MN_EVENTS_MISSING,
-  MN_RATES_MISSING,
-  MN_UNEXPECTED_CHARGE,
-  STATUS_LABEL_ABOVE_THRESHOLD,
-  STATUS_LABEL_BELOW_THRESHOLD,
-  STATUS_LABEL_WITHIN_THRESHOLD,
-} from "../utils";
+import { percentageDiscrepancySpecialCase, statusLabels } from "../utils";
 import { FullExtractLineItem } from "./types";
 
 interface ReconciliationRow {
@@ -16,7 +6,7 @@ interface ReconciliationRow {
   quantityDiscrepancy: string;
   priceDiscrepancy: string;
   percentageDiscrepancy: string;
-  status: StatusLabel;
+  status: { message: string; class: string };
   billingQuantity: string;
   transactionQuantity: string;
   billingPrice: string;
@@ -59,11 +49,11 @@ export const getReconciliationRows = (
 };
 
 const PERCENTAGE_DISCREPANCY = [
-  MN_NO_CHARGE,
-  MN_INVOICE_MISSING,
-  MN_EVENTS_MISSING,
-  MN_RATES_MISSING,
-  MN_UNEXPECTED_CHARGE,
+  percentageDiscrepancySpecialCase.MN_NO_CHARGE,
+  percentageDiscrepancySpecialCase.MN_INVOICE_MISSING,
+  percentageDiscrepancySpecialCase.MN_EVENTS_MISSING,
+  percentageDiscrepancySpecialCase.MN_RATES_MISSING,
+  percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE,
 ];
 
 const getPercentageDiscrepancyMessage = (
@@ -95,12 +85,16 @@ const getPrice = (price: string, percentageDiscrepancy: string): string => {
       )?.bannerText ?? "";
 };
 
-const getStatus = (percentageDiscrepancy: string): StatusLabel => {
+const getStatus = (
+  percentageDiscrepancy: string
+): { message: string; class: string } => {
   const warning = PERCENTAGE_DISCREPANCY.find(
     (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
   );
   if (warning) return warning.statusLabel;
-  if (+percentageDiscrepancy >= 1) return STATUS_LABEL_ABOVE_THRESHOLD;
-  if (+percentageDiscrepancy <= -1) return STATUS_LABEL_BELOW_THRESHOLD;
-  return STATUS_LABEL_WITHIN_THRESHOLD;
+  if (+percentageDiscrepancy >= 1)
+    return statusLabels.STATUS_LABEL_ABOVE_THRESHOLD;
+  if (+percentageDiscrepancy <= -1)
+    return statusLabels.STATUS_LABEL_BELOW_THRESHOLD;
+  return statusLabels.STATUS_LABEL_WITHIN_THRESHOLD;
 };

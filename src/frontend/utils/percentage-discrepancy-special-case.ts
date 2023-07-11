@@ -1,40 +1,29 @@
-import {
-  StatusLabel,
-  STATUS_LABEL_WITHIN_THRESHOLD,
-  STATUS_LABEL_ERROR,
-  STATUS_LABEL_PENDING,
-  STATUS_LABEL_ABOVE_THRESHOLD,
-} from "./status-label";
+import { statusLabels } from "./status-label";
 
-export class PercentageDiscrepancySpecialCase {
-  constructor(
-    public readonly magicNumber: string,
-    public readonly bannerText: string,
-    public readonly statusLabel: StatusLabel
-  ) {}
-}
-export const MN_NO_CHARGE = new PercentageDiscrepancySpecialCase(
-  "-1234567.01",
-  "No charge",
-  STATUS_LABEL_WITHIN_THRESHOLD
-);
-export const MN_RATES_MISSING = new PercentageDiscrepancySpecialCase(
-  "-1234567.02",
-  "Unable to find rate",
-  STATUS_LABEL_ERROR
-);
-export const MN_INVOICE_MISSING = new PercentageDiscrepancySpecialCase(
-  "-1234567.03",
-  "Invoice data missing",
-  STATUS_LABEL_PENDING
-);
-export const MN_EVENTS_MISSING = new PercentageDiscrepancySpecialCase(
-  "-1234567.04",
-  "Events missing",
-  STATUS_LABEL_ERROR
-);
-export const MN_UNEXPECTED_CHARGE = new PercentageDiscrepancySpecialCase(
-  "-1234567.05",
-  "Unexpected invoice charge",
-  STATUS_LABEL_ABOVE_THRESHOLD
-);
+export const percentageDiscrepancySpecialCase = {
+  MN_NO_CHARGE: {
+    magicNumber: "-1234567.01",
+    bannerText: "No charge",
+    statusLabel: statusLabels.STATUS_LABEL_WITHIN_THRESHOLD,
+  },
+  MN_RATES_MISSING: {
+    magicNumber: "-1234567.02",
+    bannerText: "Unable to find rate",
+    statusLabel: statusLabels.STATUS_LABEL_ERROR,
+  },
+  MN_INVOICE_MISSING: {
+    magicNumber: "-1234567.03",
+    bannerText: "Invoice data missing",
+    statusLabel: statusLabels.STATUS_LABEL_PENDING,
+  },
+  MN_EVENTS_MISSING: {
+    magicNumber: "-1234567.04",
+    bannerText: "Events missing",
+    statusLabel: statusLabels.STATUS_LABEL_ERROR,
+  },
+  MN_UNEXPECTED_CHARGE: {
+    magicNumber: "-1234567.05",
+    bannerText: "Unexpected invoice charge",
+    statusLabel: statusLabels.STATUS_LABEL_ABOVE_THRESHOLD,
+  },
+};

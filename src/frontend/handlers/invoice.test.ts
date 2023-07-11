@@ -3,11 +3,7 @@ import { app } from "../app";
 import { makeCtxConfig } from "../../handler-context/context-builder";
 import { initApp } from "../init-app";
 import { fetchS3 } from "../../shared/utils";
-import {
-  STATUS_LABEL_ABOVE_THRESHOLD,
-  STATUS_LABEL_BELOW_THRESHOLD,
-  STATUS_LABEL_WITHIN_THRESHOLD,
-} from "../utils";
+import { statusLabels } from "../utils";
 
 jest.mock("../../handler-context/context-builder");
 const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
@@ -76,12 +72,16 @@ describe("invoice handler", () => {
     expect(response.text).not.toContain("Invoice below threshold"); // banner
     expect(response.text).not.toContain("Invoice within threshold"); // banner
     expect(response.text).toContain("9.8814"); // percentage discrepancy in table
-    expect(response.text).toContain(STATUS_LABEL_ABOVE_THRESHOLD.statusMessage); // status in table for Above Threshold
+    expect(response.text).toContain(
+      statusLabels.STATUS_LABEL_ABOVE_THRESHOLD.message
+    ); // status in table for Above Threshold
     expect(response.text).toContain("-1.1235"); // percentage discrepancy in table
-    expect(response.text).toContain(STATUS_LABEL_BELOW_THRESHOLD.statusMessage); // status in table for Below Threshold
+    expect(response.text).toContain(
+      statusLabels.STATUS_LABEL_BELOW_THRESHOLD.message
+    ); // status in table for Below Threshold
     expect(response.text).toContain("0"); // percentage discrepancy in table
     expect(response.text).toContain(
-      STATUS_LABEL_WITHIN_THRESHOLD.statusMessage
+      statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.message
     ); // status in table for Within Threshold
     expect(response.text).toMatchSnapshot();
   });

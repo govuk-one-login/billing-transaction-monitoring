@@ -1,9 +1,4 @@
-import {
-  MN_RATES_MISSING,
-  MN_INVOICE_MISSING,
-  MN_EVENTS_MISSING,
-  MN_UNEXPECTED_CHARGE,
-} from "../utils";
+import { percentageDiscrepancySpecialCase } from "../utils";
 import { getInvoiceBanner } from "./get-invoice-banner";
 import { buildLineItem } from "./test-builders";
 
@@ -42,16 +37,28 @@ describe("getInvoiceBanner", () => {
     // missing message should appear as it's the highest priority.
     const givenLineItems = [
       buildLineItem(lineItem, [
-        ["price_difference_percentage", MN_RATES_MISSING.magicNumber],
+        [
+          "price_difference_percentage",
+          percentageDiscrepancySpecialCase.MN_RATES_MISSING.magicNumber,
+        ],
       ]),
       buildLineItem(lineItem, [
-        ["price_difference_percentage", MN_INVOICE_MISSING.magicNumber],
+        [
+          "price_difference_percentage",
+          percentageDiscrepancySpecialCase.MN_INVOICE_MISSING.magicNumber,
+        ],
       ]),
       buildLineItem(lineItem, [
-        ["price_difference_percentage", MN_EVENTS_MISSING.magicNumber],
+        [
+          "price_difference_percentage",
+          percentageDiscrepancySpecialCase.MN_EVENTS_MISSING.magicNumber,
+        ],
       ]),
       buildLineItem(lineItem, [
-        ["price_difference_percentage", MN_UNEXPECTED_CHARGE.magicNumber],
+        [
+          "price_difference_percentage",
+          percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE.magicNumber,
+        ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "0.00"]]),
     ];
@@ -70,13 +77,22 @@ describe("getInvoiceBanner", () => {
     // missing message should appear as it has higher priority than the others.
     const givenLineItems = [
       buildLineItem(lineItem, [
-        ["price_difference_percentage", MN_RATES_MISSING.magicNumber],
+        [
+          "price_difference_percentage",
+          percentageDiscrepancySpecialCase.MN_RATES_MISSING.magicNumber,
+        ],
       ]),
       buildLineItem(lineItem, [
-        ["price_difference_percentage", MN_EVENTS_MISSING.magicNumber],
+        [
+          "price_difference_percentage",
+          percentageDiscrepancySpecialCase.MN_EVENTS_MISSING.magicNumber,
+        ],
       ]),
       buildLineItem(lineItem, [
-        ["price_difference_percentage", MN_UNEXPECTED_CHARGE.magicNumber],
+        [
+          "price_difference_percentage",
+          percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE.magicNumber,
+        ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
     ];
@@ -95,11 +111,17 @@ describe("getInvoiceBanner", () => {
     // missing message should appear as it has higher priority than the other.
     const givenLineItems = [
       buildLineItem(lineItem, [
-        ["price_difference_percentage", MN_UNEXPECTED_CHARGE.magicNumber],
+        [
+          "price_difference_percentage",
+          percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE.magicNumber,
+        ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
       buildLineItem(lineItem, [
-        ["price_difference_percentage", MN_RATES_MISSING.magicNumber],
+        [
+          "price_difference_percentage",
+          percentageDiscrepancySpecialCase.MN_RATES_MISSING.magicNumber,
+        ],
       ]),
     ];
     // Act
@@ -116,7 +138,10 @@ describe("getInvoiceBanner", () => {
     // The unexpected charge line should take precedence over the line item that's over threshold.
     const givenLineItems = [
       buildLineItem(lineItem, [
-        ["price_difference_percentage", MN_UNEXPECTED_CHARGE.magicNumber],
+        [
+          "price_difference_percentage",
+          percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE.magicNumber,
+        ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
       buildLineItem(lineItem, [["price_difference_percentage", "-2"]]),
