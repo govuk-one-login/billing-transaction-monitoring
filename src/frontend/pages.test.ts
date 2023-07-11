@@ -15,8 +15,8 @@ describe("Page", () => {
     paramsGetter: async (_) => {},
   };
   const childType1Page: Page<{}> = {
-    title: ":some_id/childType1",
-    relativePath: "childType1",
+    title: "childType1",
+    relativePath: ":child_id/childType1",
     paramsGetter: async (_) => {},
     njk: "",
     parent: homePage,
@@ -38,16 +38,20 @@ describe("Page", () => {
 
   test("getRoute", () => {
     expect(getRoute(homePage)).toEqual("/");
-    expect(getRoute(childType1Page)).toEqual("/childType1");
+    expect(getRoute(childType1Page)).toEqual("/:child_id/childType1");
     expect(getRoute(childType2Page)).toEqual("/childType2");
     expect(getRoute(grandchildTypePage)).toEqual(
-      "/childType1/:some_id/grandchildType"
+      "/:child_id/childType1/grandchildType"
     );
   });
 
   test("getHandler", async () => {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const mockedRequest: Request = {} as jest.MockedObject<Request>;
+    const mockedRequest: Request = {
+      params: {
+        child_id: "someId",
+      },
+    } as unknown as jest.MockedObject<Request>;
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const mockedResponse: Response = {
@@ -65,16 +69,16 @@ describe("Page", () => {
       breadcrumbData: {
         items: [
           {
-            href: "/",
             text: "homePage",
+            href: "/",
           },
           {
-            href: "/childType1",
-            text: "/someId/childType1",
+            text: "childType1",
+            href: "/someId/childType1",
           },
         ],
       },
-      someField: "someValue",
+      some_id: "someValue",
     });
   });
 });

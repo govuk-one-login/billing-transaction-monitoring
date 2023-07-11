@@ -100,7 +100,7 @@ exports[`invoice handler Page displays invoice page header 1`] = `
   
     
     <li class="govuk-breadcrumbs__list-item">
-      <a class="govuk-breadcrumbs__link" href="/invoices?contract_id=1">C01234 - Vendor One</a>
+      <a class="govuk-breadcrumbs__link" href="/contracts/1/invoices">Invoices</a>
     </li>
     
   
