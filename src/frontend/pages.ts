@@ -32,7 +32,7 @@ const getPageParams = async <TParams>(
   const options = await page.paramsGetter(request);
   return {
     ...options,
-    // TODO breadcrumb data will be added here as part of BTM-648.
+    // breadcrumb data will be added here as part of BTM-648.
   };
 };
 
