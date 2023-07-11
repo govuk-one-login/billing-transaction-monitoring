@@ -34,6 +34,14 @@ Parameters:
     Description: Private config stack to use for configuration
     Type: String
     Default: none
+  EmailSenderNameArn:
+    Description: ARN of secret for email sender name
+    Type: String
+    Default: none
+  EmailSenderPasswordArn:
+    Description: ARN of secret for email sender password
+    Type: String
+    Default: none
 
   # Codes for error cases returned in response to queries from Grafana to BillingAndTransactionsCuratedView.
   QueryMessageNoChargeForThisMonth:
@@ -87,6 +95,13 @@ Conditions:
       !Equals [!Ref AWS::StackName, di-btm-staging],
       !Equals [!Ref AWS::StackName, di-btm-integration],
       !Equals [!Ref AWS::StackName, di-btm-production],
+    ]
+  EmailSendingEnabled:
+    !Not [
+      !Or [
+        !Equals [!Ref EmailSenderNameArn, none],
+        !Equals [!Ref EmailSenderPasswordArn, none],
+      ],
     ]
 
 Globals:
