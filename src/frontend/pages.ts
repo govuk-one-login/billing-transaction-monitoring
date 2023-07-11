@@ -85,11 +85,9 @@ export const getHandler = (page: Page<any>): RequestHandler => {
   };
 };
 
-export const indexOptionsGetter: PageParamsGetter<any> = async (_) => {
-  return {
-    pageTitle: "Billings and reconciliation",
-  };
-};
+export const indexOptionsGetter: PageParamsGetter<any> = async (_) => ({
+  pageTitle: "Billings and reconciliation",
+});
 
 const homePage: Page<any> = {
   relativePath: "",

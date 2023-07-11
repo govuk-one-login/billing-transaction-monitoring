@@ -1,37 +1,29 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { getHandler, getRoute, Page } from "./pages";
 
-// export const invoicesParamsGetter: PageParamsGetter<{
-//   contract_id: string;
-// }> = async (request) => {
-//
-// };
-
 describe("Page", () => {
   const homePage: Page<{}> = {
-    title: "homePage",
     relativePath: "",
     njk: "",
-    paramsGetter: async (_) => {},
+    paramsGetter: async (_) => ({ pageTitle: "homePage" }),
   };
   const childType1Page: Page<{}> = {
-    title: "ChildType1 :child_id Title",
     relativePath: ":child_id/childType1",
-    paramsGetter: async (_) => {},
+    paramsGetter: async (_) => ({ pageTitle: "ChildType1" }),
     njk: "",
     parent: homePage,
   };
   const childType2Page: Page<{}> = {
-    title: "childType2",
     relativePath: "childType2",
-    paramsGetter: async (_) => {},
+    paramsGetter: async (_) => ({ pageTitle: "ChildType2" }),
     njk: "",
     parent: homePage,
   };
   const grandchildTypePage: Page<{}> = {
-    title: "grandchildType",
     relativePath: "grandchildType",
-    paramsGetter: jest.fn().mockResolvedValue({ some_id: "someValue" }),
+    paramsGetter: jest
+      .fn()
+      .mockResolvedValue({ pageTitle: "GrandchildType", some_id: "someValue" }),
     njk: "grandchild.njk",
     parent: childType1Page,
   };
@@ -73,11 +65,12 @@ describe("Page", () => {
             href: "/",
           },
           {
-            text: "ChildType1 someId Title",
-            href: "/someId/childType1",
+            text: "ChildType1",
+            href: "/someId/childType1", // note id is formatted into path
           },
         ],
       },
+      pageTitle: "GrandchildType",
       some_id: "someValue",
     });
   });

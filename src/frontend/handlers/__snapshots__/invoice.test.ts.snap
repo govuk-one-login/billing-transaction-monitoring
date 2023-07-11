@@ -7,8 +7,8 @@ exports[`invoice handler Page displays invoice page header 1`] = `
     <meta charset="utf-8">
     <title>
   
-  
-  Digital Identity Billing Dashboard
+  Vendor One Mar 2023 Invoice -
+  Billings and Reconciliation
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0b0c0c"> 
@@ -88,7 +88,7 @@ exports[`invoice handler Page displays invoice page header 1`] = `
   
     
     <li class="govuk-breadcrumbs__list-item">
-      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+      <a class="govuk-breadcrumbs__link" href="/">Billings and reconciliation</a>
     </li>
     
   
@@ -100,7 +100,7 @@ exports[`invoice handler Page displays invoice page header 1`] = `
   
     
     <li class="govuk-breadcrumbs__list-item">
-      <a class="govuk-breadcrumbs__link" href="/contracts/1/invoices">Invoices</a>
+      <a class="govuk-breadcrumbs__link" href="/contracts/1/invoices">C01234 - Vendor One</a>
     </li>
     
   
@@ -110,9 +110,7 @@ exports[`invoice handler Page displays invoice page header 1`] = `
 
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
-  <h1 class="govuk-heading-xl">
-    Vendor One Mar 2023 Invoice
-  </h1>
+  <h1 class="govuk-heading-xl">Vendor One Mar 2023 Invoice</h1>
   
 <div class="govuk-panel govuk-panel--confirmation payable">
   <h1 class="govuk-panel__title">
