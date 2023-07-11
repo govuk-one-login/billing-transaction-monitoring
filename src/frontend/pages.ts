@@ -23,25 +23,18 @@ export const getRoute = (page: Page<any>): string => {
   return path.join(parentPath, page.relativePath);
 };
 
-const formatParams = <TParams>(
-  request: Request<TParams, unknown, unknown, unknown>,
-  s: string
-): string => {
-  const regex = /:([A-Za-z_]+)/;
-  const params = request.params as Record<string, string>;
-  while (s.match(regex)) {
-    s = s.replace(regex, (a, b) => params[b]);
-  }
-  return s;
-};
-
 const getUrl = <TParams>(
   page: Page<any>,
   request: Request<TParams, unknown, unknown, unknown>
 ): string => {
   const parentRoute = page.parent ? getRoute(page.parent) : "/";
-  const url = path.join(parentRoute, page.relativePath);
-  return formatParams(request, url);
+  let url = path.join(parentRoute, page.relativePath);
+  const regex = /:([A-Za-z_]+)/;
+  const params = request.params as Record<string, string>;
+  while (regex.exec(url)) {
+    url = url.replace(regex, (a, b) => params[b]);
+  }
+  return url;
 };
 
 const getTitle = async <TParams>(
