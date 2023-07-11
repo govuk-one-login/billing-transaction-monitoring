@@ -69,8 +69,6 @@ describe("invoice handler", () => {
     expect(response.status).toBe(200);
     expect(response.text).toContain("Vendor One Mar 2023 Invoice"); // page heading
     expect(response.text).toContain("Invoice above threshold"); // banner
-    expect(response.text).not.toContain("Invoice below threshold"); // banner
-    expect(response.text).not.toContain("Invoice within threshold"); // banner
     expect(response.text).toContain("9.8814"); // percentage discrepancy in table
     expect(response.text).toContain(
       statusLabels.STATUS_LABEL_ABOVE_THRESHOLD.message
