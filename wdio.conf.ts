@@ -1,4 +1,7 @@
 import type { Options } from "@wdio/types";
+import { register } from "ts-node";
+
+register({ project: "./tsconfig.wdio.json", transpileOnly: true });
 
 export const config: Options.Testrunner = {
   //
@@ -6,11 +9,12 @@ export const config: Options.Testrunner = {
   // Runner Configuration
   // ====================
   // WebdriverIO supports running e2e tests as well as unit and component tests.
+
   runner: "local",
   autoCompileOpts: {
     autoCompile: true,
     tsNodeOpts: {
-      project: "./test/tsconfig.json",
+      project: "./tsconfig.wdio.json",
       transpileOnly: true,
     },
   },
@@ -31,7 +35,7 @@ export const config: Options.Testrunner = {
   // then the current working directory is where your `package.json` resides, so `wdio`
   // will be called from there.
   //
-  specs: ["./ui-tests/specs/**/*.ts"],
+  specs: ["./ui-tests/specs/*.spec.js"],
   // Patterns to exclude.
   exclude: [
     // 'path/to/excluded/files'
@@ -60,10 +64,10 @@ export const config: Options.Testrunner = {
   //
   capabilities: [
     {
-      // capabilities for local browser web tests
-      browserName: "chrome", // or "firefox", "microsoftedge", "safari"
+      browserName: "chrome",
     },
   ],
+
   //
   // ===================
   // Test Configurations
@@ -95,7 +99,7 @@ export const config: Options.Testrunner = {
   // with `/`, the base url gets prepended, not including the path portion of your baseUrl.
   // If your `url` parameter starts without a scheme or `/` (like `some/path`), the base url
   // gets prepended directly.
-  baseUrl: " ",
+  baseUrl: "",
   //
   // Default timeout for all waitFor* commands.
   waitforTimeout: 10000,
