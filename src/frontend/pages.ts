@@ -4,7 +4,7 @@ import { invoicesParamsGetter } from "./handlers/invoices";
 import { invoiceParamsGetter } from "./handlers/invoice";
 import path from "node:path";
 import { Contract } from "./config";
-import { ReconciliationRow } from "./extract-helper";
+import { Period, ReconciliationRow } from "./extract-helper";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams, unknown, unknown, unknown>
@@ -67,7 +67,7 @@ const contractsPage: Page<{}, ContractParams> = {
 
 export type InvoicesParams = {
   contract: Contract;
-  periods: Array<{ month: string; year: string; prettyMonth: string }>;
+  periods: Period[];
 };
 
 const invoicesPage: Page<
