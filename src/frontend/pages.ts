@@ -3,8 +3,7 @@ import { contractsParamsGetter } from "./handlers/contracts";
 import { invoicesParamsGetter } from "./handlers/invoices";
 import { invoiceParamsGetter } from "./handlers/invoice";
 import path from "node:path";
-import { Contract } from "./config";
-import { Period, ReconciliationRow } from "./extract-helper";
+import { Contract, Period, ReconciliationRow } from "./extract-helpers";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams, unknown, unknown, unknown>
@@ -84,16 +83,13 @@ const invoicesPage: Page<
 };
 
 export type InvoiceParams = {
-  classes: string;
-  invoice: {
-    status: string;
-    vendorName: string;
-    contractName: string;
-    contractId: string;
-    year: string;
-    prettyMonth: string;
-    month: string;
-  };
+  vendorName: string;
+  contractName: string;
+  contractId: string;
+  year: string;
+  prettyMonth: string;
+  bannerClass: string;
+  invoiceStatus: string;
   reconciliationRows: ReconciliationRow[];
 };
 

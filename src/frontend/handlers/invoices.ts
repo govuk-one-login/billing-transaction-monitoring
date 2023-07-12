@@ -1,5 +1,7 @@
-import { getContractAndVendorName } from "../config";
-import { getContractPeriods } from "../extract-helper";
+import {
+  getContractAndVendorName,
+  getContractPeriods,
+} from "../extract-helpers";
 import { InvoicesParams, PageParamsGetter } from "../pages";
 
 export const invoicesParamsGetter: PageParamsGetter<
