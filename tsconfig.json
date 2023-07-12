@@ -7,7 +7,7 @@
     "module": "es2022",
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "lib": ["es7"],
+    "lib": ["es7", "dom"],
     "outDir": "./dist/",
     "skipLibCheck": true,
     "strict": true,
