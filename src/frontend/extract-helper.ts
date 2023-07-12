@@ -12,9 +12,11 @@ import {
   StatusLabel,
 } from "./frontend-utils";
 
+export type Period = { month: string; year: string; prettyMonth: string };
+
 export const getContractPeriods = async (
   contractId: string
-): Promise<Array<{ month: string; year: string; prettyMonth: string }>> => {
+): Promise<Period[]> => {
   const dashboardData = await getDashboardExtract();
   return dashboardData
     .filter((row) => row.contract_id === contractId)
@@ -80,7 +82,7 @@ const getDashboardExtract = async (): Promise<FullExtractLineItem[]> => {
   return JSON.parse(jsonArray);
 };
 
-interface ReconciliationRow {
+export interface ReconciliationRow {
   serviceName: string;
   quantityDiscrepancy: string;
   priceDiscrepancy: string;

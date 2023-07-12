@@ -1,7 +1,10 @@
 import { getContracts } from "../config";
-import { PageParamsGetter } from "../pages";
+import { ContractParams, PageParamsGetter } from "../pages";
 
-export const contractsParamsGetter: PageParamsGetter<any> = async (_) => {
+export const contractsParamsGetter: PageParamsGetter<
+  {},
+  ContractParams
+> = async (_) => {
   return {
     contracts: await getContracts(),
   };

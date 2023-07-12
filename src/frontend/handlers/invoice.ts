@@ -8,7 +8,7 @@ import {
   MONTHS,
   PercentageDiscrepancySpecialCase,
 } from "../frontend-utils";
-import { PageParamsGetter } from "../pages";
+import { InvoiceParams, PageParamsGetter } from "../pages";
 
 // Note that these are just the special cases that we want to show a warning for --
 // MN_NO_CHARGE is also a possible value in a line item but, it doesn't cause a warning.
@@ -23,11 +23,14 @@ const WARNING_CODES = WARNINGS_BY_PRIORITY.map(
   (warning) => warning.magicNumber
 );
 
-export const invoiceParamsGetter: PageParamsGetter<{
-  contract_id: string;
-  year: string;
-  month: string;
-}> = async (request) => {
+export const invoiceParamsGetter: PageParamsGetter<
+  {
+    contract_id: string;
+    year: string;
+    month: string;
+  },
+  InvoiceParams
+> = async (request) => {
   const [config, lineItems] = await Promise.all([
     getContractAndVendorName(request.params.contract_id),
     getLineItems(

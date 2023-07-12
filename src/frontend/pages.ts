@@ -3,32 +3,34 @@ import { contractsParamsGetter } from "./handlers/contracts";
 import { invoicesParamsGetter } from "./handlers/invoices";
 import { invoiceParamsGetter } from "./handlers/invoice";
 import path from "node:path";
+import { Contract } from "./config";
+import { ReconciliationRow } from "./extract-helper";
 
-export type PageParamsGetter<TParams> = (
+export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams, unknown, unknown, unknown>
-) => object;
+) => Promise<TReturn>;
 
-export interface Page<TParams> {
-  parent?: Page<any>;
+export interface Page<TParams, TReturn> {
+  parent?: Page<any, any>;
 
   title: string;
 
   relativePath: string;
 
-  paramsGetter: PageParamsGetter<TParams>;
+  paramsGetter: PageParamsGetter<TParams, TReturn>;
 
   njk: string;
 }
 
-export const getPagePath = (page: Page<any>): string => {
+export const getPagePath = (page: Page<any, any>): string => {
   const parentPath = page.parent ? getPagePath(page.parent) : "/";
   return path.join(parentPath, page.relativePath);
 };
 
-const getPageParams = async <TParams>(
-  page: Page<TParams>,
+const getPageParams = async <TParams, TReturn>(
+  page: Page<TParams, TReturn>,
   request: Request<TParams, unknown, unknown, unknown>
-): Promise<object> => {
+): Promise<TReturn> => {
   const options = await page.paramsGetter(request);
   return {
     ...options,
@@ -36,22 +38,26 @@ const getPageParams = async <TParams>(
   };
 };
 
-export const getHandler = (page: Page<any>): RequestHandler => {
+export const getHandler = (page: Page<any, any>): RequestHandler => {
   return async (request, response) => {
     response.render(page.njk, await getPageParams(page, request));
   };
 };
 
-const indexOptionsGetter: PageParamsGetter<any> = (_) => ({});
+const indexOptionsGetter: PageParamsGetter<{}, {}> = async (_) => ({});
 
-const homePage: Page<any> = {
+const homePage: Page<{}, {}> = {
   title: "Home",
   relativePath: "",
   njk: "index.njk",
   paramsGetter: indexOptionsGetter,
 };
 
-const contractsPage: Page<{}> = {
+export type ContractParams = {
+  contracts: Contract[];
+};
+
+const contractsPage: Page<{}, ContractParams> = {
   title: "Contracts",
   parent: homePage,
   relativePath: "contracts",
@@ -59,7 +65,17 @@ const contractsPage: Page<{}> = {
   paramsGetter: contractsParamsGetter,
 };
 
-const invoicesPage: Page<{ contract_id: string }> = {
+export type InvoicesParams = {
+  contract: Contract;
+  periods: Array<{ month: string; year: string; prettyMonth: string }>;
+};
+
+const invoicesPage: Page<
+  {
+    contract_id: string;
+  },
+  InvoicesParams
+> = {
   title: "Invoices",
   parent: contractsPage,
   relativePath: ":contract_id/invoices",
@@ -67,7 +83,28 @@ const invoicesPage: Page<{ contract_id: string }> = {
   paramsGetter: invoicesParamsGetter,
 };
 
-const invoicePage: Page<any> = {
+export type InvoiceParams = {
+  classes: string;
+  invoice: {
+    status: string;
+    vendorName: string;
+    contractName: string;
+    contractId: string;
+    year: string;
+    prettyMonth: string;
+    month: string;
+  };
+  reconciliationRows: ReconciliationRow[];
+};
+
+const invoicePage: Page<
+  {
+    contract_id: string;
+    year: string;
+    month: string;
+  },
+  InvoiceParams
+> = {
   title: "Invoice",
   parent: invoicesPage,
   relativePath: ":year-:month",
