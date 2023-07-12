@@ -2,24 +2,24 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import { getHandler, getRoute, Page } from "./pages";
 
 describe("Page", () => {
-  const homePage: Page<{}> = {
+  const homePage: Page<{}, {}> = {
     relativePath: "",
     njk: "",
     paramsGetter: async (_) => ({ pageTitle: "homePage" }),
   };
-  const childType1Page: Page<{}> = {
+  const childType1Page: Page<{}, {}> = {
     relativePath: ":child_id/childType1",
     paramsGetter: async (_) => ({ pageTitle: "ChildType1" }),
     njk: "",
     parent: homePage,
   };
-  const childType2Page: Page<{}> = {
+  const childType2Page: Page<{}, {}> = {
     relativePath: "childType2",
     paramsGetter: async (_) => ({ pageTitle: "ChildType2" }),
     njk: "",
     parent: homePage,
   };
-  const grandchildTypePage: Page<{}> = {
+  const grandchildTypePage: Page<{}, {}> = {
     relativePath: "grandchildType",
     paramsGetter: jest
       .fn()
