@@ -21,7 +21,9 @@ export interface Page<TParams, TReturn> {
   njk: string;
 }
 
-export const getPagePath = (page: Page<any, any>): string => {
+export const getPagePath = <TParams, TReturn>(
+  page: Page<TParams, TReturn>
+): string => {
   const parentPath = page.parent ? getPagePath(page.parent) : "/";
   return path.join(parentPath, page.relativePath);
 };
