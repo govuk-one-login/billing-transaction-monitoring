@@ -6,7 +6,7 @@ import path from "node:path";
 import { Contract, Period, ReconciliationRow } from "./extract-helpers";
 
 export type PageParamsGetter<TParams, TReturn> = (
-  request: Request<TParams, unknown, unknown, unknown>
+  request: Request<TParams>
 ) => Promise<TReturn>;
 
 export interface Page<TParams, TReturn> {
@@ -30,7 +30,7 @@ export const getPagePath = <TParams, TReturn>(
 
 const getPageParams = async <TParams, TReturn>(
   page: Page<TParams, TReturn>,
-  request: Request<TParams, unknown, unknown, unknown>
+  request: Request<TParams>
 ): Promise<TReturn> => {
   const options = await page.paramsGetter(request);
   return {
@@ -39,9 +39,11 @@ const getPageParams = async <TParams, TReturn>(
   };
 };
 
-export const getHandler = (page: Page<any, any>): RequestHandler => {
-  return async (request, response) => {
-    response.render(page.njk, await getPageParams(page, request));
+export const getHandler = <TParams, TReturn>(
+  page: Page<TParams, TReturn>
+): RequestHandler<TParams> => {
+  return async (request: Request<TParams>, response) => {
+    response.render(page.njk, (await getPageParams(page, request)) as object);
   };
 };
 
