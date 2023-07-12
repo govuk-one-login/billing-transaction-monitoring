@@ -8,7 +8,7 @@ import {
   BucketAndPrefix,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 
-describe.skip("\n Email storage \n", () => {
+describe("\n Email storage \n", () => {
   test("should store the received email in the corresponding directory in the email bucket", async () => {
     const prefix = resourcePrefix();
     const extractedEnvValue = prefix.split("-").pop();
