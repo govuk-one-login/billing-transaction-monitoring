@@ -8,6 +8,7 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
   command: THelper,
   parameters: Parameters<HelperDict[THelper]>[0] & SerializableData
 ): Promise<string> => {
+  console.log("sendLambdaCommand");
   const payload = JSON.stringify({
     environment: envName(),
     config: configName(),
@@ -15,14 +16,17 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
     parameters,
   });
   // logger.info(toUtf8(commandInput.Payload as Uint8Array));
+  console.log("invoking lambda");
   const result = await invokeLambda({
     functionName: `${resourcePrefix()}-int-test-support-function`,
     payload,
     forceWithoutLambda: true,
   });
+  console.log("invoked");
   // logger.info(toUtf8(result.payload as Uint8Array));
 
   if (result.statusCode === 200 && result.payload != null) {
+    console.log(toUtf8(result.payload));
     return JSON.parse(toUtf8(result.payload)).successObject;
   } else {
     return "Error";

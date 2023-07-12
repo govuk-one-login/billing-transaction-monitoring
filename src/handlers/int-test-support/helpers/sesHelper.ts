@@ -27,6 +27,7 @@ export type EmailParams = {
 };
 
 export const sendEmail = async (params: EmailParams): Promise<string> => {
+  console.log("sendEmail");
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.sendEmail,

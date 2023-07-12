@@ -104,27 +104,4 @@ Globals:
         NODE_OPTIONS: --enable-source-maps
 
 Resources: !YAMLInclude ./cloudformation/global.yaml,
-  ./cloudformation/test-only.yaml,
-  ./cloudformation/filtering.yaml,
-  ./cloudformation/cleaning.yaml,
-  ./cloudformation/transaction-csv-to-json-event.yaml,
-  ./cloudformation/transaction-storage.yaml,
-  ./cloudformation/intTestSupport.yaml#NO_LOCAL,
-  ./cloudformation/email-processing.yaml,
-  ./cloudformation/raw-invoice-store.yaml,
-  ./cloudformation/pdf-extraction.yaml,
-  ./cloudformation/raw-invoice-textract-data-store.yaml,
-  ./cloudformation/pdf-standardisation.yaml,
-  ./cloudformation/csv-extraction.yaml,
-  ./cloudformation/standardised-invoice-storage.yaml,
-  ./cloudformation/calculation-athena.yaml#NO_LOCAL,
-  ./cloudformation/custom-athena-view-resource.yaml#NO_LOCAL,
-  ./cloudformation/invoice-athena.yaml#NO_LOCAL,
-  ./cloudformation/email-storage.yaml,
-  ./cloudformation/dashboard-data-extraction.yaml#NO_LOCAL,
-  ./cloudformation/frontend.yaml
-
-Outputs:
-  FrontEndUrl:
-    Condition: IsLowerEnv
-    Value: !Sub https://${FrontEndApi}.execute-api.${AWS::Region}.amazonaws.com
+  ./cloudformation/intTestSupport.yaml#NO_LOCAL

@@ -5,7 +5,7 @@ Resources:
   IntTestSupportFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for synchronously invoked lambda
     Type: AWS::Serverless::Function
-    Condition: IsEnvWithAutoTests
+    # Condition: IsEnvWithAutoTests
     Properties:
       FunctionName: !Sub ${AWS::StackName}-int-test-support-function
       VpcConfig:
@@ -69,13 +69,13 @@ Resources:
                       - - alias/key-di-btm-tooling
                         - !If [IsDev, dev, !Ref Environment]
                         - general
-            - !If
-              - IsLowerEnv
-              - Effect: Allow
-                Action:
-                  - sns:Publish
-                Resource: !Ref TestTxMASNS
-              - !Ref AWS::NoValue
+            # - !If
+            #   - IsLowerEnv
+            #   - Effect: Allow
+            #     Action:
+            #       - sns:Publish
+            #     Resource: !Ref TestTxMASNS
+            #   - !Ref AWS::NoValue
             - Effect: Allow
               Action:
                 - sns:ListTopics
@@ -84,14 +84,14 @@ Resources:
               Action:
                 - logs:FilterLogEvents
               Resource: '*'
-            - Effect: Allow
-              Action:
-                - athena:StartQueryExecution
-                - athena:GetQueryExecution
-                - athena:GetQueryResults
-              Resource:
-                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaInvoiceWorkgroup}
-                - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaTransactionWorkgroup}
+            # - Effect: Allow
+            #   Action:
+            #     - athena:StartQueryExecution
+            #     - athena:GetQueryExecution
+            #     - athena:GetQueryResults
+            #   Resource:
+            #     - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaInvoiceWorkgroup}
+            #     - !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${AthenaTransactionWorkgroup}
             - Effect: Allow
               Action:
                 - glue:GetTable
