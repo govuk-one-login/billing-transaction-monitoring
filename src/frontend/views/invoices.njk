@@ -10,7 +10,7 @@
     {% for period in periods %}
       <li>
         <a class="govuk-link"
-           href="/invoice?contract_id={{ contract.id }}&year={{ period.year }}&month={{ period.month }}">
+           href="/contracts/{{ contract.id }}/invoices/{{ period.year }}-{{ period.month }}">
           {{ period.prettyMonth }} {{ period.year }}
         </a>
       </li>
