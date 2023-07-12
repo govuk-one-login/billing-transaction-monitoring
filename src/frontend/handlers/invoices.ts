@@ -1,26 +1,26 @@
-import { RequestHandler } from "express";
 import {
   getContractAndVendorName,
   getContractPeriods,
 } from "../extract-helpers";
+import { InvoicesParams, PageParamsGetter } from "../pages";
 
-export const getInvoicesHandler: RequestHandler<
-  unknown,
-  unknown,
-  unknown,
-  { contract_id: string }
-> = async (request, response) => {
+export const invoicesParamsGetter: PageParamsGetter<
+  {
+    contract_id: string;
+  },
+  InvoicesParams
+> = async (request) => {
   const [{ contractName, vendorName }, periods] = await Promise.all([
-    getContractAndVendorName(request.query.contract_id),
-    getContractPeriods(request.query.contract_id),
+    getContractAndVendorName(request.params.contract_id),
+    getContractPeriods(request.params.contract_id),
   ]);
 
-  response.render("invoices.njk", {
+  return {
     contract: {
-      id: request.query.contract_id,
+      id: request.params.contract_id,
       name: contractName,
       vendorName,
     },
     periods,
-  });
+  };
 };

@@ -1,4 +1,3 @@
-import { RequestHandler } from "express";
 import { MONTHS } from "../utils";
 import {
   getContractAndVendorName,
@@ -6,19 +5,22 @@ import {
   getLineItems,
   getReconciliationRows,
 } from "../extract-helpers";
+import { InvoiceParams, PageParamsGetter } from "../pages";
 
-export const getInvoiceHandler: RequestHandler<
-  unknown,
-  unknown,
-  unknown,
-  { contract_id: string; year: string; month: string }
-> = async (request, response) => {
+export const invoiceParamsGetter: PageParamsGetter<
+  {
+    contract_id: string;
+    year: string;
+    month: string;
+  },
+  InvoiceParams
+> = async (request) => {
   const [config, lineItems] = await Promise.all([
-    getContractAndVendorName(request.query.contract_id),
+    getContractAndVendorName(request.params.contract_id),
     getLineItems(
-      request.query.contract_id,
-      request.query.year,
-      request.query.month
+      request.params.contract_id,
+      request.params.year,
+      request.params.month
     ),
   ]);
 
@@ -26,14 +28,14 @@ export const getInvoiceHandler: RequestHandler<
 
   const reconciliationRows = getReconciliationRows(lineItems);
 
-  response.render("invoice.njk", {
+  return {
     vendorName: config.vendorName,
     contractName: config.contractName,
-    contractId: request.query.contract_id,
-    year: request.query.year,
-    prettyMonth: MONTHS[Number(request.query.month) - 1],
+    contractId: request.params.contract_id,
+    year: request.params.year,
+    prettyMonth: MONTHS[Number(request.params.month) - 1],
     bannerClass: invoiceBanner.bannerClass,
     invoiceStatus: invoiceBanner.status,
     reconciliationRows,
-  });
+  };
 };

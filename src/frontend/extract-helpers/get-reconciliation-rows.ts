@@ -1,7 +1,7 @@
 import { percentageDiscrepancySpecialCase, statusLabels } from "../utils";
 import { FullExtractLineItem } from "./types";
 
-interface ReconciliationRow {
+export interface ReconciliationRow {
   serviceName: string;
   quantityDiscrepancy: string;
   priceDiscrepancy: string;
