@@ -67,8 +67,8 @@ Resources:
                     - !Join
                       - '-'
                       - - alias/key-di-btm-tooling
-                      - !If [IsDev, dev, !Ref Environment]
-                      - general
+                        - !If [IsDev, dev, !Ref Environment]
+                        - general
             - !If
               - IsLowerEnv
               - Effect: Allow
