@@ -1,9 +1,11 @@
 import { MONTHS } from "../utils";
 import { getDashboardExtract } from "./get-dashboard-extract";
 
+export type Period = { month: string; year: string; prettyMonth: string };
+
 export const getContractPeriods = async (
   contractId: string
-): Promise<Array<{ month: string; year: string; prettyMonth: string }>> => {
+): Promise<Period[]> => {
   const dashboardData = await getDashboardExtract();
   return dashboardData
     .filter((row) => row.contract_id === contractId)

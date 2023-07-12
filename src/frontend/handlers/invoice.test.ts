@@ -63,9 +63,7 @@ describe("invoice handler", () => {
     mockedFetchS3.mockResolvedValue(givenExtractResults);
 
     const request = supertest(app);
-    const response = await request.get(
-      `/invoice?contract_id=1&year=2023&month=03`
-    );
+    const response = await request.get("/contracts/1/invoices/2023-03");
     expect(response.status).toBe(200);
     expect(response.text).toContain("Vendor One Mar 2023 Invoice"); // page heading
     expect(response.text).toContain("Invoice above threshold"); // banner

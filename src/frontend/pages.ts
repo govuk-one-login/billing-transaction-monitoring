@@ -1,0 +1,115 @@
+import { Request, RequestHandler } from "express";
+import { contractsParamsGetter } from "./handlers/contracts";
+import { invoicesParamsGetter } from "./handlers/invoices";
+import { invoiceParamsGetter } from "./handlers/invoice";
+import path from "node:path";
+import { Contract, Period, ReconciliationRow } from "./extract-helpers";
+
+export type PageParamsGetter<TParams, TReturn> = (
+  request: Request<TParams>
+) => Promise<TReturn>;
+
+export interface Page<TParams, TReturn> {
+  parent?: Page<any, any>;
+
+  title: string;
+
+  relativePath: string;
+
+  paramsGetter: PageParamsGetter<TParams, TReturn>;
+
+  njk: string;
+}
+
+export const getPagePath = <TParams, TReturn>(
+  page: Page<TParams, TReturn>
+): string => {
+  const parentPath = page.parent ? getPagePath(page.parent) : "/";
+  return path.join(parentPath, page.relativePath);
+};
+
+const getPageParams = async <TParams, TReturn>(
+  page: Page<TParams, TReturn>,
+  request: Request<TParams>
+): Promise<TReturn> => {
+  const options = await page.paramsGetter(request);
+  return {
+    ...options,
+    // breadcrumb data will be added here as part of BTM-648.
+  };
+};
+
+export const getHandler = <TParams, TReturn>(
+  page: Page<TParams, TReturn>
+): RequestHandler<TParams> => {
+  return async (request: Request<TParams>, response) => {
+    response.render(page.njk, (await getPageParams(page, request)) as object);
+  };
+};
+
+const indexOptionsGetter: PageParamsGetter<{}, {}> = async (_) => ({});
+
+const homePage: Page<{}, {}> = {
+  title: "Home",
+  relativePath: "",
+  njk: "index.njk",
+  paramsGetter: indexOptionsGetter,
+};
+
+export type ContractParams = {
+  contracts: Contract[];
+};
+
+const contractsPage: Page<{}, ContractParams> = {
+  title: "Contracts",
+  parent: homePage,
+  relativePath: "contracts",
+  njk: "contracts.njk",
+  paramsGetter: contractsParamsGetter,
+};
+
+export type InvoicesParams = {
+  contract: Contract;
+  periods: Period[];
+};
+
+const invoicesPage: Page<
+  {
+    contract_id: string;
+  },
+  InvoicesParams
+> = {
+  title: "Invoices",
+  parent: contractsPage,
+  relativePath: ":contract_id/invoices",
+  njk: "invoices.njk",
+  paramsGetter: invoicesParamsGetter,
+};
+
+export type InvoiceParams = {
+  vendorName: string;
+  contractName: string;
+  contractId: string;
+  year: string;
+  prettyMonth: string;
+  bannerClass: string;
+  invoiceStatus: string;
+  reconciliationRows: ReconciliationRow[];
+};
+
+const invoicePage: Page<
+  {
+    contract_id: string;
+    year: string;
+    month: string;
+  },
+  InvoiceParams
+> = {
+  title: "Invoice",
+  parent: invoicesPage,
+  relativePath: ":year-:month",
+  njk: "invoice.njk",
+  paramsGetter: invoiceParamsGetter,
+};
+
+export const PAGES = [homePage, contractsPage, invoicesPage, invoicePage];
