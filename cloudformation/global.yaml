@@ -171,14 +171,6 @@ Resources:
         ]
       Description: !Sub Config stack used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
 
-  AccountToolingStackParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: !Sub ${AWS::StackName}-account-tooling-stack
-      Type: String
-      Value: !Join ['-', [di-btm-tooling, !If [IsDev, dev, !Ref Environment]]]
-      Description: !Sub Account tooling stack used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
-
   AlarmTopicParameter:
     Type: AWS::SSM::Parameter
     Properties:

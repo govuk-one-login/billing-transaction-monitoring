@@ -17,14 +17,18 @@ Resources:
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
       Environment:
         Variables:
-          EMAIL_SENDER_NAME_ID: !If
-            - EmailSendingEnabled
-            - !Ref EmailSenderNameArn
-            - !Ref AWS::NoValue
-          EMAIL_SENDER_PASSWORD_ID: !If
-            - EmailSendingEnabled
-            - !Ref EmailSenderPasswordArn
-            - !Ref AWS::NoValue
+          EMAIL_SENDER_NAME_ID:
+            Fn::ImportValue: !Join
+              - '-'
+              - - di-btm-tooling
+                - !If [IsDev, dev, !Ref Environment]
+                - email-sender-name-arn
+          EMAIL_SENDER_PASSWORD_ID:
+            Fn::ImportValue: !Join
+              - '-'
+              - - di-btm-tooling
+                - !If [IsDev, dev, !Ref Environment]
+                - email-sender-password-arn
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-int-test-support-function
       Handler: intTestSupport.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
@@ -60,7 +64,11 @@ Resources:
                 ForAnyValue:StringEquals:
                   kms:ResourceAliases:
                     - !Sub alias/key-${ConfigStackParameter.Value}-general
-                    - !Sub alias/key-${AccountToolingStackParameter.Value}-general
+                    - !Join
+                      - '-'
+                      - - alias/key-di-btm-tooling
+                      - !If [IsDev, dev, !Ref Environment]
+                      - general
             - !If
               - IsLowerEnv
               - Effect: Allow
@@ -94,29 +102,27 @@ Resources:
                 - lambda:InvokeFunction
               Resource:
                 - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-*
-            - Effect: !If
-                - EmailSendingEnabled
-                - Allow
-                - Deny
+            - Effect: Allow
               Action: ses:SendRawEmail
-              Resource: !If
-                - EmailSendingEnabled
-                - !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
-                - '*'
-            - Effect: !If
-                - EmailSendingEnabled
-                - Allow
-                - Deny
+              Resource: !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
+            - Effect: Allow
               Action:
                 - secretsmanager:DescribeSecret
                 - secretsmanager:GetResourcePolicy
                 - secretsmanager:GetSecretValue
                 - secretsmanager:ListSecretVersionIds
-              Resource: !If
-                - EmailSendingEnabled
-                - - !Ref EmailSenderNameArn
-                  - !Ref EmailSenderPasswordArn
-                - '*'
+              Resource:
+                - Fn::ImportValue: !Join
+                    - '-'
+                    - - di-btm-tooling
+                      - !If [IsDev, dev, !Ref Environment]
+                      - email-sender-name-arn
+                - Fn::ImportValue: !Join
+                    - '-'
+                    - - di-btm-tooling
+                      - !If [IsDev, dev, !Ref Environment]
+                      - email-sender-password-arn
+
       ReservedConcurrentExecutions: 10
 
   AllowTestingContainerToInvoke:
