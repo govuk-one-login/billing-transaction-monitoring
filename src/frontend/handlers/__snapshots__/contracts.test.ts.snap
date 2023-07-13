@@ -7,8 +7,8 @@ exports[`contracts handler Page displays all contracts 1`] = `
     <meta charset="utf-8">
     <title>
   
-  
-  Digital Identity Billing Dashboard
+  Contracts -
+  Billings and Reconciliation
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0b0c0c"> 
@@ -88,7 +88,7 @@ exports[`contracts handler Page displays all contracts 1`] = `
   
     
     <li class="govuk-breadcrumbs__list-item">
-      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+      <a class="govuk-breadcrumbs__link" href="/">Billings and reconciliation</a>
     </li>
     
   
@@ -99,7 +99,6 @@ exports[`contracts handler Page displays all contracts 1`] = `
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
   <h1 class="govuk-heading-l">Contracts</h1>
-  <h2 class="govuk-heading-m">Contract Numbers</h2>
   <ul class="govuk-list">
     
       <li>

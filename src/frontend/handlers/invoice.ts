@@ -29,6 +29,9 @@ export const invoiceParamsGetter: PageParamsGetter<
   const reconciliationRows = getReconciliationRows(lineItems);
 
   return {
+    pageTitle: `${config.vendorName} ${
+      MONTHS[Number(request.params.month) - 1]
+    } ${request.params.year} Invoice`,
     vendorName: config.vendorName,
     contractName: config.contractName,
     contractId: request.params.contract_id,
