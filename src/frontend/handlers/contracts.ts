@@ -6,6 +6,7 @@ export const contractsParamsGetter: PageParamsGetter<
   ContractParams
 > = async (_) => {
   return {
+    pageTitle: "Contracts",
     contracts: await getContracts(),
   };
 };
