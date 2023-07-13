@@ -53,7 +53,9 @@ Resources:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
-              Resource: !GetAtt KmsKey.Arn
+              Resource:
+                - !GetAtt KmsKey.Arn
+                - !GetAtt MultiRegionKmsKey.Arn
             - Effect: Allow
               Action:
                 - kms:Decrypt
