@@ -12,8 +12,6 @@ export type PageParamsGetter<TParams, TReturn> = (
 export interface Page<TParams, TReturn> {
   parent?: Page<any, any>;
 
-  title: string;
-
   relativePath: string;
 
   paramsGetter: PageParamsGetter<TParams, TReturn>;
@@ -21,21 +19,58 @@ export interface Page<TParams, TReturn> {
   njk: string;
 }
 
-export const getPagePath = <TParams, TReturn>(
+export const getRoute = <TParams, TReturn>(
   page: Page<TParams, TReturn>
 ): string => {
-  const parentPath = page.parent ? getPagePath(page.parent) : "/";
+  const parentPath = page.parent ? getRoute(page.parent) : "/";
   return path.join(parentPath, page.relativePath);
 };
 
+const getUrl = <TParams>(
+  page: Page<any, any>,
+  request: Request<TParams>
+): string => {
+  const parentRoute = page.parent ? getRoute(page.parent) : "/";
+  let url = path.join(parentRoute, page.relativePath);
+  const regex = /:([A-Za-z_]+)/;
+  const params = request.params as Record<string, string>;
+  while (regex.exec(url)) {
+    url = url.replace(regex, (a, b) => params[b]);
+  }
+  return url;
+};
+
+const getTitle = async <TParams>(
+  page: Page<any, any>,
+  request: Request<TParams>
+): Promise<string> => {
+  return (await page.paramsGetter(request)).pageTitle;
+};
+
+const getBreadcrumbData = async <TParams>(
+  page: Page<any, any>,
+  request: Request<TParams>
+): Promise<{ items: Array<{ text: string; href: string }> }> => {
+  const breadcrumbs: Array<{ text: string; href: string }> = [];
+  let currentPage: Page<any, any> | undefined = page.parent;
+  while (currentPage) {
+    breadcrumbs.unshift({
+      text: await getTitle(currentPage, request),
+      href: getUrl(currentPage, request),
+    });
+    currentPage = currentPage.parent;
+  }
+  return { items: breadcrumbs };
+};
 const getPageParams = async <TParams, TReturn>(
   page: Page<TParams, TReturn>,
   request: Request<TParams>
 ): Promise<TReturn> => {
   const options = await page.paramsGetter(request);
+  const breadcrumbData = await getBreadcrumbData(page, request);
   return {
     ...options,
-    // breadcrumb data will be added here as part of BTM-648.
+    breadcrumbData,
   };
 };
 
@@ -47,10 +82,11 @@ export const getHandler = <TParams, TReturn>(
   };
 };
 
-const indexOptionsGetter: PageParamsGetter<{}, {}> = async (_) => ({});
+const indexOptionsGetter: PageParamsGetter<{}, {}> = async (_) => ({
+  pageTitle: "Billings and reconciliation",
+});
 
 const homePage: Page<{}, {}> = {
-  title: "Home",
   relativePath: "",
   njk: "index.njk",
   paramsGetter: indexOptionsGetter,
@@ -61,7 +97,6 @@ export type ContractParams = {
 };
 
 const contractsPage: Page<{}, ContractParams> = {
-  title: "Contracts",
   parent: homePage,
   relativePath: "contracts",
   njk: "contracts.njk",
@@ -79,7 +114,6 @@ const invoicesPage: Page<
   },
   InvoicesParams
 > = {
-  title: "Invoices",
   parent: contractsPage,
   relativePath: ":contract_id/invoices",
   njk: "invoices.njk",
@@ -105,7 +139,6 @@ const invoicePage: Page<
   },
   InvoiceParams
 > = {
-  title: "Invoice",
   parent: invoicesPage,
   relativePath: ":year-:month",
   njk: "invoice.njk",
