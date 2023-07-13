@@ -1,7 +1,10 @@
 Resources:
   FrontEndApi:
     Type: AWS::Serverless::HttpApi
-    Condition: FrontEndApiEnabled
+    Condition: FrontEndEnabled
+    DependsOn:
+      - FrontEndDomainName
+      - FrontEndHostedZoneName
     Properties:
       AccessLogSettings:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
@@ -22,7 +25,7 @@ Resources:
 
   FrontEndDomainName:
     Type: AWS::SSM::Parameter
-    Condition: FrontEndApiEnabled
+    Condition: FrontEndEnabled
     Properties:
       Name: !Sub ${AWS::StackName}-frontend-domain-name
       Type: String
@@ -34,7 +37,7 @@ Resources:
 
   FrontEndHostedZoneName:
     Type: AWS::SSM::Parameter
-    Condition: FrontEndApiEnabled
+    Condition: FrontEndEnabled
     Properties:
       Name: !Sub ${AWS::StackName}-frontend-hosted-zone-name
       Type: String
@@ -46,7 +49,7 @@ Resources:
 
   FrontEndApiLogGroup:
     Type: AWS::Logs::LogGroup
-    Condition: IsLowerEnv
+    Condition: FrontEndEnabled
     Properties:
       KmsKeyId: !GetAtt KmsKey.Arn
       RetentionInDays: 90
@@ -56,7 +59,7 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    Condition: IsLowerEnv
+    Condition: FrontEndEnabled
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
       Handler: frontendAuth.handler
@@ -66,7 +69,7 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    Condition: IsLowerEnv
+    Condition: FrontEndEnabled
     Properties:
       Environment:
         Variables:
