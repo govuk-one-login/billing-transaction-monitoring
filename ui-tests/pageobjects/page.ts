@@ -9,15 +9,27 @@ export default class Page {
     await browser.url(`/${path}`);
   }
 
-  public get pageTitle(): ChainablePromiseElement<WebdriverIO.Element> {
-    return $("h1.govuk-heading-l");
+  public get pageHeading(): ChainablePromiseElement<WebdriverIO.Element> {
+    return $(".govuk-heading-xl");
   }
 
-  public async isPageTitleDisplayed(): Promise<boolean> {
-    return await (await this.pageTitle).isDisplayed();
+  public get pageSubHeading(): ChainablePromiseElement<WebdriverIO.Element> {
+    return $(".govuk-heading-l");
   }
 
-  public async getPageTitleText(): Promise<string> {
-    return await (await this.pageTitle).getText();
+  public async isPageHeadingDisplayed(): Promise<boolean> {
+    return await (await this.pageHeading).isDisplayed();
+  }
+
+  public async getPageHeadingText(): Promise<string> {
+    return await (await this.pageHeading).getText();
+  }
+
+  public async isPageSubHeadingDisplayed(): Promise<boolean> {
+    return await (await this.pageSubHeading).isDisplayed();
+  }
+
+  public async getPageSubHeadingText(): Promise<string> {
+    return await (await this.pageSubHeading).getText();
   }
 }

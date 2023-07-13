@@ -14,10 +14,6 @@ class HomePage extends Page {
     return $('a[href$="/contracts"]');
   }
 
-  public async getWelcomeMessageText(): Promise<string> {
-    return await (await this.welcomeMessage).getText();
-  }
-
   public async clickOnContractsPageLink(): Promise<void> {
     await this.linkToContractsPage.click();
   }
