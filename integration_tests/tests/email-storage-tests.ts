@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   EmailParams,
@@ -16,6 +17,7 @@ describe("\n Email storage \n", () => {
     const sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
     const toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
     const directory = "vendor_testvendor1";
+    const messageBody = crypto.randomBytes(32).toString("hex");
     const params: EmailParams = {
       Source: sourceEmail,
       Destination: {
@@ -27,20 +29,19 @@ describe("\n Email storage \n", () => {
         },
         Body: {
           Text: {
-            Data: "test",
+            Data: messageBody,
           },
         },
       },
     };
     const testTime = new Date();
-    const messageId = await sendEmail(params);
-    const stringToCheckInEmailContents = `Message-ID: <${messageId}`;
+    await sendEmail(params);
     const s3Params: BucketAndPrefix = {
       bucketName: emailBucket,
       prefix: `${directory}`,
     };
     const givenStringExists = await checkS3BucketForGivenStringExists(
-      stringToCheckInEmailContents,
+      messageBody,
       30000,
       s3Params,
       testTime
