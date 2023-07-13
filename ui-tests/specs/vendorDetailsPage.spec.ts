@@ -1,11 +1,10 @@
 import { waitForPageLoad } from "../helpers/waits.js";
 import VendorPage from "../pageobjects/vendorPage.js";
 import {
-  getExtractDataFromJson,
   getUniqueInvoiceMonthsYearsByVendor,
+  getTestDataFilePath,
+  getUniqueVendorNamesFromJson,
 } from "../helpers/extractDetailsTestDatajson.js";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
 
 before(async () => {
   await VendorPage.open("contracts/1/invoices");
@@ -32,20 +31,26 @@ describe("Vendor Details Page", () => {
   });
 });
 
-describe.only("getUniqueInvoiceCountByVendor", () => {
-  const currentFilePath = fileURLToPath(import.meta.url);
-  const currentDirPath = dirname(currentFilePath);
-  const testDataFilePath = path.join(
-    currentDirPath,
-    "../testData/testData.json"
-  );
-  const vendors = getExtractDataFromJson(testDataFilePath);
-  vendors.data.forEach((vendor) => {
-    it(`should return the correct unique invoice count for ${vendor.vendor_name}`, async () => {
-      const uniqueInvoiceCount = getUniqueInvoiceMonthsYearsByVendor(
-        vendor.vendor_name
-      );
-      console.log(uniqueInvoiceCount);
+enum VendorNameContractIdMap {
+  "Vendor One" = 1,
+  "Vendor Two" = 2,
+  "Vendor Three" = 3,
+  "Vendor Four" = 4,
+  "Vendor Five" = 5,
+}
+
+describe("getUniqueInvoiceCountByVendor", () => {
+  const testDataFilePath = getTestDataFilePath();
+  const vendors = getUniqueVendorNamesFromJson(testDataFilePath);
+  vendors.forEach((vendor) => {
+    it(`should return the correct unique invoice count for ${vendor}`, async () => {
+      const uniqueInvoiceCount = getUniqueInvoiceMonthsYearsByVendor(vendor);
+      const vendorContractId =
+        VendorNameContractIdMap[vendor as keyof typeof VendorNameContractIdMap];
+      await VendorPage.open(`contracts/${vendorContractId}/invoices`);
+      await waitForPageLoad();
+      const invoiceCountFromUI = await VendorPage.getInvoicesCount();
+      expect(uniqueInvoiceCount).toEqual(invoiceCountFromUI);
     });
   });
 });

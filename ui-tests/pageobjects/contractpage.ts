@@ -6,8 +6,18 @@ class ContractPage extends Page {
    * define selectors using getter methods
    */
 
-  public get listOfContracts(): ChainablePromiseArray<WebdriverIO.E> {
-    return $$("ul.govuk-list");
+  public get listOfContracts(): ChainablePromiseArray<WebdriverIO.Element> {
+    return $$("ul.govuk-list li a.govuk-link");
+  }
+
+  public getContractElementByName(
+    vendorName: string
+  ): ChainablePromiseElement<WebdriverIO.Element> {
+    const matchedElement = this.listOfContracts.find(async (element) => {
+      const text = await element.getText();
+      return text.includes(`${vendorName}`);
+    }) as ChainablePromiseElement<WebdriverIO.Element>;
+    return matchedElement;
   }
 
   public get vendorNameByIndex(): ChainablePromiseElement<WebdriverIO.Element> {
@@ -15,11 +25,12 @@ class ContractPage extends Page {
   }
 
   public async isListContractsDisplayed(): Promise<boolean> {
-    return (await this.listOfContracts).isDisplayed();
+    return await (await this.listOfContracts).isDisplayed();
   }
 
-  public async clickVendorName(): Promise<void> {
-    await (await this.vendorNameByIndex).click();
+  public async clickContractByVendorName(vendorName: string): Promise<void> {
+    const contractElement = this.getContractElementByName(vendorName);
+    await contractElement.click();
   }
 
   public async getListOfContractsText(): Promise<string[]> {

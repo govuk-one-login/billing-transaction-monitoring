@@ -2,56 +2,56 @@ import ContractPage from "../pageobjects/contractpage.js";
 import { configStackName } from "../../src/handlers/int-test-support/helpers/envHelper.js";
 import { getVendorNames } from "../helpers/getvendorserviceConfig.js";
 import { waitForPageLoad } from "../helpers/waits.js";
-import { getUniqueVendorNamesFromJson } from "../helpers/extractDetailsTestDatajson.js";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
+import {
+  getTestDataFilePath,
+  getUniqueVendorNamesFromJson,
+} from "../helpers/extractDetailsTestDatajson.js";
 
 describe("Contract Page Test", () => {
   let csvVendorNames: string[];
-  let listOfContractsFromUI: string[];
+  let uiContractNames: string[] = [];
+  let uiVendorNamesArray: string[];
+  let uniqueVendorNamesFromUI: string[];
+  let vendorNamesFromTestDataFile: string[] = [];
+  const testDataFilePath = getTestDataFilePath();
+  vendorNamesFromTestDataFile = getUniqueVendorNamesFromJson(testDataFilePath);
 
   before(async () => {
     const config = configStackName();
     csvVendorNames = await getVendorNames(config, {});
     console.log("This is from csv:", csvVendorNames);
+    uiVendorNamesArray = extractOnlyVendorNames(uiContractNames);
+    uniqueVendorNamesFromUI = [...new Set(uiVendorNamesArray)];
     await ContractPage.open("contracts");
     await waitForPageLoad();
-    listOfContractsFromUI = await ContractPage.getListOfContractsText();
+    uiContractNames = await ContractPage.getListOfContractsText();
   });
 
-  it("ui list of vendors should match with vendor names from config", async () => {
-    const vendorNamesArray = extractOnlyVendorNames(listOfContractsFromUI);
-    expect(vendorNamesArray.sort()).toEqual(csvVendorNames.sort());
+  it.only("ui list of vendors should match with vendor names from config", async () => {
+    expect(uniqueVendorNamesFromUI.sort()).toEqual(csvVendorNames.sort());
   });
 
   it("ui list of vendors should match with vendor names in test data file", async () => {
-    const vendorNamesArray = extractOnlyVendorNames(listOfContractsFromUI);
-    const uniqueVendorNamesFromUI = [...new Set(vendorNamesArray)];
-    const currentFilePath = fileURLToPath(import.meta.url);
-    const currentDirPath = dirname(currentFilePath);
-    const testDataFilePath = path.join(
-      currentDirPath,
-      "../testData/testData.json"
-    );
-    const vendorNamesFromTestDataFile =
-      getUniqueVendorNamesFromJson(testDataFilePath);
     expect(vendorNamesFromTestDataFile.sort()).toEqual(
       uniqueVendorNamesFromUI.sort()
     );
   });
 
-  it("should navigate to the vendor details page when a vendor name is selected", async () => {
-    await ContractPage.clickVendorName();
-    const vendorDetailsPageUrl = await browser.getUrl();
-    expect(vendorDetailsPageUrl).toContain("contracts/1/invoices");
-    const pageTitle = await browser.getTitle();
-    expect(pageTitle).toBe("C01234 - Vendor One - Billings and Reconciliation");
+  vendorNamesFromTestDataFile.sort().forEach((vendor) => {
+    it(`should navigate to the vendor details page for ${vendor}`, async () => {
+      await ContractPage.open("contracts");
+      await waitForPageLoad();
+      await ContractPage.clickContractByVendorName(vendor);
+      await waitForPageLoad();
+      const pageTitle = await browser.getTitle();
+      expect(pageTitle.includes(`${vendor}`)).toBe(true);
+    });
   });
 });
 
-const extractOnlyVendorNames = (listOfContractFromUI: string[]): string[] => {
+const extractOnlyVendorNames = (uiContractNames: string[]): string[] => {
   const vendorNamesArray: string[] = [];
-  listOfContractFromUI.forEach((item) => {
+  uiContractNames.forEach((item) => {
     const vendorNames = item.split("\n");
     vendorNames.forEach((vendor) => {
       const vendorNameMatch = vendor.match(/-([^]+)/);

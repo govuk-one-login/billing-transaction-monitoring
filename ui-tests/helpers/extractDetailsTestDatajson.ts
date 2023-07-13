@@ -1,6 +1,7 @@
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import { TEST_DATA_FILE_PATH } from "../utils/constants.js";
 
 type FullExtractData = {
   vendor_id: string;
@@ -20,13 +21,25 @@ type FullExtractData = {
   price_difference_percentage: string;
 };
 
+export const getTestDataFilePath = (): string => {
+  const currentFilePath = fileURLToPath(import.meta.url);
+  const currentDirPath = dirname(currentFilePath);
+  const testDataFilePath = path.join(currentDirPath, TEST_DATA_FILE_PATH);
+  return testDataFilePath;
+};
+
+export const geJsonDataFromFile = (filePath: string): string => {
+  const fileContent = fs.readFileSync(filePath, "utf-8");
+  return fileContent;
+};
+
 export const getExtractDataFromJson = (
   filePath: string
 ): { data: FullExtractData[]; content: string } => {
-  const fileContent = fs.readFileSync(filePath, "utf-8");
-  const jsonArray = "[" + fileContent.replace(/\n/g, ",") + "]";
+  const jsonArray =
+    "[" + geJsonDataFromFile(filePath).replace(/\n/g, ",") + "]";
   const json: FullExtractData[] = JSON.parse(jsonArray);
-  return { data: json, content: fileContent };
+  return { data: json, content: jsonArray };
 };
 
 export const getUniqueVendorNamesFromJson = (filePath: string): string[] => {
