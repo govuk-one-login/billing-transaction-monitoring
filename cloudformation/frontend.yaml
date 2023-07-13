@@ -16,9 +16,9 @@ Resources:
         DefaultAuthorizer: LambdaAuthorizer
       Domain:
         CertificateArn: !Ref FrontEndCertificateArn
-        DomainName: !Ref FrontEndDomainName
+        DomainName: !GetAtt FrontEndDomainName.Value
         Route53:
-          HostedZoneName: !Ref FrontEndHostedZoneName
+          HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
 
   FrontEndDomainName:
     Type: AWS::SSM::Parameter
