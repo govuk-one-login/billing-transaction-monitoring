@@ -4,20 +4,34 @@ import { getVendorNames } from "../helpers/getvendorserviceConfig.js";
 import { waitForPageLoad } from "../helpers/waits.js";
 
 describe("Contract Page Test", () => {
-  it("ui list of vendors should match with vendor names from config", async () => {
-    await ContractPage.open("contracts");
-    console.log(await browser.getUrl());
+  let csvVendorNames: string[];
+
+  before(async () => {
     const config = configStackName();
-    const csvVendorNames = await getVendorNames(config, {});
+    csvVendorNames = await getVendorNames(config, {});
     console.log("This is from csv:", csvVendorNames);
+    await ContractPage.open("contracts");
     await waitForPageLoad();
-    const uiVendorNames = (await ContractPage.getListOfContractsText()).map(
-      (item) => item.split(" - ")[1]
-    );
-    const sortedCsvVendorNames = csvVendorNames.sort();
-    const sortedUiVendorNames = uiVendorNames.sort();
-    console.log(sortedCsvVendorNames);
-    console.log(sortedUiVendorNames);
-    expect(sortedUiVendorNames).toEqual(sortedCsvVendorNames);
+  });
+
+  it("ui list of vendors should match with vendor names from config", async () => {
+    const listOfContractsFromUI = await ContractPage.getListOfContractsText();
+    const vendorNamesArray = extractOnlyVendorNames(listOfContractsFromUI);
+    expect(vendorNamesArray.sort()).toEqual(csvVendorNames.sort());
   });
 });
+
+const extractOnlyVendorNames = (listOfContractFromUI: string[]): string[] => {
+  const vendorNamesArray: string[] = [];
+  listOfContractFromUI.forEach((item) => {
+    const vendorNames = item.split("\n");
+    vendorNames.forEach((vendor) => {
+      const vendorNameMatch = vendor.match(/-([^]+)/);
+      if (vendorNameMatch) {
+        const vendorName = vendorNameMatch[1].trim();
+        vendorNamesArray.push(vendorName);
+      }
+    });
+  });
+  return vendorNamesArray;
+};

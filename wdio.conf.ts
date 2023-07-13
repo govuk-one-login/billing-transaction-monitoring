@@ -18,7 +18,7 @@ export const config = {
   ],
   logLevel: "error",
   bail: 0,
-  baseUrl: " ",
+  baseUrl: "",
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
