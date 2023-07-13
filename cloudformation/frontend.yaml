@@ -16,15 +16,33 @@ Resources:
         DefaultAuthorizer: LambdaAuthorizer
       Domain:
         CertificateArn: !Ref FrontEndCertificateArn
-        DomainName: !If
-          - IsProduction
-          - btm.account.gov.uk
-          - !Sub btm.${Environment}.account.gov.uk
+        DomainName: !Ref FrontEndDomainName
         Route53:
-          HostedZoneName: !If
-            - IsProduction
-            - btm.account.gov.uk.
-            - !Sub btm.${Environment}.account.gov.uk.
+          HostedZoneName: !Ref FrontEndHostedZoneName
+
+  FrontEndDomainName:
+    Type: AWS::SSM::Parameter
+    Condition: FrontEndApiEnabled
+    Properties:
+      Name: !Sub ${AWS::StackName}-frontend-domain-name
+      Type: String
+      Value: !If
+        - IsProduction
+        - btm.account.gov.uk
+        - !Sub btm.${Environment}.account.gov.uk
+      Description: !Sub Front end domain name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
+
+  FrontEndHostedZoneName:
+    Type: AWS::SSM::Parameter
+    Condition: FrontEndApiEnabled
+    Properties:
+      Name: !Sub ${AWS::StackName}-frontend-hosted-zone-name
+      Type: String
+      Value: !If
+        - IsProduction
+        - btm.account.gov.uk.
+        - !Sub btm.${Environment}.account.gov.uk.
+      Description: !Sub Front end Route 53 Hosted Zone name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
 
   FrontEndApiLogGroup:
     Type: AWS::Logs::LogGroup
