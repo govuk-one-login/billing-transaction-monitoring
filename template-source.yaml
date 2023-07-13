@@ -1,8 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template for infrastructure to monitor user identity verification events for billing purposes
-Transform:
-  - AWS::LanguageExtensions
-  - AWS::Serverless-2016-10-31
+Transform: AWS::Serverless-2016-10-31
 
 Parameters:
   Environment:
@@ -94,7 +92,14 @@ Conditions:
       !Equals [!Ref AWS::StackName, di-btm-integration],
       !Equals [!Ref AWS::StackName, di-btm-production],
     ]
-  UseCustomDomain: !Not [!Equals [!Ref FrontEndCertificateArn, none]]
+  FrontEndApiEnabled:
+    !And [
+      !Not [!Equals [!Ref FrontEndCertificateArn, none]],
+      !Or [
+        !Equals [!Ref AWS::StackName, di-btm-dev],
+        !Equals [!Ref AWS::StackName, di-btm-build],
+      ],
+    ]
 
 Globals:
   Function:

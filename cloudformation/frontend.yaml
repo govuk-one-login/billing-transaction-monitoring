@@ -1,7 +1,7 @@
 Resources:
   FrontEndApi:
     Type: AWS::Serverless::HttpApi
-    Condition: IsLowerEnv
+    Condition: FrontEndApiEnabled
     Properties:
       AccessLogSettings:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
@@ -15,19 +15,16 @@ Resources:
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
         DefaultAuthorizer: LambdaAuthorizer
       Domain:
-        Fn::If:
-          - UseCustomDomain
-          - CertificateArn: !Ref FrontEndCertificateArn
-            DomainName: !If
-              - IsProduction
-              - btm.account.gov.uk
-              - !Sub btm.${Environment}.account.gov.uk
-            Route53:
-              HostedZoneName: !If
-                - IsProduction
-                - btm.account.gov.uk.
-                - !Sub btm.${Environment}.account.gov.uk.
-          - !Ref AWS::NoValue
+        CertificateArn: !Ref FrontEndCertificateArn
+        DomainName: !If
+          - IsProduction
+          - btm.account.gov.uk
+          - !Sub btm.${Environment}.account.gov.uk
+        Route53:
+          HostedZoneName: !If
+            - IsProduction
+            - btm.account.gov.uk.
+            - !Sub btm.${Environment}.account.gov.uk.
 
   FrontEndApiLogGroup:
     Type: AWS::Logs::LogGroup
