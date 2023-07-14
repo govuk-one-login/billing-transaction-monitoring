@@ -134,7 +134,7 @@ Resources:
             contract.name contract_name,
             event_name,
             sum(quantity) AS quantity,
-            unit_price,
+            btm.unit_price,
             sum(price) AS price,
             sum(tax) AS tax,
             year,
@@ -142,5 +142,5 @@ Resources:
           FROM btm_billing_standardised btm
           LEFT JOIN "btm_contracts_standardised" contract
                   ON (contract_id = contract.id)
-          GROUP BY btm.vendor_id,vendor_name,contract.id,contract.name,service_name,event_name,year,month
+          GROUP BY btm.vendor_id,btm.unit_price,vendor_name,contract.id,contract.name,service_name,event_name,year,month
         Workgroup: !Ref AthenaInvoiceWorkgroup
