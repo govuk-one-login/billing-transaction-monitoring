@@ -38,19 +38,21 @@
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
-        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
-        <th class="govuk-table__header" scope="col">Percentage Discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity Discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price Discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Percentage Discrepancy</th>
         <th class="govuk-table__header" scope="col">Status</th>
       </tr>
     </thead>
     {% for row in reconciliationRows %}
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">{{ row.serviceName }}</td>
-          <td class="govuk-table__cell">{{ row.quantityDiscrepancy }}</td>
-          <td class="govuk-table__cell">{{ row.priceDiscrepancy }}</td>
-          <td class="govuk-table__cell">{{ row.percentageDiscrepancy }}</td>
+          <th scope="row" class="govuk-table__header">
+            {{ row.serviceName }}
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.quantityDiscrepancy }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.priceDiscrepancy }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.percentageDiscrepancy }}</td>
           <td class="govuk-table__cell">
             {{ govukTag({
                         text: row.status.message,
@@ -66,18 +68,20 @@
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header" scope="col">Invoiced Quantity</th>
-        <th class="govuk-table__header" scope="col">Measured Quantity</th>
-        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced Quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured Quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity Discrepancy</th>
       </tr>
     </thead>
     {% for row in reconciliationRows %}
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">{{ row.serviceName }}</td>
-          <td class="govuk-table__cell">{{ row.billingQuantity }}</td>
-          <td class="govuk-table__cell">{{ row.transactionQuantity }}</td>
-          <td class="govuk-table__cell">{{ row.quantityDiscrepancy }}</td>
+          <th scope="row" class="govuk-table__header">
+            {{ row.serviceName }}
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.billingQuantity }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.transactionQuantity }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.quantityDiscrepancy }}</td>
         </tr>
       </tbody>
     {% endfor %}
@@ -87,18 +91,20 @@
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header" scope="col">Invoiced Price</th>
-        <th class="govuk-table__header" scope="col">Measured Price</th>
-        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced Price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured Price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price Discrepancy</th>
       </tr>
     </thead>
     {% for row in reconciliationRows %}
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">{{ row.serviceName }}</td>
-          <td class="govuk-table__cell">{{ row.billingPrice }}</td>
-          <td class="govuk-table__cell">{{ row.transactionPrice }}</td>
-          <td class="govuk-table__cell">{{ row.priceDiscrepancy }}</td>
+          <th scope="row" class="govuk-table__header">
+            {{ row.serviceName }}
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.billingPrice }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.transactionPrice }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.priceDiscrepancy }}</td>
         </tr>
       </tbody>
     {% endfor %}
@@ -108,14 +114,41 @@
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header" scope="col">Quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity</th>
       </tr>
     </thead>
     {% for row in reconciliationRows %}
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">{{ row.serviceName }}</td>
-          <td class="govuk-table__cell">{{ row.transactionQuantity }}</td>
+          <th scope="row" class="govuk-table__header">
+            {{ row.serviceName }}
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.transactionQuantity }}</td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Invoice</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Unit Price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Total</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Total + VAT</th>
+      </tr>
+    </thead>
+    {% for row in reconciliationRows %}
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <th scope="row" class="govuk-table__header">
+            {{ row.serviceName }}
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.billingQuantity }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.billingUnitPrice }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.billingPrice }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.billingPriceInclVat }}</td>
         </tr>
       </tbody>
     {% endfor %}

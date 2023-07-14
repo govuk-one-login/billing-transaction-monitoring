@@ -186,19 +186,21 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
-        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
-        <th class="govuk-table__header" scope="col">Percentage Discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity Discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price Discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Percentage Discrepancy</th>
         <th class="govuk-table__header" scope="col">Status</th>
       </tr>
     </thead>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">6,592.00</td>
-          <td class="govuk-table__cell">26.37</td>
-          <td class="govuk-table__cell">9.8814%</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">6,592.00</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">26.37</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">9.8814%</td>
           <td class="govuk-table__cell">
             <strong class="govuk-tag govuk-tag--red">
   Above Threshold
@@ -210,10 +212,12 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">-14</td>
-          <td class="govuk-table__cell">-4.76</td>
-          <td class="govuk-table__cell">-1.1235%</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">-14</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">-4.76</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">-1.1235%</td>
           <td class="govuk-table__cell">
             <strong class="govuk-tag govuk-tag--blue">
   Below Threshold
@@ -225,10 +229,12 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">100.00</td>
-          <td class="govuk-table__cell">0.00</td>
-          <td class="govuk-table__cell">0%</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">100.00</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">0.00</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">0%</td>
           <td class="govuk-table__cell">
             <strong class="govuk-tag govuk-tag--green">
   Within Threshold
@@ -244,36 +250,42 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header" scope="col">Invoiced Quantity</th>
-        <th class="govuk-table__header" scope="col">Measured Quantity</th>
-        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced Quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured Quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity Discrepancy</th>
       </tr>
     </thead>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">73298</td>
-          <td class="govuk-table__cell">66706</td>
-          <td class="govuk-table__cell">6,592.00</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">73298</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">66706</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">6,592.00</td>
         </tr>
       </tbody>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">11324</td>
-          <td class="govuk-table__cell">11338</td>
-          <td class="govuk-table__cell">-14</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">11324</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">11338</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">-14</td>
         </tr>
       </tbody>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">100</td>
-          <td class="govuk-table__cell">100</td>
-          <td class="govuk-table__cell">100.00</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">100</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">100</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">100.00</td>
         </tr>
       </tbody>
     
@@ -283,36 +295,42 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header" scope="col">Invoiced Price</th>
-        <th class="govuk-table__header" scope="col">Measured Price</th>
-        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced Price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured Price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price Discrepancy</th>
       </tr>
     </thead>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">293.19</td>
-          <td class="govuk-table__cell">266.82</td>
-          <td class="govuk-table__cell">26.37</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">293.19</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">266.82</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">26.37</td>
         </tr>
       </tbody>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">3,850.16</td>
-          <td class="govuk-table__cell">3,854.92</td>
-          <td class="govuk-table__cell">-4.76</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">3,850.16</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">3,854.92</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">-4.76</td>
         </tr>
       </tbody>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">100</td>
-          <td class="govuk-table__cell">100</td>
-          <td class="govuk-table__cell">0.00</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">100</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">100</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">0.00</td>
         </tr>
       </tbody>
     
@@ -322,28 +340,83 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header" scope="col">Quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity</th>
       </tr>
     </thead>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">66706</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">66706</td>
         </tr>
       </tbody>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">11338</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">11338</td>
         </tr>
       </tbody>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Passport check</td>
-          <td class="govuk-table__cell">100</td>
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">100</td>
+        </tr>
+      </tbody>
+    
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Invoice</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Unit Price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Total</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Total + VAT</th>
+      </tr>
+    </thead>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">73298</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric"></td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">293.19</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">351.83</td>
+        </tr>
+      </tbody>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">11324</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric"></td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">3,850.16</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">4,620.19</td>
+        </tr>
+      </tbody>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <th scope="row" class="govuk-table__header">
+            Passport check
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">100</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric"></td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">100</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">110</td>
         </tr>
       </tbody>
     
