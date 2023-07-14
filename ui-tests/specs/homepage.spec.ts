@@ -1,4 +1,4 @@
-import HomePage from "../pageobjects//homepage.js";
+import HomePage from "../pageobjects/homePage.js";
 
 describe("Home Page Tests", () => {
   before(async () => {
