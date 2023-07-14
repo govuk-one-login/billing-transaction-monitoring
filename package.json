@@ -101,7 +101,6 @@
     "predev": "npm run build:css",
     "prebuild": "npm run build:css",
     "fetch-s3": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/fetch-s3.ts",
-    "ui-test:setup": " node ./ui-tests/testData/test.setup",
     "wdio": "wdio run ./wdio.conf.ts"
   },
   "lint-staged": {
