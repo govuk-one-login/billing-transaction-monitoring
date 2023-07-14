@@ -19,7 +19,7 @@ import {
 } from "./helpers/athenaHelper";
 import { createInvoiceInS3 } from "./helpers/mock-data/invoice/helpers";
 import { invokeLambda } from "./helpers/lambdaHelper";
-import { sendRawEmail, sendEmailWithoutAttachments } from "./helpers/sesHelper";
+import { sendEmail } from "./helpers/sesHelper";
 
 export type SerializableData =
   | string
@@ -57,7 +57,6 @@ export enum IntTestHelpers {
   createInvoiceInS3 = "createInvoiceInS3",
   invokeLambda = "invokeLambda",
   sendEmail = "sendEmail",
-  sendRawEmail = "sendRawEmail",
 }
 
 export interface HelperDict {
@@ -75,8 +74,7 @@ export interface HelperDict {
   [IntTestHelpers.getQueryResults]: typeof getQueryResults;
   [IntTestHelpers.createInvoiceInS3]: typeof createInvoiceInS3;
   [IntTestHelpers.invokeLambda]: typeof invokeLambda;
-  [IntTestHelpers.sendEmail]: typeof sendEmailWithoutAttachments;
-  [IntTestHelpers.sendRawEmail]: typeof sendRawEmail;
+  [IntTestHelpers.sendEmail]: typeof sendEmail;
 }
 
 const functionMap: HelperDict = {
@@ -94,8 +92,7 @@ const functionMap: HelperDict = {
   [IntTestHelpers.getQueryResults]: getQueryResults,
   [IntTestHelpers.createInvoiceInS3]: createInvoiceInS3,
   [IntTestHelpers.invokeLambda]: invokeLambda,
-  [IntTestHelpers.sendEmail]: sendEmailWithoutAttachments,
-  [IntTestHelpers.sendRawEmail]: sendRawEmail,
+  [IntTestHelpers.sendEmail]: sendEmail,
 };
 
 const callFunction = async (
