@@ -1,4 +1,5 @@
 import express, { Express } from "express";
+import helmet from "helmet";
 import nunjucks from "nunjucks";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -17,6 +18,19 @@ const shouldLoadFromNodeModules =
   process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 
 export const initApp = (app: Express): void => {
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          "connect-src": "https://accounts.google.com/gsi/",
+          "frame-src": "https://accounts.google.com/gsi/",
+          "script-src": ["'self'", "https://accounts.google.com/gsi/client"],
+          "style-src": ["'self'", "https://accounts.google.com/gsi/style"],
+        },
+      },
+    })
+  );
+
   const viewDir = path.join(dirname, "views");
 
   const templatePath = shouldLoadFromNodeModules
