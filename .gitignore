@@ -7,3 +7,5 @@ coverage
 template.yaml
 reports
 .env
+
+src/frontend/styles/all.css*

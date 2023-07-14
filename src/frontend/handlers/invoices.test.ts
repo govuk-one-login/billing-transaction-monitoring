@@ -1,33 +1,26 @@
 import supertest from "supertest";
 import { app } from "../app";
 import { makeCtxConfig } from "../../handler-context/context-builder";
-import { AthenaQueryExecutor } from "../../shared/utils/athenaV3";
 import { initApp } from "../init-app";
+import { fetchS3 } from "../../shared/utils";
 
 jest.mock("../../handler-context/context-builder");
 const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
 
-jest.mock("../../shared/utils/athenaV3");
-const MockedAthenaQueryExecutor = AthenaQueryExecutor as jest.MockedClass<
-  typeof AthenaQueryExecutor
->;
-const mockedAthenaQueryExecutorFetchResults = jest.fn();
-MockedAthenaQueryExecutor.mockReturnValue({
-  fetchResults: mockedAthenaQueryExecutorFetchResults,
-} as any);
+jest.mock("../../shared/utils");
+const mockedFetchS3 = fetchS3 as jest.Mock;
 
 describe("invoices handler", () => {
   let givenContractsConfig;
   let givenServicesConfig;
-  let givenQueryResults;
+  let givenExtractResults;
   let contractId: string;
 
   beforeEach(() => {
     initApp(app);
 
     process.env = {
-      QUERY_RESULTS_BUCKET: "given query results bucket",
-      DATABASE_NAME: "given database name",
+      STORAGE_BUCKET: "given storage bucket",
     };
 
     contractId = "1";
@@ -50,25 +43,18 @@ describe("invoices handler", () => {
       contracts: givenContractsConfig,
     });
 
-    givenQueryResults = {
-      ColumnInfos: [],
-      ResultRows: [],
-      ResultSetMetadata: { ColumnInfo: [] },
-      Rows: [
-        { Data: [{ VarCharValue: "month" }, { VarCharValue: "year" }] },
-        { Data: [{ VarCharValue: "03" }, { VarCharValue: "2023" }] },
-        { Data: [{ VarCharValue: "04" }, { VarCharValue: "2023" }] },
-        { Data: [{ VarCharValue: "10" }, { VarCharValue: "2023" }] },
-      ],
-    };
-    mockedAthenaQueryExecutorFetchResults.mockResolvedValue(givenQueryResults);
+    givenExtractResults =
+      '{"month":"10","year":"2023","contract_id":"1"}\n' +
+      '{"month":"03","year":"2023","contract_id":"1"}\n' +
+      '{"month":"04","year":"2023","contract_id":"1"}';
+    mockedFetchS3.mockResolvedValue(givenExtractResults);
   });
 
   test("Page displays months and years of invoices", async () => {
     const request = supertest(app);
-    const response = await request.get("/invoices?contract_id=1");
+    const response = await request.get(`/contracts/${contractId}/invoices`);
     expect(response.status).toBe(200);
-    expect(response.text).toContain("Home");
+    expect(response.text).toContain("Billings and reconciliation");
     expect(response.text).toContain("Contracts");
     expect(response.text).toContain("C01234 - Vendor One");
     expect(response.text).toContain("Mar 2023");

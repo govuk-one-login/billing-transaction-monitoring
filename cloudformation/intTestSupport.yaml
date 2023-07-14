@@ -17,6 +17,18 @@ Resources:
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
       Environment:
         Variables:
+          EMAIL_SENDER_NAME_ID:
+            Fn::ImportValue: !Join
+              - '-'
+              - - di-btm-tooling
+                - !If [IsDev, dev, !Ref Environment]
+                - email-sender-name-arn
+          EMAIL_SENDER_PASSWORD_ID:
+            Fn::ImportValue: !Join
+              - '-'
+              - - di-btm-tooling
+                - !If [IsDev, dev, !Ref Environment]
+                - email-sender-password-arn
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-int-test-support-function
       Handler: intTestSupport.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
@@ -41,7 +53,9 @@ Resources:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
-              Resource: !GetAtt KmsKey.Arn
+              Resource:
+                - !GetAtt KmsKey.Arn
+                - !GetAtt MultiRegionKmsKey.Arn
             - Effect: Allow
               Action:
                 - kms:Decrypt
@@ -50,7 +64,13 @@ Resources:
               Resource: '*'
               Condition:
                 ForAnyValue:StringEquals:
-                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+                  kms:ResourceAliases:
+                    - !Sub alias/key-${ConfigStackParameter.Value}-general
+                    - !Join
+                      - '-'
+                      - - alias/key-di-btm-tooling
+                        - !If [IsDev, dev, !Ref Environment]
+                        - general
             - !If
               - IsLowerEnv
               - Effect: Allow
@@ -85,11 +105,26 @@ Resources:
               Resource:
                 - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-*
             - Effect: Allow
+              Action: ses:SendRawEmail
+              Resource: !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
+            - Effect: Allow
               Action:
-                - ses:SendEmail
-                - ses:SendRawEmail
+                - secretsmanager:DescribeSecret
+                - secretsmanager:GetResourcePolicy
+                - secretsmanager:GetSecretValue
+                - secretsmanager:ListSecretVersionIds
               Resource:
-                - !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
+                - Fn::ImportValue: !Join
+                    - '-'
+                    - - di-btm-tooling
+                      - !If [IsDev, dev, !Ref Environment]
+                      - email-sender-name-arn
+                - Fn::ImportValue: !Join
+                    - '-'
+                    - - di-btm-tooling
+                      - !If [IsDev, dev, !Ref Environment]
+                      - email-sender-password-arn
+
       ReservedConcurrentExecutions: 10
 
   AllowTestingContainerToInvoke:

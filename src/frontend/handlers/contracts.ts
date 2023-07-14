@@ -1,8 +1,12 @@
-import { RequestHandler } from "express";
-import { getContracts } from "../config";
+import { getContracts } from "../extract-helpers";
+import { ContractParams, PageParamsGetter } from "../pages";
 
-export const contractsHandler: RequestHandler = async (_, response) => {
-  response.render("contracts.njk", {
+export const contractsParamsGetter: PageParamsGetter<
+  {},
+  ContractParams
+> = async (_) => {
+  return {
+    pageTitle: "Contracts",
     contracts: await getContracts(),
-  });
+  };
 };

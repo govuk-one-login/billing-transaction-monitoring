@@ -79,9 +79,6 @@ describe("\n DashboardDataExtractFunction", () => {
     expect(response[0].service_name).toEqual(
       standardisedInvoiceObject.service_name
     );
-    expect(response[0].service_name).toEqual(
-      standardisedInvoiceObject.service_name
-    );
     expect(response[0].contract_id).toEqual(
       standardisedInvoiceObject.contract_id
     );
@@ -98,6 +95,11 @@ describe("\n DashboardDataExtractFunction", () => {
     );
     expect(response[0].transaction_price_formatted).toEqual("");
     expect(response[0].price_difference).toEqual("");
+    expect(response[0].billing_quantity).toEqual(
+      standardisedInvoiceObject.quantity.toString()
+    );
+    expect(response[0].transaction_quantity).toEqual("");
+    expect(response[0].quantity_difference).toEqual("");
     expect(response[0].billing_amount_with_tax).toEqual(
       standardisedInvoiceObject.total.toLocaleString("en-GB", {
         style: "currency",
@@ -119,6 +121,9 @@ interface BtmMonthlyExtract {
   billing_price_formatted: string;
   transaction_price_formatted: string;
   price_difference: string;
+  billing_quantity: string;
+  transaction_quantity: string;
+  quantity_difference: string;
   billing_amount_with_tax: string;
   price_difference_percentage: number;
 }

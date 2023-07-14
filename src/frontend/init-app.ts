@@ -3,9 +3,7 @@ import nunjucks from "nunjucks";
 import path from "path";
 import { fileURLToPath } from "url";
 import "dotenv/config";
-import { contractsHandler } from "./handlers/contracts";
-import { getInvoiceHandler } from "./handlers/invoice";
-import { getInvoicesHandler } from "./handlers/invoices";
+import { getHandler, getRoute, PAGES } from "./pages";
 
 let dirname: string;
 try {
@@ -32,15 +30,9 @@ export const initApp = (app: Express): void => {
 
   app.engine("njk", nunjucks.render);
 
-  app.get("/", (_, response) => {
-    response.render("index.njk");
+  PAGES.forEach((page) => {
+    app.get(getRoute(page), getHandler(page));
   });
-
-  app.get("/contracts", contractsHandler);
-
-  app.get("/invoices", getInvoicesHandler);
-
-  app.get("/invoice", getInvoiceHandler);
 
   const assetsPath = shouldLoadFromNodeModules
     ? path.join("node_modules/govuk-frontend/govuk", "./assets")
@@ -51,7 +43,7 @@ export const initApp = (app: Express): void => {
     : assetsPath;
 
   const stylesPath = shouldLoadFromNodeModules
-    ? "node_modules/govuk-frontend/govuk"
+    ? path.join(dirname, "./styles")
     : assetsPath;
 
   app.use("/assets", express.static(assetsPath));

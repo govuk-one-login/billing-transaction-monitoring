@@ -306,14 +306,14 @@ Resources:
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price - txn.price) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) price_difference
             , invoice.quantity billing_quantity
             , txn.quantity transaction_quantity
-            , REGEXP_REPLACE(CAST(CAST((invoice.quantity - txn.quantity) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,') quantity_difference
+            , REGEXP_REPLACE(CAST(invoice.quantity - txn.quantity AS varchar), '(\d)(?=(\d{3})+\.)', '$1,') quantity_difference
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price + invoice.tax) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) billing_amount_with_tax
             , (CASE
                 WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN ${QueryMessageNoChargeForThisMonth}
                 WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN ${QueryMessageInvoiceDataMissing}
                 WHEN ((txn.price IS NULL) AND (txn.quantity IS NULL)) THEN ${QueryMessageTransactionDataMissing}
                 WHEN (txn.price IS NULL) THEN ${QueryMessageRateCardDataMissing}
-                WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE ${UnexpectedInvoiceCharge} END)
+                WHEN (COALESCE(txn.price, 0) = 0) THEN (CASE WHEN (COALESCE(invoice.price, 0) = 0) THEN 0 ELSE ${QueryMessageUnexpectedInvoiceCharge} END)
                 ELSE ((100 * (COALESCE(invoice.price, 0) - txn.price)) / txn.price)
               END) price_difference_percentage
           FROM

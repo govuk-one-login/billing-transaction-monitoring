@@ -1,0 +1,16 @@
+@import "../../../node_modules/govuk-frontend/govuk/all.scss";
+
+.govuk-panel {
+  &.warning {
+    background: govuk-colour("mid-grey")!important;
+  }
+  &.error {
+    background: $govuk-error-colour;
+  }
+  &.notice {
+    background: govuk-colour("blue");
+  }
+  &.payable {
+    background: $govuk-success-colour;
+  }
+}

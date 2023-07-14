@@ -1,24 +1,123 @@
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{%- from "govuk/components/tag/macro.njk" import govukTag -%}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/accordion/macro.njk" import govukAccordion %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from 'status-guidance.njk' import statusGuidance %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% extends "common/layout/base.njk" %}
 {% block beforeContent %}
-  {{ govukBreadcrumbs({
-    items: [
-    {
-    text: "Home",
-    href: "/"
-    },
-    {
-    text: "Contracts",
-    href: "/contracts"
-    },
-    {
-    text: contractName + " - " + vendorName,
-    href: "/invoices?contract_id=" + contractId
+  {{ govukBreadcrumbs(breadcrumbData) }}
+{% endblock beforeContent %}
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+  {{ govukPanel({
+    titleText: invoiceStatus,
+    html: "Reference number
+    <br>
+    <strong>" + contractName + "</strong>",
+    classes: bannerClass
+    }) }}
+  <div class="govuk-inset-text">
+    {{ govukAccordion({
+        id: "accordion-default",
+        items: [
+        {
+        heading: {
+        text: "Status guidance"
+        },
+        content: {
+        html: statusGuidance() 
+    }
     }
     ]
     }) }}
-{% endblock beforeContent %}
-{% block content %}
-  <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
-  <p class="govuk-body">Welcome to the selected invoice page!</p>
+  </div>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Reconciliation</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Percentage Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Status</th>
+      </tr>
+    </thead>
+    {% for row in reconciliationRows %}
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">{{ row.serviceName }}</td>
+          <td class="govuk-table__cell">{{ row.quantityDiscrepancy }}</td>
+          <td class="govuk-table__cell">{{ row.priceDiscrepancy }}</td>
+          <td class="govuk-table__cell">{{ row.percentageDiscrepancy }}</td>
+          <td class="govuk-table__cell">
+            {{ govukTag({
+                        text: row.status.message,
+                        classes: row.status.class
+                        }) }}
+          </td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Quantity (events)</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Invoiced Quantity</th>
+        <th class="govuk-table__header" scope="col">Measured Quantity</th>
+        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
+      </tr>
+    </thead>
+    {% for row in reconciliationRows %}
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">{{ row.serviceName }}</td>
+          <td class="govuk-table__cell">{{ row.billingQuantity }}</td>
+          <td class="govuk-table__cell">{{ row.transactionQuantity }}</td>
+          <td class="govuk-table__cell">{{ row.quantityDiscrepancy }}</td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Price</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Invoiced Price</th>
+        <th class="govuk-table__header" scope="col">Measured Price</th>
+        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
+      </tr>
+    </thead>
+    {% for row in reconciliationRows %}
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">{{ row.serviceName }}</td>
+          <td class="govuk-table__cell">{{ row.billingPrice }}</td>
+          <td class="govuk-table__cell">{{ row.transactionPrice }}</td>
+          <td class="govuk-table__cell">{{ row.priceDiscrepancy }}</td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Measured (events)</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Quantity</th>
+      </tr>
+    </thead>
+    {% for row in reconciliationRows %}
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">{{ row.serviceName }}</td>
+          <td class="govuk-table__cell">{{ row.transactionQuantity }}</td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
 {% endblock content %}

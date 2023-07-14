@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`invoice handler Page displays invoice info 1`] = `
+exports[`invoice handler Page displays Invoice above threshold banner text and three line items in the Reconciliation Table for Mar 2023 1`] = `
 "<!DOCTYPE html>
 <html lang="en" class="govuk-template ">
   <head>
     <meta charset="utf-8">
     <title>
   
-  
-  Digital Identity Billing Dashboard
+  Vendor One Mar 2023 Invoice -
+  Billings and Reconciliation
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0b0c0c"> 
@@ -88,7 +88,7 @@ exports[`invoice handler Page displays invoice info 1`] = `
   
     
     <li class="govuk-breadcrumbs__list-item">
-      <a class="govuk-breadcrumbs__link" href="/">Home</a>
+      <a class="govuk-breadcrumbs__link" href="/">Billings and reconciliation</a>
     </li>
     
   
@@ -100,7 +100,7 @@ exports[`invoice handler Page displays invoice info 1`] = `
   
     
     <li class="govuk-breadcrumbs__list-item">
-      <a class="govuk-breadcrumbs__link" href="/invoices?contract_id=1">C01234 - Vendor One</a>
+      <a class="govuk-breadcrumbs__link" href="/contracts/1/invoices">C01234 - Vendor One</a>
     </li>
     
   
@@ -110,8 +110,244 @@ exports[`invoice handler Page displays invoice info 1`] = `
 
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
-  <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
-  <p class="govuk-body">Welcome to the selected invoice page!</p>
+  <h1 class="govuk-heading-xl">Vendor One Mar 2023 Invoice</h1>
+  
+<div class="govuk-panel govuk-panel--confirmation error">
+  <h1 class="govuk-panel__title">
+    Invoice above threshold
+  </h1>
+  
+  <div class="govuk-panel__body">
+    Reference number
+    <br>
+    <strong>C01234</strong>
+  </div>
+  
+</div>
+
+  <div class="govuk-inset-text">
+    
+
+
+<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
+  
+    
+      <div class="govuk-accordion__section">
+        <div class="govuk-accordion__section-header">
+          <h2 class="govuk-accordion__section-heading">
+            <span class="govuk-accordion__section-button" id="accordion-default-heading-1">
+              Status guidance
+            </span>
+          </h2>
+          
+        </div>
+        <div id="accordion-default-content-1" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-1">
+          
+            
+  <p class='govuk-body'>Common banner states:</p>
+  <ul class='govuk-list govuk-list--bullet'>
+    <li>
+      Invoice within threshold (green) - the discrepancy between measured event data and the invoice is within the threshold tolerance of -1% and 1%. This invoice can be paid.
+    </li>
+    <li>
+      Invoice above threshold (red) - the discrepancy between measured event data and the invoice is above the threshold of 1%. The vendor may have overcharged within the invoice. Contact the Data &amp; Analytics team to confirm measured data and the vendor to confirm the invoice.
+    </li>
+    <li>
+      Invoice below threshold (blue) - the discrepancy between measured event data and the invoice is below the threshold of -1%. The vendor may have undercharged within the invoice. Contact the Data &amp; Analytics team to confirm measured data and the vendor to confirm the invoice.
+    </li>
+  </ul>
+  <p class='govuk-body'>Other banner states (grey):</p>
+  <ul class='govuk-list govuk-list--bullet'>
+    <li>Invoice and events missing - There is no invoices or event data for this month.</li>
+    <li>
+      Invoice missing - An event has been measured for this month, but there has been no corresponding invoice received.
+    </li>
+    <li>
+      Events missing - An invoice has been received for this month that includes at least one service that there has been no measured data.
+    </li>
+    <li>
+      Unable to find rate - An error has occurred. An invoice has been received that includes at least one service that does not have a corresponding rate per transaction configured. Contact technical support to resolve this error.
+    </li>
+    <li>
+      Invoice has unexpected charge - Event processing concludes there should be no charge for a particular service for a month (i.e. if all events had a charge £0.00), but the invoice charge is non-zero. In this case, event processing cannot compute a percentage discrepancy, as it would be infinite.
+    </li>
+  </ul>
+
+          
+        </div>
+      </div>
+    
+  
+</div>
+
+  </div>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Reconciliation</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Percentage Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Status</th>
+      </tr>
+    </thead>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">6,592.00</td>
+          <td class="govuk-table__cell">26.37</td>
+          <td class="govuk-table__cell">9.8814%</td>
+          <td class="govuk-table__cell">
+            <strong class="govuk-tag govuk-tag--red">
+  Above Threshold
+</strong>
+
+          </td>
+        </tr>
+      </tbody>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">-14</td>
+          <td class="govuk-table__cell">-4.76</td>
+          <td class="govuk-table__cell">-1.1235%</td>
+          <td class="govuk-table__cell">
+            <strong class="govuk-tag govuk-tag--blue">
+  Below Threshold
+</strong>
+
+          </td>
+        </tr>
+      </tbody>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">100.00</td>
+          <td class="govuk-table__cell">0.00</td>
+          <td class="govuk-table__cell">0%</td>
+          <td class="govuk-table__cell">
+            <strong class="govuk-tag govuk-tag--green">
+  Within Threshold
+</strong>
+
+          </td>
+        </tr>
+      </tbody>
+    
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Quantity (events)</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Invoiced Quantity</th>
+        <th class="govuk-table__header" scope="col">Measured Quantity</th>
+        <th class="govuk-table__header" scope="col">Quantity Discrepancy</th>
+      </tr>
+    </thead>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">73298</td>
+          <td class="govuk-table__cell">66706</td>
+          <td class="govuk-table__cell">6,592.00</td>
+        </tr>
+      </tbody>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">11324</td>
+          <td class="govuk-table__cell">11338</td>
+          <td class="govuk-table__cell">-14</td>
+        </tr>
+      </tbody>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">100</td>
+          <td class="govuk-table__cell">100</td>
+          <td class="govuk-table__cell">100.00</td>
+        </tr>
+      </tbody>
+    
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Price</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Invoiced Price</th>
+        <th class="govuk-table__header" scope="col">Measured Price</th>
+        <th class="govuk-table__header" scope="col">Price Discrepancy</th>
+      </tr>
+    </thead>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">293.19</td>
+          <td class="govuk-table__cell">266.82</td>
+          <td class="govuk-table__cell">26.37</td>
+        </tr>
+      </tbody>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">3,850.16</td>
+          <td class="govuk-table__cell">3,854.92</td>
+          <td class="govuk-table__cell">-4.76</td>
+        </tr>
+      </tbody>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">100</td>
+          <td class="govuk-table__cell">100</td>
+          <td class="govuk-table__cell">0.00</td>
+        </tr>
+      </tbody>
+    
+  </table>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Measured (events)</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Line Item</th>
+        <th class="govuk-table__header" scope="col">Quantity</th>
+      </tr>
+    </thead>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">66706</td>
+        </tr>
+      </tbody>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">11338</td>
+        </tr>
+      </tbody>
+    
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Passport check</td>
+          <td class="govuk-table__cell">100</td>
+        </tr>
+      </tbody>
+    
+  </table>
 
         </main>
       </div>
@@ -162,7 +398,7 @@ exports[`invoice handler Page displays invoice info 1`] = `
     
 
     
-  <script src="assets/scripts/all.js"></script>
+  <script src="/assets/scripts/all.js"></script>
   <script>window.GOVUKFrontend.initAll();</script>
   
   

@@ -1,44 +1,8 @@
-import { SendEmailCommand, SendRawEmailCommand } from "@aws-sdk/client-ses";
-import { sesClient } from "../clients";
-import { IntTestHelpers, SerializableData } from "../handler";
+import nodemailer from "nodemailer";
+import { IntTestHelpers } from "../handler";
 import { runViaLambda } from "./envHelper";
 import { sendLambdaCommand } from "./lambdaHelper";
-
-export type RawMessage = {
-  Data: Uint8Array;
-};
-
-export type RawEmailParams = {
-  Source?: string;
-  Destinations?: string[];
-  RawMessage: RawMessage;
-};
-
-// Sends a raw email with attachments using the provided parameters
-export const sendRawEmail = async (params: RawEmailParams): Promise<string> => {
-  if (runViaLambda()) {
-    const serializedParams = {
-      ...params,
-      RawMessage: {
-        Data: params.RawMessage.Data,
-      },
-    } as unknown as RawEmailParams & SerializableData;
-    return await sendLambdaCommand(
-      IntTestHelpers.sendRawEmail,
-      serializedParams
-    );
-  }
-
-  try {
-    const response = await sesClient.send(new SendRawEmailCommand(params));
-    if (response.MessageId === undefined) {
-      throw new Error("Error in sending the mail");
-    }
-    return response.MessageId;
-  } catch (error) {
-    throw new Error(`Failed to send mail: ${error}`);
-  }
-};
+import { getSecret } from "./secretsManagerHelper";
 
 export type EmailParams = {
   Source: string;
@@ -54,24 +18,57 @@ export type EmailParams = {
         Data: string;
       };
     };
+    Attachment?: {
+      Filename: string;
+      Content: string;
+      ContentType: string;
+    };
   };
 };
 
-// Sends an email without attachments using the provided parameters
-export const sendEmailWithoutAttachments = async (
-  params: EmailParams
-): Promise<string> => {
+export const sendEmail = async (params: EmailParams): Promise<string> => {
   if (runViaLambda())
     return (await sendLambdaCommand(
       IntTestHelpers.sendEmail,
       params
     )) as unknown as string;
+
   try {
-    const response = await sesClient.send(new SendEmailCommand(params));
-    if (response.MessageId === undefined) {
-      throw new Error("Error in sending the mail");
-    }
-    return response.MessageId;
+    if (!process.env.EMAIL_SENDER_NAME_ID)
+      throw Error("No `EMAIL_SENDER_NAME_ID` given");
+
+    if (!process.env.EMAIL_SENDER_PASSWORD_ID)
+      throw Error("No `EMAIL_SENDER_PASSWORD_ID` given");
+
+    const [user, pass] = await Promise.all([
+      getSecret({ id: process.env.EMAIL_SENDER_NAME_ID }),
+      getSecret({ id: process.env.EMAIL_SENDER_PASSWORD_ID }),
+    ]);
+
+    const transporter = nodemailer.createTransport({
+      host: "email-smtp.eu-west-2.amazonaws.com",
+      port: 465,
+      secure: true,
+      auth: { user, pass },
+    });
+
+    const { messageId } = await transporter.sendMail({
+      from: params.Source,
+      to: params.Destination.ToAddresses.join(", "),
+      subject: params.Message.Subject.Data,
+      text: params.Message.Body.Text.Data,
+      attachments: params.Message.Attachment
+        ? [
+            {
+              filename: params.Message.Attachment.Filename,
+              content: params.Message.Attachment.Content,
+              contentType: params.Message.Attachment.ContentType,
+            },
+          ]
+        : [],
+    });
+
+    return messageId;
   } catch (error) {
     throw new Error(`Failed to send mail: ${error}`);
   }

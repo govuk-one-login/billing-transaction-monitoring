@@ -1,20 +1,23 @@
+import crypto from "node:crypto";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   EmailParams,
-  sendEmailWithoutAttachments,
+  sendEmail,
 } from "../../src/handlers/int-test-support/helpers/sesHelper";
 import {
   checkS3BucketForGivenStringExists,
   BucketAndPrefix,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import { getEmailAddresses } from "../../src/handlers/int-test-support/helpers/emailHelper";
 
-describe.skip("\n Email storage \n", () => {
+describe("\n Email storage \n", () => {
   test("should store the received email in the corresponding directory in the email bucket", async () => {
     const prefix = resourcePrefix();
+    const extractedEnvValue = prefix.split("-").pop();
     const emailBucket = `${prefix}-email`;
-    const { sourceEmail, toEmail } = await getEmailAddresses();
+    const sourceEmail = `no-reply@btm.${extractedEnvValue}.account.gov.uk`;
+    const toEmail = `vendor1_invoices@btm.${extractedEnvValue}.account.gov.uk`;
     const directory = "vendor_testvendor1";
+    const messageBody = crypto.randomBytes(32).toString("hex");
     const params: EmailParams = {
       Source: sourceEmail,
       Destination: {
@@ -26,20 +29,19 @@ describe.skip("\n Email storage \n", () => {
         },
         Body: {
           Text: {
-            Data: "test",
+            Data: messageBody,
           },
         },
       },
     };
     const testTime = new Date();
-    const messageId = await sendEmailWithoutAttachments(params);
-    const stringToCheckInEmailContents = `Message-ID: <${messageId}`;
+    await sendEmail(params);
     const s3Params: BucketAndPrefix = {
       bucketName: emailBucket,
       prefix: `${directory}`,
     };
     const givenStringExists = await checkS3BucketForGivenStringExists(
-      stringToCheckInEmailContents,
+      messageBody,
       30000,
       s3Params,
       testTime

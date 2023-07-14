@@ -34,6 +34,10 @@ Parameters:
     Description: Private config stack to use for configuration
     Type: String
     Default: none
+  FrontEndCertificateArn:
+    Description: ARN of security certificate for front end
+    Type: String
+    Default: none
 
   # Codes for error cases returned in response to queries from Grafana to BillingAndTransactionsCuratedView.
   QueryMessageNoChargeForThisMonth:
@@ -48,7 +52,7 @@ Parameters:
   QueryMessageTransactionDataMissing:
     Type: String
     Default: -1234567.04
-  UnexpectedInvoiceCharge:
+  QueryMessageUnexpectedInvoiceCharge:
     Type: String
     Default: -1234567.05
 
@@ -88,6 +92,14 @@ Conditions:
       !Equals [!Ref AWS::StackName, di-btm-integration],
       !Equals [!Ref AWS::StackName, di-btm-production],
     ]
+  FrontEndEnabled:
+    !And [
+      !Not [!Equals [!Ref FrontEndCertificateArn, none]],
+      !Or [
+        !Equals [!Ref AWS::StackName, di-btm-dev],
+        !Equals [!Ref AWS::StackName, di-btm-build],
+      ],
+    ]
 
 Globals:
   Function:
@@ -123,8 +135,3 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/email-storage.yaml,
   ./cloudformation/dashboard-data-extraction.yaml#NO_LOCAL,
   ./cloudformation/frontend.yaml
-
-Outputs:
-  FrontEndUrl:
-    Condition: IsLowerEnv
-    Value: !Sub https://${FrontEndApi}.execute-api.${AWS::Region}.amazonaws.com

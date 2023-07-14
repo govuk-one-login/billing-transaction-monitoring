@@ -1,16 +1,15 @@
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% extends "common/layout/base.njk" %}
 {% block beforeContent %}
-  {{ govukBreadcrumbs({"items": [{"text": "Home", "href": "/"}, {"text": "Contracts", "href": "/contracts"}]}) }}
+  {{ govukBreadcrumbs(breadcrumbData) }}
 {% endblock beforeContent %}
 {% block content %}
-  <h1 class="govuk-heading-l">Digital Identity Billing Dashboard</h1>
-  <h2 class="govuk-heading-m">{{ contract.name }} - {{ contract.vendorName }}</h2>
+  <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
   <ul class="govuk-list">
     {% for period in periods %}
       <li>
         <a class="govuk-link"
-           href="/invoice?contract_id={{ contract.id }}&year={{ period.year }}&month={{ period.month }}">
+           href="/contracts/{{ contract.id }}/invoices/{{ period.year }}-{{ period.month }}">
           {{ period.prettyMonth }} {{ period.year }}
         </a>
       </li>
