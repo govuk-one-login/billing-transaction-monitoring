@@ -52,12 +52,7 @@ export const getUniqueVendorNamesFromJson = (filePath: string): string[] => {
 export const getUniqueInvoiceMonthsYearsByVendor = (
   vendorName: string
 ): number => {
-  const currentFilePath = fileURLToPath(import.meta.url);
-  const currentDirPath = dirname(currentFilePath);
-  const testDataFilePath = path.join(
-    currentDirPath,
-    "../testData/testData.json"
-  );
+  const testDataFilePath = getTestDataFilePath();
   const { data } = getExtractDataFromJson(testDataFilePath);
   const uniqueMonthYears = new Set();
   for (const invoice of data) {
@@ -66,6 +61,5 @@ export const getUniqueInvoiceMonthsYearsByVendor = (
       uniqueMonthYears.add(monthYear);
     }
   }
-
   return uniqueMonthYears.size;
 };

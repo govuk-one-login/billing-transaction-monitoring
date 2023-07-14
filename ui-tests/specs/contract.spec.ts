@@ -1,38 +1,33 @@
-import ContractPage from "../pageobjects/contractPage.js";
+import ContractsPage from "../pageobjects/contractsPage.js";
 import { waitForPageLoad } from "../helpers/waits.js";
 import {
   getTestDataFilePath,
   getUniqueVendorNamesFromJson,
 } from "../helpers/extractDetailsTestDatajson.js";
 
-describe("Contract Page Test", () => {
-  let uiUniqueVendorNames: string[];
-  let jsonVendorNames: string[] = [];
-
-  before(async () => {
-    const testDataFilePath = getTestDataFilePath();
-    jsonVendorNames = getUniqueVendorNamesFromJson(testDataFilePath);
-  });
-
-  beforeEach(async () => {
-    await ContractPage.open("contracts");
-    await waitForPageLoad();
-    const uiContractAndVendorNames =
-      await ContractPage.getListOfContractsText();
-    const uiVendorNames = extractOnlyVendorNames(uiContractAndVendorNames);
-    uiUniqueVendorNames = [...new Set(uiVendorNames)];
-  });
-
+describe("Contracts Page Test", () => {
   it("UI list of vendors should match with vendor names in test data file", async () => {
+    await ContractsPage.open("contracts");
+    await waitForPageLoad();
+    const testDataFilePath = getTestDataFilePath();
+    const jsonVendorNames = getUniqueVendorNamesFromJson(testDataFilePath);
+    const uiContractAndVendorNames =
+      await ContractsPage.getListOfContractsText();
+    const uiVendorNames = extractOnlyVendorNames(uiContractAndVendorNames);
+    const uiUniqueVendorNames = [...new Set(uiVendorNames)];
     expect(jsonVendorNames.sort()).toEqual(uiUniqueVendorNames.sort());
   });
 
+  const testDataFilePath = getTestDataFilePath();
+  const jsonVendorNames = getUniqueVendorNamesFromJson(testDataFilePath);
   jsonVendorNames.sort().forEach((vendor) => {
-    it(`Should navigate to the vendor page for ${vendor}`, async () => {
-      await ContractPage.clickContractByVendorName(vendor);
+    it("Should navigate to the invoice list page for vendor", async () => {
+      await ContractsPage.open("contracts");
+      await waitForPageLoad();
+      await ContractsPage.clickContractByVendorName(vendor);
       await waitForPageLoad();
       const pageTitle = await browser.getTitle();
-      expect(pageTitle.includes(`${vendor}`)).toBe(true);
+      expect(pageTitle).toContain(vendor);
     });
   });
 });

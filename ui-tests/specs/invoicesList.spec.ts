@@ -19,7 +19,7 @@ before(async () => {
   await waitForPageLoad();
 });
 
-describe("Vendor Details Page", () => {
+describe("InvoicesList Page", () => {
   it("should display the correct vendor name", async () => {
     const vendorName = await InvoicesListPage.getPageSubHeadingText();
     expect(vendorName).toBe("C01234 - Vendor One");
