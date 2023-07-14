@@ -11,6 +11,7 @@ describe("getInvoiceBanner", () => {
     contract_name: "FOOBAR1",
     year: "2005",
     month: "02",
+    billing_unit_price: "£0.0000",
     billing_price_formatted: "£0.00",
     transaction_price_formatted: "£27.50",
     price_difference: "£-27.50",
