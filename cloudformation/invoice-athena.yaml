@@ -134,6 +134,7 @@ Resources:
             contract.name contract_name,
             event_name,
             sum(quantity) AS quantity,
+            unit_price,
             sum(price) AS price,
             sum(tax) AS tax,
             year,
