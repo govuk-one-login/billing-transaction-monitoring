@@ -8,7 +8,7 @@ import {
   waitForRawInvoice,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { sendRawEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
+import { sendEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
 import {
   getVendorServiceAndRatesFromConfig,
   TestData,
@@ -17,7 +17,6 @@ import {
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 import {
   encodeAttachment,
-  createRawEmailContent,
   getEmailAddresses,
 } from "../../src/handlers/int-test-support/helpers/emailHelper";
 
@@ -97,13 +96,22 @@ export const emailInvoice = async (
   );
   const attachmentString = encodeAttachment(invoiceData, filename);
 
-  const emailContent = createRawEmailContent(toEmail, attachmentString);
+  // const emailContent = createRawEmailContent(toEmail, attachmentString);
 
-  await sendRawEmail({
+  await sendEmail({
     Source: sourceEmail,
-    Destinations: [toEmail],
-    RawMessage: {
-      Data: Uint8Array.from(Buffer.from(emailContent)),
+    Destination: {
+      ToAddresses: [toEmail],
+    },
+    Message: {
+      Subject: {
+        Data: "test",
+      },
+      Body: {
+        Text: {
+          Data: attachmentString,
+        },
+      },
     },
   });
 
