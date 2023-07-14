@@ -6,24 +6,24 @@ import {
 } from "../helpers/extractDetailsTestDatajson.js";
 
 describe("Contracts Page Test", () => {
-  it("UI list of vendors should match with vendor names in test data file", async () => {
+  const testDataFilePath = getTestDataFilePath();
+  const jsonVendorNames = getUniqueVendorNamesFromJson(testDataFilePath);
+  let uiContractAndVendorNames: string[];
+
+  beforeEach(async () => {
     await ContractsPage.open("contracts");
     await waitForPageLoad();
-    const testDataFilePath = getTestDataFilePath();
-    const jsonVendorNames = getUniqueVendorNamesFromJson(testDataFilePath);
-    const uiContractAndVendorNames =
-      await ContractsPage.getListOfContractsText();
+    uiContractAndVendorNames = await ContractsPage.getListOfContractsText();
+  });
+
+  it("UI list of vendors should match with vendor names in test data file", () => {
     const uiVendorNames = extractOnlyVendorNames(uiContractAndVendorNames);
     const uiUniqueVendorNames = [...new Set(uiVendorNames)];
     expect(jsonVendorNames.sort()).toEqual(uiUniqueVendorNames.sort());
   });
 
-  const testDataFilePath = getTestDataFilePath();
-  const jsonVendorNames = getUniqueVendorNamesFromJson(testDataFilePath);
   jsonVendorNames.sort().forEach((vendor) => {
-    it("Should navigate to the invoice list page for vendor", async () => {
-      await ContractsPage.open("contracts");
-      await waitForPageLoad();
+    it(`Should navigate to the invoice list page for ${vendor}`, async () => {
       await ContractsPage.clickContractByVendorName(vendor);
       await waitForPageLoad();
       const pageTitle = await browser.getTitle();
