@@ -39,7 +39,6 @@ class ContractPage extends Page {
       const text: string = await contract.getText();
       listOfContractText.push(text);
     }
-    console.log("Page", listOfContractText);
     return listOfContractText;
   }
 }

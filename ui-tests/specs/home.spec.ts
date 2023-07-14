@@ -1,12 +1,14 @@
+import { waitForPageLoad } from "../helpers/waits.js";
 import HomePage from "../pageobjects/homePage.js";
 
 describe("Home Page Tests", () => {
   before(async () => {
     await browser.url(" ");
-    expect(await HomePage.isPageHeadingDisplayed()).toBe(true);
+    await waitForPageLoad();
   });
 
   it("should display 'Billings and reconciliation' as the heading", async () => {
+    expect(await HomePage.isPageHeadingDisplayed()).toBe(true);
     expect(await HomePage.getPageHeadingText()).toEqual(
       "Billings and reconciliation"
     );

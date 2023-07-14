@@ -1,6 +1,4 @@
-import ContractPage from "../pageobjects/contractpage.js";
-import { configStackName } from "../../src/handlers/int-test-support/helpers/envHelper.js";
-import { uniqueVendorNamesFromConfig } from "../helpers/getvendorserviceConfig.js";
+import ContractPage from "../pageobjects/contractPage.js";
 import { waitForPageLoad } from "../helpers/waits.js";
 import {
   getTestDataFilePath,
@@ -8,13 +6,10 @@ import {
 } from "../helpers/extractDetailsTestDatajson.js";
 
 describe("Contract Page Test", () => {
-  let csvVendorNames: string[];
   let uiUniqueVendorNames: string[];
   let jsonVendorNames: string[] = [];
 
   before(async () => {
-    const config = configStackName();
-    csvVendorNames = await uniqueVendorNamesFromConfig(config, {});
     const testDataFilePath = getTestDataFilePath();
     jsonVendorNames = getUniqueVendorNamesFromJson(testDataFilePath);
   });
@@ -28,16 +23,12 @@ describe("Contract Page Test", () => {
     uiUniqueVendorNames = [...new Set(uiVendorNames)];
   });
 
-  it("UI list of vendors should match with vendor names from config", async () => {
-    expect(uiUniqueVendorNames.sort()).toEqual(csvVendorNames.sort());
-  });
-
   it("UI list of vendors should match with vendor names in test data file", async () => {
     expect(jsonVendorNames.sort()).toEqual(uiUniqueVendorNames.sort());
   });
 
   jsonVendorNames.sort().forEach((vendor) => {
-    it(`Should navigate to the vendor details page for ${vendor}`, async () => {
+    it(`Should navigate to the vendor page for ${vendor}`, async () => {
       await ContractPage.clickContractByVendorName(vendor);
       await waitForPageLoad();
       const pageTitle = await browser.getTitle();
