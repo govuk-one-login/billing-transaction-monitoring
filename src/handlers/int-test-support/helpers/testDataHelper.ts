@@ -27,7 +27,10 @@ export const getVendorServiceAndRatesFromConfig =
       description: vendorServiceRows[1].service_name,
     };
 
-    if (configBucket.includes("staging" || "integration")) {
+    if (
+      configBucket.includes("staging") ||
+      configBucket.includes("integration")
+    ) {
       await getE2ETestConfig().then((result) => {
         testDataRetrievedFromConfig.description =
           result.parser_0_service_description;
