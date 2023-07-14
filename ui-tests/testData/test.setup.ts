@@ -1,6 +1,6 @@
-import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper.js";
-import { putS3Object } from "../helpers/s3Helper.js";
-import { geJsonDataFromFile } from "../helpers/extractDetailsTestDatajson.js";
+import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
+import { putS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { geJsonDataFromFile } from "../helpers/extractDetailsTestDatajson";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;

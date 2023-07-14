@@ -1,4 +1,4 @@
-import { uploadExtractDataFileForUITest } from "./ui-tests/testData/test.setup.js";
+import { exec } from "child_process";
 
 export const config = {
   runner: "local",
@@ -33,6 +33,6 @@ export const config = {
     timeout: 60000,
   },
   beforeTest: async function () {
-    await uploadExtractDataFileForUITest();
+    exec("node ./ui-tests/testData/test.setup");
   },
 };
