@@ -94,9 +94,10 @@ export const emailInvoice = async (
     dataRetrievedFromConfig.vendorName,
     fileType
   );
-  const attachmentString = encodeAttachment(invoiceData, filename);
-
-  // const emailContent = createRawEmailContent(toEmail, attachmentString);
+  const { attachment, attachmentContentType } = encodeAttachment(
+    invoiceData,
+    filename
+  );
 
   await sendEmail({
     Source: sourceEmail,
@@ -109,8 +110,13 @@ export const emailInvoice = async (
       },
       Body: {
         Text: {
-          Data: attachmentString,
+          Data: "Please find the attached invoice",
         },
+      },
+      Attachment: {
+        Filename: filename,
+        Content: attachment,
+        ContentType: attachmentContentType,
       },
     },
   });

@@ -40,50 +40,20 @@ export const getEmailAddresses = async (): Promise<{
 export const encodeAttachment = (
   invoiceData: InvoiceData,
   filename: string
-): string => {
+): { attachment: string; attachmentContentType: string } => {
   let attachment = "";
   let attachmentContentType = "";
   if (filename.endsWith(".pdf")) {
     const pdfInvoice = makeMockInvoicePdfData(new Invoice(invoiceData));
-    const pdfInvoiceBuffer = Buffer.from(pdfInvoice, "ascii");
-    attachment = pdfInvoiceBuffer.toString("base64");
+    attachment = Buffer.from(pdfInvoice, "ascii").toString("base64");
     attachmentContentType = "application/pdf";
   } else if (filename.endsWith(".csv")) {
     const csvInvoice = makeMockInvoiceCSVData(new Invoice(invoiceData));
-    const csvInvoiceBuffer = Buffer.from(csvInvoice);
-    attachment = csvInvoiceBuffer.toString("base64");
-    attachmentContentType = "text/csv";
+    attachment = Buffer.from(csvInvoice).toString("base64");
+    attachmentContentType = "test/csv";
+  } else {
+    throw new Error(`Unsupported file format: ${filename}`);
   }
 
-  const attachmentString = [
-    `Content-Type:${attachmentContentType}`,
-    'Content-Disposition: attachment; filename="' + filename + '"',
-    "Content-Transfer-Encoding: base64",
-    "",
-    attachment,
-  ].join("\n");
-
-  return attachmentString;
-};
-
-export const createRawEmailContent = (
-  toEmail: string,
-  attachmentString: string
-): string => {
-  const rawEmailContent = [
-    `To:${toEmail}`,
-    "Subject: Invoice",
-    "MIME-Version 1.0",
-    'Content-Type: multipart/mixed; boundary="boundary"',
-    "",
-    "--boundary",
-    "Content-Type:text/plain",
-    "",
-    "Please find the attached invoice.",
-    "--boundary",
-    attachmentString,
-    "--boundary--",
-  ].join("\n");
-
-  return rawEmailContent;
+  return { attachment, attachmentContentType };
 };
