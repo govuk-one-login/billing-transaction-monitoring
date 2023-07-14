@@ -82,6 +82,7 @@
     "test:ephemeralEnvs": "jest --config jest.integration.config.ts --testPathIgnorePatterns email-storage-tests --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
     "test:integration": "jest --config jest.integration.config.ts --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
     "test:end2end": "jest --config jest.e2e.config.ts",
+    "test:ui": "wdio run ./wdio.conf.ts",
     "test:cleanup:reports": "cd reports/jest-html-reports && ../../integration_tests/cleanup-jest-html-reports.sh 3",
     "test:integration:local": "jest --setupFiles=./integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --config jest.integration.config.ts",
     "build": "webpack",
@@ -100,8 +101,7 @@
     "build:css": "sass src/frontend/styles/all.scss src/frontend/styles/all.css",
     "predev": "npm run build:css",
     "prebuild": "npm run build:css",
-    "fetch-s3": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/fetch-s3.ts",
-    "wdio": "wdio run ./wdio.conf.ts"
+    "fetch-s3": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/fetch-s3.ts"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
