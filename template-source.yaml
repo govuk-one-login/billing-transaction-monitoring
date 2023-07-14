@@ -34,10 +34,6 @@ Parameters:
     Description: Private config stack to use for configuration
     Type: String
     Default: none
-  FrontEndCertificateArn:
-    Description: ARN of security certificate for front end
-    Type: String
-    Default: none
 
   # Codes for error cases returned in response to queries from Grafana to BillingAndTransactionsCuratedView.
   QueryMessageNoChargeForThisMonth:
@@ -93,12 +89,9 @@ Conditions:
       !Equals [!Ref AWS::StackName, di-btm-production],
     ]
   FrontEndEnabled:
-    !And [
-      !Not [!Equals [!Ref FrontEndCertificateArn, none]],
-      !Or [
-        !Equals [!Ref AWS::StackName, di-btm-dev],
-        !Equals [!Ref AWS::StackName, di-btm-build],
-      ],
+    !Or [
+      !Equals [!Ref AWS::StackName, di-btm-dev],
+      !Equals [!Ref AWS::StackName, di-btm-build],
     ]
 
 Globals:
