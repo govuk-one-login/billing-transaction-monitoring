@@ -35,6 +35,8 @@ Resources:
               Type: string
             - Name: month
               Type: string
+            - Name: billing_unit_price
+              Type: string
             - Name: billing_price_formatted
               Type: string
             - Name: transaction_price_formatted
@@ -301,14 +303,14 @@ Resources:
             , COALESCE(txn.contract_name, invoice.contract_name) contract_name
             , COALESCE(txn.year, invoice.year) year
             , COALESCE(txn.month, invoice.month) month
-            , invoice.unit_price billing_unit_price
+            , CONCAT('£', (CAST(CAST(invoice.unit_price AS DECIMAL(12, 4)) AS VARCHAR))) billing_unit_price
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(invoice.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_price_formatted
             , CONCAT('£', REGEXP_REPLACE(CAST(CAST(txn.price AS DECIMAL(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) transaction_price_formatted
-            , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price - txn.price) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) price_difference
+            , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price - txn.price) AS decimal(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) price_difference
             , invoice.quantity billing_quantity
             , txn.quantity transaction_quantity
-            , REGEXP_REPLACE(CAST(invoice.quantity - txn.quantity AS varchar), '(\d)(?=(\d{3})+\.)', '$1,') quantity_difference
-            , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price + invoice.tax) AS decimal(10,2)) AS varchar), '(\d)(?=(\d{3})+\.)', '$1,')) billing_amount_with_tax
+            , REGEXP_REPLACE(CAST(invoice.quantity - txn.quantity AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,') quantity_difference
+            , CONCAT('£', REGEXP_REPLACE(CAST(CAST((invoice.price + invoice.tax) AS decimal(10,2)) AS VARCHAR), '(\d)(?=(\d{3})+\.)', '$1,')) billing_amount_with_tax
             , (CASE
                 WHEN ((invoice.price = 0) AND (txn.price = 0)) THEN ${QueryMessageNoChargeForThisMonth}
                 WHEN ((invoice.price IS NULL) AND (invoice.quantity IS NULL)) THEN ${QueryMessageInvoiceDataMissing}
