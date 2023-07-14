@@ -1,4 +1,3 @@
-import { ChainablePromiseArray, ChainablePromiseElement } from "webdriverio";
 import Page from "./page.js";
 
 class ContractPage extends Page {
@@ -6,37 +5,41 @@ class ContractPage extends Page {
    * define selectors using getter methods
    */
 
-  public get listOfContracts(): ChainablePromiseArray<WebdriverIO.Element> {
+  public get listOfContracts(): Promise<WebdriverIO.Element[]> {
     return $$("ul.govuk-list li a.govuk-link");
   }
 
-  public getContractElementByName(
+  public async getContractElementByName(
     vendorName: string
-  ): ChainablePromiseElement<WebdriverIO.Element> {
-    const matchedElement = this.listOfContracts.find(async (element) => {
-      const text = await element.getText();
-      return text.includes(`${vendorName}`);
-    }) as ChainablePromiseElement<WebdriverIO.Element>;
+  ): Promise<WebdriverIO.Element> {
+    const matchedElement = (await this.listOfContracts).find(
+      async (element) => {
+        const text = await element.getText();
+        return text.includes(`${vendorName}`);
+      }
+    );
+    if (!matchedElement) {
+      throw new Error(` Contract element with vendor name  not found`);
+    }
     return matchedElement;
   }
 
-  public get vendorNameByIndex(): ChainablePromiseElement<WebdriverIO.Element> {
+  public get vendorNameByIndex(): Promise<WebdriverIO.Element> {
     return $('a[href$="/contracts/1/invoices"]');
-  }
-
-  public async isListContractsDisplayed(): Promise<boolean> {
-    return await (await this.listOfContracts).isDisplayed();
   }
 
   public async clickContractByVendorName(vendorName: string): Promise<void> {
     const contractElement = this.getContractElementByName(vendorName);
-    await contractElement.click();
+    await (await contractElement).click();
   }
 
   public async getListOfContractsText(): Promise<string[]> {
-    const listOfContractText = await this.listOfContracts.map(
-      async (item) => await item.getText()
-    );
+    const listOfContractText: string[] = [];
+    for (const contract of await this.listOfContracts) {
+      const text: string = await contract.getText();
+      listOfContractText.push(text);
+    }
+    console.log("Page", listOfContractText);
     return listOfContractText;
   }
 }

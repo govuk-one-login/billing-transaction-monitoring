@@ -1,4 +1,3 @@
-import { ChainablePromiseElement } from "webdriverio";
 import Page from "./page.js";
 
 class HomePage extends Page {
@@ -6,16 +5,16 @@ class HomePage extends Page {
    * define selectors using getter methods
    */
 
-  public get welcomeMessage(): ChainablePromiseElement<WebdriverIO.Element> {
+  public get welcomeMessage(): Promise<WebdriverIO.Element> {
     return $("p.govuk-body");
   }
 
-  public get linkToContractsPage(): ChainablePromiseElement<WebdriverIO.Element> {
+  public get contractsLink(): Promise<WebdriverIO.Element> {
     return $('a[href$="/contracts"]');
   }
 
   public async clickOnContractsPageLink(): Promise<void> {
-    await this.linkToContractsPage.click();
+    await (await this.contractsLink).click();
   }
 }
 

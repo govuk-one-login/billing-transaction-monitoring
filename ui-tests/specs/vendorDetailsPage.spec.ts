@@ -17,13 +17,6 @@ describe("Vendor Details Page", () => {
     expect(vendorName).toBe("C01234 - Vendor One");
   });
 
-  it("should match the number of invoices from JSON with the UI", async () => {
-    const invoiceCountFromUI = await VendorPage.getInvoicesCount();
-    const expectedInvoiceCount =
-      getUniqueInvoiceMonthsYearsByVendor("Vendor One");
-    expect(invoiceCountFromUI).toBe(expectedInvoiceCount);
-  });
-
   it("should navigate to the Invoice Details page when an invoice is clicked", async () => {
     await VendorPage.clickInvoice();
     const invoiceDetailsPageUrl = await browser.getUrl();
@@ -49,7 +42,7 @@ describe("getUniqueInvoiceCountByVendor", () => {
         VendorNameContractIdMap[vendor as keyof typeof VendorNameContractIdMap];
       await VendorPage.open(`contracts/${vendorContractId}/invoices`);
       await waitForPageLoad();
-      const invoiceCountFromUI = await VendorPage.getInvoicesCount();
+      const invoiceCountFromUI = await VendorPage.getInvoiceCount();
       expect(uniqueInvoiceCount).toEqual(invoiceCountFromUI);
     });
   });

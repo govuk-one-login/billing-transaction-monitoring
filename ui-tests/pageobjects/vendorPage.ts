@@ -1,23 +1,22 @@
-import { ChainablePromiseElement, ElementArray } from "webdriverio";
 import Page from "./page.js";
 
 class VendorPage extends Page {
-  public get listOfInvoices(): ElementArray {
+  public get invoicesList(): Promise<WebdriverIO.Element[]> {
     return $$("ul.govuk-list li");
   }
 
-  public async getInvoicesCount(): Promise<number> {
-    const elementArray = this.listOfInvoices;
-    const length = elementArray.length;
+  public async getInvoiceCount(): Promise<number> {
+    const elementArray = this.invoicesList;
+    const length = (await elementArray).length;
     return length;
   }
 
-  public get invoiceNameByIndex(): ChainablePromiseElement<WebdriverIO.Element> {
+  public get invoiceLinkByIndex(): Promise<WebdriverIO.Element> {
     return $('a[href$="/contracts/1/invoices/2023-01"]');
   }
 
   public async clickInvoice(): Promise<void> {
-    await (await this.invoiceNameByIndex).click();
+    await (await this.invoiceLinkByIndex).click();
   }
 }
 

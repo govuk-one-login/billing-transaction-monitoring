@@ -1,19 +1,13 @@
-import { ChainablePromiseElement } from "webdriverio";
-
-/**
- * main page object containing all methods, selectors and functionality
- * that is shared across all page objects
- */
 export default class Page {
   public async open(path: string): Promise<void> {
     await browser.url(`/${path}`);
   }
 
-  public get pageHeading(): ChainablePromiseElement<WebdriverIO.Element> {
+  public get pageHeading(): Promise<WebdriverIO.Element> {
     return $(".govuk-heading-xl");
   }
 
-  public get pageSubHeading(): ChainablePromiseElement<WebdriverIO.Element> {
+  public get pageSubHeading(): Promise<WebdriverIO.Element> {
     return $(".govuk-heading-l");
   }
 

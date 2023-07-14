@@ -48,7 +48,7 @@ export const getVendorServiceConfigRows = async (
   return vendorServiceConfigRows;
 };
 
-export const getVendorNames = async (
+export const uniqueVendorNamesFromConfig = async (
   configBucket: string,
   fields: Partial<VendorServiceRow>
 ): Promise<string[]> => {
