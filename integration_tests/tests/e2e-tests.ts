@@ -16,6 +16,7 @@ import {
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 import {
+  createRawEmailContent,
   encodeAttachment,
   getEmailAddresses,
 } from "../../src/handlers/int-test-support/helpers/emailHelper";
@@ -94,31 +95,19 @@ export const emailInvoice = async (
     dataRetrievedFromConfig.vendorName,
     fileType
   );
-  const { attachment, attachmentContentType } = encodeAttachment(
-    invoiceData,
-    filename
-  );
+  const attachmentString = encodeAttachment(invoiceData, filename);
+  const emailContent = createRawEmailContent(toEmail, attachmentString);
 
   await sendEmail({
-    Source: sourceEmail,
-    Destination: {
-      ToAddresses: [toEmail],
-    },
-    Message: {
-      Subject: {
-        Data: "test",
+    from: sourceEmail,
+    to: toEmail,
+    subject: "Invoice",
+    attachments: [
+      {
+        raw: `Content-Type: text/plain
+Content-Disposition:${emailContent}`,
       },
-      Body: {
-        Text: {
-          Data: "Please find the attached invoice",
-        },
-      },
-      Attachment: {
-        Filename: filename,
-        Content: attachment,
-        ContentType: attachmentContentType,
-      },
-    },
+    ],
   });
 
   const isInRawInvoiceBucket = await waitForRawInvoice(
