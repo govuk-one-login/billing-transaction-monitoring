@@ -1,4 +1,4 @@
-import { getReconciliationRows } from "./get-reconciliation-rows";
+import { getReconciliationRows, getTotals } from "./get-reconciliation-rows";
 import { buildLineItem } from "./test-builders";
 
 describe("getReconciliationRows", () => {
@@ -21,7 +21,7 @@ describe("getReconciliationRows", () => {
     price_difference_percentage: "",
   };
 
-  test("Should return the data for the Reconciliation Tables when all billing and transaction data is available", async () => {
+  test("Should return the data for the Reconciliation Tables when all billing and transaction data is available", () => {
     // Arrange
     const givenLineItems = [
       buildLineItem(lineItem, [["price_difference_percentage", "-100.0"]]),
@@ -51,7 +51,7 @@ describe("getReconciliationRows", () => {
     expect(result).toEqual(expectedReconciliationRow);
   });
 
-  test("Should return the data for the Reconciliation Tables when Invoice data is missing", async () => {
+  test("Should return the data for the Reconciliation Tables when Invoice data is missing", () => {
     // Arrange
     const givenLineItems = [
       buildLineItem(lineItem, [
@@ -88,7 +88,7 @@ describe("getReconciliationRows", () => {
     expect(result).toEqual(expectedReconciliationRow);
   });
 
-  test("Should return the data for the Reconciliation Tables when transaction events are missing", async () => {
+  test("Should return the data for the Reconciliation Tables when transaction events are missing", () => {
     // Arrange
     const givenLineItems = [
       buildLineItem(lineItem, [
@@ -127,7 +127,7 @@ describe("getReconciliationRows", () => {
     expect(result).toEqual(expectedReconciliationRow);
   });
 
-  test("Should return the data for the Reconciliation Table when there are two line items, one with an unexpected invoice charge and one within threshold.", async () => {
+  test("Should return the data for the Reconciliation Table when there are two line items, one with an unexpected invoice charge and one within threshold.", () => {
     // Arrange
     const givenLineItems = [
       buildLineItem(lineItem, [
@@ -193,5 +193,136 @@ describe("getReconciliationRows", () => {
     const result = getReconciliationRows(givenLineItems);
     // Assert
     expect(result).toEqual(expectedReconciliationRow);
+  });
+
+  describe("getTotals", () => {
+    test("Should return the totals when there is one reconciliation row", () => {
+      // Arrange
+      const reconciliationRow = [
+        {
+          serviceName: "Passport Charge",
+          quantityDiscrepancy: "0",
+          priceDiscrepancy: "£0.00",
+          percentageDiscrepancy: "0.0%",
+          status: {
+            message: "Within Threshold",
+            class: "govuk-tag--green",
+          },
+          billingQuantity: "53430",
+          transactionQuantity: "53430",
+          billingUnitPrice: "£0.3000",
+          billingPrice: "£16,029.00",
+          transactionPrice: "£16,029.00",
+          billingPriceInclVat: "£19,234.80",
+        },
+      ];
+      // Act
+      const result = getTotals(reconciliationRow);
+      // Assert
+      expect(result).toEqual({
+        billingPriceInclVatTotal: "£19,234.80",
+        billingPriceTotal: "£16,029.00",
+      });
+    });
+
+    test("Should return the totals as 0 when there is one reconciliation row that has Invoice data missing", () => {
+      // Arrange
+      const reconciliationRow = [
+        {
+          serviceName: "Fraud check",
+          quantityDiscrepancy: "",
+          priceDiscrepancy: "",
+          percentageDiscrepancy: "Invoice data missing",
+          status: { message: "Pending", class: "govuk-tag--grey" },
+          billingQuantity: "Invoice data missing",
+          transactionQuantity: "17321",
+          billingUnitPrice: "Invoice data missing",
+          billingPrice: "Invoice data missing",
+          billingPriceInclVat: "Invoice data missing",
+          transactionPrice: "£5,889.14",
+        },
+      ];
+      // Act
+      const result = getTotals(reconciliationRow);
+      // Assert
+      expect(result).toEqual({
+        billingPriceInclVatTotal: "£0.00",
+        billingPriceTotal: "£0.00",
+      });
+    });
+
+    test("Should return the totals when there are multiple reconciliation rows and has Invoice data missing", () => {
+      // Arrange
+      const reconciliationRow = [
+        {
+          serviceName: "Fraud check",
+          quantityDiscrepancy: "",
+          priceDiscrepancy: "",
+          percentageDiscrepancy: "Invoice data missing",
+          status: { message: "Pending", class: "govuk-tag--grey" },
+          billingQuantity: "Invoice data missing",
+          transactionQuantity: "17321",
+          billingUnitPrice: "Invoice data missing",
+          billingPrice: "Invoice data missing",
+          billingPriceInclVat: "Invoice data missing",
+          transactionPrice: "£5,889.14",
+        },
+        {
+          serviceName: "Passport check",
+          quantityDiscrepancy: "9",
+          priceDiscrepancy: "£27.50",
+          percentageDiscrepancy: "Unexpected invoice charge",
+          status: {
+            message: "Above Threshold",
+            class: "govuk-tag--red",
+          },
+          billingQuantity: "11",
+          transactionQuantity: "2",
+          billingUnitPrice: "£2.5000",
+          billingPrice: "£27.50",
+          transactionPrice: "£0.00",
+          billingPriceInclVat: "£30.00",
+        },
+        {
+          serviceName: "Standard Charge",
+          quantityDiscrepancy: "0",
+          priceDiscrepancy: "£0.00",
+          percentageDiscrepancy: "0.0%",
+          status: {
+            message: "Within Threshold",
+            class: "govuk-tag--green",
+          },
+          billingQuantity: "11",
+          transactionQuantity: "11",
+          billingUnitPrice: "£9.0909",
+          billingPrice: "£100.00",
+          transactionPrice: "£100.00",
+          billingPriceInclVat: "£105.00",
+        },
+        {
+          serviceName: "Additional Charge",
+          quantityDiscrepancy: "0",
+          priceDiscrepancy: "£0.00",
+          percentageDiscrepancy: "0.0%",
+          status: {
+            message: "Within Threshold",
+            class: "govuk-tag--green",
+          },
+          billingQuantity: "53430",
+          transactionQuantity: "53430",
+          billingUnitPrice: "£0.3000",
+          billingPrice: "£16,029.00",
+          transactionPrice: "£16,029.00",
+          billingPriceInclVat: "£19,234.80",
+        },
+      ];
+      // Act
+      const result = getTotals(reconciliationRow);
+      // Assert
+      expect(result).toEqual({
+        billingPriceInclVatTotal: "£19,369.80",
+        billingPriceTotal: "£16,156.50",
+      });
+    });
   });
 });

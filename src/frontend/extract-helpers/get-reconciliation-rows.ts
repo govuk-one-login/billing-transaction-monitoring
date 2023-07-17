@@ -58,6 +58,30 @@ export const getReconciliationRows = (
   return rows;
 };
 
+export const getTotals = (
+  rows: ReconciliationRow[]
+): { billingPriceTotal: string; billingPriceInclVatTotal: string } => {
+  let billingPriceTotal = 0;
+  let billingPriceInclVatTotal = 0;
+
+  for (const row of rows) {
+    billingPriceTotal += Number(row.billingPrice.replace(/[^0-9.-]+/g, "")); // Converts currency string to float (Returns 0 if "Invoice data missing")
+    billingPriceInclVatTotal += Number(
+      row.billingPriceInclVat.replace(/[^0-9.-]+/g, "")
+    );
+  }
+  return {
+    billingPriceTotal: billingPriceTotal.toLocaleString("en-GB", {
+      style: "currency",
+      currency: "GBP",
+    }),
+    billingPriceInclVatTotal: billingPriceInclVatTotal.toLocaleString("en-GB", {
+      style: "currency",
+      currency: "GBP",
+    }),
+  };
+};
+
 const PERCENTAGE_DISCREPANCY = [
   percentageDiscrepancySpecialCase.MN_NO_CHARGE,
   percentageDiscrepancySpecialCase.MN_INVOICE_MISSING,
