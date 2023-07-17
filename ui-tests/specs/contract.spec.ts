@@ -19,7 +19,9 @@ describe("Contracts Page Test", () => {
   it("UI list of vendors should match with vendor names in test data file", () => {
     const uiVendorNames = extractOnlyVendorNames(uiContractAndVendorNames);
     const uiUniqueVendorNames = [...new Set(uiVendorNames)];
-    expect(jsonVendorNames.sort()).toEqual(uiUniqueVendorNames.sort());
+    expect(jsonVendorNames.sort((a, b) => a.localeCompare(b))).toEqual(
+      uiUniqueVendorNames.sort((a, b) => a.localeCompare(b))
+    );
   });
 
   jsonVendorNames.sort().forEach((vendor) => {
