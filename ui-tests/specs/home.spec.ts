@@ -1,5 +1,5 @@
 import { waitForPageLoad } from "../helpers/waits.js";
-import HomePage from "../pageobjects/homePage.js";
+import HomePage from "../pageObjects/homePage.js";
 
 describe("Home Page Tests", () => {
   before(async () => {
