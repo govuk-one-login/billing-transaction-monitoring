@@ -45,12 +45,12 @@ export const encodeAttachment = (
   let attachmentContentType = "";
   if (filename.endsWith(".pdf")) {
     const pdfInvoice = makeMockInvoicePdfData(new Invoice(invoiceData));
-    const pdfInvoiceBuffer = Buffer.from(pdfInvoice);
+    const pdfInvoiceBuffer = Buffer.from(pdfInvoice, "ascii");
     attachment = pdfInvoiceBuffer.toString("base64");
     attachmentContentType = "application/pdf";
   } else if (filename.endsWith(".csv")) {
     const csvInvoice = makeMockInvoiceCSVData(new Invoice(invoiceData));
-    const csvInvoiceBuffer = Buffer.from(csvInvoice);
+    const csvInvoiceBuffer = Buffer.from(csvInvoice, "ascii");
     attachment = csvInvoiceBuffer.toString("base64");
     attachmentContentType = "text/csv";
   }
@@ -64,26 +64,4 @@ export const encodeAttachment = (
   ].join("\n");
 
   return attachmentString;
-};
-
-export const createRawEmailContent = (
-  toEmail: string,
-  attachmentString: string
-): string => {
-  const rawEmailContent = [
-    `To:${toEmail}`,
-    "Subject: Invoice",
-    "MIME-Version 1.0",
-    'Content-Type: multipart/mixed; boundary="boundary"',
-    "",
-    "--boundary",
-    "Content-Type:text/plain",
-    "",
-    "Please find the attached invoice.",
-    "--boundary",
-    attachmentString,
-    "--boundary--",
-  ].join("\n");
-
-  return rawEmailContent;
 };

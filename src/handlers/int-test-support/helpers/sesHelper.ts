@@ -20,7 +20,7 @@ export type EmailParams = {
     };
     Attachment?: Array<{
       Filename: string;
-      raw: string;
+      Raw: string;
     }>;
   };
 };
@@ -59,7 +59,7 @@ export const sendEmail = async (params: EmailParams): Promise<string> => {
       attachments: params.Message.Attachment
         ? params.Message.Attachment.map((attachment) => ({
             filename: attachment.Filename,
-            raw: attachment.raw,
+            raw: attachment.Raw,
           }))
         : [],
     });

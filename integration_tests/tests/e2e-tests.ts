@@ -96,14 +96,6 @@ export const emailInvoice = async (
   );
   const attachmentString = encodeAttachment(invoiceData, filename);
 
-  const attachments = [
-    {
-      Filename: filename,
-      raw: attachmentString,
-    },
-  ];
-  console.log(attachments);
-
   await sendEmail({
     Source: sourceEmail,
     Destination: {
@@ -118,7 +110,12 @@ export const emailInvoice = async (
           Data: "Please find the attached invoice",
         },
       },
-      Attachment: attachments,
+      Attachment: [
+        {
+          Filename: filename,
+          Raw: attachmentString,
+        },
+      ],
     },
   });
 
