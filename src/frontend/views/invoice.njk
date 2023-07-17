@@ -63,6 +63,7 @@
       </tbody>
     {% endfor %}
   </table>
+  <div class="govuk-!-padding-bottom-7"></div>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Quantity (events)</caption>
     <thead class="govuk-table__head">
@@ -109,6 +110,7 @@
       </tbody>
     {% endfor %}
   </table>
+  <div class="govuk-!-padding-bottom-7"></div>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Measured (events)</caption>
     <thead class="govuk-table__head">
@@ -149,8 +151,15 @@
           <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.billingUnitPrice }}</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.billingPrice }}</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.billingPriceInclVat }}</td>
-        </tr>
-      </tbody>
-    {% endfor %}
+        {% endfor %}
+      </tr>
+      <tr class="govuk-table__row">
+        <th scope="row" class="govuk-table__header">Total</th>
+        <td class="govuk-table__cell"></td>
+        <td class="govuk-table__cell"></td>
+        <td class="govuk-table__cell govuk-table__cell--numeric">{{ invoiceTotals.billingPriceTotal }}</td>
+        <td class="govuk-table__cell govuk-table__cell--numeric">{{ invoiceTotals.billingPriceInclVatTotal }}</td>
+      </tr>
+    </tbody>
   </table>
 {% endblock content %}

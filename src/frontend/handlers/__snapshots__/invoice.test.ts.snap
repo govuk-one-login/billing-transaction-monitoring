@@ -245,6 +245,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
       </tbody>
     
   </table>
+  <div class="govuk-!-padding-bottom-7"></div>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Quantity (events)</caption>
     <thead class="govuk-table__head">
@@ -335,6 +336,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
       </tbody>
     
   </table>
+  <div class="govuk-!-padding-bottom-7"></div>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Measured (events)</caption>
     <thead class="govuk-table__head">
@@ -393,9 +395,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
           <td class="govuk-table__cell govuk-table__cell--numeric"></td>
           <td class="govuk-table__cell govuk-table__cell--numeric">293.19</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">351.83</td>
-        </tr>
-      </tbody>
-    
+        
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
           <th scope="row" class="govuk-table__header">
@@ -405,9 +405,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
           <td class="govuk-table__cell govuk-table__cell--numeric"></td>
           <td class="govuk-table__cell govuk-table__cell--numeric">3,850.16</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">4,620.19</td>
-        </tr>
-      </tbody>
-    
+        
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
           <th scope="row" class="govuk-table__header">
@@ -417,9 +415,16 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
           <td class="govuk-table__cell govuk-table__cell--numeric"></td>
           <td class="govuk-table__cell govuk-table__cell--numeric">100</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">110</td>
-        </tr>
-      </tbody>
-    
+        
+      </tr>
+      <tr class="govuk-table__row">
+        <th scope="row" class="govuk-table__header">Total</th>
+        <td class="govuk-table__cell"></td>
+        <td class="govuk-table__cell"></td>
+        <td class="govuk-table__cell govuk-table__cell--numeric">£4,243.35</td>
+        <td class="govuk-table__cell govuk-table__cell--numeric">£5,082.02</td>
+      </tr>
+    </tbody>
   </table>
 
         </main>
