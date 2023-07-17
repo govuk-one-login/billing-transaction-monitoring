@@ -34,6 +34,7 @@ export default {
     rules: [
       { test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ },
       { test: /.node$/, loader: "node-loader" },
+      { test: /\.(js|ts)$/, exclude: "./ui-tests/pageObjects" },
     ],
   },
   output: {
