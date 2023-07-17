@@ -28,13 +28,12 @@ export default {
     server: "./src/frontend/server.ts",
     frontendAuth: "./src/handlers/frontend-auth/handler.ts",
   },
-  externals: "aws-sdk",
+  externals: { "aws-sdk": "aws-sdk", "ui-tests": "./ui-tests" },
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
   module: {
     rules: [
       { test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ },
       { test: /.node$/, loader: "node-loader" },
-      { test: /\.(js|ts)$/, exclude: /ui-tests/ },
     ],
   },
   output: {
