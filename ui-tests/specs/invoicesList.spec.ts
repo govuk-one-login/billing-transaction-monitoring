@@ -4,7 +4,7 @@ import {
   getUniqueInvoiceMonthsYearsByVendor,
   getTestDataFilePath,
   getUniqueVendorNamesFromJson,
-} from "../helpers/extractTestDatajson.js";
+} from "../utils/extractTestDatajson.js";
 
 enum VendorNameContractIdMap {
   "Vendor One" = 1,
