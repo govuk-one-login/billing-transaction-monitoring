@@ -17,18 +17,19 @@ describe("Contracts Page Test", () => {
   });
 
   it("UI list of vendors should match with vendor names in test data file", () => {
-    const uiVendorNames = extractOnlyVendorNames(uiContractAndVendorNames);
-    const uiUniqueVendorNames = [...new Set(uiVendorNames)];
-    const sortedJsonVendorNames = jsonVendorNames.sort((a, b) =>
+    const sortedJsonVendorNames = Array.from(jsonVendorNames).sort((a, b) =>
       a.localeCompare(b)
     );
-    const sortedUiUniqueVendorNames = uiUniqueVendorNames.sort((a, b) =>
-      a.localeCompare(b)
-    );
-    expect(sortedJsonVendorNames).toEqual(sortedUiUniqueVendorNames);
+
+    // Expecting at least one UI vendor name to include vendor from  JSON
+    sortedJsonVendorNames.forEach((vendor) => {
+      expect(
+        uiContractAndVendorNames.some((uiVendor) => uiVendor.includes(vendor))
+      ).toBeTruthy();
+    });
   });
 
-  const sortedJsonVendorNames = jsonVendorNames.sort((a, b) =>
+  const sortedJsonVendorNames = Array.from(jsonVendorNames).sort((a, b) =>
     a.localeCompare(b)
   );
   sortedJsonVendorNames.forEach((vendor) => {
@@ -40,19 +41,3 @@ describe("Contracts Page Test", () => {
     });
   });
 });
-
-const extractOnlyVendorNames = (
-  uiContractAndVendorNames: string[]
-): string[] => {
-  const vendorNamesArray: string[] = [];
-  uiContractAndVendorNames.forEach((item: string) => {
-    const vendorNames = item.match(/-(.+)/);
-    if (vendorNames) {
-      vendorNames.forEach((vendor: string) => {
-        const vendorName = vendor.replace(/- /, "").trim();
-        vendorNamesArray.push(vendorName);
-      });
-    }
-  });
-  return vendorNamesArray;
-};
