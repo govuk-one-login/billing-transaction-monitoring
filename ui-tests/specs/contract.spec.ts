@@ -3,7 +3,7 @@ import { waitForPageLoad } from "../helpers/waits.js";
 import {
   getTestDataFilePath,
   getUniqueVendorNamesFromJson,
-} from "../helpers/extractDetailsTestDatajson.js";
+} from "../helpers/extractTestDatajson.js";
 
 describe("Contracts Page Test", () => {
   const testDataFilePath = getTestDataFilePath();
