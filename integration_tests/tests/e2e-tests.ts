@@ -16,7 +16,6 @@ import {
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
 import {
-  createRawEmailContent,
   encodeAttachment,
   getEmailAddresses,
 } from "../../src/handlers/int-test-support/helpers/emailHelper";
@@ -96,8 +95,14 @@ export const emailInvoice = async (
     fileType
   );
   const attachmentString = encodeAttachment(invoiceData, filename);
-  const emailContent = createRawEmailContent(toEmail, attachmentString);
-  console.log(emailContent);
+
+  const attachments = [
+    {
+      Filename: filename,
+      raw: attachmentString,
+    },
+  ];
+  console.log(attachments);
 
   await sendEmail({
     Source: sourceEmail,
@@ -113,6 +118,7 @@ export const emailInvoice = async (
           Data: "Please find the attached invoice",
         },
       },
+      Attachment: attachments,
     },
   });
 

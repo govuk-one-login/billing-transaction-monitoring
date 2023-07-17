@@ -18,11 +18,10 @@ export type EmailParams = {
         Data: string;
       };
     };
-    Attachment?: {
+    Attachment?: Array<{
       Filename: string;
-      Content: string;
-      ContentType: string;
-    };
+      raw: string;
+    }>;
   };
 };
 
@@ -58,13 +57,10 @@ export const sendEmail = async (params: EmailParams): Promise<string> => {
       subject: params.Message.Subject.Data,
       text: params.Message.Body.Text.Data,
       attachments: params.Message.Attachment
-        ? [
-            {
-              filename: params.Message.Attachment.Filename,
-              content: params.Message.Attachment.Content,
-              contentType: params.Message.Attachment.ContentType,
-            },
-          ]
+        ? params.Message.Attachment.map((attachment) => ({
+            filename: attachment.Filename,
+            raw: attachment.raw,
+          }))
         : [],
     });
 
