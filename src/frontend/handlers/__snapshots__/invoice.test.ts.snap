@@ -125,6 +125,62 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
   
 </div>
 
+  <div class="govuk-inset-text">
+    
+
+
+<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
+  
+    
+      <div class="govuk-accordion__section">
+        <div class="govuk-accordion__section-header">
+          <h2 class="govuk-accordion__section-heading">
+            <span class="govuk-accordion__section-button" id="accordion-default-heading-1">
+              Status guidance
+            </span>
+          </h2>
+          
+        </div>
+        <div id="accordion-default-content-1" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-1">
+          
+            
+  <p class='govuk-body'>Common banner states:</p>
+  <ul class='govuk-list govuk-list--bullet'>
+    <li>
+      Invoice within threshold (green) - the discrepancy between measured event data and the invoice is within the threshold tolerance of -1% and 1%. This invoice can be paid.
+    </li>
+    <li>
+      Invoice above threshold (red) - the discrepancy between measured event data and the invoice is above the threshold of 1%. The vendor may have overcharged within the invoice. Contact the Data &amp; Analytics team to confirm measured data and the vendor to confirm the invoice.
+    </li>
+    <li>
+      Invoice below threshold (blue) - the discrepancy between measured event data and the invoice is below the threshold of -1%. The vendor may have undercharged within the invoice. Contact the Data &amp; Analytics team to confirm measured data and the vendor to confirm the invoice.
+    </li>
+  </ul>
+  <p class='govuk-body'>Other banner states (grey):</p>
+  <ul class='govuk-list govuk-list--bullet'>
+    <li>Invoice and events missing - There is no invoices or event data for this month.</li>
+    <li>
+      Invoice missing - An event has been measured for this month, but there has been no corresponding invoice received.
+    </li>
+    <li>
+      Events missing - An invoice has been received for this month that includes at least one service that there has been no measured data.
+    </li>
+    <li>
+      Unable to find rate - An error has occurred. An invoice has been received that includes at least one service that does not have a corresponding rate per transaction configured. Contact technical support to resolve this error.
+    </li>
+    <li>
+      Invoice has unexpected charge - Event processing concludes there should be no charge for a particular service for a month (i.e. if all events had a charge £0.00), but the invoice charge is non-zero. In this case, event processing cannot compute a percentage discrepancy, as it would be infinite.
+    </li>
+  </ul>
+
+          
+        </div>
+      </div>
+    
+  
+</div>
+
+  </div>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Reconciliation</caption>
     <thead class="govuk-table__head">
@@ -342,7 +398,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     
 
     
-  <script src="assets/scripts/all.js"></script>
+  <script src="/assets/scripts/all.js"></script>
   <script>window.GOVUKFrontend.initAll();</script>
   
   

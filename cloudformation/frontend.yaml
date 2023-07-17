@@ -1,7 +1,10 @@
 Resources:
   FrontEndApi:
     Type: AWS::Serverless::HttpApi
-    Condition: IsLowerEnv
+    Condition: FrontEndEnabled
+    DependsOn:
+      - FrontEndDomainName
+      - FrontEndHostedZoneName
     Properties:
       AccessLogSettings:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
@@ -14,10 +17,46 @@ Resources:
             EnableSimpleResponses: true
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
         DefaultAuthorizer: LambdaAuthorizer
+      Domain:
+        CertificateArn:
+          Fn::ImportValue: !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
+        DomainName: !GetAtt FrontEndDomainName.Value
+        Route53:
+          HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
+
+  FrontEndDomainName:
+    Type: AWS::SSM::Parameter
+    Condition: FrontEndEnabled
+    Properties:
+      Name: !Sub ${AWS::StackName}-frontend-domain-name
+      Type: String
+      Value: !If
+        - IsProduction
+        - btm.account.gov.uk
+        - !If
+          - IsDev
+          - btm.dev.account.gov.uk
+          - !Sub btm.${Environment}.account.gov.uk
+      Description: !Sub Front end domain name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
+
+  FrontEndHostedZoneName:
+    Type: AWS::SSM::Parameter
+    Condition: FrontEndEnabled
+    Properties:
+      Name: !Sub ${AWS::StackName}-frontend-hosted-zone-name
+      Type: String
+      Value: !If
+        - IsProduction
+        - btm.account.gov.uk.
+        - !If
+          - IsDev
+          - btm.dev.account.gov.uk.
+          - !Sub btm.${Environment}.account.gov.uk.
+      Description: !Sub Front end Route 53 Hosted Zone name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
 
   FrontEndApiLogGroup:
     Type: AWS::Logs::LogGroup
-    Condition: IsLowerEnv
+    Condition: FrontEndEnabled
     Properties:
       KmsKeyId: !GetAtt KmsKey.Arn
       RetentionInDays: 90
@@ -27,7 +66,7 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    Condition: IsLowerEnv
+    Condition: FrontEndEnabled
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
       Handler: frontendAuth.handler
@@ -37,7 +76,7 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    Condition: IsLowerEnv
+    Condition: FrontEndEnabled
     Properties:
       Environment:
         Variables:

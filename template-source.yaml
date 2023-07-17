@@ -88,6 +88,11 @@ Conditions:
       !Equals [!Ref AWS::StackName, di-btm-integration],
       !Equals [!Ref AWS::StackName, di-btm-production],
     ]
+  FrontEndEnabled:
+    !Or [
+      !Equals [!Ref AWS::StackName, di-btm-dev],
+      !Equals [!Ref AWS::StackName, di-btm-build],
+    ]
 
 Globals:
   Function:
@@ -123,8 +128,3 @@ Resources: !YAMLInclude ./cloudformation/global.yaml,
   ./cloudformation/email-storage.yaml,
   ./cloudformation/dashboard-data-extraction.yaml#NO_LOCAL,
   ./cloudformation/frontend.yaml
-
-Outputs:
-  FrontEndUrl:
-    Condition: IsLowerEnv
-    Value: !Sub https://${FrontEndApi}.execute-api.${AWS::Region}.amazonaws.com

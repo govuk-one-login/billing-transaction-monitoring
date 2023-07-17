@@ -179,7 +179,7 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
     
 
     
-  <script src="assets/scripts/all.js"></script>
+  <script src="/assets/scripts/all.js"></script>
   <script>window.GOVUKFrontend.initAll();</script>
   
   
