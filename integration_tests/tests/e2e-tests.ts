@@ -97,17 +97,23 @@ export const emailInvoice = async (
   );
   const attachmentString = encodeAttachment(invoiceData, filename);
   const emailContent = createRawEmailContent(toEmail, attachmentString);
+  console.log(emailContent);
 
   await sendEmail({
-    from: sourceEmail,
-    to: toEmail,
-    subject: "Invoice",
-    attachments: [
-      {
-        raw: `Content-Type: text/plain
-Content-Disposition:${emailContent}`,
+    Source: sourceEmail,
+    Destination: {
+      ToAddresses: [toEmail],
+    },
+    Message: {
+      Subject: {
+        Data: "Invoice",
       },
-    ],
+      Body: {
+        Text: {
+          Data: "Please find the attached invoice",
+        },
+      },
+    },
   });
 
   const isInRawInvoiceBucket = await waitForRawInvoice(
