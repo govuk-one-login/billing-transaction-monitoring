@@ -1,4 +1,4 @@
-import ContractsPage from "../pageObjects/contractsPage.js";
+import ContractsPage from "../pageobjects/contractsPage.js";
 import { waitForPageLoad } from "../helpers/waits.js";
 import {
   getTestDataFilePath,

@@ -1,5 +1,5 @@
 import { waitForPageLoad } from "../helpers/waits.js";
-import InvoicesListPage from "../pageObjects/invoicesListPage.js";
+import InvoicesListPage from "../pageobjects/invoicesListPage.js";
 import {
   getUniqueInvoiceMonthsYearsByVendor,
   getTestDataFilePath,
