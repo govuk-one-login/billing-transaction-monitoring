@@ -19,12 +19,19 @@ describe("Contracts Page Test", () => {
   it("UI list of vendors should match with vendor names in test data file", () => {
     const uiVendorNames = extractOnlyVendorNames(uiContractAndVendorNames);
     const uiUniqueVendorNames = [...new Set(uiVendorNames)];
-    expect(jsonVendorNames.sort((a, b) => a.localeCompare(b))).toEqual(
-      uiUniqueVendorNames.sort((a, b) => a.localeCompare(b))
+    const sortedJsonVendorNames = jsonVendorNames.sort((a, b) =>
+      a.localeCompare(b)
     );
+    const sortedUiUniqueVendorNames = uiUniqueVendorNames.sort((a, b) =>
+      a.localeCompare(b)
+    );
+    expect(sortedJsonVendorNames).toEqual(sortedUiUniqueVendorNames);
   });
 
-  jsonVendorNames.sort().forEach((vendor) => {
+  const sortedJsonVendorNames = jsonVendorNames.sort((a, b) =>
+    a.localeCompare(b)
+  );
+  sortedJsonVendorNames.forEach((vendor) => {
     it(`Should navigate to the invoice list page for ${vendor}`, async () => {
       await ContractsPage.clickContractByVendorName(vendor);
       await waitForPageLoad();
@@ -39,7 +46,7 @@ const extractOnlyVendorNames = (
 ): string[] => {
   const vendorNamesArray: string[] = [];
   uiContractAndVendorNames.forEach((item: string) => {
-    const vendorNames = item.match(/-([^]+)/);
+    const vendorNames = item.match(/-(.+)/);
     if (vendorNames) {
       vendorNames.forEach((vendor: string) => {
         const vendorName = vendor.replace(/- /, "").trim();
