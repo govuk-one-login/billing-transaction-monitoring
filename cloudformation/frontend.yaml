@@ -19,7 +19,10 @@ Resources:
         DefaultAuthorizer: LambdaAuthorizer
       Domain:
         CertificateArn:
-          Fn::ImportValue: !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
+          Fn::ImportValue: !If
+            - IsDev
+            - !Sub di-btm-tooling-dev-frontend-certificate-arn
+            - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
         DomainName: !GetAtt FrontEndDomainName.Value
         Route53:
           HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
