@@ -20,26 +20,29 @@ describe("InvoicesList Page", () => {
 
   const testDataFilePath = getTestDataFilePath();
   const vendorsNameFromJson = getUniqueVendorNamesFromJson(testDataFilePath);
-  
-  vendorsNameFromJson.forEach((vendor)=> {
-  it(`should display the correct vendor name for ${vendor}`, async () => {
-    const vendorContractId = VendorNameContractIdMap[vendor as keyof typeof VendorNameContractIdMap]
-    await InvoicesListPage.open(`contracts/${vendorContractId}/invoices`)
-    await waitForPageLoad()
-    const uiVendorName = await InvoicesListPage.getPageSubHeadingText();
-    expect(uiVendorName).toContain(`${vendor}`);
-  });
 
   vendorsNameFromJson.forEach((vendor) => {
-    it(`should return the correct unique invoice count for ${vendor}`, async () => {
-      const uniqueInvoiceCount = getUniqueInvoiceMonthsYearsByVendor(vendor);
+    it(`should display the correct vendor name for ${vendor}`, async () => {
       const vendorContractId =
         VendorNameContractIdMap[vendor as keyof typeof VendorNameContractIdMap];
       await InvoicesListPage.open(`contracts/${vendorContractId}/invoices`);
       await waitForPageLoad();
-      const invoiceCountFromUI = await InvoicesListPage.getInvoiceCount();
-      expect(uniqueInvoiceCount).toEqual(invoiceCountFromUI);
+      const uiVendorName = await InvoicesListPage.getPageSubHeadingText();
+      expect(uiVendorName).toContain(`${vendor}`);
+    });
+
+    vendorsNameFromJson.forEach((vendor) => {
+      it(`should return the correct unique invoice count for ${vendor}`, async () => {
+        const uniqueInvoiceCount = getUniqueInvoiceMonthsYearsByVendor(vendor);
+        const vendorContractId =
+          VendorNameContractIdMap[
+            vendor as keyof typeof VendorNameContractIdMap
+          ];
+        await InvoicesListPage.open(`contracts/${vendorContractId}/invoices`);
+        await waitForPageLoad();
+        const invoiceCountFromUI = await InvoicesListPage.getInvoiceCount();
+        expect(uniqueInvoiceCount).toEqual(invoiceCountFromUI);
+      });
     });
   });
 });
-})

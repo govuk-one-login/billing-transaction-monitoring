@@ -32,11 +32,7 @@ export default {
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",
   module: {
     rules: [
-      {
-        test: /\.ts$/,
-        use: "ts-loader",
-        exclude: [/node_modules/, /\.spec\.ts$/],
-      },
+      { test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ },
       { test: /.node$/, loader: "node-loader" },
     ],
   },

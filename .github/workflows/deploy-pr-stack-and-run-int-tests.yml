@@ -26,7 +26,6 @@ jobs:
         with:
           node-version: 16
       - run: npm ci
-      - run: python -m pip install --upgrade pip
       - run: npm test
       - name: Build lambdas
         run: npm run build
