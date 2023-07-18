@@ -1,5 +1,6 @@
 import { Context } from "aws-lambda";
-import { handler, IntTestHelpers, TestSupportEvent } from "./handler";
+import { handler } from "./handler";
+import { IntTestHelpers, TestSupportEvent } from "./types";
 import { getS3Object, listS3Objects } from "./helpers/s3Helper";
 
 jest.mock("./helpers/s3Helper.ts");

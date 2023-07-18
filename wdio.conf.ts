@@ -1,4 +1,4 @@
-import { uploadExtractDataFileForUITest } from "./ui-tests/testData/test.setup.js";
+import { uploadExtractDataFileForUITest } from "./ui-tests/testData/test.setup";
 
 export const config = {
   runner: "local",

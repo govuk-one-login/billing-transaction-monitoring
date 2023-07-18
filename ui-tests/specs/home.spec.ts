@@ -1,5 +1,5 @@
-import { waitForPageLoad } from "../helpers/waits.js";
-import HomePage from "../pageobjects/homepage.js";
+import { waitForPageLoad } from "../helpers/waits";
+import HomePage from "../pageobjects/homepage";
 
 /* UI tests for Home Page. It verifies the page displays the correct heading and subheading.
 It also tests the navigation to the contract list page when the link is clicked */

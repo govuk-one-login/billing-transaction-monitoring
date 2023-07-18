@@ -1,4 +1,4 @@
-import Page from "./page.js";
+import Page from "./page";
 
 class VendorPage extends Page {
   public get invoicesList(): Promise<WebdriverIO.Element[]> {

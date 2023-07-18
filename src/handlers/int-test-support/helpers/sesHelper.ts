@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { IntTestHelpers } from "../handler";
+import { IntTestHelpers } from "../types";
 import { runViaLambda } from "./envHelper";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { getSecret } from "./secretsManagerHelper";

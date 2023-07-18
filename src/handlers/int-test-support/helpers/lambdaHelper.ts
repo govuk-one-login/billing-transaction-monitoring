@@ -1,7 +1,8 @@
 import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
-import { HelperDict, IntTestHelpers, SerializableData } from "../handler";
+import type { HelperDict } from "../handler";
+import { IntTestHelpers, SerializableData } from "../types";
 import { configName, envName, resourcePrefix, runViaLambda } from "./envHelper";
 
 export const sendLambdaCommand = async <THelper extends IntTestHelpers>(

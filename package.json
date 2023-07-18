@@ -82,7 +82,7 @@
     "test:ephemeralEnvs": "jest --config jest.integration.config.ts --testPathIgnorePatterns email-storage-tests --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
     "test:integration": "jest --config jest.integration.config.ts --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
     "test:end2end": "jest --config jest.e2e.config.ts",
-    "test:ui": "wdio run ./wdio.conf.ts",
+    "test:ui": "NODE_OPTIONS=--es-module-specifier-resolution=node wdio run ./wdio.conf.ts",
     "test:cleanup:reports": "cd reports/jest-html-reports && ../../integration_tests/cleanup-jest-html-reports.sh 3",
     "test:integration:local": "jest --setupFiles=./integration_tests/setEnvVars.ts --testPathIgnorePatterns athena-query-tests s3-vat-tests --config jest.integration.config.ts",
     "build": "webpack",

@@ -1,10 +1,10 @@
-import { waitForPageLoad } from "../helpers/waits.js";
-import InvoicesListPage from "../pageobjects/invoicesListPage.js";
+import { waitForPageLoad } from "../helpers/waits";
+import InvoicesListPage from "../pageobjects/invoicesListPage";
 import {
   getUniqueInvoiceMonthsYearsByVendor,
   getTestDataFilePath,
   getUniqueVendorNamesFromJson,
-} from "../utils/extractTestDatajson.js";
+} from "../utils/extractTestDatajson";
 
 /* UI tests for Invoices List Page. It verifies that the correct vendor name is displayed on the page.
 It includes tests to ensure that the unique invoice count for each vendor matches the count obtained from the UI */

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import { TEST_DATA_FILE_PATH } from "./constants.js";
+import { TEST_DATA_FILE_PATH } from "./constants";
 
 type FullExtractData = {
   vendor_id: string;
