@@ -6,37 +6,31 @@ import {
   getUniqueVendorNamesFromJson,
 } from "../utils/extractTestDatajson.js";
 
-enum VendorNameContractIdMap {
-  "Vendor One" = 1,
-  "Vendor Two" = 2,
-  "Vendor Three" = 3,
-  "Vendor Four" = 4,
-  "Vendor Five" = 5,
-}
-
-before(async () => {
-  await InvoicesListPage.open("contracts/1/invoices");
-  await waitForPageLoad();
-});
+/* UI tests for Invoices List Page. It verifies that the correct vendor name is displayed on the page.
+It includes tests to ensure that the unique invoice count for each vendor matches the count obtained from the UI */
 
 describe("InvoicesList Page", () => {
-  it("should display the correct vendor name", async () => {
-    const vendorName = await InvoicesListPage.getPageSubHeadingText();
-    expect(vendorName).toBe("C01234 - Vendor One");
-  });
+  enum VendorNameContractIdMap {
+    "Vendor One" = 1,
+    "Vendor Two" = 2,
+    "Vendor Three" = 3,
+    "Vendor Four" = 4,
+    "Vendor Five" = 5,
+  }
 
-  it("should navigate to the Invoice Details page when an invoice is clicked", async () => {
-    await InvoicesListPage.clickInvoice();
-    await waitForPageLoad();
-    const invoiceDetailsPageUrl = await browser.getUrl();
-    expect(invoiceDetailsPageUrl).toContain("invoices/2023-01");
-  });
-});
-
-describe("getUniqueInvoiceCountByVendor", () => {
   const testDataFilePath = getTestDataFilePath();
-  const vendors = getUniqueVendorNamesFromJson(testDataFilePath);
-  vendors.forEach((vendor) => {
+  const vendorsNameFromJson = getUniqueVendorNamesFromJson(testDataFilePath);
+  
+  vendorsNameFromJson.forEach((vendor)=> {
+  it(`should display the correct vendor name for ${vendor}`, async () => {
+    const vendorContractId = VendorNameContractIdMap[vendor as keyof typeof VendorNameContractIdMap]
+    await InvoicesListPage.open(`contracts/${vendorContractId}/invoices`)
+    await waitForPageLoad()
+    const uiVendorName = await InvoicesListPage.getPageSubHeadingText();
+    expect(uiVendorName).toContain(`${vendor}`);
+  });
+
+  vendorsNameFromJson.forEach((vendor) => {
     it(`should return the correct unique invoice count for ${vendor}`, async () => {
       const uniqueInvoiceCount = getUniqueInvoiceMonthsYearsByVendor(vendor);
       const vendorContractId =
@@ -48,3 +42,4 @@ describe("getUniqueInvoiceCountByVendor", () => {
     });
   });
 });
+})

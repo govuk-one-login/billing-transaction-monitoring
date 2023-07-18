@@ -5,6 +5,10 @@ import {
   getUniqueVendorNamesFromJson,
 } from "../utils/extractTestDatajson.js";
 
+/* UI tests for Contracts Page. It verifies the UI list of vendors 
+matches the vendor name in test data file.
+Also tests the navigation to the invoices list page for each vendor */
+
 describe("Contracts Page Test", () => {
   const testDataFilePath = getTestDataFilePath();
   const jsonVendorNames = getUniqueVendorNamesFromJson(testDataFilePath);
