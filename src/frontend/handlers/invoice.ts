@@ -4,6 +4,7 @@ import {
   getInvoiceBanner,
   getLineItems,
   getReconciliationRows,
+  getTotals,
 } from "../extract-helpers";
 import { InvoiceParams, PageParamsGetter } from "../pages";
 
@@ -28,6 +29,8 @@ export const invoiceParamsGetter: PageParamsGetter<
 
   const reconciliationRows = getReconciliationRows(lineItems);
 
+  const invoiceTotals = getTotals(reconciliationRows);
+
   return {
     pageTitle: `${config.vendorName} ${
       MONTHS[Number(request.params.month) - 1]
@@ -40,5 +43,6 @@ export const invoiceParamsGetter: PageParamsGetter<
     bannerClass: invoiceBanner.bannerClass,
     invoiceStatus: invoiceBanner.status,
     reconciliationRows,
+    invoiceTotals,
   };
 };

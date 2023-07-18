@@ -9,7 +9,9 @@ export interface ReconciliationRow {
   status: { message: string; class: string };
   billingQuantity: string;
   transactionQuantity: string;
+  billingUnitPrice: string;
   billingPrice: string;
+  billingPriceInclVat: string;
   transactionPrice: string;
 }
 
@@ -34,8 +36,16 @@ export const getReconciliationRows = (
         item.transaction_quantity,
         item.price_difference_percentage
       ),
+      billingUnitPrice: getPrice(
+        item.billing_unit_price,
+        item.price_difference_percentage
+      ),
       billingPrice: getPrice(
         item.billing_price_formatted,
+        item.price_difference_percentage
+      ),
+      billingPriceInclVat: getPrice(
+        item.billing_amount_with_tax,
         item.price_difference_percentage
       ),
       transactionPrice: getPrice(
@@ -46,6 +56,30 @@ export const getReconciliationRows = (
     rows.push(row);
   }
   return rows;
+};
+
+export const getTotals = (
+  rows: ReconciliationRow[]
+): { billingPriceTotal: string; billingPriceInclVatTotal: string } => {
+  let billingPriceTotal = 0;
+  let billingPriceInclVatTotal = 0;
+
+  for (const row of rows) {
+    billingPriceTotal += Number(row.billingPrice.replace(/[^0-9.-]+/g, "")); // Converts currency string to float (Returns 0 if "Invoice data missing")
+    billingPriceInclVatTotal += Number(
+      row.billingPriceInclVat.replace(/[^0-9.-]+/g, "")
+    );
+  }
+  return {
+    billingPriceTotal: billingPriceTotal.toLocaleString("en-GB", {
+      style: "currency",
+      currency: "GBP",
+    }),
+    billingPriceInclVatTotal: billingPriceInclVatTotal.toLocaleString("en-GB", {
+      style: "currency",
+      currency: "GBP",
+    }),
+  };
 };
 
 const PERCENTAGE_DISCREPANCY = [
