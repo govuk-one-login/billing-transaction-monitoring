@@ -28,7 +28,7 @@ jobs:
       - name: SAM setup
         uses: aws-actions/setup-sam@v2
         with:
-          version: 1.59.0
+          use-installer: true
       - name: Merge template files into template.yaml
         run: npm run build:template
       - name: Check for potential CloudFormation security issues
