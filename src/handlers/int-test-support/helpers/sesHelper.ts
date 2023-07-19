@@ -5,44 +5,20 @@ import { sendLambdaCommand } from "./lambdaHelper";
 import { getSecret } from "./secretsManagerHelper";
 
 export type EmailParams = {
-  Source: string;
-  Destination: {
-    ToAddresses: string[];
-  };
-  Message: {
-    Subject: {
-      Data: string;
-    };
-    Body: {
-      Text: {
-        Data: string;
-      };
-    };
-    Attachment?: Array<{
-      Raw: string;
-    }>;
-  };
+  SourceAddress: string;
+  DestinationAddresses: string[];
+  Subject: string;
+  MessageBody: string;
+  Attachments?: string[];
 };
 
 export const sendEmail = async (params: EmailParams): Promise<string> => {
   console.log(params);
   if (runViaLambda()) {
-    const attachmentData = params.Message.Attachment ?? [];
-    const attachments = attachmentData.map((attachment) => ({
-      Raw: attachment.Raw,
-    }));
-
-    const lambdaParams = {
-      ...params,
-      Message: {
-        ...params.Message,
-        attachments,
-      },
-    };
-    console.log("lambdaParams:", lambdaParams);
+    console.log("lambdaParams:", params);
     return (await sendLambdaCommand(
       IntTestHelpers.sendEmail,
-      lambdaParams
+      params
     )) as unknown as string;
   }
   try {
@@ -65,13 +41,13 @@ export const sendEmail = async (params: EmailParams): Promise<string> => {
     });
 
     const { messageId } = await transporter.sendMail({
-      from: params.Source,
-      to: params.Destination.ToAddresses.join(", "),
-      subject: params.Message.Subject.Data,
-      text: params.Message.Body.Text.Data,
-      attachments: params.Message.Attachment
-        ? params.Message.Attachment.map((attachment) => ({
-            raw: attachment.Raw,
+      from: params.SourceAddress,
+      to: params.DestinationAddresses.join(", "),
+      subject: params.Subject,
+      text: params.MessageBody,
+      attachments: params.Attachments
+        ? params.Attachments.map((attachment) => ({
+            raw: attachment,
           }))
         : [],
     });
