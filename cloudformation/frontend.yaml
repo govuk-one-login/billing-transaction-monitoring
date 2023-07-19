@@ -18,7 +18,11 @@ Resources:
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
         DefaultAuthorizer: LambdaAuthorizer
       Domain:
-        CertificateArn: !Ref FrontEndCertificateArn
+        CertificateArn:
+          Fn::ImportValue: !If
+            - IsDev
+            - !Sub di-btm-tooling-dev-frontend-certificate-arn
+            - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
         DomainName: !GetAtt FrontEndDomainName.Value
         Route53:
           HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
@@ -32,7 +36,10 @@ Resources:
       Value: !If
         - IsProduction
         - btm.account.gov.uk
-        - !Sub btm.${Environment}.account.gov.uk
+        - !If
+          - IsDev
+          - btm.dev.account.gov.uk
+          - !Sub btm.${Environment}.account.gov.uk
       Description: !Sub Front end domain name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
 
   FrontEndHostedZoneName:
@@ -44,7 +51,10 @@ Resources:
       Value: !If
         - IsProduction
         - btm.account.gov.uk.
-        - !Sub btm.${Environment}.account.gov.uk.
+        - !If
+          - IsDev
+          - btm.dev.account.gov.uk.
+          - !Sub btm.${Environment}.account.gov.uk.
       Description: !Sub Front end Route 53 Hosted Zone name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
 
   FrontEndApiLogGroup:

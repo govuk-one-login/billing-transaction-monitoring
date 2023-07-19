@@ -6,6 +6,7 @@ export interface FullExtractLineItem {
   contract_name: string;
   year: string;
   month: string;
+  billing_unit_price: string;
   billing_price_formatted: string;
   transaction_price_formatted: string;
   price_difference: string;

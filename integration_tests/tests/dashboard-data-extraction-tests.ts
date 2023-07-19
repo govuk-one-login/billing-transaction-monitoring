@@ -87,6 +87,9 @@ describe("\n DashboardDataExtractFunction", () => {
     );
     expect(response[0].year).toEqual(year.toString());
     expect(response[0].month).toEqual(month.toString());
+    expect(response[0].billing_unit_price).toEqual(
+      "£" + standardisedInvoiceObject.unit_price.toFixed(4)
+    );
     expect(response[0].billing_price_formatted).toEqual(
       standardisedInvoiceObject.subtotal.toLocaleString("en-GB", {
         style: "currency",
@@ -118,6 +121,7 @@ interface BtmMonthlyExtract {
   contract_name: string;
   year: string;
   month: string;
+  billing_unit_price: string;
   billing_price_formatted: string;
   transaction_price_formatted: string;
   price_difference: string;
