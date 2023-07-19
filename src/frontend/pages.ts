@@ -1,4 +1,5 @@
 import { Request, RequestHandler } from "express";
+import { authorisationFailedParamsGetter } from "./handlers/authorisation-failed";
 import { contractsParamsGetter } from "./handlers/contracts";
 import { invoicesParamsGetter } from "./handlers/invoices";
 import { invoiceParamsGetter } from "./handlers/invoice";
@@ -145,4 +146,20 @@ const invoicePage: Page<
   paramsGetter: invoiceParamsGetter,
 };
 
-export const PAGES = [homePage, contractsPage, invoicesPage, invoicePage];
+export type AuthorisationFailedParams = {
+  pageTitle: string;
+};
+
+const authorisationFailedPage: Page<{}, AuthorisationFailedParams> = {
+  relativePath: "authorisation-failed",
+  njk: "authorisation-failed.njk",
+  paramsGetter: authorisationFailedParamsGetter,
+};
+
+export const PAGES = [
+  homePage,
+  contractsPage,
+  invoicesPage,
+  invoicePage,
+  authorisationFailedPage,
+];

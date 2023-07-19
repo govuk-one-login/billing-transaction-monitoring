@@ -1,0 +1,13 @@
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% extends "common/layout/base.njk" %}
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
+      <p class="govuk-body">You are not on our allowlist.</p>
+      <p class="govuk-body">
+        Contact the Digital Identity Billing &amp; Transactions Monitoring team for access to this website.
+      </p>
+    </div>
+  </div>
+{% endblock content %}
