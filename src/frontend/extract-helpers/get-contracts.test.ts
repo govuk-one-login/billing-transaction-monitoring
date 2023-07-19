@@ -37,6 +37,7 @@ describe("getContracts", () => {
       services: givenServicesConfig,
       contracts: givenContractsConfig,
     });
+
     mockedFetchS3.mockResolvedValue(
       '{"month":"03","year":"2023","contract_id":"1"}'
     );
