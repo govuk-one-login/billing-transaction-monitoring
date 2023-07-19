@@ -4,6 +4,7 @@ import { invoicesParamsGetter } from "./handlers/invoices";
 import { invoiceParamsGetter } from "./handlers/invoice";
 import path from "node:path";
 import { Contract, Period, ReconciliationRow } from "./extract-helpers";
+import { indexParamsGetter } from "./handlers/home";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams>
@@ -82,14 +83,10 @@ export const getHandler = <TParams, TReturn>(
   };
 };
 
-const indexOptionsGetter: PageParamsGetter<{}, {}> = async (_) => ({
-  pageTitle: "Billings and reconciliation",
-});
-
 const homePage: Page<{}, {}> = {
   relativePath: "",
   njk: "index.njk",
-  paramsGetter: indexOptionsGetter,
+  paramsGetter: indexParamsGetter,
 };
 
 export type ContractParams = {
