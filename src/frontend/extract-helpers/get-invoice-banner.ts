@@ -1,4 +1,8 @@
-import { percentageDiscrepancySpecialCase } from "../utils";
+import {
+  InvoiceBannerClass,
+  InvoiceBannerStatus,
+  percentageDiscrepancySpecialCase,
+} from "../utils";
 import { FullExtractLineItem } from "./types";
 
 interface InvoiceBanner {
@@ -21,12 +25,11 @@ export const getInvoiceBanner = (
   const WARNING_CODES = WARNINGS_BY_PRIORITY.map(
     (warning) => warning.magicNumber
   );
-
   let status;
   let bannerClass;
   if (lineItems.length === 0) {
-    status = "Invoice and events missing";
-    bannerClass = "warning";
+    status = InvoiceBannerStatus.invoiceAndEventsMissing;
+    bannerClass = InvoiceBannerClass.warning;
   } else if (
     lineItems.find((lineItem) =>
       WARNING_CODES.includes(lineItem.price_difference_percentage)
@@ -50,20 +53,20 @@ export const getInvoiceBanner = (
       throw new Error("Couldn't find line item with warning");
     }
     status = highestPriorityWarning.bannerText;
-    bannerClass = "warning";
+    bannerClass = InvoiceBannerClass.warning;
   } else if (
     lineItems.find((lineItem) => +lineItem.price_difference_percentage >= 1)
   ) {
-    status = "Invoice above threshold";
-    bannerClass = "error";
+    status = InvoiceBannerStatus.invoiceAboveThreshold;
+    bannerClass = InvoiceBannerClass.error;
   } else if (
     lineItems.find((lineItem) => +lineItem.price_difference_percentage <= -1)
   ) {
-    status = "Invoice below threshold";
-    bannerClass = "notice";
+    status = InvoiceBannerStatus.invoiceBelowThreshold;
+    bannerClass = InvoiceBannerClass.notice;
   } else {
-    status = "Invoice within threshold";
-    bannerClass = "payable";
+    status = InvoiceBannerStatus.invoiceWithinThreshold;
+    bannerClass = InvoiceBannerClass.payable;
   }
   return {
     status,
