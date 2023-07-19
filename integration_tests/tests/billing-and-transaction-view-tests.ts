@@ -1,6 +1,7 @@
 import {
   checkStandardised,
   createInvoiceWithGivenData,
+  createInvoiceInS3,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { TestData } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import {
@@ -28,7 +29,7 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
         data.transactionQty,
         data.eventName
       );
-      await createInvoiceWithGivenData(
+      const { invoiceData, filename } = await createInvoiceWithGivenData(
         data,
         "Passport Check",
         data.unitPrice,
@@ -36,6 +37,8 @@ describe("\nUpload pdf invoice to raw invoice bucket and verify BillingAndTransa
         data.vendorName,
         "pdf"
       );
+
+      await createInvoiceInS3({ invoiceData, filename });
 
       // Check they were standardised
       await checkStandardised(

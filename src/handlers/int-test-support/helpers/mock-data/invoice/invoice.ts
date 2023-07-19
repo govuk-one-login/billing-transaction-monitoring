@@ -128,6 +128,39 @@ export const makeMockInvoicePDF =
     return await writeOutput(data, folder, filename);
   };
 
+export const makeMockInvoiceCSVData = (invoice: Invoice): string => {
+  const csvData = [
+    ["Vendor", invoice.vendor.name],
+    ["Invoice period start", invoice.date.toISOString().substring(0, 10)],
+    ["Invoice period end", invoice.date.toISOString().substring(0, 10)],
+    ["Invoice Date", invoice.date.toISOString().substring(0, 10)],
+    ["Due Date", invoice.dueDate.toISOString().substring(0, 10)],
+    ["VAT Number", invoice.vendor.vatNumber],
+    ["WP Number", invoice.vendor.vatNumber],
+    ["PO Number", invoice.vendor.vatNumber],
+    ["Version", "1.0.0"],
+    ["Service Name", "Unit Price", "Quantity", "Tax", "Subtotal", "Total"],
+    ...invoice.lineItems.map((lineItem) => [
+      lineItem.description,
+      lineItem.unitPrice,
+      lineItem.quantity,
+      lineItem.vat.toFixed(4),
+      lineItem.subtotal.toFixed(4),
+      invoice.getTotal().toFixed(4),
+    ]),
+    [
+      "Total",
+      "",
+      "",
+      invoice.getTotalTax(),
+      invoice.getLineItemsSubTotal(),
+      invoice.getTotal(),
+    ],
+  ];
+  const csvString = csvData.map((row) => row.join(",")).join("\n");
+  return csvString;
+};
+
 export const makeMockInvoiceCSV =
   <TWriteOutput>(writeOutput: WriteFunc<TWriteOutput>) =>
   async (
@@ -135,34 +168,6 @@ export const makeMockInvoiceCSV =
     folder: string,
     filename: string
   ): Promise<TWriteOutput> => {
-    const csvData = [
-      ["Vendor", invoice.vendor.name],
-      ["Invoice period start", invoice.date.toISOString().substring(0, 10)],
-      ["Invoice period end", invoice.date.toISOString().substring(0, 10)],
-      ["Invoice Date", invoice.date.toISOString().substring(0, 10)],
-      ["Due Date", invoice.dueDate.toISOString().substring(0, 10)],
-      ["VAT Number", invoice.vendor.vatNumber],
-      ["WP Number", invoice.vendor.vatNumber],
-      ["PO Number", invoice.vendor.vatNumber],
-      ["Version", "1.0.0"],
-      ["Service Name", "Unit Price", "Quantity", "Tax", "Subtotal", "Total"],
-      ...invoice.lineItems.map((lineItem) => [
-        lineItem.description,
-        lineItem.unitPrice,
-        lineItem.quantity,
-        lineItem.vat.toFixed(4),
-        lineItem.subtotal.toFixed(4),
-        invoice.getTotal().toFixed(4),
-      ]),
-      [
-        "Total",
-        "",
-        "",
-        invoice.getTotalTax(),
-        invoice.getLineItemsSubTotal(),
-        invoice.getTotal(),
-      ],
-    ];
-    const csvString = csvData.map((row) => row.join(",")).join("\n");
+    const csvString = makeMockInvoiceCSVData(invoice);
     return await writeOutput(csvString, folder, filename);
   };

@@ -5,27 +5,32 @@ import {
 import {
   checkStandardised,
   createInvoiceWithGivenData,
+  waitForRawInvoice,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
-
+import { sendEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
 import {
   getVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
 import { BillingTransactionCurated } from "./billing-and-transaction-view-tests";
+import {
+  encodeAttachment,
+  getEmailAddresses,
+} from "../../src/handlers/int-test-support/helpers/emailHelper";
 
 let eventName: string;
 let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
 
-// Below tests can be run both in lower and higher environments
-
+// Below tests can be run in Dev, build and staging envs but should not be run in the PR stack
 beforeAll(async () => {
   dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
   eventName = dataRetrievedFromConfig.eventName;
 });
 
-describe("\n Upload pdf invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
+describe("\n Email pdf invoice and verify that the BillingAndTransactionsCuratedView results match the expected data \n", () => {
+  // Test cases for PDF invoices
   test.each`
     testCase                                                                               | eventTime       | transactionQty | billingQty
     ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2006/01/30"} | ${undefined}   | ${"100"}
@@ -34,7 +39,8 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       await generateTestEvents(data.eventTime, data.transactionQty, eventName);
-      await uploadInvoiceAndAssertResults(data, "pdf");
+      await emailInvoice(data, "pdf");
+      await assertResults(data);
     }
   );
 
@@ -59,19 +65,83 @@ describe("\n Upload pdf invoice to raw invoice bucket and generate transactions 
   );
 });
 
-describe("\n Upload csv invoice to raw invoice bucket and generate transactions to verify that the BillingAndTransactionsCuratedView results matches with the expected data \n", () => {
+// Test cases for CSV invoices
+describe("\n Email csv invoice and verify that the BillingAndTransactionsCuratedView results match the expected data \n", () => {
   test.each`
     testCase                                                                      | eventTime       | transactionQty | billingQty
     ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"} | ${"2005/10/30"} | ${"10"}        | ${"12"}
     ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}  | ${"2005/11/30"} | ${"10"}        | ${"6"}
   `(
-    "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
+    "results retrieved from BillingAndTransactionsCuratedView view should match the expected values for $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
       await generateTestEvents(data.eventTime, data.transactionQty, eventName);
-      await uploadInvoiceAndAssertResults(data, "csv");
+      await emailInvoice(data, "csv");
+      await assertResults(data);
     }
   );
 });
+
+export const emailInvoice = async (
+  data: TestData,
+  fileType: "pdf" | "csv"
+): Promise<void> => {
+  const { sourceEmail, toEmail } = await getEmailAddresses();
+  const { invoiceData, filename } = await createInvoiceWithGivenData(
+    data,
+    dataRetrievedFromConfig.description,
+    dataRetrievedFromConfig.unitPrice,
+    dataRetrievedFromConfig.vendorId,
+    dataRetrievedFromConfig.vendorName,
+    fileType
+  );
+  const attachmentString = encodeAttachment(invoiceData, filename);
+
+  await sendEmail({
+    SourceAddress: sourceEmail,
+    DestinationAddresses: [toEmail],
+    Subject: "Invoice",
+    MessageBody: "Please find the attached invoice",
+    Attachments: [attachmentString],
+  });
+
+  const isInRawInvoiceBucket = await waitForRawInvoice(
+    invoiceData.vendor.id,
+    filename
+  );
+  expect(isInRawInvoiceBucket).toBe(true);
+
+  // Check they were standardised
+  await checkStandardised(
+    new Date(data.eventTime),
+    dataRetrievedFromConfig.vendorId,
+    {
+      description: dataRetrievedFromConfig.description,
+      event_name: dataRetrievedFromConfig.eventName,
+    },
+    dataRetrievedFromConfig.description
+  );
+};
+
+interface ExpectedResults {
+  billingQty: number | undefined;
+  transactionQty: number | undefined;
+  transactionPriceFormatted: string | undefined;
+  billingPriceFormatted: number | undefined | string;
+  priceDifferencePercentage: string | undefined;
+}
+
+export const assertResults = async (data: TestData): Promise<void> => {
+  const expectedResults = calculateExpectedResults(
+    data,
+    dataRetrievedFromConfig.unitPrice
+  );
+  await assertQueryResultWithTestData(
+    expectedResults,
+    data.eventTime,
+    dataRetrievedFromConfig.vendorId,
+    dataRetrievedFromConfig.serviceName
+  );
+};
 
 export const assertQueryResultWithTestData = async (
   expectedResults: Record<string, any>,
@@ -141,46 +211,3 @@ const calculateExpectedResults = (
     };
   }
 };
-
-export const uploadInvoiceAndAssertResults = async (
-  data: TestData,
-  fileType: "pdf" | "csv"
-): Promise<void> => {
-  await createInvoiceWithGivenData(
-    data,
-    dataRetrievedFromConfig.description,
-    dataRetrievedFromConfig.unitPrice,
-    dataRetrievedFromConfig.vendorId,
-    dataRetrievedFromConfig.vendorName,
-    fileType
-  );
-  // Check they were standardised
-  await checkStandardised(
-    new Date(data.eventTime),
-    dataRetrievedFromConfig.vendorId,
-    {
-      description: dataRetrievedFromConfig.description,
-      event_name: dataRetrievedFromConfig.eventName,
-    },
-    dataRetrievedFromConfig.description
-  );
-
-  const expectedResults = calculateExpectedResults(
-    data,
-    dataRetrievedFromConfig.unitPrice
-  );
-  await assertQueryResultWithTestData(
-    expectedResults,
-    data.eventTime,
-    dataRetrievedFromConfig.vendorId,
-    dataRetrievedFromConfig.serviceName
-  );
-};
-
-interface ExpectedResults {
-  billingQty: number | undefined;
-  transactionQty: number | undefined;
-  transactionPriceFormatted: string | undefined;
-  billingPriceFormatted: number | undefined | string;
-  priceDifferencePercentage: string | undefined;
-}

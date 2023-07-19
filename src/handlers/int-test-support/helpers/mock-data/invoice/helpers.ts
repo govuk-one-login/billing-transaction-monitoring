@@ -1,4 +1,4 @@
-import { listS3Objects, S3Object } from "../../s3Helper";
+import { checkIfS3ObjectExists, listS3Objects, S3Object } from "../../s3Helper";
 import { Invoice, makeMockInvoicePDF, makeMockInvoiceCSV } from "./invoice";
 import { writeInvoiceToS3 } from "./writers";
 import { resourcePrefix, runViaLambda } from "../../envHelper";
@@ -50,7 +50,7 @@ export const createInvoiceWithGivenData = async (
   vendorId: string,
   vendorName: string,
   fileExtension: "pdf" | "csv"
-): Promise<S3Object> => {
+): Promise<InvoiceDataAndFileName> => {
   const givenBillingQty = billingQty;
   const lineItems = randomLineItem({
     description,
@@ -69,7 +69,7 @@ export const createInvoiceWithGivenData = async (
   const filename = `e2e-test-raw-Invoice-validFile-${randomString(
     8
   )}.${fileExtension}`;
-  return await createInvoiceInS3({ invoiceData, filename });
+  return { invoiceData, filename };
 };
 
 const getLineItemPrefix = (
@@ -122,3 +122,25 @@ export const checkStandardised = async (
   if (result?.key === undefined) throw new Error("Empty line item data");
   return { bucket, key: result.key };
 };
+
+export const checkForRawInvoice = async (
+  vendorId: string,
+  fileName: string
+): Promise<boolean> =>
+  await checkIfS3ObjectExists({
+    key: `${vendorId}/${fileName}`,
+    bucket: `${resourcePrefix()}-raw-invoice`,
+  });
+
+export const waitForRawInvoice = async (
+  vendorId: string,
+  fileName: string
+): Promise<boolean> =>
+  await poll(
+    async () => await checkForRawInvoice(vendorId, fileName),
+    (resolution) => resolution,
+    {
+      timeout: 30000,
+      notCompleteErrorMessage: `Not found in raw invoice bucket: ${vendorId}/${fileName}`,
+    }
+  );

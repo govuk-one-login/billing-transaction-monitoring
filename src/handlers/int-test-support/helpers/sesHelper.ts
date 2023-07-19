@@ -13,12 +13,12 @@ export type EmailParams = {
 };
 
 export const sendEmail = async (params: EmailParams): Promise<string> => {
-  if (runViaLambda())
+  if (runViaLambda()) {
     return (await sendLambdaCommand(
       IntTestHelpers.sendEmail,
       params
     )) as unknown as string;
-
+  }
   try {
     if (!process.env.EMAIL_SENDER_NAME_ID)
       throw Error("No `EMAIL_SENDER_NAME_ID` given");

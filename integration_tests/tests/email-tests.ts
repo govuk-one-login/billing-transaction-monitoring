@@ -1,16 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
-import {
-  checkIfS3ObjectExists,
-  putS3Object,
-} from "../../src/handlers/int-test-support/helpers/s3Helper";
-import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { putS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import {
   Invoice,
   makeMockInvoicePdfData,
   randomInvoiceData,
 } from "../../src/handlers/int-test-support/helpers/mock-data/invoice";
+import {
+  waitForRawInvoice,
+  checkForRawInvoice,
+} from "../../src/handlers/int-test-support/helpers/mock-data/invoice/helpers";
 
 const prefix = resourcePrefix();
 const givenVendorId = "vendor123";
@@ -217,15 +217,6 @@ const CONTENT_TYPES_BY_FILE_EXTENSION = {
   png: "image/png",
 };
 
-const checkForRawInvoice = async (
-  vendorId: string,
-  fileName: string
-): Promise<boolean> =>
-  await checkIfS3ObjectExists({
-    key: `${vendorId}/${fileName}`,
-    bucket: `${prefix}-raw-invoice`,
-  });
-
 const getPayloadData = (fileName: string): Buffer => {
   const filePath = path.join(__dirname, "../payloads", fileName);
   return fs.readFileSync(filePath);
@@ -274,16 +265,3 @@ const makeRandomInvoicePdfData = (): string => {
 
 const makeUniqueString = (): string =>
   Math.random().toString(36).substring(2, 7);
-
-const waitForRawInvoice = async (
-  vendorId: string,
-  fileName: string
-): Promise<boolean> =>
-  await poll(
-    async () => await checkForRawInvoice(vendorId, fileName),
-    (resolution) => resolution,
-    {
-      timeout: 30000,
-      notCompleteErrorMessage: `Not found in raw invoice bucket: ${vendorId}/${fileName}`,
-    }
-  );
