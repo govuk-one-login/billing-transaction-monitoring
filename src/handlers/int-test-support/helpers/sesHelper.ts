@@ -13,7 +13,6 @@ export type EmailParams = {
 };
 
 export const sendEmail = async (params: EmailParams): Promise<string> => {
-  console.log(params);
   if (runViaLambda()) {
     console.log("lambdaParams:", params);
     return (await sendLambdaCommand(
