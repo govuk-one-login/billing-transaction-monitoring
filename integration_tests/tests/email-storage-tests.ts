@@ -21,7 +21,7 @@ describe("\n Email storage \n", () => {
     const params: EmailParams = {
       SourceAddress: sourceEmail,
       DestinationAddresses: [toEmail],
-      Subject: "Test",
+      Subject: "Auto Test Email",
       MessageBody: messageBody,
     };
     const testTime = new Date();

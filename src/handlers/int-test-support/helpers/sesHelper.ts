@@ -39,7 +39,6 @@ export const sendEmail = async (params: EmailParams): Promise<string> => {
       secure: true,
       auth: { user, pass },
     });
-
     const { messageId } = await transporter.sendMail({
       from: params.SourceAddress,
       to: params.DestinationAddresses.join(", "),
