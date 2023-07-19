@@ -13,6 +13,10 @@ describe("contracts handler", () => {
   beforeEach(() => {
     initApp(app);
 
+    process.env = {
+      STORAGE_BUCKET: "given storage bucket",
+    };
+
     givenContractsConfig = [
       { id: "1", name: "C01234", vendor_id: "vendor_testvendor1" },
       { id: "2", name: "C01235", vendor_id: "vendor_testvendor2" },
