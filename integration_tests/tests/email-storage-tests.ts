@@ -19,20 +19,10 @@ describe("\n Email storage \n", () => {
     const directory = "vendor_testvendor1";
     const messageBody = crypto.randomBytes(32).toString("hex");
     const params: EmailParams = {
-      Source: sourceEmail,
-      Destination: {
-        ToAddresses: [toEmail],
-      },
-      Message: {
-        Subject: {
-          Data: "test",
-        },
-        Body: {
-          Text: {
-            Data: messageBody,
-          },
-        },
-      },
+      SourceAddress: sourceEmail,
+      DestinationAddresses: [toEmail],
+      Subject: "Auto Test Email",
+      MessageBody: messageBody,
     };
     const testTime = new Date();
     await sendEmail(params);
