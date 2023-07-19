@@ -62,6 +62,5 @@ export const encodeAttachment = (
     "",
     attachment,
   ].join("\n");
-
   return attachmentString;
 };

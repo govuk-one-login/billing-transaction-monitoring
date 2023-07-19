@@ -112,7 +112,6 @@ export const emailInvoice = async (
       },
       Attachment: [
         {
-          Filename: filename,
           Raw: attachmentString,
         },
       ],

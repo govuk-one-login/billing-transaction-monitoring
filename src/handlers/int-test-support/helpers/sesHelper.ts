@@ -19,19 +19,32 @@ export type EmailParams = {
       };
     };
     Attachment?: Array<{
-      Filename: string;
       Raw: string;
     }>;
   };
 };
 
 export const sendEmail = async (params: EmailParams): Promise<string> => {
-  if (runViaLambda())
+  console.log(params);
+  if (runViaLambda()) {
+    const attachmentData = params.Message.Attachment ?? [];
+    const attachments = attachmentData.map((attachment) => ({
+      Raw: attachment.Raw,
+    }));
+
+    const lambdaParams = {
+      ...params,
+      Message: {
+        ...params.Message,
+        attachments,
+      },
+    };
+    console.log("lambdaParams:", lambdaParams);
     return (await sendLambdaCommand(
       IntTestHelpers.sendEmail,
-      params
+      lambdaParams
     )) as unknown as string;
-
+  }
   try {
     if (!process.env.EMAIL_SENDER_NAME_ID)
       throw Error("No `EMAIL_SENDER_NAME_ID` given");
@@ -58,7 +71,6 @@ export const sendEmail = async (params: EmailParams): Promise<string> => {
       text: params.Message.Body.Text.Data,
       attachments: params.Message.Attachment
         ? params.Message.Attachment.map((attachment) => ({
-            filename: attachment.Filename,
             raw: attachment.Raw,
           }))
         : [],
