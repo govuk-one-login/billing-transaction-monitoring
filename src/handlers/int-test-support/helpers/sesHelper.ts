@@ -5,25 +5,11 @@ import { sendLambdaCommand } from "./lambdaHelper";
 import { getSecret } from "./secretsManagerHelper";
 
 export type EmailParams = {
-  Source: string;
-  Destination: {
-    ToAddresses: string[];
-  };
-  Message: {
-    Subject: {
-      Data: string;
-    };
-    Body: {
-      Text: {
-        Data: string;
-      };
-    };
-    Attachment?: {
-      Filename: string;
-      Content: string;
-      ContentType: string;
-    };
-  };
+  SourceAddress: string;
+  DestinationAddresses: string[];
+  Subject: string;
+  MessageBody: string;
+  Attachments?: string[];
 };
 
 export const sendEmail = async (params: EmailParams): Promise<string> => {
@@ -51,20 +37,15 @@ export const sendEmail = async (params: EmailParams): Promise<string> => {
       secure: true,
       auth: { user, pass },
     });
-
     const { messageId } = await transporter.sendMail({
-      from: params.Source,
-      to: params.Destination.ToAddresses.join(", "),
-      subject: params.Message.Subject.Data,
-      text: params.Message.Body.Text.Data,
-      attachments: params.Message.Attachment
-        ? [
-            {
-              filename: params.Message.Attachment.Filename,
-              content: params.Message.Attachment.Content,
-              contentType: params.Message.Attachment.ContentType,
-            },
-          ]
+      from: params.SourceAddress,
+      to: params.DestinationAddresses.join(", "),
+      subject: params.Subject,
+      text: params.MessageBody,
+      attachments: params.Attachments
+        ? params.Attachments.map((attachment) => ({
+            raw: attachment,
+          }))
         : [],
     });
 
