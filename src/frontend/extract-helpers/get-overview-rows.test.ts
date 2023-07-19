@@ -99,7 +99,7 @@ describe("getOverviewRows", () => {
       {
         contractName: "C01234",
         vendorName: "Vendor One",
-        month: "Jun2023",
+        month: "Jun 2023",
         reconciliationDetails: {
           tagClass: "govuk-tag--grey",
           bannerMessage: "Invoice data missing",
@@ -109,7 +109,7 @@ describe("getOverviewRows", () => {
       {
         contractName: "MOU",
         vendorName: "Vendor Two",
-        month: "Jun2023",
+        month: "Jun 2023",
         reconciliationDetails: {
           tagClass: "govuk-tag--green",
           bannerMessage: "Invoice within threshold",

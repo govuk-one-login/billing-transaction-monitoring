@@ -29,7 +29,7 @@ export const getOverviewRows = async (): Promise<OverviewRow[]> => {
     const row = {
       contractName: contract.name,
       vendorName: contract.vendorName,
-      month: latestMonth.prettyMonth + latestMonth.year,
+      month: `${latestMonth.prettyMonth} ${latestMonth.year}`,
       reconciliationDetails,
       details: "View Invoice",
     };
