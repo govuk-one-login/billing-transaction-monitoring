@@ -4,6 +4,7 @@ import { deleteS3ObjectsByPrefix, listS3Objects } from "./s3Helper";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
+const emailBucket = `${prefix}-email`;
 const rawInvoiceBucket = `${prefix}-raw-invoice`;
 const rawInvoiceTextractBucket = `${prefix}-raw-invoice-textract-data`;
 
@@ -13,6 +14,7 @@ export default async function globalSetup(): Promise<void> {
     deleteS3ObjectsAndPoll(storageBucket, "btm_event_data/2005"),
     deleteS3ObjectsAndPoll(storageBucket, "btm_invoice_data"),
     deleteS3ObjectsAndPoll(storageBucket, "btm_extract_data"),
+    deleteS3ObjectsAndPoll(emailBucket),
     deleteS3ObjectsAndPoll(rawInvoiceBucket),
     deleteS3ObjectsAndPoll(rawInvoiceTextractBucket),
   ]);

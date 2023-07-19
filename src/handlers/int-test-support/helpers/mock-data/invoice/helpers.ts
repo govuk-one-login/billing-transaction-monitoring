@@ -140,7 +140,7 @@ export const waitForRawInvoice = async (
     async () => await checkForRawInvoice(vendorId, fileName),
     (resolution) => resolution,
     {
-      timeout: 30000,
+      timeout: 60000,
       notCompleteErrorMessage: `Not found in raw invoice bucket: ${vendorId}/${fileName}`,
     }
   );

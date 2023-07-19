@@ -22,6 +22,7 @@ async function waitForSubstringInLogs(
         return event.message?.includes(subString);
       }),
     {
+      timeout: 60000,
       notCompleteErrorMessage: "Substring " + subString + " not found in logs",
     }
   );
