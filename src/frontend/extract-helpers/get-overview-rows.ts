@@ -1,13 +1,16 @@
+import { InvoiceBannerStatus, statusLabels } from "../utils";
 import { getContractPeriods } from "./get-contract-periods";
 import { getContracts } from "./get-contracts";
+import { getInvoiceBanner } from "./get-invoice-banner";
+import { getLineItems } from "./get-line-items";
 
 export interface OverviewRow {
   contractName: string;
   vendorName: string;
   month: string;
   reconciliationDetails: {
-    message: string;
-    class: string;
+    bannerMessage: string;
+    tagClass: string;
   };
   details: string;
 }
@@ -16,19 +19,19 @@ export const getOverviewRows = async (): Promise<OverviewRow[]> => {
   const overviewRows = [];
 
   const contracts = await getContracts();
-
   for (const contract of contracts) {
-    const latestPeriod = await getRecentMonth(contract.id);
+    const latestMonth = await getRecentMonth(contract.id);
+    const reconciliationDetails = await getReconciliationDetails(
+      contract.id,
+      latestMonth.year,
+      latestMonth.month
+    );
     const row = {
       contractName: contract.name,
       vendorName: contract.vendorName,
-      month: latestPeriod.prettyMonth + latestPeriod.year,
-      // ToDo
-      reconciliationDetails: {
-        message: "Invoice Within Threshold",
-        class: "govuk-tag--green",
-      },
-      details: "more details",
+      month: latestMonth.prettyMonth + latestMonth.year,
+      reconciliationDetails,
+      details: "View Invoice",
     };
     overviewRows.push(row);
   }
@@ -43,14 +46,25 @@ const getRecentMonth = async (
   return latestPeriod;
 };
 
-// const getReconciliationDetails = async (
-//   contractId: string,
-//   year: string,
-//   month: string
-// ): Promise<{
-//   message: string;
-//   class: string;
-// }> => {
-//   const lineItems = await getLineItems(contractId, year, month);
-//   return getInvoiceBanner(lineItems);
-// };
+const getReconciliationDetails = async (
+  contractId: string,
+  year: string,
+  month: string
+): Promise<{
+  bannerMessage: string;
+  tagClass: string;
+}> => {
+  let tagClass;
+  const lineItems = await getLineItems(contractId, year, month);
+  const bannerMessage = getInvoiceBanner(lineItems).status;
+  if (bannerMessage === InvoiceBannerStatus.invoiceWithinThreshold) {
+    tagClass = statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.class;
+  } else if (bannerMessage === InvoiceBannerStatus.invoiceAboveThreshold) {
+    tagClass = statusLabels.STATUS_LABEL_ABOVE_THRESHOLD.class;
+  } else if (bannerMessage === InvoiceBannerStatus.invoiceBelowThreshold) {
+    tagClass = statusLabels.STATUS_LABEL_BELOW_THRESHOLD.class;
+  } else {
+    tagClass = statusLabels.STATUS_LABEL_PENDING.class;
+  }
+  return { bannerMessage, tagClass };
+};
