@@ -48,7 +48,10 @@ describe("Page", () => {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const mockedResponse: Response = {
       render: jest.fn(),
-    } as jest.MockedObject<Response>;
+      locals: {
+        cspNonce: "someCsp",
+      },
+    } as any;
 
     const mockedNextFunction: NextFunction =
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -72,6 +75,7 @@ describe("Page", () => {
       },
       pageTitle: "GrandchildType",
       some_id: "someValue",
+      cspNonce: "someCsp",
     });
   });
 });

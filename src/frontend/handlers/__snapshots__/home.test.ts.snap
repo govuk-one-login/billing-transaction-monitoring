@@ -32,7 +32,7 @@ exports[`home page handler Page displays all overview rows 1`] = `
     
   </head>
   <body class="govuk-template__body ">
-    <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+    <script nonce="766c0ef2368c8f0b770a8af249ea4fa7">document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
     
 
     
@@ -215,7 +215,7 @@ exports[`home page handler Page displays all overview rows 1`] = `
     
 
     
-  <script src="/assets/scripts/all.js"></script>
+  <script src="/assets/scripts/all.js" nonce="766c0ef2368c8f0b770a8af249ea4fa7"></script>
   <script>window.GOVUKFrontend.initAll();</script>
   
   

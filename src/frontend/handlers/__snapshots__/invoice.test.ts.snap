@@ -32,7 +32,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     
   </head>
   <body class="govuk-template__body ">
-    <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+    <script nonce="0847da0ee236841400d70cbc45cab531">document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
     
 
     
@@ -476,7 +476,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     
 
     
-  <script src="/assets/scripts/all.js"></script>
+  <script src="/assets/scripts/all.js" nonce="0847da0ee236841400d70cbc45cab531"></script>
   <script>window.GOVUKFrontend.initAll();</script>
   
   
