@@ -1,10 +1,11 @@
-import { Athena } from "aws-sdk";
+import AWS from "aws-sdk";
 import { AthenaQueryExecutor } from "./athena";
 
 describe("Athena", () => {
-  let givenAthena: Athena;
+  let givenAthena: AWS.Athena;
   let mockedAthenaGetQueryExecution: jest.Mock;
   let mockedAthenaGetQueryExecutionPromise: jest.Mock;
+
   describe("Query execution validator", () => {
     const oldSetTimeout = setTimeout;
 

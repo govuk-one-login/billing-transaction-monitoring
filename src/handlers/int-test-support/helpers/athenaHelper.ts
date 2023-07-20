@@ -7,7 +7,7 @@ import {
 import { resourcePrefix, runViaLambda } from "./envHelper";
 import { athenaClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
-import { IntTestHelpers } from "../handler";
+import { IntTestHelpers } from "../types";
 
 type DatabaseQuery = {
   databaseName: string;

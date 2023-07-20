@@ -1,19 +1,17 @@
 import supertest from "supertest";
+import { ConfigElements } from "../../shared/constants";
+import { fetchS3, getConfig } from "../../shared/utils";
 import { app } from "../app";
-import { makeCtxConfig } from "../../handler-context/context-builder";
 import { initApp } from "../init-app";
-import { fetchS3 } from "../../shared/utils";
 import { statusLabels } from "../utils";
-
-jest.mock("../../handler-context/context-builder");
-const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
 
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
+const mockedGetConfig = getConfig as jest.Mock;
 
 describe("invoice handler", () => {
-  let givenContractsConfig;
-  let givenServicesConfig;
+  let givenContractsConfig: any;
+  let givenServicesConfig: any;
   let givenExtractResults;
 
   beforeEach(() => {
@@ -44,10 +42,12 @@ describe("invoice handler", () => {
         contract_id: "1",
       },
     ];
-    mockedMakeCtxConfig.mockResolvedValue({
-      services: givenServicesConfig,
-      contracts: givenContractsConfig,
-    });
+
+    mockedGetConfig.mockImplementation((fileName) =>
+      fileName === ConfigElements.services
+        ? givenServicesConfig
+        : givenContractsConfig
+    );
 
     givenExtractResults = `{"vendor_id":"vendor_testvendor1","vendor_name":"Vendor One","service_name":"Passport check","month":"03","year":"2023","contract_id":"1","contract_name":"C01234","billing_price_formatted":"£650.00","transaction_price_formatted":"","price_difference":"","billing_quantity":"2", "transaction_quantity":"11", "quantity_difference":"-9","billing_amount_with_tax":"£780.00","price_difference_percentage":"0"}
 {"vendor_id":"vendor_testvendor1","vendor_name":"Vendor One","service_name":"Passport check","month":"04","year":"2023","contract_id":"1","contract_name":"C01234","billing_price_formatted":"16,029.00","transaction_price_formatted":"15,828.30","price_difference":"200.70","billing_quantity":"53430", "transaction_quantity":"52761", "quantity_difference":"669.00","billing_amount_with_tax":"£19,234.80","price_difference_percentage":"1.268"}`;

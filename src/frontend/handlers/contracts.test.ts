@@ -1,18 +1,19 @@
 import supertest from "supertest";
+import { ConfigElements } from "../../shared/constants";
+import { getConfig } from "../../shared/utils";
 import { app } from "../app";
-import { makeCtxConfig } from "../../handler-context/context-builder";
 import { initApp } from "../init-app";
 import { getOverviewRows } from "../extract-helpers/get-overview-rows";
 
-jest.mock("../../handler-context/context-builder");
-const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
+jest.mock("../../shared/utils");
+const mockedGetConfig = getConfig as jest.Mock;
 
 jest.mock("../extract-helpers/get-overview-rows");
 const mockedGetOverviewRows = getOverviewRows as jest.Mock;
 
 describe("contracts handler", () => {
-  let givenContractsConfig;
-  let givenServicesConfig;
+  let givenContractsConfig: any;
+  let givenServicesConfig: any;
 
   beforeEach(() => {
     initApp(app);
@@ -45,10 +46,6 @@ describe("contracts handler", () => {
       },
     ];
     // Arrange
-    mockedMakeCtxConfig.mockResolvedValue({
-      services: givenServicesConfig,
-      contracts: givenContractsConfig,
-    });
     mockedGetOverviewRows.mockResolvedValue([
       {
         contractId: "c1",
@@ -77,6 +74,11 @@ describe("contracts handler", () => {
         details: "View Invoice",
       },
     ]);
+    mockedGetConfig.mockImplementation((fileName) =>
+      fileName === ConfigElements.services
+        ? givenServicesConfig
+        : givenContractsConfig
+    );
   });
 
   test("Page displays all contracts", async () => {

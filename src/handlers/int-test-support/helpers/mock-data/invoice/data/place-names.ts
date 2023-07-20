@@ -1,4 +1,4 @@
-[
+export default [
   "Aaronsburg",
   "Abbeville",
   "Abbotsford",
@@ -10194,5 +10194,5 @@
   "Zumbrota",
   "Zuni",
   "Zwingle",
-  "Zwolle"
-]
+  "Zwolle",
+];

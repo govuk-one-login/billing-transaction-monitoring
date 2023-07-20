@@ -1,4 +1,4 @@
-import { ConfigElements } from "../../handler-context";
+import { ConfigElements } from "../../shared/constants";
 
 export interface CleanedEventBody {
   vendor_id: string;

@@ -1,4 +1,4 @@
-import { VendorServiceConfigRows } from "../../shared/utils";
+import { ConfigServicesRow } from "../../shared/types";
 import {
   CsvObject,
   getCsvStandardisedInvoice,
@@ -8,7 +8,7 @@ describe("CSV Standardised invoice getter", () => {
   let givenValidCsvObject: CsvObject;
   let givenCsvObjectWithInvalidDate: CsvObject;
   let givenCsvObjectWithInvalidNumber: CsvObject;
-  let givenVendorServiceConfigRows: VendorServiceConfigRows;
+  let givenVendorServiceConfigRows: ConfigServicesRow[];
   let givenSourceFileName: string;
 
   beforeEach(() => {

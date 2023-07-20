@@ -200,14 +200,12 @@ describe("Standardised invoice sender", () => {
     expect(mockedGetStandardisedInvoice).toHaveBeenCalledWith(
       mockedTextractData,
       mockedS3EventRecord1Folder,
-      givenConfigBucket,
       givenParserVersions,
       `${mockedS3EventRecord1FileNameWithoutFileExtension}.pdf`
     );
     expect(mockedGetStandardisedInvoice).toHaveBeenCalledWith(
       mockedTextractData,
       mockedS3EventRecord2Folder,
-      givenConfigBucket,
       givenParserVersions,
       `${mockedS3EventRecord2FileNameWithoutFileExtension}.pdf`
     );

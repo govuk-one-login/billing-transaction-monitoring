@@ -1,16 +1,15 @@
 import { Textract } from "aws-sdk";
-import { StandardisedLineItem } from "../../../shared/types";
+import { ConfigServicesRow, StandardisedLineItem } from "../../../shared/types";
 import {
   getVendorInvoiceStandardisationModuleId,
   getVendorServiceConfigRows,
-  VendorServiceConfigRows,
 } from "../../../shared/utils";
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
 import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-default";
 
 export type StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  vendorServiceConfigRows: VendorServiceConfigRows,
+  vendorServiceConfigRows: ConfigServicesRow[],
   parserVersion: string,
   originalInvoiceFile: string
 ) => StandardisedLineItem[];
@@ -22,16 +21,13 @@ const standardisationModuleMap: Record<number, StandardisationModule> = {
 export const getStandardisedInvoice = async (
   textractPages: Textract.ExpenseDocument[],
   vendorId: string,
-  configBucket: string,
   parserVersions: Record<string, string>,
   originalInvoiceFileName: string
 ): Promise<StandardisedLineItem[]> => {
-  const vendorServiceConfigRows = await getVendorServiceConfigRows(
-    configBucket,
-    { vendor_id: vendorId }
-  );
+  const vendorServiceConfigRows = await getVendorServiceConfigRows({
+    vendor_id: vendorId,
+  });
   const standardisationModuleId = await getVendorInvoiceStandardisationModuleId(
-    configBucket,
     vendorId
   );
 

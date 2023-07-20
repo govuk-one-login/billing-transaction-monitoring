@@ -1,5 +1,17 @@
 import { ValidTextractJobStatus } from "./types";
 
+export enum ConfigElements {
+  rates = "rates",
+  services = "services",
+  contracts = "contracts",
+  renamingMap = "renamingMap",
+  inferences = "inferences",
+  transformations = "transformations",
+  vat = "vat",
+  standardisation = "standardisation",
+  eventCleaningTransform = "eventCleaningTransform",
+}
+
 export const RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE = "failed";
 export const RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS = "successful";
 

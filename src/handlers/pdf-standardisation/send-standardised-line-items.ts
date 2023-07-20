@@ -34,7 +34,6 @@ export async function sendStandardisedLineItems(
     const standardisedInvoice = await getStandardisedInvoice(
       textractData,
       vendorId,
-      configBucket,
       parserVersions,
       originalInvoiceFileName
     );

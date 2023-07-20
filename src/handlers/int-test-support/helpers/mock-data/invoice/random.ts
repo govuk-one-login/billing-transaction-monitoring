@@ -1,6 +1,6 @@
 import { Invoice } from "./invoice";
-import placeNames from "./data/place-names.json";
-import streetTypes from "./data/street-types.json";
+import placeNames from "./data/place-names";
+import streetTypes from "./data/street-types";
 import { Customer, InvoiceData, LineItem, Vendor } from "./types";
 
 export interface InvoiceOptions {

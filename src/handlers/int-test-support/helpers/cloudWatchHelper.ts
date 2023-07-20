@@ -7,7 +7,7 @@ import {
 import { runViaLambda } from "./envHelper";
 import { cloudWatchLogsClient } from "../clients";
 import { sendLambdaCommand } from "./lambdaHelper";
-import { IntTestHelpers } from "../handler";
+import { IntTestHelpers } from "../types";
 
 type LogCheckParameters = {
   logName: string;

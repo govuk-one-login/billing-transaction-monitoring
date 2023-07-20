@@ -1,3 +1,8 @@
+import { Command } from "../handlers/clean/xform";
+import { InferenceSpecifications } from "../handlers/transaction-csv-to-json-event/convert/make-inferences";
+import { Transformations } from "../handlers/transaction-csv-to-json-event/convert/perform-transformations";
+import { ConfigElements } from "./constants";
+
 export interface Response {
   batchItemFailures: Array<{ itemIdentifier: string }>;
 }
@@ -32,3 +37,57 @@ export interface StandardisedLineItem extends StandardisedLineItemSummary {
   // May not be present in old items, but required here to ensure they are added to new ones and can form part of the standardised invoice file name:
   event_name: string;
 }
+
+export interface ConfigCache {
+  [ConfigElements.rates]: ConfigRatesRow[];
+  [ConfigElements.services]: ConfigServicesRow[];
+  [ConfigElements.contracts]: ConfigContractsRow[];
+  [ConfigElements.renamingMap]: Array<[string, string]>;
+  [ConfigElements.inferences]: InferenceSpecifications<
+    {}, // I'm avoiding including this type as the field names are sensitive
+    { event_name: string }
+  >;
+  [ConfigElements.transformations]: Transformations<{}, {}>;
+  [ConfigElements.vat]: Array<{ rate: number; start: string }>;
+  [ConfigElements.standardisation]: ConfigStandardisationRow[];
+  [ConfigElements.eventCleaningTransform]: { credits: Command };
+}
+
+export interface ConfigRatesRow {
+  vendor_id: string;
+  event_name: string;
+  volumes_from: number;
+  volumes_to: number | undefined;
+  unit_price: number;
+  effective_from: Date;
+  effective_to: Date;
+}
+
+export interface ConfigServicesRow {
+  vendor_name: string;
+  vendor_id: string;
+  service_name: string;
+  service_regex: string;
+  event_name: string;
+  contract_id: string;
+}
+
+export interface ConfigContractsRow {
+  id: string;
+  name: string;
+  vendor_id: string;
+}
+
+export interface ConfigStandardisationRow {
+  vendorId: string;
+  invoiceStandardisationModuleId: number;
+}
+
+export type GetConfigFile = <TFileName extends ConfigElements>(
+  fileName: TFileName
+) => Promise<ConfigCache[TFileName]>;
+
+export type PickedConfigCache<TFileName extends ConfigElements> = Pick<
+  ConfigCache,
+  TFileName
+>;
