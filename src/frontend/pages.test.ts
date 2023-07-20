@@ -6,18 +6,21 @@ describe("Page", () => {
     relativePath: "",
     njk: "",
     paramsGetter: async (_) => ({ pageTitle: "homePage" }),
+    titleGetter: async () => "homePage",
   };
   const childType1Page: Page<{}, {}> = {
     relativePath: ":child_id/childType1",
     paramsGetter: async (_) => ({ pageTitle: "ChildType1" }),
     njk: "",
     parent: homePage,
+    titleGetter: async () => "ChildType1",
   };
   const childType2Page: Page<{}, {}> = {
     relativePath: "childType2",
     paramsGetter: async (_) => ({ pageTitle: "ChildType2" }),
     njk: "",
     parent: homePage,
+    titleGetter: async () => "ChildType2",
   };
   const grandchildTypePage: Page<{}, {}> = {
     relativePath: "grandchildType",
@@ -26,6 +29,7 @@ describe("Page", () => {
       .mockResolvedValue({ pageTitle: "GrandchildType", some_id: "someValue" }),
     njk: "grandchild.njk",
     parent: childType1Page,
+    titleGetter: async () => "GrandchildType",
   };
 
   test("getRoute", () => {
