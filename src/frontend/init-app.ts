@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import "dotenv/config";
 import { getHandler, getRoute, PAGES } from "./pages";
+import crypto from "crypto";
 
 let dirname: string;
 try {
@@ -18,18 +19,24 @@ const shouldLoadFromNodeModules =
   process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 
 export const initApp = (app: Express): void => {
-  app.use(
+  app.use((_, response, next) => {
+    response.locals.cspNonce = crypto.randomBytes(16).toString("hex");
+    next();
+  });
+
+  app.use((_, response, next) => {
     helmet({
       contentSecurityPolicy: {
         directives: {
           "connect-src": "https://accounts.google.com/gsi/",
           "frame-src": "https://accounts.google.com/gsi/",
-          "script-src": ["'self'", "https://accounts.google.com/gsi/client"],
+          "script-src": ["'self'", `'nonce-${response.locals.cspNonce}'`],
           "style-src": ["'self'", "https://accounts.google.com/gsi/style"],
         },
       },
-    })
-  );
+    });
+    next();
+  });
 
   const viewDir = path.join(dirname, "views");
 

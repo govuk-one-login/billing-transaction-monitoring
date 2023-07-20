@@ -1,4 +1,4 @@
-import { Request, RequestHandler } from "express";
+import { Request, RequestHandler, Response } from "express";
 import { authorisationFailedParamsGetter } from "./handlers/authorisation-failed";
 import { contractsParamsGetter } from "./handlers/contracts";
 import { invoicesParamsGetter } from "./handlers/invoices";
@@ -71,13 +71,16 @@ const getBreadcrumbData = async <TParams>(
 };
 const getPageParams = async <TParams, TReturn>(
   page: Page<TParams, TReturn>,
-  request: Request<TParams>
+  request: Request<TParams>,
+  response: Response
 ): Promise<TReturn> => {
   const options = await page.paramsGetter(request);
   const breadcrumbData = await getBreadcrumbData(page, request);
+
   return {
     ...options,
     breadcrumbData,
+    cspNonce: response.locals.cspNonce,
   };
 };
 
@@ -85,7 +88,10 @@ export const getHandler = <TParams, TReturn>(
   page: Page<TParams, TReturn>
 ): RequestHandler<TParams> => {
   return async (request: Request<TParams>, response) => {
-    response.render(page.njk, (await getPageParams(page, request)) as object);
+    response.render(
+      page.njk,
+      (await getPageParams(page, request, response)) as object
+    );
   };
 };
 
