@@ -1,6 +1,5 @@
 import { Textract } from "aws-sdk";
-import { StandardisedLineItem } from "../../../shared/types";
-import { VendorServiceConfigRows } from "../../../shared/utils";
+import { ConfigServicesRow, StandardisedLineItem } from "../../../shared/types";
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -18,7 +17,7 @@ import { StandardisationModule } from "./get-standardised-invoice";
 
 export const getStandardisedInvoiceDefault: StandardisationModule = (
   textractPages: Textract.ExpenseDocument[],
-  vendorServiceConfigRows: VendorServiceConfigRows,
+  vendorServiceConfigRows: ConfigServicesRow[],
   parserVersion: string,
   originalInvoiceFileName: string
 ): StandardisedLineItem[] => {

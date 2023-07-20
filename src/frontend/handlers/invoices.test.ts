@@ -1,19 +1,16 @@
 import supertest from "supertest";
+import { ConfigElements } from "../../shared/constants";
+import { fetchS3, getConfig } from "../../shared/utils";
 import { app } from "../app";
-import { makeCtxConfig } from "../../handler-context/context-builder";
 import { initApp } from "../init-app";
-import { fetchS3 } from "../../shared/utils";
-
-jest.mock("../../handler-context/context-builder");
-const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
 
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
+const mockedGetConfig = getConfig as jest.Mock;
 
 describe("invoices handler", () => {
-  let givenContractsConfig;
-  let givenServicesConfig;
-  let givenExtractResults;
+  let givenContractsConfig: any;
+  let givenServicesConfig: any;
   let contractId: string;
 
   beforeEach(() => {
@@ -22,6 +19,10 @@ describe("invoices handler", () => {
     process.env = {
       STORAGE_BUCKET: "given storage bucket",
     };
+
+    mockedFetchS3.mockResolvedValue(`{ "vendor_id": "vendor_testvendor1", "vendor_name": "Vendor One", "contract_id": "1", "contract_name": "C01234", "year": "2023", "month": "03" }
+{ "vendor_id": "vendor_testvendor1", "vendor_name": "Vendor One", "contract_id": "1", "contract_name": "C01234", "year": "2023", "month": "04" }
+{ "vendor_id": "vendor_testvendor1", "vendor_name": "Vendor One", "contract_id": "1", "contract_name": "C01234", "year": "2023", "month": "10" }`);
 
     contractId = "1";
     givenContractsConfig = [
@@ -38,16 +39,11 @@ describe("invoices handler", () => {
       },
     ];
     // Arrange
-    mockedMakeCtxConfig.mockResolvedValue({
-      services: givenServicesConfig,
-      contracts: givenContractsConfig,
-    });
-
-    givenExtractResults =
-      '{"month":"10","year":"2023","contract_id":"1"}\n' +
-      '{"month":"03","year":"2023","contract_id":"1"}\n' +
-      '{"month":"04","year":"2023","contract_id":"1"}';
-    mockedFetchS3.mockResolvedValue(givenExtractResults);
+    mockedGetConfig.mockImplementation((fileName) =>
+      fileName === ConfigElements.services
+        ? givenServicesConfig
+        : givenContractsConfig
+    );
   });
 
   test("Page displays months and years of invoices", async () => {

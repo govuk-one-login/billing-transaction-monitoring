@@ -1,16 +1,13 @@
-import { makeCtxConfig } from "../../handler-context/context-builder";
-import { fetchS3 } from "../../shared/utils";
+import { ConfigElements } from "../../shared/constants";
+import { getConfig } from "../../shared/utils";
 import { getContracts } from "./get-contracts";
 
-jest.mock("../../handler-context/context-builder");
-const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
-
 jest.mock("../../shared/utils");
-const mockedFetchS3 = fetchS3 as jest.Mock;
+const mockedGetConfig = getConfig as jest.Mock;
 
 describe("getContracts", () => {
-  let givenContractsConfig;
-  let givenServicesConfig;
+  let givenContractsConfig: any;
+  let givenServicesConfig: any;
   let contractId: string;
 
   beforeEach(() => {
@@ -33,13 +30,10 @@ describe("getContracts", () => {
       },
     ];
     // Arrange
-    mockedMakeCtxConfig.mockResolvedValue({
-      services: givenServicesConfig,
-      contracts: givenContractsConfig,
-    });
-
-    mockedFetchS3.mockResolvedValue(
-      '{"month":"03","year":"2023","contract_id":"1"}'
+    mockedGetConfig.mockImplementation((fileName) =>
+      fileName === ConfigElements.services
+        ? givenServicesConfig
+        : givenContractsConfig
     );
   });
 

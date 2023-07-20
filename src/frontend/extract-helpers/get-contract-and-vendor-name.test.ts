@@ -1,12 +1,8 @@
-import { makeCtxConfig } from "../../handler-context/context-builder";
-import { fetchS3 } from "../../shared/utils";
+import { getConfig } from "../../shared/utils";
 import { getContractAndVendorName } from "./get-contract-and-vendor-name";
 
-jest.mock("../../handler-context/context-builder");
-const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
-
 jest.mock("../../shared/utils");
-const mockedFetchS3 = fetchS3 as jest.Mock;
+const mockedGetConfig = getConfig as jest.Mock;
 
 describe("getContractAndVendorName", () => {
   let givenContractsConfig;
@@ -33,14 +29,9 @@ describe("getContractAndVendorName", () => {
       },
     ];
     // Arrange
-    mockedMakeCtxConfig.mockResolvedValue({
-      services: givenServicesConfig,
-      contracts: givenContractsConfig,
-    });
-
-    mockedFetchS3.mockResolvedValue(
-      '{"month":"03","year":"2023","contract_id":"1"}'
-    );
+    mockedGetConfig
+      .mockResolvedValueOnce(givenServicesConfig)
+      .mockResolvedValueOnce(givenContractsConfig);
   });
 
   test("should return the contract name and the vendor name", async () => {

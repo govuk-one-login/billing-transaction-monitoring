@@ -1,8 +1,8 @@
+import { ConfigElements } from "../../shared/constants";
+import { getConfigFile } from "../../shared/utils";
 import { Config } from ".";
-import { getConfigFile } from "./s3-config-client";
-import { ConfigElements } from "./types";
 
-jest.mock("./s3-config-client");
+jest.mock("../../shared/utils");
 const mockGetConfigFile = getConfigFile as jest.Mock;
 
 describe("Config", () => {
@@ -27,6 +27,7 @@ describe("Config", () => {
   afterAll(() => {
     delete process.env.CONFIG_BUCKET;
   });
+
   it("Provides a cached copy of the specified config files", async () => {
     const config = new Config([
       ConfigElements.inferences,

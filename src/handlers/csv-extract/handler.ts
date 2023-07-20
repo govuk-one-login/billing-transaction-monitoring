@@ -52,10 +52,9 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           throw new Error("Csv is invalid.");
         }
 
-        const vendorServiceConfigRows = await getVendorServiceConfigRows(
-          configBucket,
-          { vendor_id: vendorId }
-        );
+        const vendorServiceConfigRows = await getVendorServiceConfigRows({
+          vendor_id: vendorId,
+        });
 
         const standardisedInvoice = getCsvStandardisedInvoice(
           parsedCsv,

@@ -1,4 +1,6 @@
-import { Config, ConfigElements, PickedConfigCache } from "../../config";
+import { ConfigElements } from "../../../shared/constants";
+import { PickedConfigCache } from "../../../shared/types";
+import { Config } from "../../config";
 
 export const makeCtxConfig = async <TConfigElements extends ConfigElements>(
   files: TConfigElements[]

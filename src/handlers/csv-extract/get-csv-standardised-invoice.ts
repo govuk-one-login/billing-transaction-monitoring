@@ -1,9 +1,5 @@
-import { StandardisedLineItem } from "../../shared/types";
-import {
-  formatDate,
-  getDate,
-  VendorServiceConfigRows,
-} from "../../shared/utils";
+import { ConfigServicesRow, StandardisedLineItem } from "../../shared/types";
+import { formatDate, getDate } from "../../shared/utils";
 
 export interface LineItem {
   "service name": string;
@@ -27,7 +23,7 @@ export interface CsvObject {
 export const getCsvStandardisedInvoice = (
   csvObject: CsvObject,
   vendorId: string,
-  vendorServiceConfigRows: VendorServiceConfigRows,
+  vendorServiceConfigRows: ConfigServicesRow[],
   sourceFileName: string
 ): StandardisedLineItem[] => {
   const summary = {

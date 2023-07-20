@@ -1,5 +1,5 @@
+import { ConfigElements } from "../shared/constants";
 import { buildHandler } from "./build-handler";
-import { ConfigElements } from "./config";
 import { makeIncomingMessages } from "./make-incoming-messages";
 import { outputMessages } from "./output-messages";
 import { runBusinessLogic } from "./run-business-logic";
