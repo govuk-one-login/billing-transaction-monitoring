@@ -62,6 +62,7 @@ const getBreadcrumbData = async <TParams>(
   }
   return { items: breadcrumbs };
 };
+
 const getPageParams = async <TParams, TReturn>(
   page: Page<TParams, TReturn>,
   request: Request<TParams>

@@ -1,6 +1,6 @@
 Resources:
   FrontEndApi:
-    Type: AWS::Serverless::HttpApi
+    Type: AWS::Serverless::Api
     Condition: FrontEndEnabled
     DependsOn:
       - FrontEndDomainName
@@ -12,10 +12,14 @@ Resources:
       Auth:
         Authorizers:
           LambdaAuthorizer:
-            AuthorizerPayloadFormatVersion: '2.0'
-            EnableFunctionDefaultPermissions: true
-            EnableSimpleResponses: true
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
+            FunctionPayloadType: REQUEST
+            Identity: 
+              Headers: 
+                - Authorization
+              QueryStrings:
+                - code
+                - state
         DefaultAuthorizer: LambdaAuthorizer
       Domain:
         CertificateArn: !Ref FrontEndCertificateArn
@@ -64,6 +68,10 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
       Handler: frontendAuth.handler
       ReservedConcurrentExecutions: 10
+      Environment:
+        Variables:
+          ACCOUNT_ID: AWS::AccountId
+          API_ID: !Ref FrontEndApi
 
   FrontEndFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
