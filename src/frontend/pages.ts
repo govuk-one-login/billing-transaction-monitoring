@@ -4,7 +4,12 @@ import { contractsParamsGetter } from "./handlers/contracts";
 import { invoicesParamsGetter } from "./handlers/invoices";
 import { invoiceParamsGetter } from "./handlers/invoice";
 import path from "node:path";
-import { Contract, Period, ReconciliationRow } from "./extract-helpers";
+import {
+  Contract,
+  Period,
+  ReconciliationRow,
+  OverviewRow,
+} from "./extract-helpers";
 import { indexParamsGetter } from "./handlers/home";
 
 export type PageParamsGetter<TParams, TReturn> = (
@@ -84,13 +89,18 @@ export const getHandler = <TParams, TReturn>(
   };
 };
 
-const homePage: Page<{}, {}> = {
+export type IndexParams = {
+  pageTitle: string;
+  overviewRows: OverviewRow[];
+};
+const homePage: Page<{}, IndexParams> = {
   relativePath: "",
   njk: "index.njk",
   paramsGetter: indexParamsGetter,
 };
 
 export type ContractParams = {
+  pageTitle: string;
   contracts: Contract[];
 };
 
@@ -102,6 +112,7 @@ const contractsPage: Page<{}, ContractParams> = {
 };
 
 export type InvoicesParams = {
+  pageTitle: string;
   contract: Contract;
   periods: Period[];
 };
@@ -119,6 +130,7 @@ const invoicesPage: Page<
 };
 
 export type InvoiceParams = {
+  pageTitle: string;
   vendorName: string;
   contractName: string;
   contractId: string;
@@ -127,6 +139,10 @@ export type InvoiceParams = {
   bannerClass: string;
   invoiceStatus: string;
   reconciliationRows: ReconciliationRow[];
+  invoiceTotals: {
+    billingPriceTotal: string;
+    billingPriceInclVatTotal: string;
+  };
 };
 
 const invoicePage: Page<

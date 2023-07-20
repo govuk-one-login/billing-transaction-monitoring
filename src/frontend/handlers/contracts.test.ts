@@ -2,13 +2,15 @@ import supertest from "supertest";
 import { app } from "../app";
 import { makeCtxConfig } from "../../handler-context/context-builder";
 import { initApp } from "../init-app";
+import { getOverviewRows } from "../extract-helpers/get-overview-rows";
 
 jest.mock("../../handler-context/context-builder");
 const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
 
-describe("contracts handler", () => {
-  const OLD_ENV = process.env;
+jest.mock("../extract-helpers/get-overview-rows");
+const mockedGetOverviewRows = getOverviewRows as jest.Mock;
 
+describe("contracts handler", () => {
   let givenContractsConfig;
   let givenServicesConfig;
 
@@ -17,7 +19,6 @@ describe("contracts handler", () => {
     jest.resetAllMocks();
 
     process.env = {
-      ...OLD_ENV,
       STORAGE_BUCKET: "given storage bucket",
     };
 
@@ -48,9 +49,34 @@ describe("contracts handler", () => {
       services: givenServicesConfig,
       contracts: givenContractsConfig,
     });
-  });
-  afterAll(() => {
-    process.env = OLD_ENV;
+    mockedGetOverviewRows.mockResolvedValue([
+      {
+        contractId: "c1",
+        contractName: "C01234",
+        vendorName: "Vendor One",
+        year: "2023",
+        month: "06",
+        prettyMonth: "Jun",
+        reconciliationDetails: {
+          tagClass: "govuk-tag--grey",
+          bannerMessage: "Invoice data missing",
+        },
+        details: "View Invoice",
+      },
+      {
+        contractId: "m2",
+        contractName: "MOU",
+        vendorName: "Vendor Two",
+        year: "2023",
+        month: "06",
+        prettyMonth: "Jun",
+        reconciliationDetails: {
+          tagClass: "govuk-tag--green",
+          bannerMessage: "Invoice within threshold",
+        },
+        details: "View Invoice",
+      },
+    ]);
   });
 
   test("Page displays all contracts", async () => {
