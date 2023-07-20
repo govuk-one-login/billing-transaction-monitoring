@@ -32,7 +32,7 @@ exports[`authorisation failed handler Page displays title and info 1`] = `
     
   </head>
   <body class="govuk-template__body ">
-    <script nonce="c89e77a1fdf22379f2fef7c3f9b3b8cd">document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+    <script nonce="d7573bf1448cd9092826c63163c977d4">document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
     
 
     
@@ -144,7 +144,7 @@ exports[`authorisation failed handler Page displays title and info 1`] = `
     
 
     
-  <script src="/assets/scripts/all.js" nonce="c89e77a1fdf22379f2fef7c3f9b3b8cd"></script>
+  <script src="/assets/scripts/all.js" nonce="d7573bf1448cd9092826c63163c977d4"></script>
   <script>window.GOVUKFrontend.initAll();</script>
   
   

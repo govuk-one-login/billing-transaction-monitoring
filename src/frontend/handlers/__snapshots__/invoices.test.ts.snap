@@ -32,7 +32,7 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
     
   </head>
   <body class="govuk-template__body ">
-    <script nonce="61f4c286e997c4bac2bb476a4f03835c">document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+    <script nonce="eb84c1b8b69d69b810af5f0ea482ce4a">document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
     
 
     
@@ -179,7 +179,7 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
     
 
     
-  <script src="/assets/scripts/all.js" nonce="61f4c286e997c4bac2bb476a4f03835c"></script>
+  <script src="/assets/scripts/all.js" nonce="eb84c1b8b69d69b810af5f0ea482ce4a"></script>
   <script>window.GOVUKFrontend.initAll();</script>
   
   

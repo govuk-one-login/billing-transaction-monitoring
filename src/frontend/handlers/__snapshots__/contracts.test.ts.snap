@@ -32,7 +32,7 @@ exports[`contracts handler Page displays all contracts 1`] = `
     
   </head>
   <body class="govuk-template__body ">
-    <script nonce="4a5e7a553fc800c458039d647c32ab84">document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+    <script nonce="3ea0b1b02b87083c283ed19fc9bfd008">document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
     
 
     
@@ -160,7 +160,7 @@ exports[`contracts handler Page displays all contracts 1`] = `
     
 
     
-  <script src="/assets/scripts/all.js" nonce="4a5e7a553fc800c458039d647c32ab84"></script>
+  <script src="/assets/scripts/all.js" nonce="3ea0b1b02b87083c283ed19fc9bfd008"></script>
   <script>window.GOVUKFrontend.initAll();</script>
   
   
