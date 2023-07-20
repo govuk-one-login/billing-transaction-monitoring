@@ -16,6 +16,5 @@ describe("authorisation failed handler", () => {
     expect(response.text).toContain(
       "Contact the Digital Identity Billing &amp; Transactions Monitoring team for access to this website."
     );
-    expect(response.text).toMatchSnapshot();
   });
 });

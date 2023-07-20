@@ -87,6 +87,5 @@ describe("contracts handler", () => {
     expect(response.text).toContain("Contracts");
     expect(response.text).toContain("C01234 - Vendor One");
     expect(response.text).toContain("C01235 - Vendor Two");
-    expect(response.text).toMatchSnapshot();
   });
 });

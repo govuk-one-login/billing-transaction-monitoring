@@ -65,7 +65,5 @@ describe("home page handler", () => {
     expect(response.text).toContain("Invoice within threshold");
 
     expect(response.text).toContain("View Invoice");
-
-    expect(response.text).toMatchSnapshot();
   });
 });

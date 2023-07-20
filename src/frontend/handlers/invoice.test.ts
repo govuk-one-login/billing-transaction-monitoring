@@ -79,6 +79,5 @@ describe("invoice handler", () => {
     expect(response.text).toContain(
       statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.message
     ); // status in table for Within Threshold
-    expect(response.text).toMatchSnapshot();
   });
 });

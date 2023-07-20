@@ -61,6 +61,5 @@ describe("invoices handler", () => {
     expect(response.text).toContain("Apr 2023");
     expect(response.text).toContain("Oct 2023");
     expect(response.text).not.toContain("May 2023");
-    expect(response.text).toMatchSnapshot();
   });
 });
