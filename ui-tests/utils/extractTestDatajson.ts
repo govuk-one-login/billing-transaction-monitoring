@@ -63,3 +63,18 @@ export const getUniqueInvoiceMonthsYearsByVendor = (
   }
   return uniqueMonthYears.size;
 };
+
+export const getUniqueVendorIdsFromJson = (vendorName: string): string[] => {
+  const testDataFilePath = getTestDataFilePath();
+  const { data } = getExtractDataFromJson(testDataFilePath);
+  const uniqueVendorIds = new Set<string>();
+  for (const item of data) {
+    if (item.vendor_name === vendorName) {
+      uniqueVendorIds.add(item.vendor_id);
+    }
+  }
+  if (uniqueVendorIds.size === 0) {
+    throw new Error(`Vendor data not found for :${vendorName}`);
+  }
+  return Array.from(uniqueVendorIds);
+};
