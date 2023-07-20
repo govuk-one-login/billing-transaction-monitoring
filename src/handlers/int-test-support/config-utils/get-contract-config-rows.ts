@@ -1,13 +1,13 @@
 import { getS3Object } from "../helpers/s3Helper";
 import csvtojson from "csvtojson";
 
-export type ContractsConfigRow = ContractsConfigRow[];
+export type ContractsConfigRows = ContractsConfigRow[];
 
 let contractRowsPromise: Promise<string | undefined>;
 
 export const getContractsFromConfig = async (
   configBucket: string
-): Promise<ContractsConfigRow> => {
+): Promise<ContractsConfigRows> => {
   if (contractRowsPromise === undefined) {
     contractRowsPromise = getS3Object({
       bucket: configBucket,
@@ -22,7 +22,7 @@ export const getContractsFromConfig = async (
   return await csvConverter.fromString(contractConfigText);
 };
 
-export interface ContractConfigRow {
+export interface ContractsConfigRow {
   id: string;
   name: string;
   vendor_id: string;

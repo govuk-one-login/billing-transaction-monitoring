@@ -234,3 +234,19 @@ so that the parser can be re-run on specific data after the parser is updated. T
 `cloudformation/standardised-invoice-storage.yaml`.
 
 If you update a parser, please increment its version!
+
+## Running UI Tests
+Update the `baseURl` in the `wdio.conf.ts` config file. Set it to the desired base URL
+
+Run the following command to run the UI tests
+
+```sh
+npm run test:ui
+```
+
+## Running a Single UI Test file
+Open the `wdio.conf.ts` config file,Locate the specs section and modify it to include the path of the specific test file. For example: specs: ["./ui-tests/specs/home.spec.ts"].Then run following command to execute the specific test file:
+
+```sh
+npm run test:ui
+```

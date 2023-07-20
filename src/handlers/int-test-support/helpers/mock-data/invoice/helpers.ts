@@ -4,7 +4,7 @@ import { writeInvoiceToS3 } from "./writers";
 import { resourcePrefix, runViaLambda } from "../../envHelper";
 import { sendLambdaCommand } from "../../lambdaHelper";
 import { InvoiceData } from "./types";
-import { IntTestHelpers } from "../../../handler";
+import { IntTestHelpers } from "../../../types";
 import { randomLineItem, randomString, randomInvoiceData } from "./random";
 import { TestData } from "../../testDataHelper";
 import { E2ETestParserServiceConfig } from "../../../config-utils/get-e2e-test-config";
