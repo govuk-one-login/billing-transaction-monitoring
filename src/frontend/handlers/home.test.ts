@@ -10,6 +10,9 @@ describe("home page handler", () => {
   beforeEach(() => {
     initApp(app);
 
+    process.env = {
+      STORAGE_BUCKET: "given storage bucket",
+    };
     // Arrange
     mockedGetOverviewRows.mockResolvedValue([
       {
