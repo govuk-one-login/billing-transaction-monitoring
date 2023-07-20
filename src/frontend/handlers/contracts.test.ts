@@ -7,11 +7,19 @@ jest.mock("../../handler-context/context-builder");
 const mockedMakeCtxConfig = makeCtxConfig as jest.Mock;
 
 describe("contracts handler", () => {
+  const OLD_ENV = process.env;
+
   let givenContractsConfig;
   let givenServicesConfig;
 
   beforeEach(() => {
     initApp(app);
+    jest.resetAllMocks();
+
+    process.env = {
+      ...OLD_ENV,
+      STORAGE_BUCKET: "given storage bucket",
+    };
 
     givenContractsConfig = [
       { id: "1", name: "C01234", vendor_id: "vendor_testvendor1" },
@@ -40,6 +48,9 @@ describe("contracts handler", () => {
       services: givenServicesConfig,
       contracts: givenContractsConfig,
     });
+  });
+  afterAll(() => {
+    process.env = OLD_ENV;
   });
 
   test("Page displays all contracts", async () => {
