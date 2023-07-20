@@ -1,4 +1,5 @@
-import { ConfigElements, buildHandler } from "../../handler-context";
+import { buildHandler } from "../../handler-context";
+import { ConfigElements } from "../../shared/constants";
 import { stringifyAndSendRecord } from "../../shared/utils";
 import { businessLogic } from "./business-logic";
 import { isValidIncomingEventBody } from "./is-valid-incoming-event-body";

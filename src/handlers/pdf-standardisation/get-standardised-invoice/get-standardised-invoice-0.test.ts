@@ -1,4 +1,4 @@
-import { VendorServiceConfigRows } from "../../../shared/utils";
+import { ConfigServicesRow } from "../../../shared/types";
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -34,7 +34,7 @@ describe("Standardised invoice getter 0", () => {
   let givenTextractPages: any;
   let givenTextractPagesLineItemFields: any;
   let givenTextractPagesSummaryFields: any;
-  let givenVendorServiceConfigRows: VendorServiceConfigRows;
+  let givenVendorServiceConfigRows: ConfigServicesRow[];
 
   beforeEach(() => {
     jest.resetAllMocks();

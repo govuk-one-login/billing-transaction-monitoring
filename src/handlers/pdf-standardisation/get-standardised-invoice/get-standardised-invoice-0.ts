@@ -1,9 +1,9 @@
 import { Textract } from "aws-sdk";
 import {
+  ConfigServicesRow,
   StandardisedLineItem,
   StandardisedLineItemSummary,
 } from "../../../shared/types";
-import { VendorServiceConfigRows } from "../../../shared/utils";
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -33,7 +33,7 @@ interface TextractPageWithLineItems extends Textract.ExpenseDocument {
 
 export const getStandardisedInvoice0: StandardisationModule = (
   allTextractPages: Textract.ExpenseDocument[],
-  vendorServiceConfigRows: VendorServiceConfigRows,
+  vendorServiceConfigRows: ConfigServicesRow[],
   parserVersion: string,
   originalInvoiceFileName: string
 ): StandardisedLineItem[] => {
@@ -112,7 +112,7 @@ const getLineItems = (
 const getStandardisedLineItems = (
   summary: StandardisedLineItemSummary,
   lineItems: Textract.LineItemFields[],
-  vendorServiceConfigRows: VendorServiceConfigRows
+  vendorServiceConfigRows: ConfigServicesRow[]
 ): StandardisedLineItem[] =>
   lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
     const itemFields = item.LineItemExpenseFields as Textract.ExpenseField[];

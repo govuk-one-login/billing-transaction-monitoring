@@ -1,8 +1,8 @@
-import { VendorServiceConfig } from "./fetch-vendor-service-config";
+import { ConfigServicesRow } from "../../types";
 
 export const getVendorId = (
   eventName: string,
-  vendorServiceConfig: VendorServiceConfig
+  vendorServiceConfig: ConfigServicesRow[]
 ): string => {
   // Event name is unique for each vendor id
   const vendorId = vendorServiceConfig.find(

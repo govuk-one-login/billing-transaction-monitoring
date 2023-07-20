@@ -1,5 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { ConfigElements, PickedConfigCache } from "./config";
+import { ConfigElements } from "../shared/constants";
+import { PickedConfigCache } from "../shared/types";
 import { HandlerOutputs } from "./context-builder";
 
 export type HandlerMessageBody = string | {};
