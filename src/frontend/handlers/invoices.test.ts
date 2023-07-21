@@ -3,6 +3,7 @@ import { ConfigElements } from "../../shared/constants";
 import { fetchS3, getConfig } from "../../shared/utils";
 import { app } from "../app";
 import { initApp } from "../init-app";
+import { unitTestMiddleware } from "../middleware";
 
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
@@ -14,7 +15,7 @@ describe("invoices handler", () => {
   let contractId: string;
 
   beforeEach(() => {
-    initApp(app);
+    initApp(app, unitTestMiddleware);
 
     process.env = {
       STORAGE_BUCKET: "given storage bucket",
@@ -57,5 +58,6 @@ describe("invoices handler", () => {
     expect(response.text).toContain("Apr 2023");
     expect(response.text).toContain("Oct 2023");
     expect(response.text).not.toContain("May 2023");
+    expect(response.text).toMatchSnapshot();
   });
 });

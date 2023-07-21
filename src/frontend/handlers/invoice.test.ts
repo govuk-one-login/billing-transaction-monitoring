@@ -4,6 +4,7 @@ import { fetchS3, getConfig } from "../../shared/utils";
 import { app } from "../app";
 import { initApp } from "../init-app";
 import { statusLabels } from "../utils";
+import { unitTestMiddleware } from "../middleware";
 
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
@@ -15,7 +16,7 @@ describe("invoice handler", () => {
   let givenExtractResults;
 
   beforeEach(() => {
-    initApp(app);
+    initApp(app, unitTestMiddleware);
 
     process.env = {
       STORAGE_BUCKET: "given storage bucket",

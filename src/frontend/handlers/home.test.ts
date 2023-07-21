@@ -2,13 +2,14 @@ import supertest from "supertest";
 import { app } from "../app";
 import { initApp } from "../init-app";
 import { getOverviewRows } from "../extract-helpers/get-overview-rows";
+import { unitTestMiddleware } from "../middleware";
 
 jest.mock("../extract-helpers/get-overview-rows");
 const mockedGetOverviewRows = getOverviewRows as jest.Mock;
 
 describe("home page handler", () => {
   beforeEach(() => {
-    initApp(app);
+    initApp(app, unitTestMiddleware);
 
     // Arrange
     mockedGetOverviewRows.mockResolvedValue([
@@ -65,5 +66,7 @@ describe("home page handler", () => {
     expect(response.text).toContain("Invoice within threshold");
 
     expect(response.text).toContain("View Invoice");
+
+    expect(response.text).toMatchSnapshot();
   });
 });

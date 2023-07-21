@@ -1,10 +1,11 @@
 import supertest from "supertest";
 import { app } from "../app";
 import { initApp } from "../init-app";
+import { unitTestMiddleware } from "../middleware";
 
 describe("authorisation failed handler", () => {
   beforeEach(() => {
-    initApp(app);
+    initApp(app, unitTestMiddleware);
   });
 
   test("Page displays title and info", async () => {
@@ -16,5 +17,6 @@ describe("authorisation failed handler", () => {
     expect(response.text).toContain(
       "Contact the Digital Identity Billing &amp; Transactions Monitoring team for access to this website."
     );
+    expect(response.text).toMatchSnapshot();
   });
 });

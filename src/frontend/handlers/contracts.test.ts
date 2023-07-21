@@ -4,6 +4,7 @@ import { getConfig } from "../../shared/utils";
 import { app } from "../app";
 import { initApp } from "../init-app";
 import { getOverviewRows } from "../extract-helpers/get-overview-rows";
+import { unitTestMiddleware } from "../middleware";
 
 jest.mock("../../shared/utils");
 const mockedGetConfig = getConfig as jest.Mock;
@@ -16,7 +17,7 @@ describe("contracts handler", () => {
   let givenServicesConfig: any;
 
   beforeEach(() => {
-    initApp(app);
+    initApp(app, unitTestMiddleware);
     jest.resetAllMocks();
 
     process.env = {
@@ -89,5 +90,6 @@ describe("contracts handler", () => {
     expect(response.text).toContain("Contracts");
     expect(response.text).toContain("C01234 - Vendor One");
     expect(response.text).toContain("C01235 - Vendor Two");
+    expect(response.text).toMatchSnapshot();
   });
 });
