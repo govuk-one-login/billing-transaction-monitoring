@@ -1,4 +1,4 @@
-import { ConfigElements } from "../../handler-context";
+import { ConfigElements } from "../../shared/constants";
 
 export enum Env {
   OUTPUT_QUEUE_URL = "OUTPUT_QUEUE_URL",

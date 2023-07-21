@@ -1,9 +1,9 @@
-import { Transformations } from "../../../handlers/transaction-csv-to-json-event/convert/perform-transformations";
+import { Transformations } from "../../../../handlers/transaction-csv-to-json-event/convert/perform-transformations";
 import {
   Constructables,
   Operations,
-} from "../../../handlers/transaction-csv-to-json-event/convert/transform-dicts";
-import { ConfigCache } from "../types";
+} from "../../../../handlers/transaction-csv-to-json-event/convert/transform-dicts";
+import { ConfigCache } from "../../../types";
 
 // TODO: fill in the rest of these
 const config: ConfigCache = {

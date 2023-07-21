@@ -1,4 +1,5 @@
-import { BusinessLogic, ConfigElements } from "../../handler-context";
+import { BusinessLogic } from "../../handler-context";
+import { ConfigElements } from "../../shared/constants";
 import { getVendorId } from "../../shared/utils";
 import { CleanedEventBody, ConfigCache, Env, IncomingEventBody } from "./types";
 import { xform } from "./xform";

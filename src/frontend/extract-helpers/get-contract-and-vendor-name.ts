@@ -1,25 +1,23 @@
-import { ConfigElements } from "../../handler-context";
-import { makeCtxConfig } from "../../handler-context/context-builder";
+import { ConfigElements } from "../../shared/constants";
+import { getConfig } from "../../shared/utils";
 
 export const getContractAndVendorName = async (
   contractId: string
 ): Promise<{ vendorName: string; contractName: string }> => {
-  const config = await makeCtxConfig([
-    ConfigElements.services,
-    ConfigElements.contracts,
+  const [services, contracts] = await Promise.all([
+    getConfig(ConfigElements.services),
+    getConfig(ConfigElements.contracts),
   ]);
 
-  const contract = config.contracts.find(
-    (contract) => contract.id === contractId
-  );
+  const contract = contracts.find((contract) => contract.id === contractId);
 
   if (contract === undefined) {
     throw new Error("No contract found");
   }
 
   const vendorName =
-    config.services.find((svc) => svc.vendor_id === contract.vendor_id)
-      ?.vendor_name ?? "";
+    services.find((svc) => svc.vendor_id === contract.vendor_id)?.vendor_name ??
+    "";
 
   return { vendorName, contractName: contract.name };
 };

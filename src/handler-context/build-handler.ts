@@ -1,5 +1,5 @@
 import { S3Event, SQSEvent } from "aws-lambda";
-import { ConfigElements } from "./config";
+import type { ConfigElements } from "../shared/constants";
 import { buildContext } from "./context-builder";
 import { makeIncomingMessages } from "./make-incoming-messages";
 import { HandlerOptions, HandlerMessageBody } from "./types";

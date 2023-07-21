@@ -1,9 +1,9 @@
 import { Logger } from "@aws-lambda-powertools/logger";
+import { ConfigElements } from "../../shared/constants";
 import { HandlerOptions } from "../types";
-import { ConfigElements } from "../config";
 import { buildContext } from "./build";
 
-jest.mock("../config/s3-config-client");
+jest.mock("../../shared/utils/config-utils/s3-config-client");
 
 interface TestMessage {
   a: string;

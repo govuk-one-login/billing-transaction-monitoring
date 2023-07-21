@@ -1,6 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
+import { ConfigElements } from "../../shared/constants";
 import { HandlerOptions, HandlerCtx, HandlerMessageBody } from "../types";
-import { ConfigElements } from "../config";
 import { makeCtxConfig } from "./elements/config";
 import { makeCtxEnv } from "./elements/env";
 import { makeCtxOutputs } from "./elements/outputs";
