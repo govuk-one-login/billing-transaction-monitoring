@@ -6,23 +6,25 @@ import {
   getReconciliationRows,
   getTotals,
 } from "../extract-helpers";
-import { InvoiceParams, PageParamsGetter } from "../pages";
+import {
+  InvoiceParams,
+  InvoiceRequestParams,
+  PageParamsGetter,
+  PageTitleGetter,
+} from "../pages";
 
 export const invoiceParamsGetter: PageParamsGetter<
-  {
-    contract_id: string;
-    year: string;
-    month: string;
-  },
+  InvoiceRequestParams,
   InvoiceParams
 > = async (request) => {
-  const [config, lineItems] = await Promise.all([
+  const [config, lineItems, pageTitle] = await Promise.all([
     getContractAndVendorName(request.params.contract_id),
     getLineItems(
       request.params.contract_id,
       request.params.year,
       request.params.month
     ),
+    invoiceTitleGetter(request.params),
   ]);
 
   const invoiceBanner = getInvoiceBanner(lineItems);
@@ -32,9 +34,7 @@ export const invoiceParamsGetter: PageParamsGetter<
   const invoiceTotals = getTotals(reconciliationRows);
 
   return {
-    pageTitle: `${config.vendorName} ${
-      MONTHS[Number(request.params.month) - 1]
-    } ${request.params.year} Invoice`,
+    pageTitle,
     vendorName: config.vendorName,
     contractName: config.contractName,
     contractId: request.params.contract_id,
@@ -45,4 +45,11 @@ export const invoiceParamsGetter: PageParamsGetter<
     reconciliationRows,
     invoiceTotals,
   };
+};
+
+export const invoiceTitleGetter: PageTitleGetter<
+  InvoiceRequestParams
+> = async ({ contract_id, year, month }) => {
+  const { vendorName } = await getContractAndVendorName(contract_id);
+  return `${vendorName} ${MONTHS[Number(month) - 1]} ${year} Invoice`;
 };
