@@ -19,7 +19,7 @@ export interface OverviewRow {
 }
 
 export const getOverviewRows = async (): Promise<OverviewRow[]> => {
-  const overviewRows = [];
+  const overviewRows: OverviewRow[] = [];
 
   const contracts = await getContracts();
   for (const contract of contracts) {
