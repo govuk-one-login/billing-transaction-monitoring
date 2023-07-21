@@ -1,7 +1,10 @@
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import { TEST_DATA_FILE_PATH } from "./constants";
+import {
+  percentageDiscrepancySpecialCase,
+  TEST_DATA_FILE_PATH,
+} from "./constants";
 
 type FullExtractData = {
   vendor_id: string;
@@ -9,8 +12,8 @@ type FullExtractData = {
   service_name: string;
   contract_id: number;
   contract_name: string;
-  year: number;
-  month: number;
+  year: string;
+  month: string;
   billing_price_formatted: string;
   transaction_price_formatted: string;
   price_difference: string;
@@ -49,7 +52,14 @@ export const getUniqueVendorNamesFromJson = (filePath: string): string[] => {
   return uniqueVendorNames;
 };
 
-export const getUniqueInvoiceMonthsYearsByVendor = (
+export const getUniqueContractIdFromJson = (filePath: string): number[] => {
+  const { data } = getExtractDataFromJson(filePath);
+  const contractIds = data.map((obj) => obj.contract_id);
+  const uniqueContractIds = [...new Set(contractIds)];
+  return uniqueContractIds;
+};
+
+export const getUniqueInvoiceMonthsYearsByVendorCount = (
   vendorName: string
 ): number => {
   const testDataFilePath = getTestDataFilePath();
@@ -62,6 +72,21 @@ export const getUniqueInvoiceMonthsYearsByVendor = (
     }
   }
   return uniqueMonthYears.size;
+};
+
+export const getUniqueInvoiceMonthsYearsByVendor = (
+  vendorName: string
+): Set<string> => {
+  const testDataFilePath = getTestDataFilePath();
+  const { data } = getExtractDataFromJson(testDataFilePath);
+  const uniqueMonthYears = new Set<string>();
+  for (const invoice of data) {
+    if (invoice.vendor_name === vendorName) {
+      const monthYear = `${invoice.year}-${invoice.month}`;
+      uniqueMonthYears.add(monthYear);
+    }
+  }
+  return uniqueMonthYears;
 };
 
 export const getUniqueVendorIdsFromJson = (vendorName: string): string[] => {
@@ -77,4 +102,40 @@ export const getUniqueVendorIdsFromJson = (vendorName: string): string[] => {
     throw new Error(`Vendor data not found for :${vendorName}`);
   }
   return Array.from(uniqueVendorIds);
+};
+
+export const getPriceDifferencePercentageFromJson = (
+  year: string,
+  month: string
+): number => {
+  const testDataFilePath = getTestDataFilePath();
+  const { data } = getExtractDataFromJson(testDataFilePath);
+  const invoice = data.find(
+    (entry) => entry.year === year && entry.month === month
+  );
+  if (invoice) {
+    return parseFloat(invoice.price_difference_percentage);
+  }
+  return 0;
+};
+
+export const getBannerColorFromPercentagePriceDifference = (
+  percentageDifference: number
+): string => {
+  if (percentageDiscrepancySpecialCase[percentageDifference]) {
+    console.log(
+      "INSIDE FIRST CHECK LOOP:",
+      percentageDiscrepancySpecialCase[percentageDifference]
+    );
+    return percentageDiscrepancySpecialCase[percentageDifference].bannerColor;
+  }
+  if (percentageDifference >= -1 && percentageDifference <= 1) {
+    return "#00703c"; // green
+  } else if (percentageDifference > 1) {
+    return "#d4351c"; // red
+  } else if (percentageDifference < -1) {
+    return "#1d70b8"; // blue
+  } else {
+    return "NO COLOR FOUND";
+  }
 };

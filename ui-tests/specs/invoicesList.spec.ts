@@ -2,7 +2,7 @@ import { waitForPageLoad } from "../helpers/waits";
 import InvoicesListPage from "../pageobjects/invoicesListPage";
 import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
 import {
-  getUniqueInvoiceMonthsYearsByVendor,
+  getUniqueInvoiceMonthsYearsByVendorCount,
   getTestDataFilePath,
   getUniqueVendorNamesFromJson,
   getUniqueVendorIdsFromJson,
@@ -14,7 +14,6 @@ It includes tests to ensure that the unique invoice count for each vendor matche
 describe("InvoicesList Page", () => {
   const testDataFilePath = getTestDataFilePath();
   const vendorsNameFromJson = getUniqueVendorNamesFromJson(testDataFilePath);
-
   vendorsNameFromJson.forEach((vendor) => {
     it(`should display the correct vendor name for ${vendor}`, async () => {
       const vendorIds = getUniqueVendorIdsFromJson(vendor);
@@ -30,7 +29,8 @@ describe("InvoicesList Page", () => {
 
   vendorsNameFromJson.forEach((vendor) => {
     it(`should return the correct unique invoice count for ${vendor}`, async () => {
-      const uniqueInvoiceCount = getUniqueInvoiceMonthsYearsByVendor(vendor);
+      const uniqueInvoiceCount =
+        getUniqueInvoiceMonthsYearsByVendorCount(vendor);
       const vendorIds = getUniqueVendorIdsFromJson(vendor);
       for (const vendorId of vendorIds) {
         const contractId = await getVendorContractIdFromConfig(vendorId);
