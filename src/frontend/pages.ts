@@ -11,12 +11,8 @@ import { invoicesParamsGetter, invoicesTitleGetter } from "./handlers/invoices";
 import { invoiceParamsGetter, invoiceTitleGetter } from "./handlers/invoice";
 import { indexParamsGetter, indexTitleGetter } from "./handlers/home";
 import path from "node:path";
-import {
-  Contract,
-  Period,
-  ReconciliationRow,
-  OverviewRow,
-} from "./extract-helpers";
+import { Period, ReconciliationRow, OverviewRow } from "./extract-helpers";
+import { LinkData } from "./utils";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams>
@@ -45,14 +41,14 @@ export const getRoute = <TParams, TReturn>(
   return path.join(parentPath, page.relativePath);
 };
 
-const getUrl = <TParams>(
+export const getUrl = <TParams>(
   page: Page<any, any>,
-  request: Request<TParams>
+  requestParams: TParams
 ): string => {
   const parentRoute = page.parent ? getRoute(page.parent) : "/";
   let url = path.join(parentRoute, page.relativePath);
   const regex = /:([A-Za-z_]+)/;
-  const params = request.params as Record<string, string>;
+  const params = requestParams as Record<string, string>;
   while (regex.exec(url)) {
     url = url.replace(regex, (a, b) => params[b]);
   }
@@ -68,7 +64,7 @@ const getBreadcrumbData = async <TParams>(
   while (currentPage) {
     breadcrumbs.unshift({
       text: await currentPage.titleGetter(request.params),
-      href: getUrl(currentPage, request),
+      href: getUrl(currentPage, request.params),
     });
     currentPage = currentPage.parent;
   }
@@ -114,10 +110,10 @@ const homePage: Page<{}, {}> = {
 
 export type ContractParams = {
   pageTitle: string;
-  contracts: Contract[];
+  invoicesLinksData: LinkData[];
 };
 
-const contractsPage: Page<{}, ContractParams> = {
+export const contractsPage: Page<{}, ContractParams> = {
   parent: homePage,
   relativePath: "contracts",
   njk: "contracts.njk",
@@ -129,11 +125,11 @@ export type InvoicesRequestParams = { contract_id: string };
 
 export type InvoicesParams = {
   pageTitle: string;
-  contract: Contract;
   periods: Period[];
+  invoiceLinksData: LinkData[];
 };
 
-const invoicesPage: Page<InvoicesRequestParams, InvoicesParams> = {
+export const invoicesPage: Page<InvoicesRequestParams, InvoicesParams> = {
   parent: contractsPage,
   relativePath: ":contract_id/invoices",
   njk: "invoices.njk",
@@ -163,7 +159,7 @@ export type InvoiceParams = {
   };
 };
 
-const invoicePage: Page<InvoiceRequestParams, InvoiceParams> = {
+export const invoicePage: Page<InvoiceRequestParams, InvoiceParams> = {
   parent: invoicesPage,
   relativePath: ":year-:month",
   njk: "invoice.njk",

@@ -1,11 +1,11 @@
 import { ConfigElements } from "../../shared/constants";
 import { getConfig } from "../../shared/utils";
-import { getContracts } from "./get-contracts";
+import { getContractIds } from "./get-contract-ids";
 
 jest.mock("../../shared/utils");
 const mockedGetConfig = getConfig as jest.Mock;
 
-describe("getContracts", () => {
+describe("getContractIds", () => {
   let givenContractsConfig: any;
   let givenServicesConfig: any;
   let contractId: string;
@@ -39,10 +39,8 @@ describe("getContracts", () => {
 
   test("should return the contracts id, contracts name and the vendor name", async () => {
     // Act
-    const result = await getContracts();
+    const result = await getContractIds();
     // Assert
-    expect(result).toEqual([
-      { id: "1", name: "C01234", vendorName: "Vendor One" },
-    ]);
+    expect(result).toEqual(["1"]);
   });
 });
