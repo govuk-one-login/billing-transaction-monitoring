@@ -43,79 +43,6 @@ N.B. You may get Python errors due to conflicting dependencies with SAM CLI. If 
 pip3 install checkov
 ```
 
-## LocalStack
-
-The entire stack can be brought up locally using localstack.
-
-### Requirements
-
-- Python
-- Docker
-
-### To install
-
-```sh
-python3 -m pip install localstack
-pip3 install aws-sam-cli-local
-```
-
-### Start localstack
-
-N.B. You may need to run
-
-```sh
-gds aws di-btm-dev -s
-```
-
-before this to gain the correct privileges and will need to be on the VPN.
-
-```sh
-docker run --rm -it -p 4566:4566 -p 4571:4571 -e LOCALSTACK_DEBUG=1 localstack/localstack
-```
-
-### Bringing up the stack
-
-```sh
-npm run build
-npm run build:template NO_LOCAL
-samlocal build
-samlocal deploy --resolve-s3 --config-env local
-```
-
-N.B. You may get Python errors due to conflicting dependencies with Checkov. If you do, run this and try again:
-
-```sh
-pip3 install aws-sam-cli
-```
-
-### Interrogating the stack
-
-Any of the aws commands can now be used by adding the --endpoint-url parameter e.g.
-
-List all topics
-
-```sh
-aws --endpoint-url=http://localhost:4566 sns list-topics
-```
-
-Publish a message on the SNS topic
-
-```sh
-aws --endpoint-url=http://localhost:4566 sns publish --topic-arn arn:aws:sns:eu-west-2:000000000000:TestTxMATopic --message '{"event_id":"67e5-4b66-a403","timestamp":1668124800,"timestamp_formatted":"2022-11-11T09:26:18.000Z","event_name":"VENDOR_1_EVENT_1","component_id":"https://test.gov.uk","reIngestCount":0}'
-```
-
-List the buckets in S3
-
-```sh
-aws --endpoint-url=http://localhost:4566 s3api list-buckets
-```
-
-Read from s3
-
-```sh
-aws --endpoint-url=http://localhost:4566 s3api list-objects --bucket di-btm-storagebucket-fc161d3a
-```
-
 ### Running the integration tests
 
 To run the tests against aws environment
@@ -124,13 +51,6 @@ To run the tests against aws environment
 npm ci
 npm run test:integration
 
-```
-
-To run the tests against local environment
-
-```sh
-npm ci
-npm run test:integration:local
 ```
 
 To delete generated jest html reports locally. This will delete all the reports except last 3 reports
