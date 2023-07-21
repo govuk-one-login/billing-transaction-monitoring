@@ -1,8 +1,15 @@
 import { Request, RequestHandler, Response } from "express";
-import { authorisationFailedParamsGetter } from "./handlers/authorisation-failed";
-import { contractsParamsGetter } from "./handlers/contracts";
-import { invoicesParamsGetter } from "./handlers/invoices";
-import { invoiceParamsGetter } from "./handlers/invoice";
+import {
+  authorisationFailedParamsGetter,
+  authorisationFailedTitleGetter,
+} from "./handlers/authorisation-failed";
+import {
+  contractsParamsGetter,
+  contractsTitleGetter,
+} from "./handlers/contracts";
+import { invoicesParamsGetter, invoicesTitleGetter } from "./handlers/invoices";
+import { invoiceParamsGetter, invoiceTitleGetter } from "./handlers/invoice";
+import { indexParamsGetter, indexTitleGetter } from "./handlers/home";
 import path from "node:path";
 import {
   Contract,
@@ -10,11 +17,14 @@ import {
   ReconciliationRow,
   OverviewRow,
 } from "./extract-helpers";
-import { indexParamsGetter } from "./handlers/home";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams>
 ) => Promise<TReturn>;
+
+export type PageTitleGetter<TParams> = keyof TParams extends never
+  ? () => Promise<string>
+  : (requestParams: TParams) => Promise<string>;
 
 export interface Page<TParams, TReturn> {
   parent?: Page<any, any>;
@@ -24,6 +34,8 @@ export interface Page<TParams, TReturn> {
   paramsGetter: PageParamsGetter<TParams, TReturn>;
 
   njk: string;
+
+  titleGetter: PageTitleGetter<TParams>;
 }
 
 export const getRoute = <TParams, TReturn>(
@@ -47,13 +59,6 @@ const getUrl = <TParams>(
   return url;
 };
 
-const getTitle = async <TParams>(
-  page: Page<any, any>,
-  request: Request<TParams>
-): Promise<string> => {
-  return (await page.paramsGetter(request)).pageTitle;
-};
-
 const getBreadcrumbData = async <TParams>(
   page: Page<any, any>,
   request: Request<TParams>
@@ -62,7 +67,7 @@ const getBreadcrumbData = async <TParams>(
   let currentPage: Page<any, any> | undefined = page.parent;
   while (currentPage) {
     breadcrumbs.unshift({
-      text: await getTitle(currentPage, request),
+      text: await currentPage.titleGetter(request.params),
       href: getUrl(currentPage, request),
     });
     currentPage = currentPage.parent;
@@ -99,10 +104,12 @@ export type IndexParams = {
   pageTitle: string;
   overviewRows: OverviewRow[];
 };
-const homePage: Page<{}, IndexParams> = {
+
+const homePage: Page<{}, {}> = {
   relativePath: "",
   njk: "index.njk",
   paramsGetter: indexParamsGetter,
+  titleGetter: indexTitleGetter,
 };
 
 export type ContractParams = {
@@ -115,7 +122,10 @@ const contractsPage: Page<{}, ContractParams> = {
   relativePath: "contracts",
   njk: "contracts.njk",
   paramsGetter: contractsParamsGetter,
+  titleGetter: contractsTitleGetter,
 };
+
+export type InvoicesRequestParams = { contract_id: string };
 
 export type InvoicesParams = {
   pageTitle: string;
@@ -123,16 +133,18 @@ export type InvoicesParams = {
   periods: Period[];
 };
 
-const invoicesPage: Page<
-  {
-    contract_id: string;
-  },
-  InvoicesParams
-> = {
+const invoicesPage: Page<InvoicesRequestParams, InvoicesParams> = {
   parent: contractsPage,
   relativePath: ":contract_id/invoices",
   njk: "invoices.njk",
   paramsGetter: invoicesParamsGetter,
+  titleGetter: invoicesTitleGetter,
+};
+
+export type InvoiceRequestParams = {
+  contract_id: string;
+  year: string;
+  month: string;
 };
 
 export type InvoiceParams = {
@@ -151,18 +163,12 @@ export type InvoiceParams = {
   };
 };
 
-const invoicePage: Page<
-  {
-    contract_id: string;
-    year: string;
-    month: string;
-  },
-  InvoiceParams
-> = {
+const invoicePage: Page<InvoiceRequestParams, InvoiceParams> = {
   parent: invoicesPage,
   relativePath: ":year-:month",
   njk: "invoice.njk",
   paramsGetter: invoiceParamsGetter,
+  titleGetter: invoiceTitleGetter,
 };
 
 export type AuthorisationFailedParams = {
@@ -173,6 +179,7 @@ const authorisationFailedPage: Page<{}, AuthorisationFailedParams> = {
   relativePath: "authorisation-failed",
   njk: "authorisation-failed.njk",
   paramsGetter: authorisationFailedParamsGetter,
+  titleGetter: authorisationFailedTitleGetter,
 };
 
 export const PAGES = [

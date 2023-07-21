@@ -2,12 +2,15 @@ import {
   getContractAndVendorName,
   getContractPeriods,
 } from "../extract-helpers";
-import { InvoicesParams, PageParamsGetter } from "../pages";
+import {
+  InvoicesParams,
+  InvoicesRequestParams,
+  PageParamsGetter,
+  PageTitleGetter,
+} from "../pages";
 
 export const invoicesParamsGetter: PageParamsGetter<
-  {
-    contract_id: string;
-  },
+  InvoicesRequestParams,
   InvoicesParams
 > = async (request) => {
   const [{ contractName, vendorName }, periods] = await Promise.all([
@@ -16,7 +19,7 @@ export const invoicesParamsGetter: PageParamsGetter<
   ]);
 
   return {
-    pageTitle: contractName + " - " + vendorName,
+    pageTitle: await invoicesTitleGetter(request.params),
     contract: {
       id: request.params.contract_id,
       name: contractName,
@@ -24,4 +27,14 @@ export const invoicesParamsGetter: PageParamsGetter<
     },
     periods,
   };
+};
+
+export const invoicesTitleGetter: PageTitleGetter<
+  InvoicesRequestParams
+> = async ({ contract_id }) => {
+  const { contractName, vendorName } = await getContractAndVendorName(
+    contract_id
+  );
+
+  return contractName + " - " + vendorName;
 };
