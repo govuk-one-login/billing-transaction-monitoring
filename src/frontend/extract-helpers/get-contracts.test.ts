@@ -9,10 +9,12 @@ describe("getContracts", () => {
   let givenContractsConfig: any;
   let givenServicesConfig: any;
   let contractId: string;
+
   beforeEach(() => {
     process.env = {
       STORAGE_BUCKET: "given storage bucket",
     };
+
     contractId = "1";
     givenContractsConfig = [
       { id: contractId, name: "C01234", vendor_id: "vendor_testvendor1" },

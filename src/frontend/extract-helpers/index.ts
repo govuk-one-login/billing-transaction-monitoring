@@ -1,3 +1,4 @@
+export * from "./get-contracts";
 export * from "./get-contract-ids";
 export * from "./get-contract-and-vendor-name";
 export * from "./get-contract-periods";
