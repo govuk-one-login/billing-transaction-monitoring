@@ -5,8 +5,8 @@ export const percentageDiscrepancySpecialCase: Record<
   { bannerText: string; bannerColor: string; statusLabel: string }
 > = {
   "-1234567.01": {
-    bannerText: "No charge",
-    bannerColor: "#1d70b8", // blue
+    bannerText: "Invoice within threshold",
+    bannerColor: "#00703c", // green (bug BTM-709)
     statusLabel: "WITHIN THRESHOLD",
   },
   "-1234567.02": {
@@ -30,7 +30,7 @@ export const percentageDiscrepancySpecialCase: Record<
     statusLabel: "ABOVE THRESHOLD",
   },
 
-  "-100.0": {
+  "-100": {
     bannerText: "Invoice below threshold",
     bannerColor: "#1d70b8", // blue
     statusLabel: "BELOW THRESHOLD",

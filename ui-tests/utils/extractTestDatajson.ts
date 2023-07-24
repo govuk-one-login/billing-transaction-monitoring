@@ -6,7 +6,7 @@ import {
   TEST_DATA_FILE_PATH,
 } from "./constants";
 
-type FullExtractData = {
+export type FullExtractData = {
   vendor_id: string;
   vendor_name: string;
   service_name: string;
@@ -117,7 +117,9 @@ export const getPriceDifferencePercentageFromJson = (
   if (invoice) {
     return parseFloat(invoice.price_difference_percentage);
   }
-  return 0;
+  throw new Error(
+    `price difference percentage not found for year: ${year} and month ${month}`
+  );
 };
 
 export const getBannerColorFromPercentagePriceDifference = (
@@ -136,9 +138,24 @@ export const getBannerColorFromPercentagePriceDifference = (
     return "#d4351c"; // red
   } else if (percentageDifference < -1) {
     return "#1d70b8"; // blue
-  } else {
-    return "NO COLOR FOUND";
   }
+  throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
+};
+
+export const getBannerMessageFromPercentagePriceDifference = (
+  percentageDifference: number
+): string => {
+  if (percentageDiscrepancySpecialCase[percentageDifference]) {
+    return percentageDiscrepancySpecialCase[percentageDifference].bannerText;
+  }
+  if (percentageDifference >= -1 && percentageDifference <= 1) {
+    return "Invoice within threshold";
+  } else if (percentageDifference > 1) {
+    return "Invoice above threshold";
+  } else if (percentageDifference < -1) {
+    return "Invoice below threshold";
+  }
+  throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
 };
 
 export const getPercentagePriceDifference = (
@@ -150,31 +167,20 @@ export const getPercentagePriceDifference = (
     maximumFractionDigits: 4,
   }).format(percentageDifference / 100);
   if (percentageDiscrepancySpecialCase[percentageDifference]) {
-    console.log(
-      "INSIDE FIRST CHECK LOOP:",
-      percentageDiscrepancySpecialCase[percentageDifference]
-    );
     return percentageDiscrepancySpecialCase[percentageDifference].bannerText;
   }
   if (percentageDifference >= -1 && percentageDifference <= 1) {
     return formattedPercentage; // green
   } else if (percentageDifference > 1) {
     return formattedPercentage;
-  } else if (percentageDifference < -1) {
-    return formattedPercentage;
-  } else {
-    return formattedPercentage;
   }
+  throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
 };
 
 export const getStatusFromPercentagePriceDifference = (
   percentageDifference: number
 ): string => {
   if (percentageDiscrepancySpecialCase[percentageDifference]) {
-    console.log(
-      "INSIDE FIRST CHECK LOOP:",
-      percentageDiscrepancySpecialCase[percentageDifference]
-    );
     return percentageDiscrepancySpecialCase[percentageDifference].statusLabel;
   }
   if (percentageDifference >= -1 && percentageDifference <= 1) {

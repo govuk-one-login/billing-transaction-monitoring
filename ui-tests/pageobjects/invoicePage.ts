@@ -38,6 +38,11 @@ class InvoicePage extends Page {
     return $("caption*=Invoice").parentElement();
   }
 
+  public async getStatusBannerTitle(): Promise<string> {
+    await (await this.statusBannerTitle).isDisplayed();
+    return await (await this.statusBannerTitle).getText();
+  }
+
   public async getStatusBannerColor(): Promise<string> {
     const statusBannerElement = await this.statusBanner;
     await statusBannerElement.waitForDisplayed();
