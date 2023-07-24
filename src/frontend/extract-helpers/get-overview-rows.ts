@@ -1,21 +1,20 @@
-import { InvoiceBannerStatus, statusLabels } from "../utils";
+import { getUrl, invoicePage, invoicesPage } from "../pages";
+import { InvoiceBannerStatus, LinkData, statusLabels } from "../utils";
 import { getContractPeriods } from "./get-contract-periods";
 import { getContracts } from "./get-contracts";
 import { getInvoiceBanner } from "./get-invoice-banner";
 import { getLineItems } from "./get-line-items";
 
 export interface OverviewRow {
-  contractId: string;
-  contractName: string;
+  contractLinkData: LinkData;
   vendorName: string;
   year: string;
-  month: string;
   prettyMonth: string;
   reconciliationDetails: {
     bannerMessage: string;
     tagClass: string;
   };
-  details: string;
+  invoiceLinkData: LinkData;
 }
 
 export const getOverviewRows = async (): Promise<OverviewRow[]> => {
@@ -30,14 +29,22 @@ export const getOverviewRows = async (): Promise<OverviewRow[]> => {
       latestMonth.month
     );
     const row = {
-      contractId: contract.id,
-      contractName: contract.name,
+      contractLinkData: {
+        href: getUrl(invoicesPage, { contract_id: contract.id }),
+        text: contract.name,
+      },
       vendorName: contract.vendorName,
       year: latestMonth.year,
-      month: latestMonth.month,
       prettyMonth: latestMonth.prettyMonth,
       reconciliationDetails,
-      details: "View Invoice",
+      invoiceLinkData: {
+        href: getUrl(invoicePage, {
+          contract_id: contract.id,
+          month: latestMonth.month,
+          year: latestMonth.year,
+        }),
+        text: "View Invoice",
+      },
     };
     overviewRows.push(row);
   }

@@ -21,9 +21,7 @@
     {% for row in overviewRows %}
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">
-            <a class="govuk-link" href="/contracts/{{ row.contractId }}/invoices">{{ row.contractName }}</a>
-          </td>
+          <td class="govuk-table__cell">{{ link(row.contractLinkData) }}</td>
           <td class="govuk-table__cell">{{ row.vendorName }}</td>
           <td class="govuk-table__cell">{{ row.prettyMonth }} {{ row.year }}</td>
           <td class="govuk-table__cell">
@@ -32,10 +30,7 @@
                         classes: row.reconciliationDetails.tagClass
                         }) }}
           </td>
-          <td class="govuk-table__cell">
-            <a class="govuk-link"
-               href="/contracts/{{ row.contractId }}/invoices/{{ row.year }}-{{ row.month }}">{{ row.details }}</a>
-          </td>
+          <td class="govuk-table__cell">{{ link(row.invoiceLinkData) }}</td>
         </tr>
       </tbody>
     {% endfor %}

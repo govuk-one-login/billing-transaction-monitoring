@@ -105,8 +105,8 @@ exports[`home page handler Page displays all overview rows 1`] = `
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">
-            <a class="govuk-link" href="/contracts/c1/invoices">C01234</a>
-          </td>
+  <a class="govuk-link" href="/contracts/c1/invoices">C01234</a>
+</td>
           <td class="govuk-table__cell">Vendor One</td>
           <td class="govuk-table__cell">Jun 2023</td>
           <td class="govuk-table__cell">
@@ -116,17 +116,16 @@ exports[`home page handler Page displays all overview rows 1`] = `
 
           </td>
           <td class="govuk-table__cell">
-            <a class="govuk-link"
-               href="/contracts/c1/invoices/2023-06">View Invoice</a>
-          </td>
+  <a class="govuk-link" href="/contracts/c1/invoices/2023-06">View Invoice</a>
+</td>
         </tr>
       </tbody>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">
-            <a class="govuk-link" href="/contracts/m2/invoices">MOU</a>
-          </td>
+  <a class="govuk-link" href="/contracts/m2/invoices">MOU</a>
+</td>
           <td class="govuk-table__cell">Vendor Two</td>
           <td class="govuk-table__cell">Jun 2023</td>
           <td class="govuk-table__cell">
@@ -136,9 +135,8 @@ exports[`home page handler Page displays all overview rows 1`] = `
 
           </td>
           <td class="govuk-table__cell">
-            <a class="govuk-link"
-               href="/contracts/m2/invoices/2023-06">View Invoice</a>
-          </td>
+  <a class="govuk-link" href="/contracts/m2/invoices/2023-06">View Invoice</a>
+</td>
         </tr>
       </tbody>
     

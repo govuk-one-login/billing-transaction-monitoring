@@ -97,30 +97,38 @@ describe("getOverviewRows", () => {
 
     expect(result).toEqual([
       {
-        contractId: "c1",
-        contractName: "C01234",
+        contractLinkData: {
+          href: "/contracts/c1/invoices",
+          text: "C01234",
+        },
         vendorName: "Vendor One",
         year: "2023",
-        month: "06",
         prettyMonth: "Jun",
         reconciliationDetails: {
           tagClass: "govuk-tag--grey",
           bannerMessage: "Invoice data missing",
         },
-        details: "View Invoice",
+        invoiceLinkData: {
+          href: "/contracts/c1/invoices/2023-06",
+          text: "View Invoice",
+        },
       },
       {
-        contractId: "m2",
-        contractName: "MOU",
+        contractLinkData: {
+          href: "/contracts/m2/invoices",
+          text: "MOU",
+        },
         vendorName: "Vendor Two",
         year: "2023",
-        month: "06",
         prettyMonth: "Jun",
         reconciliationDetails: {
           tagClass: "govuk-tag--green",
           bannerMessage: "Invoice within threshold",
         },
-        details: "View Invoice",
+        invoiceLinkData: {
+          href: "/contracts/m2/invoices/2023-06",
+          text: "View Invoice",
+        },
       },
     ]);
   });
