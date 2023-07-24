@@ -11,7 +11,7 @@ import { invoicesParamsGetter, invoicesTitleGetter } from "./handlers/invoices";
 import { invoiceParamsGetter, invoiceTitleGetter } from "./handlers/invoice";
 import { indexParamsGetter, indexTitleGetter } from "./handlers/home";
 import path from "node:path";
-import { Period, ReconciliationRow, OverviewRow } from "./extract-helpers";
+import { ReconciliationRow, OverviewRow } from "./extract-helpers";
 import { LinkData } from "./utils";
 
 export type PageParamsGetter<TParams, TReturn> = (
@@ -125,7 +125,6 @@ export type InvoicesRequestParams = { contract_id: string };
 
 export type InvoicesParams = {
   pageTitle: string;
-  periods: Period[];
   invoiceLinksData: LinkData[];
 };
 

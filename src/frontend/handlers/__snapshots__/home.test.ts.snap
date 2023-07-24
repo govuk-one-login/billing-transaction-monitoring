@@ -149,8 +149,8 @@ exports[`home page handler Page displays all overview rows 1`] = `
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">
-          <a href="/contracts">Contracts</a>
-        </th>
+  <a class="govuk-link" href="/contracts">Contracts</a>
+</th>
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
