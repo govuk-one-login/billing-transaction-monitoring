@@ -1,2 +1,6 @@
+import { getFromEnv } from "../../shared/utils";
+
+const nodeEnv = getFromEnv("NODE_ENV");
+
 export const shouldLoadFromNodeModules =
-  process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+  nodeEnv === "development" || nodeEnv === "test";

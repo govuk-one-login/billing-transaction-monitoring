@@ -18,6 +18,7 @@ import {
   StackResourceSummary,
 } from "@aws-sdk/client-cloudformation";
 import { AthenaClient, DeleteWorkGroupCommand } from "@aws-sdk/client-athena";
+import { getFromEnv } from "../shared/utils";
 
 interface AWSError {
   error: any;
@@ -245,7 +246,7 @@ const s3Client = new S3Client(awsConfig);
 const cfClient = new CloudFormationClient(awsConfig);
 const athenaClient = new AthenaClient(awsConfig);
 
-const stackSuffix = process.env.ENV_NAME;
+const stackSuffix = getFromEnv("ENV_NAME");
 
 if (stackSuffix == null || stackSuffix === "") {
   console.log(

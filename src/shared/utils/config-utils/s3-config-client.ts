@@ -8,6 +8,7 @@ import {
   Json,
 } from "../../types";
 import { fetchS3 } from "..";
+import { getFromEnv } from "../env";
 import { parseConfigCsv } from "./parse-config-csv";
 
 export const configFileMap: Record<ConfigElements, string> = {
@@ -74,12 +75,14 @@ const parseConfigFile = async <TFileName extends ConfigElements>(
 };
 
 export const getConfigFile: GetConfigFile = async (fileName) => {
-  if (process.env.CONFIG_BUCKET === undefined)
+  const bucket = getFromEnv("CONFIG_BUCKET");
+
+  if (bucket === undefined)
     throw new Error("No CONFIG_BUCKET defined in this environment");
 
   const path = configFileMap[fileName];
 
-  const response = await fetchS3(process.env.CONFIG_BUCKET, path);
+  const response = await fetchS3(bucket, path);
 
   return await parseConfigFile(fileName, response);
 };

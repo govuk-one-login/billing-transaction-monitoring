@@ -11,6 +11,7 @@ import {
 } from "@aws-sdk/client-s3";
 import type { Command, SmithyConfiguration } from "@aws-sdk/smithy-client";
 import { S3Event, S3EventRecord, SQSRecord } from "aws-lambda";
+import { getFromEnv } from "./env";
 import { logger } from "./logger";
 import { decryptKms } from "./kms";
 
@@ -24,7 +25,7 @@ type EncryptedS3ObjectMetadata = {
 
 const s3 = new S3Client({
   region: "eu-west-2",
-  endpoint: process.env.LOCAL_ENDPOINT,
+  endpoint: getFromEnv("LOCAL_ENDPOINT"),
 });
 
 export async function deleteS3(bucket: string, key: string): Promise<void> {
