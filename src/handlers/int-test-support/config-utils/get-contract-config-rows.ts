@@ -23,7 +23,7 @@ export const getContractsFromConfig = async (
 };
 
 export interface ContractsConfigRow {
-  id: string;
+  id: number;
   name: string;
   vendor_id: string;
 }

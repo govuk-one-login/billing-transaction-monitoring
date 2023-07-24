@@ -14,6 +14,7 @@ type FullExtractData = {
   contract_name: string;
   year: string;
   month: string;
+  billing_unit_price: string;
   billing_price_formatted: string;
   transaction_price_formatted: string;
   price_difference: string;
@@ -138,4 +139,89 @@ export const getBannerColorFromPercentagePriceDifference = (
   } else {
     return "NO COLOR FOUND";
   }
+};
+
+export const getPercentagePriceDifference = (
+  percentageDifference: number
+): string => {
+  const formattedPercentage = new Intl.NumberFormat("en-US", {
+    style: "percent",
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 4,
+  }).format(percentageDifference / 100);
+  if (percentageDiscrepancySpecialCase[percentageDifference]) {
+    console.log(
+      "INSIDE FIRST CHECK LOOP:",
+      percentageDiscrepancySpecialCase[percentageDifference]
+    );
+    return percentageDiscrepancySpecialCase[percentageDifference].bannerText;
+  }
+  if (percentageDifference >= -1 && percentageDifference <= 1) {
+    return formattedPercentage; // green
+  } else if (percentageDifference > 1) {
+    return formattedPercentage;
+  } else if (percentageDifference < -1) {
+    return formattedPercentage;
+  } else {
+    return formattedPercentage;
+  }
+};
+
+export const getStatusFromPercentagePriceDifference = (
+  percentageDifference: number
+): string => {
+  if (percentageDiscrepancySpecialCase[percentageDifference]) {
+    console.log(
+      "INSIDE FIRST CHECK LOOP:",
+      percentageDiscrepancySpecialCase[percentageDifference]
+    );
+    return percentageDiscrepancySpecialCase[percentageDifference].statusLabel;
+  }
+  if (percentageDifference >= -1 && percentageDifference <= 1) {
+    return "WITHIN THRESHOLD"; // green
+  } else if (percentageDifference > 1) {
+    return "ABOVE THRESHOLD"; // red
+  } else if (percentageDifference < -1) {
+    return "BELOW THRESHOLD"; // blue
+  } else {
+    return "NO FOUND";
+  }
+};
+
+export const getItemsByContractIdYearMonth = async (
+  contractId: number,
+  year: string,
+  month: string
+): Promise<FullExtractData[]> => {
+  const testDataFilePath = getTestDataFilePath();
+  const { data } = getExtractDataFromJson(testDataFilePath);
+  return data
+    .filter(
+      (row) =>
+        row.contract_id === contractId &&
+        row.year === year &&
+        row.month === month
+    )
+    .map((row) => {
+      if (row.billing_quantity === "") {
+        return {
+          ...row,
+          billing_quantity: "Invoice data missing",
+          billing_price_formatted: "Invoice data missing",
+          billing_amount_with_tax: "Invoice data missing",
+          billing_unit_price: "Invoice data missing",
+        };
+      }
+      if (
+        row.transaction_quantity === "" &&
+        row.transaction_price_formatted === ""
+      ) {
+        return {
+          ...row,
+          transaction_quantity: "Events missing",
+          transaction_price_formatted: "Events missing",
+        };
+      }
+      return row;
+    });
 };
