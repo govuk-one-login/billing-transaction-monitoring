@@ -135,11 +135,25 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
     
 
     
-      <footer class="govuk-footer " role="contentinfo">
+  <footer class="govuk-footer " role="contentinfo">
   <div class="govuk-width-container ">
     
     <div class="govuk-footer__meta">
       <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+        
+          <h2 class="govuk-visually-hidden">Support links</h2>
+          
+            <ul class="govuk-footer__inline-list">
+              
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="#">
+                    Cookies
+                  </a>
+                </li>
+              
+            </ul>
+          
+          
         
         <svg
           aria-hidden="true"
@@ -176,7 +190,7 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
   </div>
 </footer>
 
-    
+
 
     
   <script src="/assets/scripts/all.js" nonce=""></script>

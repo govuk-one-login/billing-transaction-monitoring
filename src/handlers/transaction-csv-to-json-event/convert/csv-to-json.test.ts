@@ -26,6 +26,7 @@ describe("csvToJson", () => {
       const result = await csvToJson(givenCsv, givenRenamingConfig);
       expect(result).toEqual(expectedResult);
     });
+
     describe("given an invalid csv", () => {
       it("throws an error", async () => {
         const givenInvalidCsv = `an invalid csv`;
