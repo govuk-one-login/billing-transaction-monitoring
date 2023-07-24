@@ -4,6 +4,7 @@ import { fetchS3, getConfig } from "../../shared/utils";
 import { app } from "../app";
 import { initApp } from "../init-app";
 import { statusLabels } from "../utils";
+import { unitTestMiddleware } from "../middleware";
 
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
@@ -15,7 +16,7 @@ describe("invoice handler", () => {
   let givenExtractResults;
 
   beforeEach(() => {
-    initApp(app);
+    initApp(app, unitTestMiddleware);
 
     process.env = {
       STORAGE_BUCKET: "given storage bucket",
@@ -48,10 +49,6 @@ describe("invoice handler", () => {
         ? givenServicesConfig
         : givenContractsConfig
     );
-
-    givenExtractResults = `{"vendor_id":"vendor_testvendor1","vendor_name":"Vendor One","service_name":"Passport check","month":"03","year":"2023","contract_id":"1","contract_name":"C01234","billing_price_formatted":"£650.00","transaction_price_formatted":"","price_difference":"","billing_quantity":"2", "transaction_quantity":"11", "quantity_difference":"-9","billing_amount_with_tax":"£780.00","price_difference_percentage":"0"}
-{"vendor_id":"vendor_testvendor1","vendor_name":"Vendor One","service_name":"Passport check","month":"04","year":"2023","contract_id":"1","contract_name":"C01234","billing_price_formatted":"16,029.00","transaction_price_formatted":"15,828.30","price_difference":"200.70","billing_quantity":"53430", "transaction_quantity":"52761", "quantity_difference":"669.00","billing_amount_with_tax":"£19,234.80","price_difference_percentage":"1.268"}`;
-    mockedFetchS3.mockResolvedValue(givenExtractResults);
   });
 
   test("Page displays Invoice above threshold banner text and three line items in the Reconciliation Table for Mar 2023", async () => {

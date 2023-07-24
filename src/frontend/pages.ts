@@ -1,4 +1,4 @@
-import { Request, RequestHandler } from "express";
+import { Request, RequestHandler, Response } from "express";
 import {
   authorisationFailedParamsGetter,
   authorisationFailedTitleGetter,
@@ -9,8 +9,14 @@ import {
 } from "./handlers/contracts";
 import { invoicesParamsGetter, invoicesTitleGetter } from "./handlers/invoices";
 import { invoiceParamsGetter, invoiceTitleGetter } from "./handlers/invoice";
+import { indexParamsGetter, indexTitleGetter } from "./handlers/home";
 import path from "node:path";
-import { Contract, Period, ReconciliationRow } from "./extract-helpers";
+import {
+  Contract,
+  Period,
+  ReconciliationRow,
+  OverviewRow,
+} from "./extract-helpers";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams>
@@ -70,13 +76,16 @@ const getBreadcrumbData = async <TParams>(
 };
 const getPageParams = async <TParams, TReturn>(
   page: Page<TParams, TReturn>,
-  request: Request<TParams>
+  request: Request<TParams>,
+  response: Response
 ): Promise<TReturn> => {
   const options = await page.paramsGetter(request);
   const breadcrumbData = await getBreadcrumbData(page, request);
+
   return {
     ...options,
     breadcrumbData,
+    cspNonce: response.locals.cspNonce,
   };
 };
 
@@ -84,25 +93,27 @@ export const getHandler = <TParams, TReturn>(
   page: Page<TParams, TReturn>
 ): RequestHandler<TParams> => {
   return async (request: Request<TParams>, response) => {
-    response.render(page.njk, (await getPageParams(page, request)) as object);
+    response.render(
+      page.njk,
+      (await getPageParams(page, request, response)) as object
+    );
   };
 };
 
-const indexOptionsGetter: PageParamsGetter<{}, {}> = async (_) => ({
-  pageTitle: await indexTitleGetter(),
-});
-
-const indexTitleGetter: PageTitleGetter<{}> = async () =>
-  "Billings and reconciliation";
+export type IndexParams = {
+  pageTitle: string;
+  overviewRows: OverviewRow[];
+};
 
 const homePage: Page<{}, {}> = {
   relativePath: "",
   njk: "index.njk",
-  paramsGetter: indexOptionsGetter,
+  paramsGetter: indexParamsGetter,
   titleGetter: indexTitleGetter,
 };
 
 export type ContractParams = {
+  pageTitle: string;
   contracts: Contract[];
 };
 
@@ -117,6 +128,7 @@ const contractsPage: Page<{}, ContractParams> = {
 export type InvoicesRequestParams = { contract_id: string };
 
 export type InvoicesParams = {
+  pageTitle: string;
   contract: Contract;
   periods: Period[];
 };
@@ -136,6 +148,7 @@ export type InvoiceRequestParams = {
 };
 
 export type InvoiceParams = {
+  pageTitle: string;
   vendorName: string;
   contractName: string;
   contractId: string;
@@ -144,6 +157,10 @@ export type InvoiceParams = {
   bannerClass: string;
   invoiceStatus: string;
   reconciliationRows: ReconciliationRow[];
+  invoiceTotals: {
+    billingPriceTotal: string;
+    billingPriceInclVatTotal: string;
+  };
 };
 
 const invoicePage: Page<InvoiceRequestParams, InvoiceParams> = {

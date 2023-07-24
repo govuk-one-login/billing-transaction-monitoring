@@ -160,7 +160,7 @@ exports[`contracts handler Page displays all contracts 1`] = `
     
 
     
-  <script src="/assets/scripts/all.js"></script>
+  <script src="/assets/scripts/all.js" nonce=""></script>
   <script>window.GOVUKFrontend.initAll();</script>
   
   

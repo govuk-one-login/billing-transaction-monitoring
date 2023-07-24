@@ -10,7 +10,7 @@
 {% block content %}
 {% endblock content %}
 {% block bodyEnd %}
-  <script src="/assets/scripts/all.js"></script>
+  <script src="/assets/scripts/all.js" nonce="{{ cspNonce }}"></script>
   <script>window.GOVUKFrontend.initAll();</script>
   {% block scripts %}
   {% endblock scripts %}

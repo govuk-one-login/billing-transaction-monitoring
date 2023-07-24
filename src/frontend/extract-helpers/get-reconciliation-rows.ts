@@ -18,7 +18,7 @@ export interface ReconciliationRow {
 export const getReconciliationRows = (
   lineItems: FullExtractLineItem[]
 ): ReconciliationRow[] => {
-  const rows = [];
+  const rows: ReconciliationRow[] = [];
   for (const item of lineItems) {
     const row = {
       serviceName: item.service_name,

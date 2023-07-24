@@ -46,6 +46,7 @@ describe("getLineItems", () => {
         quantity_difference: "-9",
         billing_amount_with_tax: "test1 bawt",
         billing_price_formatted: "test1 bpf",
+        billing_unit_price: "test1 bup",
       },
       {
         vendor_id: "test2_vendor_id",
@@ -63,6 +64,7 @@ describe("getLineItems", () => {
         quantity_difference: "-9",
         billing_amount_with_tax: "test2 bawt",
         billing_price_formatted: "test2 bpf",
+        billing_unit_price: "test2 bup",
       },
     ]);
   });
