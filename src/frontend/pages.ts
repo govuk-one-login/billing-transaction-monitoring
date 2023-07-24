@@ -50,7 +50,12 @@ export const getUrl = <TParams>(
   const regex = /:([A-Za-z_]+)/;
   const params = requestParams as Record<string, string>;
   while (regex.exec(url)) {
-    url = url.replace(regex, (a, b) => params[b]);
+    url = url.replace(regex, (a, b) => {
+      const bParam = params[b];
+      if (!bParam)
+        throw Error(`Request parameter \`${a}\` not found for URL: ${url}`);
+      return bParam;
+    });
   }
   return url;
 };
