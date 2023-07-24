@@ -10,4 +10,8 @@ try {
 }
 
 export const [, rootDir] =
-  /(^[/\-_A-Z0-9]{0,128}\/frontend)[/\-_A-Z0-9]{0,128}$/i.exec(dirname) ?? [];
+  process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+    ? /(^[/\-_A-Z0-9]{0,128}\/frontend)[/\-_A-Z0-9]{0,128}$/i.exec(dirname) ??
+      []
+    : dirname;
+
