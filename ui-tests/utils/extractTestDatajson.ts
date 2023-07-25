@@ -1,11 +1,8 @@
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import { InvoiceBannerStatus, statusLabels ,
-  Color,
-  percentageDiscrepancySpecialCase,
-  TEST_DATA_FILE_PATH,
-} from "./constants";
+import { formatInvoiceDataFromJson } from "./dataFormatters";
+import { TEST_DATA_FILE_PATH } from "./constants";
 
 export type FullExtractData = {
   vendor_id: string;
@@ -38,72 +35,11 @@ export const readJsonDataFromFile = (filePath: string): string => {
   return fileContent;
 };
 
-export const getExtractDataFromJson = (
-  filePath: string
-): { data: FullExtractData[]; content: string } => {
+export const getExtractDataFromJson = (filePath: string): FullExtractData[] => {
   const jsonArray =
     "[" + readJsonDataFromFile(filePath).replace(/\n/g, ",") + "]";
   const json: FullExtractData[] = JSON.parse(jsonArray);
-  return { data: json, content: jsonArray };
-};
-
-export const getUniqueVendorNamesFromJson = (filePath: string): string[] => {
-  const { data } = getExtractDataFromJson(filePath);
-  const vendorNames = data.map((obj) => obj.vendor_name);
-  const uniqueVendorNames = [...new Set(vendorNames)];
-  return uniqueVendorNames;
-};
-
-export const getUniqueContractIdsFromJson = (filePath: string): number[] => {
-  const { data } = getExtractDataFromJson(filePath);
-  const contractIds = data.map((obj) => obj.contract_id);
-  const uniqueContractIds = [...new Set(contractIds)];
-  return uniqueContractIds;
-};
-
-export const getUniqueInvoiceMonthsYearsByVendorCount = (
-  vendorName: string
-): number => {
-  const testDataFilePath = getTestDataFilePath();
-  const { data } = getExtractDataFromJson(testDataFilePath);
-  const uniqueMonthYears = new Set();
-  for (const invoice of data) {
-    if (invoice.vendor_name === vendorName) {
-      const monthYear = `${invoice.year}-${invoice.month}`;
-      uniqueMonthYears.add(monthYear);
-    }
-  }
-  return uniqueMonthYears.size;
-};
-
-export const getUniqueInvoiceMonthsYearsByVendor = (
-  vendorName: string
-): Set<string> => {
-  const testDataFilePath = getTestDataFilePath();
-  const { data } = getExtractDataFromJson(testDataFilePath);
-  const uniqueMonthYears = new Set<string>();
-  for (const invoice of data) {
-    if (invoice.vendor_name === vendorName) {
-      const monthYear = `${invoice.year}-${invoice.month}`;
-      uniqueMonthYears.add(monthYear);
-    }
-  }
-  return uniqueMonthYears;
-};
-
-export const getUniqueVendorIdsFromJson = (vendorName: string): string[] => {
-  const testDataFilePath = getTestDataFilePath();
-  const { data } = getExtractDataFromJson(testDataFilePath);
-  const uniqueVendorIds = new Set<string>();
-  for (const item of data) {
-    if (item.vendor_name === vendorName) {
-      uniqueVendorIds.add(item.vendor_id);
-    }
-  }
-  if (uniqueVendorIds.size === 0) {
-    throw new Error(`Vendor data not found for :${vendorName}`);
-  }
-  return Array.from(uniqueVendorIds);
+  return json;
 };
 
 export const getPriceDifferencePercentageFromJson = (
@@ -112,7 +48,7 @@ export const getPriceDifferencePercentageFromJson = (
   month: string
 ): number => {
   const testDataFilePath = getTestDataFilePath();
-  const { data } = getExtractDataFromJson(testDataFilePath);
+  const data = getExtractDataFromJson(testDataFilePath);
   const invoice = data.find(
     (entry) =>
       entry.vendor_name === vendor &&
@@ -127,82 +63,13 @@ export const getPriceDifferencePercentageFromJson = (
   );
 };
 
-export const getBannerColorFromPercentagePriceDifference = (
-  percentageDifference: number
-): string => {
-  if (percentageDiscrepancySpecialCase[percentageDifference]) {
-    return percentageDiscrepancySpecialCase[percentageDifference].bannerColor;
-  }
-  if (percentageDifference >= -1 && percentageDifference <= 1) {
-    return Color.green;
-  } else if (percentageDifference > 1) {
-    return Color.red;
-  } else if (percentageDifference < -1) {
-    return Color.blue;
-  }
-  throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
-};
-
-export const getBannerMessageFromPercentagePriceDifference = (
-  percentageDifference: number
-): string => {
-  if (percentageDiscrepancySpecialCase[percentageDifference]) {
-    return percentageDiscrepancySpecialCase[percentageDifference].bannerText;
-  }
-  if (percentageDifference >= -1 && percentageDifference <= 1) {
-    return InvoiceBannerStatus.invoiceWithinThreshold;
-  } else if (percentageDifference > 1) {
-    return InvoiceBannerStatus.invoiceAboveThreshold;
-  } else if (percentageDifference < -1) {
-    return InvoiceBannerStatus.invoiceBelowThreshold;
-  }
-  throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
-};
-
-export const formatPercentageDifference = (
-  percentageDifference: number
-): string => {
-  const formattedPercentage = new Intl.NumberFormat("en-US", {
-    style: "percent",
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 4,
-  }).format(percentageDifference / 100);
-  if (percentageDiscrepancySpecialCase[percentageDifference]) {
-    return percentageDiscrepancySpecialCase[percentageDifference].bannerText;
-  }
-  if (percentageDifference >= -1 && percentageDifference <= 1) {
-    return formattedPercentage;
-  } else if (percentageDifference > 1) {
-    return formattedPercentage;
-  } else if (percentageDifference < -1) {
-    return formattedPercentage;
-  }
-  throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
-};
-
-export const getStatusFromPercentagePriceDifference = (
-  percentageDifference: number
-): string => {
-  if (percentageDiscrepancySpecialCase[percentageDifference]) {
-    return percentageDiscrepancySpecialCase[percentageDifference].statusLabel;
-  }
-  if (percentageDifference >= -1 && percentageDifference <= 1) {
-    return statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.message;
-  } else if (percentageDifference > 1) {
-    return statusLabels.STATUS_LABEL_ABOVE_THRESHOLD.message;
-  } else if (percentageDifference < -1) {
-    return statusLabels.STATUS_LABEL_BELOW_THRESHOLD.message;
-  }
-  throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
-};
-
-export const getItemsByContractIdYearMonth = async (
+export const getInvoicesByContractIdYearMonth = async (
   contractId: number,
   year: string,
   month: string
 ): Promise<FullExtractData[]> => {
   const testDataFilePath = getTestDataFilePath();
-  const { data } = getExtractDataFromJson(testDataFilePath);
+  const data = getExtractDataFromJson(testDataFilePath);
   return data
     .filter(
       (row) =>
@@ -210,25 +77,5 @@ export const getItemsByContractIdYearMonth = async (
         row.year === year &&
         row.month === month
     )
-    .map(formatInvoiceData);
-};
-
-const formatInvoiceData = (row: FullExtractData): FullExtractData => {
-  if (row.billing_quantity === "") {
-    return {
-      ...row,
-      billing_quantity: "Invoice data missing",
-      billing_price_formatted: "Invoice data missing",
-      billing_amount_with_tax: "Invoice data missing",
-      billing_unit_price: "Invoice data missing",
-    };
-  }
-  if (row.transaction_quantity === "") {
-    return {
-      ...row,
-      transaction_quantity: "Events missing",
-      transaction_price_formatted: "Events missing",
-    };
-  }
-  return row;
+    .map(formatInvoiceDataFromJson);
 };

@@ -1,19 +1,20 @@
-import InvoicePage from "../pageobjects/invoicePage";
-import {
-  getTestDataFilePath,
-  getUniqueVendorNamesFromJson,
-  getUniqueVendorIdsFromJson,
-  getUniqueInvoiceMonthsYearsByVendor,
-  getBannerColorFromPercentagePriceDifference,
-  getPriceDifferencePercentageFromJson,
-  getItemsByContractIdYearMonth,
-  getStatusFromPercentagePriceDifference,
-  formatPercentageDifference,
-  FullExtractData,
-  getBannerMessageFromPercentagePriceDifference,
-} from "../utils/extractTestDatajson";
-import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
 import { waitForPageLoad } from "../helpers/waits";
+import InvoicePage from "../pageobjects/invoicePage";
+import { formatPercentageDifference } from "../utils/dataFormatters";
+import {
+  FullExtractData,
+  getInvoicesByContractIdYearMonth,
+  getTestDataFilePath,
+  getPriceDifferencePercentageFromJson,
+} from "../utils/extractTestDatajson";
+import { generateStatusFromPercentagePriceDifference } from "../utils/generateStatus";
+import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
+import { generateBannerDetailsFromPercentagePriceDifference } from "../utils/statusBanner";
+import {
+  getUniqueVendorNamesFromJson,
+  getUniqueInvoiceMonthsYearsByVendor,
+  getUniqueVendorIdsFromJson,
+} from "../utils/vendorContract";
 
 const openInvoicePage = async (
   contractId: number,
@@ -26,24 +27,35 @@ const openInvoicePage = async (
   expect(await browser.getUrl()).toContain(`${year}-${month}`);
 };
 
+const setupPageAndGetData = async (
+  vendorId: string,
+  year: string,
+  month: string
+): Promise<FullExtractData[]> => {
+  const contractId = await getVendorContractIdFromConfig(vendorId);
+  await openInvoicePage(contractId, year, month);
+  return await getInvoicesByContractIdYearMonth(contractId, year, month);
+};
+
 describe("Invoice Page Test", () => {
   const testDataFilePath = getTestDataFilePath();
   const vendorsNameFromJson = getUniqueVendorNamesFromJson(testDataFilePath);
 
   for (const vendor of vendorsNameFromJson) {
-    const uniqueYearsMonths = getUniqueInvoiceMonthsYearsByVendor(vendor);
+    const { monthYears } = getUniqueInvoiceMonthsYearsByVendor(vendor);
+    const uniqueYearsMonths = Array.from(monthYears);
+
     for (const monthYear of uniqueYearsMonths) {
       const [year, month] = monthYear.split("-");
       const vendorIds = getUniqueVendorIdsFromJson(vendor);
+
       for (const vendorId of vendorIds) {
         describe(`Vendor: ${vendor},Invoice:${year}-${month}`, () => {
-          let filteredItems: FullExtractData[] = [];
+          let filteredInvoiceItems: FullExtractData[] = [];
 
           beforeEach(async () => {
-            const contractId = await getVendorContractIdFromConfig(vendorId);
-            await openInvoicePage(contractId, year, month);
-            filteredItems = await getItemsByContractIdYearMonth(
-              contractId,
+            filteredInvoiceItems = await setupPageAndGetData(
+              vendorId,
               year,
               month
             );
@@ -53,16 +65,16 @@ describe("Invoice Page Test", () => {
             const priceDifferencePercentage =
               getPriceDifferencePercentageFromJson(vendor, year, month);
             const expectedBannerColor =
-              getBannerColorFromPercentagePriceDifference(
+              generateBannerDetailsFromPercentagePriceDifference(
                 priceDifferencePercentage
-              );
+              ).bannerColor;
             expect(await InvoicePage.getStatusBannerColor()).toEqual(
               expectedBannerColor
             );
             expect(await InvoicePage.getStatusBannerTitle()).toEqual(
-              getBannerMessageFromPercentagePriceDifference(
+              generateBannerDetailsFromPercentagePriceDifference(
                 priceDifferencePercentage
-              )
+              ).bannerMessage
             );
           });
 
@@ -70,10 +82,10 @@ describe("Invoice Page Test", () => {
             const tableDataFromUI = await InvoicePage.getTableData(
               await InvoicePage.reconciliationTable
             );
-            for (let i = 0; i < filteredItems.length; i++) {
+            for (let i = 0; i < filteredInvoiceItems.length; i++) {
               assertReconciliationTableData(
                 tableDataFromUI[i],
-                filteredItems[i]
+                filteredInvoiceItems[i]
               );
             }
           });
@@ -82,8 +94,11 @@ describe("Invoice Page Test", () => {
             const tableDataFromUI = await InvoicePage.getTableData(
               await InvoicePage.quantityTable
             );
-            for (let i = 0; i < filteredItems.length; i++) {
-              assertQuantityTableData(tableDataFromUI[i], filteredItems[i]);
+            for (let i = 0; i < filteredInvoiceItems.length; i++) {
+              assertQuantityTableData(
+                tableDataFromUI[i],
+                filteredInvoiceItems[i]
+              );
             }
           });
 
@@ -91,8 +106,8 @@ describe("Invoice Page Test", () => {
             const tableDataFromUI = await InvoicePage.getTableData(
               await InvoicePage.priceTable
             );
-            for (let i = 0; i < filteredItems.length; i++) {
-              assertPriceTableData(tableDataFromUI[i], filteredItems[i]);
+            for (let i = 0; i < filteredInvoiceItems.length; i++) {
+              assertPriceTableData(tableDataFromUI[i], filteredInvoiceItems[i]);
             }
           });
 
@@ -100,8 +115,11 @@ describe("Invoice Page Test", () => {
             const tableDataFromUI = await InvoicePage.getTableData(
               await InvoicePage.measuredTable
             );
-            for (let i = 0; i < filteredItems.length; i++) {
-              assertMeasuredTableData(tableDataFromUI[i], filteredItems[i]);
+            for (let i = 0; i < filteredInvoiceItems.length; i++) {
+              assertMeasuredTableData(
+                tableDataFromUI[i],
+                filteredInvoiceItems[i]
+              );
             }
           });
 
@@ -110,8 +128,11 @@ describe("Invoice Page Test", () => {
               await InvoicePage.invoiceTable
             );
 
-            for (let i = 0; i < filteredItems.length; i++) {
-              assertInvoiceTableData(tableDataFromUI[i], filteredItems[i]);
+            for (let i = 0; i < filteredInvoiceItems.length; i++) {
+              assertInvoiceTableData(
+                tableDataFromUI[i],
+                filteredInvoiceItems[i]
+              );
             }
           });
         });
@@ -133,7 +154,7 @@ const assertReconciliationTableData = (
     formatPercentageDifference(filteredItem.price_difference_percentage)
   );
   expect(tableRow.Status).toEqual(
-    getStatusFromPercentagePriceDifference(
+    generateStatusFromPercentagePriceDifference(
       filteredItem.price_difference_percentage
     )
   );

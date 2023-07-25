@@ -1,6 +1,6 @@
 export const TEST_DATA_FILE_PATH = "../testData/testData.json";
 
-export enum InvoiceBannerStatus {
+export enum InvoiceStates {
   invoiceAndEventsMissing = "Invoice and events missing",
   noCharge = "No charge",
   unableToFindRate = "Unable to find rate",
@@ -42,27 +42,27 @@ export const percentageDiscrepancySpecialCase: Record<
   { bannerText: string; bannerColor: string; statusLabel: string }
 > = {
   "-1234567.01": {
-    bannerText: InvoiceBannerStatus.noCharge,
+    bannerText: InvoiceStates.noCharge,
     bannerColor: Color.green, // bug BTM-709
     statusLabel: statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.message,
   },
   "-1234567.02": {
-    bannerText: InvoiceBannerStatus.unableToFindRate,
+    bannerText: InvoiceStates.unableToFindRate,
     bannerColor: Color.grey,
     statusLabel: statusLabels.STATUS_LABEL_ERROR.message,
   },
   "-1234567.03": {
-    bannerText: InvoiceBannerStatus.invoiceDataMissing,
+    bannerText: InvoiceStates.invoiceDataMissing,
     bannerColor: Color.grey,
     statusLabel: statusLabels.STATUS_LABEL_PENDING.message,
   },
   "-1234567.04": {
-    bannerText: InvoiceBannerStatus.eventsMissing,
+    bannerText: InvoiceStates.eventsMissing,
     bannerColor: Color.grey,
     statusLabel: statusLabels.STATUS_LABEL_ERROR.message,
   },
   "-1234567.05": {
-    bannerText: InvoiceBannerStatus.unexpectedInvoiceCharge,
+    bannerText: InvoiceStates.unexpectedInvoiceCharge,
     bannerColor: Color.grey, // bug BTM-710
     statusLabel: statusLabels.STATUS_LABEL_ABOVE_THRESHOLD.message, // bug BTM-710
   },

@@ -1,12 +1,12 @@
 import { waitForPageLoad } from "../helpers/waits";
 import InvoicesListPage from "../pageobjects/invoicesListPage";
+import { getTestDataFilePath } from "../utils/extractTestDatajson";
 import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
 import {
-  getUniqueInvoiceMonthsYearsByVendorCount,
-  getTestDataFilePath,
   getUniqueVendorNamesFromJson,
   getUniqueVendorIdsFromJson,
-} from "../utils/extractTestDatajson";
+  getUniqueInvoiceMonthsYearsByVendor,
+} from "../utils/vendorContract";
 
 /* UI tests for Invoices List Page. It verifies that the correct vendor name is displayed on the page.
 It includes tests to ensure that the unique invoice count for each vendor matches the count obtained from the UI */
@@ -29,15 +29,14 @@ describe("InvoicesList Page", () => {
 
   vendorsNameFromJson.forEach((vendor) => {
     it(`should return the correct unique invoice count for ${vendor}`, async () => {
-      const uniqueInvoiceCount =
-        getUniqueInvoiceMonthsYearsByVendorCount(vendor);
+      const { count } = getUniqueInvoiceMonthsYearsByVendor(vendor);
       const vendorIds = getUniqueVendorIdsFromJson(vendor);
       for (const vendorId of vendorIds) {
         const contractId = await getVendorContractIdFromConfig(vendorId);
         await InvoicesListPage.open(`contracts/${contractId}/invoices`);
         await waitForPageLoad();
         const invoiceCountFromUI = await InvoicesListPage.getInvoiceCount();
-        expect(uniqueInvoiceCount).toEqual(invoiceCountFromUI);
+        expect(count).toEqual(invoiceCountFromUI);
       }
     });
   });
