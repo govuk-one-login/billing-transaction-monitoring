@@ -26,30 +26,32 @@ const openInvoicePage = async (
   expect(await browser.getUrl()).toContain(`${year}-${month}`);
 };
 
-describe("Invoice Page Test", async () => {
+describe("Invoice Page Test", () => {
   const testDataFilePath = getTestDataFilePath();
   const vendorsNameFromJson = getUniqueVendorNamesFromJson(testDataFilePath);
-  for (const vendor of vendorsNameFromJson) {
-    const vendorIds = getUniqueVendorIdsFromJson(vendor);
-    for (const vendorId of vendorIds) {
-      const uniqueYearsMonths = getUniqueInvoiceMonthsYearsByVendor(vendor);
-      for (const monthYear of uniqueYearsMonths) {
-        const [year, month] = monthYear.split("-");
 
+  for (const vendor of vendorsNameFromJson) {
+    const uniqueYearsMonths = getUniqueInvoiceMonthsYearsByVendor(vendor);
+    for (const monthYear of uniqueYearsMonths) {
+      const [year, month] = monthYear.split("-");
+      const vendorIds = getUniqueVendorIdsFromJson(vendor);
+      for (const vendorId of vendorIds) {
         describe(`Vendor: ${vendor},Invoice:${year}-${month}`, () => {
-          let contractId: number = 0;
+          let filteredItems: FullExtractData[] = [];
+
           beforeEach(async () => {
-            contractId = await getVendorContractIdFromConfig(vendorId);
+            const contractId = await getVendorContractIdFromConfig(vendorId);
             await openInvoicePage(contractId, year, month);
+            filteredItems = await getItemsByContractIdYearMonth(
+              contractId,
+              year,
+              month
+            );
           });
 
           it(`should display correct status banner color and message`, async () => {
             const priceDifferencePercentage =
-              getPriceDifferencePercentageFromJson(year, month);
-            console.log(
-              priceDifferencePercentage.toString() +
-                ` ${vendor} ${year} ${month}`
-            );
+              getPriceDifferencePercentageFromJson(vendor, year, month);
             const expectedBannerColor =
               getBannerColorFromPercentagePriceDifference(
                 priceDifferencePercentage
@@ -57,11 +59,6 @@ describe("Invoice Page Test", async () => {
             expect(await InvoicePage.getStatusBannerColor()).toEqual(
               expectedBannerColor
             );
-            console.log(
-              priceDifferencePercentage.toString() +
-                `${vendor} ${year} ${month}`
-            );
-
             expect(await InvoicePage.getStatusBannerTitle()).toEqual(
               getBannerMessageFromPercentagePriceDifference(
                 priceDifferencePercentage
@@ -72,11 +69,6 @@ describe("Invoice Page Test", async () => {
           it(`should validate reconciliation table data`, async () => {
             const tableDataFromUI = await InvoicePage.getTableData(
               await InvoicePage.reconciliationTable
-            );
-            const filteredItems = await getItemsByContractIdYearMonth(
-              contractId,
-              year,
-              month
             );
             for (let i = 0; i < filteredItems.length; i++) {
               assertReconciliationTableData(
@@ -90,11 +82,6 @@ describe("Invoice Page Test", async () => {
             const tableDataFromUI = await InvoicePage.getTableData(
               await InvoicePage.quantityTable
             );
-            const filteredItems = await getItemsByContractIdYearMonth(
-              contractId,
-              year,
-              month
-            );
             for (let i = 0; i < filteredItems.length; i++) {
               assertQuantityTableData(tableDataFromUI[i], filteredItems[i]);
             }
@@ -103,11 +90,6 @@ describe("Invoice Page Test", async () => {
           it(`should validate price table data`, async () => {
             const tableDataFromUI = await InvoicePage.getTableData(
               await InvoicePage.priceTable
-            );
-            const filteredItems = await getItemsByContractIdYearMonth(
-              contractId,
-              year,
-              month
             );
             for (let i = 0; i < filteredItems.length; i++) {
               assertPriceTableData(tableDataFromUI[i], filteredItems[i]);
@@ -118,11 +100,6 @@ describe("Invoice Page Test", async () => {
             const tableDataFromUI = await InvoicePage.getTableData(
               await InvoicePage.measuredTable
             );
-            const filteredItems = await getItemsByContractIdYearMonth(
-              contractId,
-              year,
-              month
-            );
             for (let i = 0; i < filteredItems.length; i++) {
               assertMeasuredTableData(tableDataFromUI[i], filteredItems[i]);
             }
@@ -132,11 +109,7 @@ describe("Invoice Page Test", async () => {
             const tableDataFromUI = await InvoicePage.getTableData(
               await InvoicePage.invoiceTable
             );
-            const filteredItems = await getItemsByContractIdYearMonth(
-              contractId,
-              year,
-              month
-            );
+
             for (let i = 0; i < filteredItems.length; i++) {
               assertInvoiceTableData(tableDataFromUI[i], filteredItems[i]);
             }
@@ -155,7 +128,7 @@ const assertReconciliationTableData = (
   expect(tableRow["Quantity Discrepancy"]).toEqual(
     filteredItem.quantity_difference
   );
-  // expect(tableRow['Price Discrepancy']).toEqual(filteredItem.price_difference)
+  expect(tableRow["Price Discrepancy"]).toEqual(filteredItem.price_difference); // bug 713 currency issue
   expect(tableRow["Percentage Discrepancy"]).toEqual(
     formatPercentageDifference(filteredItem.price_difference_percentage)
   );
@@ -210,5 +183,5 @@ const assertInvoiceTableData = (
   expect(tableRow.Quantity).toEqual(filteredItem.billing_quantity);
   expect(tableRow["Unit Price"]).toEqual(filteredItem.billing_unit_price);
   expect(tableRow.Total).toEqual(filteredItem.billing_price_formatted);
-  expect(tableRow["Total + VAT"]).toEqual(filteredItem.billing_amount_with_tax);
+  expect(tableRow["Total + VAT"]).toEqual(filteredItem.billing_amount_with_tax); // bug 714 and 715 message in the table
 };

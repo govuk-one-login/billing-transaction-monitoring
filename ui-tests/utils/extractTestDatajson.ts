@@ -1,7 +1,8 @@
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import {
+import { InvoiceBannerStatus, statusLabels ,
+  Color,
   percentageDiscrepancySpecialCase,
   TEST_DATA_FILE_PATH,
 } from "./constants";
@@ -106,16 +107,19 @@ export const getUniqueVendorIdsFromJson = (vendorName: string): string[] => {
 };
 
 export const getPriceDifferencePercentageFromJson = (
+  vendor: string,
   year: string,
   month: string
 ): number => {
   const testDataFilePath = getTestDataFilePath();
   const { data } = getExtractDataFromJson(testDataFilePath);
   const invoice = data.find(
-    (entry) => entry.year === year && entry.month === month
+    (entry) =>
+      entry.vendor_name === vendor &&
+      entry.year === year &&
+      entry.month === month
   );
   if (invoice) {
-    console.log(invoice.price_difference_percentage);
     return invoice.price_difference_percentage;
   }
   throw new Error(
@@ -127,18 +131,14 @@ export const getBannerColorFromPercentagePriceDifference = (
   percentageDifference: number
 ): string => {
   if (percentageDiscrepancySpecialCase[percentageDifference]) {
-    console.log(
-      "INSIDE FIRST CHECK LOOP:",
-      percentageDiscrepancySpecialCase[percentageDifference]
-    );
     return percentageDiscrepancySpecialCase[percentageDifference].bannerColor;
   }
   if (percentageDifference >= -1 && percentageDifference <= 1) {
-    return "#00703c"; // green
+    return Color.green;
   } else if (percentageDifference > 1) {
-    return "#d4351c"; // red
+    return Color.red;
   } else if (percentageDifference < -1) {
-    return "#1d70b8"; // blue
+    return Color.blue;
   }
   throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
 };
@@ -150,11 +150,11 @@ export const getBannerMessageFromPercentagePriceDifference = (
     return percentageDiscrepancySpecialCase[percentageDifference].bannerText;
   }
   if (percentageDifference >= -1 && percentageDifference <= 1) {
-    return "Invoice within threshold";
+    return InvoiceBannerStatus.invoiceWithinThreshold;
   } else if (percentageDifference > 1) {
-    return "Invoice above threshold";
+    return InvoiceBannerStatus.invoiceAboveThreshold;
   } else if (percentageDifference < -1) {
-    return "Invoice below threshold";
+    return InvoiceBannerStatus.invoiceBelowThreshold;
   }
   throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
 };
@@ -171,8 +171,10 @@ export const formatPercentageDifference = (
     return percentageDiscrepancySpecialCase[percentageDifference].bannerText;
   }
   if (percentageDifference >= -1 && percentageDifference <= 1) {
-    return formattedPercentage; // green
+    return formattedPercentage;
   } else if (percentageDifference > 1) {
+    return formattedPercentage;
+  } else if (percentageDifference < -1) {
     return formattedPercentage;
   }
   throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
@@ -185,14 +187,13 @@ export const getStatusFromPercentagePriceDifference = (
     return percentageDiscrepancySpecialCase[percentageDifference].statusLabel;
   }
   if (percentageDifference >= -1 && percentageDifference <= 1) {
-    return "WITHIN THRESHOLD"; // green
+    return statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.message;
   } else if (percentageDifference > 1) {
-    return "ABOVE THRESHOLD"; // red
+    return statusLabels.STATUS_LABEL_ABOVE_THRESHOLD.message;
   } else if (percentageDifference < -1) {
-    return "BELOW THRESHOLD"; // blue
-  } else {
-    return "NO FOUND";
+    return statusLabels.STATUS_LABEL_BELOW_THRESHOLD.message;
   }
+  throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
 };
 
 export const getItemsByContractIdYearMonth = async (
