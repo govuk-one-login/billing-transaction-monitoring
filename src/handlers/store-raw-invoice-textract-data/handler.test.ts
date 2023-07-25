@@ -1,6 +1,10 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
+import { getFromEnv } from "../../shared/utils/env";
 import { handler } from "./handler";
 import { storeExpenseDocuments } from "./store-expense-documents";
+
+jest.mock("../../shared/utils/env");
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 
 jest.mock("../../shared/utils/logger");
 
@@ -10,26 +14,20 @@ const mockedStoreExpenseDocuments = storeExpenseDocuments as jest.MockedFn<
 >;
 
 describe("Store Raw Invoice Textract Data handler tests", () => {
-  const OLD_ENV = process.env;
+  let mockedEnv: Partial<Record<string, string>>;
   let givenEvent: SQSEvent;
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    process.env = {
-      ...OLD_ENV,
-      DESTINATION_BUCKET: "given destination bucket",
-    };
+    mockedEnv = { DESTINATION_BUCKET: "given destination bucket" };
+    mockedGetFromEnv.mockImplementation((key) => mockedEnv[key]);
 
     givenEvent = { Records: [] };
   });
 
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
-
   test("Store Raw Invoice Textract Data handler with no destination bucket set", async () => {
-    delete process.env.DESTINATION_BUCKET;
+    delete mockedEnv.DESTINATION_BUCKET;
 
     let resultError;
     try {
@@ -57,11 +55,11 @@ describe("Store Raw Invoice Textract Data handler tests", () => {
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledTimes(2);
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
       givenRecord1,
-      process.env.DESTINATION_BUCKET
+      mockedEnv.DESTINATION_BUCKET
     );
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
       givenRecord2,
-      process.env.DESTINATION_BUCKET
+      mockedEnv.DESTINATION_BUCKET
     );
     expect(result).toEqual({
       batchItemFailures: [
@@ -87,11 +85,11 @@ describe("Store Raw Invoice Textract Data handler tests", () => {
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledTimes(2);
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
       givenRecord1,
-      process.env.DESTINATION_BUCKET
+      mockedEnv.DESTINATION_BUCKET
     );
     expect(mockedStoreExpenseDocuments).toHaveBeenCalledWith(
       givenRecord2,
-      process.env.DESTINATION_BUCKET
+      mockedEnv.DESTINATION_BUCKET
     );
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given record 1 message ID" }],

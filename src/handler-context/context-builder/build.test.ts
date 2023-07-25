@@ -2,8 +2,12 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { ConfigElements } from "../../shared/constants";
 import { HandlerOptions } from "../types";
 import { buildContext } from "./build";
+import { getFromEnv } from "../../shared/utils/env";
 
 jest.mock("../../shared/utils/config-utils/s3-config-client");
+
+jest.mock("../../shared/utils/env");
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 
 interface TestMessage {
   a: string;
@@ -12,16 +16,21 @@ interface TestMessage {
 }
 
 describe("buildContext", () => {
+  let mockedEnv: Partial<Record<string, string>>;
   let mockStoreFunction1: jest.Mock;
   let mockStoreFunction2: jest.Mock;
   let testLogger: Logger;
   let testOptions: HandlerOptions<any, any, any, any>;
 
   beforeEach(() => {
-    process.env.THIS = "this";
-    process.env.THAT = "that";
-    process.env.THE_OTHER = "the other";
-    process.env.CONFIG_BUCKET = "mock-config-bucket";
+    mockedEnv = {
+      THIS: "this",
+      THAT: "that",
+      THE_OTHER: "the other",
+      CONFIG_BUCKET: "mock-config-bucket",
+    };
+
+    mockedGetFromEnv.mockImplementation((key) => mockedEnv[key]);
 
     mockStoreFunction1 = jest.fn();
     mockStoreFunction2 = jest.fn();
@@ -50,13 +59,6 @@ describe("buildContext", () => {
     } as any;
   });
 
-  afterAll(() => {
-    delete process.env.THIS;
-    delete process.env.THAT;
-    delete process.env.THE_OTHER;
-    delete process.env.CONFIG_BUCKET;
-  });
-
   it("builds context elements which don't depend on events", async () => {
     const ctx = await buildContext(testLogger, testOptions);
     expect(ctx.env).toEqual({
@@ -73,7 +75,7 @@ describe("buildContext", () => {
   });
 
   it("Throws an error if any of the requested env vars are not present", async () => {
-    delete process.env.THE_OTHER;
+    delete mockedEnv.THE_OTHER;
     try {
       await buildContext(testLogger, testOptions);
     } catch (error) {
