@@ -22,7 +22,7 @@ export type FullExtractData = {
   transaction_quantity: string;
   quantity_difference: string;
   billing_amount_with_tax: string;
-  price_difference_percentage: string;
+  price_difference_percentage: number;
 };
 
 export const getTestDataFilePath = (): string => {
@@ -32,7 +32,7 @@ export const getTestDataFilePath = (): string => {
   return testDataFilePath;
 };
 
-export const geJsonDataFromFile = (filePath: string): string => {
+export const readJsonDataFromFile = (filePath: string): string => {
   const fileContent = fs.readFileSync(filePath, "utf-8");
   return fileContent;
 };
@@ -41,7 +41,7 @@ export const getExtractDataFromJson = (
   filePath: string
 ): { data: FullExtractData[]; content: string } => {
   const jsonArray =
-    "[" + geJsonDataFromFile(filePath).replace(/\n/g, ",") + "]";
+    "[" + readJsonDataFromFile(filePath).replace(/\n/g, ",") + "]";
   const json: FullExtractData[] = JSON.parse(jsonArray);
   return { data: json, content: jsonArray };
 };
@@ -53,7 +53,7 @@ export const getUniqueVendorNamesFromJson = (filePath: string): string[] => {
   return uniqueVendorNames;
 };
 
-export const getUniqueContractIdFromJson = (filePath: string): number[] => {
+export const getUniqueContractIdsFromJson = (filePath: string): number[] => {
   const { data } = getExtractDataFromJson(filePath);
   const contractIds = data.map((obj) => obj.contract_id);
   const uniqueContractIds = [...new Set(contractIds)];
@@ -115,7 +115,8 @@ export const getPriceDifferencePercentageFromJson = (
     (entry) => entry.year === year && entry.month === month
   );
   if (invoice) {
-    return parseFloat(invoice.price_difference_percentage);
+    console.log(invoice.price_difference_percentage);
+    return invoice.price_difference_percentage;
   }
   throw new Error(
     `price difference percentage not found for year: ${year} and month ${month}`
@@ -158,7 +159,7 @@ export const getBannerMessageFromPercentagePriceDifference = (
   throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
 };
 
-export const getPercentagePriceDifference = (
+export const formatPercentageDifference = (
   percentageDifference: number
 ): string => {
   const formattedPercentage = new Intl.NumberFormat("en-US", {
@@ -208,26 +209,25 @@ export const getItemsByContractIdYearMonth = async (
         row.year === year &&
         row.month === month
     )
-    .map((row) => {
-      if (row.billing_quantity === "") {
-        return {
-          ...row,
-          billing_quantity: "Invoice data missing",
-          billing_price_formatted: "Invoice data missing",
-          billing_amount_with_tax: "Invoice data missing",
-          billing_unit_price: "Invoice data missing",
-        };
-      }
-      if (
-        row.transaction_quantity === "" &&
-        row.transaction_price_formatted === ""
-      ) {
-        return {
-          ...row,
-          transaction_quantity: "Events missing",
-          transaction_price_formatted: "Events missing",
-        };
-      }
-      return row;
-    });
+    .map(formatInvoiceData);
+};
+
+const formatInvoiceData = (row: FullExtractData): FullExtractData => {
+  if (row.billing_quantity === "") {
+    return {
+      ...row,
+      billing_quantity: "Invoice data missing",
+      billing_price_formatted: "Invoice data missing",
+      billing_amount_with_tax: "Invoice data missing",
+      billing_unit_price: "Invoice data missing",
+    };
+  }
+  if (row.transaction_quantity === "") {
+    return {
+      ...row,
+      transaction_quantity: "Events missing",
+      transaction_price_formatted: "Events missing",
+    };
+  }
+  return row;
 };

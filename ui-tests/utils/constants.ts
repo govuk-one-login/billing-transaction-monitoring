@@ -26,8 +26,8 @@ export const percentageDiscrepancySpecialCase: Record<
   },
   "-1234567.05": {
     bannerText: "Unexpected invoice charge",
-    bannerColor: "#b1b4b6", // grey
-    statusLabel: "ABOVE THRESHOLD",
+    bannerColor: "#b1b4b6", // grey  // bug BTM-710
+    statusLabel: "ABOVE THRESHOLD", // bug BTM-710
   },
 
   "-100": {

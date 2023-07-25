@@ -8,7 +8,7 @@ import {
   getPriceDifferencePercentageFromJson,
   getItemsByContractIdYearMonth,
   getStatusFromPercentagePriceDifference,
-  getPercentagePriceDifference,
+  formatPercentageDifference,
   FullExtractData,
   getBannerMessageFromPercentagePriceDifference,
 } from "../utils/extractTestDatajson";
@@ -43,7 +43,7 @@ describe("Invoice Page Test", async () => {
             await openInvoicePage(contractId, year, month);
           });
 
-          it.only(`should display correct status banner color and message`, async () => {
+          it(`should display correct status banner color and message`, async () => {
             const priceDifferencePercentage =
               getPriceDifferencePercentageFromJson(year, month);
             console.log(
@@ -157,13 +157,11 @@ const assertReconciliationTableData = (
   );
   // expect(tableRow['Price Discrepancy']).toEqual(filteredItem.price_difference)
   expect(tableRow["Percentage Discrepancy"]).toEqual(
-    getPercentagePriceDifference(
-      parseFloat(filteredItem.price_difference_percentage)
-    )
+    formatPercentageDifference(filteredItem.price_difference_percentage)
   );
   expect(tableRow.Status).toEqual(
     getStatusFromPercentagePriceDifference(
-      parseFloat(filteredItem.price_difference_percentage)
+      filteredItem.price_difference_percentage
     )
   );
 };
