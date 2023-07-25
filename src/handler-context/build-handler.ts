@@ -5,12 +5,12 @@ import { makeIncomingMessages } from "./make-incoming-messages";
 import { HandlerOptions, HandlerMessageBody } from "./types";
 import { outputMessages } from "./output-messages";
 import { runBusinessLogic } from "./run-business-logic";
-import { logger } from "../shared/utils";
+import { EnvVarName, logger } from "../shared/utils";
 
 export const buildHandler =
   <
     TIncomingMessageBody extends HandlerMessageBody,
-    TEnvVars extends string,
+    TEnvVars extends EnvVarName,
     TConfigElements extends ConfigElements,
     TOutgoingMessageBody extends HandlerMessageBody
   >(

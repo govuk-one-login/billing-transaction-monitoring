@@ -1,22 +1,22 @@
-import { getFromEnv } from "./env";
+import { EnvVarName, getFromEnv } from "./env";
 
 describe("Environment Variable Getter", () => {
-  let mockedDefinedVariableName: string;
-  let mockedDefinedVariableValue: string;
-  let mockedUndefinedVariableName: string;
+  let mockedDefinedVarName: EnvVarName;
+  let mockedDefinedVarValue: string;
+  let mockedUndefinedVarName: EnvVarName;
   let oldEnv: any;
 
   beforeEach(() => {
     oldEnv = process.env;
 
-    mockedDefinedVariableName = "MOCKED_DEFINED_VARIABLE_NAME";
-    mockedDefinedVariableValue = "mocked defined variable value";
-    mockedUndefinedVariableName = "MOCKED_UNDEFINED_VARIABLE_NAME";
+    mockedDefinedVarName = "MOCKED_DEFINED_VARIABLE_NAME" as any;
+    mockedDefinedVarValue = "mocked defined variable value";
+    mockedUndefinedVarName = "MOCKED_UNDEFINED_VARIABLE_NAME" as any;
 
     process.env = {
       ...oldEnv,
-      [mockedDefinedVariableName]: mockedDefinedVariableValue,
-      [mockedUndefinedVariableName]: undefined,
+      [mockedDefinedVarName]: mockedDefinedVarValue,
+      [mockedUndefinedVarName]: undefined,
     };
   });
 
@@ -25,14 +25,14 @@ describe("Environment Variable Getter", () => {
   });
 
   test("Environment Variable Getter with defined variable", () => {
-    const givenVariableName = mockedDefinedVariableName;
-    const result = getFromEnv(givenVariableName);
-    expect(result).toBe(mockedDefinedVariableValue);
+    const givenVarName = mockedDefinedVarName;
+    const result = getFromEnv(givenVarName);
+    expect(result).toBe(mockedDefinedVarValue);
   });
 
-  test("Environment Variable Getter with defined variable", () => {
-    const givenVariableName = mockedUndefinedVariableName;
-    const result = getFromEnv(givenVariableName);
+  test("Environment Variable Getter with undefined variable", () => {
+    const givenVarName = mockedUndefinedVarName;
+    const result = getFromEnv(givenVarName);
     expect(result).toBe(undefined);
   });
 });

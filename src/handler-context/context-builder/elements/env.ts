@@ -1,7 +1,7 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { getFromEnv } from "../../../shared/utils";
+import { EnvVarName, getFromEnv } from "../../../shared/utils";
 
-export const makeCtxEnv = <TEnvVars extends string>(
+export const makeCtxEnv = <TEnvVars extends EnvVarName>(
   envVarsKeys: TEnvVars[],
   logger: Logger
 ): Record<TEnvVars, string> => {
