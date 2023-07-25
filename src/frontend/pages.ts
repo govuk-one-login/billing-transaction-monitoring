@@ -93,15 +93,10 @@ const getPageParams = async <TParams, TReturn>(
 export const getHandler = <TParams, TReturn>(
   page: Page<TParams, TReturn>
 ): RequestHandler<TParams> => {
-  return async (request: Request<TParams>, response, next) => {
-    try {
-      response.render(
-        page.njk,
-        (await getPageParams(page, request, response)) as object
-      );
-    } catch (error) {
-      next(error);
-    }
+  return (request: Request<TParams>, response, next) => {
+    getPageParams(page, request, response)
+      .then((pageParams) => response.render(page.njk, pageParams as object))
+      .catch((error) => next(error));
   };
 };
 
