@@ -1,8 +1,9 @@
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { logger } from "./logger";
+import { AWS_REGION } from "../constants";
 
 const sqs = new SQSClient({
-  region: "eu-west-2",
+  region: AWS_REGION,
   endpoint: process.env.LOCAL_ENDPOINT,
 });
 

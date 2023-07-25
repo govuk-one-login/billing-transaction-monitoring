@@ -1,6 +1,7 @@
 import AWS from "aws-sdk";
+import { AWS_REGION } from "../../constants";
 
 export const kms = new AWS.KMS({
-  region: "eu-west-2",
+  region: AWS_REGION,
   endpoint: process.env.LOCAL_ENDPOINT,
 });
