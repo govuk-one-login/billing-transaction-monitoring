@@ -17,6 +17,7 @@ import {
   ReconciliationRow,
   OverviewRow,
 } from "./extract-helpers";
+import { errorParamsGetter, errorTitleGetter } from "./handlers/error";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams>
@@ -184,6 +185,19 @@ const authorisationFailedPage: Page<{}, AuthorisationFailedParams> = {
   njk: "authorisation-failed.njk",
   paramsGetter: authorisationFailedParamsGetter,
   titleGetter: authorisationFailedTitleGetter,
+};
+
+export type ErrorPageParams = {
+  headTitle: string;
+  pageTitle: string;
+};
+
+// Do not add to `PAGES` array. Rendered by error handling middleware instead
+export const errorPage: Page<{}, ErrorPageParams> = {
+  relativePath: "",
+  njk: "error.njk",
+  paramsGetter: errorParamsGetter,
+  titleGetter: errorTitleGetter,
 };
 
 export const PAGES = [

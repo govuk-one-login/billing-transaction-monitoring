@@ -5,6 +5,7 @@ import { shouldLoadFromNodeModules } from "./utils/should-load-from-node-modules
 import path from "path";
 import { rootDir } from "./utils/root-dir";
 import { logger } from "../shared/utils";
+import { errorPage, getHandler } from "./pages";
 
 export type Middlewares = Array<{ handler: RequestHandler; route?: string }>;
 
@@ -56,8 +57,14 @@ export const unitTestMiddleware: Middlewares = [
   { handler: staticStyles, route: "/assets/styles" },
 ];
 
-export const handleErrors: ErrorRequestHandler = (error, _, response, __) => {
+export const handleErrors: ErrorRequestHandler = (
+  error,
+  request,
+  response,
+  next
+) => {
   logger.error("Express app error", { error });
+  const errorPageHandler = getHandler(errorPage);
   response.status(500);
-  response.render("error.njk");
+  errorPageHandler(request, response, next);
 };
