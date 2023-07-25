@@ -1,7 +1,7 @@
+import { ConfigElements } from "../../constants";
 import { configFileMap, getConfigFile } from "./s3-config-client";
-import { ConfigElements } from "./types";
 
-jest.mock("../../shared/utils/s3", () => ({
+jest.mock("../s3", () => ({
   fetchS3: jest.fn((_bucket, path) => {
     if (path === configFileMap[ConfigElements.rates])
       return `vendor_id,event_name,volumes_from,volumes_to,unit_price,effective_from,effective_to

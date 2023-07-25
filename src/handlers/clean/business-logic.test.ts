@@ -1,4 +1,5 @@
-import { ConfigElements, HandlerCtx } from "../../handler-context";
+import { HandlerCtx } from "../../handler-context";
+import { ConfigElements } from "../../shared/constants";
 import { getVendorId } from "../../shared/utils";
 import { businessLogic } from "./business-logic";
 import { IncomingEventBody } from "./types";

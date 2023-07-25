@@ -1,13 +1,13 @@
+import { ConfigElements } from "../../constants";
 import {
   ConfigCache,
   ConfigContractsRow,
-  ConfigElements,
   ConfigRatesRow,
   ConfigServicesRow,
   GetConfigFile,
-} from "./types";
-import { Json } from "../../shared/types";
-import { fetchS3 } from "../../shared/utils";
+  Json,
+} from "../../types";
+import { fetchS3 } from "..";
 import { parseConfigCsv } from "./parse-config-csv";
 
 export const configFileMap: Record<ConfigElements, string> = {

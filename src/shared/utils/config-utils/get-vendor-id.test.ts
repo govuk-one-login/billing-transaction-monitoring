@@ -1,8 +1,8 @@
-import { VendorServiceConfig } from "./fetch-vendor-service-config";
+import { ConfigServicesRow } from "../../types";
 import { getVendorId } from "./get-vendor-id";
 
 describe("getVendorId", () => {
-  let givenVendorServiceConfig: VendorServiceConfig;
+  let givenVendorServiceConfig: ConfigServicesRow[];
 
   beforeEach(() => {
     givenVendorServiceConfig = [

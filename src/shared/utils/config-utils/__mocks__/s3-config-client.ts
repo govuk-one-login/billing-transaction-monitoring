@@ -1,4 +1,4 @@
-import { ConfigElements } from "../types";
+import { ConfigElements } from "../../../constants";
 
 export const getConfigFile = jest.fn(async (path) => {
   switch (path) {

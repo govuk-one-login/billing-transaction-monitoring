@@ -1,10 +1,11 @@
 import supertest from "supertest";
 import { app } from "../app";
 import { initApp } from "../init-app";
+import { unitTestMiddleware } from "../middleware";
 
 describe("authorisation failed handler", () => {
   beforeEach(() => {
-    initApp(app);
+    initApp(app, unitTestMiddleware);
   });
 
   test("Page displays title and info", async () => {

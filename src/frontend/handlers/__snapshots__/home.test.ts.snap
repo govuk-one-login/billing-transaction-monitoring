@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`invoices handler Page displays months and years of invoices 1`] = `
+exports[`home page handler Page displays all overview rows 1`] = `
 "<!DOCTYPE html>
 <html lang="en" class="govuk-template ">
   <head>
     <meta charset="utf-8">
     <title>
   
-  C01234 - Vendor One -
+  Billings and reconciliation -
   Billings and Reconciliation
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -83,52 +83,88 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
     
       <div class="govuk-width-container ">
         
-  <div class="govuk-breadcrumbs">
-  <ol class="govuk-breadcrumbs__list">
-  
-    
-    <li class="govuk-breadcrumbs__list-item">
-      <a class="govuk-breadcrumbs__link" href="/">Billings and reconciliation</a>
-    </li>
-    
-  
-    
-    <li class="govuk-breadcrumbs__list-item">
-      <a class="govuk-breadcrumbs__link" href="/contracts">Contracts</a>
-    </li>
-    
-  
-  </ol>
-</div>
-
-
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
-  <h1 class="govuk-heading-l">C01234 - Vendor One</h1>
-  <ul class="govuk-list">
+  <span class="govuk-caption-xl"></span>
+  <h1 class="govuk-heading-xl">Billings and reconciliation</h1>
+  <h2 class="govuk-heading-l">Billings and reconciliation for the OneLogin programme</h2>
+  <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+  <div class="govuk-!-padding-bottom-7"></div>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Overview</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Contract Name</th>
+        <th class="govuk-table__header" scope="col">Vendor</th>
+        <th class="govuk-table__header" scope="col">Month</th>
+        <th class="govuk-table__header" scope="col">Reconciliation Details</th>
+        <th class="govuk-table__header" scope="col">Details</th>
+      </tr>
+    </thead>
     
-      <li>
-        <a class="govuk-link"
-           href="/contracts/1/invoices/2023-03">
-          Mar 2023
-        </a>
-      </li>
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">
+            <a class="govuk-link" href="/contracts/c1/invoices">C01234</a>
+          </td>
+          <td class="govuk-table__cell">Vendor One</td>
+          <td class="govuk-table__cell">Jun 2023</td>
+          <td class="govuk-table__cell">
+            <strong class="govuk-tag govuk-tag--grey">
+  Invoice data missing
+</strong>
+
+          </td>
+          <td class="govuk-table__cell">
+            <a class="govuk-link"
+               href="/contracts/c1/invoices/2023-06">View Invoice</a>
+          </td>
+        </tr>
+      </tbody>
     
-      <li>
-        <a class="govuk-link"
-           href="/contracts/1/invoices/2023-04">
-          Apr 2023
-        </a>
-      </li>
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">
+            <a class="govuk-link" href="/contracts/m2/invoices">MOU</a>
+          </td>
+          <td class="govuk-table__cell">Vendor Two</td>
+          <td class="govuk-table__cell">Jun 2023</td>
+          <td class="govuk-table__cell">
+            <strong class="govuk-tag govuk-tag--green">
+  Invoice within threshold
+</strong>
+
+          </td>
+          <td class="govuk-table__cell">
+            <a class="govuk-link"
+               href="/contracts/m2/invoices/2023-06">View Invoice</a>
+          </td>
+        </tr>
+      </tbody>
     
-      <li>
-        <a class="govuk-link"
-           href="/contracts/1/invoices/2023-10">
-          Oct 2023
-        </a>
-      </li>
-    
-  </ul>
+  </table>
+  <div class="govuk-!-padding-bottom-9"></div>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Navigation</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">
+          <a href="/contracts">Contracts</a>
+        </th>
+        <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
+        <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
+        <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">All current and past contracts with invoices that have been reconciled.</td>
+        <td class="govuk-table__cell"></td>
+        <td class="govuk-table__cell"></td>
+        <td class="govuk-table__cell"></td>
+      </tr>
+    </tbody>
+  </table>
 
         </main>
       </div>

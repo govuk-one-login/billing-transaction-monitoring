@@ -144,7 +144,7 @@ exports[`authorisation failed handler Page displays title and info 1`] = `
     
 
     
-  <script src="/assets/scripts/all.js"></script>
+  <script src="/assets/scripts/all.js" nonce=""></script>
   <script>window.GOVUKFrontend.initAll();</script>
   
   

@@ -11,9 +11,7 @@ export const businessLogic: BusinessLogic<
 > = async (message, { config, logger }) => {
   const events = await convert(message, config);
 
-  const validEvents = events.filter(
-    ({ event_name }) => event_name !== "Unknown"
-  );
+  const validEvents = events.filter((event) => event.event_name !== "Unknown");
 
   const invalidEventCount = events.length - validEvents.length;
 

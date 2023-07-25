@@ -1,6 +1,6 @@
-import { Json } from "../../shared/types";
-import { getConfigFile } from "./s3-config-client";
-import { ConfigElements, PickedConfigCache } from "./types";
+import { ConfigElements } from "../../shared/constants";
+import { Json, PickedConfigCache } from "../../shared/types";
+import { getConfigFile } from "../../shared/utils";
 
 export class Config<TFileName extends ConfigElements> {
   private readonly files: ConfigElements[];

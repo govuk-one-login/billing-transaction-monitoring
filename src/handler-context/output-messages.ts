@@ -1,4 +1,4 @@
-import { ConfigElements } from "./config";
+import { ConfigElements } from "../shared/constants";
 import {
   HandlerCtx,
   HandlerMessageBody,

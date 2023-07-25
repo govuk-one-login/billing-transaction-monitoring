@@ -1,10 +1,45 @@
 {% from "govuk/components/table/macro.njk" import govukTable %}
+{%- from "govuk/components/tag/macro.njk" import govukTag -%}
 {% extends "common/layout/base.njk" %}
 {% block content %}
   <span class="govuk-caption-xl"></span>
   <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
   <h2 class="govuk-heading-l">Billings and reconciliation for the OneLogin programme</h2>
   <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+  <div class="govuk-!-padding-bottom-7"></div>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Overview</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Contract Name</th>
+        <th class="govuk-table__header" scope="col">Vendor</th>
+        <th class="govuk-table__header" scope="col">Month</th>
+        <th class="govuk-table__header" scope="col">Reconciliation Details</th>
+        <th class="govuk-table__header" scope="col">Details</th>
+      </tr>
+    </thead>
+    {% for row in overviewRows %}
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">
+            <a class="govuk-link" href="/contracts/{{ row.contractId }}/invoices">{{ row.contractName }}</a>
+          </td>
+          <td class="govuk-table__cell">{{ row.vendorName }}</td>
+          <td class="govuk-table__cell">{{ row.prettyMonth }} {{ row.year }}</td>
+          <td class="govuk-table__cell">
+            {{ govukTag({
+                        text: row.reconciliationDetails.bannerMessage,
+                        classes: row.reconciliationDetails.tagClass
+                        }) }}
+          </td>
+          <td class="govuk-table__cell">
+            <a class="govuk-link"
+               href="/contracts/{{ row.contractId }}/invoices/{{ row.year }}-{{ row.month }}">{{ row.details }}</a>
+          </td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
   <div class="govuk-!-padding-bottom-9"></div>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Navigation</caption>
