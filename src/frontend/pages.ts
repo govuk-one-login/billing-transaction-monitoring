@@ -9,7 +9,7 @@ import {
 } from "./handlers/contracts";
 import { invoicesParamsGetter, invoicesTitleGetter } from "./handlers/invoices";
 import { invoiceParamsGetter, invoiceTitleGetter } from "./handlers/invoice";
-import { indexParamsGetter, indexTitleGetter } from "./handlers/home";
+import { homeParamsGetter, homeTitleGetter } from "./handlers/home";
 import path from "node:path";
 import { ReconciliationRow, OverviewRow } from "./extract-helpers";
 import { LinkData } from "./utils";
@@ -101,16 +101,16 @@ export const getHandler = <TParams, TReturn>(
   };
 };
 
-export type IndexParams = {
+export type HomeParams = {
   pageTitle: string;
   overviewRows: OverviewRow[];
 };
 
 const homePage: Page<{}, {}> = {
   relativePath: "",
-  njk: "index.njk",
-  paramsGetter: indexParamsGetter,
-  titleGetter: indexTitleGetter,
+  njk: "home.njk",
+  paramsGetter: homeParamsGetter,
+  titleGetter: homeTitleGetter,
 };
 
 export type ContractParams = {
