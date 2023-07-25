@@ -49,6 +49,24 @@ test("Date is formatted to yyyy-mm-dd with a date and month that is not single d
   expect(formattedDate).toEqual("2022-12-25");
 });
 
+test("Date is formatted to BST by default in summer", async () => {
+  const date: Date = new Date("2000-07-31 23:00+0");
+  const formattedDate = formatDate(date);
+  expect(formattedDate).toEqual("2000-08-01");
+});
+
+test("Date is formatted to GMT by default in winter", async () => {
+  const date: Date = new Date("2000-12-31 23:00+0");
+  const formattedDate = formatDate(date);
+  expect(formattedDate).toEqual("2000-12-31");
+});
+
+test("Date is formatted with given delimiter to given time zone", async () => {
+  const date: Date = new Date("2000-07-31 23:00+0");
+  const formattedDate = formatDate(date, "_", "UTC");
+  expect(formattedDate).toEqual("2000_07_31");
+});
+
 test("Year and month are formatted to yyyy-mm with a month that is single digit", async () => {
   const date: Date = new Date("2022-02-25");
   const formattedDate = formatDateAsYearMonth(date);
