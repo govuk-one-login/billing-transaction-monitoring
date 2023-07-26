@@ -3,7 +3,7 @@ import nunjucks from "nunjucks";
 import path from "path";
 import "dotenv/config";
 import { getHandler, getRoute, PAGES } from "./pages";
-import { Middlewares } from "./middleware";
+import { Middlewares, handleErrors } from "./middleware";
 import { shouldLoadFromNodeModules } from "./utils/should-load-from-node-modules";
 import { rootDir } from "./utils/root-dir";
 
@@ -28,4 +28,6 @@ export const initApp = (app: Express, middlewares?: Middlewares): void => {
   PAGES.forEach((page) => {
     app.get(getRoute(page), getHandler(page));
   });
+
+  app.use(handleErrors);
 };

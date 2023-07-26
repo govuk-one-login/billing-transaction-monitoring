@@ -1,9 +1,11 @@
 import crypto from "crypto";
 import helmet from "helmet";
-import express, { RequestHandler } from "express";
+import express, { ErrorRequestHandler, RequestHandler } from "express";
 import { shouldLoadFromNodeModules } from "./utils/should-load-from-node-modules";
 import path from "path";
 import { rootDir } from "./utils/root-dir";
+import { logger } from "../shared/utils";
+import { errorPage, getHandler } from "./pages";
 
 export type Middlewares = Array<{ handler: RequestHandler; route?: string }>;
 
@@ -54,3 +56,15 @@ export const unitTestMiddleware: Middlewares = [
   { handler: staticScripts, route: "/assets/scripts" },
   { handler: staticStyles, route: "/assets/styles" },
 ];
+
+export const handleErrors: ErrorRequestHandler = (
+  error,
+  request,
+  response,
+  next
+) => {
+  logger.error("Express app error", { error });
+  const errorPageHandler = getHandler(errorPage);
+  response.status(500);
+  errorPageHandler(request, response, next);
+};
