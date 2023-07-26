@@ -207,4 +207,18 @@ describe("getInvoiceBanner", () => {
       status: "Invoice within threshold",
     });
   });
+
+  test("should return the expected invoice status and the payable banner class when there is only one line item and it has no charge", () => {
+    // Arrange
+    const givenLineItems = [
+      buildLineItem(lineItem, [["price_difference_percentage", "-1234567.01"]]),
+    ];
+    // Act
+    const result = getInvoiceBanner(givenLineItems);
+    // Assert
+    expect(result).toEqual({
+      bannerClass: "payable",
+      status: "Invoice within threshold",
+    });
+  });
 });

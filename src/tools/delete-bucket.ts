@@ -8,6 +8,8 @@ import {
   ListObjectVersionsCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
+import { AWS_REGION } from "../shared/constants";
+import { getFromEnv } from "../shared/utils";
 
 interface AWSError {
   error: any;
@@ -99,10 +101,10 @@ const deleteBucket = async (bucket: string): Promise<string | null> => {
   return await deleteEmptyBucket(bucket);
 };
 
-const awsConfig = { region: "eu-west-2" };
+const awsConfig = { region: AWS_REGION };
 const s3Client = new S3Client(awsConfig);
 
-const bucketName = process.env.BUCKET;
+const bucketName = getFromEnv("BUCKET");
 
 if (bucketName === undefined || bucketName === null || bucketName === "") {
   throw new Error("Please specify a bucket name in the env var BUCKET.");

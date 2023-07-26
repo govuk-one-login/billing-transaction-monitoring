@@ -17,3 +17,6 @@
   {% block scripts %}
   {% endblock scripts %}
 {% endblock bodyEnd %}
+{% macro link(data) %}
+  <a class="govuk-link" href="{{ data.href }}">{{ data.text }}</a>
+{% endmacro %}

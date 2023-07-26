@@ -21,7 +21,4 @@ export const VALID_TEXTRACT_STATUS_MESSAGES = new Set<ValidTextractJobStatus>([
   "SUCCEEDED",
 ]);
 
-export const VENDOR_INVOICE_STANDARDISATION_CONFIG_PATH =
-  "vendor-invoice-standardisation.json";
-
-export const VENDOR_SERVICE_CONFIG_PATH = "vendor_services/vendor-services.csv";
+export const AWS_REGION = "eu-west-2";

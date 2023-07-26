@@ -3,6 +3,7 @@ import { Athena } from "aws-sdk";
 import { logger, sendCustomResourceResult } from "../../shared/utils";
 import { getAthenaViewResourceData } from "./get-athena-view-resource-data";
 import { AthenaQueryExecutor } from "../../shared/utils/athena";
+import { AWS_REGION } from "../../shared/constants";
 
 export const handler = async (
   event: CloudFormationCustomResourceEvent,
@@ -12,7 +13,7 @@ export const handler = async (
     const { database, name, query, workgroup } =
       getAthenaViewResourceData(event);
 
-    const athena = new Athena({ region: "eu-west-2" });
+    const athena = new Athena({ region: AWS_REGION });
 
     const { QueryExecutionId: queryExecutionId } = await athena
       .startQueryExecution({

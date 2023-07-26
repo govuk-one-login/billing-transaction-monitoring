@@ -1,8 +1,9 @@
 import AWS from "aws-sdk";
+import { AWS_REGION } from "../../../shared/constants";
 
 type GetSecretOptions = { id: string };
 
-const secretsManager = new AWS.SecretsManager({ region: "eu-west-2" });
+const secretsManager = new AWS.SecretsManager({ region: AWS_REGION });
 
 const cache: Partial<Record<string, string>> = {};
 

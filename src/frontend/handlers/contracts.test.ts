@@ -1,6 +1,6 @@
 import supertest from "supertest";
 import { ConfigElements } from "../../shared/constants";
-import { getConfig } from "../../shared/utils";
+import { getConfig, getFromEnv } from "../../shared/utils";
 import { app } from "../app";
 import { initApp } from "../init-app";
 import { getOverviewRows } from "../extract-helpers/get-overview-rows";
@@ -8,6 +8,11 @@ import { unitTestMiddleware } from "../middleware";
 
 jest.mock("../../shared/utils");
 const mockedGetConfig = getConfig as jest.Mock;
+const mockedGetFromEnv = getFromEnv as jest.Mock;
+
+jest.mock("../utils/should-load-from-node-modules", () => ({
+  shouldLoadFromNodeModules: true,
+}));
 
 jest.mock("../extract-helpers/get-overview-rows");
 const mockedGetOverviewRows = getOverviewRows as jest.Mock;
@@ -20,9 +25,9 @@ describe("contracts handler", () => {
     initApp(app, unitTestMiddleware);
     jest.resetAllMocks();
 
-    process.env = {
-      STORAGE_BUCKET: "given storage bucket",
-    };
+    mockedGetFromEnv.mockImplementation((key) =>
+      key === "STORAGE_BUCKET" ? "given storage bucket" : undefined
+    );
 
     givenContractsConfig = [
       { id: "1", name: "C01234", vendor_id: "vendor_testvendor1" },

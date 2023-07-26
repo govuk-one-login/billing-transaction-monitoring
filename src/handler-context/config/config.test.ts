@@ -1,15 +1,19 @@
 import { ConfigElements } from "../../shared/constants";
-import { getConfigFile } from "../../shared/utils";
+import { getConfigFile, getFromEnv } from "../../shared/utils";
 import { Config } from ".";
 
 jest.mock("../../shared/utils");
 const mockGetConfigFile = getConfigFile as jest.Mock;
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 
 describe("Config", () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    process.env.CONFIG_BUCKET = "mock-config-bucket";
+    mockedGetFromEnv.mockImplementation((key) =>
+      key === "CONFIG_BUCKET" ? "mock-config-bucket" : undefined
+    );
+
     mockGetConfigFile.mockImplementation(async (path) => {
       switch (path) {
         case ConfigElements.inferences:
@@ -23,9 +27,6 @@ describe("Config", () => {
       }
     });
     jest.clearAllMocks();
-  });
-  afterAll(() => {
-    delete process.env.CONFIG_BUCKET;
   });
 
   it("Provides a cached copy of the specified config files", async () => {

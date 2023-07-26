@@ -106,28 +106,13 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
           
   <h1 class="govuk-heading-l">C01234 - Vendor One</h1>
   <ul class="govuk-list">
-    
-      <li>
-        <a class="govuk-link"
-           href="/contracts/1/invoices/2023-03">
-          Mar 2023
-        </a>
-      </li>
-    
-      <li>
-        <a class="govuk-link"
-           href="/contracts/1/invoices/2023-04">
-          Apr 2023
-        </a>
-      </li>
-    
-      <li>
-        <a class="govuk-link"
-           href="/contracts/1/invoices/2023-10">
-          Oct 2023
-        </a>
-      </li>
-    
+    <li>
+  <a class="govuk-link" href="/contracts/1/invoices/2023-03">Mar 2023</a>
+</li><li>
+  <a class="govuk-link" href="/contracts/1/invoices/2023-04">Apr 2023</a>
+</li><li>
+  <a class="govuk-link" href="/contracts/1/invoices/2023-10">Oct 2023</a>
+</li>
   </ul>
 
         </main>
