@@ -1,6 +1,7 @@
 import { Logger } from "@aws-lambda-powertools/logger";
+import { EnvVarName, getFromEnv } from "../../../shared/utils";
 
-export const makeCtxEnv = <TEnvVars extends string>(
+export const makeCtxEnv = <TEnvVars extends EnvVarName>(
   envVarsKeys: TEnvVars[],
   logger: Logger
 ): Record<TEnvVars, string> => {
@@ -10,7 +11,7 @@ export const makeCtxEnv = <TEnvVars extends string>(
     env: Record<TEnvVars, string>;
   }>(
     (acc, envVarKey) => {
-      const envVar = process.env[envVarKey];
+      const envVar = getFromEnv(envVarKey);
       if (envVar === undefined || !envVarKey?.length) {
         acc.isEnvValid = false;
         acc.missingVars = [...acc.missingVars, envVarKey];

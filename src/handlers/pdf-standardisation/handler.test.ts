@@ -1,6 +1,10 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
+import { getFromEnv } from "../../shared/utils/env";
 import { handler } from "./handler";
 import { sendStandardisedLineItems } from "./send-standardised-line-items";
+
+jest.mock("../../shared/utils/env");
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 
 jest.mock("../../shared/utils/logger");
 
@@ -9,44 +13,41 @@ const mockedSendStandardisedLineItems =
   sendStandardisedLineItems as jest.MockedFn<typeof sendStandardisedLineItems>;
 
 describe("Store Standardised Invoices handler tests", () => {
-  const OLD_ENV = process.env;
+  let mockedEnv: Partial<Record<string, string>>;
   let givenEvent: SQSEvent;
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    process.env = {
-      ...OLD_ENV,
+    mockedEnv = {
       CONFIG_BUCKET: "given config bucket",
       OUTPUT_QUEUE_URL: "given output queue URL",
       PARSER_0_VERSION: "1.2.3",
       PARSER_DEFAULT_VERSION: "4.5.6",
     };
 
+    mockedGetFromEnv.mockImplementation((key) => mockedEnv[key]);
+
     givenEvent = { Records: [] };
   });
 
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
-
   test("Store Standardised Invoices handler with no config bucket set", async () => {
-    delete process.env.CONFIG_BUCKET;
+    delete mockedEnv.CONFIG_BUCKET;
     await expect(handler(givenEvent)).rejects.toThrowError("Config bucket");
   });
 
   test("Store Standardised Invoices handler with no output queue URL set", async () => {
-    delete process.env.OUTPUT_QUEUE_URL;
+    delete mockedEnv.OUTPUT_QUEUE_URL;
     await expect(handler(givenEvent)).rejects.toThrowError("Output queue URL");
   });
 
   test("Store Standardised Invoices handler with no parser 0 version set", async () => {
-    delete process.env.PARSER_0_VERSION;
+    delete mockedEnv.PARSER_0_VERSION;
     await expect(handler(givenEvent)).rejects.toThrowError("Parser 0 version");
   });
 
   test("Store Standardised Invoices handler with no default parser version set", async () => {
-    delete process.env.PARSER_DEFAULT_VERSION;
+    delete mockedEnv.PARSER_DEFAULT_VERSION;
     await expect(handler(givenEvent)).rejects.toThrowError(
       "Default parser version"
     );
@@ -68,20 +69,20 @@ describe("Store Standardised Invoices handler tests", () => {
     expect(mockedSendStandardisedLineItems).toHaveBeenCalledTimes(2);
     expect(mockedSendStandardisedLineItems).toHaveBeenCalledWith(
       givenRecord1,
-      process.env.OUTPUT_QUEUE_URL,
-      process.env.CONFIG_BUCKET,
+      mockedEnv.OUTPUT_QUEUE_URL,
+      mockedEnv.CONFIG_BUCKET,
       {
-        0: `0_${process.env.PARSER_0_VERSION}`,
-        default: `default_${process.env.PARSER_DEFAULT_VERSION}`,
+        0: `0_${mockedEnv.PARSER_0_VERSION}`,
+        default: `default_${mockedEnv.PARSER_DEFAULT_VERSION}`,
       }
     );
     expect(mockedSendStandardisedLineItems).toHaveBeenCalledWith(
       givenRecord2,
-      process.env.OUTPUT_QUEUE_URL,
-      process.env.CONFIG_BUCKET,
+      mockedEnv.OUTPUT_QUEUE_URL,
+      mockedEnv.CONFIG_BUCKET,
       {
-        0: `0_${process.env.PARSER_0_VERSION}`,
-        default: `default_${process.env.PARSER_DEFAULT_VERSION}`,
+        0: `0_${mockedEnv.PARSER_0_VERSION}`,
+        default: `default_${mockedEnv.PARSER_DEFAULT_VERSION}`,
       }
     );
     expect(result).toEqual({
@@ -108,20 +109,20 @@ describe("Store Standardised Invoices handler tests", () => {
     expect(mockedSendStandardisedLineItems).toHaveBeenCalledTimes(2);
     expect(mockedSendStandardisedLineItems).toHaveBeenCalledWith(
       givenRecord1,
-      process.env.OUTPUT_QUEUE_URL,
-      process.env.CONFIG_BUCKET,
+      mockedEnv.OUTPUT_QUEUE_URL,
+      mockedEnv.CONFIG_BUCKET,
       {
-        0: `0_${process.env.PARSER_0_VERSION}`,
-        default: `default_${process.env.PARSER_DEFAULT_VERSION}`,
+        0: `0_${mockedEnv.PARSER_0_VERSION}`,
+        default: `default_${mockedEnv.PARSER_DEFAULT_VERSION}`,
       }
     );
     expect(mockedSendStandardisedLineItems).toHaveBeenCalledWith(
       givenRecord2,
-      process.env.OUTPUT_QUEUE_URL,
-      process.env.CONFIG_BUCKET,
+      mockedEnv.OUTPUT_QUEUE_URL,
+      mockedEnv.CONFIG_BUCKET,
       {
-        0: `0_${process.env.PARSER_0_VERSION}`,
-        default: `default_${process.env.PARSER_DEFAULT_VERSION}`,
+        0: `0_${mockedEnv.PARSER_0_VERSION}`,
+        default: `default_${mockedEnv.PARSER_DEFAULT_VERSION}`,
       }
     );
     expect(result).toEqual({

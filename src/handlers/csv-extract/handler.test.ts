@@ -1,6 +1,7 @@
 import { SQSEvent } from "aws-lambda";
 import {
   fetchS3,
+  getFromEnv,
   getVendorServiceConfigRows,
   logger,
   sendRecord,
@@ -17,15 +18,17 @@ jest.mock("../../shared/utils", () => {
     logger: { error: jest.fn() },
     getStandardisedInvoiceKey: jest.fn(),
     sendRecord: jest.fn(),
+    getFromEnv: jest.fn(),
   };
 });
 const mockedFetchS3 = fetchS3 as jest.Mock;
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 const mockedGetVendorServiceConfigRows =
   getVendorServiceConfigRows as jest.Mock;
 const mockedSendRecord = sendRecord as jest.Mock;
 
 describe("CSV Extract handler tests", () => {
-  const OLD_ENV = process.env;
+  let mockedEnv: Partial<Record<string, string>>;
   const givenBucketName = "some bucket name";
   const givenFileName = "some file name.csv";
   const givenObjectKey1 = `vendor123/${givenFileName}`;
@@ -77,15 +80,12 @@ describe("CSV Extract handler tests", () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    process.env = {
-      ...OLD_ENV,
+    mockedEnv = {
       CONFIG_BUCKET: "given config bucket",
       OUTPUT_QUEUE_URL: givenOutputQueueUrl,
     };
-  });
 
-  afterAll(() => {
-    process.env = OLD_ENV;
+    mockedGetFromEnv.mockImplementation((key) => mockedEnv[key]);
   });
 
   function expectHandlerFailure(errorMessage: string): void {
@@ -100,14 +100,14 @@ describe("CSV Extract handler tests", () => {
   }
 
   test("should throw an error if the config bucket is not set", async () => {
-    delete process.env.CONFIG_BUCKET;
+    delete mockedEnv.CONFIG_BUCKET;
     await expect(handler(validEvent)).rejects.toThrowError(
       "Config bucket not set."
     );
   });
 
   test("should throw an error if the output queue URL is not set", async () => {
-    delete process.env.OUTPUT_QUEUE_URL;
+    delete mockedEnv.OUTPUT_QUEUE_URL;
     await expect(handler(validEvent)).rejects.toThrowError("Output queue URL");
   });
 
