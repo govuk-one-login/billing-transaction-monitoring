@@ -30,7 +30,7 @@ const setupPageAndGetData = async (
 ): Promise<FullExtractData[]> => {
   const contractId = await getVendorContractIdFromConfig(vendorId);
   await openInvoicePage(contractId, year, month);
-  return await getInvoicesByContractIdYearMonth(contractId, year, month);
+  return getInvoicesByContractIdYearMonth(contractId, year, month);
 };
 
 describe("Invoice Page Test", () => {

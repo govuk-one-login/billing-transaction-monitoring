@@ -14,7 +14,7 @@ export const generateExpectedBannerDetailsFromPercentagePriceDifference = (
       percentageDiscrepancySpecialCase[percentageDifference].bannerColor;
     bannerMessage =
       percentageDiscrepancySpecialCase[percentageDifference].bannerText;
-  } else if (percentageDifference >= -1 && percentageDifference <= 1) {
+  } else if (percentageDifference > -1 && percentageDifference < 1) {
     bannerColor = Color.green;
     bannerMessage = InvoiceStates.invoiceWithinThreshold;
   } else if (percentageDifference > 1) {

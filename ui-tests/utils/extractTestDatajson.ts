@@ -20,7 +20,7 @@ export type FullExtractData = {
   transaction_quantity: string;
   quantity_difference: string;
   billing_amount_with_tax: string;
-  price_difference_percentage: number;
+  price_difference_percentage: string;
 };
 
 export const getTestDataFilePath = (): string => {
@@ -100,18 +100,18 @@ export const getPriceDifferencePercentageFromJson = (
       entry.month === month
   );
   if (invoice) {
-    return invoice.price_difference_percentage;
+    return parseFloat(invoice.price_difference_percentage);
   }
   throw new Error(
     `price difference percentage not found for year: ${year} and month ${month}`
   );
 };
 
-export const getInvoicesByContractIdYearMonth = async (
+export const getInvoicesByContractIdYearMonth = (
   contractId: number,
   year: string,
   month: string
-): Promise<FullExtractData[]> => {
+): FullExtractData[] => {
   const testDataFilePath = getTestDataFilePath();
   const data = getExtractDataFromJson(testDataFilePath);
   return data

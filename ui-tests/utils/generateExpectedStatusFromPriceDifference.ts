@@ -6,7 +6,7 @@ export const generateExpectedStatusFromPercentagePriceDifference = (
   if (percentageDiscrepancySpecialCase[percentageDifference]) {
     return percentageDiscrepancySpecialCase[percentageDifference].statusLabel;
   }
-  if (percentageDifference >= -1 && percentageDifference <= 1) {
+  if (percentageDifference > -1 && percentageDifference < 1) {
     return statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.message;
   } else {
     return percentageDifference > 1

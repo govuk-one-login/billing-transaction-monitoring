@@ -5,9 +5,7 @@ class InvoicePage extends Page {
    * define selectors using getter methods
    */
   public get statusBanner(): Promise<WebdriverIO.Element> {
-    return $(
-      ".govuk-panel.warning, .govuk-panel.notice, .govuk-panel.payable, .govuk-panel.error"
-    );
+    return $(".govuk-panel");
   }
 
   public get statusBannerTitle(): Promise<WebdriverIO.Element> {
