@@ -8,7 +8,7 @@ export type FullExtractData = {
   vendor_id: string;
   vendor_name: string;
   service_name: string;
-  contract_id: number;
+  contract_id: string;
   contract_name: string;
   year: string;
   month: string;
@@ -49,7 +49,7 @@ export const getUniqueVendorNamesFromJson = (filePath: string): string[] => {
   return uniqueVendorNames;
 };
 
-export const getUniqueContractIdsFromJson = (filePath: string): number[] => {
+export const getUniqueContractIdsFromJson = (filePath: string): string[] => {
   const data = getExtractDataFromJson(filePath);
   const contractIds = data.map((obj) => obj.contract_id);
   const uniqueContractIds = [...new Set(contractIds)];
@@ -108,7 +108,7 @@ export const getPriceDifferencePercentageFromJson = (
 };
 
 export const getInvoicesByContractIdYearMonth = (
-  contractId: number,
+  contractId: string,
   year: string,
   month: string
 ): FullExtractData[] => {

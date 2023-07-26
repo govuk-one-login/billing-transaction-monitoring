@@ -13,7 +13,7 @@ import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
 import { formatPercentageDifference } from "../utils/invoiceDataFormatters";
 
 const openInvoicePage = async (
-  contractId: number,
+  contractId: string,
   year: string,
   month: string
 ): Promise<void> => {
@@ -137,11 +137,13 @@ const assertReconciliationTableData = (
   );
   expect(tableRow["Price Discrepancy"]).toEqual(filteredItem.price_difference); // bug 713 currency issue
   expect(tableRow["Percentage Discrepancy"]).toEqual(
-    formatPercentageDifference(filteredItem.price_difference_percentage)
+    formatPercentageDifference(
+      parseFloat(filteredItem.price_difference_percentage)
+    )
   );
   expect(tableRow.Status).toEqual(
     generateExpectedStatusFromPercentagePriceDifference(
-      filteredItem.price_difference_percentage
+      parseFloat(filteredItem.price_difference_percentage)
     )
   );
 };

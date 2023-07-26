@@ -3,7 +3,7 @@ import { configStackName } from "../../src/handlers/int-test-support/helpers/env
 
 export const getVendorContractIdFromConfig = async (
   vendorId: string
-): Promise<number> => {
+): Promise<string> => {
   const configBucket = configStackName();
   const contractsConfigRows = await getContractsFromConfig(configBucket);
   const contractWithVendor = contractsConfigRows.find(

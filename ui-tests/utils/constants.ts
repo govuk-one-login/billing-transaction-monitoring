@@ -43,7 +43,7 @@ export const percentageDiscrepancySpecialCase: Record<
 > = {
   "-1234567.01": {
     bannerText: InvoiceStates.noCharge,
-    bannerColor: Color.green, // bug BTM-709
+    bannerColor: Color.green,
     statusLabel: statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.message,
   },
   "-1234567.02": {
