@@ -10,7 +10,9 @@
 {% endblock pageTitle %}
 {% block content %}
 {% endblock content %}
-{% block footer %}{{ govukFooter({"meta": {"items": [{"href": "#", "text": "Cookies"}]}}) }}{% endblock %}
+{% block footer %}
+  {{ govukFooter({"meta": {"items": [{"href": "#", "text": "Cookies"}]}}) }}
+{% endblock footer %}
 {% block bodyEnd %}
   <script src="/assets/scripts/all.js" nonce="{{ cspNonce }}"></script>
   <script>window.GOVUKFrontend.initAll();</script>
