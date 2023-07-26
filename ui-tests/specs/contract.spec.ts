@@ -1,7 +1,9 @@
 import ContractsPage from "../pageobjects/contractsPage";
 import { waitForPageLoad } from "../helpers/waits";
-import { getTestDataFilePath } from "../utils/extractTestDatajson";
-import { getUniqueVendorNamesFromJson } from "../utils/vendorContract";
+import {
+  getTestDataFilePath,
+  getUniqueVendorNamesFromJson,
+} from "../utils/extractTestDatajson";
 
 /* UI tests for Contracts Page. It verifies the UI list of vendors 
 matches the vendor name in test data file.

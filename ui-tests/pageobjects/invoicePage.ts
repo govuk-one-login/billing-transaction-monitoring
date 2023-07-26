@@ -54,23 +54,21 @@ class InvoicePage extends Page {
     tableElement: WebdriverIO.Element
   ): Promise<Array<{ [key: string]: string }>> {
     const tableData: Array<{ [key: string]: string }> = [];
+
     const rows = await tableElement.$$("tbody tr");
-
     const headerRow = await tableElement.$("thead tr");
-
     const headerColumns = await headerRow.$$("th");
 
     const columnHeaders = await Promise.all(
       headerColumns.map(async (headerColumn) => await headerColumn.getText())
     );
 
-    for (let i = 0; i < rows.length; i++) {
-      const columns = await rows[i].$$("th,td");
-
+    for (const row of rows) {
+      const columns = await row.$$("th,td");
       const rowData: { [key: string]: string } = {};
 
-      for (let j = 0; j < columnHeaders.length; j++) {
-        rowData[columnHeaders[j]] = await columns[j].getText();
+      for (const [index, header] of columnHeaders.entries()) {
+        rowData[header] = await columns[index].getText();
       }
 
       tableData.push(rowData);

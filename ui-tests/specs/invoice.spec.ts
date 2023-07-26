@@ -4,9 +4,7 @@ import {
   FullExtractData,
   getInvoicesByContractIdYearMonth,
   getTestDataFilePath,
-  getUniqueVendorNamesFromJson,
-  getUniqueInvoiceMonthsYearsByVendor,
-  getUniqueVendorIdsFromJson,
+  extractAllUniqueVendorInvoiceDataFomJson,
   getPriceDifferencePercentageFromJson,
 } from "../utils/extractTestDatajson";
 import { generateExpectedBannerDetailsFromPercentagePriceDifference } from "../utils/generateExpectedStatusBannerDetails";
@@ -37,107 +35,97 @@ const setupPageAndGetData = async (
 
 describe("Invoice Page Test", () => {
   const testDataFilePath = getTestDataFilePath();
-  const vendorsNameFromJson = getUniqueVendorNamesFromJson(testDataFilePath);
+  const vendorInvoiceTestData =
+    extractAllUniqueVendorInvoiceDataFomJson(testDataFilePath);
 
-  for (const vendor of vendorsNameFromJson) {
-    const { monthYears } = getUniqueInvoiceMonthsYearsByVendor(vendor);
-    const uniqueYearsMonths = Array.from(monthYears);
+  for (const { vendor, year, month, vendorId } of vendorInvoiceTestData) {
+    describe(`Vendor: ${vendor},Invoice:${year}-${month}`, () => {
+      let filteredInvoiceItems: FullExtractData[] = [];
 
-    for (const monthYear of uniqueYearsMonths) {
-      const [year, month] = monthYear.split("-");
-      const vendorIds = getUniqueVendorIdsFromJson(vendor);
+      beforeEach(async () => {
+        filteredInvoiceItems = await setupPageAndGetData(vendorId, year, month);
+      });
 
-      for (const vendorId of vendorIds) {
-        describe(`Vendor: ${vendor},Invoice:${year}-${month}`, () => {
-          let filteredInvoiceItems: FullExtractData[] = [];
+      it(`should display correct status banner color and message`, async () => {
+        const priceDifferencePercentage = getPriceDifferencePercentageFromJson(
+          vendor,
+          year,
+          month
+        );
+        const expectedBannerColor =
+          generateExpectedBannerDetailsFromPercentagePriceDifference(
+            priceDifferencePercentage
+          ).bannerColor;
+        expect(await InvoicePage.getStatusBannerColor()).toEqual(
+          expectedBannerColor
+        );
+        expect(await InvoicePage.getStatusBannerTitle()).toEqual(
+          generateExpectedBannerDetailsFromPercentagePriceDifference(
+            priceDifferencePercentage
+          ).bannerMessage
+        );
+      });
 
-          beforeEach(async () => {
-            filteredInvoiceItems = await setupPageAndGetData(
-              vendorId,
-              year,
-              month
-            );
-          });
+      it(`should validate reconciliation table data`, async () => {
+        await validateTableDataWithAssertions(
+          InvoicePage.getTableData(await InvoicePage.reconciliationTable),
+          assertReconciliationTableData,
+          filteredInvoiceItems
+        );
+      });
 
-          it(`should display correct status banner color and message`, async () => {
-            const priceDifferencePercentage =
-              getPriceDifferencePercentageFromJson(vendor, year, month);
-            const expectedBannerColor =
-              generateExpectedBannerDetailsFromPercentagePriceDifference(
-                priceDifferencePercentage
-              ).bannerColor;
-            expect(await InvoicePage.getStatusBannerColor()).toEqual(
-              expectedBannerColor
-            );
-            expect(await InvoicePage.getStatusBannerTitle()).toEqual(
-              generateExpectedBannerDetailsFromPercentagePriceDifference(
-                priceDifferencePercentage
-              ).bannerMessage
-            );
-          });
+      it(`should validate quantity(events) table data`, async () => {
+        await validateTableDataWithAssertions(
+          InvoicePage.getTableData(await InvoicePage.quantityTable),
+          assertQuantityTableData,
+          filteredInvoiceItems
+        );
+      });
 
-          it(`should validate reconciliation table data`, async () => {
-            const tableDataFromUI = await InvoicePage.getTableData(
-              await InvoicePage.reconciliationTable
-            );
-            for (let i = 0; i < filteredInvoiceItems.length; i++) {
-              assertReconciliationTableData(
-                tableDataFromUI[i],
-                filteredInvoiceItems[i]
-              );
-            }
-          });
+      it(`should validate price table data`, async () => {
+        await validateTableDataWithAssertions(
+          InvoicePage.getTableData(await InvoicePage.priceTable),
+          assertPriceTableData,
+          filteredInvoiceItems
+        );
+      });
 
-          it(`should validate quantity(events) table data`, async () => {
-            const tableDataFromUI = await InvoicePage.getTableData(
-              await InvoicePage.quantityTable
-            );
-            for (let i = 0; i < filteredInvoiceItems.length; i++) {
-              assertQuantityTableData(
-                tableDataFromUI[i],
-                filteredInvoiceItems[i]
-              );
-            }
-          });
+      it(`should validate measured(events) table data`, async () => {
+        await validateTableDataWithAssertions(
+          InvoicePage.getTableData(await InvoicePage.measuredTable),
+          assertMeasuredTableData,
+          filteredInvoiceItems
+        );
+      });
 
-          it(`should validate price table data`, async () => {
-            const tableDataFromUI = await InvoicePage.getTableData(
-              await InvoicePage.priceTable
-            );
-            for (let i = 0; i < filteredInvoiceItems.length; i++) {
-              assertPriceTableData(tableDataFromUI[i], filteredInvoiceItems[i]);
-            }
-          });
-
-          it(`should validate measured(events) table data`, async () => {
-            const tableDataFromUI = await InvoicePage.getTableData(
-              await InvoicePage.measuredTable
-            );
-            for (let i = 0; i < filteredInvoiceItems.length; i++) {
-              assertMeasuredTableData(
-                tableDataFromUI[i],
-                filteredInvoiceItems[i]
-              );
-            }
-          });
-
-          it(`should validate invoice table data`, async () => {
-            const tableDataFromUI = await InvoicePage.getTableData(
-              await InvoicePage.invoiceTable
-            );
-
-            for (let i = 0; i < filteredInvoiceItems.length; i++) {
-              assertInvoiceTableData(
-                tableDataFromUI[i],
-                filteredInvoiceItems[i]
-              );
-            }
-          });
-        });
-      }
-    }
+      it(`should validate invoice table data`, async () => {
+        await validateTableDataWithAssertions(
+          InvoicePage.getTableData(await InvoicePage.invoiceTable),
+          assertInvoiceTableData,
+          filteredInvoiceItems
+        );
+      });
+    });
   }
 });
+
+type TableRow = { [key: string]: string };
+type AssertFunction = (
+  tableRow: TableRow,
+  filteredItem: FullExtractData
+) => void;
+
+const validateTableDataWithAssertions = async (
+  tableData: Promise<TableRow[]>,
+  assertFunction: AssertFunction,
+  filteredInvoiceItems: FullExtractData[]
+): Promise<void> => {
+  const tableDataFromUI = await tableData;
+
+  for (let i = 0; i < filteredInvoiceItems.length; i++) {
+    assertFunction(tableDataFromUI[i], filteredInvoiceItems[i]);
+  }
+};
 
 const assertReconciliationTableData = (
   tableRow: { [key: string]: string },
@@ -159,7 +147,7 @@ const assertReconciliationTableData = (
 };
 
 const assertQuantityTableData = (
-  tableRow: { [key: string]: string },
+  tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
   expect(tableRow["Line Item"]).toEqual(filteredItem.service_name);
@@ -173,7 +161,7 @@ const assertQuantityTableData = (
 };
 
 const assertPriceTableData = (
-  tableRow: { [key: string]: string },
+  tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
   expect(tableRow["Line Item"]).toEqual(filteredItem.service_name);
@@ -187,7 +175,7 @@ const assertPriceTableData = (
 };
 
 const assertMeasuredTableData = (
-  tableRow: { [key: string]: string },
+  tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
   expect(tableRow["Line Item"]).toEqual(filteredItem.service_name);
@@ -195,7 +183,7 @@ const assertMeasuredTableData = (
 };
 
 const assertInvoiceTableData = (
-  tableRow: { [key: string]: string },
+  tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
   expect(tableRow["Line Item"]).toEqual(filteredItem.service_name);

@@ -12,33 +12,33 @@ export const formatPercentageDifference = (
   if (percentageDiscrepancySpecialCase[percentageDifference]) {
     return percentageDiscrepancySpecialCase[percentageDifference].bannerText;
   }
-  if (percentageDifference >= -1 && percentageDifference <= 1) {
-    return formattedPercentage;
-  } else if (percentageDifference > 1) {
-    return formattedPercentage;
-  } else if (percentageDifference < -1) {
-    return formattedPercentage;
-  }
-  throw new Error(`Invalid percentageDifference: ${percentageDifference}`);
+  return formattedPercentage;
 };
 
 export const formatInvoiceDataFromJson = (
   row: FullExtractData
 ): FullExtractData => {
+  const missingInvoiceState = {
+    billing_quantity: InvoiceStates.invoiceDataMissing,
+    billing_price_formatted: InvoiceStates.invoiceDataMissing,
+    billing_amount_with_tax: InvoiceStates.invoiceDataMissing,
+    billing_unit_price: InvoiceStates.invoiceDataMissing,
+  };
+
+  const missingTransactionState = {
+    transaction_quantity: InvoiceStates.eventsMissing,
+    transaction_price_formatted: InvoiceStates.eventsMissing,
+  };
   if (row.billing_quantity === "") {
     return {
       ...row,
-      billing_quantity: InvoiceStates.invoiceDataMissing,
-      billing_price_formatted: InvoiceStates.invoiceDataMissing,
-      billing_amount_with_tax: InvoiceStates.invoiceDataMissing,
-      billing_unit_price: InvoiceStates.invoiceDataMissing,
+      ...missingInvoiceState,
     };
   }
   if (row.transaction_quantity === "") {
     return {
       ...row,
-      transaction_quantity: InvoiceStates.eventsMissing,
-      transaction_price_formatted: InvoiceStates.eventsMissing,
+      ...missingTransactionState,
     };
   }
   return row;

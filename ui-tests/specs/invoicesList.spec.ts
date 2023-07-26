@@ -1,12 +1,12 @@
 import { waitForPageLoad } from "../helpers/waits";
 import InvoicesListPage from "../pageobjects/invoicesListPage";
-import { getTestDataFilePath } from "../utils/extractTestDatajson";
-import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
 import {
-  getUniqueVendorNamesFromJson,
-  getUniqueVendorIdsFromJson,
+  getTestDataFilePath,
   getUniqueInvoiceMonthsYearsByVendor,
-} from "../utils/vendorContract";
+  getUniqueVendorIdsFromJson,
+  getUniqueVendorNamesFromJson,
+} from "../utils/extractTestDatajson";
+import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
 
 /* UI tests for Invoices List Page. It verifies that the correct vendor name is displayed on the page.
 It includes tests to ensure that the unique invoice count for each vendor matches the count obtained from the UI */

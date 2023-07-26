@@ -123,3 +123,25 @@ export const getInvoicesByContractIdYearMonth = async (
     )
     .map(formatInvoiceDataFromJson);
 };
+
+export const extractAllUniqueVendorInvoiceDataFomJson = (
+  testDataFilepath: string
+): Array<{ vendor: string; year: string; month: string; vendorId: string }> => {
+  const vendorsNameFromJson = getUniqueVendorNamesFromJson(testDataFilepath);
+  const allVendorInvoiceData = [];
+
+  for (const vendor of vendorsNameFromJson) {
+    const { monthYears } = getUniqueInvoiceMonthsYearsByVendor(vendor);
+    const uniqueYearsMonths = Array.from(monthYears);
+
+    for (const monthYear of uniqueYearsMonths) {
+      const [year, month] = monthYear.split("-");
+      const vendorIds = getUniqueVendorIdsFromJson(vendor);
+
+      for (const vendorId of vendorIds) {
+        allVendorInvoiceData.push({ vendor, year, month, vendorId });
+      }
+    }
+  }
+  return allVendorInvoiceData;
+};
