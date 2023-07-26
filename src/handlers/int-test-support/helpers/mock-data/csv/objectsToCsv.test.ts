@@ -20,6 +20,7 @@ describe("objectsToCSV", () => {
       expect(csv).toEqual(expectedCsv);
     });
   });
+
   describe("Given an array of self-similar objects with string values", () => {
     it("Returns a CSV containing one row for each object", () => {
       const objects = [
@@ -39,6 +40,7 @@ describe("objectsToCSV", () => {
       expect(csv).toEqual(expectedCsv);
     });
   });
+
   describe("Given a list of keys to filter", () => {
     it("removes those keys from the output", () => {
       const objects = [
@@ -58,6 +60,7 @@ describe("objectsToCSV", () => {
       expect(csv).toEqual(expectedCsv);
     });
   });
+
   describe("Given a dictionary of keys to rename", () => {
     it("renames those keys in the output", () => {
       const objects = [

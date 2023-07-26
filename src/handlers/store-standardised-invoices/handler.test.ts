@@ -1,47 +1,46 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { handler } from "./handler";
 import { storeLineItem } from "./store-line-item";
+import { getFromEnv } from "../../shared/utils";
 
 jest.mock("../../shared/utils");
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 
 jest.mock("./store-line-item");
 const mockedStoreLineItem = storeLineItem as jest.Mock;
 
 describe("Store Standardised Invoices handler tests", () => {
-  const OLD_ENV = process.env;
+  let mockedEnv: Partial<Record<string, string>>;
   let givenEvent: SQSEvent;
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    process.env = {
-      ...OLD_ENV,
+    mockedEnv = {
       ARCHIVE_FOLDER: "given archive folder",
       DESTINATION_BUCKET: "given destination bucket",
       DESTINATION_FOLDER: "given destination folder",
     };
 
+    mockedGetFromEnv.mockImplementation((key) => mockedEnv[key]);
+
     givenEvent = { Records: [] };
   });
 
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
-
   test("Store Standardised Invoices handler with no archive folder set", async () => {
-    delete process.env.ARCHIVE_FOLDER;
+    delete mockedEnv.ARCHIVE_FOLDER;
     await expect(handler(givenEvent)).rejects.toThrowError("Archive folder");
   });
 
   test("Store Standardised Invoices handler with no destination bucket set", async () => {
-    delete process.env.DESTINATION_BUCKET;
+    delete mockedEnv.DESTINATION_BUCKET;
     await expect(handler(givenEvent)).rejects.toThrowError(
       "Destination bucket"
     );
   });
 
   test("Store Standardised Invoices handler with no destination folder set", async () => {
-    delete process.env.DESTINATION_FOLDER;
+    delete mockedEnv.DESTINATION_FOLDER;
     await expect(handler(givenEvent)).rejects.toThrowError(
       "Destination folder"
     );
@@ -63,15 +62,15 @@ describe("Store Standardised Invoices handler tests", () => {
     expect(mockedStoreLineItem).toHaveBeenCalledTimes(2);
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord1,
-      process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER,
-      process.env.ARCHIVE_FOLDER
+      mockedEnv.DESTINATION_BUCKET,
+      mockedEnv.DESTINATION_FOLDER,
+      mockedEnv.ARCHIVE_FOLDER
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord2,
-      process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER,
-      process.env.ARCHIVE_FOLDER
+      mockedEnv.DESTINATION_BUCKET,
+      mockedEnv.DESTINATION_FOLDER,
+      mockedEnv.ARCHIVE_FOLDER
     );
     expect(result).toEqual({
       batchItemFailures: [
@@ -97,15 +96,15 @@ describe("Store Standardised Invoices handler tests", () => {
     expect(mockedStoreLineItem).toHaveBeenCalledTimes(2);
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord1,
-      process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER,
-      process.env.ARCHIVE_FOLDER
+      mockedEnv.DESTINATION_BUCKET,
+      mockedEnv.DESTINATION_FOLDER,
+      mockedEnv.ARCHIVE_FOLDER
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord2,
-      process.env.DESTINATION_BUCKET,
-      process.env.DESTINATION_FOLDER,
-      process.env.ARCHIVE_FOLDER
+      mockedEnv.DESTINATION_BUCKET,
+      mockedEnv.DESTINATION_FOLDER,
+      mockedEnv.ARCHIVE_FOLDER
     );
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given record 1 message ID" }],

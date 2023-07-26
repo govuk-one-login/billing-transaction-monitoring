@@ -6,13 +6,6 @@
 {% block content %}
   <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
   <ul class="govuk-list">
-    {% for period in periods %}
-      <li>
-        <a class="govuk-link"
-           href="/contracts/{{ contract.id }}/invoices/{{ period.year }}-{{ period.month }}">
-          {{ period.prettyMonth }} {{ period.year }}
-        </a>
-      </li>
-    {% endfor %}
+    {% for data in invoiceLinksData %}<li>{{ link(data) }}</li>{% endfor %}
   </ul>
 {% endblock content %}

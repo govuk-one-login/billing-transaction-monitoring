@@ -14,4 +14,3 @@ export const [, rootDir] =
     ? /(^[/\-_A-Z0-9]{0,128}\/frontend)[/\-_A-Z0-9]{0,128}$/i.exec(dirname) ??
       []
     : dirname;
-

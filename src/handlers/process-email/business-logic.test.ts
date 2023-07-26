@@ -4,6 +4,7 @@ import { simpleParser } from "mailparser";
 
 jest.mock("mailparser");
 const mockedSimpleParser = simpleParser as jest.Mock;
+
 describe("process-email business logic", () => {
   let validIncomingEventBody: string;
   let givenInfoLogger: jest.Mock;
@@ -32,6 +33,7 @@ describe("process-email business logic", () => {
       businessLogic(validIncomingEventBody, mockContext, invalidMockMeta)
     ).rejects.toThrowError("Missing bucketName and/or key");
   });
+
   test("should return empty array with event record that has no vendor ID folder", async () => {
     const mockMeta = {
       bucketName: "given bucket name",

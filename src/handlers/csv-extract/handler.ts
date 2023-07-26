@@ -2,6 +2,7 @@ import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
 import {
   fetchS3,
+  getFromEnv,
   getS3EventRecordsFromSqs,
   getVendorServiceConfigRows,
   logger,
@@ -15,11 +16,11 @@ import {
 } from "./get-csv-standardised-invoice";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
-  const configBucket = process.env.CONFIG_BUCKET;
+  const configBucket = getFromEnv("CONFIG_BUCKET");
   if (configBucket === undefined || configBucket.length === 0)
     throw new Error("Config bucket not set.");
 
-  const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
+  const outputQueueUrl = getFromEnv("OUTPUT_QUEUE_URL");
   if (outputQueueUrl === undefined || outputQueueUrl.length === 0) {
     throw new Error("Output queue URL not set.");
   }

@@ -1,20 +1,19 @@
 import { ConfigElements } from "../../shared/constants";
-import { getConfig, getFromEnv } from "../../shared/utils";
-import { getContracts } from "./get-contracts";
+import { getConfig } from "../../shared/utils";
+import { getContractIds } from "./get-contract-ids";
 
 jest.mock("../../shared/utils");
 const mockedGetConfig = getConfig as jest.Mock;
-const mockedGetFromEnv = getFromEnv as jest.Mock;
 
-describe("getContracts", () => {
+describe("getContractIds", () => {
   let givenContractsConfig: any;
   let givenServicesConfig: any;
   let contractId: string;
 
   beforeEach(() => {
-    mockedGetFromEnv.mockImplementation((key) =>
-      key === "STORAGE_BUCKET" ? "given storage bucket" : undefined
-    );
+    process.env = {
+      STORAGE_BUCKET: "given storage bucket",
+    };
 
     contractId = "1";
     givenContractsConfig = [
@@ -40,10 +39,8 @@ describe("getContracts", () => {
 
   test("should return the contracts id, contracts name and the vendor name", async () => {
     // Act
-    const result = await getContracts();
+    const result = await getContractIds();
     // Assert
-    expect(result).toEqual([
-      { id: "1", name: "C01234", vendorName: "Vendor One" },
-    ]);
+    expect(result).toEqual(["1"]);
   });
 });
