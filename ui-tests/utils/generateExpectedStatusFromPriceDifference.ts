@@ -1,6 +1,6 @@
 import { percentageDiscrepancySpecialCase, statusLabels } from "./constants";
 
-export const generateStatusFromPercentagePriceDifference = (
+export const generateExpectedStatusFromPercentagePriceDifference = (
   percentageDifference: number
 ): string => {
   if (percentageDiscrepancySpecialCase[percentageDifference]) {

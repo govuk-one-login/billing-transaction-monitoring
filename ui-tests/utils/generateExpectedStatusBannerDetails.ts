@@ -4,7 +4,7 @@ import {
   InvoiceStates,
 } from "./constants";
 
-export const generateBannerDetailsFromPercentagePriceDifference = (
+export const generateExpectedBannerDetailsFromPercentagePriceDifference = (
   percentageDifference: number
 ): { bannerColor: string; bannerMessage: string } => {
   let bannerColor = "";

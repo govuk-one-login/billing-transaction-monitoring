@@ -1,20 +1,18 @@
 import { waitForPageLoad } from "../helpers/waits";
 import InvoicePage from "../pageobjects/invoicePage";
-import { formatPercentageDifference } from "../utils/dataFormatters";
 import {
   FullExtractData,
   getInvoicesByContractIdYearMonth,
   getTestDataFilePath,
-  getPriceDifferencePercentageFromJson,
-} from "../utils/extractTestDatajson";
-import { generateStatusFromPercentagePriceDifference } from "../utils/generateStatus";
-import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
-import { generateBannerDetailsFromPercentagePriceDifference } from "../utils/statusBanner";
-import {
   getUniqueVendorNamesFromJson,
   getUniqueInvoiceMonthsYearsByVendor,
   getUniqueVendorIdsFromJson,
-} from "../utils/vendorContract";
+  getPriceDifferencePercentageFromJson,
+} from "../utils/extractTestDatajson";
+import { generateExpectedBannerDetailsFromPercentagePriceDifference } from "../utils/generateExpectedStatusBannerDetails";
+import { generateExpectedStatusFromPercentagePriceDifference } from "../utils/generateExpectedStatusFromPriceDifference";
+import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
+import { formatPercentageDifference } from "../utils/invoiceDataFormatters";
 
 const openInvoicePage = async (
   contractId: number,
@@ -65,14 +63,14 @@ describe("Invoice Page Test", () => {
             const priceDifferencePercentage =
               getPriceDifferencePercentageFromJson(vendor, year, month);
             const expectedBannerColor =
-              generateBannerDetailsFromPercentagePriceDifference(
+              generateExpectedBannerDetailsFromPercentagePriceDifference(
                 priceDifferencePercentage
               ).bannerColor;
             expect(await InvoicePage.getStatusBannerColor()).toEqual(
               expectedBannerColor
             );
             expect(await InvoicePage.getStatusBannerTitle()).toEqual(
-              generateBannerDetailsFromPercentagePriceDifference(
+              generateExpectedBannerDetailsFromPercentagePriceDifference(
                 priceDifferencePercentage
               ).bannerMessage
             );
@@ -154,7 +152,7 @@ const assertReconciliationTableData = (
     formatPercentageDifference(filteredItem.price_difference_percentage)
   );
   expect(tableRow.Status).toEqual(
-    generateStatusFromPercentagePriceDifference(
+    generateExpectedStatusFromPercentagePriceDifference(
       filteredItem.price_difference_percentage
     )
   );
