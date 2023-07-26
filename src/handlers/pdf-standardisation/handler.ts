@@ -1,25 +1,25 @@
 import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { logger } from "../../shared/utils";
+import { getFromEnv, logger } from "../../shared/utils";
 import { sendStandardisedLineItems } from "./send-standardised-line-items";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
-  const configBucket = process.env.CONFIG_BUCKET;
+  const configBucket = getFromEnv("CONFIG_BUCKET");
 
   if (configBucket === undefined || configBucket.length === 0)
     throw new Error("Config bucket not set.");
 
-  const outputQueueUrl = process.env.OUTPUT_QUEUE_URL;
+  const outputQueueUrl = getFromEnv("OUTPUT_QUEUE_URL");
 
   if (outputQueueUrl === undefined || outputQueueUrl.length === 0)
     throw new Error("Output queue URL not set.");
 
-  const parser0Version = process.env.PARSER_0_VERSION;
+  const parser0Version = getFromEnv("PARSER_0_VERSION");
 
   if (parser0Version === undefined || parser0Version.length === 0)
     throw new Error("Parser 0 version not set.");
 
-  const defaultParserVersion = process.env.PARSER_DEFAULT_VERSION;
+  const defaultParserVersion = getFromEnv("PARSER_DEFAULT_VERSION");
 
   if (defaultParserVersion === undefined || defaultParserVersion.length === 0)
     throw new Error("Default parser version not set.");

@@ -1,10 +1,11 @@
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { getFromEnv } from "./env";
 import { logger } from "./logger";
 import { AWS_REGION } from "../constants";
 
 const sqs = new SQSClient({
   region: AWS_REGION,
-  endpoint: process.env.LOCAL_ENDPOINT,
+  endpoint: getFromEnv("LOCAL_ENDPOINT"),
 });
 
 export const stringifyAndSendRecord = async <TMessage>(

@@ -1,14 +1,15 @@
-import { fetchS3 } from "../../shared/utils";
+import { fetchS3, getFromEnv } from "../../shared/utils";
 import { getDashboardExtract } from "./get-dashboard-extract";
 
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 
 describe("getDashboardExtract", () => {
   beforeEach(() => {
-    process.env = {
-      STORAGE_BUCKET: "given storage bucket",
-    };
+    mockedGetFromEnv.mockImplementation((key) =>
+      key === "STORAGE_BUCKET" ? "given storage bucket" : undefined
+    );
   });
 
   test("Should parse multi-line JSON into object", async () => {

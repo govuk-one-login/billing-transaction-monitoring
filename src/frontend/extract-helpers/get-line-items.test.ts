@@ -1,17 +1,18 @@
-import { fetchS3 } from "../../shared/utils";
+import { fetchS3, getFromEnv } from "../../shared/utils";
 import { getLineItems } from "./get-line-items";
 import { fakeDataRow } from "./test-builders";
 
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 
 describe("getLineItems", () => {
   let contractId: string;
 
   beforeEach(() => {
-    process.env = {
-      STORAGE_BUCKET: "given storage bucket",
-    };
+    mockedGetFromEnv.mockImplementation((key) =>
+      key === "STORAGE_BUCKET" ? "given storage bucket" : undefined
+    );
   });
 
   test("should return the line items for a given contract id, year and month", async () => {

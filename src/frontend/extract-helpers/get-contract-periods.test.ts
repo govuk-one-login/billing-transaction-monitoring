@@ -1,17 +1,18 @@
-import { fetchS3 } from "../../shared/utils";
+import { fetchS3, getFromEnv } from "../../shared/utils";
 import { getContractPeriods } from "./get-contract-periods";
 import { fakeDataRow } from "./test-builders";
 
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 
 describe("getContractPeriods", () => {
   let contractId: string;
 
   beforeEach(() => {
-    process.env = {
-      STORAGE_BUCKET: "given storage bucket",
-    };
+    mockedGetFromEnv.mockImplementation((key) =>
+      key === "STORAGE_BUCKET" ? "given storage bucket" : undefined
+    );
   });
 
   test("should return the month, year and prettyMonth", async () => {
