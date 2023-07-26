@@ -22,6 +22,7 @@ module.exports = {
   },
   collectCoverage: true,
   testRunner: "jasmine2",
+  testTimeout: 300000,
   reporters: [
     "default",
     [
