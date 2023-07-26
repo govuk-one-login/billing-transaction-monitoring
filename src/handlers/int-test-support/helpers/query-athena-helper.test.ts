@@ -21,6 +21,7 @@ describe("queryAthena", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   it("should execute a query and return the results", async () => {
     const queryId = "test123";
     mockedStartQueryExecutionCommand.mockResolvedValue(queryId);
