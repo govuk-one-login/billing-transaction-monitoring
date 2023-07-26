@@ -14,6 +14,7 @@ import { S3Event, S3EventRecord, SQSRecord } from "aws-lambda";
 import { getFromEnv } from "./env";
 import { logger } from "./logger";
 import { decryptKms } from "./kms";
+import { AWS_REGION } from "../constants";
 
 type EncryptedS3ObjectMetadata = {
   "x-amz-cek-alg": string;
@@ -24,7 +25,7 @@ type EncryptedS3ObjectMetadata = {
 };
 
 const s3 = new S3Client({
-  region: "eu-west-2",
+  region: AWS_REGION,
   endpoint: getFromEnv("LOCAL_ENDPOINT"),
 });
 

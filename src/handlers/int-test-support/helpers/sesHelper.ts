@@ -3,6 +3,7 @@ import { IntTestHelpers } from "../types";
 import { runViaLambda } from "./envHelper";
 import { sendLambdaCommand } from "./lambdaHelper";
 import { getSecret } from "./secretsManagerHelper";
+import { AWS_REGION } from "../../../shared/constants";
 
 export type EmailParams = {
   SourceAddress: string;
@@ -32,7 +33,7 @@ export const sendEmail = async (params: EmailParams): Promise<string> => {
     ]);
 
     const transporter = nodemailer.createTransport({
-      host: "email-smtp.eu-west-2.amazonaws.com",
+      host: `email-smtp.${AWS_REGION}.amazonaws.com`,
       port: 465,
       secure: true,
       auth: { user, pass },

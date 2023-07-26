@@ -93,6 +93,7 @@ describe("transform", () => {
         },
       ]);
     });
+
     it("performs the transformations to timestampOfManufacture when given dateOfManufacture as milliseconds", () => {
       type AugmentedHoover = RawHoover & {
         eyelashLength: number;
@@ -169,6 +170,7 @@ describe("transform", () => {
         },
       ]);
     });
+
     it("performs the transformations of timestampOfManufacture from string to number when given timestampOfManufacture as seconds", () => {
       type AugmentedHoover = RawHoover & {
         eyelashLength: number;

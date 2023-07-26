@@ -4,6 +4,7 @@ import { sendCustomResourceResult } from "../../shared/utils";
 import { getAthenaViewResourceData } from "./get-athena-view-resource-data";
 import { handler } from "./handler";
 import { AthenaQueryExecutor } from "../../shared/utils/athena";
+import { AWS_REGION } from "../../shared/constants";
 
 jest.mock("aws-sdk");
 const MockedAthenaClass = Athena as jest.MockedClass<typeof Athena>;
@@ -137,7 +138,7 @@ describe("Custom Athena view resource handler", () => {
     await handler(givenEvent, givenContext);
 
     expect(MockedAthenaClass).toHaveBeenCalledTimes(1);
-    expect(MockedAthenaClass).toHaveBeenCalledWith({ region: "eu-west-2" });
+    expect(MockedAthenaClass).toHaveBeenCalledWith({ region: AWS_REGION });
     expect(mockedAthenaStartQueryExecution).toHaveBeenCalledTimes(1);
     expect(mockedAthenaStartQueryExecution).toHaveBeenCalledWith({
       QueryExecutionContext: {
