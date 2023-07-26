@@ -1,7 +1,7 @@
-import { pageTitleFormatter } from "../utils";
+import { pageTitleFormatter } from "../utils/title";
 import { errorParamsGetter } from "./error";
 
-jest.mock("../utils");
+jest.mock("../utils/title");
 const mockedPageTitleFormatter = pageTitleFormatter as jest.Mock;
 
 describe("error handler", () => {
