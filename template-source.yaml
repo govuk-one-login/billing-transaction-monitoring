@@ -57,7 +57,15 @@ Conditions:
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
   AlertingDisabled: !Not [!Equals [!Ref EnableAlerting, true]]
   IsEnvWithAutoTests: !Not [!Equals [!Ref TestRoleArn, none]]
+  IsEnvForPerformanceTests: !Equals [!Ref Environment, staging]
   UsePrivateConfigStack: !Not [!Equals [!Ref PrivateConfigStack, none]]
+  DeployFilterQueue:
+    !Not [
+      !Or [
+        !Equals [!Ref Environment, production],
+        !Equals [!Ref Environment, integration],
+      ],
+    ]
   IsLocal: !Equals [!Ref Environment, local]
   # This is a workaround for the pipeline in dev being deployed with Environment=build due to hardcoded permissions
   IsDev: !Equals [!Select [2, !Split ['-', !Ref AWS::StackName]], dev]

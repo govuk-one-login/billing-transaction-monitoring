@@ -4,7 +4,7 @@ Transform: AWS::Serverless-2016-10-31
 Resources:
   FilterQueue:
     Type: AWS::SQS::Queue
-    Condition: IsLowerEnv
+    Condition: DeployFilterQueue
     Properties:
       QueueName: !Sub ${AWS::StackName}-filter-queue
       KmsMasterKeyId: !GetAtt KmsKey.Arn
@@ -14,15 +14,14 @@ Resources:
 
   FilterDeadLetterQueue:
     Type: AWS::SQS::Queue
-    Condition: IsLowerEnv
+    Condition: DeployFilterQueue
     Properties:
       QueueName: !Sub ${AWS::StackName}-filter-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-  # Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
   FilterDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
-    Condition: IsLowerEnv
+    Condition: DeployFilterQueue
     Properties:
       AlarmName: !Sub ${AWS::StackName}-filter-dlq-alarm
       AlarmActions:
@@ -51,18 +50,6 @@ Resources:
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
-      Events:
-        FilterEvent:
-          Type: SQS
-          Properties:
-            FunctionResponseTypes:
-              - ReportBatchItemFailures
-            Queue:
-              !If [
-                IsHigherEnv,
-                !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-queue-arn}}',
-                !GetAtt FilterQueue.Arn,
-              ]
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
@@ -81,11 +68,21 @@ Resources:
                 - sqs:GetQueueAttributes
                 - sqs:ReceiveMessage
               Resource:
-                !If [
-                  IsHigherEnv,
-                  !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-queue-arn}}',
-                  !GetAtt FilterQueue.Arn,
-                ]
+                - !If [
+                    DeployFilterQueue,
+                    !GetAtt FilterQueue.Arn,
+                    !Ref AWS::NoValue,
+                  ]
+                - !If [
+                    IsEnvForPerformanceTests,
+                    !GetAtt FilterQueueForPerformanceTests.Arn,
+                    !Ref AWS::NoValue,
+                  ]
+                - !If [
+                    IsHigherEnv,
+                    !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-queue-arn}}',
+                    !Ref AWS::NoValue,
+                  ]
             - Effect: Allow
               Action:
                 - sqs:SendMessage
@@ -97,6 +94,11 @@ Resources:
                 - kms:Encrypt
               Resource:
                 - !GetAtt KmsKey.Arn
+                - !If [
+                    IsEnvForPerformanceTests,
+                    !GetAtt PerformanceTestingKmsKey.Arn,
+                    !Ref AWS::NoValue,
+                  ]
                 - !If [
                     IsHigherEnv,
                     !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-kms-key-arn}}',
@@ -116,6 +118,39 @@ Resources:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
       ReservedConcurrentExecutions: 10
 
+  FilterFunctionEventsFromFilterQueue:
+    Type: AWS::Lambda::EventSourceMapping
+    Condition: DeployFilterQueue
+    Properties:
+      BatchSize: 10
+      Enabled: true
+      EventSourceArn: !GetAtt FilterQueue.Arn
+      FunctionName: !Ref FilterFunction
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+
+  FilterFunctionEventsFromTxMAQueue:
+    Type: AWS::Lambda::EventSourceMapping
+    Condition: IsHigherEnv
+    Properties:
+      BatchSize: 10
+      Enabled: true
+      EventSourceArn: !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-queue-arn}}'
+      FunctionName: !Ref FilterFunction
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+
+  FilterFunctionEventsFromPerformanceTestingQueue:
+    Type: AWS::Lambda::EventSourceMapping
+    Condition: IsEnvForPerformanceTests
+    Properties:
+      BatchSize: 10
+      Enabled: true
+      EventSourceArn: !GetAtt FilterQueueForPerformanceTests.Arn
+      FunctionName: !Ref FilterFunction
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+
   FilterFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -132,3 +167,54 @@ Resources:
       Period: 60
       Statistic: Sum
       Threshold: 0
+
+  PerformanceTestingKmsKey:
+    Condition: IsEnvForPerformanceTests
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for performance testing
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Action: kms:*
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Resource: '*'
+          - Sid: Enable Access from Performance Testing Account
+            Action:
+              - kms:GenerateDataKey
+              - kms:Decrypt
+            Condition:
+              StringEquals:
+                kms:ViaService: sqs.amazonaws.com
+            Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::330163506186:root
+            Resource: '*'
+
+  PerformanceTestingKmsKeyAlias:
+    Condition: IsEnvForPerformanceTests
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/${AWS::StackName}/perf-test-kms-key
+      TargetKeyId: !Ref PerformanceTestingKmsKey
+
+  FilterQueueForPerformanceTests:
+    Type: AWS::SQS::Queue
+    Condition: IsEnvForPerformanceTests
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-perf-test-filter-queue
+      KmsMasterKeyId: !GetAtt PerformanceTestingKmsKey.Arn
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt FilterDeadLetterQueueForPerformanceTests.Arn
+        maxReceiveCount: 3
+
+  FilterDeadLetterQueueForPerformanceTests:
+    Type: AWS::SQS::Queue
+    Condition: IsEnvForPerformanceTests
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-perf-test-filter-dlq
+      KmsMasterKeyId: !GetAtt KmsKey.Arn
