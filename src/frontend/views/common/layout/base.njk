@@ -11,7 +11,9 @@
 {% block content %}
 {% endblock content %}
 {% block footer %}
-  {{ govukFooter({"meta": {"items": [{"href": "#", "text": "Cookies"}]}}) }}
+  {# djlint:off #}
+  {{ govukFooter({ meta: { items: [ { href: "#", text: "Cookies" } ] } } ) }}
+  {# djlint:on #}
 {% endblock footer %}
 {% block bodyEnd %}
   <script src="/assets/scripts/all.js" nonce="{{ cspNonce }}"></script>
