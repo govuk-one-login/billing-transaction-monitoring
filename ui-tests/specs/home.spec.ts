@@ -23,6 +23,11 @@ describe("Home Page Tests", () => {
     );
   });
 
+  it.only("Should display the overview table with correct data", async () => {
+    const tableData = await HomePage.getTableData(await HomePage.overViewTable);
+    console.log(tableData);
+  });
+
   it("Should navigate to the Contracts page when clicked on the link", async () => {
     await HomePage.clickOnContractsPageLink();
     const newPageUrl = await browser.getUrl();
