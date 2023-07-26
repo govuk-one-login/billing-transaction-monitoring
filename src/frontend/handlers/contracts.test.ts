@@ -3,7 +3,7 @@ import { ConfigElements } from "../../shared/constants";
 import { getConfig } from "../../shared/utils";
 import { app } from "../app";
 import { initApp } from "../init-app";
-import { getOverviewRows } from "../extract-helpers/get-overview-rows";
+import { getOverviewRows } from "../extract-helpers";
 import { unitTestMiddleware } from "../middleware";
 
 jest.mock("../../shared/utils");

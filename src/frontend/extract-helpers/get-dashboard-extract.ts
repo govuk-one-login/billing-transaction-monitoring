@@ -1,5 +1,6 @@
 import { fetchS3 } from "../../shared/utils";
 import { FullExtractLineItem } from "./types";
+import { DASHBOARD_EXTRACT_PATH } from "../../shared/constants";
 
 let promise: Promise<string>;
 
@@ -8,10 +9,7 @@ export const getDashboardExtract = async (): Promise<FullExtractLineItem[]> => {
     throw new Error("No STORAGE_BUCKET defined in this environment");
 
   if (promise === undefined)
-    promise = fetchS3(
-      process.env.STORAGE_BUCKET,
-      "btm_extract_data/full-extract.json"
-    );
+    promise = fetchS3(process.env.STORAGE_BUCKET, DASHBOARD_EXTRACT_PATH);
 
   const extract = await promise;
   const jsonArray = "[" + extract.replace(/\n/g, ",") + "]";

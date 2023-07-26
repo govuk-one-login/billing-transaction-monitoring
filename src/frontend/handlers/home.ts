@@ -4,9 +4,14 @@ import { getOverviewRows } from "../extract-helpers/get-overview-rows";
 export const indexParamsGetter: PageParamsGetter<{}, IndexParams> = async (
   _
 ) => {
+  const [pageTitle, overviewRows] = await Promise.all([
+    indexTitleGetter(),
+    getOverviewRows(),
+  ]);
+
   return {
-    pageTitle: await indexTitleGetter(),
-    overviewRows: await getOverviewRows(),
+    pageTitle,
+    overviewRows,
   };
 };
 

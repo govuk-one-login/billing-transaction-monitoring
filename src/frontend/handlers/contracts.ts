@@ -5,9 +5,13 @@ export const contractsParamsGetter: PageParamsGetter<
   {},
   ContractParams
 > = async (_) => {
+  const [pageTitle, contracts] = await Promise.all([
+    contractsTitleGetter(),
+    getContracts(),
+  ]);
   return {
-    pageTitle: await contractsTitleGetter(),
-    contracts: await getContracts(),
+    pageTitle,
+    contracts,
   };
 };
 

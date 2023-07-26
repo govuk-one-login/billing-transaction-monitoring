@@ -1,5 +1,6 @@
 import { putTextS3 } from "../../shared/utils";
 import { store } from "./store";
+import { DASHBOARD_EXTRACT_PATH } from "../../shared/constants";
 
 jest.mock("../../shared/utils");
 
@@ -11,7 +12,7 @@ describe("store", () => {
     await store(bucket, message);
     expect(putTextS3).toHaveBeenCalledWith(
       bucket,
-      "btm_extract_data/full-extract.json",
+      DASHBOARD_EXTRACT_PATH,
       message
     );
   });

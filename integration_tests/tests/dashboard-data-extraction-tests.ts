@@ -8,9 +8,10 @@ import {
 import crypto from "crypto";
 import { ContractName } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
+import { DASHBOARD_EXTRACT_PATH } from "../../src/shared/constants";
 
 describe("\n DashboardDataExtractFunction", () => {
-  test("should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised invoice data is stored in s3", async () => {
+  test("should save an updated dashboard extract file, which is reflected in the btm_monthly_extract table, when standardised invoice data is stored in s3", async () => {
     const standardisedInvoiceObject = {
       invoice_receipt_id: "bme-653950781",
       vendor_id: "vendor_testvendor5",
@@ -51,12 +52,12 @@ describe("\n DashboardDataExtractFunction", () => {
       target: s3Object,
     });
 
-    // Wait for the DashboardDataExtractFunction to have stored the data in full-extract.json
+    // Wait for the DashboardDataExtractFunction to have stored the data in the dashboard extract file
     await poll(
       async () =>
         await getS3Object({
           bucket: `${resourcePrefix()}-storage`,
-          key: `btm_extract_data/full-extract.json`,
+          key: DASHBOARD_EXTRACT_PATH,
         }),
       (result) => {
         return result?.includes("£4,110.94") ?? false;
@@ -64,7 +65,7 @@ describe("\n DashboardDataExtractFunction", () => {
       {
         timeout: 280000,
         interval: 70000,
-        notCompleteErrorMessage: `Standardised Invoice data not found in storage/btm_extract_data/full-extract.json`,
+        notCompleteErrorMessage: `Standardised Invoice data not found in ${DASHBOARD_EXTRACT_PATH}`,
       }
     );
 

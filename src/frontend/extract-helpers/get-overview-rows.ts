@@ -1,5 +1,5 @@
 import { InvoiceBannerStatus, statusLabels } from "../utils";
-import { getContractPeriods } from "./get-contract-periods";
+import { getContractPeriods, Period } from "./get-contract-periods";
 import { getContracts } from "./get-contracts";
 import { getInvoiceBanner } from "./get-invoice-banner";
 import { getLineItems } from "./get-line-items";
@@ -44,9 +44,7 @@ export const getOverviewRows = async (): Promise<OverviewRow[]> => {
   return overviewRows;
 };
 
-const getRecentMonth = async (
-  contractId: string
-): Promise<{ month: string; year: string; prettyMonth: string }> => {
+const getRecentMonth = async (contractId: string): Promise<Period> => {
   const contractPeriods = await getContractPeriods(contractId);
   const latestPeriod = contractPeriods[contractPeriods.length - 1];
   return latestPeriod;
