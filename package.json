@@ -78,7 +78,7 @@
   },
   "scripts": {
     "husky:install": "husky install",
-    "test": "jest --maxWorkers=4 --silent",
+    "test": "jest --maxWorkers=1 --silent",
     "test:ephemeralEnvs": "jest --config jest.integration.config.ts --testPathIgnorePatterns email-storage-tests e2e-tests --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
     "test:integration": "jest --config jest.integration.config.ts --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
     "test:end2end": "jest --config jest.e2e.config.ts",
