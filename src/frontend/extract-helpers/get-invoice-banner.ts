@@ -61,7 +61,12 @@ export const getInvoiceBanner = (
     status = InvoiceBannerStatus.invoiceAboveThreshold;
     bannerClass = InvoiceBannerClass.error;
   } else if (
-    lineItems.find((lineItem) => +lineItem.price_difference_percentage <= -1)
+    lineItems.find(
+      ({ price_difference_percentage }) =>
+        +price_difference_percentage <= -1 &&
+        price_difference_percentage !==
+          percentageDiscrepancySpecialCase.MN_NO_CHARGE.magicNumber
+    )
   ) {
     status = InvoiceBannerStatus.invoiceBelowThreshold;
     bannerClass = InvoiceBannerClass.notice;
