@@ -116,8 +116,10 @@ const buildHandler =
   };
 
 export const handler = buildHandler(
-  // TODO add keys from secrets manager
-  new GoogleOAuth2ClientAdaptor("<CLIENT_ID>", "<CLIENT_SECRET>"),
+  new GoogleOAuth2ClientAdaptor(
+    process.env.GOOGLE_CLIENT_ID ?? "",
+    process.env.GOOGLE_CLIENT_SECRET ?? ""
+  ),
   getTokenFromAuthCode,
   validateIdToken
 );

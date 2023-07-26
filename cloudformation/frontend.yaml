@@ -106,8 +106,8 @@ Resources:
       ReservedConcurrentExecutions: 10
       Environment:
         Variables:
-          ACCOUNT_ID: AWS::AccountId
-          API_ID: !Ref FrontEndApi
+          AWS_ACCOUNT_ID: AWS::AccountId
+          AWS_API_ID: !Ref FrontEndApi
           GOOGLE_CLIENT_ID: "{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientId}}"
           GOOGLE_CLIENT_SECRET: "{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientSecret}}"
 
