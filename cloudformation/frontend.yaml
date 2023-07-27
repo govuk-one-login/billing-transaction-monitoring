@@ -43,10 +43,11 @@ Resources:
                     type: string
                     example: "<h1>Welcome to DI Billing</h1>"
       Domain:
-        Fn::ImportValue: !If
-          - IsDev
-          - !Sub di-btm-tooling-dev-frontend-certificate-arn
-          - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
+        CertificateArn:
+          Fn::ImportValue: !If
+            - IsDev
+            - !Sub di-btm-tooling-dev-frontend-certificate-arn
+            - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
         DomainName: !GetAtt FrontEndDomainName.Value
         Route53:
           HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
