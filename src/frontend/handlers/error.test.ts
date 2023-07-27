@@ -14,7 +14,7 @@ describe("error handler", () => {
     mockedPageTitleFormatter.mockReturnValue(mockedHeadTitle);
   });
 
-  test("Page displays all contracts", async () => {
+  test("Page displays error", async () => {
     const givenRequest = "given request";
 
     const result = await errorParamsGetter(givenRequest as any);
@@ -22,6 +22,7 @@ describe("error handler", () => {
     expect(result).toEqual({
       headTitle: mockedHeadTitle,
       pageTitle: "Sorry, there is a problem with the service",
+      cookiesLink: { text: "Cookies", href: "/cookies" },
     });
   });
 });

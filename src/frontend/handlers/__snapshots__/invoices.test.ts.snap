@@ -120,6 +120,7 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
     
 
     
+  
   <footer class="govuk-footer " role="contentinfo">
   <div class="govuk-width-container ">
     
@@ -131,7 +132,7 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
             <ul class="govuk-footer__inline-list">
               
                 <li class="govuk-footer__inline-list-item">
-                  <a class="govuk-footer__link" href="#">
+                  <a class="govuk-footer__link" href="/cookies">
                     Cookies
                   </a>
                 </li>
@@ -175,6 +176,7 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
   </div>
 </footer>
 
+  
 
 
     

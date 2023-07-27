@@ -13,19 +13,28 @@ describe("Page", () => {
     homePage = {
       relativePath: "",
       njk: "",
-      paramsGetter: async (_) => ({ pageTitle: "homePage" }),
+      paramsGetter: async (_) => ({
+        pageTitle: "homePage",
+        cookiesLink: { text: "Cookies", href: "/cookies" },
+      }),
       titleGetter: async () => "homePage",
     };
     childType1Page = {
       relativePath: ":child_id/childType1",
-      paramsGetter: async (_) => ({ pageTitle: "ChildType1" }),
+      paramsGetter: async (_) => ({
+        pageTitle: "ChildType1",
+        cookiesLink: { text: "Cookies", href: "/cookies" },
+      }),
       njk: "",
       parent: homePage,
       titleGetter: async () => "ChildType1",
     };
     childType2Page = {
       relativePath: "childType2",
-      paramsGetter: async (_) => ({ pageTitle: "ChildType2" }),
+      paramsGetter: async (_) => ({
+        pageTitle: "ChildType2",
+        cookiesLink: { text: "Cookies", href: "/cookies" },
+      }),
       njk: "",
       parent: homePage,
       titleGetter: async () => "ChildType2",
@@ -34,6 +43,7 @@ describe("Page", () => {
       relativePath: "grandchildType",
       paramsGetter: jest.fn().mockResolvedValue({
         pageTitle: "GrandchildType",
+        cookiesLink: { text: "Cookies", href: "/cookies" },
         some_id: "someValue",
       }),
       njk: "grandchild.njk",
@@ -98,6 +108,7 @@ describe("Page", () => {
             ],
           },
           pageTitle: "GrandchildType",
+          cookiesLink: { text: "Cookies", href: "/cookies" },
           some_id: "someValue",
           cspNonce: "someCsp",
         }

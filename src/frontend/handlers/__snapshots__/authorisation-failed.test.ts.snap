@@ -100,6 +100,7 @@ exports[`authorisation failed handler Page displays title and info 1`] = `
     
 
     
+  
   <footer class="govuk-footer " role="contentinfo">
   <div class="govuk-width-container ">
     
@@ -111,7 +112,7 @@ exports[`authorisation failed handler Page displays title and info 1`] = `
             <ul class="govuk-footer__inline-list">
               
                 <li class="govuk-footer__inline-list-item">
-                  <a class="govuk-footer__link" href="#">
+                  <a class="govuk-footer__link" href="/cookies">
                     Cookies
                   </a>
                 </li>
@@ -155,6 +156,7 @@ exports[`authorisation failed handler Page displays title and info 1`] = `
   </div>
 </footer>
 
+  
 
 
     
