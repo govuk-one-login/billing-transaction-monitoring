@@ -65,6 +65,16 @@ Conditions:
   IsLocal: !Equals [!Ref Environment, local]
   # This is a workaround for the pipeline in dev being deployed with Environment=build due to hardcoded permissions
   IsDev: !Equals [!Select [2, !Split ['-', !Ref AWS::StackName]], dev]
+  IsEphemeral: 
+    !Not [
+      !Or [
+        !Equals [!Ref AWS::StackName, di-btm-dev],
+        !Equals [!Ref AWS::StackName, di-btm-build],
+        !Equals [!Ref AWS::StackName, di-btm-staging],
+        !Equals [!Ref AWS::StackName, di-btm-integration],
+        !Equals [!Ref AWS::StackName, di-btm-production],
+      ]
+    ]
   IsBuild: !Equals [!Ref Environment, build]
   IsStaging: !Equals [!Ref Environment, staging]
   IsIntegration: !Equals [!Ref Environment, integration]
@@ -93,12 +103,10 @@ Conditions:
       !Equals [!Ref AWS::StackName, di-btm-production],
     ]
   FrontEndEnabled:
-    !And [
-      !Not [!Equals [!Ref FrontEndCertificateArn, none]],
-      !Or [
-        !Equals [!Ref AWS::StackName, di-btm-dev],
-        !Equals [!Ref AWS::StackName, di-btm-build],
-      ],
+    !Or [
+      !Equals [!Ref AWS::StackName, di-btm-dev],
+      !Equals [!Ref AWS::StackName, di-btm-build],
+      IsEphemeral
     ]
 
 Globals:

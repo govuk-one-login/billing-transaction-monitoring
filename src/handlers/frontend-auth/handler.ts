@@ -7,15 +7,20 @@ import { GoogleOAuth2ClientAdaptor } from "./google-oauth-client-adaptor";
 
 const region = "eu-west-2";
 const accountId = process.env.AWS_ACCOUNT_ID;
-const apiId = process.env.AWS_API_ID;
 const verb = "GET";
 const stage = process.env.ENV_NAME;
 
-const generatePolicy = (
-  sub: string,
-  effect: "Allow" | "Deny",
-  context?: Record<string, string | number | boolean | null | undefined>
-): APIGatewayAuthorizerResult => ({
+const generatePolicy = ({
+  apiId,
+  sub,
+  effect,
+  context,
+}: {
+  apiId: string;
+  sub: string;
+  effect: "Allow" | "Deny";
+  context?: Record<string, string | number | boolean | null | undefined>;
+}): APIGatewayAuthorizerResult => ({
   principalId: sub,
   policyDocument: {
     Version: "2012-10-17",
@@ -30,10 +35,21 @@ const generatePolicy = (
   context,
 });
 
-const getTokenFromAuthCode = async (
-  client: IOAuth2ClientAdaptor,
-  code: string
-): Promise<APIGatewayAuthorizerResult> => {
+type GetTokenFromAuthCode = ({
+  apiId,
+  client,
+  code,
+}: {
+  apiId: string;
+  client: IOAuth2ClientAdaptor;
+  code: string;
+}) => Promise<APIGatewayAuthorizerResult>;
+
+const getTokenFromAuthCode: GetTokenFromAuthCode = async ({
+  apiId,
+  client,
+  code,
+}) => {
   await client.setCredentialsFromCode(code);
   const { sub } = await client.getDecodedAccessToken();
 
@@ -46,35 +62,45 @@ const getTokenFromAuthCode = async (
   }
 
   // TODO: validate the state param (will be in the result of this call under "nonce")
-  await validateIdToken(client, client.credentials.id_token);
-
-  return generatePolicy(sub, "Allow", {
+  await validateIdToken({
+    apiId,
+    client,
     idToken: client.credentials.id_token,
+  });
+
+  return generatePolicy({
+    apiId,
+    sub,
+    effect: "Allow",
+    context: {
+      idToken: client.credentials.id_token,
+    },
   });
 };
 
-const validateIdToken = async (
-  client: IOAuth2ClientAdaptor,
-  idToken: string
-): Promise<APIGatewayAuthorizerResult> => {
+type ValidateIdToken = ({
+  apiId,
+  client,
+  idToken,
+}: {
+  apiId: string;
+  client: IOAuth2ClientAdaptor;
+  idToken: string;
+}) => Promise<APIGatewayAuthorizerResult>;
+
+const validateIdToken: ValidateIdToken = async ({ apiId, client, idToken }) => {
   const { sub } = await client.verifyIdToken(idToken);
   if (!sub) {
     throw new Error("sub not found on idToken");
   }
-  return generatePolicy(sub, "Allow", { idToken });
+  return generatePolicy({ apiId, sub, effect: "Allow", context: { idToken } });
 };
 
 const buildHandler =
   (
     OAuth2Client: IOAuth2ClientAdaptor,
-    getTokenFromAuthCode: (
-      client: IOAuth2ClientAdaptor,
-      code: string
-    ) => Promise<APIGatewayAuthorizerResult>,
-    validateIdToken: (
-      client: IOAuth2ClientAdaptor,
-      idToken: string
-    ) => Promise<APIGatewayAuthorizerResult>
+    getTokenFromAuthCode: GetTokenFromAuthCode,
+    validateIdToken: ValidateIdToken
   ) =>
   async (
     event: APIGatewayRequestAuthorizerEvent
@@ -84,17 +110,22 @@ const buildHandler =
   > => {
     try {
       if (event.queryStringParameters?.code) {
-        return await getTokenFromAuthCode(
-          OAuth2Client,
-          event.queryStringParameters.code
-        );
+        return await getTokenFromAuthCode({
+          apiId: event.requestContext.apiId,
+          client: OAuth2Client,
+          code: event.queryStringParameters.code,
+        });
       } else if (event.headers?.Authorization) {
         const [, , idToken] =
           event.headers.Authorization.match(
             /^(Bearer\s)?([._A-Za-z0-9]{1,512})$/
           ) ?? [];
 
-        return await validateIdToken(OAuth2Client, idToken);
+        return await validateIdToken({
+          apiId: event.requestContext.apiId,
+          client: OAuth2Client,
+          idToken,
+        });
       }
     } catch (error) {
       // return generatePolicy("None", "Deny");
