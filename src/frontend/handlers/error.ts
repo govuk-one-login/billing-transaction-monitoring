@@ -1,10 +1,14 @@
 import {
+  BaseParams,
   cookiesPage,
-  ErrorPageParams,
   PageParamsGetter,
   PageTitleGetter,
 } from "../pages";
 import { getLinkData, pageTitleFormatter } from "../utils";
+
+export type ErrorPageParams = BaseParams & {
+  headTitle: string;
+};
 
 export const errorParamsGetter: PageParamsGetter<{}, ErrorPageParams> = async (
   request

@@ -3,15 +3,20 @@ import {
   getContractPeriods,
 } from "../extract-helpers";
 import {
-  InvoicesParams,
-  InvoicesRequestParams,
   PageParamsGetter,
   PageTitleGetter,
   getUrl,
   invoicePage,
   cookiesPage,
+  BaseParams,
 } from "../pages";
-import { getLinkData } from "../utils";
+import { getLinkData, LinkData } from "../utils";
+
+export type InvoicesRequestParams = { contract_id: string };
+
+export type InvoicesParams = BaseParams & {
+  invoiceLinksData: LinkData[];
+};
 
 export const invoicesParamsGetter: PageParamsGetter<
   InvoicesRequestParams,

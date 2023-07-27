@@ -1,8 +1,8 @@
-import {
-  AuthorisationFailedParams,
-  PageParamsGetter,
-  PageTitleGetter,
-} from "../pages";
+import { PageParamsGetter, PageTitleGetter } from "../pages";
+
+export type AuthorisationFailedParams = {
+  pageTitle: string;
+};
 
 export const authorisationFailedParamsGetter: PageParamsGetter<
   {},

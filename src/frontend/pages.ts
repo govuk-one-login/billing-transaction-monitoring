@@ -1,18 +1,33 @@
 import { Request, RequestHandler, Response } from "express";
 import {
+  AuthorisationFailedParams,
   authorisationFailedParamsGetter,
   authorisationFailedTitleGetter,
 } from "./handlers/authorisation-failed";
 import {
+  ContractParams,
   contractsParamsGetter,
   contractsTitleGetter,
 } from "./handlers/contracts";
-import { invoicesParamsGetter, invoicesTitleGetter } from "./handlers/invoices";
-import { invoiceParamsGetter, invoiceTitleGetter } from "./handlers/invoice";
-import { homeParamsGetter, homeTitleGetter } from "./handlers/home";
+import {
+  InvoicesParams,
+  invoicesParamsGetter,
+  InvoicesRequestParams,
+  invoicesTitleGetter,
+} from "./handlers/invoices";
+import {
+  InvoiceParams,
+  invoiceParamsGetter,
+  InvoiceRequestParams,
+  invoiceTitleGetter,
+} from "./handlers/invoice";
+import { HomeParams, homeParamsGetter, homeTitleGetter } from "./handlers/home";
 import path from "node:path";
-import { ReconciliationRow, OverviewRow } from "./extract-helpers";
-import { errorParamsGetter, errorTitleGetter } from "./handlers/error";
+import {
+  ErrorPageParams,
+  errorParamsGetter,
+  errorTitleGetter,
+} from "./handlers/error";
 import { LinkData } from "./utils";
 import {
   CookiesParams,
@@ -106,24 +121,16 @@ export const getHandler = <TParams, TReturn>(
   };
 };
 
-export type BasePage = {
+export type BaseParams = {
   pageTitle: string;
   cookiesLink: LinkData;
 };
 
-export type HomeParams = BasePage & {
-  overviewRows: OverviewRow[];
-};
-
-export const homePage: Page<{}, {}> = {
+export const homePage: Page<{}, HomeParams> = {
   relativePath: "",
   njk: "home.njk",
   paramsGetter: homeParamsGetter,
   titleGetter: homeTitleGetter,
-};
-
-export type ContractParams = BasePage & {
-  invoicesLinksData: LinkData[];
 };
 
 export const contractsPage: Page<{}, ContractParams> = {
@@ -134,12 +141,6 @@ export const contractsPage: Page<{}, ContractParams> = {
   titleGetter: contractsTitleGetter,
 };
 
-export type InvoicesRequestParams = { contract_id: string };
-
-export type InvoicesParams = BasePage & {
-  invoiceLinksData: LinkData[];
-};
-
 export const invoicesPage: Page<InvoicesRequestParams, InvoicesParams> = {
   parent: contractsPage,
   relativePath: ":contract_id/invoices",
@@ -148,37 +149,12 @@ export const invoicesPage: Page<InvoicesRequestParams, InvoicesParams> = {
   titleGetter: invoicesTitleGetter,
 };
 
-export type InvoiceRequestParams = {
-  contract_id: string;
-  year: string;
-  month: string;
-};
-
-export type InvoiceParams = BasePage & {
-  vendorName: string;
-  contractName: string;
-  contractId: string;
-  year: string;
-  prettyMonth: string;
-  bannerClass: string;
-  invoiceStatus: string;
-  reconciliationRows: ReconciliationRow[];
-  invoiceTotals: {
-    billingPriceTotal: string;
-    billingPriceInclVatTotal: string;
-  };
-};
-
 export const invoicePage: Page<InvoiceRequestParams, InvoiceParams> = {
   parent: invoicesPage,
   relativePath: ":year-:month",
   njk: "invoice.njk",
   paramsGetter: invoiceParamsGetter,
   titleGetter: invoiceTitleGetter,
-};
-
-export type AuthorisationFailedParams = {
-  pageTitle: string;
 };
 
 const authorisationFailedPage: Page<{}, AuthorisationFailedParams> = {
@@ -194,10 +170,6 @@ export const cookiesPage: Page<{}, CookiesParams> = {
   njk: "cookies.njk",
   paramsGetter: cookiesParamsGetter,
   titleGetter: cookiesTitleGetter,
-};
-
-export type ErrorPageParams = BasePage & {
-  headTitle: string;
 };
 
 // Do not add to `PAGES` array. Rendered by error handling middleware instead

@@ -1,12 +1,19 @@
 import {
-  HomeParams,
   PageParamsGetter,
   PageTitleGetter,
   contractsPage,
   cookiesPage,
+  BaseParams,
 } from "../pages";
-import { getOverviewRows } from "../extract-helpers/get-overview-rows";
+import {
+  getOverviewRows,
+  OverviewRow,
+} from "../extract-helpers/get-overview-rows";
 import { getLinkData } from "../utils";
+
+export type HomeParams = BaseParams & {
+  overviewRows: OverviewRow[];
+};
 
 export const homeParamsGetter: PageParamsGetter<{}, HomeParams> = async (
   request

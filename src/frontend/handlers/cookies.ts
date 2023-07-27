@@ -1,19 +1,20 @@
 import {
-  BasePage,
+  BaseParams,
   cookiesPage,
   PageParamsGetter,
   PageTitleGetter,
 } from "../pages";
 import { getLinkData } from "../utils";
 
-export type CookiesParams = BasePage & {};
+export type CookiesParams = BaseParams & {};
 
 export const cookiesParamsGetter: PageParamsGetter<{}, CookiesParams> = async (
   request
 ) => {
-  const pageTitle = "Change your cookie settings";
-
-  const cookiesLink = await getLinkData(cookiesPage, request.params);
+  const [pageTitle, cookiesLink] = await Promise.all([
+    cookiesTitleGetter(),
+    getLinkData(cookiesPage, request.params),
+  ]);
 
   return { pageTitle, cookiesLink };
 };

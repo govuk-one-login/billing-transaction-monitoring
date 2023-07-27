@@ -1,12 +1,16 @@
 import { getContractIds } from "../extract-helpers";
 import {
-  ContractParams,
   PageParamsGetter,
   PageTitleGetter,
   invoicesPage,
   cookiesPage,
+  BaseParams,
 } from "../pages";
-import { getLinkData } from "../utils";
+import { getLinkData, LinkData } from "../utils";
+
+export type ContractParams = BaseParams & {
+  invoicesLinksData: LinkData[];
+};
 
 export const contractsParamsGetter: PageParamsGetter<
   {},

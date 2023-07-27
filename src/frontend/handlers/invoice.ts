@@ -5,14 +5,35 @@ import {
   getLineItems,
   getReconciliationRows,
   getTotals,
+  ReconciliationRow,
 } from "../extract-helpers";
 import {
+  BaseParams,
   cookiesPage,
-  InvoiceParams,
-  InvoiceRequestParams,
   PageParamsGetter,
   PageTitleGetter,
 } from "../pages";
+
+export type InvoiceRequestParams = {
+  contract_id: string;
+  year: string;
+  month: string;
+};
+
+export type InvoiceParams = BaseParams & {
+  vendorName: string;
+  contractName: string;
+  contractId: string;
+  year: string;
+  prettyMonth: string;
+  bannerClass: string;
+  invoiceStatus: string;
+  reconciliationRows: ReconciliationRow[];
+  invoiceTotals: {
+    billingPriceTotal: string;
+    billingPriceInclVatTotal: string;
+  };
+};
 
 export const invoiceParamsGetter: PageParamsGetter<
   InvoiceRequestParams,
