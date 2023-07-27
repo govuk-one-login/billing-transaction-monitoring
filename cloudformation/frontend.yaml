@@ -157,13 +157,13 @@ Resources:
   FrontEndAuthFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-    # checkov:skip=CKV_AWS_173: env var encryption, I'll remove this later
     Type: AWS::Serverless::Function
     Condition: FrontEndEnabled
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
       Handler: frontendAuth.handler
       ReservedConcurrentExecutions: 10
+      KmsKeyArn: !GetAtt  KmsKey.Arn
       Environment:
         Variables:
           AWS_ACCOUNT_ID: AWS::AccountId
