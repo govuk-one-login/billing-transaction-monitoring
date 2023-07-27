@@ -1,0 +1,9 @@
+{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+{% extends "common/layout/base.njk" %}
+{% block beforeContent %}
+  {{ govukBreadcrumbs(breadcrumbData) }}
+{% endblock beforeContent %}
+{% block content %}
+  <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
+  Cookies!
+{% endblock content %}

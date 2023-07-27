@@ -12,7 +12,7 @@
 {% endblock content %}
 {% block footer %}
   {# djlint:off #}
-  {{ govukFooter({ meta: { items: [ { href: "#", text: "Cookies" } ] } } ) }}
+  {{ govukFooter({ meta: { items: [ cookiesLink ] } } ) }}
   {# djlint:on #}
 {% endblock footer %}
 {% block bodyEnd %}

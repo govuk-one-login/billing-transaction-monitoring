@@ -1,4 +1,4 @@
-import { MONTHS } from "../utils";
+import { getLinkData, MONTHS } from "../utils";
 import {
   getContractAndVendorName,
   getInvoiceBanner,
@@ -7,6 +7,7 @@ import {
   getTotals,
 } from "../extract-helpers";
 import {
+  cookiesPage,
   InvoiceParams,
   InvoiceRequestParams,
   PageParamsGetter,
@@ -17,14 +18,15 @@ export const invoiceParamsGetter: PageParamsGetter<
   InvoiceRequestParams,
   InvoiceParams
 > = async (request) => {
-  const [config, lineItems, pageTitle] = await Promise.all([
+  const [pageTitle, cookiesLink, config, lineItems] = await Promise.all([
+    invoiceTitleGetter(request.params),
+    getLinkData(cookiesPage, request.params),
     getContractAndVendorName(request.params.contract_id),
     getLineItems(
       request.params.contract_id,
       request.params.year,
       request.params.month
     ),
-    invoiceTitleGetter(request.params),
   ]);
 
   const invoiceBanner = getInvoiceBanner(lineItems);
@@ -35,6 +37,7 @@ export const invoiceParamsGetter: PageParamsGetter<
 
   return {
     pageTitle,
+    cookiesLink,
     vendorName: config.vendorName,
     contractName: config.contractName,
     contractId: request.params.contract_id,

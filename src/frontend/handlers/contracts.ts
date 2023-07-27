@@ -4,6 +4,7 @@ import {
   PageParamsGetter,
   PageTitleGetter,
   invoicesPage,
+  cookiesPage,
 } from "../pages";
 import { getLinkData } from "../utils";
 
@@ -11,9 +12,10 @@ export const contractsParamsGetter: PageParamsGetter<
   {},
   ContractParams
 > = async (request) => {
-  const [contractIds, pageTitle] = await Promise.all([
-    getContractIds(),
+  const [pageTitle, cookiesLink, contractIds] = await Promise.all([
     contractsTitleGetter(),
+    getLinkData(cookiesPage, request.params),
+    getContractIds(),
   ]);
 
   const invoicesLinkDataPromises = contractIds.map(
@@ -22,8 +24,9 @@ export const contractsParamsGetter: PageParamsGetter<
   );
 
   return {
-    invoicesLinksData: await Promise.all(invoicesLinkDataPromises),
     pageTitle,
+    cookiesLink,
+    invoicesLinksData: await Promise.all(invoicesLinkDataPromises),
   };
 };
 

@@ -1,14 +1,23 @@
-import { ErrorPageParams, PageParamsGetter, PageTitleGetter } from "../pages";
-import { pageTitleFormatter } from "../utils";
+import {
+  cookiesPage,
+  ErrorPageParams,
+  PageParamsGetter,
+  PageTitleGetter,
+} from "../pages";
+import { getLinkData, pageTitleFormatter } from "../utils";
 
 export const errorParamsGetter: PageParamsGetter<{}, ErrorPageParams> = async (
-  _
+  request
 ) => {
-  const pageTitle = await errorTitleGetter();
+  const [pageTitle, cookiesLink] = await Promise.all([
+    errorTitleGetter(),
+    getLinkData(cookiesPage, request.params),
+  ]);
 
   return {
-    headTitle: pageTitleFormatter(pageTitle),
     pageTitle,
+    cookiesLink,
+    headTitle: pageTitleFormatter(pageTitle),
   };
 };
 

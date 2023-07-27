@@ -14,6 +14,7 @@ import path from "node:path";
 import { ReconciliationRow, OverviewRow } from "./extract-helpers";
 import { errorParamsGetter, errorTitleGetter } from "./handlers/error";
 import { LinkData } from "./utils";
+import { cookiesParamsGetter, cookiesTitleGetter } from "./handlers/cookies";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams>
@@ -64,8 +65,8 @@ export const getUrl = <TParams>(
 const getBreadcrumbData = async <TParams>(
   page: Page<any, any>,
   request: Request<TParams>
-): Promise<{ items: Array<{ text: string; href: string }> }> => {
-  const breadcrumbs: Array<{ text: string; href: string }> = [];
+): Promise<{ items: LinkData[] }> => {
+  const breadcrumbs: LinkData[] = [];
   let currentPage: Page<any, any> | undefined = page.parent;
   while (currentPage) {
     breadcrumbs.unshift({
@@ -101,8 +102,12 @@ export const getHandler = <TParams, TReturn>(
   };
 };
 
-export type HomeParams = {
+export type BasePage = {
   pageTitle: string;
+  cookiesLink: LinkData;
+};
+
+export type HomeParams = BasePage & {
   overviewRows: OverviewRow[];
 };
 
@@ -113,8 +118,17 @@ const homePage: Page<{}, {}> = {
   titleGetter: homeTitleGetter,
 };
 
-export type ContractParams = {
-  pageTitle: string;
+export type CookiesParams = BasePage & {};
+
+export const cookiesPage: Page<{}, CookiesParams> = {
+  parent: homePage,
+  relativePath: "cookies",
+  njk: "cookies.njk",
+  paramsGetter: cookiesParamsGetter,
+  titleGetter: cookiesTitleGetter,
+};
+
+export type ContractParams = BasePage & {
   invoicesLinksData: LinkData[];
 };
 
@@ -128,8 +142,7 @@ export const contractsPage: Page<{}, ContractParams> = {
 
 export type InvoicesRequestParams = { contract_id: string };
 
-export type InvoicesParams = {
-  pageTitle: string;
+export type InvoicesParams = BasePage & {
   invoiceLinksData: LinkData[];
 };
 
@@ -147,8 +160,7 @@ export type InvoiceRequestParams = {
   month: string;
 };
 
-export type InvoiceParams = {
-  pageTitle: string;
+export type InvoiceParams = BasePage & {
   vendorName: string;
   contractName: string;
   contractId: string;
@@ -182,9 +194,8 @@ const authorisationFailedPage: Page<{}, AuthorisationFailedParams> = {
   titleGetter: authorisationFailedTitleGetter,
 };
 
-export type ErrorPageParams = {
+export type ErrorPageParams = BasePage & {
   headTitle: string;
-  pageTitle: string;
 };
 
 // Do not add to `PAGES` array. Rendered by error handling middleware instead
@@ -197,6 +208,7 @@ export const errorPage: Page<{}, ErrorPageParams> = {
 
 export const PAGES = [
   homePage,
+  cookiesPage,
   contractsPage,
   invoicesPage,
   invoicePage,
