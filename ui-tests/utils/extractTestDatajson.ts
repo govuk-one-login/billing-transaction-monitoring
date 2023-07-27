@@ -145,3 +145,27 @@ export const extractAllUniqueVendorInvoiceDataFomJson = (
   }
   return allVendorInvoiceData;
 };
+
+export const getLatestInvoicePerVendor = (): FullExtractData[] => {
+  const testDataFilePath = getTestDataFilePath();
+  const data = getExtractDataFromJson(testDataFilePath);
+
+  // sort data by vendor year and month
+  const sortedData = [...data].sort((a, b) => {
+    if (a.vendor_name !== b.vendor_name)
+      return a.vendor_name.localeCompare(b.vendor_name);
+    if (a.year !== b.year) return parseInt(b.year) - parseInt(a.year);
+    return parseInt(b.month) - parseInt(a.month);
+  });
+
+  // Filter latest invoice
+  const latestInvoices: FullExtractData[] = [];
+  let currentVendor = "";
+  for (const entry of sortedData) {
+    if (entry.vendor_name !== currentVendor) {
+      latestInvoices.push(entry);
+      currentVendor = entry.vendor_name;
+    }
+  }
+  return latestInvoices;
+};
