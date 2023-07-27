@@ -64,9 +64,6 @@ Resources:
   FrontEndEphemeralApi:
     Type: AWS::Serverless::Api
     Condition: IsEphemeral
-    DependsOn:
-      - FrontEndDomainName
-      - FrontEndHostedZoneName
     Properties:
       AccessLogSetting:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
