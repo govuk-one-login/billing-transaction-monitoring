@@ -1,7 +1,7 @@
 Resources:
   FrontEndApi:
     Type: AWS::Serverless::Api
-    Condition: !And [FrontEndEnabled, !Not [IsEphemeral]]
+    Condition: UseDomainName
     DependsOn:
       - FrontEndDomainName
       - FrontEndHostedZoneName

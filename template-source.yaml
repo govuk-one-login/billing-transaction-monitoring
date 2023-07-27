@@ -104,6 +104,8 @@ Conditions:
       !Equals [!Ref AWS::StackName, di-btm-build],
       IsEphemeral
     ]
+  UseDomainName:
+    !And [FrontEndEnabled, !Not [IsEphemeral]]
 
 Globals:
   Function:
