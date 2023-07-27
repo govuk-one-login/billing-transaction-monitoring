@@ -1,31 +1,115 @@
 Resources:
   FrontEndApi:
-    Type: AWS::Serverless::HttpApi
-    Condition: FrontEndEnabled
+    Type: AWS::Serverless::Api
+    Condition: !And [FrontEndEnabled, !Not [IsEphemeral]]
     DependsOn:
       - FrontEndDomainName
       - FrontEndHostedZoneName
     Properties:
-      AccessLogSettings:
+      AccessLogSetting:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
         Format: '{ "requestId":"$context.requestId", "requestTime":"$context.requestTime", "routeKey":"$context.routeKey", "status":"$context.status" }'
       Auth:
         Authorizers:
           LambdaAuthorizer:
-            AuthorizerPayloadFormatVersion: '2.0'
-            EnableFunctionDefaultPermissions: true
-            EnableSimpleResponses: true
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
+            FunctionPayloadType: REQUEST
+            Identity: 
+              Headers: 
+                - Authorization
+              QueryStrings:
+                - code
+                - state
         DefaultAuthorizer: LambdaAuthorizer
+      CacheClusterEnabled: true
+      CacheClusterSize: '0.5'
+      DefinitionBody: 
+        openapi: 3.0.2
+        info:
+          title: DI Billing Frontend API
+          description: A frontend for the Program Delivery Team to manage billing across Digital
+            Identity
+          version: '1.0'
+        servers:
+        - url: https://btm.accounts.gov.uk
+        paths:
+          "/":
+            get:
+              description: The home page
+              responses:
+                '200':
+                  description: OK
+                  text/html:
+                    type: string
+                    example: "<h1>Welcome to DI Billing</h1>"
       Domain:
-        CertificateArn:
-          Fn::ImportValue: !If
-            - IsDev
-            - !Sub di-btm-tooling-dev-frontend-certificate-arn
-            - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
+        Fn::ImportValue: !If
+          - IsDev
+          - !Sub di-btm-tooling-dev-frontend-certificate-arn
+          - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
         DomainName: !GetAtt FrontEndDomainName.Value
         Route53:
           HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
+      MethodSettings:
+        - ResourcePath: /
+          HttpMethod: GET
+          CachingEnabled: true
+          CacheTtlInSeconds: 300
+      StageName: !Ref Environment
+      TracingEnabled: true
+
+  # A duplicate of FrontEndApi with no fixed domain name
+  # Accessible in ephemeral environments
+  FrontEndEphemeralApi:
+    Type: AWS::Serverless::Api
+    Condition: IsEphemeral
+    DependsOn:
+      - FrontEndDomainName
+      - FrontEndHostedZoneName
+    Properties:
+      AccessLogSetting:
+        DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
+        Format: '{ "requestId":"$context.requestId", "requestTime":"$context.requestTime", "routeKey":"$context.routeKey", "status":"$context.status" }'
+      Auth:
+        Authorizers:
+          LambdaAuthorizer:
+            FunctionArn: !GetAtt FrontEndAuthFunction.Arn
+            FunctionPayloadType: REQUEST
+            Identity: 
+              Headers: 
+                - Authorization
+              QueryStrings:
+                - code
+                - state
+        DefaultAuthorizer: LambdaAuthorizer
+      CacheClusterEnabled: true
+      CacheClusterSize: '0.5'
+      DefinitionBody: 
+        openapi: 3.0.2
+        info:
+          title: DI Billing Frontend API
+          description: A frontend for the Program Delivery Team to manage billing across Digital
+            Identity
+          version: '1.0'
+        servers:
+        - url: https://btm.accounts.gov.uk
+        paths:
+          "/":
+            get:
+              description: The home page
+              responses:
+                '200':
+                  description: OK
+                  text/html:
+                    type: string
+                    example: "<h1>Welcome to DI Billing</h1>"
+      MethodSettings:
+        - ResourcePath: /
+          HttpMethod: GET
+          CachingEnabled: true
+          CacheTtlInSeconds: 300
+      StageName: !Ref Environment
+      TracingEnabled: true
 
   FrontEndDomainName:
     Type: AWS::SSM::Parameter
@@ -65,15 +149,28 @@ Resources:
       RetentionInDays: 90
       LogGroupName: !Sub '/aws/vendedlogs/${AWS::StackName}-FE-API-Log-Group'
 
+  GoogleClientDetails:
+    Type: AWS::SecretsManager::Secret
+    Properties: 
+      Description: "The client id and client key for Sign In with Google"
+      Name: "GoogleClientDetails"
+      KmsKeyId: !Ref KmsKey
+
   FrontEndAuthFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    # checkov:skip=CKV_AWS_173: env var encryption, I'll remove this later
     Type: AWS::Serverless::Function
     Condition: FrontEndEnabled
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
       Handler: frontendAuth.handler
       ReservedConcurrentExecutions: 10
+      Environment:
+        Variables:
+          AWS_ACCOUNT_ID: AWS::AccountId
+          GOOGLE_CLIENT_ID: "{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientId}}"
+          GOOGLE_CLIENT_SECRET: "{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientSecret}}"
 
   FrontEndFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
@@ -88,9 +185,10 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
         ProxyApiRoot:
-          Type: HttpApi
+          Type: Api
           Properties:
-            ApiId: !Ref FrontEndApi
+            Path: /
+            Method: '*'
       Handler: frontend.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
