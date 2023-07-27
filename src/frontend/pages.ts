@@ -14,7 +14,11 @@ import path from "node:path";
 import { ReconciliationRow, OverviewRow } from "./extract-helpers";
 import { errorParamsGetter, errorTitleGetter } from "./handlers/error";
 import { LinkData } from "./utils";
-import { cookiesParamsGetter, cookiesTitleGetter } from "./handlers/cookies";
+import {
+  CookiesParams,
+  cookiesParamsGetter,
+  cookiesTitleGetter,
+} from "./handlers/cookies";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams>
@@ -111,21 +115,11 @@ export type HomeParams = BasePage & {
   overviewRows: OverviewRow[];
 };
 
-const homePage: Page<{}, {}> = {
+export const homePage: Page<{}, {}> = {
   relativePath: "",
   njk: "home.njk",
   paramsGetter: homeParamsGetter,
   titleGetter: homeTitleGetter,
-};
-
-export type CookiesParams = BasePage & {};
-
-export const cookiesPage: Page<{}, CookiesParams> = {
-  parent: homePage,
-  relativePath: "cookies",
-  njk: "cookies.njk",
-  paramsGetter: cookiesParamsGetter,
-  titleGetter: cookiesTitleGetter,
 };
 
 export type ContractParams = BasePage & {
@@ -192,6 +186,14 @@ const authorisationFailedPage: Page<{}, AuthorisationFailedParams> = {
   njk: "authorisation-failed.njk",
   paramsGetter: authorisationFailedParamsGetter,
   titleGetter: authorisationFailedTitleGetter,
+};
+
+export const cookiesPage: Page<{}, CookiesParams> = {
+  parent: homePage,
+  relativePath: "cookies",
+  njk: "cookies.njk",
+  paramsGetter: cookiesParamsGetter,
+  titleGetter: cookiesTitleGetter,
 };
 
 export type ErrorPageParams = BasePage & {

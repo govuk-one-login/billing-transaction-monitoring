@@ -1,10 +1,12 @@
 import {
+  BasePage,
   cookiesPage,
-  CookiesParams,
   PageParamsGetter,
   PageTitleGetter,
 } from "../pages";
 import { getLinkData } from "../utils";
+
+export type CookiesParams = BasePage & {};
 
 export const cookiesParamsGetter: PageParamsGetter<{}, CookiesParams> = async (
   request
