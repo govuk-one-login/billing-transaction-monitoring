@@ -23,7 +23,7 @@ describe("\nGenerate valid event one hour before August UTC and execute athena q
     const { eventId } = await invokeFilterLambdaAndVerifyEventInS3Bucket(
       validEventPayloadOneHourBeforeAugustUtc
     );
-    const queryString = `SELECT * FROM "btm_transactions_standardised" where month='09'`;
+    const queryString = `SELECT * FROM "btm_transactions_standardised" where month='08'`;
     const queryResult = await queryAthena(queryString);
     expect(JSON.stringify(queryResult)).toContain(eventId);
   });
@@ -36,7 +36,7 @@ describe("\nGenerate valid event one hour before January UTC and execute athena 
     );
     const queryString = `SELECT * FROM "btm_transactions_standardised" where month='01'`;
     const queryResult = await queryAthena(queryString);
-    expect(JSON.stringify(queryResult)).toContain(eventId);
+    expect(JSON.stringify(queryResult)).not.toContain(eventId);
   });
 });
 
