@@ -192,7 +192,7 @@ Resources:
                 kms:ViaService: sqs.amazonaws.com
             Effect: Allow
             Principal:
-              AWS: arn:aws:iam::330163506186:root
+              AWS: !Ref PerformanceTestAccount
             Resource: '*'
 
   PerformanceTestingKmsKeyAlias:
@@ -218,3 +218,21 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-perf-test-filter-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+  FilterQueueForPerformanceTestsPolicy:
+    Condition: IsEnvForPerformanceTests
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowPerformanceTestAccount
+            Action:
+              - sqs:SendMessage
+            Effect: Allow
+            Principal:
+              AWS: !Ref PerformanceTestAccount
+            Resource:
+              - !GetAtt FilterQueueForPerformanceTests.Arn
+      Queues:
+        - !Ref FilterQueueForPerformanceTests
