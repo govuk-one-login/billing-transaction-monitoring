@@ -90,7 +90,7 @@ Resources:
             Identity
           version: '1.0'
         servers:
-        - url: https://btm.accounts.gov.uk
+        - url: https://btm.account.gov.uk
         paths:
           "/":
             get:
