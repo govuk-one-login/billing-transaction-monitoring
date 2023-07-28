@@ -185,7 +185,7 @@ Resources:
         ProxyApiRoot:
           Type: Api
           Properties:
-            RestApiId: !Ref FrontEndApi
+            RestApiId: !Ref UseDomainName
             Path: /
             Method: '*'
       Handler: frontend.handler
