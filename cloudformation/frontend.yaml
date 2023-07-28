@@ -174,8 +174,6 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    DependsOn:
-      - FrontEndApi
     Condition: FrontEndEnabled
     Properties:
       Environment:
@@ -188,6 +186,73 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FrontEndApi
+            Path: /
+            Method: '*'
+      Handler: frontend.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+            - Effect: Allow
+              Action: glue:GetTable
+              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
+            - Effect: Allow
+              Action:
+                - s3:AbortMultipartUpload
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+                - s3:PutObject
+              Resource:
+                - !GetAtt StorageBucket.Arn
+                - !Sub ${StorageBucket.Arn}/*
+                - !GetAtt AthenaQueryResultsBucket.Arn
+                - !Sub ${AthenaQueryResultsBucket.Arn}/*
+            - Effect: Allow
+              Action:
+                - athena:StartQueryExecution
+                - athena:GetQueryExecution
+                - athena:GetQueryResults
+              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
+      ReservedConcurrentExecutions: 10
+
+  # A duplicate of FrontEndFunction referencing FrontEndEphemeralApi
+  # Accessible in ephemeral environments
+  FrontEndEphemeralFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Condition: IsEphemeral
+    Properties:
+      Environment:
+        Variables:
+          STORAGE_BUCKET: !Ref StorageBucket
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+      FunctionName: !Sub ${AWS::StackName}-frontend-function
+      Events:
+        ProxyApiRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FrontEndEphemeralApi
             Path: /
             Method: '*'
       Handler: frontend.handler
