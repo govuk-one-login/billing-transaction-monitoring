@@ -3,7 +3,6 @@ Resources:
     Type: AWS::Serverless::Api
     Condition: UseDomainName
     DependsOn:
-      - FrontEndFunction
       - FrontEndDomainName
       - FrontEndHostedZoneName
     Properties:
