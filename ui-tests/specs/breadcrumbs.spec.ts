@@ -2,7 +2,15 @@ import { waitForPageLoad } from "../helpers/waits";
 import HomePage from "../pageobjects/homepage";
 import InvoicePage from "../pageobjects/invoicePage";
 import InvoicesListPage from "../pageobjects/invoicesListPage";
-import ContractsPage from "../pageobjects/contractsPage";
+import Page from "../pageobjects/page";
+
+const checkBreadcrumbsCount = async (
+  page: Page,
+  expectedCount: number
+): Promise<void> => {
+  const breadcrumbs = await page.getBreadcrumbs();
+  expect(breadcrumbs.length).toBe(expectedCount);
+};
 
 describe("Breadcrumbs Tests", () => {
   before(async () => {
@@ -11,18 +19,16 @@ describe("Breadcrumbs Tests", () => {
   });
 
   it("Should display correct breadcrumbs", async () => {
-    let breadcrumbs = await HomePage.getBreadcrumbs();
-    expect(breadcrumbs.length).toBe(0);
+    await checkBreadcrumbsCount(HomePage, 0);
     await HomePage.clickOnViewInvoiceLink();
-    breadcrumbs = await HomePage.getBreadcrumbs();
-    expect(breadcrumbs.length).toBe(3);
+    await checkBreadcrumbsCount(HomePage, 3);
+
     await InvoicePage.clickOnInvoiceBreadcrumbsLink();
     await waitForPageLoad();
-    breadcrumbs = await InvoicesListPage.getBreadcrumbs();
-    expect(breadcrumbs.length).toBe(2);
+    await checkBreadcrumbsCount(InvoicesListPage, 2);
+
     await InvoicesListPage.clickOnContractsBreadcrumbsLink();
     await waitForPageLoad();
-    breadcrumbs = await ContractsPage.getBreadcrumbs();
-    expect(breadcrumbs.length).toBe(1);
+    await checkBreadcrumbsCount(InvoicesListPage, 1);
   });
 });
