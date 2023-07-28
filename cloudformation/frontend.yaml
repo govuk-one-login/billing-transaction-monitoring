@@ -175,9 +175,10 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
+    DependsOn:
+      - FrontEndApi
     Condition: FrontEndEnabled
     Properties:
-      RestApiId: !Ref FrontEndApi
       Environment:
         Variables:
           STORAGE_BUCKET: !Ref StorageBucket
@@ -187,6 +188,7 @@ Resources:
         ProxyApiRoot:
           Type: Api
           Properties:
+            RestApiId: !Ref FrontEndApi
             Path: /
             Method: '*'
       Handler: frontend.handler
