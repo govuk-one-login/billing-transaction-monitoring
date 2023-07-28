@@ -162,8 +162,8 @@ describe("getReconciliationRows", () => {
         priceDiscrepancy: "£27.50",
         percentageDiscrepancy: "Unexpected invoice charge",
         status: {
-          message: "Above Threshold",
-          class: "govuk-tag--red",
+          message: "Error",
+          class: "govuk-tag--grey",
         },
         billingQuantity: "11",
         transactionQuantity: "2",
@@ -273,8 +273,8 @@ describe("getReconciliationRows", () => {
           priceDiscrepancy: "£27.50",
           percentageDiscrepancy: "Unexpected invoice charge",
           status: {
-            message: "Above Threshold",
-            class: "govuk-tag--red",
+            message: "Error",
+            class: "govuk-tag--grey",
           },
           billingQuantity: "11",
           transactionQuantity: "2",

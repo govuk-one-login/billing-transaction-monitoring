@@ -43,6 +43,6 @@ export const percentageDiscrepancySpecialCase = {
   MN_UNEXPECTED_CHARGE: {
     magicNumber: "-1234567.05",
     bannerText: InvoiceBannerStatus.unexpectedInvoiceCharge,
-    statusLabel: statusLabels.STATUS_LABEL_ABOVE_THRESHOLD,
+    statusLabel: statusLabels.STATUS_LABEL_ERROR,
   },
 };
