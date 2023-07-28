@@ -5,7 +5,6 @@ ignorePatterns:
   - dist
   - reports
   - ui-tests/testData/testData.json
-  - src/frontend/views/common/layout/base.njk
 plugins:
   - 'jest-formatting'
 rules:
