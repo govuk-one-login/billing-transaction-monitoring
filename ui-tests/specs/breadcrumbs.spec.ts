@@ -18,7 +18,7 @@ describe("Breadcrumbs Tests", () => {
     await waitForPageLoad();
   });
 
-  it("Should display correct breadcrumbs", async () => {
+  it("Should display the expected number of breadcrumbs on each page", async () => {
     await checkBreadcrumbsCount(HomePage, 0);
     await HomePage.clickOnViewInvoiceLink();
     await checkBreadcrumbsCount(HomePage, 3);

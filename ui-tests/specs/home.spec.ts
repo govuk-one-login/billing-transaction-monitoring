@@ -26,6 +26,19 @@ describe("Home Page Tests", () => {
     );
   });
 
+  it("Should navigate to the Contracts page when clicked on the link", async () => {
+    await HomePage.clickOnContractsPageLink();
+    const newPageUrl = await browser.getUrl();
+    expect(newPageUrl).toMatch(/contracts$/);
+  });
+});
+
+describe("Home Page Overview table Tests", () => {
+  beforeEach(async () => {
+    await browser.url(" ");
+    await waitForPageLoad();
+  });
+
   it("Should display the overview table with correct data", async () => {
     const tableData = await HomePage.getTableData(await HomePage.overViewTable);
     const expectedTableDataFromJson = getLatestInvoicePerVendor().map(
@@ -36,21 +49,27 @@ describe("Home Page Tests", () => {
             parseFloat(invoice.price_difference_percentage)
           );
         return {
-          "Contract Name": invoice.contract_name,
-          Vendor: invoice.vendor_name,
-          Month: `${monthString} ${invoice.year}`,
-          "Reconciliation Details":
+          contractName: invoice.contract_name,
+          vendor: invoice.vendor_name,
+          month: `${monthString} ${invoice.year}`,
+          reconciliationDetails:
             reconciliationDetails.bannerMessage.toUpperCase(),
-          Details: "View Invoice",
+          details: "View Invoice",
         };
       }
     );
-    const sortTableDataByVendor = Array.from(tableData).sort((a, b) =>
-      a.Vendor.localeCompare(b.Vendor)
-    );
+    const sortTableDataByVendor = tableData
+      .map((data) => ({
+        contractName: data["Contract Name"],
+        vendor: data.Vendor,
+        month: data.Month,
+        reconciliationDetails: data["Reconciliation Details"],
+        details: data.Details,
+      }))
+      .sort((a, b) => a.vendor.localeCompare(b.vendor));
 
     const sortedExpectedData = Array.from(expectedTableDataFromJson).sort(
-      (a, b) => a.Vendor.localeCompare(b.Vendor)
+      (a, b) => a.vendor.localeCompare(b.vendor)
     );
     expect(sortedExpectedData).toEqual(sortTableDataByVendor);
   });
@@ -76,18 +95,12 @@ describe("Home Page Tests", () => {
       `${firstInvoice.contract_id}/invoices/${firstInvoice.year}-${firstInvoice.month}`
     );
   });
-
-  it("Should navigate to the Contracts page when clicked on the link", async () => {
-    await HomePage.clickOnContractsPageLink();
-    const newPageUrl = await browser.getUrl();
-    expect(newPageUrl).toMatch(/contracts$/);
-  });
 });
 
 export type OverviewTable = {
-  "Contract Name": string;
-  Vendor: string;
-  Month: string;
-  "Reconciliation Details": string;
-  Details: string;
+  contractName: string;
+  vendor: string;
+  month: string;
+  reconciliationDetails: string;
+  details: string;
 };

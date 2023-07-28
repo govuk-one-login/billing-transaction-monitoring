@@ -161,10 +161,10 @@ export const getLatestInvoicePerVendor = (): FullExtractData[] => {
   // Filter latest invoice
   const latestInvoices: FullExtractData[] = [];
   let currentVendor = "";
-  for (const entry of sortedData) {
-    if (entry.vendor_name !== currentVendor) {
-      latestInvoices.push(entry);
-      currentVendor = entry.vendor_name;
+  for (const invoice of sortedData) {
+    if (invoice.vendor_name !== currentVendor) {
+      latestInvoices.push(invoice);
+      currentVendor = invoice.vendor_name;
     }
   }
   return latestInvoices;
