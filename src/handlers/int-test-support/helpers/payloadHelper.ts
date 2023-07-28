@@ -97,6 +97,102 @@ export const validEventPayloadWithSortedValueNA: EventPayload = {
   ],
 };
 
+export const validUtcEventPayload1sIntoOctUtc1: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-09-30 23:00:01+0"),
+  timestamp_formatted: "2005-09-30 23:00:01+0",
+};
+
+export const validUtcEventPayload59m59sIntoOctUtc1: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-09-30 23:59:59+0"),
+  timestamp_formatted: "2005-09-30 23:59:59+0",
+};
+
+export const validUtcEventPayload1h1sIntoOctUtc1: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-10-01 00:00:01+0"),
+  timestamp_formatted: "2005-10-01 00:00:01+0",
+};
+
+export const validUtcEventPayload1sIntoFebUtc0: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-02-01 00:00:01+0"),
+  timestamp_formatted: "2005-02-01 00:00:01+0",
+};
+
+export const validUtcMinus6EventPayload1sIntoOctUtc1: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-09-30 17:00:01-6"),
+  timestamp_formatted: "2005-09-30 17:00:01-6",
+};
+
+export const validUtcMinus6EventPayload59m59sIntoOctUtc1: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-09-30 17:59:59-6"),
+  timestamp_formatted: "2005-09-30 17:59:59-6",
+};
+
+export const validUtcMinus6EventPayload1h1sIntoOctUtc1: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-09-30 18:00:01-6"),
+  timestamp_formatted: "2005-09-30 18:00:01-6",
+};
+
+export const validUtcMinus6EventPayload1sIntoFebUtc0: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-01-31 18:00:01-6"),
+  timestamp_formatted: "2005-01-31 18:00:01-6",
+};
+
+export const validUtc6EventPayload1sIntoOctUtc1: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-10-01 05:00:01+6"),
+  timestamp_formatted: "2005-10-01 05:00:01+6",
+};
+
+export const validUtc6EventPayload59m59sIntoOctUtc1: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-10-01 05:59:59+6"),
+  timestamp_formatted: "2005-10-01 05:59:59+6",
+};
+
+export const validUtc6EventPayload1h1sIntoOctUtc1: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-10-01 06:00:01+6"),
+  timestamp_formatted: "2005-10-01 06:00:01+6",
+};
+
+export const validUtc6EventPayload1sIntoFebUtc0: EventPayload = {
+  event_name: EventName.VENDOR_1_EVENT_1,
+  event_id: generateRandomId(),
+  component_id: "TEST_COMP",
+  timestamp: validTimestamp("2005-02-01 06:00:01+6"),
+  timestamp_formatted: "2005-02-01 06:00:01+6",
+};
+
 export const invalidEventPayloadEventName: EventPayload = {
   event_name: "TESTGGHYJKIK" as EventName,
   event_id: generateRandomId(),
