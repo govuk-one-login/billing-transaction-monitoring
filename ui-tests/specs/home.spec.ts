@@ -58,7 +58,7 @@ describe("Home Page Overview table Tests", () => {
         };
       }
     );
-    const sortTableDataByVendor = tableData
+    const sortedTableDataByVendor = tableData
       .map((data) => ({
         contractName: data["Contract Name"],
         vendor: data.Vendor,
@@ -71,7 +71,7 @@ describe("Home Page Overview table Tests", () => {
     const sortedExpectedData = Array.from(expectedTableDataFromJson).sort(
       (a, b) => a.vendor.localeCompare(b.vendor)
     );
-    expect(sortedExpectedData).toEqual(sortTableDataByVendor);
+    expect(sortedExpectedData).toEqual(sortedTableDataByVendor);
   });
 
   it(`Should navigate to the correct contract page on "Contract Name" click`, async () => {
