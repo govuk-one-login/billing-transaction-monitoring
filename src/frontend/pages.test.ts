@@ -1,5 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
-import { getHandler, getRoute, Page } from "./pages";
+import { getHandler, getRoute, getUrl, Page } from "./pages";
 
 describe("Page", () => {
   let homePage: Page<{}, {}>;
@@ -48,6 +48,27 @@ describe("Page", () => {
     expect(getRoute(grandchildTypePage)).toEqual(
       "/:child_id/childType1/grandchildType"
     );
+  });
+
+  test("getUrl", () => {
+    expect(getUrl(homePage, {})).toEqual("/");
+    expect(getUrl(childType1Page, { child_id: "sophie" })).toEqual(
+      "/sophie/childType1"
+    );
+    expect(getUrl(childType2Page, {})).toEqual("/childType2");
+    expect(getUrl(grandchildTypePage, { child_id: "kevin" })).toEqual(
+      "/kevin/childType1/grandchildType"
+    );
+
+    try {
+      getUrl(grandchildTypePage, {});
+      fail("Expected exception");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toEqual(
+        "Request parameter `:child_id` not found for URL: /:child_id/childType1/grandchildType"
+      );
+    }
   });
 
   describe("getHandler", () => {
