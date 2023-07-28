@@ -34,6 +34,10 @@ Parameters:
     Description: Private config stack to use for configuration
     Type: String
     Default: none
+  PerformanceTestAccount:
+    Description: Account to give access to performance testing resources
+    Type: String
+    Default: arn:aws:iam::330163506186:root
 
   # Codes for error cases returned in response to queries from Grafana to BillingAndTransactionsCuratedView.
   QueryMessageNoChargeForThisMonth:
@@ -57,7 +61,15 @@ Conditions:
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
   AlertingDisabled: !Not [!Equals [!Ref EnableAlerting, true]]
   IsEnvWithAutoTests: !Not [!Equals [!Ref TestRoleArn, none]]
+  IsEnvForPerformanceTests: !Equals [!Ref Environment, staging]
   UsePrivateConfigStack: !Not [!Equals [!Ref PrivateConfigStack, none]]
+  DeployFilterQueue:
+    !Not [
+      !Or [
+        !Equals [!Ref Environment, production],
+        !Equals [!Ref Environment, integration],
+      ],
+    ]
   IsLocal: !Equals [!Ref Environment, local]
   # This is a workaround for the pipeline in dev being deployed with Environment=build due to hardcoded permissions
   IsDev: !Equals [!Select [2, !Split ['-', !Ref AWS::StackName]], dev]
