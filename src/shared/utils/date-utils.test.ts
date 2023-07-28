@@ -49,22 +49,36 @@ test("Date is formatted to yyyy-mm-dd with a date and month that is not single d
   expect(formattedDate).toEqual("2022-12-25");
 });
 
-test("Date is formatted to BST by default in summer", async () => {
-  const date: Date = new Date("2000-07-31 23:00+0");
-  const formattedDate = formatDate(date);
-  expect(formattedDate).toEqual("2000-08-01");
-});
+test.each`
+  testCase                                                                                          | givenDateInput             | givenDelimiter | givenTimeZone | expectedResult
+  ${"from UTC+0 to UTC+1 by default, one second after midnight on 1 Oct 2022 UTC+1"}                | ${"2022-09-30 23:00:01+0"} | ${undefined}   | ${undefined}  | ${"2022-10-01"}
+  ${"from UTC+0 to UTC+1 by default, 59 minutes and 59 seconds after midnight on 1 Oct 2022 UTC+1"} | ${"2022-09-30 23:59:59+0"} | ${undefined}   | ${undefined}  | ${"2022-10-01"}
+  ${"from UTC+0 to UTC+1 by default, one hour and one second after midnight on 1 Oct 2022 UTC+1"}   | ${"2022-10-01 00:00:01+0"} | ${undefined}   | ${undefined}  | ${"2022-10-01"}
+  ${"from UTC+0 to UTC+0 by default, one second after midnight on 1 Feb 2023 UTC+0"}                | ${"2023-02-01 00:00:01+0"} | ${undefined}   | ${undefined}  | ${"2023-02-01"}
+  ${"from UTC-6 to UTC+1 by default, one second after midnight on 1 Oct 2022 UTC+1"}                | ${"2022-09-30 17:00:01-6"} | ${undefined}   | ${undefined}  | ${"2022-10-01"}
+  ${"from UTC-6 to UTC+1 by default, 59 minutes and 59 seconds after midnight on 1 Oct 2022 UTC+1"} | ${"2022-09-30 17:59:59-6"} | ${undefined}   | ${undefined}  | ${"2022-10-01"}
+  ${"from UTC-6 to UTC+1 by default, one hour and one second after midnight on 1 Oct 2022 UTC+1"}   | ${"2022-09-30 18:00:01-6"} | ${undefined}   | ${undefined}  | ${"2022-10-01"}
+  ${"from UTC-6 to UTC+0 by default, one second after midnight on 1 Feb 2023 UTC+0"}                | ${"2023-01-31 18:00:01-6"} | ${undefined}   | ${undefined}  | ${"2023-02-01"}
+  ${"from UTC+6 to UTC+1 by default, one second after midnight on 1 Oct 2022 UTC+1"}                | ${"2022-10-01 05:00:01+6"} | ${undefined}   | ${undefined}  | ${"2022-10-01"}
+  ${"from UTC+6 to UTC+1 by default, 59 minutes and 59 seconds after midnight on 1 Oct 2022 UTC+1"} | ${"2022-10-01 05:59:59+6"} | ${undefined}   | ${undefined}  | ${"2022-10-01"}
+  ${"from UTC+6 to UTC+1 by default, one hour and one second after midnight on 1 Oct 2022 UTC+1"}   | ${"2022-10-01 06:00:01+6"} | ${undefined}   | ${undefined}  | ${"2022-10-01"}
+  ${"from UTC+6 to UTC+0 by default, one second after midnight on 1 Feb 2023 UTC+0"}                | ${"2023-02-01 06:00:01+6"} | ${undefined}   | ${undefined}  | ${"2023-02-01"}
+  ${"with given delimiter from UTC+0 to given timezone GMT"}                                        | ${"2022-09-30 23:00+0"}    | ${"_"}         | ${"GMT"}      | ${"2022_09_30"}
+  ${"with given delimiter from UTC+0 to given timezone BST"}                                        | ${"2022-09-30 23:01+0"}    | ${"_"}         | ${"BST"}      | ${"2022_10_01"}
+  ${"with given delimiter from UTC-6 to given timezone GMT"}                                        | ${"2022-09-30 17:00-6"}    | ${"_"}         | ${"GMT"}      | ${"2022_09_30"}
+  ${"with given delimiter from UTC-6 to given timezone BST"}                                        | ${"2022-09-30 17:00-6"}    | ${"_"}         | ${"BST"}      | ${"2022_10_01"}
+  ${"with given delimiter from UTC+6 to given timezone GMT"}                                        | ${"2022-10-01 05:00+6"}    | ${"_"}         | ${"GMT"}      | ${"2022_09_30"}
+  ${"with given delimiter from UTC+6 to given timezone BST"}                                        | ${"2022-10-01 05:00+6"}    | ${"_"}         | ${"BST"}      | ${"2022_10_01"}
+`("Date is formatted $testCase", (data) => {
+  const date: Date = new Date(data.givenDateInput);
 
-test("Date is formatted to GMT by default in winter", async () => {
-  const date: Date = new Date("2000-12-31 23:00+0");
-  const formattedDate = formatDate(date);
-  expect(formattedDate).toEqual("2000-12-31");
-});
+  const formattedDate = formatDate(
+    date,
+    data.givenDelimiter,
+    data.givenTimeZone
+  );
 
-test("Date is formatted with given delimiter to given time zone", async () => {
-  const date: Date = new Date("2000-07-31 23:00+0");
-  const formattedDate = formatDate(date, "_", "UTC");
-  expect(formattedDate).toEqual("2000_07_31");
+  expect(formattedDate).toEqual(data.expectedResult);
 });
 
 test("Year and month are formatted to yyyy-mm with a month that is single digit", async () => {
