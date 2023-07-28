@@ -17,8 +17,24 @@ class HomePage extends Page {
     return $('a[href$="/contracts"]');
   }
 
+  public get viewInvoiceLink(): Promise<WebdriverIO.Element> {
+    return $("=View Invoice");
+  }
+
+  public get overviewTableFirstContractLink(): Promise<WebdriverIO.Element> {
+    return $('a[href*="/contracts/1/invoices"]');
+  }
+
   public async clickOnContractsPageLink(): Promise<void> {
     await (await this.contractsLink).click();
+  }
+
+  public async clickOnViewInvoiceLink(): Promise<void> {
+    await (await this.viewInvoiceLink).click();
+  }
+
+  public async clickOnFirstContractInTable(): Promise<void> {
+    await (await this.overviewTableFirstContractLink).click();
   }
 
   public async getTableData(

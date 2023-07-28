@@ -54,6 +54,28 @@ describe("Home Page Tests", () => {
     expect(sortedExpectedData).toEqual(sortedTableData);
   });
 
+  it(`Should navigate to the correct contract page on "Contract Name" click`, async () => {
+    const firstInvoice = getLatestInvoicePerVendor().sort((a, b) =>
+      a.contract_name.localeCompare(b.contract_name)
+    )[0];
+    await HomePage.clickOnFirstContractInTable();
+    await waitForPageLoad();
+    expect(await browser.getUrl()).toContain(
+      `${firstInvoice.contract_id}/invoices`
+    );
+  });
+
+  it(`Should navigate to the correct invoice page on "View Invoice" click`, async () => {
+    const firstInvoice = getLatestInvoicePerVendor().sort((a, b) =>
+      a.contract_name.localeCompare(b.contract_name)
+    )[0];
+    await HomePage.clickOnViewInvoiceLink();
+    await waitForPageLoad();
+    expect(await browser.getUrl()).toContain(
+      `${firstInvoice.contract_id}/invoices/${firstInvoice.year}-${firstInvoice.month}`
+    );
+  });
+
   it("Should navigate to the Contracts page when clicked on the link", async () => {
     await HomePage.clickOnContractsPageLink();
     const newPageUrl = await browser.getUrl();

@@ -36,6 +36,10 @@ class InvoicePage extends Page {
     return $("caption*=Invoice").parentElement();
   }
 
+  public get invoiceBreadcrumbsLink(): Promise<WebdriverIO.Element> {
+    return $('a[href$="/invoices"]');
+  }
+
   public async getStatusBannerTitle(): Promise<string> {
     await (await this.statusBannerTitle).isDisplayed();
     return await (await this.statusBannerTitle).getText();
@@ -48,30 +52,8 @@ class InvoicePage extends Page {
     return color.parsed.hex ?? "";
   }
 
-  public async getTableData(
-    tableElement: WebdriverIO.Element
-  ): Promise<Array<{ [key: string]: string }>> {
-    const tableData: Array<{ [key: string]: string }> = [];
-
-    const rows = await tableElement.$$("tbody tr");
-    const headerRow = await tableElement.$("thead tr");
-    const headerColumns = await headerRow.$$("th");
-
-    const columnHeaders = await Promise.all(
-      headerColumns.map(async (headerColumn) => await headerColumn.getText())
-    );
-
-    for (const row of rows) {
-      const columns = await row.$$("th,td");
-      const rowData: { [key: string]: string } = {};
-
-      for (const [index, header] of columnHeaders.entries()) {
-        rowData[header] = await columns[index].getText();
-      }
-
-      tableData.push(rowData);
-    }
-    return tableData;
+  public async clickOnInvoiceBreadcrumbsLink(): Promise<void> {
+    await (await this.invoiceBreadcrumbsLink).click();
   }
 }
 
