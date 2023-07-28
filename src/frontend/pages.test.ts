@@ -13,28 +13,19 @@ describe("Page", () => {
     homePage = {
       relativePath: "",
       njk: "",
-      paramsGetter: async (_) => ({
-        pageTitle: "homePage",
-        cookiesLink: { text: "Cookies", href: "/cookies" },
-      }),
+      paramsGetter: async (_) => ({}),
       titleGetter: async () => "homePage",
     };
     childType1Page = {
       relativePath: ":child_id/childType1",
-      paramsGetter: async (_) => ({
-        pageTitle: "ChildType1",
-        cookiesLink: { text: "Cookies", href: "/cookies" },
-      }),
+      paramsGetter: async (_) => ({}),
       njk: "",
       parent: homePage,
       titleGetter: async () => "ChildType1",
     };
     childType2Page = {
       relativePath: "childType2",
-      paramsGetter: async (_) => ({
-        pageTitle: "ChildType2",
-        cookiesLink: { text: "Cookies", href: "/cookies" },
-      }),
+      paramsGetter: async (_) => ({}),
       njk: "",
       parent: homePage,
       titleGetter: async () => "ChildType2",
@@ -42,8 +33,6 @@ describe("Page", () => {
     grandchildTypePage = {
       relativePath: "grandchildType",
       paramsGetter: jest.fn().mockResolvedValue({
-        pageTitle: "GrandchildType",
-        cookiesLink: { text: "Cookies", href: "/cookies" },
         some_id: "someValue",
       }),
       njk: "grandchild.njk",

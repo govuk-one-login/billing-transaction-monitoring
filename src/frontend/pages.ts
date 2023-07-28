@@ -28,7 +28,7 @@ import {
   errorParamsGetter,
   errorTitleGetter,
 } from "./handlers/error";
-import { LinkData } from "./utils";
+import { getLinkData, LinkData } from "./utils";
 import {
   CookiesParams,
   cookiesParamsGetter,
@@ -43,7 +43,7 @@ export type PageTitleGetter<TParams> = keyof TParams extends never
   ? () => Promise<string>
   : (requestParams: TParams) => Promise<string>;
 
-export interface Page<TParams, TReturn> {
+export interface Page<TParams extends Record<string, string>, TReturn> {
   parent?: Page<any, any>;
 
   relativePath: string;
@@ -55,7 +55,7 @@ export interface Page<TParams, TReturn> {
   titleGetter: PageTitleGetter<TParams>;
 }
 
-export const getRoute = <TParams, TReturn>(
+export const getRoute = <TParams extends Record<string, string>, TReturn>(
   page: Page<TParams, TReturn>
 ): string => {
   const parentPath = page.parent ? getRoute(page.parent) : "/";
@@ -96,22 +96,28 @@ const getBreadcrumbData = async <TParams>(
   }
   return { items: breadcrumbs };
 };
-const getPageParams = async <TParams, TReturn>(
+const getPageParams = async <TParams extends Record<string, string>, TReturn>(
   page: Page<TParams, TReturn>,
   request: Request<TParams>,
   response: Response
 ): Promise<TReturn> => {
-  const options = await page.paramsGetter(request);
-  const breadcrumbData = await getBreadcrumbData(page, request);
+  const [pageTitle, cookiesLink, breadcrumbData, options] = await Promise.all([
+    page.titleGetter(request.params),
+    getLinkData(cookiesPage, request.params),
+    getBreadcrumbData(page, request),
+    page.paramsGetter(request),
+  ]);
 
   return {
     ...options,
+    pageTitle,
+    cookiesLink,
     breadcrumbData,
     cspNonce: response.locals.cspNonce,
   };
 };
 
-export const getHandler = <TParams, TReturn>(
+export const getHandler = <TParams extends Record<string, string>, TReturn>(
   page: Page<TParams, TReturn>
 ): RequestHandler<TParams> => {
   return (request: Request<TParams>, response, next) => {
@@ -119,11 +125,6 @@ export const getHandler = <TParams, TReturn>(
       .then((pageParams) => response.render(page.njk, pageParams as object))
       .catch((error) => next(error));
   };
-};
-
-export type BaseParams = {
-  pageTitle: string;
-  cookiesLink: LinkData;
 };
 
 export const homePage: Page<{}, HomeParams> = {

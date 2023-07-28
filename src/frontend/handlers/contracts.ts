@@ -1,14 +1,8 @@
 import { getContractIds } from "../extract-helpers";
-import {
-  PageParamsGetter,
-  PageTitleGetter,
-  invoicesPage,
-  cookiesPage,
-  BaseParams,
-} from "../pages";
+import { PageParamsGetter, PageTitleGetter, invoicesPage } from "../pages";
 import { getLinkData, LinkData } from "../utils";
 
-export type ContractParams = BaseParams & {
+export type ContractParams = {
   invoicesLinksData: LinkData[];
 };
 
@@ -16,11 +10,7 @@ export const contractsParamsGetter: PageParamsGetter<
   {},
   ContractParams
 > = async (request) => {
-  const [pageTitle, cookiesLink, contractIds] = await Promise.all([
-    contractsTitleGetter(),
-    getLinkData(cookiesPage, request.params),
-    getContractIds(),
-  ]);
+  const contractIds = await getContractIds();
 
   const invoicesLinkDataPromises = contractIds.map(
     async (id) =>
@@ -28,8 +18,6 @@ export const contractsParamsGetter: PageParamsGetter<
   );
 
   return {
-    pageTitle,
-    cookiesLink,
     invoicesLinksData: await Promise.all(invoicesLinkDataPromises),
   };
 };

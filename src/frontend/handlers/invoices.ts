@@ -7,14 +7,12 @@ import {
   PageTitleGetter,
   getUrl,
   invoicePage,
-  cookiesPage,
-  BaseParams,
 } from "../pages";
-import { getLinkData, LinkData } from "../utils";
+import { LinkData } from "../utils";
 
 export type InvoicesRequestParams = { contract_id: string };
 
-export type InvoicesParams = BaseParams & {
+export type InvoicesParams = {
   invoiceLinksData: LinkData[];
 };
 
@@ -22,19 +20,13 @@ export const invoicesParamsGetter: PageParamsGetter<
   InvoicesRequestParams,
   InvoicesParams
 > = async (request) => {
-  const [pageTitle, cookiesLink, periods] = await Promise.all([
-    invoicesTitleGetter(request.params),
-    getLinkData(cookiesPage, request.params),
-    getContractPeriods(request.params.contract_id),
-  ]);
+  const periods = await getContractPeriods(request.params.contract_id);
 
   return {
     invoiceLinksData: periods.map(({ month, prettyMonth, year }) => ({
       href: getUrl(invoicePage, { ...request.params, month, year }),
       text: `${prettyMonth} ${year}`,
     })),
-    cookiesLink,
-    pageTitle,
   };
 };
 
