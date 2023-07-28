@@ -177,6 +177,7 @@ Resources:
     Type: AWS::Serverless::Function
     Condition: FrontEndEnabled
     Properties:
+      RestApiId: !Ref FrontEndApi
       Environment:
         Variables:
           STORAGE_BUCKET: !Ref StorageBucket
