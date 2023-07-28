@@ -45,13 +45,14 @@ describe("Home Page Tests", () => {
         };
       }
     );
-    const sortedTableData = tableData.sort((a, b) =>
+    const sortTableDataByVendor = Array.from(tableData).sort((a, b) =>
       a.Vendor.localeCompare(b.Vendor)
     );
-    const sortedExpectedData = expectedTableDataFromJson.sort((a, b) =>
-      a.Vendor.localeCompare(b.Vendor)
+
+    const sortedExpectedData = Array.from(expectedTableDataFromJson).sort(
+      (a, b) => a.Vendor.localeCompare(b.Vendor)
     );
-    expect(sortedExpectedData).toEqual(sortedTableData);
+    expect(sortedExpectedData).toEqual(sortTableDataByVendor);
   });
 
   it(`Should navigate to the correct contract page on "Contract Name" click`, async () => {
