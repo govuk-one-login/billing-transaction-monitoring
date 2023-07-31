@@ -11,6 +11,10 @@ export default class Page {
     return $(".govuk-heading-l");
   }
 
+  public get cookiesFooterLink(): Promise<WebdriverIO.Element> {
+    return $('a[href="/cookies"]');
+  }
+
   public async isPageHeadingDisplayed(): Promise<boolean> {
     return await (await this.pageHeading).isDisplayed();
   }
@@ -25,5 +29,9 @@ export default class Page {
 
   public async getPageSubHeadingText(): Promise<string> {
     return await (await this.pageSubHeading).getText();
+  }
+
+  public async clickOnCookiesFooterLink(): Promise<void> {
+    await (await this.cookiesFooterLink).click();
   }
 }
