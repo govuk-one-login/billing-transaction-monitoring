@@ -1,6 +1,9 @@
 {% extends "govuk/template.njk" %}
 {% from "govuk/components/footer/macro.njk" import govukFooter %}
 {% block head %}
+  {% block header %}
+    {{ govukHeader ({ homepageUrl: "https://www.gov.uk/" }) }}
+  {% endblock header %}
   <link href="/assets/styles/all.css" rel="stylesheet">
 {% endblock head %}
 {% block pageTitle %}
