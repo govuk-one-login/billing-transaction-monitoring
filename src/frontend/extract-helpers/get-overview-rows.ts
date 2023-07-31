@@ -23,30 +23,32 @@ export const getOverviewRows = async (): Promise<OverviewRow[]> => {
   const contracts = await getContracts();
   for (const contract of contracts) {
     const latestMonth = await getRecentMonth(contract.id);
-    const reconciliationDetails = await getReconciliationDetails(
-      contract.id,
-      latestMonth.year,
-      latestMonth.month
-    );
-    const row = {
-      contractLinkData: {
-        href: getUrl(invoicesPage, { contract_id: contract.id }),
-        text: contract.name,
-      },
-      vendorName: contract.vendorName,
-      year: latestMonth.year,
-      prettyMonth: latestMonth.prettyMonth,
-      reconciliationDetails,
-      invoiceLinkData: {
-        href: getUrl(invoicePage, {
-          contract_id: contract.id,
-          month: latestMonth.month,
-          year: latestMonth.year,
-        }),
-        text: "View Invoice",
-      },
-    };
-    overviewRows.push(row);
+    if (latestMonth) {
+      const reconciliationDetails = await getReconciliationDetails(
+        contract.id,
+        latestMonth.year,
+        latestMonth.month
+      );
+      const row = {
+        contractLinkData: {
+          href: getUrl(invoicesPage, { contract_id: contract.id }),
+          text: contract.name,
+        },
+        vendorName: contract.vendorName,
+        year: latestMonth.year,
+        prettyMonth: latestMonth.prettyMonth,
+        reconciliationDetails,
+        invoiceLinkData: {
+          href: getUrl(invoicePage, {
+            contract_id: contract.id,
+            month: latestMonth.month,
+            year: latestMonth.year,
+          }),
+          text: "View Invoice",
+        },
+      };
+      overviewRows.push(row);
+    }
   }
   return overviewRows;
 };
@@ -55,8 +57,7 @@ const getRecentMonth = async (
   contractId: string
 ): Promise<{ month: string; year: string; prettyMonth: string }> => {
   const contractPeriods = await getContractPeriods(contractId);
-  const latestPeriod = contractPeriods[contractPeriods.length - 1];
-  return latestPeriod;
+  return contractPeriods[contractPeriods.length - 1];
 };
 
 const getReconciliationDetails = async (
