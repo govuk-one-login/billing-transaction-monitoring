@@ -28,7 +28,8 @@ export const config = {
   ],
   logLevel: "error",
   bail: 0,
-  baseUrl: BASE_URLS[process.env.NODE_ENV as keyof typeof BASE_URLS],
+  baseUrl:
+    BASE_URLS[process.env.ENV as keyof typeof BASE_URLS] ?? BASE_URLS.dev,
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
