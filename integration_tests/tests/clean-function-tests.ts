@@ -9,10 +9,11 @@ import {
   validEventPayloadWithSortedValueNA,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import {
-  S3Object,
   getS3Object,
+  S3Object,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
-import { invokeCleanLambdaAndVerifyEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { sendEventAndVerifyInDataStore } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { Queue } from "../../src/handlers/int-test-support/helpers/sqsHelper";
 
 describe("\n Clean Function - Happy path tests\n", () => {
   const retrieveS3ObjectByEventId = async (
@@ -37,7 +38,7 @@ describe("\n Clean Function - Happy path tests\n", () => {
   ])(
     "should store cleaned events in the storage bucket and check credit field value",
     async (payload, expectedCredits) => {
-      const result = await invokeCleanLambdaAndVerifyEventInS3Bucket(payload);
+      const result = await sendEventAndVerifyInDataStore(payload, Queue.CLEAN);
       expect(result.success).toBe(true);
       expect(result.eventId).toBe(payload.event_id);
       const s3ObjectData = await retrieveS3ObjectByEventId(payload.event_id);
@@ -48,22 +49,25 @@ describe("\n Clean Function - Happy path tests\n", () => {
 
 describe("\n Clean Function - Unhappy path tests\n", () => {
   test("should not store event with invalid ComponentId in the storage bucket", async () => {
-    const result = await invokeCleanLambdaAndVerifyEventInS3Bucket(
-      invalidEventPayloadComponentId
+    const result = await sendEventAndVerifyInDataStore(
+      invalidEventPayloadComponentId,
+      Queue.CLEAN
     );
     expect(result.success).toBe(false);
   });
 
   test("should not store event with invalid Timestamp in the storage bucket", async () => {
-    const result = await invokeCleanLambdaAndVerifyEventInS3Bucket(
-      invalidEventPayloadTimeStamp
+    const result = await sendEventAndVerifyInDataStore(
+      invalidEventPayloadTimeStamp,
+      Queue.CLEAN
     );
     expect(result.success).toBe(false);
   });
 
   test("should not store event with invalid timestamp formatted in the storage bucket", async () => {
-    const result = await invokeCleanLambdaAndVerifyEventInS3Bucket(
-      invalidEventPayloadTimestampFormatted
+    const result = await sendEventAndVerifyInDataStore(
+      invalidEventPayloadTimestampFormatted,
+      Queue.CLEAN
     );
     expect(result.success).toBe(false);
   });

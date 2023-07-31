@@ -237,11 +237,10 @@ export const validCleanedEventPayload: CleanedEventPayload = {
   },
 };
 
-export const updateSQSEventPayloadBody = async <TPayload>(
+export const readEventPayloadFromFile = async <TPayload>(
   eventPayload: TPayload,
   validEventPayloadFilename: string
 ): Promise<string> => {
-  // update SQS Event body value with eventPayload
   const sqsEventFilePath = path.join(__dirname, validEventPayloadFilename);
   const sqsEventPayloadFileContent = fs.readFileSync(sqsEventFilePath, "utf-8");
   const sqsEventPayload = JSON.parse(sqsEventPayloadFileContent);

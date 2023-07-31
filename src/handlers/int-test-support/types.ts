@@ -32,6 +32,6 @@ export enum IntTestHelpers {
   getQueryExecutionStatus = "getQueryExecutionStatus",
   getQueryResults = "getQueryResults",
   createInvoiceInS3 = "createInvoiceInS3",
-  invokeLambda = "invokeLambda",
   sendEmail = "sendEmail",
+  sendMessageToQueue = "sendMessageToQueue",
 }
