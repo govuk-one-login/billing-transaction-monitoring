@@ -1,4 +1,5 @@
 {% extends "govuk/template.njk" %}
+{% from "govuk/components/footer/macro.njk" import govukFooter %}
 {% block head %}
   <link href="/assets/styles/all.css" rel="stylesheet">
 {% endblock head %}
@@ -9,6 +10,11 @@
 {% endblock pageTitle %}
 {% block content %}
 {% endblock content %}
+{% block footer %}
+  {# djlint:off #}
+  {{ govukFooter({ meta: { items: [ cookiesLink ] } } ) }}
+  {# djlint:on #}
+{% endblock footer %}
 {% block bodyEnd %}
   <script src="/assets/scripts/all.js" nonce="{{ cspNonce }}"></script>
   <script>window.GOVUKFrontend.initAll();</script>

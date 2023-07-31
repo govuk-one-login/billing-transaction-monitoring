@@ -1,22 +1,20 @@
-import {
-  HomeParams,
-  PageParamsGetter,
-  PageTitleGetter,
-  contractsPage,
-} from "../pages";
-import { getOverviewRows } from "../extract-helpers/get-overview-rows";
+import { PageParamsGetter, PageTitleGetter, contractsPage } from "../pages";
+import { getOverviewRows, OverviewRow } from "../extract-helpers";
 import { getLinkData } from "../utils";
+
+export type HomeParams = {
+  overviewRows: OverviewRow[];
+};
 
 export const homeParamsGetter: PageParamsGetter<{}, HomeParams> = async (
   request
 ) => {
-  const [contractsLinkData, overviewRows, pageTitle] = await Promise.all([
+  const [contractsLinkData, overviewRows] = await Promise.all([
     getLinkData(contractsPage, request.params),
     getOverviewRows(),
-    homeTitleGetter(),
   ]);
 
-  return { contractsLinkData, pageTitle, overviewRows };
+  return { contractsLinkData, overviewRows };
 };
 
 export const homeTitleGetter: PageTitleGetter<{}> = async () =>

@@ -1,0 +1,37 @@
+{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% extends "common/layout/base.njk" %}
+{% block beforeContent %}
+  {{ govukBreadcrumbs(breadcrumbData) }}
+{% endblock beforeContent %}
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
+      <p class="govuk-body">Cookies are small files saved on your phone, tablet, or computer when you visit a website.</p>
+      <p class="govuk-body">We use cookies to make this site work and collect information about how you use our service.</p>
+      <h2 class="govuk-heading-l">Essential cookies</h2>
+      <p class="govuk-body">
+        Essential cookies keep your information secure while you use this service. We do not need
+        to ask permission to use them.
+      </p>
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="col">Name</th>
+            <th class="govuk-table__header" scope="col">Purpose</th>
+            <th class="govuk-table__header" scope="col">Expires</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell">auth_token</td>
+            <td class="govuk-table__cell">Used to keep you signed in</td>
+            <td class="govuk-table__cell">24 hours</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock content %}
