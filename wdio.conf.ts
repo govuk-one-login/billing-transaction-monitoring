@@ -4,6 +4,7 @@ const BASE_URLS = {
   local: "http://localhost:3000",
   dev: "https://btm.dev.account.gov.uk/",
   build: "https://btm.build.account.gov.uk/",
+  staging: "https://btm.staging.account.gov.uk/",
 };
 
 export const config = {
@@ -15,7 +16,7 @@ export const config = {
       project: "./tsconfig.json",
     },
   },
-  specs: ["./ui-tests/specs/home.spec.ts"],
+  specs: ["./ui-tests/specs/**/*.spec.ts"],
   maxInstances: 10,
   capabilities: [
     {
