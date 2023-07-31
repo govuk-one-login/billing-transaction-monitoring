@@ -112,7 +112,6 @@ exports[`contracts handler Page displays all contracts 1`] = `
     
 
     
-  
   <footer class="govuk-footer " role="contentinfo">
   <div class="govuk-width-container ">
     
@@ -168,7 +167,6 @@ exports[`contracts handler Page displays all contracts 1`] = `
   </div>
 </footer>
 
-  
 
 
     

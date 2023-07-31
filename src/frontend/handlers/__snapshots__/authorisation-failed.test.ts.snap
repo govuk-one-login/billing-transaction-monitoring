@@ -100,7 +100,6 @@ exports[`authorisation failed handler Page displays title and info 1`] = `
     
 
     
-  
   <footer class="govuk-footer " role="contentinfo">
   <div class="govuk-width-container ">
     
@@ -156,7 +155,6 @@ exports[`authorisation failed handler Page displays title and info 1`] = `
   </div>
 </footer>
 
-  
 
 
     

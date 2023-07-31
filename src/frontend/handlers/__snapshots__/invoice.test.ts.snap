@@ -432,7 +432,6 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     
 
     
-  
   <footer class="govuk-footer " role="contentinfo">
   <div class="govuk-width-container ">
     
@@ -488,7 +487,6 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
   </div>
 </footer>
 
-  
 
 
     

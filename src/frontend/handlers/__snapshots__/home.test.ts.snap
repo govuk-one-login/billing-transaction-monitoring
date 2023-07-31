@@ -169,7 +169,6 @@ exports[`home page handler Page displays all overview rows 1`] = `
     
 
     
-  
   <footer class="govuk-footer " role="contentinfo">
   <div class="govuk-width-container ">
     
@@ -225,7 +224,6 @@ exports[`home page handler Page displays all overview rows 1`] = `
   </div>
 </footer>
 
-  
 
 
     

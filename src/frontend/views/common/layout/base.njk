@@ -11,9 +11,7 @@
 {% block content %}
 {% endblock content %}
 {% block footer %}
-  {# djlint:off #}
-  {{ govukFooter({ meta: { items: [ cookiesLink ] } } ) }}
-  {# djlint:on #}
+  {{ govukFooter({ meta: { items: [ cookiesLink ] } }) }}
 {% endblock footer %}
 {% block bodyEnd %}
   <script src="/assets/scripts/all.js" nonce="{{ cspNonce }}"></script>
