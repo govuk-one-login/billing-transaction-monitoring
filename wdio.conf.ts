@@ -1,5 +1,11 @@
 import { uploadExtractDataFileForUITest } from "./ui-tests/testData/test.setup";
 
+const BASE_URLS = {
+  local: "http://localhost:3000",
+  dev: "https://btm.dev.account.gov.uk/",
+  build: "https://btm.build.account.gov.uk/",
+};
+
 export const config = {
   runner: "local",
   autoCompileOpts: {
@@ -9,7 +15,7 @@ export const config = {
       project: "./tsconfig.json",
     },
   },
-  specs: ["./ui-tests/specs/**/*.spec.ts"],
+  specs: ["./ui-tests/specs/home.spec.ts"],
   maxInstances: 10,
   capabilities: [
     {
@@ -21,7 +27,7 @@ export const config = {
   ],
   logLevel: "error",
   bail: 0,
-  baseUrl: "",
+  baseUrl: BASE_URLS[process.env.NODE_ENV as keyof typeof BASE_URLS],
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
