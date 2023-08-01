@@ -158,7 +158,7 @@ If you update a parser, please increment its version!
 ## Running UI Tests
 
 Our UI testing suite determines which environment to use based on the `ENV_NAME` environment variable. `ENV_NAME` is used to select the corresponding
-base URL from the configuration un the `wdio.conf.ts` file.
+base URL from the configuration in the `wdio.conf.ts` file.
 
 If `ENV_NAME` is not set or if its set to a value other than "dev","build" or "staging", the baseURL defaults to the local URL which is http://localhost:3000 . This allows test to be run against local development environment by default.
 

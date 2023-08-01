@@ -1,20 +1,18 @@
 import { uploadExtractDataFileForUITest } from "./ui-tests/testData/test.setup";
 
-type Environment = "dev" | "build" | "staging";
-
-const baseUrls = {
-  local: "http://localhost:3000",
-  dev: "https://btm.dev.account.gov.uk/",
-  build: "https://btm.build.account.gov.uk/",
-  staging: "https://btm.staging.account.gov.uk/",
+const determineBaseUrl = (): string => {
+  switch (process.env.ENV_NAME) {
+    case "dev":
+      return "https://btm.dev.account.gov.uk/";
+    case "build":
+      return "https://btm.build.account.gov.uk/";
+    case "staging":
+      return "https://btm.staging.account.gov.uk/";
+    default:
+      return "http://localhost:3000";
+  }
 };
-
-const env =
-  (process.env.ENV_NAME as Environment) in baseUrls
-    ? (process.env.ENV_NAME as Environment)
-    : "local";
-
-const baseUrl = baseUrls[env];
+const baseUrl = determineBaseUrl();
 
 export const config = {
   runner: "local",
