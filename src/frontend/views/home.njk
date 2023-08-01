@@ -21,7 +21,7 @@
     {% for row in overviewRows %}
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">{{ link(row.contractLinkData) }}</td>
+          <th class="govuk-table__cell">{{ link(row.contractLinkData) }}</th>
           <td class="govuk-table__cell">{{ row.vendorName }}</td>
           <td class="govuk-table__cell">{{ row.prettyMonth }} {{ row.year }}</td>
           <td class="govuk-table__cell">
