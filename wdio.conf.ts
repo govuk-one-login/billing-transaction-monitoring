@@ -1,5 +1,8 @@
 import { uploadExtractDataFileForUITest } from "./ui-tests/testData/test.setup";
 
+const browserName: string = process.env.BROWSER ?? "chrome";
+const maxInstances: number = browserName === "safari" ? 1 : 10;
+
 export const config = {
   runner: "local",
   autoCompileOpts: {
@@ -10,12 +13,20 @@ export const config = {
     },
   },
   specs: ["./ui-tests/specs/**/*.spec.ts"],
-  maxInstances: 10,
+  maxInstances,
   capabilities: [
     {
-      browserName: "chrome",
-      "goog:chromeOptions": {
-        args: ["--headless", "--disable-gpu"],
+      browserName,
+      [`${
+        browserName === "MicrosoftEdge"
+          ? "ms:edgeOptions"
+          : browserName === "firefox"
+          ? "moz:firefoxOptions"
+          : browserName === "safari"
+          ? "safari:options"
+          : "goog:chromeOptions"
+      }`]: {
+        args: browserName === "safari" ? [] : [],
       },
     },
   ],
@@ -25,7 +36,7 @@ export const config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  services: ["chromedriver"],
+  services: ["chromedriver", "geckodriver", "safaridriver", "edgedriver"],
   framework: "mocha",
   reporters: ["spec"],
   mochaOpts: {

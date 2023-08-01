@@ -60,11 +60,13 @@ describe("Home Page Overview table Tests", () => {
     );
     const sortedTableDataByVendor = tableData
       .map((data) => ({
-        contractName: data["Contract Name"],
-        vendor: data.Vendor,
-        month: data.Month,
-        reconciliationDetails: data["Reconciliation Details"],
-        details: data.Details,
+        contractName: data["Contract Name"].trim(),
+        vendor: data.Vendor.trim(),
+        month: data.Month.trim(),
+        reconciliationDetails: data["Reconciliation Details"]
+          .trim()
+          .toUpperCase(),
+        details: data.Details.trim(),
       }))
       .sort((a, b) => a.vendor.localeCompare(b.vendor));
 
