@@ -24,13 +24,16 @@ describe("getOverviewRows", () => {
 
     // Arrange
     mockedGetContracts.mockResolvedValue([
+      { id: "nc1", name: "NewContract", vendorName: "New Vendor" },
       { id: "c1", name: "C01234", vendorName: "Vendor One" },
       { id: "m2", name: "MOU", vendorName: "Vendor Two" },
     ]);
-    mockedGetContractPeriods.mockResolvedValue([
-      { month: "05", prettyMonth: "May", year: "2023" },
-      { month: "06", prettyMonth: "Jun", year: "2023" },
-    ]);
+    mockedGetContractPeriods
+      .mockResolvedValueOnce([]) // New contract has no data
+      .mockResolvedValue([
+        { month: "05", prettyMonth: "May", year: "2023" },
+        { month: "06", prettyMonth: "Jun", year: "2023" },
+      ]);
     mockedGetLineItems
       .mockResolvedValueOnce([
         {
@@ -93,8 +96,9 @@ describe("getOverviewRows", () => {
     // Act
     const result = await getOverviewRows();
     // Assert
-    expect(mockedGetContractPeriods).toHaveBeenNthCalledWith(1, "c1");
-    expect(mockedGetContractPeriods).toHaveBeenNthCalledWith(2, "m2");
+    expect(mockedGetContractPeriods).toHaveBeenNthCalledWith(1, "nc1");
+    expect(mockedGetContractPeriods).toHaveBeenNthCalledWith(2, "c1");
+    expect(mockedGetContractPeriods).toHaveBeenNthCalledWith(3, "m2");
 
     expect(mockedGetLineItems).toHaveBeenNthCalledWith(1, "c1", "2023", "06");
     expect(mockedGetLineItems).toHaveBeenNthCalledWith(2, "m2", "2023", "06");
