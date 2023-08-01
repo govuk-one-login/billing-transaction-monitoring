@@ -3,29 +3,6 @@ import { mkdirSync, rmSync, statSync, writeFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-export interface FileSystem {
-  mkdirSync: (dir: string) => void;
-  statSync: (
-    dir: string,
-    opts?: { throwIfNoEntry?: boolean }
-  ) => { isDirectory: () => boolean };
-  readdirSync: (dir: string) => string[];
-  readFileSync: (path: string) => Buffer;
-  rmSync: (dir: string, opts: { recursive?: boolean }) => void;
-  writeFileSync: (path: string, data: string) => void;
-}
-
-export interface Path {
-  dirname: (path: string) => string;
-  join: (...paths: string[]) => string;
-  resolve: (dir: string, file: string) => string;
-}
-
-export type MakeDirectorySafely = (
-  path: string,
-  options?: { shouldEmpty: boolean }
-) => void;
-
 export const makeDirectorySafely = (
   path: string,
   { shouldEmpty } = { shouldEmpty: false }
@@ -78,28 +55,30 @@ const createEvents = (
 };
 
 (() => {
-  const FIRST_MONTH = 1;
-  const FIRST_YEAR = 2020;
-  for (let day = 1; day <= 31; day++) {
-    const dirPath = path.join(
-      fileURLToPath(import.meta.url).split("create-events.ts")[0],
-      "events",
-      FIRST_YEAR.toString(),
-      FIRST_MONTH.toString(),
-      day.toString()
-    );
-    console.log("🚀 ~ file: create-events.ts:92 ~ dirPath:", dirPath);
-    makeDirectorySafely(dirPath);
-    for (
-      let filesPerDay = 0;
-      filesPerDay < Math.ceil(Math.random() * 4);
-      filesPerDay++
-    ) {
-      const events = createEvents(FIRST_YEAR, FIRST_MONTH, day, 500);
-      writeFileSync(
-        path.join(dirPath, `${crypto.randomUUID()}.json`),
-        events.join("\n")
-      );
+  const FIRST_YEAR = 2019;
+  for (let year = FIRST_YEAR; year <= FIRST_YEAR + 1; year++) {
+    for (let month = 1; month <= 2; month++) {
+      for (let day = 1; day <= 28; day++) {
+        const dirPath = path.join(
+          fileURLToPath(import.meta.url).split("create-events.ts")[0],
+          "events",
+          year.toString(),
+          `0${month.toString()}`.slice(-2),
+          `0${day.toString()}`.slice(-2)
+        );
+        makeDirectorySafely(dirPath, { shouldEmpty: true });
+        for (
+          let filesPerDay = 10;
+          filesPerDay < 10 + Math.ceil(Math.random() * 20);
+          filesPerDay++
+        ) {
+          const events = createEvents(year, month, day, 1);
+          writeFileSync(
+            path.join(dirPath, `${crypto.randomUUID()}.json`),
+            events.join("\n")
+          );
+        }
+      }
     }
   }
 })();

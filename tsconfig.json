@@ -4,7 +4,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "es2022",
+    "module": "ESNext",
     "moduleResolution": "node",
     "noImplicitAny": true,
     "lib": ["es7", "dom"],
@@ -14,5 +14,9 @@
     "target": "es2022",
     "types": ["node", "jest", "@wdio/mocha-framework", "@wdio/globals/types"]
   },
-  "exclude": ["reports"]
+  "exclude": ["reports"],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
 }

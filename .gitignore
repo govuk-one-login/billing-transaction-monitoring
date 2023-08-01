@@ -9,3 +9,6 @@ reports
 .env
 
 src/frontend/styles/all.css*
+src/tools/events
+src/tools/downloaded-events
+src/tools/batched-events
