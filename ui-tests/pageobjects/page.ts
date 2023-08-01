@@ -15,6 +15,10 @@ export default class Page {
     return $$("li.govuk-breadcrumbs__list-item");
   }
 
+  public get cookiesFooterLink(): Promise<WebdriverIO.Element> {
+    return $('a[href="/cookies"]');
+  }
+
   public async isPageHeadingDisplayed(): Promise<boolean> {
     return await (await this.pageHeading).isDisplayed();
   }
@@ -66,5 +70,9 @@ export default class Page {
       breadcrumbs.push(text);
     }
     return breadcrumbs;
+  }
+
+  public async clickOnCookiesFooterLink(): Promise<void> {
+    await (await this.cookiesFooterLink).click();
   }
 }
