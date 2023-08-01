@@ -187,12 +187,9 @@ Resources:
             Action:
               - kms:GenerateDataKey
               - kms:Decrypt
-            Condition:
-              StringEquals:
-                kms:ViaService: sqs.amazonaws.com
             Effect: Allow
             Principal:
-              AWS: !Ref PerformanceTestAccount
+              AWS: !Ref PerformanceTestingRole
             Resource: '*'
 
   PerformanceTestingKmsKeyAlias:
@@ -231,7 +228,7 @@ Resources:
               - sqs:SendMessage
             Effect: Allow
             Principal:
-              AWS: !Ref PerformanceTestAccount
+              AWS: !Ref PerformanceTestingRole
             Resource:
               - !GetAtt FilterQueueForPerformanceTests.Arn
       Queues:
