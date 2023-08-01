@@ -1,11 +1,20 @@
 import { uploadExtractDataFileForUITest } from "./ui-tests/testData/test.setup";
 
-const BASE_URLS = {
+type Environment = "dev" | "build" | "staging";
+
+const baseUrls = {
   local: "http://localhost:3000",
   dev: "https://btm.dev.account.gov.uk/",
   build: "https://btm.build.account.gov.uk/",
   staging: "https://btm.staging.account.gov.uk/",
 };
+
+const env =
+  (process.env.ENV_NAME as Environment) in baseUrls
+    ? (process.env.ENV_NAME as Environment)
+    : "local";
+
+const baseUrl = baseUrls[env];
 
 export const config = {
   runner: "local",
@@ -28,8 +37,7 @@ export const config = {
   ],
   logLevel: "error",
   bail: 0,
-  baseUrl:
-    BASE_URLS[process.env.ENV as keyof typeof BASE_URLS] ?? BASE_URLS.dev,
+  baseUrl,
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
