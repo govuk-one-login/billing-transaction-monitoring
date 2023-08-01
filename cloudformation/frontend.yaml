@@ -167,8 +167,8 @@ Resources:
       Environment:
         Variables:
           AWS_ACCOUNT_ID: AWS::AccountId
-          GOOGLE_CLIENT_ID: "{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientId}}"
-          GOOGLE_CLIENT_SECRET: "{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientSecret}}"
+          GOOGLE_CLIENT_ID: "{{resolve:ssm:GoogleClientDetails:SecretString:clientId}}"
+          GOOGLE_CLIENT_SECRET: "{{resolve:ssm:GoogleClientDetails:SecretString:clientSecret}}"
 
   FrontEndFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
