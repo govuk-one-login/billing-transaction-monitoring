@@ -1,5 +1,19 @@
 import { uploadExtractDataFileForUITest } from "./ui-tests/testData/test.setup";
 
+const determineBaseUrl = (): string => {
+  switch (process.env.ENV_NAME) {
+    case "dev":
+      return "https://btm.dev.account.gov.uk/";
+    case "build":
+      return "https://btm.build.account.gov.uk/";
+    case "staging":
+      return "https://btm.staging.account.gov.uk/";
+    default:
+      return "http://localhost:3000";
+  }
+};
+const baseUrl = determineBaseUrl();
+
 export const config = {
   runner: "local",
   autoCompileOpts: {
@@ -21,7 +35,7 @@ export const config = {
   ],
   logLevel: "error",
   bail: 0,
-  baseUrl: "",
+  baseUrl,
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
