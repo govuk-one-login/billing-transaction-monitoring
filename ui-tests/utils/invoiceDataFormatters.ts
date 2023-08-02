@@ -10,7 +10,8 @@ export const formatPercentageDifference = (
     maximumFractionDigits: 4,
   }).format(percentageDifference / 100);
   if (percentageDiscrepancySpecialCase[percentageDifference]) {
-    return percentageDiscrepancySpecialCase[percentageDifference].percentageDiscrepancy;
+    return percentageDiscrepancySpecialCase[percentageDifference]
+      .percentageDiscrepancy;
   }
   return formattedPercentage;
 };
@@ -42,13 +43,15 @@ export const formatInvoiceDataFromJson = (
     };
   }
 
-    if(row.transaction_price_formatted==="" && row.transaction_quantity!=="")
-    {
-      return {
-        ...row,
-        transaction_price_formatted:InvoiceStates.unableToFindRate
-      }
-    }
-  
+  if (
+    row.transaction_price_formatted === "" &&
+    row.transaction_quantity !== ""
+  ) {
+    return {
+      ...row,
+      transaction_price_formatted: InvoiceStates.unableToFindRate,
+    };
+  }
+
   return row;
 };
