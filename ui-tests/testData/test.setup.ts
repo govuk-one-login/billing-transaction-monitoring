@@ -9,7 +9,7 @@ import { readJsonDataFromFile } from "../utils/extractTestDatajson";
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
 
-export const cleanAndUploadFileForUITest = async (): Promise<void> => {
+export const cleanAndUploadExtractFileForUITest = async (): Promise<void> => {
   const key = "btm_extract_data/full-extract.json";
   const filePath = "./ui-tests/testData/testData.json";
   const content = readJsonDataFromFile(filePath);
