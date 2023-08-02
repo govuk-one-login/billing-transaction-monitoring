@@ -127,7 +127,8 @@ const getS3ObjectBasic = async (
 export const getS3Object = callWithRetryAndTimeout(getS3ObjectBasic);
 
 const putS3ObjectBasic = async (
-  dataAndTarget: DataAndTarget
+  dataAndTarget: DataAndTarget,
+  encoding: BufferEncoding = "ascii" // default encoding ascii
 ): Promise<void> => {
   if (runViaLambda()) {
     await sendLambdaCommand(IntTestHelpers.putS3Object, dataAndTarget);
@@ -137,7 +138,7 @@ const putS3ObjectBasic = async (
   const bucketParams = {
     Bucket: dataAndTarget.target.bucket,
     Key: dataAndTarget.target.key,
-    Body: Buffer.from(dataAndTarget.data, "ascii"),
+    Body: Buffer.from(dataAndTarget.data, encoding),
   };
   try {
     await s3Client.send(new PutObjectCommand(bucketParams));
