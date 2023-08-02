@@ -79,7 +79,7 @@ describe("getReconciliationRows", () => {
         billingUnitPrice: "Invoice data missing",
         billingPrice: "Invoice data missing",
         transactionPrice: "£27.50",
-        billingPriceInclVat: "",
+        billingPriceInclVat: "Invoice data missing",
       },
     ];
     // Act

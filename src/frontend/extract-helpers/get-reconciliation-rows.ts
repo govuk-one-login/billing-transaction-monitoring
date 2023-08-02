@@ -44,7 +44,10 @@ export const getReconciliationRows = (
         item.billing_price_formatted,
         item.price_difference_percentage
       ),
-      billingPriceInclVat: item.billing_amount_with_tax,
+      billingPriceInclVat: getPrice(
+        item.billing_amount_with_tax,
+        item.price_difference_percentage
+      ),
       transactionPrice: getPrice(
         item.transaction_price_formatted,
         item.price_difference_percentage
