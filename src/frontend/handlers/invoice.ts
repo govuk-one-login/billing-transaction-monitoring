@@ -65,6 +65,10 @@ export const invoiceParamsGetter: PageParamsGetter<
 export const invoiceTitleGetter: PageTitleGetter<
   InvoiceRequestParams
 > = async ({ contract_id, year, month }) => {
-  const { vendorName } = await getContractAndVendorName(contract_id);
-  return `${vendorName} ${MONTHS[Number(month) - 1]} ${year} Invoice`;
+  const { vendorName, contractName } = await getContractAndVendorName(
+    contract_id
+  );
+  return `${contractName} - ${vendorName} ${
+    MONTHS[Number(month) - 1]
+  } ${year} reconciliation`;
 };
