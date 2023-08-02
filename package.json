@@ -101,8 +101,7 @@
     "build:css": "sass src/frontend/styles/all.scss src/frontend/styles/all.css",
     "predev": "npm run build:css",
     "prebuild": "npm run build:css",
-    "fetch-s3": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/fetch-s3.ts",
-    "create-test-events": "ts-node --esm src/tools/create-events.ts"
+    "fetch-s3": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/fetch-s3.ts"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
