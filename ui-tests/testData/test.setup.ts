@@ -13,7 +13,11 @@ export const cleanAndUploadFileForUITest = async (): Promise<void> => {
   const key = "btm_extract_data/full-extract.json";
   const filePath = "./ui-tests/testData/testData.json";
   const content = readJsonDataFromFile(filePath);
+
+  // deleting existing file with same key
   await deleteS3Objects({ bucket: storageBucket, keys: [key] });
+
+  // uploading the file to s3
   await putS3Object(
     {
       data: content,
@@ -25,6 +29,7 @@ export const cleanAndUploadFileForUITest = async (): Promise<void> => {
     "utf-8"
   );
 
+  // verifying that the file exists
   const objectExists = await checkIfS3ObjectExists({
     bucket: storageBucket,
     key,
