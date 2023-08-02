@@ -23,7 +23,7 @@ export const config = {
       project: "./tsconfig.json",
     },
   },
-  specs: ["./ui-tests/specs/invoice.spec.ts"],
+  specs: ["./ui-tests/specs/**/*.spec.ts"],
   maxInstances: 10,
   capabilities: [
     {
