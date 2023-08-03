@@ -5,6 +5,8 @@ Resources:
     DependsOn:
       - FrontEndDomainName
       - FrontEndHostedZoneName
+      - FrontEndFunction
+      - FrontEndEphemeralFunction
     Properties:
       AccessLogSetting:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
@@ -64,6 +66,8 @@ Resources:
   FrontEndEphemeralApi:
     Type: AWS::Serverless::Api
     Condition: IsEphemeral
+    DependsOn:
+      - FrontEndEphemeralFunction
     Properties:
       AccessLogSetting:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
@@ -254,7 +258,7 @@ Resources:
           Properties:
             RestApiId: !Ref FrontEndEphemeralApi
             Path: /
-            Method: '*'
+            Method: 'GET'
       Handler: frontend.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
