@@ -17,6 +17,13 @@ const baseUrl = determineBaseUrl();
 const browserName: string = process.env.BROWSER ?? "chrome";
 const maxInstances: number = browserName === "safari" ? 1 : 10;
 
+const getBrowserOptions = (browserName: string): string => {
+  if (browserName === "MicrosoftEdge") return "ms:edgeOptions";
+  if (browserName === "firefox") return "moz:firefoxOptions";
+  if (browserName === "safari") return "safari:options";
+  return "goog:chromeOptions";
+};
+
 export const config = {
   runner: "local",
   autoCompileOpts: {
@@ -31,15 +38,7 @@ export const config = {
   capabilities: [
     {
       browserName,
-      [`${
-        browserName === "MicrosoftEdge"
-          ? "ms:edgeOptions"
-          : browserName === "firefox"
-          ? "moz:firefoxOptions"
-          : browserName === "safari"
-          ? "safari:options"
-          : "goog:chromeOptions"
-      }`]: {
+      [getBrowserOptions(browserName)]: {
         args: browserName === "safari" ? [] : ["--headless"],
       },
     },

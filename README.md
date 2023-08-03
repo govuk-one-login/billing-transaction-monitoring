@@ -178,3 +178,12 @@ Open the `wdio.conf.ts` config file,Locate the specs section and modify it to in
 ```sh
 npm run test:ui
 ```
+
+## Running UI Tests in Different Browsers
+Our UI testing suite supports running tests in Chrome, Firefox, Microsoft Edge and Safari. Below are the instructions for setting up and running tests in each of these browsers. If you are running Safari for first time, need to enable Remote Automation.After enabling Remote Automation can run tests.
+
+To run tests in Chrome, Firefox , Microsoft Edge and Safari use the following command
+
+```sh
+npm run test:ui --browser=chrome # or firefox, MicrosoftEdge, safari 
+```
