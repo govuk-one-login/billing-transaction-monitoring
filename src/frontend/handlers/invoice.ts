@@ -68,7 +68,7 @@ export const invoiceTitleGetter: PageTitleGetter<
   const { vendorName, contractName } = await getContractAndVendorName(
     contract_id
   );
-  return `${contractName} - ${vendorName} ${
+  return `${contractName} - ${vendorName} (${
     MONTHS[Number(month) - 1]
-  } ${year} reconciliation`;
+  } ${year}) reconciliation`;
 };

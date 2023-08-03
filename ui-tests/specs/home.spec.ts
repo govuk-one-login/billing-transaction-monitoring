@@ -63,7 +63,7 @@ describe("Home Page Overview table Tests", () => {
         contractName: data["Contract Name"],
         vendor: data.Vendor,
         month: data.Month,
-        reconciliationDetails: data["Reconciliation Details"],
+        reconciliationDetails: data["Reconciliation status"],
         details: data.Details,
       }))
       .sort((a, b) => a.vendor.localeCompare(b.vendor));
