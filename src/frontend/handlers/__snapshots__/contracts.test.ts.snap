@@ -100,15 +100,11 @@ exports[`contracts handler Page displays all contracts 1`] = `
           
   <h1 class="govuk-heading-l">Contracts</h1>
   <ul class="govuk-list">
-    
-      <li>
-        <a class="govuk-link" href="/contracts/1/invoices">C01234 - Vendor One</a>
-      </li>
-    
-      <li>
-        <a class="govuk-link" href="/contracts/2/invoices">C01235 - Vendor Two</a>
-      </li>
-    
+    <li>
+  <a class="govuk-link" href="/contracts/1/invoices">C01234 - Vendor One</a>
+</li><li>
+  <a class="govuk-link" href="/contracts/2/invoices">C01235 - Vendor Two</a>
+</li>
   </ul>
 
         </main>
@@ -116,11 +112,26 @@ exports[`contracts handler Page displays all contracts 1`] = `
     
 
     
-      <footer class="govuk-footer " role="contentinfo">
+  
+  <footer class="govuk-footer " role="contentinfo">
   <div class="govuk-width-container ">
     
     <div class="govuk-footer__meta">
       <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+        
+          <h2 class="govuk-visually-hidden">Support links</h2>
+          
+            <ul class="govuk-footer__inline-list">
+              
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="/cookies">
+                    Cookies
+                  </a>
+                </li>
+              
+            </ul>
+          
+          
         
         <svg
           aria-hidden="true"
@@ -157,7 +168,8 @@ exports[`contracts handler Page displays all contracts 1`] = `
   </div>
 </footer>
 
-    
+  
+
 
     
   <script src="/assets/scripts/all.js" nonce=""></script>

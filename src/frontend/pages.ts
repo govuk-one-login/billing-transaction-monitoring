@@ -1,22 +1,39 @@
 import { Request, RequestHandler, Response } from "express";
 import {
+  AuthorisationFailedParams,
   authorisationFailedParamsGetter,
   authorisationFailedTitleGetter,
 } from "./handlers/authorisation-failed";
 import {
+  ContractParams,
   contractsParamsGetter,
   contractsTitleGetter,
 } from "./handlers/contracts";
-import { invoicesParamsGetter, invoicesTitleGetter } from "./handlers/invoices";
-import { invoiceParamsGetter, invoiceTitleGetter } from "./handlers/invoice";
-import { indexParamsGetter, indexTitleGetter } from "./handlers/home";
+import {
+  InvoicesParams,
+  invoicesParamsGetter,
+  InvoicesRequestParams,
+  invoicesTitleGetter,
+} from "./handlers/invoices";
+import {
+  InvoiceParams,
+  invoiceParamsGetter,
+  InvoiceRequestParams,
+  invoiceTitleGetter,
+} from "./handlers/invoice";
+import { HomeParams, homeParamsGetter, homeTitleGetter } from "./handlers/home";
 import path from "node:path";
 import {
-  Contract,
-  Period,
-  ReconciliationRow,
-  OverviewRow,
-} from "./extract-helpers";
+  ErrorPageParams,
+  errorParamsGetter,
+  errorTitleGetter,
+} from "./handlers/error";
+import { getLinkData, LinkData } from "./utils";
+import {
+  CookiesParams,
+  cookiesParamsGetter,
+  cookiesTitleGetter,
+} from "./handlers/cookies";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams>
@@ -26,7 +43,7 @@ export type PageTitleGetter<TParams> = keyof TParams extends never
   ? () => Promise<string>
   : (requestParams: TParams) => Promise<string>;
 
-export interface Page<TParams, TReturn> {
+export interface Page<TParams extends Record<string, string>, TReturn> {
   parent?: Page<any, any>;
 
   relativePath: string;
@@ -38,23 +55,28 @@ export interface Page<TParams, TReturn> {
   titleGetter: PageTitleGetter<TParams>;
 }
 
-export const getRoute = <TParams, TReturn>(
+export const getRoute = <TParams extends Record<string, string>, TReturn>(
   page: Page<TParams, TReturn>
 ): string => {
   const parentPath = page.parent ? getRoute(page.parent) : "/";
   return path.join(parentPath, page.relativePath);
 };
 
-const getUrl = <TParams>(
+export const getUrl = <TParams>(
   page: Page<any, any>,
-  request: Request<TParams>
+  requestParams: TParams
 ): string => {
   const parentRoute = page.parent ? getRoute(page.parent) : "/";
   let url = path.join(parentRoute, page.relativePath);
   const regex = /:([A-Za-z_]+)/;
-  const params = request.params as Record<string, string>;
+  const params = requestParams as Record<string, string>;
   while (regex.exec(url)) {
-    url = url.replace(regex, (a, b) => params[b]);
+    url = url.replace(regex, (a, b) => {
+      const bParam = params[b];
+      if (!bParam)
+        throw Error(`Request parameter \`${a}\` not found for URL: ${url}`);
+      return bParam;
+    });
   }
   return url;
 };
@@ -62,62 +84,58 @@ const getUrl = <TParams>(
 const getBreadcrumbData = async <TParams>(
   page: Page<any, any>,
   request: Request<TParams>
-): Promise<{ items: Array<{ text: string; href: string }> }> => {
-  const breadcrumbs: Array<{ text: string; href: string }> = [];
+): Promise<{ items: LinkData[] }> => {
+  const breadcrumbs: LinkData[] = [];
   let currentPage: Page<any, any> | undefined = page.parent;
   while (currentPage) {
     breadcrumbs.unshift({
       text: await currentPage.titleGetter(request.params),
-      href: getUrl(currentPage, request),
+      href: getUrl(currentPage, request.params),
     });
     currentPage = currentPage.parent;
   }
   return { items: breadcrumbs };
 };
-const getPageParams = async <TParams, TReturn>(
+
+const getPageParams = async <TParams extends Record<string, string>, TReturn>(
   page: Page<TParams, TReturn>,
   request: Request<TParams>,
   response: Response
 ): Promise<TReturn> => {
-  const options = await page.paramsGetter(request);
-  const breadcrumbData = await getBreadcrumbData(page, request);
+  const [pageTitle, cookiesLink, breadcrumbData, options] = await Promise.all([
+    page.titleGetter(request.params),
+    getLinkData(cookiesPage, request.params),
+    getBreadcrumbData(page, request),
+    page.paramsGetter(request),
+  ]);
 
   return {
     ...options,
+    pageTitle,
+    cookiesLink,
     breadcrumbData,
     cspNonce: response.locals.cspNonce,
   };
 };
 
-export const getHandler = <TParams, TReturn>(
+export const getHandler = <TParams extends Record<string, string>, TReturn>(
   page: Page<TParams, TReturn>
 ): RequestHandler<TParams> => {
-  return async (request: Request<TParams>, response) => {
-    response.render(
-      page.njk,
-      (await getPageParams(page, request, response)) as object
-    );
+  return (request: Request<TParams>, response, next) => {
+    getPageParams(page, request, response)
+      .then((pageParams) => response.render(page.njk, pageParams as object))
+      .catch((error) => next(error));
   };
 };
 
-export type IndexParams = {
-  pageTitle: string;
-  overviewRows: OverviewRow[];
-};
-
-const homePage: Page<{}, {}> = {
+export const homePage: Page<{}, HomeParams> = {
   relativePath: "",
-  njk: "index.njk",
-  paramsGetter: indexParamsGetter,
-  titleGetter: indexTitleGetter,
+  njk: "home.njk",
+  paramsGetter: homeParamsGetter,
+  titleGetter: homeTitleGetter,
 };
 
-export type ContractParams = {
-  pageTitle: string;
-  contracts: Contract[];
-};
-
-const contractsPage: Page<{}, ContractParams> = {
+export const contractsPage: Page<{}, ContractParams> = {
   parent: homePage,
   relativePath: "contracts",
   njk: "contracts.njk",
@@ -125,15 +143,7 @@ const contractsPage: Page<{}, ContractParams> = {
   titleGetter: contractsTitleGetter,
 };
 
-export type InvoicesRequestParams = { contract_id: string };
-
-export type InvoicesParams = {
-  pageTitle: string;
-  contract: Contract;
-  periods: Period[];
-};
-
-const invoicesPage: Page<InvoicesRequestParams, InvoicesParams> = {
+export const invoicesPage: Page<InvoicesRequestParams, InvoicesParams> = {
   parent: contractsPage,
   relativePath: ":contract_id/invoices",
   njk: "invoices.njk",
@@ -141,38 +151,12 @@ const invoicesPage: Page<InvoicesRequestParams, InvoicesParams> = {
   titleGetter: invoicesTitleGetter,
 };
 
-export type InvoiceRequestParams = {
-  contract_id: string;
-  year: string;
-  month: string;
-};
-
-export type InvoiceParams = {
-  pageTitle: string;
-  vendorName: string;
-  contractName: string;
-  contractId: string;
-  year: string;
-  prettyMonth: string;
-  bannerClass: string;
-  invoiceStatus: string;
-  reconciliationRows: ReconciliationRow[];
-  invoiceTotals: {
-    billingPriceTotal: string;
-    billingPriceInclVatTotal: string;
-  };
-};
-
-const invoicePage: Page<InvoiceRequestParams, InvoiceParams> = {
+export const invoicePage: Page<InvoiceRequestParams, InvoiceParams> = {
   parent: invoicesPage,
   relativePath: ":year-:month",
   njk: "invoice.njk",
   paramsGetter: invoiceParamsGetter,
   titleGetter: invoiceTitleGetter,
-};
-
-export type AuthorisationFailedParams = {
-  pageTitle: string;
 };
 
 const authorisationFailedPage: Page<{}, AuthorisationFailedParams> = {
@@ -182,8 +166,25 @@ const authorisationFailedPage: Page<{}, AuthorisationFailedParams> = {
   titleGetter: authorisationFailedTitleGetter,
 };
 
+export const cookiesPage: Page<{}, CookiesParams> = {
+  parent: homePage,
+  relativePath: "cookies",
+  njk: "cookies.njk",
+  paramsGetter: cookiesParamsGetter,
+  titleGetter: cookiesTitleGetter,
+};
+
+// Do not add to `PAGES` array. Rendered by error handling middleware instead
+export const errorPage: Page<{}, ErrorPageParams> = {
+  relativePath: "",
+  njk: "error.njk",
+  paramsGetter: errorParamsGetter,
+  titleGetter: errorTitleGetter,
+};
+
 export const PAGES = [
   homePage,
+  cookiesPage,
   contractsPage,
   invoicesPage,
   invoicePage,

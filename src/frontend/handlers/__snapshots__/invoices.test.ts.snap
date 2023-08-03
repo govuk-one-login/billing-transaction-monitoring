@@ -106,28 +106,13 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
           
   <h1 class="govuk-heading-l">C01234 - Vendor One</h1>
   <ul class="govuk-list">
-    
-      <li>
-        <a class="govuk-link"
-           href="/contracts/1/invoices/2023-03">
-          Mar 2023
-        </a>
-      </li>
-    
-      <li>
-        <a class="govuk-link"
-           href="/contracts/1/invoices/2023-04">
-          Apr 2023
-        </a>
-      </li>
-    
-      <li>
-        <a class="govuk-link"
-           href="/contracts/1/invoices/2023-10">
-          Oct 2023
-        </a>
-      </li>
-    
+    <li>
+  <a class="govuk-link" href="/contracts/1/invoices/2023-03">Mar 2023</a>
+</li><li>
+  <a class="govuk-link" href="/contracts/1/invoices/2023-04">Apr 2023</a>
+</li><li>
+  <a class="govuk-link" href="/contracts/1/invoices/2023-10">Oct 2023</a>
+</li>
   </ul>
 
         </main>
@@ -135,11 +120,26 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
     
 
     
-      <footer class="govuk-footer " role="contentinfo">
+  
+  <footer class="govuk-footer " role="contentinfo">
   <div class="govuk-width-container ">
     
     <div class="govuk-footer__meta">
       <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+        
+          <h2 class="govuk-visually-hidden">Support links</h2>
+          
+            <ul class="govuk-footer__inline-list">
+              
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="/cookies">
+                    Cookies
+                  </a>
+                </li>
+              
+            </ul>
+          
+          
         
         <svg
           aria-hidden="true"
@@ -176,7 +176,8 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
   </div>
 </footer>
 
-    
+  
+
 
     
   <script src="/assets/scripts/all.js" nonce=""></script>

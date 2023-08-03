@@ -3,29 +3,30 @@ import {
   getContractPeriods,
 } from "../extract-helpers";
 import {
-  InvoicesParams,
-  InvoicesRequestParams,
   PageParamsGetter,
   PageTitleGetter,
+  getUrl,
+  invoicePage,
 } from "../pages";
+import { LinkData } from "../utils";
+
+export type InvoicesRequestParams = { contract_id: string };
+
+export type InvoicesParams = {
+  invoiceLinksData: LinkData[];
+};
 
 export const invoicesParamsGetter: PageParamsGetter<
   InvoicesRequestParams,
   InvoicesParams
 > = async (request) => {
-  const [{ contractName, vendorName }, periods] = await Promise.all([
-    getContractAndVendorName(request.params.contract_id),
-    getContractPeriods(request.params.contract_id),
-  ]);
+  const periods = await getContractPeriods(request.params.contract_id);
 
   return {
-    pageTitle: await invoicesTitleGetter(request.params),
-    contract: {
-      id: request.params.contract_id,
-      name: contractName,
-      vendorName,
-    },
-    periods,
+    invoiceLinksData: periods.map(({ month, prettyMonth, year }) => ({
+      href: getUrl(invoicePage, { ...request.params, month, year }),
+      text: `${prettyMonth} ${year}`,
+    })),
   };
 };
 

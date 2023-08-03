@@ -4,16 +4,19 @@ import {
   createEvent,
   createEventRecordWithS3Body,
 } from "../../../test-helpers/SQS";
+import { getFromEnv } from "../../shared/utils/env";
 import { handler } from "./handler";
 
 jest.mock("aws-sdk");
 const MockTextract = AWS.Textract as jest.MockedClass<typeof AWS.Textract>;
 
+jest.mock("../../shared/utils/env");
+const mockedGetFromEnv = getFromEnv as jest.Mock;
+
 jest.mock("../../shared/utils/logger");
 
 describe("Pdf Extract handler test", () => {
-  const OLD_ENV = process.env;
-
+  let mockedEnv: Partial<Record<string, string>>;
   let mockStartExpenseAnalysis: jest.Mock;
 
   const givenVendorIdFolder = "vendor123";
@@ -32,19 +35,18 @@ describe("Pdf Extract handler test", () => {
   ]);
 
   beforeEach(() => {
-    process.env = { ...OLD_ENV };
-    process.env.TEXTRACT_ROLE = "Text extract role";
-    process.env.TEXTRACT_SNS_TOPIC = "Textract Raw Invoice Data Topic";
+    mockedEnv = {};
+    mockedEnv.TEXTRACT_ROLE = "Text extract role";
+    mockedEnv.TEXTRACT_SNS_TOPIC = "Textract Raw Invoice Data Topic";
+
+    mockedGetFromEnv.mockImplementation((key) => mockedEnv[key]);
+
     mockStartExpenseAnalysis = jest.fn(() => ({
       promise: jest.fn().mockResolvedValue({ JobId: "Another job ID" }),
     }));
     MockTextract.mockReturnValue({
       startExpenseAnalysis: mockStartExpenseAnalysis,
     } as any);
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
   });
 
   test("Extract handler with valid event record calls textract function startExpenseAnalysis", async () => {
@@ -63,8 +65,8 @@ describe("Pdf Extract handler test", () => {
         },
       },
       NotificationChannel: {
-        RoleArn: process.env.TEXTRACT_ROLE,
-        SNSTopicArn: process.env.TEXTRACT_SNS_TOPIC,
+        RoleArn: mockedEnv.TEXTRACT_ROLE,
+        SNSTopicArn: mockedEnv.TEXTRACT_SNS_TOPIC,
       },
     });
     expect(mockStartExpenseAnalysis).toHaveBeenCalledWith({
@@ -75,15 +77,15 @@ describe("Pdf Extract handler test", () => {
         },
       },
       NotificationChannel: {
-        RoleArn: process.env.TEXTRACT_ROLE,
-        SNSTopicArn: process.env.TEXTRACT_SNS_TOPIC,
+        RoleArn: mockedEnv.TEXTRACT_ROLE,
+        SNSTopicArn: mockedEnv.TEXTRACT_SNS_TOPIC,
       },
     });
     expect(response.batchItemFailures).toHaveLength(0);
   });
 
   test("Extract handler with valid event record that doesnt have a textract role throws an error", async () => {
-    process.env.TEXTRACT_ROLE = undefined;
+    mockedEnv.TEXTRACT_ROLE = undefined;
     let resultError;
     try {
       await handler(validEvent);
@@ -95,7 +97,7 @@ describe("Pdf Extract handler test", () => {
   });
 
   test("Extract handler with valid event record that doesnt have an sns topic throws an error", async () => {
-    process.env.TEXTRACT_SNS_TOPIC = undefined;
+    mockedEnv.TEXTRACT_SNS_TOPIC = undefined;
     let resultError;
     try {
       await handler(validEvent);
@@ -258,8 +260,8 @@ describe("Pdf Extract handler test", () => {
         },
       },
       NotificationChannel: {
-        RoleArn: process.env.TEXTRACT_ROLE,
-        SNSTopicArn: process.env.TEXTRACT_SNS_TOPIC,
+        RoleArn: mockedEnv.TEXTRACT_ROLE,
+        SNSTopicArn: mockedEnv.TEXTRACT_SNS_TOPIC,
       },
     });
     expect(mockStartExpenseAnalysis).toHaveBeenCalledWith({
@@ -270,8 +272,8 @@ describe("Pdf Extract handler test", () => {
         },
       },
       NotificationChannel: {
-        RoleArn: process.env.TEXTRACT_ROLE,
-        SNSTopicArn: process.env.TEXTRACT_SNS_TOPIC,
+        RoleArn: mockedEnv.TEXTRACT_ROLE,
+        SNSTopicArn: mockedEnv.TEXTRACT_SNS_TOPIC,
       },
     });
   });

@@ -1,36 +1,45 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
-import { getHandler, getRoute, Page } from "./pages";
+import { getHandler, getRoute, getUrl, Page } from "./pages";
 
 describe("Page", () => {
-  const homePage: Page<{}, {}> = {
-    relativePath: "",
-    njk: "",
-    paramsGetter: async (_) => ({ pageTitle: "homePage" }),
-    titleGetter: async () => "homePage",
-  };
-  const childType1Page: Page<{}, {}> = {
-    relativePath: ":child_id/childType1",
-    paramsGetter: async (_) => ({ pageTitle: "ChildType1" }),
-    njk: "",
-    parent: homePage,
-    titleGetter: async () => "ChildType1",
-  };
-  const childType2Page: Page<{}, {}> = {
-    relativePath: "childType2",
-    paramsGetter: async (_) => ({ pageTitle: "ChildType2" }),
-    njk: "",
-    parent: homePage,
-    titleGetter: async () => "ChildType2",
-  };
-  const grandchildTypePage: Page<{}, {}> = {
-    relativePath: "grandchildType",
-    paramsGetter: jest
-      .fn()
-      .mockResolvedValue({ pageTitle: "GrandchildType", some_id: "someValue" }),
-    njk: "grandchild.njk",
-    parent: childType1Page,
-    titleGetter: async () => "GrandchildType",
-  };
+  let homePage: Page<{}, {}>;
+  let childType1Page: Page<{}, {}>;
+  let childType2Page: Page<{}, {}>;
+  let grandchildTypePage: Page<{}, {}>;
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+
+    homePage = {
+      relativePath: "",
+      njk: "",
+      paramsGetter: async (_) => ({}),
+      titleGetter: async () => "homePage",
+    };
+    childType1Page = {
+      relativePath: ":child_id/childType1",
+      paramsGetter: async (_) => ({}),
+      njk: "",
+      parent: homePage,
+      titleGetter: async () => "ChildType1",
+    };
+    childType2Page = {
+      relativePath: "childType2",
+      paramsGetter: async (_) => ({}),
+      njk: "",
+      parent: homePage,
+      titleGetter: async () => "ChildType2",
+    };
+    grandchildTypePage = {
+      relativePath: "grandchildType",
+      paramsGetter: jest.fn().mockResolvedValue({
+        some_id: "someValue",
+      }),
+      njk: "grandchild.njk",
+      parent: childType1Page,
+      titleGetter: async () => "GrandchildType",
+    };
+  });
 
   test("getRoute", () => {
     expect(getRoute(homePage)).toEqual("/");
@@ -41,45 +50,96 @@ describe("Page", () => {
     );
   });
 
-  test("getHandler", async () => {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const mockedRequest: Request = {
-      params: {
-        child_id: "someId",
-      },
-    } as unknown as jest.MockedObject<Request>;
+  test("getUrl", () => {
+    expect(getUrl(homePage, {})).toEqual("/");
+    expect(getUrl(childType1Page, { child_id: "sophie" })).toEqual(
+      "/sophie/childType1"
+    );
+    expect(getUrl(childType2Page, {})).toEqual("/childType2");
+    expect(getUrl(grandchildTypePage, { child_id: "kevin" })).toEqual(
+      "/kevin/childType1/grandchildType"
+    );
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const mockedResponse: Response = {
-      render: jest.fn(),
-      locals: {
-        cspNonce: "someCsp",
-      },
-    } as any;
+    try {
+      getUrl(grandchildTypePage, {});
+      fail("Expected exception");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toEqual(
+        "Request parameter `:child_id` not found for URL: /:child_id/childType1/grandchildType"
+      );
+    }
+  });
 
-    const mockedNextFunction: NextFunction =
+  describe("getHandler", () => {
+    let mockedNextFunction: NextFunction;
+    let mockedRequest: Request;
+    let mockedResponse: jest.Mocked<Response>;
+
+    beforeEach(() => {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      {} as jest.MockedObject<NextFunction>;
+      mockedRequest = {
+        params: {
+          child_id: "someId",
+        },
+      } as unknown as jest.MockedObject<Request>;
 
-    const handler: RequestHandler = getHandler(grandchildTypePage);
-    await handler(mockedRequest, mockedResponse, mockedNextFunction);
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      mockedResponse = {
+        render: jest.fn(),
+        locals: {
+          cspNonce: "someCsp",
+        },
+      } as any;
 
-    expect(mockedResponse.render).toHaveBeenCalledWith(grandchildTypePage.njk, {
-      breadcrumbData: {
-        items: [
-          {
-            text: "homePage",
-            href: "/",
+      mockedNextFunction = jest.fn();
+    });
+
+    test("success", async () => {
+      const handler: RequestHandler = getHandler(grandchildTypePage);
+      handler(mockedRequest, mockedResponse, mockedNextFunction);
+
+      // Wait for pending promises
+      await new Promise((resolve) => setTimeout(resolve, 1));
+
+      expect(mockedResponse.render).toHaveBeenCalledWith(
+        grandchildTypePage.njk,
+        {
+          breadcrumbData: {
+            items: [
+              {
+                text: "homePage",
+                href: "/",
+              },
+              {
+                text: "ChildType1",
+                href: "/someId/childType1", // note id is formatted into path
+              },
+            ],
           },
-          {
-            text: "ChildType1",
-            href: "/someId/childType1", // note id is formatted into path
-          },
-        ],
-      },
-      pageTitle: "GrandchildType",
-      some_id: "someValue",
-      cspNonce: "someCsp",
+          pageTitle: "GrandchildType",
+          cookiesLink: { text: "Cookies", href: "/cookies" },
+          some_id: "someValue",
+          cspNonce: "someCsp",
+        }
+      );
+      expect(mockedNextFunction).not.toHaveBeenCalled();
+    });
+
+    test("failure", async () => {
+      const mockedError = Error("mocked error");
+      mockedResponse.render.mockImplementation(() => {
+        throw mockedError;
+      });
+
+      const handler: RequestHandler = getHandler(grandchildTypePage);
+      handler(mockedRequest, mockedResponse, mockedNextFunction);
+
+      // Wait for pending promises
+      await new Promise((resolve) => setTimeout(resolve, 1));
+
+      expect(mockedNextFunction).toHaveBeenCalledTimes(1);
+      expect(mockedNextFunction).toHaveBeenCalledWith(mockedError);
     });
   });
 });

@@ -1,16 +1,18 @@
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import { formatInvoiceDataFromJson } from "./invoiceDataFormatters";
 import { TEST_DATA_FILE_PATH } from "./constants";
 
-type FullExtractData = {
+export type FullExtractData = {
   vendor_id: string;
   vendor_name: string;
   service_name: string;
-  contract_id: number;
+  contract_id: string;
   contract_name: string;
-  year: number;
-  month: number;
+  year: string;
+  month: string;
+  billing_unit_price: string;
   billing_price_formatted: string;
   transaction_price_formatted: string;
   price_difference: string;
@@ -28,45 +30,50 @@ export const getTestDataFilePath = (): string => {
   return testDataFilePath;
 };
 
-export const geJsonDataFromFile = (filePath: string): string => {
+export const readJsonDataFromFile = (filePath: string): string => {
   const fileContent = fs.readFileSync(filePath, "utf-8");
   return fileContent;
 };
 
-export const getExtractDataFromJson = (
-  filePath: string
-): { data: FullExtractData[]; content: string } => {
+export const getExtractDataFromJson = (filePath: string): FullExtractData[] => {
   const jsonArray =
-    "[" + geJsonDataFromFile(filePath).replace(/\n/g, ",") + "]";
+    "[" + readJsonDataFromFile(filePath).replace(/\n/g, ",") + "]";
   const json: FullExtractData[] = JSON.parse(jsonArray);
-  return { data: json, content: jsonArray };
+  return json;
 };
 
 export const getUniqueVendorNamesFromJson = (filePath: string): string[] => {
-  const { data } = getExtractDataFromJson(filePath);
+  const data = getExtractDataFromJson(filePath);
   const vendorNames = data.map((obj) => obj.vendor_name);
   const uniqueVendorNames = [...new Set(vendorNames)];
   return uniqueVendorNames;
 };
 
+export const getUniqueContractIdsFromJson = (filePath: string): string[] => {
+  const data = getExtractDataFromJson(filePath);
+  const contractIds = data.map((obj) => obj.contract_id);
+  const uniqueContractIds = [...new Set(contractIds)];
+  return uniqueContractIds;
+};
+
 export const getUniqueInvoiceMonthsYearsByVendor = (
   vendorName: string
-): number => {
+): { count: number; monthYears: Set<string> } => {
   const testDataFilePath = getTestDataFilePath();
-  const { data } = getExtractDataFromJson(testDataFilePath);
-  const uniqueMonthYears = new Set();
+  const data = getExtractDataFromJson(testDataFilePath);
+  const uniqueMonthYears = new Set<string>();
   for (const invoice of data) {
     if (invoice.vendor_name === vendorName) {
       const monthYear = `${invoice.year}-${invoice.month}`;
       uniqueMonthYears.add(monthYear);
     }
   }
-  return uniqueMonthYears.size;
+  return { count: uniqueMonthYears.size, monthYears: uniqueMonthYears };
 };
 
 export const getUniqueVendorIdsFromJson = (vendorName: string): string[] => {
   const testDataFilePath = getTestDataFilePath();
-  const { data } = getExtractDataFromJson(testDataFilePath);
+  const data = getExtractDataFromJson(testDataFilePath);
   const uniqueVendorIds = new Set<string>();
   for (const item of data) {
     if (item.vendor_name === vendorName) {
@@ -77,4 +84,88 @@ export const getUniqueVendorIdsFromJson = (vendorName: string): string[] => {
     throw new Error(`Vendor data not found for :${vendorName}`);
   }
   return Array.from(uniqueVendorIds);
+};
+
+export const getPriceDifferencePercentageFromJson = (
+  vendor: string,
+  year: string,
+  month: string
+): number => {
+  const testDataFilePath = getTestDataFilePath();
+  const data = getExtractDataFromJson(testDataFilePath);
+  const invoice = data.find(
+    (entry) =>
+      entry.vendor_name === vendor &&
+      entry.year === year &&
+      entry.month === month
+  );
+  if (invoice) {
+    return parseFloat(invoice.price_difference_percentage);
+  }
+  throw new Error(
+    `price difference percentage not found for year: ${year} and month ${month}`
+  );
+};
+
+export const getInvoicesByContractIdYearMonth = (
+  contractId: string,
+  year: string,
+  month: string
+): FullExtractData[] => {
+  const testDataFilePath = getTestDataFilePath();
+  const data = getExtractDataFromJson(testDataFilePath);
+  return data
+    .filter(
+      (row) =>
+        row.contract_id === contractId &&
+        row.year === year &&
+        row.month === month
+    )
+    .map(formatInvoiceDataFromJson);
+};
+
+export const extractAllUniqueVendorInvoiceDataFomJson = (
+  testDataFilepath: string
+): Array<{ vendor: string; year: string; month: string; vendorId: string }> => {
+  const vendorsNameFromJson = getUniqueVendorNamesFromJson(testDataFilepath);
+  const allVendorInvoiceData = [];
+
+  for (const vendor of vendorsNameFromJson) {
+    const { monthYears } = getUniqueInvoiceMonthsYearsByVendor(vendor);
+    const uniqueYearsMonths = Array.from(monthYears);
+
+    for (const monthYear of uniqueYearsMonths) {
+      const [year, month] = monthYear.split("-");
+      const vendorIds = getUniqueVendorIdsFromJson(vendor);
+
+      for (const vendorId of vendorIds) {
+        allVendorInvoiceData.push({ vendor, year, month, vendorId });
+      }
+    }
+  }
+  return allVendorInvoiceData;
+};
+
+export const getLatestInvoicePerVendor = (): FullExtractData[] => {
+  const testDataFilePath = getTestDataFilePath();
+  const data = getExtractDataFromJson(testDataFilePath);
+
+  // sort data by vendor year and month
+  const sortedData = [...data].sort((a, b) => {
+    if (a.vendor_name !== b.vendor_name)
+      return a.vendor_name.localeCompare(b.vendor_name);
+    if (a.year !== b.year) return parseInt(b.year) - parseInt(a.year);
+    return parseInt(b.month) - parseInt(a.month);
+  });
+
+  // Filter latest invoice
+  const latestInvoices: FullExtractData[] = [];
+  let currentVendor = "";
+  for (const invoice of sortedData) {
+    if (invoice.vendor_name !== currentVendor) {
+      latestInvoices.push(invoice);
+      currentVendor = invoice.vendor_name;
+    }
+  }
+  return latestInvoices;
 };

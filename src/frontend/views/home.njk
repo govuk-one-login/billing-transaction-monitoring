@@ -21,9 +21,7 @@
     {% for row in overviewRows %}
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">
-            <a class="govuk-link" href="/contracts/{{ row.contractId }}/invoices">{{ row.contractName }}</a>
-          </td>
+          <td class="govuk-table__cell">{{ link(row.contractLinkData) }}</td>
           <td class="govuk-table__cell">{{ row.vendorName }}</td>
           <td class="govuk-table__cell">{{ row.prettyMonth }} {{ row.year }}</td>
           <td class="govuk-table__cell">
@@ -32,10 +30,7 @@
                         classes: row.reconciliationDetails.tagClass
                         }) }}
           </td>
-          <td class="govuk-table__cell">
-            <a class="govuk-link"
-               href="/contracts/{{ row.contractId }}/invoices/{{ row.year }}-{{ row.month }}">{{ row.details }}</a>
-          </td>
+          <td class="govuk-table__cell">{{ link(row.invoiceLinkData) }}</td>
         </tr>
       </tbody>
     {% endfor %}
@@ -45,9 +40,7 @@
     <caption class="govuk-table__caption govuk-table__caption--m">Navigation</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
-        <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">
-          <a href="/contracts">Contracts</a>
-        </th>
+        <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">{{ link(contractsLinkData) }}</th>
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>

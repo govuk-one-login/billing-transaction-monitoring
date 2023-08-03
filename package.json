@@ -78,7 +78,7 @@
   },
   "scripts": {
     "husky:install": "husky install",
-    "test": "jest --maxWorkers=4 --silent",
+    "test": "jest --maxWorkers=2 --silent",
     "test:ephemeralEnvs": "jest --config jest.integration.config.ts --testPathIgnorePatterns email-storage-tests e2e-tests --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
     "test:integration": "jest --config jest.integration.config.ts --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
     "test:end2end": "jest --config jest.e2e.config.ts",
@@ -93,7 +93,7 @@
     "checkov": "checkov --quiet -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies",
     "sam:build": "npm run build && npm run build:template && npm run checkov && sam build",
     "sam:deploy": "sam deploy --disable-rollback --no-fail-on-empty-changeset --stack-name di-btm-${ENV_NAME} --parameter-overrides Environment=dev PrivateConfigStack=${CONFIG_NAME:-none} TestRoleArn=${TEST_ROLE_ARN:-none} EnableAlerting=${ENABLE_ALERTING:-false} --s3-prefix ${ENV_NAME}",
-    "sam:teardown": "ts-node --esm src/tools/teardown-cf-stack.ts",
+    "sam:teardown": "ts-node --esm --experimental-specifier-resolution=node src/tools/teardown-cf-stack.ts",
     "typecheck": "tsc --noEmit",
     "dev:ts": "nodemon --esm --experimental-specifier-resolution=node src/frontend/server.ts",
     "dev:css": "sass src/frontend/styles/all.scss src/frontend/styles/all.css -w",

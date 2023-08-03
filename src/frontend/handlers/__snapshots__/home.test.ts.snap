@@ -105,8 +105,8 @@ exports[`home page handler Page displays all overview rows 1`] = `
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">
-            <a class="govuk-link" href="/contracts/c1/invoices">C01234</a>
-          </td>
+  <a class="govuk-link" href="/contracts/c1/invoices">C01234</a>
+</td>
           <td class="govuk-table__cell">Vendor One</td>
           <td class="govuk-table__cell">Jun 2023</td>
           <td class="govuk-table__cell">
@@ -116,17 +116,16 @@ exports[`home page handler Page displays all overview rows 1`] = `
 
           </td>
           <td class="govuk-table__cell">
-            <a class="govuk-link"
-               href="/contracts/c1/invoices/2023-06">View Invoice</a>
-          </td>
+  <a class="govuk-link" href="/contracts/c1/invoices/2023-06">View Invoice</a>
+</td>
         </tr>
       </tbody>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">
-            <a class="govuk-link" href="/contracts/m2/invoices">MOU</a>
-          </td>
+  <a class="govuk-link" href="/contracts/m2/invoices">MOU</a>
+</td>
           <td class="govuk-table__cell">Vendor Two</td>
           <td class="govuk-table__cell">Jun 2023</td>
           <td class="govuk-table__cell">
@@ -136,9 +135,8 @@ exports[`home page handler Page displays all overview rows 1`] = `
 
           </td>
           <td class="govuk-table__cell">
-            <a class="govuk-link"
-               href="/contracts/m2/invoices/2023-06">View Invoice</a>
-          </td>
+  <a class="govuk-link" href="/contracts/m2/invoices/2023-06">View Invoice</a>
+</td>
         </tr>
       </tbody>
     
@@ -149,8 +147,8 @@ exports[`home page handler Page displays all overview rows 1`] = `
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">
-          <a href="/contracts">Contracts</a>
-        </th>
+  <a class="govuk-link" href="/contracts">Contracts</a>
+</th>
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col"></th>
@@ -171,11 +169,26 @@ exports[`home page handler Page displays all overview rows 1`] = `
     
 
     
-      <footer class="govuk-footer " role="contentinfo">
+  
+  <footer class="govuk-footer " role="contentinfo">
   <div class="govuk-width-container ">
     
     <div class="govuk-footer__meta">
       <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+        
+          <h2 class="govuk-visually-hidden">Support links</h2>
+          
+            <ul class="govuk-footer__inline-list">
+              
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="/cookies">
+                    Cookies
+                  </a>
+                </li>
+              
+            </ul>
+          
+          
         
         <svg
           aria-hidden="true"
@@ -212,7 +225,8 @@ exports[`home page handler Page displays all overview rows 1`] = `
   </div>
 </footer>
 
-    
+  
+
 
     
   <script src="/assets/scripts/all.js" nonce=""></script>

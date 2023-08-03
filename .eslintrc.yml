@@ -3,6 +3,7 @@ extends:
   - prettier
 ignorePatterns:
   - dist
+  - reports
   - ui-tests/testData/testData.json
 plugins:
   - 'jest-formatting'

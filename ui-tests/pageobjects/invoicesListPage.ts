@@ -1,8 +1,12 @@
 import Page from "./page";
 
-class VendorPage extends Page {
+class InvoicesListPage extends Page {
   public get invoicesList(): Promise<WebdriverIO.Element[]> {
     return $$("ul.govuk-list li");
+  }
+
+  public get contractsBreadcrumbsLink(): Promise<WebdriverIO.Element> {
+    return $('a[href$="/contracts"]');
   }
 
   public async getInvoiceCount(): Promise<number> {
@@ -11,13 +15,9 @@ class VendorPage extends Page {
     return length;
   }
 
-  public get invoiceLinkByIndex(): Promise<WebdriverIO.Element> {
-    return $('a[href$="/contracts/1/invoices/2023-01"]');
-  }
-
-  public async clickInvoice(): Promise<void> {
-    await (await this.invoiceLinkByIndex).click();
+  public async clickOnContractsBreadcrumbsLink(): Promise<void> {
+    await (await this.contractsBreadcrumbsLink).click();
   }
 }
 
-export default new VendorPage();
+export default new InvoicesListPage();

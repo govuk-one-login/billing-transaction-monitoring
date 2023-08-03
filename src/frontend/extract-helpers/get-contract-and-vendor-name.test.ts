@@ -1,8 +1,9 @@
-import { getConfig } from "../../shared/utils";
+import { getConfig, getFromEnv } from "../../shared/utils";
 import { getContractAndVendorName } from "./get-contract-and-vendor-name";
 
 jest.mock("../../shared/utils");
 const mockedGetConfig = getConfig as jest.Mock;
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 
 describe("getContractAndVendorName", () => {
   let givenContractsConfig;
@@ -10,9 +11,9 @@ describe("getContractAndVendorName", () => {
   let contractId: string;
 
   beforeEach(() => {
-    process.env = {
-      STORAGE_BUCKET: "given storage bucket",
-    };
+    mockedGetFromEnv.mockImplementation((key) =>
+      key === "STORAGE_BUCKET" ? "given storage bucket" : undefined
+    );
 
     contractId = "1";
     givenContractsConfig = [

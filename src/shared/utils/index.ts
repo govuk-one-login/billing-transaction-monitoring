@@ -6,3 +6,4 @@ export * from "./config-utils";
 export * from "./logger";
 export * from "./get-standardised-invoice-key";
 export * from "./kms";
+export * from "./env";

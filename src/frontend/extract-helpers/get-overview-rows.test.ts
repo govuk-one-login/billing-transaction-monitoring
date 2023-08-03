@@ -1,7 +1,11 @@
+import { getFromEnv } from "../../shared/utils";
 import { getContractPeriods } from "./get-contract-periods";
 import { getContracts } from "./get-contracts";
 import { getLineItems } from "./get-line-items";
 import { getOverviewRows } from "./get-overview-rows";
+
+jest.mock("../../shared/utils");
+const mockedGetFromEnv = getFromEnv as jest.Mock;
 
 jest.mock("./get-contracts");
 const mockedGetContracts = getContracts as jest.Mock;
@@ -14,19 +18,22 @@ const mockedGetLineItems = getLineItems as jest.Mock;
 
 describe("getOverviewRows", () => {
   beforeEach(() => {
-    process.env = {
-      STORAGE_BUCKET: "given storage bucket",
-    };
+    mockedGetFromEnv.mockImplementation((key) =>
+      key === "STORAGE_BUCKET" ? "given storage bucket" : undefined
+    );
 
     // Arrange
     mockedGetContracts.mockResolvedValue([
+      { id: "nc1", name: "NewContract", vendorName: "New Vendor" },
       { id: "c1", name: "C01234", vendorName: "Vendor One" },
       { id: "m2", name: "MOU", vendorName: "Vendor Two" },
     ]);
-    mockedGetContractPeriods.mockResolvedValue([
-      { month: "05", prettyMonth: "May", year: "2023" },
-      { month: "06", prettyMonth: "Jun", year: "2023" },
-    ]);
+    mockedGetContractPeriods
+      .mockResolvedValueOnce([]) // New contract has no data
+      .mockResolvedValue([
+        { month: "05", prettyMonth: "May", year: "2023" },
+        { month: "06", prettyMonth: "Jun", year: "2023" },
+      ]);
     mockedGetLineItems
       .mockResolvedValueOnce([
         {
@@ -89,38 +96,47 @@ describe("getOverviewRows", () => {
     // Act
     const result = await getOverviewRows();
     // Assert
-    expect(mockedGetContractPeriods).toHaveBeenNthCalledWith(1, "c1");
-    expect(mockedGetContractPeriods).toHaveBeenNthCalledWith(2, "m2");
+    expect(mockedGetContractPeriods).toHaveBeenNthCalledWith(1, "nc1");
+    expect(mockedGetContractPeriods).toHaveBeenNthCalledWith(2, "c1");
+    expect(mockedGetContractPeriods).toHaveBeenNthCalledWith(3, "m2");
 
     expect(mockedGetLineItems).toHaveBeenNthCalledWith(1, "c1", "2023", "06");
     expect(mockedGetLineItems).toHaveBeenNthCalledWith(2, "m2", "2023", "06");
 
     expect(result).toEqual([
       {
-        contractId: "c1",
-        contractName: "C01234",
+        contractLinkData: {
+          href: "/contracts/c1/invoices",
+          text: "C01234",
+        },
         vendorName: "Vendor One",
         year: "2023",
-        month: "06",
         prettyMonth: "Jun",
         reconciliationDetails: {
           tagClass: "govuk-tag--grey",
           bannerMessage: "Invoice data missing",
         },
-        details: "View Invoice",
+        invoiceLinkData: {
+          href: "/contracts/c1/invoices/2023-06",
+          text: "View Invoice",
+        },
       },
       {
-        contractId: "m2",
-        contractName: "MOU",
+        contractLinkData: {
+          href: "/contracts/m2/invoices",
+          text: "MOU",
+        },
         vendorName: "Vendor Two",
         year: "2023",
-        month: "06",
         prettyMonth: "Jun",
         reconciliationDetails: {
           tagClass: "govuk-tag--green",
           bannerMessage: "Invoice within threshold",
         },
-        details: "View Invoice",
+        invoiceLinkData: {
+          href: "/contracts/m2/invoices/2023-06",
+          text: "View Invoice",
+        },
       },
     ]);
   });

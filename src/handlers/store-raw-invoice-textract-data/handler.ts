@@ -1,10 +1,10 @@
 import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { logger } from "../../shared/utils";
+import { getFromEnv, logger } from "../../shared/utils";
 import { storeExpenseDocuments } from "./store-expense-documents";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
-  const destinationBucket = process.env.DESTINATION_BUCKET;
+  const destinationBucket = getFromEnv("DESTINATION_BUCKET");
 
   if (destinationBucket === undefined || destinationBucket.length === 0)
     throw new Error("Destination bucket not set.");

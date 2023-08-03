@@ -1,6 +1,6 @@
 import supertest from "supertest";
 import { ConfigElements } from "../../shared/constants";
-import { fetchS3, getConfig } from "../../shared/utils";
+import { fetchS3, getConfig, getFromEnv } from "../../shared/utils";
 import { app } from "../app";
 import { initApp } from "../init-app";
 import { statusLabels } from "../utils";
@@ -9,6 +9,11 @@ import { unitTestMiddleware } from "../middleware";
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
 const mockedGetConfig = getConfig as jest.Mock;
+const mockedGetFromEnv = getFromEnv as jest.Mock;
+
+jest.mock("../utils/should-load-from-node-modules", () => ({
+  shouldLoadFromNodeModules: true,
+}));
 
 describe("invoice handler", () => {
   let givenContractsConfig: any;
@@ -18,9 +23,9 @@ describe("invoice handler", () => {
   beforeEach(() => {
     initApp(app, unitTestMiddleware);
 
-    process.env = {
-      STORAGE_BUCKET: "given storage bucket",
-    };
+    mockedGetFromEnv.mockImplementation((key) =>
+      key === "STORAGE_BUCKET" ? "given storage bucket" : undefined
+    );
 
     givenContractsConfig = [
       { id: "1", name: "C01234", vendor_id: "vendor_testvendor1" },

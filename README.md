@@ -156,9 +156,17 @@ so that the parser can be re-run on specific data after the parser is updated. T
 If you update a parser, please increment its version!
 
 ## Running UI Tests
-Update the `baseURl` in the `wdio.conf.ts` config file. Set it to the desired base URL
 
-Run the following command to run the UI tests
+Our UI testing suite determines which environment to use based on the `ENV_NAME` environment variable. `ENV_NAME` is used to select the corresponding
+base URL from the configuration in the `wdio.conf.ts` file.
+
+If `ENV_NAME` is not set or if its set to a value other than "dev","build" or "staging", the baseURL defaults to the local URL which is http://localhost:3000 . This allows test to be run against local development environment by default.
+
+The `ENV_NAME` variable is also used when uploading the extract test data file to S3 bucket. The test data file will be uploaded to the bucket corresponding to the specified environment ("dev","build" or "staging").
+
+## Running All UI Tests
+
+Run the following command to run all the UI tests
 
 ```sh
 npm run test:ui

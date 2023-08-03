@@ -1,12 +1,17 @@
 import * as AWS from "aws-sdk";
 import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
-import { getS3EventRecordsFromSqs, logger } from "../../shared/utils";
+import {
+  getFromEnv,
+  getS3EventRecordsFromSqs,
+  logger,
+} from "../../shared/utils";
+import { AWS_REGION } from "../../shared/constants";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   // Set Up
-  const textExtractRole = process.env.TEXTRACT_ROLE;
-  const snsTopic = process.env.TEXTRACT_SNS_TOPIC;
+  const textExtractRole = getFromEnv("TEXTRACT_ROLE");
+  const snsTopic = getFromEnv("TEXTRACT_SNS_TOPIC");
 
   if (textExtractRole === undefined || textExtractRole === "") {
     throw new Error("Textract role not set.");
@@ -15,7 +20,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     throw new Error("SNS Topic not set.");
   }
 
-  const textract = new AWS.Textract({ region: "eu-west-2" });
+  const textract = new AWS.Textract({ region: AWS_REGION });
   const response: Response = {
     batchItemFailures: [],
   };
