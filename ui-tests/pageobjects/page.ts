@@ -11,6 +11,10 @@ export default class Page {
     return $(".govuk-heading-l");
   }
 
+  public get pageParagraphText(): Promise<WebdriverIO.Element> {
+    return $("p.govuk-body");
+  }
+
   public get breadcrumbs(): Promise<WebdriverIO.ElementArray> {
     return $$("li.govuk-breadcrumbs__list-item");
   }
@@ -33,6 +37,10 @@ export default class Page {
 
   public async getPageSubHeadingText(): Promise<string> {
     return await (await this.pageSubHeading).getText();
+  }
+
+  public async getPageParagraphText(): Promise<string> {
+    return await (await this.pageParagraphText).getText();
   }
 
   public async getTableData(
@@ -58,6 +66,7 @@ export default class Page {
 
       tableData.push(rowData);
     }
+    console.log(tableData);
     return tableData;
   }
 

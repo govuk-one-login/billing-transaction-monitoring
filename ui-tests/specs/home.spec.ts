@@ -21,7 +21,7 @@ describe("Home Page Tests", () => {
   });
 
   it("Should display 'Billings and reconciliation for the OneLogin programme' as the page sub heading", async () => {
-    expect(await HomePage.getPageSubHeadingText()).toEqual(
+    expect(await HomePage.getPageParagraphText()).toEqual(
       "Billings and reconciliation for the OneLogin programme"
     );
   });
@@ -60,11 +60,10 @@ describe("Home Page Overview table Tests", () => {
     );
     const sortedTableDataByVendor = tableData
       .map((data) => ({
-        contractName: data["Contract Name"].trim(),
+        contractName: data["Contract name"].trim(),
         vendor: data.Vendor.trim(),
         month: data.Month.trim(),
         reconciliationDetails: data["Reconciliation status"]
-          .trim()
           .trim()
           .toUpperCase(),
         details: data.Details.trim(),

@@ -9,7 +9,7 @@ class InvoicePage extends Page {
   }
 
   public get statusBannerTitle(): Promise<WebdriverIO.Element> {
-    return $("h1.govuk-panel__title");
+    return $("h2.govuk-panel__title");
   }
 
   public get statusBannerBody(): Promise<WebdriverIO.Element> {
