@@ -5,7 +5,8 @@
 {% endblock beforeContent %}
 {% block content %}
   <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
+  <p class="govuk-body">Details of all contracts or Memorandum of Understandings (MoUs).</p>
   <ul class="govuk-list">
-    {% for data in invoicesLinksData %}<li>{{ link(data) }}</li>{% endfor %}
+    {% for data in invoicesLinksData %}<li class="govuk-list--bullet">{{ link(data) }}</li>{% endfor %}
   </ul>
 {% endblock content %}

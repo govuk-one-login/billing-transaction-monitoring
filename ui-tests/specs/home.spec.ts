@@ -63,7 +63,8 @@ describe("Home Page Overview table Tests", () => {
         contractName: data["Contract Name"].trim(),
         vendor: data.Vendor.trim(),
         month: data.Month.trim(),
-        reconciliationDetails: data["Reconciliation Details"]
+        reconciliationDetails: data["Reconciliation status"]
+          .trim()
           .trim()
           .toUpperCase(),
         details: data.Details.trim(),
