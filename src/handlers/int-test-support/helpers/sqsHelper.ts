@@ -5,7 +5,7 @@ import {
 } from "@aws-sdk/client-sqs";
 import { AWS_REGION } from "../../../shared/constants";
 import { logger } from "../../../shared/utils";
-import { resourcePrefix, runViaLambda } from "./envHelper";
+import { accountId, resourcePrefix, runViaLambda } from "./envHelper";
 import { IntTestHelpers } from "../types";
 import { sendLambdaCommand } from "./lambdaHelper";
 
@@ -30,7 +30,7 @@ export const sendMessageToQueue = async (
   }
   const sendMessageParams: SendMessageCommandInput = {
     MessageBody: params.message,
-    QueueUrl: `https://sqs.${AWS_REGION}.amazonaws.com/582874090139/${queueName(
+    QueueUrl: `https://sqs.${AWS_REGION}.amazonaws.com/${await accountId()}/${queueName(
       params.queue
     )}`,
   };
