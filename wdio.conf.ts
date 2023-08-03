@@ -1,4 +1,4 @@
-import { uploadExtractDataFileForUITest } from "./ui-tests/testData/test.setup";
+import { cleanAndUploadExtractFileForUITest } from "./ui-tests/testData/test.setup";
 
 const determineBaseUrl = (): string => {
   switch (process.env.ENV_NAME) {
@@ -56,7 +56,7 @@ export const config = {
     ui: "bdd",
     timeout: 60000,
   },
-  beforeTest: async function () {
-    await uploadExtractDataFileForUITest();
+  onPrepare: async function () {
+    await cleanAndUploadExtractFileForUITest();
   },
 };
