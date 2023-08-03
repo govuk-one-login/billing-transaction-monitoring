@@ -1,4 +1,5 @@
-import { GetCallerIdentityCommand, STSClient } from "@aws-sdk/client-sts";
+import { GetCallerIdentityCommand } from "@aws-sdk/client-sts";
+import { stsClient } from "../clients";
 
 export const envName = (): string => process.env.ENV_NAME ?? "dev";
 
@@ -12,11 +13,8 @@ export const runViaLambda = (): boolean =>
   process.env.TEST_VIA_LAMBDA === "true";
 
 const fetchAccountId = async (): Promise<string> => {
-  const response = await new STSClient({}).send(
-    new GetCallerIdentityCommand({})
-  );
-
-  return String(response.Account);
+  const response = await stsClient.send(new GetCallerIdentityCommand({}));
+  return `${response.Account}`;
 };
 
 const accountIdPromise = fetchAccountId();
