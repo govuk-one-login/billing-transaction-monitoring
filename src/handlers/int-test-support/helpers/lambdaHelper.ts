@@ -15,7 +15,7 @@ export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
     command,
     parameters,
   });
-  // logger.info(toUtf8(commandInput.Payload as Uint8Array));
+  // logger.info(`${payload}`);
   const result = await invokeLambda({
     functionName: `${resourcePrefix()}-int-test-support-function`,
     payload,
