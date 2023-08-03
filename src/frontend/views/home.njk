@@ -4,24 +4,23 @@
 {% block content %}
   <span class="govuk-caption-xl"></span>
   <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
-  <h2 class="govuk-heading-l">Billings and reconciliation for the OneLogin programme</h2>
-  <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+  <p class="govuk-body">Billings and reconciliation for the OneLogin programme</p>
   <div class="govuk-!-padding-bottom-7"></div>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Overview</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="col">Contract Name</th>
+        <th class="govuk-table__header" scope="col">Contract name</th>
         <th class="govuk-table__header" scope="col">Vendor</th>
         <th class="govuk-table__header" scope="col">Month</th>
-        <th class="govuk-table__header" scope="col">Reconciliation Details</th>
+        <th class="govuk-table__header" scope="col">Reconciliation status</th>
         <th class="govuk-table__header" scope="col">Details</th>
       </tr>
     </thead>
     {% for row in overviewRows %}
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">{{ link(row.contractLinkData) }}</td>
+          <th class="govuk-table__cell">{{ link(row.contractLinkData) }}</th>
           <td class="govuk-table__cell">{{ row.vendorName }}</td>
           <td class="govuk-table__cell">{{ row.prettyMonth }} {{ row.year }}</td>
           <td class="govuk-table__cell">

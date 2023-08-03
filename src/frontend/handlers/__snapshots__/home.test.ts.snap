@@ -41,12 +41,12 @@ exports[`home page handler Page displays all overview rows 1`] = `
     
 
     
-      
+  
 
 <header class="govuk-header " role="banner" data-module="govuk-header">
   <div class="govuk-header__container govuk-width-container">
     <div class="govuk-header__logo">
-      <a href="/" class="govuk-header__link govuk-header__link--homepage">
+      <a href="https://www.gov.uk/" class="govuk-header__link govuk-header__link--homepage">
         <span class="govuk-header__logotype">
           <!--[if gt IE 8]><!-->
           <svg
@@ -78,7 +78,7 @@ exports[`home page handler Page displays all overview rows 1`] = `
   </div>
 </header>
 
-    
+
 
     
       <div class="govuk-width-container ">
@@ -87,26 +87,25 @@ exports[`home page handler Page displays all overview rows 1`] = `
           
   <span class="govuk-caption-xl"></span>
   <h1 class="govuk-heading-xl">Billings and reconciliation</h1>
-  <h2 class="govuk-heading-l">Billings and reconciliation for the OneLogin programme</h2>
-  <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+  <p class="govuk-body">Billings and reconciliation for the OneLogin programme</p>
   <div class="govuk-!-padding-bottom-7"></div>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Overview</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="col">Contract Name</th>
+        <th class="govuk-table__header" scope="col">Contract name</th>
         <th class="govuk-table__header" scope="col">Vendor</th>
         <th class="govuk-table__header" scope="col">Month</th>
-        <th class="govuk-table__header" scope="col">Reconciliation Details</th>
+        <th class="govuk-table__header" scope="col">Reconciliation status</th>
         <th class="govuk-table__header" scope="col">Details</th>
       </tr>
     </thead>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">
+          <th class="govuk-table__cell">
   <a class="govuk-link" href="/contracts/c1/invoices">C01234</a>
-</td>
+</th>
           <td class="govuk-table__cell">Vendor One</td>
           <td class="govuk-table__cell">Jun 2023</td>
           <td class="govuk-table__cell">
@@ -123,9 +122,9 @@ exports[`home page handler Page displays all overview rows 1`] = `
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">
+          <th class="govuk-table__cell">
   <a class="govuk-link" href="/contracts/m2/invoices">MOU</a>
-</td>
+</th>
           <td class="govuk-table__cell">Vendor Two</td>
           <td class="govuk-table__cell">Jun 2023</td>
           <td class="govuk-table__cell">
