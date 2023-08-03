@@ -135,7 +135,7 @@ const assertReconciliationTableData = (
   expect(tableRow["Quantity Discrepancy"]).toEqual(
     filteredItem.quantity_difference
   );
-  expect(tableRow["Price Discrepancy"]).toEqual(filteredItem.price_difference); // bug 713 currency issue
+  expect(tableRow["Price Discrepancy"]).toEqual(filteredItem.price_difference);
   expect(tableRow["Percentage Discrepancy"]).toEqual(
     formatPercentageDifference(
       parseFloat(filteredItem.price_difference_percentage)
@@ -192,5 +192,5 @@ const assertInvoiceTableData = (
   expect(tableRow.Quantity).toEqual(filteredItem.billing_quantity);
   expect(tableRow["Unit Price"]).toEqual(filteredItem.billing_unit_price);
   expect(tableRow.Total).toEqual(filteredItem.billing_price_formatted);
-  expect(tableRow["Total + VAT"]).toEqual(filteredItem.billing_amount_with_tax); // bug 714 and 715 message in the table
+  expect(tableRow["Total + VAT"]).toEqual(filteredItem.billing_amount_with_tax);
 };
