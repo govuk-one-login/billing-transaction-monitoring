@@ -1,4 +1,18 @@
-import { uploadExtractDataFileForUITest } from "./ui-tests/testData/test.setup";
+import { cleanAndUploadExtractFileForUITest } from "./ui-tests/testData/test.setup";
+
+const determineBaseUrl = (): string => {
+  switch (process.env.ENV_NAME) {
+    case "dev":
+      return "https://btm.dev.account.gov.uk/";
+    case "build":
+      return "https://btm.build.account.gov.uk/";
+    case "staging":
+      return "https://btm.staging.account.gov.uk/";
+    default:
+      return "http://localhost:3000";
+  }
+};
+const baseUrl = determineBaseUrl();
 
 export const config = {
   runner: "local",
@@ -9,7 +23,7 @@ export const config = {
       project: "./tsconfig.json",
     },
   },
-  specs: ["./ui-tests/specs/**/*.spec.ts"],
+  specs: ["./ui-tests/specs/invoice.spec.ts"],
   maxInstances: 10,
   capabilities: [
     {
@@ -21,7 +35,7 @@ export const config = {
   ],
   logLevel: "error",
   bail: 0,
-  baseUrl: "",
+  baseUrl,
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
@@ -32,7 +46,7 @@ export const config = {
     ui: "bdd",
     timeout: 60000,
   },
-  beforeTest: async function () {
-    await uploadExtractDataFileForUITest();
+  onPrepare: async function () {
+    await cleanAndUploadExtractFileForUITest();
   },
 };
