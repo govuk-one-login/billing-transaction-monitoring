@@ -185,5 +185,5 @@ Our UI testing suite supports running tests in Chrome, Firefox, Microsoft Edge a
 To run tests in Chrome, Firefox , Microsoft Edge and Safari use the following command
 
 ```sh
-npm run test:ui --browser=chrome # or firefox, MicrosoftEdge, safari 
+export BROWSER=chrome && npm run test:ui # or firefox, MicrosoftEdge, safari 
 ```

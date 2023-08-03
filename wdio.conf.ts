@@ -38,6 +38,7 @@ export const config = {
   capabilities: [
     {
       browserName,
+      // To run tests without headless mode set the args to an empty array [].This is applicable for all browsers expect safari.
       [getBrowserOptions(browserName)]: {
         args: browserName === "safari" ? [] : ["--headless"],
       },
