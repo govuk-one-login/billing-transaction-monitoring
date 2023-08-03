@@ -66,7 +66,6 @@ export default class Page {
 
       tableData.push(rowData);
     }
-    console.log(tableData);
     return tableData;
   }
 
