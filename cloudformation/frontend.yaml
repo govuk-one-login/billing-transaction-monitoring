@@ -6,7 +6,6 @@ Resources:
       - FrontEndDomainName
       - FrontEndHostedZoneName
       - FrontEndFunction
-      - FrontEndEphemeralFunction
     Properties:
       AccessLogSetting:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
@@ -157,6 +156,7 @@ Resources:
       Description: "The client id and client key for Sign In with Google"
       Name: "GoogleClientDetails"
       KmsKeyId: !Ref KmsKey
+      SecretString: "{\"clientId\": \"<CLIENT_ID>\", \"clientSecret\": \"<CLIENT_SECRET>\"}"
 
   FrontEndAuthFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
