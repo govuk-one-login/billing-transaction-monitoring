@@ -1,5 +1,6 @@
 import { waitForPageLoad } from "../helpers/waits";
 import InvoicePage from "../pageobjects/invoicePage";
+import { expectEqual } from "../utils/customTestAssertion";
 import {
   FullExtractData,
   getInvoicesByContractIdYearMonth,
@@ -56,10 +57,12 @@ describe("Invoice Page Test", () => {
           generateExpectedBannerDetailsFromPercentagePriceDifference(
             priceDifferencePercentage
           ).bannerColor;
-        expect(await InvoicePage.getStatusBannerColor()).toEqual(
+        expectEqual(
+          await InvoicePage.getStatusBannerColor(),
           expectedBannerColor
         );
-        expect(await InvoicePage.getStatusBannerTitle()).toEqual(
+        expectEqual(
+          await InvoicePage.getStatusBannerTitle(),
           generateExpectedBannerDetailsFromPercentagePriceDifference(
             priceDifferencePercentage
           ).bannerMessage
@@ -131,17 +134,20 @@ const assertReconciliationTableData = (
   tableRow: { [key: string]: string },
   filteredItem: FullExtractData
 ): void => {
-  expect(tableRow["Line Item"]).toEqual(filteredItem.service_name);
-  expect(tableRow["Quantity Discrepancy"]).toEqual(
+  expectEqual(tableRow["Line item"], filteredItem.service_name);
+  expectEqual(
+    tableRow["Quantity discrepancy"],
     filteredItem.quantity_difference
   );
-  expect(tableRow["Price Discrepancy"]).toEqual(filteredItem.price_difference);
-  expect(tableRow["Percentage Discrepancy"]).toEqual(
+  expectEqual(tableRow["Price discrepancy"], filteredItem.price_difference); // bug 713 currency issue
+  expectEqual(
+    tableRow["Percentage discrepancy"],
     formatPercentageDifference(
       parseFloat(filteredItem.price_difference_percentage)
     )
   );
-  expect(tableRow.Status).toEqual(
+  expectEqual(
+    tableRow.Status,
     generateExpectedStatusFromPercentagePriceDifference(
       parseFloat(filteredItem.price_difference_percentage)
     )
@@ -152,12 +158,11 @@ const assertQuantityTableData = (
   tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
-  expect(tableRow["Line Item"]).toEqual(filteredItem.service_name);
-  expect(tableRow["Invoiced Quantity"]).toEqual(filteredItem.billing_quantity);
-  expect(tableRow["Measured Quantity"]).toEqual(
-    filteredItem.transaction_quantity
-  );
-  expect(tableRow["Quantity Discrepancy"]).toEqual(
+  expectEqual(tableRow["Line item"], filteredItem.service_name);
+  expectEqual(tableRow["Invoiced quantity"], filteredItem.billing_quantity);
+  expectEqual(tableRow["Measured quantity"], filteredItem.transaction_quantity);
+  expectEqual(
+    tableRow["Quantity discrepancy"],
     filteredItem.quantity_difference
   );
 };
@@ -166,31 +171,30 @@ const assertPriceTableData = (
   tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
-  expect(tableRow["Line Item"]).toEqual(filteredItem.service_name);
-  expect(tableRow["Invoiced Price"]).toEqual(
-    filteredItem.billing_price_formatted
-  );
-  expect(tableRow["Measured Price"]).toEqual(
+  expectEqual(tableRow["Line item"], filteredItem.service_name);
+  expectEqual(tableRow["Invoiced price"], filteredItem.billing_price_formatted);
+  expectEqual(
+    tableRow["Measured price"],
     filteredItem.transaction_price_formatted
   );
-  expect(tableRow["Price Discrepancy"]).toEqual(filteredItem.price_difference);
+  expectEqual(tableRow["Price discrepancy"], filteredItem.price_difference);
 };
 
 const assertMeasuredTableData = (
   tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
-  expect(tableRow["Line Item"]).toEqual(filteredItem.service_name);
-  expect(tableRow.Quantity).toEqual(filteredItem.transaction_quantity);
+  expectEqual(tableRow["Line item"], filteredItem.service_name);
+  expectEqual(tableRow.Quantity, filteredItem.transaction_quantity);
 };
 
 const assertInvoiceTableData = (
   tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
-  expect(tableRow["Line Item"]).toEqual(filteredItem.service_name);
-  expect(tableRow.Quantity).toEqual(filteredItem.billing_quantity);
-  expect(tableRow["Unit Price"]).toEqual(filteredItem.billing_unit_price);
-  expect(tableRow.Total).toEqual(filteredItem.billing_price_formatted);
-  expect(tableRow["Total + VAT"]).toEqual(filteredItem.billing_amount_with_tax);
+  expectEqual(tableRow["Line item"], filteredItem.service_name);
+  expectEqual(tableRow.Quantity, filteredItem.billing_quantity);
+  expectEqual(tableRow["Unit price"], filteredItem.billing_unit_price);
+  expectEqual(tableRow.Total, filteredItem.billing_price_formatted);
+  expectEqual(tableRow["Total + VAT"], filteredItem.billing_amount_with_tax); // bug 714 and 715 message in the table
 };

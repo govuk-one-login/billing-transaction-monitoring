@@ -74,7 +74,10 @@
     "webdriverio": "^8.11.2",
     "webpack": "^5.76.2",
     "webpack-cli": "^4.10.0",
-    "yaml": "^2.1.3"
+    "yaml": "^2.1.3",
+    "wdio-edgedriver-service": "^3.0.3",
+    "wdio-geckodriver-service": "^5.0.2",
+    "wdio-safaridriver-service": "^2.1.1"
   },
   "scripts": {
     "husky:install": "husky install",

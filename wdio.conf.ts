@@ -14,6 +14,16 @@ const determineBaseUrl = (): string => {
 };
 const baseUrl = determineBaseUrl();
 
+const browserName: string = process.env.BROWSER ?? "chrome";
+const maxInstances: number = browserName === "safari" ? 1 : 10;
+
+const getBrowserOptions = (browserName: string): string => {
+  if (browserName === "MicrosoftEdge") return "ms:edgeOptions";
+  if (browserName === "firefox") return "moz:firefoxOptions";
+  if (browserName === "safari") return "safari:options";
+  return "goog:chromeOptions";
+};
+
 export const config = {
   runner: "local",
   autoCompileOpts: {
@@ -24,12 +34,13 @@ export const config = {
     },
   },
   specs: ["./ui-tests/specs/**/*.spec.ts"],
-  maxInstances: 10,
+  maxInstances,
   capabilities: [
     {
-      browserName: "chrome",
-      "goog:chromeOptions": {
-        args: ["--headless", "--disable-gpu"],
+      browserName,
+      // To run tests without headless mode set the args to an empty array [].This is applicable for all browsers expect safari.
+      [getBrowserOptions(browserName)]: {
+        args: browserName === "safari" ? [] : ["--headless"],
       },
     },
   ],
@@ -39,7 +50,7 @@ export const config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  services: ["chromedriver"],
+  services: ["chromedriver", "geckodriver", "safaridriver", "edgedriver"],
   framework: "mocha",
   reporters: ["spec"],
   mochaOpts: {
