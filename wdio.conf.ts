@@ -1,4 +1,7 @@
 import { cleanAndUploadExtractFileForUITest } from "./ui-tests/testData/test.setup";
+import { ReportAggregator, HtmlReporter } from "wdio-html-nice-reporter";
+
+let reportAggregator: ReportAggregator;
 
 const determineBaseUrl = (): string => {
   switch (process.env.ENV_NAME) {
@@ -52,12 +55,33 @@ export const config = {
   connectionRetryCount: 3,
   services: ["chromedriver", "geckodriver", "safaridriver", "edgedriver"],
   framework: "mocha",
-  reporters: ["spec"],
+  reporters: [
+    "spec",
+    [
+      HtmlReporter,
+      {
+        outputDir: `./ui-tests/reports/`,
+      },
+    ],
+  ],
   mochaOpts: {
     ui: "bdd",
     timeout: 60000,
   },
-  onPrepare: async function () {
+  onPrepare: async function (): Promise<void> {
     await cleanAndUploadExtractFileForUITest();
+    reportAggregator = new ReportAggregator({
+      outputDir: "./ui-tests/reports/",
+      filename: `ui-test-report-${new Date().toISOString()}.html`,
+      reportTitle: `Billing and Transaction Monitoring UI Tests (BaseURL:${baseUrl}) `,
+      browserName,
+      showInBrowser: true,
+      produceJson: true,
+    });
+    reportAggregator.clean();
+  },
+
+  onComplete: async function (): Promise<void> {
+    await reportAggregator.createReport();
   },
 };

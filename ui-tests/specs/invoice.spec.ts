@@ -139,7 +139,7 @@ const assertReconciliationTableData = (
     tableRow["Quantity discrepancy"],
     filteredItem.quantity_difference
   );
-  expectEqual(tableRow["Price discrepancy"], filteredItem.price_difference); // bug 713 currency issue
+  expectEqual(tableRow["Price discrepancy"], filteredItem.price_difference);
   expectEqual(
     tableRow["Percentage discrepancy"],
     formatPercentageDifference(
@@ -184,6 +184,7 @@ const assertMeasuredTableData = (
   tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
+  // currently in ui it is Line Item instead of Line item, once fixed the tests will pass
   expectEqual(tableRow["Line item"], filteredItem.service_name);
   expectEqual(tableRow.Quantity, filteredItem.transaction_quantity);
 };
@@ -192,9 +193,10 @@ const assertInvoiceTableData = (
   tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
+  // currently in ui it is Line Item instead of Line item, once fixed the tests will pass
   expectEqual(tableRow["Line item"], filteredItem.service_name);
   expectEqual(tableRow.Quantity, filteredItem.billing_quantity);
   expectEqual(tableRow["Unit price"], filteredItem.billing_unit_price);
   expectEqual(tableRow.Total, filteredItem.billing_price_formatted);
-  expectEqual(tableRow["Total + VAT"], filteredItem.billing_amount_with_tax); // bug 714 and 715 message in the table
+  expectEqual(tableRow["Total + VAT"], filteredItem.billing_amount_with_tax);
 };
