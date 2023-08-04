@@ -12,11 +12,13 @@ export const configStackName = (): string => `di-btm-cfg-${configName()}`;
 export const runViaLambda = (): boolean =>
   process.env.TEST_VIA_LAMBDA === "true";
 
-const fetchAccountId = async (): Promise<string> => {
+let cachedAccountId: string | undefined;
+
+export const accountId = async (): Promise<string> =>
+  cachedAccountId ?? (await fetchAndCacheAccountId());
+
+const fetchAndCacheAccountId = async (): Promise<string> => {
   const response = await stsClient.send(new GetCallerIdentityCommand({}));
-  return `${response.Account}`;
+  cachedAccountId = `${response.Account}`;
+  return cachedAccountId;
 };
-
-const accountIdPromise = fetchAccountId();
-
-export const accountId = async (): Promise<string> => await accountIdPromise;
