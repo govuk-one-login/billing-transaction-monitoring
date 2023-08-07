@@ -9,7 +9,7 @@ import {
   GetObjectCommand,
   ListObjectsCommand,
 } from "@aws-sdk/client-s3";
-import type { Command, SmithyConfiguration } from "@aws-sdk/smithy-client";
+import type { Command, SmithyConfiguration } from "@smithy/smithy-client";
 import { S3Event, S3EventRecord, SQSRecord } from "aws-lambda";
 import { getFromEnv } from "./env";
 import { logger } from "./logger";

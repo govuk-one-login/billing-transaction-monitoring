@@ -71,17 +71,13 @@ Resources:
                       - - alias/key-di-btm-tooling
                         - !If [IsDev, dev, !Ref Environment]
                         - general
-            - !If
-              - IsLowerEnv
-              - Effect: Allow
-                Action:
-                  - sns:Publish
-                Resource: !Ref TestTxMASNS
-              - !Ref AWS::NoValue
             - Effect: Allow
               Action:
-                - sns:ListTopics
-              Resource: '*'
+                - sqs:SendMessage
+              Resource:
+                - !GetAtt FilterQueue.Arn
+                - !GetAtt CleanQueue.Arn
+                - !GetAtt StorageQueue.Arn
             - Effect: Allow
               Action:
                 - logs:FilterLogEvents
@@ -99,11 +95,6 @@ Resources:
                 - glue:GetTable
                 - glue:GetDatabase
               Resource: '*'
-            - Effect: Allow
-              Action:
-                - lambda:InvokeFunction
-              Resource:
-                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-*
             - Effect: Allow
               Action: ses:SendRawEmail
               Resource: !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
