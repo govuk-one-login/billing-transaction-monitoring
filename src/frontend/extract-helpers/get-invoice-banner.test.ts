@@ -218,7 +218,7 @@ describe("getInvoiceBanner", () => {
     // Assert
     expect(result).toEqual({
       bannerClass: "payable",
-      status: "Invoice within threshold",
+      status: "Invoice has no charge",
     });
   });
 });

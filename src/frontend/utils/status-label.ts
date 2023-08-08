@@ -3,6 +3,10 @@ export const statusLabels = {
     message: "Within Threshold",
     class: "govuk-tag--green",
   },
+  STATUS_LABEL_NO_CHARGE: {
+    message: "No Charge",
+    class: "govuk-tag--green",
+  },
   STATUS_LABEL_BELOW_THRESHOLD: {
     message: "Below Threshold",
     class: "govuk-tag--blue",

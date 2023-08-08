@@ -10,6 +10,7 @@ export enum InvoiceBannerStatus {
   invoiceAboveThreshold = "Invoice above threshold",
   invoiceBelowThreshold = "Invoice below threshold",
   invoiceWithinThreshold = "Invoice within threshold",
+  invoiceHasNoCharge = "Invoice has no charge",
 }
 
 export enum InvoiceBannerClass {
@@ -23,7 +24,7 @@ export const percentageDiscrepancySpecialCase = {
   MN_NO_CHARGE: {
     magicNumber: "-1234567.01",
     bannerText: InvoiceBannerStatus.noCharge,
-    statusLabel: statusLabels.STATUS_LABEL_WITHIN_THRESHOLD,
+    statusLabel: statusLabels.STATUS_LABEL_NO_CHARGE,
   },
   MN_RATES_MISSING: {
     magicNumber: "-1234567.02",
