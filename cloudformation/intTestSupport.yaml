@@ -115,8 +115,7 @@ Resources:
                     - - di-btm-tooling
                       - !If [IsDev, dev, !Ref Environment]
                       - email-sender-password-arn
-
-      ReservedConcurrentExecutions: 10
+      ReservedConcurrentExecutions: 20
 
   AllowTestingContainerToInvoke:
     Type: AWS::Lambda::Permission
