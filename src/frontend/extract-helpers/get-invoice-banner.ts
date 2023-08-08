@@ -30,7 +30,7 @@ export const getInvoiceBanner = (
   let bannerClass;
   if (lineItems.length === 0) {
     status = InvoiceBannerStatus.invoiceAndEventsMissing;
-    bannerClass = InvoiceBannerClass.warning;
+    bannerClass = InvoiceBannerClass.notice;
   } else if (
     lineItems.find((lineItem) =>
       WARNING_CODES.includes(lineItem.price_difference_percentage)
@@ -42,6 +42,7 @@ export const getInvoiceBanner = (
       | {
           magicNumber: string;
           bannerText: string;
+          bannerClass: InvoiceBannerClass;
           statusLabel: { message: string; class: string };
         }
       | undefined = WARNINGS_BY_PRIORITY.find((warning) =>
@@ -54,12 +55,12 @@ export const getInvoiceBanner = (
       throw new Error("Couldn't find line item with warning");
     }
     status = highestPriorityWarning.bannerText;
-    bannerClass = InvoiceBannerClass.warning;
+    bannerClass = highestPriorityWarning.bannerClass;
   } else if (
     lineItems.find((lineItem) => +lineItem.price_difference_percentage >= 1)
   ) {
     status = InvoiceBannerStatus.invoiceAboveThreshold;
-    bannerClass = InvoiceBannerClass.error;
+    bannerClass = InvoiceBannerClass.warning;
   } else if (
     lineItems.find(
       ({ price_difference_percentage }) =>
@@ -69,7 +70,7 @@ export const getInvoiceBanner = (
     )
   ) {
     status = InvoiceBannerStatus.invoiceBelowThreshold;
-    bannerClass = InvoiceBannerClass.notice;
+    bannerClass = InvoiceBannerClass.payable;
   } else {
     status = InvoiceBannerStatus.invoiceWithinThreshold;
     bannerClass = InvoiceBannerClass.payable;

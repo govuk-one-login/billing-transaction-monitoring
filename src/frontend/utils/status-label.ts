@@ -5,18 +5,18 @@ export const statusLabels = {
   },
   STATUS_LABEL_BELOW_THRESHOLD: {
     message: "Below Threshold",
-    class: "govuk-tag--blue",
+    class: "govuk-tag--green",
   },
   STATUS_LABEL_ABOVE_THRESHOLD: {
     message: "Above Threshold",
-    class: "govuk-tag--red",
+    class: "govuk-tag--yellow",
   },
   STATUS_LABEL_PENDING: {
     message: "Pending",
-    class: "govuk-tag--grey",
+    class: "govuk-tag--blue",
   },
   STATUS_LABEL_ERROR: {
     message: "Error",
-    class: "govuk-tag--grey",
+    class: "govuk-tag--red",
   },
 };
