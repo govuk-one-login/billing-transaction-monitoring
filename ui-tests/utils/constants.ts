@@ -50,7 +50,7 @@ export const percentageDiscrepancySpecialCase: Record<
   }
 > = {
   "-1234567.01": {
-    bannerText: InvoiceStates.invoiceWithinThreshold,
+    bannerText: InvoiceStates.noCharge,
     bannerColor: Color.green,
     statusLabel: statusLabels.STATUS_LABEL_NO_CHARGE.message,
     percentageDiscrepancy: InvoiceStates.noCharge,

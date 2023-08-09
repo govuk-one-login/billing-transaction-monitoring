@@ -1,4 +1,4 @@
-import { statusLabels } from "./status-label";
+import { StatusLabel, statusLabels } from "./status-label";
 
 export enum InvoiceBannerStatus {
   invoiceAndEventsMissing = "Invoice and events missing",
@@ -19,6 +19,12 @@ export enum InvoiceBannerClass {
   notice = "notice",
   payable = "payable",
 }
+
+export type DiscrepancySpecialCase = {
+  magicNumber: string;
+  bannerText: InvoiceBannerStatus;
+  statusLabel: StatusLabel;
+};
 
 export const percentageDiscrepancySpecialCase = {
   MN_NO_CHARGE: {

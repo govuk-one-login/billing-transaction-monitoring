@@ -1,3 +1,8 @@
+export type StatusLabel = {
+  message: string;
+  class: string;
+};
+
 export const statusLabels = {
   STATUS_LABEL_WITHIN_THRESHOLD: {
     message: "Within Threshold",
