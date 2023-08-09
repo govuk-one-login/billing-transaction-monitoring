@@ -88,7 +88,7 @@ export const getInvoiceBanner = (
     bannerClass = InvoiceBannerClass.notice;
   } else if (anyAreNotNoCharge(lineItems)) {
     status = InvoiceBannerStatus.invoiceWithinThreshold;
-    bannerClass = InvoiceBannerClass.warning;
+    bannerClass = InvoiceBannerClass.payable;
   } else {
     status = InvoiceBannerStatus.invoiceHasNoCharge;
     bannerClass = InvoiceBannerClass.payable;
