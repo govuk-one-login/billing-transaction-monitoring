@@ -1,7 +1,7 @@
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
 {% from "govuk/components/table/macro.njk" import govukTable %}
-{% from "govuk/components/accordion/macro.njk" import govukAccordion %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 {% from 'status-guidance.njk' import statusGuidance %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
@@ -16,21 +16,11 @@
     headingLevel: 2,
     classes: bannerClass
     }) }}
-  <div class="govuk-inset-text">
-    {{ govukAccordion({
-        id: "accordion-default",
-        items: [
-        {
-        heading: {
-        text: "Status guidance"
-        },
-        content: {
-        html: statusGuidance() 
-    }
-    }
-    ]
-    }) }}
-  </div>
+  {{ govukDetails({
+    id: "accordion-default",
+    summaryText: "Status guidance",
+    text: statusGuidance() 
+  }) }}
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Reconciliation</caption>
     <thead class="govuk-table__head">
