@@ -1,4 +1,0 @@
-Contact: mailto:security@example.com
-Encryption: https://example.com/pgp-key.txt
-Acknowledgments: https://example.com/hall-of-fame
-Preferred-Languages: en
