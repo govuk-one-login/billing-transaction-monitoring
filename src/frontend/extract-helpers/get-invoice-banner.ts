@@ -25,9 +25,9 @@ const WARNING_CODES = WARNINGS_BY_PRIORITY.map(
 );
 
 const anyHaveWarning = (lineItems: FullExtractLineItem[]): boolean => {
-  return lineItems.find((lineItem) =>
+  return lineItems.some((lineItem) =>
     WARNING_CODES.includes(lineItem.price_difference_percentage)
-  ) as unknown as boolean;
+  );
 };
 
 const findHighestPriorityWarning = (
@@ -46,26 +46,26 @@ const findHighestPriorityWarning = (
 };
 
 const anyAreAboveThreshold = (lineItems: FullExtractLineItem[]): boolean => {
-  return lineItems.find(
+  return lineItems.some(
     (lineItem) => +lineItem.price_difference_percentage >= 1
-  ) as unknown as boolean;
+  );
 };
 
 const anyAreBelowThreshold = (lineItems: FullExtractLineItem[]): boolean => {
-  return lineItems.find(
+  return lineItems.some(
     ({ price_difference_percentage }) =>
       +price_difference_percentage <= -1 &&
       price_difference_percentage !==
         percentageDiscrepancySpecialCase.MN_NO_CHARGE.magicNumber
-  ) as unknown as boolean;
+  );
 };
 
 const anyAreNotNoCharge = (lineItems: FullExtractLineItem[]): boolean => {
-  return lineItems.find(
+  return lineItems.some(
     (lineItem) =>
       lineItem.price_difference_percentage !==
       percentageDiscrepancySpecialCase.MN_NO_CHARGE.magicNumber
-  ) as unknown as boolean;
+  );
 };
 
 export const getInvoiceBanner = (

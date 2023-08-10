@@ -3,7 +3,11 @@ export type StatusLabel = {
   class: string;
 };
 
-export const statusLabels = {
+type StatusLabels = {
+  [key: string]: StatusLabel;
+};
+
+export const statusLabels: StatusLabels = {
   STATUS_LABEL_WITHIN_THRESHOLD: {
     message: "Within Threshold",
     class: "govuk-tag--green",
