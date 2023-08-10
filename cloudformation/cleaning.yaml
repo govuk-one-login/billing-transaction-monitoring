@@ -94,7 +94,7 @@ Resources:
               Condition:
                 ForAnyValue:StringEquals:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
-      ReservedConcurrentExecutions: 1
+      ReservedConcurrentExecutions: 10
 
   CleanFunctionAlarm:
     Type: AWS::CloudWatch::Alarm

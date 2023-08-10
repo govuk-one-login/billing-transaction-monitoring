@@ -137,4 +137,4 @@ Resources:
                 - athena:GetQueryExecution
                 - athena:GetQueryResults
               Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
-      ReservedConcurrentExecutions: 1
+      ReservedConcurrentExecutions: 2
