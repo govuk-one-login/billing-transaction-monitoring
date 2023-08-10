@@ -23,6 +23,9 @@ export const statusLabels = {
   STATUS_LABEL_WITHIN_THRESHOLD: {
     message: "WITHIN THRESHOLD",
   },
+  STATUS_LABEL_NO_CHARGE: {
+    message: "NO CHARGE",
+  },
   STATUS_LABEL_BELOW_THRESHOLD: {
     message: "BELOW THRESHOLD",
   },
@@ -39,36 +42,41 @@ export const statusLabels = {
 
 export const percentageDiscrepancySpecialCase: Record<
   string,
-  { bannerText: string; bannerColor: string; statusLabel: string; percentageDiscrepancy: string }
+  {
+    bannerText: string;
+    bannerColor: string;
+    statusLabel: string;
+    percentageDiscrepancy: string;
+  }
 > = {
   "-1234567.01": {
-    bannerText: InvoiceStates.invoiceWithinThreshold,
+    bannerText: InvoiceStates.noCharge,
     bannerColor: Color.green,
-    statusLabel: statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.message,
-    percentageDiscrepancy: InvoiceStates.noCharge
+    statusLabel: statusLabels.STATUS_LABEL_NO_CHARGE.message,
+    percentageDiscrepancy: InvoiceStates.noCharge,
   },
   "-1234567.02": {
     bannerText: InvoiceStates.unableToFindRate,
     bannerColor: Color.grey,
     statusLabel: statusLabels.STATUS_LABEL_ERROR.message,
-    percentageDiscrepancy: InvoiceStates.unableToFindRate
+    percentageDiscrepancy: InvoiceStates.unableToFindRate,
   },
   "-1234567.03": {
     bannerText: InvoiceStates.invoiceDataMissing,
     bannerColor: Color.grey,
     statusLabel: statusLabels.STATUS_LABEL_PENDING.message,
-    percentageDiscrepancy: InvoiceStates.invoiceDataMissing
+    percentageDiscrepancy: InvoiceStates.invoiceDataMissing,
   },
   "-1234567.04": {
     bannerText: InvoiceStates.eventsMissing,
     bannerColor: Color.grey,
     statusLabel: statusLabels.STATUS_LABEL_ERROR.message,
-    percentageDiscrepancy: InvoiceStates.eventsMissing
+    percentageDiscrepancy: InvoiceStates.eventsMissing,
   },
   "-1234567.05": {
     bannerText: InvoiceStates.unexpectedInvoiceCharge,
     bannerColor: Color.grey,
     statusLabel: statusLabels.STATUS_LABEL_ERROR.message,
-    percentageDiscrepancy: InvoiceStates.unexpectedInvoiceCharge
+    percentageDiscrepancy: InvoiceStates.unexpectedInvoiceCharge,
   },
 };
