@@ -1,4 +1,4 @@
-import { percentageDiscrepancySpecialCase } from "../utils";
+import { percentageDiscrepancySpecialCases } from "../utils";
 import { getInvoiceBanner } from "./get-invoice-banner";
 import { buildLineItem } from "./test-builders";
 
@@ -40,25 +40,25 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCase.MN_RATES_MISSING.magicNumber,
+          percentageDiscrepancySpecialCases.MN_RATES_MISSING.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCase.MN_INVOICE_MISSING.magicNumber,
+          percentageDiscrepancySpecialCases.MN_INVOICE_MISSING.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCase.MN_EVENTS_MISSING.magicNumber,
+          percentageDiscrepancySpecialCases.MN_EVENTS_MISSING.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE.magicNumber,
+          percentageDiscrepancySpecialCases.MN_UNEXPECTED_CHARGE.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "0.00"]]),
@@ -80,19 +80,19 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCase.MN_RATES_MISSING.magicNumber,
+          percentageDiscrepancySpecialCases.MN_RATES_MISSING.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCase.MN_EVENTS_MISSING.magicNumber,
+          percentageDiscrepancySpecialCases.MN_EVENTS_MISSING.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE.magicNumber,
+          percentageDiscrepancySpecialCases.MN_UNEXPECTED_CHARGE.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
@@ -114,14 +114,14 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE.magicNumber,
+          percentageDiscrepancySpecialCases.MN_UNEXPECTED_CHARGE.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCase.MN_RATES_MISSING.magicNumber,
+          percentageDiscrepancySpecialCases.MN_RATES_MISSING.magicNumber,
         ],
       ]),
     ];
@@ -141,7 +141,7 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE.magicNumber,
+          percentageDiscrepancySpecialCases.MN_UNEXPECTED_CHARGE.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),

@@ -2,7 +2,8 @@
 
 .govuk-panel {
   &.warning {
-    background: govuk-colour("mid-grey")!important;
+    background: $govuk-focus-colour !important;
+    color: $govuk-focus-text-colour
   }
   &.error {
     background: $govuk-error-colour;

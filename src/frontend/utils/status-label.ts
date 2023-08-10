@@ -24,6 +24,10 @@ export const statusLabels: StatusLabels = {
     message: "Above Threshold",
     class: "govuk-tag--yellow",
   },
+  STATUS_LABEL_UNEXPECTED_CHARGE: {
+    message: "Unexpected Charge",
+    class: "govuk-tag--yellow",
+  },
   STATUS_LABEL_PENDING: {
     message: "Pending",
     class: "govuk-tag--blue",

@@ -1,4 +1,4 @@
-import { percentageDiscrepancySpecialCase, statusLabels } from "../utils";
+import { percentageDiscrepancySpecialCases, statusLabels } from "../utils";
 import { FullExtractLineItem } from "./types";
 
 export interface ReconciliationRow {
@@ -83,11 +83,11 @@ export const getTotals = (
 };
 
 const PERCENTAGE_DISCREPANCY = [
-  percentageDiscrepancySpecialCase.MN_NO_CHARGE,
-  percentageDiscrepancySpecialCase.MN_INVOICE_MISSING,
-  percentageDiscrepancySpecialCase.MN_EVENTS_MISSING,
-  percentageDiscrepancySpecialCase.MN_RATES_MISSING,
-  percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE,
+  percentageDiscrepancySpecialCases.MN_NO_CHARGE,
+  percentageDiscrepancySpecialCases.MN_INVOICE_MISSING,
+  percentageDiscrepancySpecialCases.MN_EVENTS_MISSING,
+  percentageDiscrepancySpecialCases.MN_RATES_MISSING,
+  percentageDiscrepancySpecialCases.MN_UNEXPECTED_CHARGE,
 ];
 
 const getPercentageDiscrepancyMessage = (
