@@ -119,25 +119,14 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
   
 </div>
 
-  <div class="govuk-inset-text">
+  <details id="details-default" class="govuk-details" data-module="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+      Status guidance
+    </span>
+  </summary>
+  <div class="govuk-details__text">
     
-
-
-<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
-  
-    
-      <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-          <h2 class="govuk-accordion__section-heading">
-            <span class="govuk-accordion__section-button" id="accordion-default-heading-1">
-              Status guidance
-            </span>
-          </h2>
-          
-        </div>
-        <div id="accordion-default-content-1" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-1">
-          
-            
   <p class='govuk-body'>Common banner states:</p>
   <ul class='govuk-list govuk-list--bullet'>
     <li>
@@ -167,14 +156,9 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     </li>
   </ul>
 
-          
-        </div>
-      </div>
-    
-  
-</div>
-
   </div>
+</details>
+
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Reconciliation</caption>
     <thead class="govuk-table__head">
