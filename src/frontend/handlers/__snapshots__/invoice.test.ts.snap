@@ -119,7 +119,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
   
 </div>
 
-  <details id="accordion-default" class="govuk-details" data-module="govuk-details">
+  <details id="details-default" class="govuk-details" data-module="govuk-details">
   <summary class="govuk-details__summary">
     <span class="govuk-details__summary-text">
       Status guidance
