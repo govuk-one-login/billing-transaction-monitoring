@@ -59,7 +59,7 @@ Resources:
                 - !Sub ${AthenaInvoiceQueryResultsBucket.Arn}/*
                 - !GetAtt AthenaQueryResultsBucket.Arn
                 - !Sub ${AthenaQueryResultsBucket.Arn}/*
-      ReservedConcurrentExecutions: 10
+      ReservedConcurrentExecutions: 1
 
   CustomAthenaViewResourceFunctionDeadLetterQueue:
     Type: AWS::SQS::Queue

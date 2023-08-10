@@ -90,7 +90,7 @@ Resources:
                 - s3:PutObject
               Resource:
                 - !Join ['/', [!GetAtt StorageBucket.Arn, '*']]
-      ReservedConcurrentExecutions: 10
+      ReservedConcurrentExecutions: 1
 
   StorageFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
