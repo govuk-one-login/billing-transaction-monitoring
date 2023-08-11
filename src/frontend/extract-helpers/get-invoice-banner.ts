@@ -21,7 +21,7 @@ const WARNINGS_BY_PRIORITY = [
 ];
 
 const WARNING_CODES = WARNINGS_BY_PRIORITY.map(
-  (warning) => warning.magicNumber
+  (warning) => warning.magicNumber as string
 );
 
 const anyHaveWarning = (lineItems: FullExtractLineItem[]): boolean => {

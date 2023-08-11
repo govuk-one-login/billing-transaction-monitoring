@@ -1,5 +1,13 @@
 import { StatusLabel, statusLabels } from "./status-label";
 
+export enum PercentageDiscrepancyMagicNumber {
+  noCharge = "-1234567.01",
+  ratesMissing = "-1234567.02",
+  invoiceMissing = "-1234567.03",
+  eventsMissing = "-1234567.04",
+  unexpectedCharge = "-1234567.05",
+}
+
 export enum InvoiceBannerStatus {
   invoiceAndEventsMissing = "Invoice and events missing",
   noCharge = "No charge",
@@ -21,9 +29,9 @@ export enum InvoiceBannerClass {
 }
 
 export type PercentageDiscrepancySpecialCase = {
-  magicNumber: string;
+  magicNumber: PercentageDiscrepancyMagicNumber;
   bannerText: InvoiceBannerStatus;
-  bannerClass: string;
+  bannerClass: InvoiceBannerClass;
   statusLabel: StatusLabel;
 };
 
@@ -34,31 +42,31 @@ type PercentageDiscrepancySpecialCases = {
 export const percentageDiscrepancySpecialCases: PercentageDiscrepancySpecialCases =
   {
     MN_NO_CHARGE: {
-      magicNumber: "-1234567.01",
+      magicNumber: PercentageDiscrepancyMagicNumber.noCharge,
       bannerText: InvoiceBannerStatus.noCharge,
       bannerClass: InvoiceBannerClass.payable,
       statusLabel: statusLabels.STATUS_LABEL_NO_CHARGE,
     },
     MN_RATES_MISSING: {
-      magicNumber: "-1234567.02",
+      magicNumber: PercentageDiscrepancyMagicNumber.ratesMissing,
       bannerText: InvoiceBannerStatus.unableToFindRate,
       bannerClass: InvoiceBannerClass.error,
       statusLabel: statusLabels.STATUS_LABEL_ERROR,
     },
     MN_INVOICE_MISSING: {
-      magicNumber: "-1234567.03",
+      magicNumber: PercentageDiscrepancyMagicNumber.invoiceMissing,
       bannerText: InvoiceBannerStatus.invoiceDataMissing,
       bannerClass: InvoiceBannerClass.notice,
       statusLabel: statusLabels.STATUS_LABEL_PENDING,
     },
     MN_EVENTS_MISSING: {
-      magicNumber: "-1234567.04",
+      magicNumber: PercentageDiscrepancyMagicNumber.eventsMissing,
       bannerText: InvoiceBannerStatus.eventsMissing,
       bannerClass: InvoiceBannerClass.error,
       statusLabel: statusLabels.STATUS_LABEL_ERROR,
     },
     MN_UNEXPECTED_CHARGE: {
-      magicNumber: "-1234567.05",
+      magicNumber: PercentageDiscrepancyMagicNumber.unexpectedCharge,
       bannerText: InvoiceBannerStatus.unexpectedInvoiceCharge,
       bannerClass: InvoiceBannerClass.warning,
       statusLabel: statusLabels.STATUS_LABEL_UNEXPECTED_CHARGE,
