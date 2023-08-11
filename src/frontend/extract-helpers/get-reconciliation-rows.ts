@@ -1,4 +1,4 @@
-import { percentageDiscrepancySpecialCases, statusLabels } from "../utils";
+import { findLineItemStatusByMagicNumber, statusLabels } from "../utils";
 import { FullExtractLineItem } from "./types";
 
 export interface ReconciliationRow {
@@ -82,21 +82,12 @@ export const getTotals = (
   };
 };
 
-const PERCENTAGE_DISCREPANCY = [
-  percentageDiscrepancySpecialCases.MN_NO_CHARGE,
-  percentageDiscrepancySpecialCases.MN_INVOICE_MISSING,
-  percentageDiscrepancySpecialCases.MN_EVENTS_MISSING,
-  percentageDiscrepancySpecialCases.MN_RATES_MISSING,
-  percentageDiscrepancySpecialCases.MN_UNEXPECTED_CHARGE,
-];
-
 const getPercentageDiscrepancyMessage = (
   percentageDiscrepancy: string
 ): string => {
   return (
-    PERCENTAGE_DISCREPANCY.find(
-      (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
-    )?.bannerText ?? percentageDiscrepancy + "%"
+    findLineItemStatusByMagicNumber(percentageDiscrepancy)
+      ?.associatedInvoiceStatus.bannerText ?? percentageDiscrepancy + "%"
   );
 };
 
@@ -106,26 +97,23 @@ const getQuantity = (
 ): string => {
   return quantity !== ""
     ? quantity
-    : PERCENTAGE_DISCREPANCY.find(
-        (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
-      )?.bannerText ?? "";
+    : findLineItemStatusByMagicNumber(percentageDiscrepancy)
+        ?.associatedInvoiceStatus.bannerText ?? "";
 };
 
 const getPrice = (price: string, percentageDiscrepancy: string): string => {
   return price !== ""
     ? price
-    : PERCENTAGE_DISCREPANCY.find(
-        (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
-      )?.bannerText ?? "";
+    : findLineItemStatusByMagicNumber(percentageDiscrepancy)
+        ?.associatedInvoiceStatus.bannerText ?? "";
 };
 
 const getStatus = (
   percentageDiscrepancy: string
 ): { message: string; class: string } => {
-  const warning = PERCENTAGE_DISCREPANCY.find(
-    (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
-  );
+  const warning = findLineItemStatusByMagicNumber(percentageDiscrepancy);
   if (warning) return warning.statusLabel;
+
   if (+percentageDiscrepancy >= 1)
     return statusLabels.STATUS_LABEL_ABOVE_THRESHOLD;
   if (+percentageDiscrepancy <= -1)

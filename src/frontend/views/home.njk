@@ -25,8 +25,8 @@
           <td class="govuk-table__cell">{{ row.prettyMonth }} {{ row.year }}</td>
           <td class="govuk-table__cell">
             {{ govukTag({
-                        text: row.reconciliationDetails.bannerMessage,
-                        classes: row.reconciliationDetails.tagClass
+                        text: row.reconciliationDetails.bannerText,
+                        classes: row.reconciliationDetails.bannerClass
                         }) }}
           </td>
           <td class="govuk-table__cell">{{ link(row.invoiceLinkData) }}</td>

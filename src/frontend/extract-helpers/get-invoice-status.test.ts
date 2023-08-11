@@ -1,5 +1,5 @@
-import { percentageDiscrepancySpecialCases } from "../utils";
-import { getInvoiceBanner } from "./get-invoice-banner";
+import { lineItemStatuses } from "../utils";
+import { getInvoiceStatus } from "./get-invoice-status";
 import { buildLineItem } from "./test-builders";
 
 describe("getInvoiceBanner", () => {
@@ -24,7 +24,7 @@ describe("getInvoiceBanner", () => {
 
   test("should return the expected message and warning banner class if there are no line items", () => {
     // Act
-    const result = getInvoiceBanner([]);
+    const result = getInvoiceStatus([]);
     // Assert
     expect(result).toEqual({
       bannerClass: "warning",
@@ -40,31 +40,31 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCases.MN_RATES_MISSING.magicNumber,
+          lineItemStatuses.RATES_MISSING.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCases.MN_INVOICE_MISSING.magicNumber,
+          lineItemStatuses.INVOICE_MISSING.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCases.MN_EVENTS_MISSING.magicNumber,
+          lineItemStatuses.EVENTS_MISSING.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCases.MN_UNEXPECTED_CHARGE.magicNumber,
+          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "0.00"]]),
     ];
     // Act
-    const result = getInvoiceBanner(givenLineItems);
+    const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
       bannerClass: "warning",
@@ -80,25 +80,25 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCases.MN_RATES_MISSING.magicNumber,
+          lineItemStatuses.RATES_MISSING.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCases.MN_EVENTS_MISSING.magicNumber,
+          lineItemStatuses.EVENTS_MISSING.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCases.MN_UNEXPECTED_CHARGE.magicNumber,
+          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
     ];
     // Act
-    const result = getInvoiceBanner(givenLineItems);
+    const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
       bannerClass: "warning",
@@ -114,19 +114,19 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCases.MN_UNEXPECTED_CHARGE.magicNumber,
+          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCases.MN_RATES_MISSING.magicNumber,
+          lineItemStatuses.RATES_MISSING.magicNumber,
         ],
       ]),
     ];
     // Act
-    const result = getInvoiceBanner(givenLineItems);
+    const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
       bannerClass: "warning",
@@ -141,14 +141,14 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          percentageDiscrepancySpecialCases.MN_UNEXPECTED_CHARGE.magicNumber,
+          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber,
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
       buildLineItem(lineItem, [["price_difference_percentage", "-2"]]),
     ];
     // Act
-    const result = getInvoiceBanner(givenLineItems);
+    const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
       bannerClass: "warning",
@@ -166,7 +166,7 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [["price_difference_percentage", "-2"]]),
     ];
     // Act
-    const result = getInvoiceBanner(givenLineItems);
+    const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
       bannerClass: "error",
@@ -184,7 +184,7 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [["price_difference_percentage", "-2"]]),
     ];
     // Act
-    const result = getInvoiceBanner(givenLineItems);
+    const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
       bannerClass: "notice",
@@ -200,7 +200,7 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [["price_difference_percentage", "0.00"]]),
     ];
     // Act
-    const result = getInvoiceBanner(givenLineItems);
+    const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
       bannerClass: "payable",
@@ -214,7 +214,7 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [["price_difference_percentage", "-1234567.01"]]),
     ];
     // Act
-    const result = getInvoiceBanner(givenLineItems);
+    const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
       bannerClass: "payable",

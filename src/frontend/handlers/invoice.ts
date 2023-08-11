@@ -1,7 +1,7 @@
-import { MONTHS } from "../utils";
+import { InvoiceStatus, MONTHS } from "../utils";
 import {
   getContractAndVendorName,
-  getInvoiceBanner,
+  getInvoiceStatus,
   getLineItems,
   getReconciliationRows,
   getTotals,
@@ -21,8 +21,7 @@ export type InvoiceParams = {
   contractId: string;
   year: string;
   prettyMonth: string;
-  bannerClass: string;
-  invoiceStatus: string;
+  invoiceStatus: InvoiceStatus;
   reconciliationRows: ReconciliationRow[];
   invoiceTotals: {
     billingPriceTotal: string;
@@ -43,7 +42,7 @@ export const invoiceParamsGetter: PageParamsGetter<
     ),
   ]);
 
-  const invoiceBanner = getInvoiceBanner(lineItems);
+  const invoiceStatus = getInvoiceStatus(lineItems);
 
   const reconciliationRows = getReconciliationRows(lineItems);
 
@@ -55,8 +54,7 @@ export const invoiceParamsGetter: PageParamsGetter<
     contractId: request.params.contract_id,
     year: request.params.year,
     prettyMonth: MONTHS[Number(request.params.month) - 1],
-    bannerClass: invoiceBanner.bannerClass,
-    invoiceStatus: invoiceBanner.status,
+    invoiceStatus,
     reconciliationRows,
     invoiceTotals,
   };
