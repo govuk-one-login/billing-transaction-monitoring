@@ -8,31 +8,31 @@ type StatusLabels = {
 };
 
 export const statusLabels: StatusLabels = {
-  STATUS_LABEL_WITHIN_THRESHOLD: {
+  WITHIN_THRESHOLD: {
     message: "Within Threshold",
     class: "govuk-tag--green",
   },
-  STATUS_LABEL_NO_CHARGE: {
+  NO_CHARGE: {
     message: "No Charge",
     class: "govuk-tag--green",
   },
-  STATUS_LABEL_BELOW_THRESHOLD: {
+  BELOW_THRESHOLD: {
     message: "Below Threshold",
     class: "govuk-tag--green",
   },
-  STATUS_LABEL_ABOVE_THRESHOLD: {
+  ABOVE_THRESHOLD: {
     message: "Above Threshold",
     class: "govuk-tag--yellow",
   },
-  STATUS_LABEL_UNEXPECTED_CHARGE: {
+  UNEXPECTED_CHARGE: {
     message: "Unexpected Charge",
     class: "govuk-tag--yellow",
   },
-  STATUS_LABEL_PENDING: {
+  PENDING: {
     message: "Pending",
     class: "govuk-tag--blue",
   },
-  STATUS_LABEL_ERROR: {
+  ERROR: {
     message: "Error",
     class: "govuk-tag--red",
   },

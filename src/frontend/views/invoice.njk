@@ -41,8 +41,8 @@
           <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.percentageDiscrepancy }}</td>
           <td class="govuk-table__cell">
             {{ govukTag({
-                        text: row.status.message,
-                        classes: row.status.class
+                        text: row.status.statusLabel.message,
+                        classes: row.status.statusLabel.class
                         }) }}
           </td>
         </tr>

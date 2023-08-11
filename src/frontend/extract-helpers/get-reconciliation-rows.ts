@@ -1,4 +1,4 @@
-import { findLineItemStatusByMagicNumber, statusLabels } from "../utils";
+import { findLineItemStatus, LineItemStatus } from "../utils";
 import { FullExtractLineItem } from "./types";
 
 export interface ReconciliationRow {
@@ -6,7 +6,7 @@ export interface ReconciliationRow {
   quantityDiscrepancy: string;
   priceDiscrepancy: string;
   percentageDiscrepancy: string;
-  status: { message: string; class: string };
+  status?: LineItemStatus;
   billingQuantity: string;
   transactionQuantity: string;
   billingUnitPrice: string;
@@ -27,7 +27,7 @@ export const getReconciliationRows = (
       percentageDiscrepancy: getPercentageDiscrepancyMessage(
         item.price_difference_percentage
       ),
-      status: getStatus(item.price_difference_percentage),
+      status: findLineItemStatus(item.price_difference_percentage),
       billingQuantity: getQuantity(
         item.billing_quantity,
         item.price_difference_percentage
@@ -86,8 +86,8 @@ const getPercentageDiscrepancyMessage = (
   percentageDiscrepancy: string
 ): string => {
   return (
-    findLineItemStatusByMagicNumber(percentageDiscrepancy)
-      ?.associatedInvoiceStatus.bannerText ?? percentageDiscrepancy + "%"
+    findLineItemStatus(percentageDiscrepancy)?.associatedInvoiceStatus
+      .bannerText ?? percentageDiscrepancy + "%"
   );
 };
 
@@ -97,26 +97,13 @@ const getQuantity = (
 ): string => {
   return quantity !== ""
     ? quantity
-    : findLineItemStatusByMagicNumber(percentageDiscrepancy)
-        ?.associatedInvoiceStatus.bannerText ?? "";
+    : findLineItemStatus(percentageDiscrepancy)?.associatedInvoiceStatus
+        .bannerText ?? "";
 };
 
 const getPrice = (price: string, percentageDiscrepancy: string): string => {
   return price !== ""
     ? price
-    : findLineItemStatusByMagicNumber(percentageDiscrepancy)
-        ?.associatedInvoiceStatus.bannerText ?? "";
-};
-
-const getStatus = (
-  percentageDiscrepancy: string
-): { message: string; class: string } => {
-  const warning = findLineItemStatusByMagicNumber(percentageDiscrepancy);
-  if (warning) return warning.statusLabel;
-
-  if (+percentageDiscrepancy >= 1)
-    return statusLabels.STATUS_LABEL_ABOVE_THRESHOLD;
-  if (+percentageDiscrepancy <= -1)
-    return statusLabels.STATUS_LABEL_BELOW_THRESHOLD;
-  return statusLabels.STATUS_LABEL_WITHIN_THRESHOLD;
+    : findLineItemStatus(percentageDiscrepancy)?.associatedInvoiceStatus
+        .bannerText ?? "";
 };
