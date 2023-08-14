@@ -308,3 +308,13 @@ Resources:
                 - athena:GetQueryResults
               Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
       ReservedConcurrentExecutions: 10
+
+  FrontEndApiMethod:
+    Type: AWS::ApiGateway::Method
+    Properties: 
+      ApiKeyRequired: false
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref FrontEndAuthFunction
+      HttpMethod: ANY
+      ResourceId: !Ref FrontEndEphemeralFunction
+      RestApiId: !Ref FrontEndEphemeralApi
