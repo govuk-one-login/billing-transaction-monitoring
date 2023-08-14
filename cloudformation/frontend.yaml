@@ -168,7 +168,7 @@ Resources:
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
       Handler: frontendAuth.handler
-      ReservedConcurrentExecutions: 1
+      ReservedConcurrentExecutions: 10
       KmsKeyArn: !GetAtt  KmsKey.Arn
       Environment:
         Variables:
@@ -240,7 +240,7 @@ Resources:
                 - athena:GetQueryExecution
                 - athena:GetQueryResults
               Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
-      ReservedConcurrentExecutions: 2
+      ReservedConcurrentExecutions: 10
 
   # A duplicate of FrontEndFunction referencing FrontEndEphemeralApi
   # Accessible in ephemeral environments
@@ -307,7 +307,7 @@ Resources:
                 - athena:GetQueryExecution
                 - athena:GetQueryResults
               Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
-      ReservedConcurrentExecutions: 2
+      ReservedConcurrentExecutions: 10
 
   FrontEndApiMethod:
     Type: AWS::ApiGateway::Method
@@ -316,5 +316,5 @@ Resources:
       AuthorizationType: CUSTOM
       AuthorizerId: !Ref FrontEndAuthFunction
       HttpMethod: ANY
-      ResourceId: !Ref FrontEndEphemeralFunction
+      ResourceId: !GetAtt FrontEndEphemeralFunction.RootResourceId
       RestApiId: !Ref FrontEndEphemeralApi
