@@ -109,8 +109,8 @@ exports[`home page handler Page displays all overview rows 1`] = `
           <td class="govuk-table__cell">Vendor One</td>
           <td class="govuk-table__cell">Jun 2023</td>
           <td class="govuk-table__cell">
-            <strong class="govuk-tag govuk-tag--grey">
-  Invoice data missing
+            <strong class="govuk-tag govuk-tag--blue">
+  Pending
 </strong>
 
           </td>
@@ -129,7 +129,7 @@ exports[`home page handler Page displays all overview rows 1`] = `
           <td class="govuk-table__cell">Jun 2023</td>
           <td class="govuk-table__cell">
             <strong class="govuk-tag govuk-tag--green">
-  Invoice within threshold
+  Within Threshold
 </strong>
 
           </td>

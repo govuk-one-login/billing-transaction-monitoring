@@ -72,17 +72,11 @@ describe("invoice handler", () => {
     ); // page heading
     expect(response.text).toContain("Invoice above threshold"); // banner
     expect(response.text).toContain("9.8814"); // percentage discrepancy in table
-    expect(response.text).toContain(
-      statusLabels.STATUS_LABEL_ABOVE_THRESHOLD.message
-    ); // status in table for Above Threshold
+    expect(response.text).toContain(statusLabels.ABOVE_THRESHOLD.message); // status in table for Above Threshold
     expect(response.text).toContain("-1.1235"); // percentage discrepancy in table
-    expect(response.text).toContain(
-      statusLabels.STATUS_LABEL_BELOW_THRESHOLD.message
-    ); // status in table for Below Threshold
+    expect(response.text).toContain(statusLabels.BELOW_THRESHOLD.message); // status in table for Below Threshold
     expect(response.text).toContain("0"); // percentage discrepancy in table
-    expect(response.text).toContain(
-      statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.message
-    ); // status in table for Within Threshold
+    expect(response.text).toContain(statusLabels.WITHIN_THRESHOLD.message); // status in table for Within Threshold
     expect(response.text).toMatchSnapshot();
   });
 });

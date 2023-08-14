@@ -85,10 +85,11 @@ export const getTotals = (
 const getPercentageDiscrepancyMessage = (
   percentageDiscrepancy: string
 ): string => {
-  return (
-    findLineItemStatus(percentageDiscrepancy)?.associatedInvoiceStatus
-      .bannerText ?? percentageDiscrepancy + "%"
-  );
+  const lineItemStatus = findLineItemStatus(percentageDiscrepancy);
+  if (lineItemStatus?.magicNumber) {
+    return lineItemStatus.associatedInvoiceStatus.bannerText;
+  }
+  return percentageDiscrepancy + "%";
 };
 
 const getQuantity = (

@@ -59,7 +59,7 @@ export const invoiceStatuses: InvoiceStatuses = {
   invoiceAboveThreshold: {
     bannerText: "Invoice above threshold",
     bannerClass: InvoiceBannerClass.warning,
-    statusLabel: statusLabels.WARNING,
+    statusLabel: statusLabels.ABOVE_THRESHOLD,
   },
   invoiceBelowThreshold: {
     bannerText: "Invoice below threshold",

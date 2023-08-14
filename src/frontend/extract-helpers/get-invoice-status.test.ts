@@ -27,8 +27,12 @@ describe("getInvoiceBanner", () => {
     const result = getInvoiceStatus([]);
     // Assert
     expect(result).toEqual({
-      bannerClass: "warning",
-      status: "Invoice and events missing",
+      bannerClass: "notice",
+      bannerText: "Invoice and events missing",
+      statusLabel: {
+        class: "govuk-tag--blue",
+        message: "Pending",
+      },
     });
   });
 
@@ -40,25 +44,25 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatuses.RATES_MISSING.magicNumber,
+          lineItemStatuses.RATES_MISSING.magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatuses.INVOICE_MISSING.magicNumber,
+          lineItemStatuses.INVOICE_MISSING.magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatuses.EVENTS_MISSING.magicNumber,
+          lineItemStatuses.EVENTS_MISSING.magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber,
+          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "0.00"]]),
@@ -67,8 +71,12 @@ describe("getInvoiceBanner", () => {
     const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
-      bannerClass: "warning",
-      status: "Invoice data missing",
+      bannerClass: "notice",
+      bannerText: "Invoice data missing",
+      statusLabel: {
+        class: "govuk-tag--blue",
+        message: "Pending",
+      },
     });
   });
 
@@ -80,19 +88,19 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatuses.RATES_MISSING.magicNumber,
+          lineItemStatuses.RATES_MISSING.magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatuses.EVENTS_MISSING.magicNumber,
+          lineItemStatuses.EVENTS_MISSING.magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber,
+          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
@@ -101,8 +109,12 @@ describe("getInvoiceBanner", () => {
     const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
-      bannerClass: "warning",
-      status: "Events missing",
+      bannerClass: "error",
+      bannerText: "Events missing",
+      statusLabel: {
+        class: "govuk-tag--red",
+        message: "Error",
+      },
     });
   });
 
@@ -114,14 +126,14 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber,
+          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatuses.RATES_MISSING.magicNumber,
+          lineItemStatuses.RATES_MISSING.magicNumber ?? "",
         ],
       ]),
     ];
@@ -129,8 +141,12 @@ describe("getInvoiceBanner", () => {
     const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
-      bannerClass: "warning",
-      status: "Unable to find rate",
+      bannerClass: "error",
+      bannerText: "Unable to find rate",
+      statusLabel: {
+        class: "govuk-tag--red",
+        message: "Error",
+      },
     });
   });
 
@@ -141,7 +157,7 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber,
+          lineItemStatuses.UNEXPECTED_CHARGE.magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [["price_difference_percentage", "2"]]),
@@ -152,7 +168,11 @@ describe("getInvoiceBanner", () => {
     // Assert
     expect(result).toEqual({
       bannerClass: "warning",
-      status: "Unexpected invoice charge",
+      bannerText: "Unexpected invoice charge",
+      statusLabel: {
+        class: "govuk-tag--yellow",
+        message: "Unexpected Charge",
+      },
     });
   });
 
@@ -169,8 +189,12 @@ describe("getInvoiceBanner", () => {
     const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
-      bannerClass: "error",
-      status: "Invoice above threshold",
+      bannerClass: "warning",
+      bannerText: "Invoice above threshold",
+      statusLabel: {
+        class: "govuk-tag--yellow",
+        message: "Above Threshold",
+      },
     });
   });
 
@@ -187,8 +211,12 @@ describe("getInvoiceBanner", () => {
     const result = getInvoiceStatus(givenLineItems);
     // Assert
     expect(result).toEqual({
-      bannerClass: "notice",
-      status: "Invoice below threshold",
+      bannerClass: "payable",
+      bannerText: "Invoice below threshold",
+      statusLabel: {
+        class: "govuk-tag--green",
+        message: "Below Threshold",
+      },
     });
   });
 
@@ -204,7 +232,11 @@ describe("getInvoiceBanner", () => {
     // Assert
     expect(result).toEqual({
       bannerClass: "payable",
-      status: "Invoice within threshold",
+      bannerText: "Invoice within threshold",
+      statusLabel: {
+        class: "govuk-tag--green",
+        message: "Within Threshold",
+      },
     });
   });
 
@@ -218,7 +250,11 @@ describe("getInvoiceBanner", () => {
     // Assert
     expect(result).toEqual({
       bannerClass: "payable",
-      status: "Invoice has no charge",
+      bannerText: "Invoice has no charge",
+      statusLabel: {
+        class: "govuk-tag--green",
+        message: "No Charge",
+      },
     });
   });
 });

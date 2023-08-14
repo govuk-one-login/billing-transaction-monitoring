@@ -24,6 +24,10 @@ describe("home page handler", () => {
         reconciliationDetails: {
           tagClass: "govuk-tag--grey",
           bannerMessage: "Invoice data missing",
+          statusLabel: {
+            class: "govuk-tag--blue",
+            message: "Pending",
+          },
         },
         invoiceLinkData: {
           href: "/contracts/c1/invoices/2023-06",
@@ -41,6 +45,10 @@ describe("home page handler", () => {
         reconciliationDetails: {
           tagClass: "govuk-tag--green",
           bannerMessage: "Invoice within threshold",
+          statusLabel: {
+            class: "govuk-tag--green",
+            message: "Within Threshold",
+          },
         },
         invoiceLinkData: {
           href: "/contracts/m2/invoices/2023-06",
@@ -66,12 +74,12 @@ describe("home page handler", () => {
     expect(response.text).toContain("C01234");
     expect(response.text).toContain("Vendor One");
     expect(response.text).toContain("Jun 2023");
-    expect(response.text).toContain("Invoice data missing");
+    expect(response.text).toContain("Pending");
 
     expect(response.text).toContain("MOU");
     expect(response.text).toContain("Vendor Two");
     expect(response.text).toContain("Jun 2023");
-    expect(response.text).toContain("Invoice within threshold");
+    expect(response.text).toContain("Within Threshold");
 
     expect(response.text).toContain("View Invoice");
 

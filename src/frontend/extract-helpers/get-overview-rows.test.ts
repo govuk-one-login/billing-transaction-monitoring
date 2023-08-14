@@ -113,8 +113,12 @@ describe("getOverviewRows", () => {
         year: "2023",
         prettyMonth: "Jun",
         reconciliationDetails: {
-          bannerClass: "govuk-tag--grey",
+          bannerClass: "notice",
           bannerText: "Invoice data missing",
+          statusLabel: {
+            class: "govuk-tag--blue",
+            message: "Pending",
+          },
         },
         invoiceLinkData: {
           href: "/contracts/c1/invoices/2023-06",
@@ -130,8 +134,12 @@ describe("getOverviewRows", () => {
         year: "2023",
         prettyMonth: "Jun",
         reconciliationDetails: {
-          bannerClass: "govuk-tag--green",
+          bannerClass: "payable",
           bannerText: "Invoice within threshold",
+          statusLabel: {
+            class: "govuk-tag--green",
+            message: "Within Threshold",
+          },
         },
         invoiceLinkData: {
           href: "/contracts/m2/invoices/2023-06",
