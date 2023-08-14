@@ -3,36 +3,42 @@ export type StatusLabel = {
   class: string;
 };
 
-type StatusLabels = {
-  [key: string]: StatusLabel;
-};
+export enum StatusLabels {
+  withinThreshold,
+  noCharge,
+  belowThreshold,
+  aboveThreshold,
+  unexpectedCharge,
+  pending,
+  error,
+}
 
-export const statusLabels: StatusLabels = {
-  WITHIN_THRESHOLD: {
+export const statusLabelLookup: Record<StatusLabels, StatusLabel> = {
+  [StatusLabels.withinThreshold]: {
     message: "Within Threshold",
     class: "govuk-tag--green",
   },
-  NO_CHARGE: {
+  [StatusLabels.noCharge]: {
     message: "No Charge",
     class: "govuk-tag--green",
   },
-  BELOW_THRESHOLD: {
+  [StatusLabels.belowThreshold]: {
     message: "Below Threshold",
     class: "govuk-tag--green",
   },
-  ABOVE_THRESHOLD: {
+  [StatusLabels.aboveThreshold]: {
     message: "Above Threshold",
     class: "govuk-tag--yellow",
   },
-  UNEXPECTED_CHARGE: {
+  [StatusLabels.unexpectedCharge]: {
     message: "Unexpected Charge",
     class: "govuk-tag--yellow",
   },
-  PENDING: {
+  [StatusLabels.pending]: {
     message: "Pending",
     class: "govuk-tag--blue",
   },
-  ERROR: {
+  [StatusLabels.error]: {
     message: "Error",
     class: "govuk-tag--red",
   },

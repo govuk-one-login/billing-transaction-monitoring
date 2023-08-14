@@ -1,5 +1,9 @@
-import { findLineItemStatus, LineItemStatus } from "../utils";
 import { FullExtractLineItem } from "./types";
+import {
+  findLineItemStatus,
+  LineItemStatus,
+} from "../utils/line-item-statuses";
+import { invoiceStatusLookup } from "../utils";
 
 export interface ReconciliationRow {
   serviceName: string;
@@ -87,7 +91,8 @@ const getPercentageDiscrepancyMessage = (
 ): string => {
   const lineItemStatus = findLineItemStatus(percentageDiscrepancy);
   if (lineItemStatus?.magicNumber) {
-    return lineItemStatus.associatedInvoiceStatus.bannerText;
+    return invoiceStatusLookup[lineItemStatus.associatedInvoiceStatus]
+      .bannerText;
   }
   return percentageDiscrepancy + "%";
 };
@@ -98,13 +103,15 @@ const getQuantity = (
 ): string => {
   return quantity !== ""
     ? quantity
-    : findLineItemStatus(percentageDiscrepancy)?.associatedInvoiceStatus
-        .bannerText ?? "";
+    : invoiceStatusLookup[
+        findLineItemStatus(percentageDiscrepancy).associatedInvoiceStatus
+      ].bannerText ?? "";
 };
 
 const getPrice = (price: string, percentageDiscrepancy: string): string => {
   return price !== ""
     ? price
-    : findLineItemStatus(percentageDiscrepancy)?.associatedInvoiceStatus
-        .bannerText ?? "";
+    : invoiceStatusLookup[
+        findLineItemStatus(percentageDiscrepancy).associatedInvoiceStatus
+      ].bannerText ?? "";
 };

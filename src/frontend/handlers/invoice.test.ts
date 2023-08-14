@@ -3,7 +3,7 @@ import { ConfigElements } from "../../shared/constants";
 import { fetchS3, getConfig, getFromEnv } from "../../shared/utils";
 import { app } from "../app";
 import { initApp } from "../init-app";
-import { statusLabels } from "../utils";
+import { statusLabelLookup, StatusLabels } from "../utils";
 import { unitTestMiddleware } from "../middleware";
 
 jest.mock("../../shared/utils");
@@ -72,11 +72,17 @@ describe("invoice handler", () => {
     ); // page heading
     expect(response.text).toContain("Invoice above threshold"); // banner
     expect(response.text).toContain("9.8814"); // percentage discrepancy in table
-    expect(response.text).toContain(statusLabels.ABOVE_THRESHOLD.message); // status in table for Above Threshold
+    expect(response.text).toContain(
+      statusLabelLookup[StatusLabels.aboveThreshold].message
+    ); // status in table for Above Threshold
     expect(response.text).toContain("-1.1235"); // percentage discrepancy in table
-    expect(response.text).toContain(statusLabels.BELOW_THRESHOLD.message); // status in table for Below Threshold
+    expect(response.text).toContain(
+      statusLabelLookup[StatusLabels.belowThreshold].message
+    ); // status in table for Below Threshold
     expect(response.text).toContain("0"); // percentage discrepancy in table
-    expect(response.text).toContain(statusLabels.WITHIN_THRESHOLD.message); // status in table for Within Threshold
+    expect(response.text).toContain(
+      statusLabelLookup[StatusLabels.withinThreshold].message
+    ); // status in table for Within Threshold
     expect(response.text).toMatchSnapshot();
   });
 });

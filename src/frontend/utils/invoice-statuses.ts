@@ -1,12 +1,4 @@
-import { StatusLabel, statusLabels } from "./status-label";
-
-export enum LineItemMagicNumber {
-  noCharge = "-1234567.01",
-  ratesMissing = "-1234567.02",
-  invoiceMissing = "-1234567.03",
-  eventsMissing = "-1234567.04",
-  unexpectedCharge = "-1234567.05",
-}
+import { StatusLabel, statusLabelLookup, StatusLabels } from "./status-label";
 
 export enum InvoiceBannerClass {
   warning = "warning",
@@ -21,124 +13,68 @@ export type InvoiceStatus = {
   statusLabel: StatusLabel;
 };
 
-type InvoiceStatuses = {
-  [key: string]: InvoiceStatus;
-};
+export enum InvoiceStatuses {
+  invoiceAndEventsMissing,
+  noCharge,
+  unableToFindRate,
+  invoiceDataMissing,
+  eventsMissing,
+  unexpectedInvoiceCharge,
+  invoiceAboveThreshold,
+  invoiceBelowThreshold,
+  invoiceWithinThreshold,
+  invoiceHasNoCharge,
+}
 
-export const invoiceStatuses: InvoiceStatuses = {
-  invoiceAndEventsMissing: {
+export const invoiceStatusLookup: Record<InvoiceStatuses, InvoiceStatus> = {
+  [InvoiceStatuses.invoiceAndEventsMissing]: {
     bannerText: "Invoice and events missing",
     bannerClass: InvoiceBannerClass.notice,
-    statusLabel: statusLabels.PENDING,
+    statusLabel: statusLabelLookup[StatusLabels.pending],
   },
-  noCharge: {
+  [InvoiceStatuses.noCharge]: {
     bannerText: "No charge",
     bannerClass: InvoiceBannerClass.payable,
-    statusLabel: statusLabels.NO_CHARGE,
+    statusLabel: statusLabelLookup[StatusLabels.noCharge],
   },
-  unableToFindRate: {
+  [InvoiceStatuses.unableToFindRate]: {
     bannerText: "Unable to find rate",
     bannerClass: InvoiceBannerClass.error,
-    statusLabel: statusLabels.ERROR,
+    statusLabel: statusLabelLookup[StatusLabels.error],
   },
-  invoiceDataMissing: {
+  [InvoiceStatuses.invoiceDataMissing]: {
     bannerText: "Invoice data missing",
     bannerClass: InvoiceBannerClass.notice,
-    statusLabel: statusLabels.PENDING,
+    statusLabel: statusLabelLookup[StatusLabels.pending],
   },
-  eventsMissing: {
+  [InvoiceStatuses.eventsMissing]: {
     bannerText: "Events missing",
     bannerClass: InvoiceBannerClass.error,
-    statusLabel: statusLabels.ERROR,
+    statusLabel: statusLabelLookup[StatusLabels.error],
   },
-  unexpectedInvoiceCharge: {
+  [InvoiceStatuses.unexpectedInvoiceCharge]: {
     bannerText: "Unexpected invoice charge",
     bannerClass: InvoiceBannerClass.warning,
-    statusLabel: statusLabels.UNEXPECTED_CHARGE,
+    statusLabel: statusLabelLookup[StatusLabels.unexpectedCharge],
   },
-  invoiceAboveThreshold: {
+  [InvoiceStatuses.invoiceAboveThreshold]: {
     bannerText: "Invoice above threshold",
     bannerClass: InvoiceBannerClass.warning,
-    statusLabel: statusLabels.ABOVE_THRESHOLD,
+    statusLabel: statusLabelLookup[StatusLabels.aboveThreshold],
   },
-  invoiceBelowThreshold: {
+  [InvoiceStatuses.invoiceBelowThreshold]: {
     bannerText: "Invoice below threshold",
     bannerClass: InvoiceBannerClass.payable,
-    statusLabel: statusLabels.BELOW_THRESHOLD,
+    statusLabel: statusLabelLookup[StatusLabels.belowThreshold],
   },
-  invoiceWithinThreshold: {
+  [InvoiceStatuses.invoiceWithinThreshold]: {
     bannerText: "Invoice within threshold",
     bannerClass: InvoiceBannerClass.payable,
-    statusLabel: statusLabels.WITHIN_THRESHOLD,
+    statusLabel: statusLabelLookup[StatusLabels.withinThreshold],
   },
-  invoiceHasNoCharge: {
+  [InvoiceStatuses.invoiceHasNoCharge]: {
     bannerText: "Invoice has no charge",
     bannerClass: InvoiceBannerClass.payable,
-    statusLabel: statusLabels.NO_CHARGE,
+    statusLabel: statusLabelLookup[StatusLabels.noCharge],
   },
-};
-
-export type LineItemStatus = {
-  magicNumber?: LineItemMagicNumber;
-  associatedInvoiceStatus: InvoiceStatus;
-  statusLabel: StatusLabel;
-};
-
-type LineItemStatuses = {
-  [key: string]: LineItemStatus;
-};
-
-export const lineItemStatuses: LineItemStatuses = {
-  NO_CHARGE: {
-    magicNumber: LineItemMagicNumber.noCharge,
-    associatedInvoiceStatus: invoiceStatuses.noCharge,
-    statusLabel: statusLabels.NO_CHARGE,
-  },
-  RATES_MISSING: {
-    magicNumber: LineItemMagicNumber.ratesMissing,
-    associatedInvoiceStatus: invoiceStatuses.unableToFindRate,
-    statusLabel: statusLabels.ERROR,
-  },
-  INVOICE_MISSING: {
-    magicNumber: LineItemMagicNumber.invoiceMissing,
-    associatedInvoiceStatus: invoiceStatuses.invoiceDataMissing,
-    statusLabel: statusLabels.PENDING,
-  },
-  EVENTS_MISSING: {
-    magicNumber: LineItemMagicNumber.eventsMissing,
-    associatedInvoiceStatus: invoiceStatuses.eventsMissing,
-    statusLabel: statusLabels.ERROR,
-  },
-  UNEXPECTED_CHARGE: {
-    magicNumber: LineItemMagicNumber.unexpectedCharge,
-    associatedInvoiceStatus: invoiceStatuses.unexpectedInvoiceCharge,
-    statusLabel: statusLabels.UNEXPECTED_CHARGE,
-  },
-  ABOVE_THRESHOLD: {
-    associatedInvoiceStatus: invoiceStatuses.invoiceAboveThreshold,
-    statusLabel: statusLabels.ABOVE_THRESHOLD,
-  },
-  BELOW_THRESHOLD: {
-    associatedInvoiceStatus: invoiceStatuses.invoiceBelowThreshold,
-    statusLabel: statusLabels.BELOW_THRESHOLD,
-  },
-  WITHIN_THRESHOLD: {
-    associatedInvoiceStatus: invoiceStatuses.invoiceWithinThreshold,
-    statusLabel: statusLabels.WITHIN_THRESHOLD,
-  },
-};
-
-export const findLineItemStatus = (
-  percentageDiscrepancy: string
-): LineItemStatus | undefined => {
-  const match = Object.entries(lineItemStatuses).find(
-    ([_, status]) => status.magicNumber === percentageDiscrepancy
-  );
-  if (match) {
-    return match[1];
-  }
-
-  if (+percentageDiscrepancy >= 1) return lineItemStatuses.ABOVE_THRESHOLD;
-  if (+percentageDiscrepancy <= -1) return lineItemStatuses.BELOW_THRESHOLD;
-  return lineItemStatuses.WITHIN_THRESHOLD;
 };

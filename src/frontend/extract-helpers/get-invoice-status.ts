@@ -1,22 +1,22 @@
-import {
-  InvoiceStatus,
-  invoiceStatuses,
-  LineItemStatus,
-  lineItemStatuses,
-} from "../utils";
+import { InvoiceStatus, InvoiceStatuses, invoiceStatusLookup } from "../utils";
 import { FullExtractLineItem } from "./types";
+import {
+  LineItemStatus,
+  LineItemStatuses,
+  lineItemStatusLookup,
+} from "../utils/line-item-statuses";
 
 // Note that these are just the special cases that we want to show a warning for --
 // NO_CHARGE is also a possible value in a line item but, it doesn't cause a warning.
 const WARNINGS_BY_PRIORITY = [
-  lineItemStatuses.INVOICE_MISSING,
-  lineItemStatuses.EVENTS_MISSING,
-  lineItemStatuses.RATES_MISSING,
-  lineItemStatuses.UNEXPECTED_CHARGE,
+  LineItemStatuses.invoiceMissing,
+  LineItemStatuses.eventsMissing,
+  LineItemStatuses.ratesMissing,
+  LineItemStatuses.unexpectedCharge,
 ];
 
 const WARNING_CODES = WARNINGS_BY_PRIORITY.map(
-  (warning) => warning.magicNumber as string
+  (warning) => lineItemStatusLookup[warning].magicNumber as string
 );
 
 const anyHaveWarning = (lineItems: FullExtractLineItem[]): boolean => {
@@ -25,17 +25,19 @@ const anyHaveWarning = (lineItems: FullExtractLineItem[]): boolean => {
   );
 };
 
-const findSpecialCase = (lineItems: FullExtractLineItem[]): LineItemStatus => {
+const findWarning = (lineItems: FullExtractLineItem[]): LineItemStatus => {
   const highestPriorityWarning = WARNINGS_BY_PRIORITY.find((warning) =>
     lineItems.find(
-      (lineItem) => lineItem.price_difference_percentage === warning.magicNumber
+      (lineItem) =>
+        lineItem.price_difference_percentage ===
+        lineItemStatusLookup[warning].magicNumber
     )
   );
 
   if (!highestPriorityWarning) {
     throw new Error("Couldn't find line item with warning");
   }
-  return highestPriorityWarning;
+  return lineItemStatusLookup[highestPriorityWarning];
 };
 
 const anyAreAboveThreshold = (lineItems: FullExtractLineItem[]): boolean => {
@@ -48,7 +50,8 @@ const anyAreBelowThreshold = (lineItems: FullExtractLineItem[]): boolean => {
   return lineItems.some(
     ({ price_difference_percentage }) =>
       +price_difference_percentage <= -1 &&
-      price_difference_percentage !== lineItemStatuses.NO_CHARGE.magicNumber
+      price_difference_percentage !==
+        lineItemStatusLookup[LineItemStatuses.noCharge].magicNumber
   );
 };
 
@@ -56,7 +59,7 @@ const anyAreNotNoCharge = (lineItems: FullExtractLineItem[]): boolean => {
   return lineItems.some(
     (lineItem) =>
       lineItem.price_difference_percentage !==
-      lineItemStatuses.NO_CHARGE.magicNumber
+      lineItemStatusLookup[LineItemStatuses.noCharge].magicNumber
   );
 };
 
@@ -64,19 +67,19 @@ export const getInvoiceStatus = (
   lineItems: FullExtractLineItem[]
 ): InvoiceStatus => {
   if (lineItems.length === 0) {
-    return invoiceStatuses.invoiceAndEventsMissing;
+    return invoiceStatusLookup[InvoiceStatuses.invoiceAndEventsMissing];
   }
   if (anyHaveWarning(lineItems)) {
-    return findSpecialCase(lineItems).associatedInvoiceStatus;
+    return invoiceStatusLookup[findWarning(lineItems).associatedInvoiceStatus];
   }
   if (anyAreAboveThreshold(lineItems)) {
-    return invoiceStatuses.invoiceAboveThreshold;
+    return invoiceStatusLookup[InvoiceStatuses.invoiceAboveThreshold];
   }
   if (anyAreBelowThreshold(lineItems)) {
-    return invoiceStatuses.invoiceBelowThreshold;
+    return invoiceStatusLookup[InvoiceStatuses.invoiceBelowThreshold];
   }
   if (anyAreNotNoCharge(lineItems)) {
-    return invoiceStatuses.invoiceWithinThreshold;
+    return invoiceStatusLookup[InvoiceStatuses.invoiceWithinThreshold];
   }
-  return invoiceStatuses.invoiceHasNoCharge;
+  return invoiceStatusLookup[InvoiceStatuses.invoiceHasNoCharge];
 };
