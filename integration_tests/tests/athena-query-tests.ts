@@ -15,12 +15,14 @@ import {
   validUtcMinus6EventPayload59m59sIntoOctUtc1,
 } from "../../src/handlers/int-test-support/helpers/payloadHelper";
 import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { invokeFilterLambdaAndVerifyEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { sendEventAndVerifyInDataStore } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { Queue } from "../../src/handlers/int-test-support/helpers/sqsHelper";
 
 describe("\nGenerate valid event and execute athena query\n", () => {
   test("should contain eventId in the generated query results", async () => {
-    const { eventId } = await invokeFilterLambdaAndVerifyEventInS3Bucket(
-      validEventPayload
+    const { eventId } = await sendEventAndVerifyInDataStore(
+      validEventPayload,
+      Queue.FILTER
     );
     const queryString = `SELECT * FROM "btm_transactions_standardised" where event_id='${eventId}'`;
     const queryResult = await queryAthena(queryString);
@@ -44,8 +46,9 @@ describe.each`
   ${"UTC+6 event at one second after midnight on 1 Feb UTC+0"}                | ${validUtc6EventPayload1sIntoFebUtc0}          | ${"02"}              | ${"February"}
 `(`\nGenerate valid $testCase and execute athena query\n`, (data) => {
   test(`should contain eventId in the generated query results for ${data.queryMonthName}`, async () => {
-    const { eventId } = await invokeFilterLambdaAndVerifyEventInS3Bucket(
-      data.givenPayload
+    const { eventId } = await sendEventAndVerifyInDataStore(
+      data.givenPayload,
+      Queue.FILTER
     );
     const queryString = `SELECT * FROM "btm_transactions_standardised" where month='${data.queryMonthNumberText}'`;
     const queryResult = await queryAthena(queryString);
@@ -55,8 +58,9 @@ describe.each`
 
 describe("\nGenerate invalid event and execute athena query\n", () => {
   test("should not contain eventId in the generated query results", async () => {
-    const { eventId } = await invokeFilterLambdaAndVerifyEventInS3Bucket(
-      invalidEventPayloadEventName
+    const { eventId } = await sendEventAndVerifyInDataStore(
+      invalidEventPayloadEventName,
+      Queue.FILTER
     );
     const queryString = `SELECT * FROM "btm_transactions_standardised" where event_id='${eventId}'`;
     const queryResult = await queryAthena(queryString);

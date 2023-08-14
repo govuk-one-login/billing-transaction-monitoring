@@ -2,7 +2,8 @@ import { validEventPayload } from "../../src/handlers/int-test-support/helpers/p
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import { getRecentCloudwatchLogs } from "../../src/handlers/int-test-support/helpers/cloudWatchHelper";
 import { poll } from "../../src/handlers/int-test-support/helpers/commonHelpers";
-import { invokeFilterLambdaAndVerifyEventInS3Bucket } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { sendEventAndVerifyInDataStore } from "../../src/handlers/int-test-support/helpers/testDataHelper";
+import { Queue } from "../../src/handlers/int-test-support/helpers/sqsHelper";
 
 const logNamePrefix = resourcePrefix();
 
@@ -35,8 +36,9 @@ describe(
     let eventId: string;
 
     beforeAll(async () => {
-      const result = await invokeFilterLambdaAndVerifyEventInS3Bucket(
-        validEventPayload
+      const result = await sendEventAndVerifyInDataStore(
+        validEventPayload,
+        Queue.FILTER
       );
       if (result.eventId) {
         eventId = result.eventId;

@@ -1,11 +1,12 @@
 import { deleteS3Objects, listS3Objects } from "./s3Helper";
 import { resourcePrefix } from "./envHelper";
 import {
+  CleanedEventPayload,
   EventPayload,
   generateRandomId,
-  CleanedEventPayload,
 } from "./payloadHelper";
-import { invokeFilterLambdaAndVerifyEventInS3Bucket } from "./testDataHelper";
+import { sendEventAndVerifyInDataStore } from "./testDataHelper";
+import { Queue } from "./sqsHelper";
 
 const objectsPrefix = "btm_event_data";
 
@@ -94,7 +95,7 @@ export const generateTestEvents = async (
       timestamp_formatted: eventTime,
       timestamp: new Date(eventTime).getTime() / 1000,
     });
-    await invokeFilterLambdaAndVerifyEventInS3Bucket(eventPayload);
+    await sendEventAndVerifyInDataStore(eventPayload, Queue.FILTER);
   }
 };
 

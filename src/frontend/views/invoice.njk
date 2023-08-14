@@ -1,7 +1,7 @@
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
 {% from "govuk/components/table/macro.njk" import govukTable %}
-{% from "govuk/components/accordion/macro.njk" import govukAccordion %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 {% from 'status-guidance.njk' import statusGuidance %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
@@ -13,43 +13,29 @@
   <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
   {{ govukPanel({
     titleText: invoiceStatus,
-    html: "Reference number
-    <br>
-    <strong>" + contractName + "</strong>",
+    headingLevel: 2,
     classes: bannerClass
     }) }}
-  <div class="govuk-inset-text">
-    {{ govukAccordion({
-        id: "accordion-default",
-        items: [
-        {
-        heading: {
-        text: "Status guidance"
-        },
-        content: {
-        html: statusGuidance() 
-    }
-    }
-    ]
-    }) }}
-  </div>
+  {{ govukDetails({
+    id: "details-default",
+    summaryText: "Status guidance",
+    text: statusGuidance() 
+  }) }}
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Reconciliation</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity Discrepancy</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price Discrepancy</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Percentage Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Line item</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Percentage discrepancy</th>
         <th class="govuk-table__header" scope="col">Status</th>
       </tr>
     </thead>
     {% for row in reconciliationRows %}
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <th scope="row" class="govuk-table__header">
-            {{ row.serviceName }}
-          </td>
+          <th scope="row" class="govuk-table__header">{{ row.serviceName }}</th>
           <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.quantityDiscrepancy }}</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.priceDiscrepancy }}</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">{{ row.percentageDiscrepancy }}</td>
@@ -63,15 +49,17 @@
       </tbody>
     {% endfor %}
   </table>
-  <div class="govuk-!-padding-bottom-7"></div>
+  <p class="govuk-body-s govuk-!-padding-bottom-7">
+    <span class="govuk-!-font-weight-bold">Note:</span> Guidance on statuses displayed in this table are reflected in the overall status guidance. If in pending or error state, the reason is displayed within the percentage discrepancy column.
+  </p>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Quantity (events)</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced Quantity</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured Quantity</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Line item</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity discrepancy</th>
       </tr>
     </thead>
     {% for row in reconciliationRows %}
@@ -87,14 +75,17 @@
       </tbody>
     {% endfor %}
   </table>
+  <p class="govuk-body-s govuk-!-padding-bottom-3">
+    <span class="govuk-!-font-weight-bold">Note:</span> If there is no invoiced quantity because invoice data is missing, "Invoice data missing" will be displayed, If there is no measured quantity because events are missing, "Events missing" will be displayed. In either situation occurs, the quantity discrepancy column will be blank.
+  </p>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Price</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced Price</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured Price</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Line item</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price discrepancy</th>
       </tr>
     </thead>
     {% for row in reconciliationRows %}
@@ -110,7 +101,9 @@
       </tbody>
     {% endfor %}
   </table>
-  <div class="govuk-!-padding-bottom-7"></div>
+  <p class="govuk-body-s govuk-!-padding-bottom-7">
+    <span class="govuk-!-font-weight-bold">Note:</span> If there is no invoice price because invoice data is missing, "Invoice data missing" will be displayed. If there is no measured price because events are missing, "Events missing" will be displayed. In either situation occurs, the price discrepancy column will be blank.
+  </p>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Measured (events)</caption>
     <thead class="govuk-table__head">
@@ -136,7 +129,7 @@
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
         <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Unit Price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Unit price</th>
         <th class="govuk-table__header govuk-table__header--numeric" scope="col">Total</th>
         <th class="govuk-table__header govuk-table__header--numeric" scope="col">Total + VAT</th>
       </tr>

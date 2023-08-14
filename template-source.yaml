@@ -139,7 +139,6 @@ Globals:
         NODE_OPTIONS: --enable-source-maps
 
 Resources: !YAMLInclude ./cloudformation/global.yaml,
-  ./cloudformation/test-only.yaml,
   ./cloudformation/filtering.yaml,
   ./cloudformation/cleaning.yaml,
   ./cloudformation/transaction-csv-to-json-event.yaml,

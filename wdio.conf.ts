@@ -1,4 +1,7 @@
 import { cleanAndUploadExtractFileForUITest } from "./ui-tests/testData/test.setup";
+import { ReportAggregator, HtmlReporter } from "wdio-html-nice-reporter";
+
+let reportAggregator: ReportAggregator;
 
 const determineBaseUrl = (): string => {
   switch (process.env.ENV_NAME) {
@@ -14,6 +17,16 @@ const determineBaseUrl = (): string => {
 };
 const baseUrl = determineBaseUrl();
 
+const browserName: string = process.env.BROWSER ?? "chrome";
+const maxInstances: number = browserName === "safari" ? 1 : 10;
+
+const getBrowserOptions = (browserName: string): string => {
+  if (browserName === "MicrosoftEdge") return "ms:edgeOptions";
+  if (browserName === "firefox") return "moz:firefoxOptions";
+  if (browserName === "safari") return "safari:options";
+  return "goog:chromeOptions";
+};
+
 export const config = {
   runner: "local",
   autoCompileOpts: {
@@ -23,13 +36,14 @@ export const config = {
       project: "./tsconfig.json",
     },
   },
-  specs: ["./ui-tests/specs/invoice.spec.ts"],
-  maxInstances: 10,
+  specs: ["./ui-tests/specs/**/*.spec.ts"],
+  maxInstances,
   capabilities: [
     {
-      browserName: "chrome",
-      "goog:chromeOptions": {
-        args: ["--headless", "--disable-gpu"],
+      browserName,
+      // To run tests without headless mode set the args to an empty array [].This is applicable for all browsers expect safari.
+      [getBrowserOptions(browserName)]: {
+        args: browserName === "safari" ? [] : ["--headless"],
       },
     },
   ],
@@ -39,14 +53,35 @@ export const config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  services: ["chromedriver"],
+  services: ["chromedriver", "geckodriver", "safaridriver", "edgedriver"],
   framework: "mocha",
-  reporters: ["spec"],
+  reporters: [
+    "spec",
+    [
+      HtmlReporter,
+      {
+        outputDir: `./ui-tests/reports/`,
+      },
+    ],
+  ],
   mochaOpts: {
     ui: "bdd",
     timeout: 60000,
   },
-  onPrepare: async function () {
+  onPrepare: async function (): Promise<void> {
     await cleanAndUploadExtractFileForUITest();
+    reportAggregator = new ReportAggregator({
+      outputDir: "./ui-tests/reports/",
+      filename: `ui-test-report-${new Date().toISOString()}.html`,
+      reportTitle: `Billing and Transaction Monitoring UI Tests (BaseURL:${baseUrl}) `,
+      browserName,
+      showInBrowser: true,
+      produceJson: true,
+    });
+    reportAggregator.clean();
+  },
+
+  onComplete: async function (): Promise<void> {
+    await reportAggregator.createReport();
   },
 };

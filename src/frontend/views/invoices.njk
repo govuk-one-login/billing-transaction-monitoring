@@ -6,6 +6,6 @@
 {% block content %}
   <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
   <ul class="govuk-list">
-    {% for data in invoiceLinksData %}<li>{{ link(data) }}</li>{% endfor %}
+    {% for data in invoiceLinksData %}<li class="govuk-list--bullet">{{ link(data) }}</li>{% endfor %}
   </ul>
 {% endblock content %}

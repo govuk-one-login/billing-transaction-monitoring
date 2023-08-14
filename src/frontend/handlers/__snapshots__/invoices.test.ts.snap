@@ -41,12 +41,12 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
     
 
     
-      
+  
 
 <header class="govuk-header " role="banner" data-module="govuk-header">
   <div class="govuk-header__container govuk-width-container">
     <div class="govuk-header__logo">
-      <a href="/" class="govuk-header__link govuk-header__link--homepage">
+      <a href="https://www.gov.uk/" class="govuk-header__link govuk-header__link--homepage">
         <span class="govuk-header__logotype">
           <!--[if gt IE 8]><!-->
           <svg
@@ -78,7 +78,7 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
   </div>
 </header>
 
-    
+
 
     
       <div class="govuk-width-container ">
@@ -106,11 +106,11 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
           
   <h1 class="govuk-heading-l">C01234 - Vendor One</h1>
   <ul class="govuk-list">
-    <li>
+    <li class="govuk-list--bullet">
   <a class="govuk-link" href="/contracts/1/invoices/2023-03">Mar 2023</a>
-</li><li>
+</li><li class="govuk-list--bullet">
   <a class="govuk-link" href="/contracts/1/invoices/2023-04">Apr 2023</a>
-</li><li>
+</li><li class="govuk-list--bullet">
   <a class="govuk-link" href="/contracts/1/invoices/2023-10">Oct 2023</a>
 </li>
   </ul>

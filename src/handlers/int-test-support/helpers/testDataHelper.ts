@@ -1,14 +1,10 @@
-import { configStackName, resourcePrefix } from "./envHelper";
-import { invokeLambda } from "./lambdaHelper";
-import {
-  EventPayload,
-  updateSQSEventPayloadBody,
-  CleanedEventPayload,
-} from "./payloadHelper";
+import { configStackName } from "./envHelper";
+import { EventPayload } from "./payloadHelper";
 import { getRatesFromConfig } from "../config-utils/get-rate-config-rows";
 import { getVendorServiceConfigRows } from "../config-utils/get-vendor-service-config-rows";
 import { getE2ETestConfig } from "../config-utils/get-e2e-test-config";
 import { checkS3BucketForEventId } from "./commonHelpers";
+import { sendMessageToQueue, Queue } from "./sqsHelper";
 
 const configBucket = configStackName();
 
@@ -50,53 +46,13 @@ export interface GenerateEventsResult {
   eventId?: string;
 }
 
-export const invokeFilterLambdaAndVerifyEventInS3Bucket = async (
-  payload: EventPayload
-): Promise<GenerateEventsResult> => {
-  const updatedSQSEventPayload = await updateSQSEventPayloadBody(
-    payload,
-    "../../../../integration_tests/payloads/validSQSEventPayload.json"
-  );
-  return await invokeLambdaAndVerifyEventInS3Bucket(
-    updatedSQSEventPayload,
-    `${resourcePrefix()}-filter-function`
-  );
-};
-
-export const invokeCleanLambdaAndVerifyEventInS3Bucket = async (
-  payload: EventPayload
-): Promise<GenerateEventsResult> => {
-  const updatedSQSEventPayload = await updateSQSEventPayloadBody(
-    payload,
-    "../../../../integration_tests/payloads/validSQSEventPayload.json"
-  );
-  return await invokeLambdaAndVerifyEventInS3Bucket(
-    updatedSQSEventPayload,
-    `${resourcePrefix()}-clean-function`
-  );
-};
-
-export const invokeStorageLambdaAndVerifyEventInS3Bucket = async (
-  payload: CleanedEventPayload
-): Promise<GenerateEventsResult> => {
-  const updatedSQSEventPayload = await updateSQSEventPayloadBody(
-    payload,
-    "../../../../integration_tests/payloads/validSQSEventPayload.json"
-  );
-  return await invokeLambdaAndVerifyEventInS3Bucket(
-    updatedSQSEventPayload,
-    `${resourcePrefix()}-storage-function`
-  );
-};
-
-const invokeLambdaAndVerifyEventInS3Bucket = async (
-  updatedSQSEventPayload: string,
-  functionName: string
+export const sendEventAndVerifyInDataStore = async (
+  eventPayload: EventPayload,
+  queue: Queue
 ): Promise<GenerateEventsResult> => {
   try {
-    await invokeLambda({ functionName, payload: updatedSQSEventPayload });
-    const json = JSON.parse(updatedSQSEventPayload);
-    const eventId = JSON.parse(json.Records[0].body).event_id;
+    await sendMessageToQueue({ queue, message: JSON.stringify(eventPayload) });
+    const eventId = eventPayload.event_id;
     const eventExistsInS3 = await checkS3BucketForEventId(eventId, 7000);
     if (!eventExistsInS3) {
       return { success: false, eventId };

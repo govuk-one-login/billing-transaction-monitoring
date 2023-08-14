@@ -7,7 +7,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     <meta charset="utf-8">
     <title>
   
-  Vendor One Mar 2023 Invoice -
+  C01234 - Vendor One (Mar 2023) reconciliation -
   Billings and Reconciliation
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -41,12 +41,12 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     
 
     
-      
+  
 
 <header class="govuk-header " role="banner" data-module="govuk-header">
   <div class="govuk-header__container govuk-width-container">
     <div class="govuk-header__logo">
-      <a href="/" class="govuk-header__link govuk-header__link--homepage">
+      <a href="https://www.gov.uk/" class="govuk-header__link govuk-header__link--homepage">
         <span class="govuk-header__logotype">
           <!--[if gt IE 8]><!-->
           <svg
@@ -78,7 +78,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
   </div>
 </header>
 
-    
+
 
     
       <div class="govuk-width-container ">
@@ -110,40 +110,23 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
 
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
-  <h1 class="govuk-heading-xl">Vendor One Mar 2023 Invoice</h1>
+  <h1 class="govuk-heading-xl">C01234 - Vendor One (Mar 2023) reconciliation</h1>
   
 <div class="govuk-panel govuk-panel--confirmation error">
-  <h1 class="govuk-panel__title">
+  <h2 class="govuk-panel__title">
     Invoice above threshold
-  </h1>
-  
-  <div class="govuk-panel__body">
-    Reference number
-    <br>
-    <strong>C01234</strong>
-  </div>
+  </h2>
   
 </div>
 
-  <div class="govuk-inset-text">
+  <details id="details-default" class="govuk-details" data-module="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+      Status guidance
+    </span>
+  </summary>
+  <div class="govuk-details__text">
     
-
-
-<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
-  
-    
-      <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-          <h2 class="govuk-accordion__section-heading">
-            <span class="govuk-accordion__section-button" id="accordion-default-heading-1">
-              Status guidance
-            </span>
-          </h2>
-          
-        </div>
-        <div id="accordion-default-content-1" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-1">
-          
-            
   <p class='govuk-body'>Common banner states:</p>
   <ul class='govuk-list govuk-list--bullet'>
     <li>
@@ -173,31 +156,24 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     </li>
   </ul>
 
-          
-        </div>
-      </div>
-    
-  
-</div>
-
   </div>
+</details>
+
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Reconciliation</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity Discrepancy</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price Discrepancy</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Percentage Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Line item</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price discrepancy</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Percentage discrepancy</th>
         <th class="govuk-table__header" scope="col">Status</th>
       </tr>
     </thead>
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <th scope="row" class="govuk-table__header">
-            Passport check
-          </td>
+          <th scope="row" class="govuk-table__header">Passport check</th>
           <td class="govuk-table__cell govuk-table__cell--numeric">6,592.00</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">26.37</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">9.8814%</td>
@@ -212,9 +188,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <th scope="row" class="govuk-table__header">
-            Passport check
-          </td>
+          <th scope="row" class="govuk-table__header">Passport check</th>
           <td class="govuk-table__cell govuk-table__cell--numeric">-14</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">-4.76</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">-1.1235%</td>
@@ -229,9 +203,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
     
       <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <th scope="row" class="govuk-table__header">
-            Passport check
-          </td>
+          <th scope="row" class="govuk-table__header">Passport check</th>
           <td class="govuk-table__cell govuk-table__cell--numeric">100.00</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">0.00</td>
           <td class="govuk-table__cell govuk-table__cell--numeric">0%</td>
@@ -245,15 +217,17 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
       </tbody>
     
   </table>
-  <div class="govuk-!-padding-bottom-7"></div>
+  <p class="govuk-body-s govuk-!-padding-bottom-7">
+    <span class="govuk-!-font-weight-bold">Note:</span> Guidance on statuses displayed in this table are reflected in the overall status guidance. If in pending or error state, the reason is displayed within the percentage discrepancy column.
+  </p>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Quantity (events)</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced Quantity</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured Quantity</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Line item</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured quantity</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity discrepancy</th>
       </tr>
     </thead>
     
@@ -291,14 +265,17 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
       </tbody>
     
   </table>
+  <p class="govuk-body-s govuk-!-padding-bottom-3">
+    <span class="govuk-!-font-weight-bold">Note:</span> If there is no invoiced quantity because invoice data is missing, "Invoice data missing" will be displayed, If there is no measured quantity because events are missing, "Events missing" will be displayed. In either situation occurs, the quantity discrepancy column will be blank.
+  </p>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Price</caption>
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="col">Line Item</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced Price</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured Price</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price Discrepancy</th>
+        <th class="govuk-table__header" scope="col">Line item</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Invoiced price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Measured price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Price discrepancy</th>
       </tr>
     </thead>
     
@@ -336,7 +313,9 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
       </tbody>
     
   </table>
-  <div class="govuk-!-padding-bottom-7"></div>
+  <p class="govuk-body-s govuk-!-padding-bottom-7">
+    <span class="govuk-!-font-weight-bold">Note:</span> If there is no invoice price because invoice data is missing, "Invoice data missing" will be displayed. If there is no measured price because events are missing, "Events missing" will be displayed. In either situation occurs, the price discrepancy column will be blank.
+  </p>
   <table class="govuk-table">
     <caption class="govuk-table__caption govuk-table__caption--m">Measured (events)</caption>
     <thead class="govuk-table__head">
@@ -380,7 +359,7 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Line Item</th>
         <th class="govuk-table__header govuk-table__header--numeric" scope="col">Quantity</th>
-        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Unit Price</th>
+        <th class="govuk-table__header govuk-table__header--numeric" scope="col">Unit price</th>
         <th class="govuk-table__header govuk-table__header--numeric" scope="col">Total</th>
         <th class="govuk-table__header govuk-table__header--numeric" scope="col">Total + VAT</th>
       </tr>

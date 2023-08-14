@@ -41,12 +41,12 @@ exports[`contracts handler Page displays all contracts 1`] = `
     
 
     
-      
+  
 
 <header class="govuk-header " role="banner" data-module="govuk-header">
   <div class="govuk-header__container govuk-width-container">
     <div class="govuk-header__logo">
-      <a href="/" class="govuk-header__link govuk-header__link--homepage">
+      <a href="https://www.gov.uk/" class="govuk-header__link govuk-header__link--homepage">
         <span class="govuk-header__logotype">
           <!--[if gt IE 8]><!-->
           <svg
@@ -78,7 +78,7 @@ exports[`contracts handler Page displays all contracts 1`] = `
   </div>
 </header>
 
-    
+
 
     
       <div class="govuk-width-container ">
@@ -99,10 +99,11 @@ exports[`contracts handler Page displays all contracts 1`] = `
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
   <h1 class="govuk-heading-l">Contracts</h1>
+  <p class="govuk-body">Details of all contracts or Memorandum of Understandings (MoUs).</p>
   <ul class="govuk-list">
-    <li>
+    <li class="govuk-list--bullet">
   <a class="govuk-link" href="/contracts/1/invoices">C01234 - Vendor One</a>
-</li><li>
+</li><li class="govuk-list--bullet">
   <a class="govuk-link" href="/contracts/2/invoices">C01235 - Vendor Two</a>
 </li>
   </ul>

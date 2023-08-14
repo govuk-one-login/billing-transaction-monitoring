@@ -7,5 +7,6 @@ coverage
 template.yaml
 reports
 .env
+wdio-safaridriver.log
 
 src/frontend/styles/all.css*

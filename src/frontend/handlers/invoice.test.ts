@@ -67,7 +67,9 @@ describe("invoice handler", () => {
     const request = supertest(app);
     const response = await request.get("/contracts/1/invoices/2023-03");
     expect(response.status).toBe(200);
-    expect(response.text).toContain("Vendor One Mar 2023 Invoice"); // page heading
+    expect(response.text).toContain(
+      "C01234 - Vendor One (Mar 2023) reconciliation"
+    ); // page heading
     expect(response.text).toContain("Invoice above threshold"); // banner
     expect(response.text).toContain("9.8814"); // percentage discrepancy in table
     expect(response.text).toContain(
