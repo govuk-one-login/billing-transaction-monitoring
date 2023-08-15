@@ -8,11 +8,12 @@ import {
   ReconciliationRow,
 } from "../extract-helpers";
 import { PageParamsGetter, PageTitleGetter } from "../pages";
+import { getQuarterMonth, isQuarter } from "../../shared/utils";
 
 export type InvoiceRequestParams = {
   contract_id: string;
   year: string;
-  month: string;
+  monthOrQuarter: string;
 };
 
 export type InvoiceParams = {
@@ -20,7 +21,7 @@ export type InvoiceParams = {
   contractName: string;
   contractId: string;
   year: string;
-  prettyMonth: string;
+  prettyMonthOrQuarter: string;
   bannerClass: string;
   invoiceStatus: string;
   reconciliationRows: ReconciliationRow[];
@@ -34,12 +35,22 @@ export const invoiceParamsGetter: PageParamsGetter<
   InvoiceRequestParams,
   InvoiceParams
 > = async (request) => {
+  const monthOrQuarter = request.params.monthOrQuarter.toUpperCase();
+  const invoiceIsQuarterly = isQuarter(monthOrQuarter);
+
+  const month = invoiceIsQuarterly
+    ? getQuarterMonth(monthOrQuarter)
+    : parseInt(monthOrQuarter, 10);
+
+  const quarter = invoiceIsQuarterly ? monthOrQuarter : undefined;
+
   const [config, lineItems] = await Promise.all([
     getContractAndVendorName(request.params.contract_id),
     getLineItems(
       request.params.contract_id,
       request.params.year,
-      request.params.month
+      month,
+      invoiceIsQuarterly
     ),
   ]);
 
@@ -54,7 +65,7 @@ export const invoiceParamsGetter: PageParamsGetter<
     contractName: config.contractName,
     contractId: request.params.contract_id,
     year: request.params.year,
-    prettyMonth: MONTHS[Number(request.params.month) - 1],
+    prettyMonthOrQuarter: quarter ?? MONTHS[month - 1],
     bannerClass: invoiceBanner.bannerClass,
     invoiceStatus: invoiceBanner.status,
     reconciliationRows,
@@ -62,13 +73,19 @@ export const invoiceParamsGetter: PageParamsGetter<
   };
 };
 
-export const invoiceTitleGetter: PageTitleGetter<
-  InvoiceRequestParams
-> = async ({ contract_id, year, month }) => {
+export const invoiceTitleGetter: PageTitleGetter<InvoiceRequestParams> = async (
+  requestParams
+) => {
+  const { contract_id, year } = requestParams;
+  const monthOrQuarter = requestParams.monthOrQuarter.toUpperCase();
+
   const { vendorName, contractName } = await getContractAndVendorName(
     contract_id
   );
-  return `${contractName} - ${vendorName} (${
-    MONTHS[Number(month) - 1]
-  } ${year}) reconciliation`;
+
+  const prettyMonthOrQuarter = isQuarter(monthOrQuarter)
+    ? monthOrQuarter
+    : MONTHS[Number(monthOrQuarter) - 1];
+
+  return `${contractName} - ${vendorName} (${prettyMonthOrQuarter} ${year}) reconciliation`;
 };

@@ -46,10 +46,10 @@ export const getQueryResponse = async <TResponse>(
   tableName: string,
   vendorId: string,
   serviceName: string,
-  eventTime: string
+  time: string
 ): Promise<TResponse> => {
-  const year = new Date(eventTime).getFullYear();
-  const month = new Date(eventTime).toLocaleString("en-US", {
+  const year = new Date(time).getFullYear();
+  const month = new Date(time).toLocaleString("en-US", {
     month: "2-digit",
   });
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

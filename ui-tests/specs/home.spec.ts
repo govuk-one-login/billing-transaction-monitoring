@@ -1,7 +1,7 @@
 import { waitForPageLoad } from "../helpers/waits";
 import HomePage from "../pageobjects/homepage";
 import { getLatestInvoicePerVendor } from "../utils/extractTestDatajson";
-import { prettyMonthName } from "../utils/getPrettyMonthName";
+import { prettyMonthName, quarterName } from "../utils/getPrettyMonthName";
 import { generateExpectedBannerDetailsFromPercentagePriceDifference } from "../utils/generateExpectedStatusBannerDetails";
 
 /* UI tests for Home Page. It verifies the page displays the correct heading and subheading.
@@ -43,7 +43,10 @@ describe("Home Page Overview table Tests", () => {
     const tableData = await HomePage.getTableData(await HomePage.overViewTable);
     const expectedTableDataFromJson = getLatestInvoicePerVendor().map(
       (invoice): OverviewTable => {
-        const monthString = prettyMonthName(invoice.month);
+        const monthOrQuarterString =
+          invoice.invoice_is_quarterly === "true"
+            ? quarterName(invoice.month)
+            : prettyMonthName(invoice.month);
         const reconciliationDetails =
           generateExpectedBannerDetailsFromPercentagePriceDifference(
             parseFloat(invoice.price_difference_percentage)
@@ -51,7 +54,7 @@ describe("Home Page Overview table Tests", () => {
         return {
           contractName: invoice.contract_name,
           vendor: invoice.vendor_name,
-          month: `${monthString} ${invoice.year}`,
+          period: `${monthOrQuarterString} ${invoice.year}`,
           reconciliationDetails:
             reconciliationDetails.bannerMessage.toUpperCase(),
           details: "View Invoice",
@@ -62,7 +65,7 @@ describe("Home Page Overview table Tests", () => {
       .map((data) => ({
         contractName: data["Contract name"].trim(),
         vendor: data.Vendor.trim(),
-        month: data.Month.trim(),
+        period: data.Period.trim(),
         reconciliationDetails: data["Reconciliation status"]
           .trim()
           .toUpperCase(),
@@ -93,8 +96,12 @@ describe("Home Page Overview table Tests", () => {
     )[0];
     await HomePage.clickOnViewInvoiceLink();
     await waitForPageLoad();
+    const expectedMonthOrQuarter =
+      firstInvoice.invoice_is_quarterly === "true"
+        ? quarterName(firstInvoice.month).toLowerCase()
+        : firstInvoice.month;
     expect(await browser.getUrl()).toContain(
-      `${firstInvoice.contract_id}/invoices/${firstInvoice.year}-${firstInvoice.month}`
+      `${firstInvoice.contract_id}/invoices/${firstInvoice.year}-${expectedMonthOrQuarter}`
     );
   });
 });
@@ -102,7 +109,7 @@ describe("Home Page Overview table Tests", () => {
 export type OverviewTable = {
   contractName: string;
   vendor: string;
-  month: string;
+  period: string;
   reconciliationDetails: string;
   details: string;
 };

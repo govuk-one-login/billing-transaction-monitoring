@@ -1,5 +1,5 @@
 import { ConfigServicesRow, StandardisedLineItem } from "../../shared/types";
-import { formatDate, getDate } from "../../shared/utils";
+import { dateRangeIsQuarter, formatDate, getDate } from "../../shared/utils";
 
 export interface LineItem {
   "service name": string;
@@ -12,6 +12,8 @@ export interface LineItem {
 
 export interface CsvObject {
   vendor: string;
+  "invoice period start": string;
+  "invoice period end": string;
   "invoice date": string;
   "due date": string;
   "vat number": string;
@@ -35,6 +37,10 @@ export const getCsvStandardisedInvoice = (
     tax_payer_id: csvObject["vat number"],
     parser_version: csvObject.version,
     originalInvoiceFile: sourceFileName,
+    invoice_is_quarterly: dateRangeIsQuarter(
+      getDate(csvObject["invoice period start"]),
+      getDate(csvObject["invoice period end"])
+    ),
   };
 
   return csvObject.lineItems.reduce<StandardisedLineItem[]>((acc, item) => {

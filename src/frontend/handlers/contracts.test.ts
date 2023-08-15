@@ -58,8 +58,7 @@ describe("contracts handler", () => {
         contractName: "C01234",
         vendorName: "Vendor One",
         year: "2023",
-        month: "06",
-        prettyMonth: "Jun",
+        prettyMonthOrQuarter: "Jun",
         reconciliationDetails: {
           tagClass: "govuk-tag--grey",
           bannerMessage: "Invoice data missing",
@@ -71,8 +70,7 @@ describe("contracts handler", () => {
         contractName: "MOU",
         vendorName: "Vendor Two",
         year: "2023",
-        month: "06",
-        prettyMonth: "Jun",
+        prettyMonthOrQuarter: "Jun",
         reconciliationDetails: {
           tagClass: "govuk-tag--green",
           bannerMessage: "Invoice within threshold",

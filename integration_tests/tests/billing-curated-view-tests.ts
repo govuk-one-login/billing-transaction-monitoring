@@ -7,6 +7,7 @@ import {
 import { BillingCurated } from "./s3-invoice-end-to-end-tests";
 import crypto from "crypto";
 import { ContractName } from "../../src/handlers/int-test-support/helpers/payloadHelper";
+import { getMonthQuarter, getQuarterMonth } from "../../src/shared/utils";
 
 describe("\n Upload invoice standardised data to s3 directly and check the billing curated view", () => {
   test("Uploaded invoice standardised data should match the results from billing curated view", async () => {
@@ -22,6 +23,7 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
         tax_payer_id: "GB72937880",
         parser_version: "default_1.2.0",
         originalInvoiceFile: "invoice1.pdf",
+        invoice_is_quarterly: false,
         tax: 20.1,
         event_name: "VENDOR_5_EVENT_1",
         item_description: "Five Data Validation Application",
@@ -33,8 +35,8 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
       },
       {
         invoice_receipt_id: "xcr-983950712",
-        vendor_id: "vendor_testvendor5",
-        vendor_name: "Vendor Five",
+        vendor_id: "vendor_testvendor6",
+        vendor_name: "Vendor Six",
         total: 180.1,
         invoice_receipt_date: new Date("2005-12-28"),
         subtotal: 160,
@@ -42,12 +44,13 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
         tax_payer_id: "GB72937880",
         parser_version: "default_1.2.0",
         originalInvoiceFile: "invoice2.pdf",
+        invoice_is_quarterly: true,
         tax: 20.1,
-        event_name: "VENDOR_5_EVENT_1",
-        item_description: "Five Data Validation Application",
+        event_name: "VENDOR_6_EVENT_1",
+        item_description: "Six Data Validation Application",
         price: 160,
         quantity: 500,
-        service_name: "Five Data Validation Application",
+        service_name: "Six Data Validation Application",
         contract_id: "5",
         unit_price: 0.32,
       },
@@ -56,15 +59,19 @@ describe("\n Upload invoice standardised data to s3 directly and check the billi
     for (const standardisedObject of standardisedObjects) {
       const uuid = crypto.randomBytes(3).toString("hex");
       const year = standardisedObject.invoice_receipt_date.getFullYear();
+      const receiptMonthNumber =
+        standardisedObject.invoice_receipt_date.getMonth() + 1;
       const month = (
-        standardisedObject.invoice_receipt_date.getMonth() + 1
+        standardisedObject.invoice_is_quarterly
+          ? getQuarterMonth(getMonthQuarter(receiptMonthNumber))
+          : receiptMonthNumber
       ).toLocaleString("en-US", {
         minimumIntegerDigits: 2,
       });
 
       const s3Object: S3Object = {
         bucket: `${resourcePrefix()}-storage`,
-        key: `btm_invoice_data/${year}/${month}/${year}-${month}-vendor_testvendor5-VENDOR_5_EVENT_1-${uuid}.txt`,
+        key: `btm_invoice_data/${year}/${month}/${year}-${month}-${standardisedObject.vendor_id}-${standardisedObject.event_name}-${uuid}.txt`,
       };
 
       // Upload standardised data to s3

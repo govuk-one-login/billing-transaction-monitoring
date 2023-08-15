@@ -20,7 +20,7 @@ describe("home page handler", () => {
         },
         vendorName: "Vendor One",
         year: "2023",
-        prettyMonth: "Jun",
+        prettyMonthOrQuarter: "Jun",
         reconciliationDetails: {
           tagClass: "govuk-tag--grey",
           bannerMessage: "Invoice data missing",
@@ -37,7 +37,7 @@ describe("home page handler", () => {
         },
         vendorName: "Vendor Two",
         year: "2023",
-        prettyMonth: "Jun",
+        prettyMonthOrQuarter: "Jun",
         reconciliationDetails: {
           tagClass: "govuk-tag--green",
           bannerMessage: "Invoice within threshold",

@@ -10,27 +10,32 @@ import {
 } from "../utils/extractTestDatajson";
 import { generateExpectedBannerDetailsFromPercentagePriceDifference } from "../utils/generateExpectedStatusBannerDetails";
 import { generateExpectedStatusFromPercentagePriceDifference } from "../utils/generateExpectedStatusFromPriceDifference";
+import { quarterName } from "../utils/getPrettyMonthName";
 import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
 import { formatPercentageDifference } from "../utils/invoiceDataFormatters";
 
 const openInvoicePage = async (
   contractId: string,
   year: string,
-  month: string
+  monthOrQuarter: string
 ): Promise<void> => {
-  const invoicePageUrl = `contracts/${contractId}/invoices/${year}-${month}`;
+  const invoicePageUrl = `contracts/${contractId}/invoices/${year}-${monthOrQuarter}`;
   await InvoicePage.open(invoicePageUrl);
   await waitForPageLoad();
-  expect(await browser.getUrl()).toContain(`${year}-${month}`);
+  expect(await browser.getUrl()).toContain(`${year}-${monthOrQuarter}`);
 };
 
 const setupPageAndGetData = async (
   vendorId: string,
   year: string,
-  month: string
+  month: string,
+  invoiceIsQuarterly: boolean = false
 ): Promise<FullExtractData[]> => {
   const contractId = await getVendorContractIdFromConfig(vendorId);
-  await openInvoicePage(contractId, year, month);
+  const monthOrQuarter = invoiceIsQuarterly
+    ? quarterName(month).toLowerCase()
+    : month;
+  await openInvoicePage(contractId, year, monthOrQuarter);
   return getInvoicesByContractIdYearMonth(contractId, year, month);
 };
 
@@ -39,12 +44,25 @@ describe("Invoice Page Test", () => {
   const vendorInvoiceTestData =
     extractAllUniqueVendorInvoiceDataFomJson(testDataFilePath);
 
-  for (const { vendor, year, month, vendorId } of vendorInvoiceTestData) {
-    describe(`Vendor: ${vendor},Invoice:${year}-${month}`, () => {
+  for (const {
+    vendor,
+    year,
+    month,
+    vendorId,
+    invoiceIsQuarterly,
+  } of vendorInvoiceTestData) {
+    describe(`Vendor: ${vendor},Invoice:${year}-${
+      invoiceIsQuarterly ? quarterName(month) : month
+    }`, () => {
       let filteredInvoiceItems: FullExtractData[] = [];
 
       beforeEach(async () => {
-        filteredInvoiceItems = await setupPageAndGetData(vendorId, year, month);
+        filteredInvoiceItems = await setupPageAndGetData(
+          vendorId,
+          year,
+          month,
+          invoiceIsQuarterly
+        );
       });
 
       it(`should display correct status banner color and message`, async () => {

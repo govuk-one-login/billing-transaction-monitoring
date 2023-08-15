@@ -75,6 +75,7 @@ export interface TestDataRetrievedFromConfig {
 
 export interface TestData {
   eventTime: string;
+  invoiceTime: string;
   numberOfTestEvents: number;
   billingQty: number;
   transactionQty: number;
@@ -86,4 +87,5 @@ export interface TestData {
   priceDifferencePercentage: string;
   billingPriceFormatted: string;
   transactionPriceFormatted: string;
+  invoiceIsQuarterly?: boolean;
 }

@@ -9,6 +9,7 @@ import { randomLineItem, randomString, randomInvoiceData } from "./random";
 import { TestData } from "../../testDataHelper";
 import { E2ETestParserServiceConfig } from "../../../config-utils/get-e2e-test-config";
 import { poll } from "../../commonHelpers";
+import { getMonthQuarter, getQuarterMonth } from "../../../../../shared/utils";
 
 type InvoiceDataAndFileName = {
   invoiceData: InvoiceData;
@@ -44,7 +45,7 @@ export const createInvoiceInS3 = async (
 };
 
 export const createInvoiceWithGivenData = async (
-  { eventTime, billingQty }: TestData,
+  { invoiceTime, billingQty }: TestData,
   description: string,
   unitPrice: number,
   vendorId: string,
@@ -63,7 +64,7 @@ export const createInvoiceWithGivenData = async (
       id: vendorId,
       name: vendorName,
     },
-    date: new Date(eventTime),
+    date: new Date(invoiceTime),
     lineItems: [lineItems],
   });
   const filename = `e2e-test-raw-Invoice-validFile-${randomString(
@@ -76,11 +77,17 @@ const getLineItemPrefix = (
   date: Date,
   vendorId: string,
   eventName: string,
-  archived: boolean
+  archived: boolean,
+  quarterly: boolean
 ): string => {
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
-  const monthText = String(month).padStart(2, "0");
+
+  const standardisedMonth = quarterly
+    ? getQuarterMonth(getMonthQuarter(month))
+    : month;
+
+  const monthText = String(standardisedMonth).padStart(2, "0");
   const filePrefix = `${year}-${monthText}-${vendorId}-${eventName}-`;
 
   return archived
@@ -96,7 +103,8 @@ export const checkStandardised = async (
   {
     archived = false,
     keyToExclude = undefined,
-  }: { archived?: boolean; keyToExclude?: string } = {}
+    quarterly = false,
+  }: { archived?: boolean; keyToExclude?: string; quarterly?: boolean } = {}
 ): Promise<S3Object> => {
   const bucket = `${resourcePrefix()}-storage`;
 
@@ -104,7 +112,8 @@ export const checkStandardised = async (
     date,
     vendorId,
     serviceConfig.event_name,
-    archived
+    archived,
+    quarterly
   );
   const s3Response = await poll(
     async () => await listS3Objects({ bucketName: bucket, prefix }),

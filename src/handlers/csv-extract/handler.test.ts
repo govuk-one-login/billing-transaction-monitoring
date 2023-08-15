@@ -57,6 +57,8 @@ describe("CSV Extract handler tests", () => {
   } as unknown as SQSEvent;
   const validInvoiceData =
     "Vendor,Skippy’s Everything Shop,,,,,\n" +
+    "Invoice Period Start,2021/12/01,,,,,\n" +
+    "Invoice Period End,2021/12/31,,,,,\n" +
     "Invoice Date,2022/1/1,,,,,\n" +
     "Due Date,2022/2/1,,,,,\n" +
     "VAT Number,123 4567 89,,,,,\n" +
@@ -74,6 +76,7 @@ describe("CSV Extract handler tests", () => {
       service_regex: "Horse Hoof Whittling",
       event_name: "VENDOR_1_EVENT_1",
       contract_id: "1",
+      invoice_is_quarterly: false,
     },
   ];
 
@@ -252,6 +255,8 @@ describe("CSV Extract handler tests", () => {
     const invalidInvoiceData =
       // Test the case with 'Vendor' misspelled
       "Vender,Skippy’s Everything Shop,,,,,\n" +
+      "Invoice Period Start,2021/12/01,,,,,\n" +
+      "Invoice Period End,2021/12/31,,,,,\n" +
       "Invoice Date,2022/1/1,,,,,\n" +
       "Due Date,2022/2/1,,,,,\n" +
       "VAT Number,123 4567 89,,,,,\n" +
@@ -329,6 +334,7 @@ describe("CSV Extract handler tests", () => {
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
         originalInvoiceFile: givenFileName,
+        invoice_is_quarterly: false,
         event_name: "VENDOR_1_EVENT_1",
         item_description: "Horse Hoof Whittling",
         subtotal: 348.6,
@@ -346,6 +352,8 @@ describe("CSV Extract handler tests", () => {
   test("should store the standardised invoice if no errors and no trailing commas table", async () => {
     const validInvoiceData =
       "Vendor,Skippy’s Everything Shop,,,,,\n" +
+      "Invoice Period Start,2021/12/01,,,,,\n" +
+      "Invoice Period End,2021/12/31,,,,,\n" +
       "Invoice Date,2022/1/1,,,,,\n" +
       "Due Date,2022/2/1,,,,,\n" +
       "VAT Number,123 4567 89,,,,,\n" +
@@ -370,6 +378,7 @@ describe("CSV Extract handler tests", () => {
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
         originalInvoiceFile: givenFileName,
+        invoice_is_quarterly: false,
         event_name: "VENDOR_1_EVENT_1",
         item_description: "Horse Hoof Whittling",
         subtotal: 348.6,

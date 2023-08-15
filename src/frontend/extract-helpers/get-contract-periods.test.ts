@@ -15,7 +15,7 @@ describe("getContractPeriods", () => {
     );
   });
 
-  test("should return the month, year and prettyMonth", async () => {
+  test("should return the month, year, prettyMonth, and isQuarter", async () => {
     // Arrange
     contractId = "1";
     mockedFetchS3.mockResolvedValue(
@@ -29,16 +29,20 @@ describe("getContractPeriods", () => {
         "\n" +
         fakeDataRow("2023", "05", contractId, "test2") +
         "\n" +
-        fakeDataRow("2023", "06", contractId, "test1")
+        fakeDataRow("2023", "06", contractId, "test1") +
+        "\n" +
+        fakeDataRow("2023", "04", contractId, "test1", true)
     );
+    // throw Error(`mockedFetchS3(): ${await mockedFetchS3()}`);
     // Act
     const result = await getContractPeriods(contractId);
     // Assert
     expect(result).toEqual([
-      { month: "03", prettyMonth: "Mar", year: "2023" },
-      { month: "04", prettyMonth: "Apr", year: "2023" },
-      { month: "05", prettyMonth: "May", year: "2023" },
-      { month: "06", prettyMonth: "Jun", year: "2023" },
+      { month: "03", prettyMonth: "Mar", year: "2023", isQuarter: false },
+      { month: "04", prettyMonth: "Apr", year: "2023", isQuarter: true },
+      { month: "04", prettyMonth: "Apr", year: "2023", isQuarter: false },
+      { month: "05", prettyMonth: "May", year: "2023", isQuarter: false },
+      { month: "06", prettyMonth: "Jun", year: "2023", isQuarter: false },
     ]);
   });
 });

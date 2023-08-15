@@ -40,6 +40,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
     tax_payer_id: getTaxPayerId(summaryFields),
     parser_version: parserVersion,
     originalInvoiceFile: originalInvoiceFileName,
+    invoice_is_quarterly: vendorServiceConfigRows[0].invoice_is_quarterly,
   };
 
   return lineItems.reduce<StandardisedLineItem[]>((acc, item) => {

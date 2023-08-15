@@ -105,6 +105,7 @@ describe("Standardised invoice default getter", () => {
         service_regex: "lying about speedruns",
         event_name: "DONKEY_KONG",
         contract_id: "1",
+        invoice_is_quarterly: false,
       },
       {
         vendor_name: "Billy Mitchell LLC",
@@ -113,6 +114,7 @@ describe("Standardised invoice default getter", () => {
         service_regex: "fake Donkey",
         event_name: "donkey_kong",
         contract_id: "1",
+        invoice_is_quarterly: false,
       },
     ];
   });
@@ -382,6 +384,7 @@ describe("Standardised invoice default getter", () => {
         item_description: "Lying about speedruns to seem cool on the internet",
         parser_version: givenParserVersion,
         originalInvoiceFile: givenOriginalInvoiceFileName,
+        invoice_is_quarterly: false,
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
@@ -438,5 +441,40 @@ describe("Standardised invoice default getter", () => {
     expect(mockedGetPrice).toHaveBeenCalledWith(
       givenTextractPagesLineItemFields
     );
+  });
+
+  test("Standardised invoice default getter with a quarterly invoice", () => {
+    givenVendorServiceConfigRows[0].invoice_is_quarterly = true;
+
+    const result = getStandardisedInvoiceDefault(
+      givenTextractPages,
+      givenVendorServiceConfigRows,
+      givenParserVersion,
+      givenOriginalInvoiceFileName
+    );
+
+    expect(result).toEqual([
+      {
+        due_date: "mocked due date",
+        invoice_receipt_date: "mocked invoice receipt date",
+        invoice_receipt_id: "mocked invoice receipt ID",
+        item_description: "Lying about speedruns to seem cool on the internet",
+        parser_version: givenParserVersion,
+        originalInvoiceFile: givenOriginalInvoiceFileName,
+        invoice_is_quarterly: true,
+        price: "mocked price",
+        quantity: "mocked quantity",
+        service_name: "Lying About Speedruns",
+        contract_id: "1",
+        event_name: "DONKEY_KONG",
+        subtotal: "mocked subtotal",
+        tax: "mocked tax",
+        tax_payer_id: "mocked taxPayerId",
+        total: "mocked total",
+        unit_price: "mocked unit price",
+        vendor_name: "Billy Mitchell LLC",
+        vendor_id: "vendor_billy",
+      },
+    ]);
   });
 });

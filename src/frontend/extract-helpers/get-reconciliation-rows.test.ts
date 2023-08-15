@@ -19,6 +19,7 @@ describe("getReconciliationRows", () => {
     quantity_difference: "-9",
     billing_amount_with_tax: "",
     price_difference_percentage: "",
+    invoice_is_quarterly: "false",
   };
 
   test("Should return the data for the Reconciliation Tables when all billing and transaction data is available", () => {

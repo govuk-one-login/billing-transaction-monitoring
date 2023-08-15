@@ -54,6 +54,7 @@ describe("Line item storer", () => {
       event_name: givenRecordBodyEventName,
       invoice_receipt_date: givenRecordBodyInvoiceReceiptDate,
       vendor_id: givenRecordBodyVendorId,
+      invoice_is_quarterly: false,
     };
 
     givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
@@ -212,6 +213,46 @@ describe("Line item storer", () => {
 
   test("Line item storer with record body object with non-string vendor ID", async () => {
     givenRecordBodyObject.invoice_receipt_date = null;
+    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+
+    const resultPromise = storeLineItem(
+      givenRecord,
+      givenBucket,
+      givenDestinationFolder,
+      givenArchiveFolder
+    );
+
+    await expect(resultPromise).rejects.toThrow(
+      "is not object with valid fields"
+    );
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
+    expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
+  });
+
+  test("Line item storer with record body object with no invoice-is-quarterly option", async () => {
+    delete givenRecordBodyObject.invoice_is_quarterly;
+    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+
+    const resultPromise = storeLineItem(
+      givenRecord,
+      givenBucket,
+      givenDestinationFolder,
+      givenArchiveFolder
+    );
+
+    await expect(resultPromise).rejects.toThrow(
+      "is not object with valid fields"
+    );
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
+    expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
+  });
+
+  test("Line item storer with record body object with non-Boolean invoice-is-quarterly option", async () => {
+    givenRecordBodyObject.invoice_is_quarterly = "foo";
     givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
 
     const resultPromise = storeLineItem(

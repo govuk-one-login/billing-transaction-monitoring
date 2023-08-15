@@ -21,9 +21,11 @@ export interface StandardisedLineItemSummary {
   due_date?: string;
   tax?: number;
   tax_payer_id?: string;
+  quarter?: string;
   // May not be present in old items, but required here to ensure they are added to new ones:
   parser_version: string;
   originalInvoiceFile: string;
+  invoice_is_quarterly: boolean;
 }
 
 export interface StandardisedLineItem extends StandardisedLineItemSummary {
@@ -70,6 +72,7 @@ export interface ConfigServicesRow {
   service_regex: string;
   event_name: string;
   contract_id: string;
+  invoice_is_quarterly: boolean;
 }
 
 export interface ConfigContractsRow {
