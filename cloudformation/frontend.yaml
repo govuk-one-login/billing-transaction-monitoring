@@ -98,17 +98,16 @@ Resources:
           "/":
             get:
               x-amazon-apigateway-integration:
-              type: 'aws_proxy'
-              httpMethod: 'GET'
-              uri:
-                Fn::Sub: 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndEphemeralFunction.Arn}/invocations'
-              responses:
-                default:
-                  statusCode: '200'
-                  responseTemplates:
-                    text/html:
-                      type: string
-                      example: "<h1>Welcome to DI Billing</h1>"
+                type: 'aws_proxy'
+                httpMethod: 'GET'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndEphemeralFunction.Arn}/invocations'
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseTemplates:
+                      text/html:
+                        type: string
+                        example: "<h1>Welcome to DI Billing</h1>"
       MethodSettings:
         - ResourcePath: /
           HttpMethod: ANY
