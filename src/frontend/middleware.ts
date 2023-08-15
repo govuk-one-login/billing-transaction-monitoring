@@ -43,12 +43,19 @@ const stylesPath = shouldLoadFromNodeModules
   : assetsPath;
 const staticStyles = express.static(stylesPath);
 
+const securityTxt: RequestHandler = (_, res) =>
+  res.redirect(
+    302,
+    "https://vdp.cabinetoffice.gov.uk/.well-known/security.txt"
+  );
+
 export const middleware: Middlewares = [
   { handler: generateNonce },
   { handler: generateCSP },
   { handler: staticAssets, route: "/assets" },
   { handler: staticScripts, route: "/assets/scripts" },
   { handler: staticStyles, route: "/assets/styles" },
+  { handler: securityTxt, route: "/.well-known/security.txt" },
 ];
 
 export const unitTestMiddleware: Middlewares = [
