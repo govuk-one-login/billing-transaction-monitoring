@@ -327,8 +327,3 @@ Resources:
         - FrontEndEphemeralApi
         - RootResourceId
       PathPart: '{proxy+}'
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: ANY
-        Uri: !Sub >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndEphemeralFunction.Arn}/*
