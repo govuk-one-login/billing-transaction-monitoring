@@ -3,8 +3,11 @@ import { ConfigElements } from "../../shared/constants";
 import { fetchS3, getConfig, getFromEnv } from "../../shared/utils";
 import { app } from "../app";
 import { initApp } from "../init-app";
-import { statusLabelLookup, StatusLabels } from "../utils";
 import { unitTestMiddleware } from "../middleware";
+import {
+  LineItemStatuses,
+  lineItemStatusLookup,
+} from "../utils/line-item-statuses";
 
 jest.mock("../../shared/utils");
 const mockedFetchS3 = fetchS3 as jest.Mock;
@@ -73,15 +76,15 @@ describe("invoice handler", () => {
     expect(response.text).toContain("Invoice above threshold"); // banner
     expect(response.text).toContain("9.8814"); // percentage discrepancy in table
     expect(response.text).toContain(
-      statusLabelLookup[StatusLabels.aboveThreshold].message
+      lineItemStatusLookup[LineItemStatuses.aboveThreshold].statusLabel.message
     ); // status in table for Above Threshold
     expect(response.text).toContain("-1.1235"); // percentage discrepancy in table
     expect(response.text).toContain(
-      statusLabelLookup[StatusLabels.belowThreshold].message
+      lineItemStatusLookup[LineItemStatuses.belowThreshold].statusLabel.message
     ); // status in table for Below Threshold
     expect(response.text).toContain("0"); // percentage discrepancy in table
     expect(response.text).toContain(
-      statusLabelLookup[StatusLabels.withinThreshold].message
+      lineItemStatusLookup[LineItemStatuses.withinThreshold].statusLabel.message
     ); // status in table for Within Threshold
     expect(response.text).toMatchSnapshot();
   });

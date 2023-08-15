@@ -3,7 +3,7 @@ import { getContractPeriods } from "./get-contract-periods";
 import { getContracts } from "./get-contracts";
 import { getLineItems } from "./get-line-items";
 import { getOverviewRows } from "./get-overview-rows";
-import { statusLabelLookup, StatusLabels } from "../utils";
+import { invoiceStatusLabelLookup, InvoiceStatuses } from "../utils";
 
 jest.mock("../../shared/utils");
 const mockedGetFromEnv = getFromEnv as jest.Mock;
@@ -116,7 +116,8 @@ describe("getOverviewRows", () => {
         reconciliationDetails: {
           bannerClass: "notice",
           bannerText: "Invoice data missing",
-          statusLabel: statusLabelLookup[StatusLabels.pending],
+          statusLabel:
+            invoiceStatusLabelLookup[InvoiceStatuses.invoiceDataMissing],
         },
         invoiceLinkData: {
           href: "/contracts/c1/invoices/2023-06",
@@ -134,7 +135,8 @@ describe("getOverviewRows", () => {
         reconciliationDetails: {
           bannerClass: "payable",
           bannerText: "Invoice within threshold",
-          statusLabel: statusLabelLookup[StatusLabels.withinThreshold],
+          statusLabel:
+            invoiceStatusLabelLookup[InvoiceStatuses.invoiceWithinThreshold],
         },
         invoiceLinkData: {
           href: "/contracts/m2/invoices/2023-06",

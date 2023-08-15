@@ -1,4 +1,4 @@
-import { StatusLabel, statusLabelLookup, StatusLabels } from "./status-label";
+import { StatusLabel } from "./status-label";
 import { InvoiceStatuses } from "./invoice-statuses";
 
 export enum LineItemMagicNumber {
@@ -17,7 +17,7 @@ export type LineItemStatus = {
 
 export enum LineItemStatuses {
   noCharge,
-  ratesMissing,
+  rateMissing,
   invoiceMissing,
   eventsMissing,
   unexpectedCharge,
@@ -26,43 +26,79 @@ export enum LineItemStatuses {
   withinThreshold,
 }
 
+export const lineItemStatusLabelLookup: Record<LineItemStatuses, StatusLabel> =
+  {
+    [LineItemStatuses.noCharge]: {
+      message: "No Charge",
+      class: "govuk-tag--green",
+    },
+    [LineItemStatuses.rateMissing]: {
+      message: "Rate Missing",
+      class: "govuk-tag--red",
+    },
+    [LineItemStatuses.invoiceMissing]: {
+      message: "Invoice Missing",
+      class: "govuk-tag--yellow",
+    },
+    [LineItemStatuses.eventsMissing]: {
+      message: "Events Missing",
+      class: "govuk-tag--red",
+    },
+    [LineItemStatuses.unexpectedCharge]: {
+      message: "Unexpected Charge",
+      class: "govuk-tag--yellow",
+    },
+    [LineItemStatuses.aboveThreshold]: {
+      message: "Above Threshold",
+      class: "govuk-tag--yellow",
+    },
+    [LineItemStatuses.belowThreshold]: {
+      message: "Below Threshold",
+      class: "govuk-tag--green",
+    },
+    [LineItemStatuses.withinThreshold]: {
+      message: "Within Threshold",
+      class: "govuk-tag--green",
+    },
+  };
+
 export const lineItemStatusLookup: Record<LineItemStatuses, LineItemStatus> = {
   [LineItemStatuses.noCharge]: {
     magicNumber: LineItemMagicNumber.noCharge,
-    associatedInvoiceStatus: InvoiceStatuses.noCharge,
-    statusLabel: statusLabelLookup[StatusLabels.noCharge],
+    associatedInvoiceStatus: InvoiceStatuses.invoiceHasNoCharge,
+    statusLabel: lineItemStatusLabelLookup[LineItemStatuses.noCharge],
   },
-  [LineItemStatuses.ratesMissing]: {
+  [LineItemStatuses.rateMissing]: {
     magicNumber: LineItemMagicNumber.ratesMissing,
     associatedInvoiceStatus: InvoiceStatuses.unableToFindRate,
-    statusLabel: statusLabelLookup[StatusLabels.error],
+    statusLabel: lineItemStatusLabelLookup[LineItemStatuses.rateMissing],
   },
   [LineItemStatuses.invoiceMissing]: {
     magicNumber: LineItemMagicNumber.invoiceMissing,
     associatedInvoiceStatus: InvoiceStatuses.invoiceDataMissing,
-    statusLabel: statusLabelLookup[StatusLabels.pending],
+    statusLabel: lineItemStatusLabelLookup[LineItemStatuses.invoiceMissing],
   },
   [LineItemStatuses.eventsMissing]: {
     magicNumber: LineItemMagicNumber.eventsMissing,
     associatedInvoiceStatus: InvoiceStatuses.eventsMissing,
-    statusLabel: statusLabelLookup[StatusLabels.error],
+    statusLabel: lineItemStatusLabelLookup[LineItemStatuses.eventsMissing],
   },
   [LineItemStatuses.unexpectedCharge]: {
     magicNumber: LineItemMagicNumber.unexpectedCharge,
-    associatedInvoiceStatus: InvoiceStatuses.unexpectedInvoiceCharge,
-    statusLabel: statusLabelLookup[StatusLabels.unexpectedCharge],
+    associatedInvoiceStatus: InvoiceStatuses.invoiceHasUnexpectedCharge,
+    statusLabel: lineItemStatusLabelLookup[LineItemStatuses.unexpectedCharge],
   },
   [LineItemStatuses.aboveThreshold]: {
     associatedInvoiceStatus: InvoiceStatuses.invoiceAboveThreshold,
-    statusLabel: statusLabelLookup[StatusLabels.aboveThreshold],
+    statusLabel: lineItemStatusLabelLookup[LineItemStatuses.aboveThreshold],
   },
   [LineItemStatuses.belowThreshold]: {
     associatedInvoiceStatus: InvoiceStatuses.invoiceBelowThreshold,
-    statusLabel: statusLabelLookup[StatusLabels.belowThreshold],
+    statusLabel: lineItemStatusLabelLookup[LineItemStatuses.belowThreshold],
   },
   [LineItemStatuses.withinThreshold]: {
     associatedInvoiceStatus: InvoiceStatuses.invoiceWithinThreshold,
-    statusLabel: statusLabelLookup[StatusLabels.withinThreshold],
+    statusLabel: lineItemStatusLabelLookup[LineItemStatuses.withinThreshold],
   },
 };
 

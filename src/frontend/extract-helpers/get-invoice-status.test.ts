@@ -4,9 +4,9 @@ import {
   LineItemStatuses,
   lineItemStatusLookup,
 } from "../utils/line-item-statuses";
-import { statusLabelLookup, StatusLabels } from "../utils";
+import { invoiceStatusLabelLookup, InvoiceStatuses } from "../utils";
 
-describe("getInvoiceBanner", () => {
+describe("getInvoiceStatus", () => {
   const lineItem = {
     vendor_id: "vendor_testvendor4",
     vendor_name: "Vendor Four",
@@ -33,7 +33,8 @@ describe("getInvoiceBanner", () => {
     expect(result).toEqual({
       bannerClass: "notice",
       bannerText: "Invoice and events missing",
-      statusLabel: statusLabelLookup[StatusLabels.pending],
+      statusLabel:
+        invoiceStatusLabelLookup[InvoiceStatuses.invoiceAndEventsMissing],
     });
   });
 
@@ -45,7 +46,7 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatusLookup[LineItemStatuses.ratesMissing].magicNumber ?? "",
+          lineItemStatusLookup[LineItemStatuses.rateMissing].magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [
@@ -77,7 +78,7 @@ describe("getInvoiceBanner", () => {
     expect(result).toEqual({
       bannerClass: "notice",
       bannerText: "Invoice data missing",
-      statusLabel: statusLabelLookup[StatusLabels.pending],
+      statusLabel: invoiceStatusLabelLookup[InvoiceStatuses.invoiceDataMissing],
     });
   });
 
@@ -89,7 +90,7 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatusLookup[LineItemStatuses.ratesMissing].magicNumber ?? "",
+          lineItemStatusLookup[LineItemStatuses.rateMissing].magicNumber ?? "",
         ],
       ]),
       buildLineItem(lineItem, [
@@ -114,7 +115,7 @@ describe("getInvoiceBanner", () => {
     expect(result).toEqual({
       bannerClass: "error",
       bannerText: "Events missing",
-      statusLabel: statusLabelLookup[StatusLabels.error],
+      statusLabel: invoiceStatusLabelLookup[InvoiceStatuses.eventsMissing],
     });
   });
 
@@ -134,7 +135,7 @@ describe("getInvoiceBanner", () => {
       buildLineItem(lineItem, [
         [
           "price_difference_percentage",
-          lineItemStatusLookup[LineItemStatuses.ratesMissing].magicNumber ?? "",
+          lineItemStatusLookup[LineItemStatuses.rateMissing].magicNumber ?? "",
         ],
       ]),
     ];
@@ -144,11 +145,11 @@ describe("getInvoiceBanner", () => {
     expect(result).toEqual({
       bannerClass: "error",
       bannerText: "Unable to find rate",
-      statusLabel: statusLabelLookup[StatusLabels.error],
+      statusLabel: invoiceStatusLabelLookup[InvoiceStatuses.unableToFindRate],
     });
   });
 
-  test("should return the expected invoice status and the warning banner class when rates are missing", () => {
+  test("should return the expected invoice status and the warning banner class when the invoice has an unexpected charge", () => {
     // Arrange
     // The unexpected charge line should take precedence over the line item that's over threshold.
     const givenLineItems = [
@@ -168,7 +169,8 @@ describe("getInvoiceBanner", () => {
     expect(result).toEqual({
       bannerClass: "warning",
       bannerText: "Unexpected invoice charge",
-      statusLabel: statusLabelLookup[StatusLabels.unexpectedCharge],
+      statusLabel:
+        invoiceStatusLabelLookup[InvoiceStatuses.invoiceHasUnexpectedCharge],
     });
   });
 
@@ -187,7 +189,8 @@ describe("getInvoiceBanner", () => {
     expect(result).toEqual({
       bannerClass: "warning",
       bannerText: "Invoice above threshold",
-      statusLabel: statusLabelLookup[StatusLabels.aboveThreshold],
+      statusLabel:
+        invoiceStatusLabelLookup[InvoiceStatuses.invoiceAboveThreshold],
     });
   });
 
@@ -206,7 +209,8 @@ describe("getInvoiceBanner", () => {
     expect(result).toEqual({
       bannerClass: "payable",
       bannerText: "Invoice below threshold",
-      statusLabel: statusLabelLookup[StatusLabels.belowThreshold],
+      statusLabel:
+        invoiceStatusLabelLookup[InvoiceStatuses.invoiceBelowThreshold],
     });
   });
 
@@ -223,7 +227,8 @@ describe("getInvoiceBanner", () => {
     expect(result).toEqual({
       bannerClass: "payable",
       bannerText: "Invoice within threshold",
-      statusLabel: statusLabelLookup[StatusLabels.withinThreshold],
+      statusLabel:
+        invoiceStatusLabelLookup[InvoiceStatuses.invoiceWithinThreshold],
     });
   });
 
@@ -237,8 +242,8 @@ describe("getInvoiceBanner", () => {
     // Assert
     expect(result).toEqual({
       bannerClass: "payable",
-      bannerText: "Invoice has no charge",
-      statusLabel: statusLabelLookup[StatusLabels.noCharge],
+      bannerText: "No charge",
+      statusLabel: invoiceStatusLabelLookup[InvoiceStatuses.invoiceHasNoCharge],
     });
   });
 });

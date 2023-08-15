@@ -11,7 +11,7 @@ import {
 const WARNINGS_BY_PRIORITY = [
   LineItemStatuses.invoiceMissing,
   LineItemStatuses.eventsMissing,
-  LineItemStatuses.ratesMissing,
+  LineItemStatuses.rateMissing,
   LineItemStatuses.unexpectedCharge,
 ];
 
