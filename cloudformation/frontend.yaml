@@ -54,7 +54,7 @@ Resources:
           HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
       MethodSettings:
         - ResourcePath: /
-          HttpMethod: GET
+          HttpMethod: ANY
           CachingEnabled: true
           CacheTtlInSeconds: 300
       StageName: !Ref Environment
@@ -106,7 +106,7 @@ Resources:
                     example: "<h1>Welcome to DI Billing</h1>"
       MethodSettings:
         - ResourcePath: /
-          HttpMethod: GET
+          HttpMethod: ANY
           CachingEnabled: true
           CacheTtlInSeconds: 300
       StageName: !Ref Environment
@@ -194,7 +194,7 @@ Resources:
           Properties:
             RestApiId: !Ref FrontEndApi
             Path: /
-            Method: '*'
+            Method: ANY
       Handler: frontend.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
@@ -261,7 +261,7 @@ Resources:
           Properties:
             RestApiId: !Ref FrontEndEphemeralApi
             Path: /
-            Method: 'GET'
+            Method: ANY
       Handler: frontend.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
@@ -309,12 +309,26 @@ Resources:
               Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
       ReservedConcurrentExecutions: 10
 
-  FrontEndApiMethod:
+  FrontEndApiEphemeralMethod:
     Type: AWS::ApiGateway::Method
     Properties: 
       ApiKeyRequired: false
       AuthorizationType: CUSTOM
       AuthorizerId: !Ref FrontEndAuthFunction
       HttpMethod: ANY
-      ResourceId: !GetAtt FrontEndEphemeralFunction.RootResourceId
+      ResourceId: !GetAtt ProxyResource.RootResourceId
       RestApiId: !Ref FrontEndEphemeralApi
+
+  FrontEndEphemeralProxyResource:
+    Type: 'AWS::ApiGateway::Resource'
+    Properties:
+      RestApiId: !Ref FrontEndEphemeralApi
+      ParentId: !GetAtt
+        - FrontEndEphemeralApi
+        - RootResourceId
+      PathPart: '{proxy+}'
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: ANY
+        Uri: !Sub >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndEphemeralFunction.Arn}/*
