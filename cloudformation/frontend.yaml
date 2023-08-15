@@ -54,7 +54,7 @@ Resources:
           HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
       MethodSettings:
         - ResourcePath: /
-          HttpMethod: ANY
+          HttpMethod: 'GET'
           CachingEnabled: true
           CacheTtlInSeconds: 300
       StageName: !Ref Environment
@@ -110,7 +110,7 @@ Resources:
                         example: "<h1>Welcome to DI Billing</h1>"
       MethodSettings:
         - ResourcePath: /
-          HttpMethod: ANY
+          HttpMethod: 'GET'
           CachingEnabled: true
           CacheTtlInSeconds: 300
       StageName: !Ref Environment
@@ -198,7 +198,7 @@ Resources:
           Properties:
             RestApiId: !Ref FrontEndApi
             Path: /
-            Method: ANY
+            Method: 'GET'
       Handler: frontend.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
@@ -265,7 +265,7 @@ Resources:
           Properties:
             RestApiId: !Ref FrontEndEphemeralApi
             Path: /
-            Method: ANY
+            Method: 'GET'
       Handler: frontend.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
