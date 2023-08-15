@@ -97,13 +97,18 @@ Resources:
         paths:
           "/":
             get:
-              description: The home page
+              x-amazon-apigateway-integration:
+              type: 'aws_proxy'
+              httpMethod: 'GET'
+              uri:
+                Fn::Sub: 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndEphemeralFunction.Arn}/invocations'
               responses:
-                '200':
-                  description: OK
-                  text/html:
-                    type: string
-                    example: "<h1>Welcome to DI Billing</h1>"
+                default:
+                  statusCode: '200'
+                  responseTemplates:
+                    text/html:
+                      type: string
+                      example: "<h1>Welcome to DI Billing</h1>"
       MethodSettings:
         - ResourcePath: /
           HttpMethod: ANY
@@ -308,22 +313,3 @@ Resources:
                 - athena:GetQueryResults
               Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
       ReservedConcurrentExecutions: 10
-
-  FrontEndApiEphemeralMethod:
-    Type: AWS::ApiGateway::Method
-    Properties: 
-      ApiKeyRequired: false
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref FrontEndAuthFunction
-      HttpMethod: ANY
-      ResourceId: !GetAtt FrontEndEphemeralProxyResource.RootResourceId
-      RestApiId: !Ref FrontEndEphemeralApi
-
-  FrontEndEphemeralProxyResource:
-    Type: 'AWS::ApiGateway::Resource'
-    Properties:
-      RestApiId: !Ref FrontEndEphemeralApi
-      ParentId: !GetAtt
-        - FrontEndEphemeralApi
-        - RootResourceId
-      PathPart: '{proxy+}'
