@@ -316,7 +316,7 @@ Resources:
       AuthorizationType: CUSTOM
       AuthorizerId: !Ref FrontEndAuthFunction
       HttpMethod: ANY
-      ResourceId: !GetAtt ProxyResource.RootResourceId
+      ResourceId: !GetAtt FrontEndEphemeralProxyResource.RootResourceId
       RestApiId: !Ref FrontEndEphemeralApi
 
   FrontEndEphemeralProxyResource:
