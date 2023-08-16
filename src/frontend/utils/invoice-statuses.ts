@@ -31,7 +31,7 @@ export const invoiceStatusLabelLookup: Record<InvoiceStatuses, StatusLabel> = {
     class: "govuk-tag--blue",
   },
   [InvoiceStatuses.invoiceDataMissing]: {
-    message: "Warning",
+    message: "Pending",
     class: "govuk-tag--blue",
   },
 

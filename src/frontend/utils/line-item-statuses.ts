@@ -38,7 +38,7 @@ export const lineItemStatusLabelLookup: Record<LineItemStatuses, StatusLabel> =
     },
     [LineItemStatuses.invoiceMissing]: {
       message: "Invoice Missing",
-      class: "govuk-tag--yellow",
+      class: "govuk-tag--blue",
     },
     [LineItemStatuses.eventsMissing]: {
       message: "Events Missing",

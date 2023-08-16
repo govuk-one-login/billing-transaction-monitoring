@@ -242,7 +242,7 @@ describe("getInvoiceStatus", () => {
     // Assert
     expect(result).toEqual({
       bannerClass: "payable",
-      bannerText: "No charge",
+      bannerText: "Invoice has no charge",
       statusLabel: invoiceStatusLabelLookup[InvoiceStatuses.invoiceHasNoCharge],
     });
   });
