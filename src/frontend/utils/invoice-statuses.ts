@@ -75,7 +75,7 @@ export const invoiceStatusLookup: Record<InvoiceStatuses, InvoiceStatus> = {
       invoiceStatusLabelLookup[InvoiceStatuses.invoiceAndEventsMissing],
   },
   [InvoiceStatuses.invoiceHasNoCharge]: {
-    bannerText: "No charge",
+    bannerText: "Invoice has no charge",
     bannerClass: InvoiceBannerClass.payable,
     statusLabel: invoiceStatusLabelLookup[InvoiceStatuses.invoiceHasNoCharge],
   },
