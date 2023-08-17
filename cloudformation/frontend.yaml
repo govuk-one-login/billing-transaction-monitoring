@@ -38,13 +38,17 @@ Resources:
         paths:
           "/":
             get:
-              description: The home page
-              responses:
-                '200':
-                  description: OK
-                  text/html:
-                    type: string
-                    example: "<h1>Welcome to DI Billing</h1>"
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                httpMethod: 'POST'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndEphemeralFunction.Arn}/invocations'
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseTemplates:
+                      text/html:
+                        type: string
+                        example: "<h1>Welcome to DI Billing</h1>"
       Domain:
         CertificateArn:
           Fn::ImportValue: !If
@@ -101,7 +105,7 @@ Resources:
             get:
               x-amazon-apigateway-integration:
                 type: 'aws_proxy'
-                httpMethod: 'GET'
+                httpMethod: 'POST'
                 uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndEphemeralFunction.Arn}/invocations'
                 responses:
                   default:
