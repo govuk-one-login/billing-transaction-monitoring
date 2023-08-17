@@ -40,6 +40,14 @@ export const handler = async (
   | { statusCode: number; headers: { Location: string } }
 > => {
   // allow unless you've requested you not be allowed by requesting with ?effect=Deny
+  if (event.queryStringParameters?.shouldRedirect) {
+    return {
+      statusCode: 302,
+      headers: {
+        Location: "https://redirect.example.com/path",
+      },
+    };
+  }
   return generatePolicy({
     apiId: event.requestContext.apiId,
     sub: randomUUID(),

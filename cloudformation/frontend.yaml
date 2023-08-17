@@ -21,6 +21,8 @@ Resources:
               QueryStrings:
                 - code
                 - state
+                - effect
+                - shouldRedirect
         DefaultAuthorizer: LambdaAuthorizer
       CacheClusterEnabled: true
       CacheClusterSize: '0.5'
