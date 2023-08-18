@@ -349,7 +349,6 @@ describe("CSV Extract handler tests", () => {
   test("should store the standardised invoice if no errors and no trailing commas table", async () => {
     const validInvoiceData =
       "Vendor,Skippy’s Everything Shop,,,,,\n" +
-      "Invoice Period Start,2022/1/1,,,,,\n" +
       "Invoice Date,2022/1/1,,,,,\n" +
       "Invoice Period Start,2022/1/1,,,,,\n" +
       "Due Date,2022/2/1,,,,,\n" +
