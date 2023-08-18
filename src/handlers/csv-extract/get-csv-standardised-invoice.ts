@@ -13,6 +13,7 @@ export interface LineItem {
 export interface CsvObject {
   vendor: string;
   "invoice date": string;
+  "invoice period start": string;
   "due date": string;
   "vat number": string;
   "po number": string;
@@ -31,6 +32,9 @@ export const getCsvStandardisedInvoice = (
     vendor_id: vendorId,
     vendor_name: csvObject.vendor,
     invoice_receipt_date: formatDate(getDate(csvObject["invoice date"])),
+    invoice_period_start: formatDate(
+      getDate(csvObject["invoice period start"])
+    ),
     due_date: formatDate(getDate(csvObject["due date"])),
     tax_payer_id: csvObject["vat number"],
     parser_version: csvObject.version,

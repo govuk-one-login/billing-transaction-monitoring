@@ -57,12 +57,14 @@ export const getStandardisedInvoice0: StandardisationModule = (
       ? []
       : getLineItems(lastPageWithLineItems);
 
+  const invoiceReceiptDate = getInvoiceReceiptDate(summaryFields);
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
     vendor_id: vendorServiceConfigRows[0].vendor_id,
     vendor_name: vendorServiceConfigRows[0].vendor_name,
     total: getTotal(summaryFields),
-    invoice_receipt_date: getInvoiceReceiptDate(summaryFields),
+    invoice_receipt_date: invoiceReceiptDate,
+    invoice_period_start: invoiceReceiptDate,
     subtotal: getSubtotal(summaryFields),
     due_date: getDueDate(summaryFields),
     tax: getTax(summaryFields),

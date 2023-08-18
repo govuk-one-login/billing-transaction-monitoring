@@ -4,14 +4,14 @@ import { formatDateAsYearMonth } from "./date-utils";
 
 export type LineItemFieldsForNaming = Pick<
   StandardisedLineItem,
-  "event_name" | "invoice_receipt_date" | "vendor_id"
+  "event_name" | "invoice_period_start" | "vendor_id"
 >;
 
 export function getStandardisedInvoiceKeyPrefix(
   folder: string,
   standardisedInvoice: LineItemFieldsForNaming
 ): string {
-  const date = new Date(standardisedInvoice.invoice_receipt_date);
+  const date = new Date(standardisedInvoice.invoice_period_start);
   const yearMonth = formatDateAsYearMonth(date);
   const vendorId = standardisedInvoice.vendor_id;
   const eventName = standardisedInvoice.event_name;
