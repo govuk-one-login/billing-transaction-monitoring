@@ -22,7 +22,7 @@ describe("Line item storer", () => {
   let givenDestinationFolder: string;
   let givenRecord: SQSRecord;
   let givenRecordBodyEventName: string;
-  let givenRecordBodyInvoiceReceiptDate: string;
+  let givenRecordBodyInvoicePeriodStart: string;
   let givenRecordBodyObject: Record<string, unknown>;
   let givenRecordBodyVendorId: string;
 
@@ -47,12 +47,12 @@ describe("Line item storer", () => {
     givenDestinationFolder = "given destination folder";
 
     givenRecordBodyEventName = "given record body event name";
-    givenRecordBodyInvoiceReceiptDate =
-      "given record body invoice receipt date";
+    givenRecordBodyInvoicePeriodStart =
+      "given record body invoice period start";
     givenRecordBodyVendorId = "given record body vendor ID";
     givenRecordBodyObject = {
       event_name: givenRecordBodyEventName,
-      invoice_receipt_date: givenRecordBodyInvoiceReceiptDate,
+      invoice_period_start: givenRecordBodyInvoicePeriodStart,
       vendor_id: givenRecordBodyVendorId,
     };
 
@@ -150,8 +150,8 @@ describe("Line item storer", () => {
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
-  test("Line item storer with record body object with no invoice receipt date string", async () => {
-    delete givenRecordBodyObject.invoice_receipt_date;
+  test("Line item storer with record body object with no invoice period start string", async () => {
+    delete givenRecordBodyObject.invoice_period_start;
     givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
 
     const resultPromise = storeLineItem(
@@ -170,8 +170,8 @@ describe("Line item storer", () => {
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 
-  test("Line item storer with record body object with non-string invoice receipt date", async () => {
-    givenRecordBodyObject.invoice_receipt_date = true;
+  test("Line item storer with record body object with non-string invoice period start", async () => {
+    givenRecordBodyObject.invoice_period_start = true;
     givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
 
     const resultPromise = storeLineItem(
@@ -211,7 +211,7 @@ describe("Line item storer", () => {
   });
 
   test("Line item storer with record body object with non-string vendor ID", async () => {
-    givenRecordBodyObject.invoice_receipt_date = null;
+    givenRecordBodyObject.invoice_period_start = null;
     givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
 
     const resultPromise = storeLineItem(

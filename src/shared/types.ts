@@ -17,6 +17,7 @@ export interface StandardisedLineItemSummary {
   vendor_name?: string;
   total: number;
   invoice_receipt_date: string;
+  invoice_period_start: string;
   subtotal?: number;
   due_date?: string;
   tax?: number;
