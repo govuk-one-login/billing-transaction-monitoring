@@ -5,7 +5,7 @@ import { AWS_REGION } from "../../shared/constants";
 
 const athena = new AthenaClient({ region: AWS_REGION });
 
-const QUERY_WAIT = 60 * 1000; // Thirty seconds
+const QUERY_WAIT = 60 * 1000; // Sixty seconds
 
 export async function fetchViewData(
   env: Record<Env, string>
