@@ -6,7 +6,7 @@ import {
   StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
 
-const INTERVAL_MS = 5000;
+const INTERVAL_MS = 1000;
 
 export class AthenaQueryExecutor {
   athena: AthenaClient;
