@@ -1,11 +1,9 @@
-import { Athena } from "aws-sdk/clients/all";
-
-import { ResultSet } from "@aws-sdk/client-athena";
+import { AthenaClient, ResultSet } from "@aws-sdk/client-athena";
 import { Env } from "./types";
-import { AthenaQueryExecutor } from "../../shared/utils/athena";
+import { AthenaQueryExecutor } from "../../shared/utils/athenaV3";
 import { AWS_REGION } from "../../shared/constants";
 
-const athena = new Athena({ region: AWS_REGION });
+const athena = new AthenaClient({ region: AWS_REGION });
 
 const QUERY_WAIT = 30 * 1000; // Thirty seconds
 
