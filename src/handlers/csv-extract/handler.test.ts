@@ -58,6 +58,7 @@ describe("CSV Extract handler tests", () => {
   const validInvoiceData =
     "Vendor,Skippy’s Everything Shop,,,,,\n" +
     "Invoice Date,2022/1/1,,,,,\n" +
+    "Invoice Period Start,2022/1/1,,,,,\n" +
     "Due Date,2022/2/1,,,,,\n" +
     "VAT Number,123 4567 89,,,,,\n" +
     "PO Number,123 4567 89,,,,,\n" +
@@ -253,6 +254,7 @@ describe("CSV Extract handler tests", () => {
       // Test the case with 'Vendor' misspelled
       "Vender,Skippy’s Everything Shop,,,,,\n" +
       "Invoice Date,2022/1/1,,,,,\n" +
+      "Invoice Period Start,2022/1/1,,,,,\n" +
       "Due Date,2022/2/1,,,,,\n" +
       "VAT Number,123 4567 89,,,,,\n" +
       "PO Number,123 4567 89,,,,,\n" +
@@ -325,6 +327,7 @@ describe("CSV Extract handler tests", () => {
         vendor_id: "vendor123",
         vendor_name: "Skippy’s Everything Shop",
         invoice_receipt_date: "2022-01-01",
+        invoice_period_start: "2022-01-01",
         due_date: "2022-02-01",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
@@ -346,7 +349,9 @@ describe("CSV Extract handler tests", () => {
   test("should store the standardised invoice if no errors and no trailing commas table", async () => {
     const validInvoiceData =
       "Vendor,Skippy’s Everything Shop,,,,,\n" +
+      "Invoice Period Start,2022/1/1,,,,,\n" +
       "Invoice Date,2022/1/1,,,,,\n" +
+      "Invoice Period Start,2022/1/1,,,,,\n" +
       "Due Date,2022/2/1,,,,,\n" +
       "VAT Number,123 4567 89,,,,,\n" +
       "PO Number,123 4567 89,,,,,\n" +
@@ -366,6 +371,7 @@ describe("CSV Extract handler tests", () => {
         vendor_id: "vendor123",
         vendor_name: "Skippy’s Everything Shop",
         invoice_receipt_date: "2022-01-01",
+        invoice_period_start: "2022-01-01",
         due_date: "2022-02-01",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",

@@ -38,6 +38,7 @@ describe("CSV Standardised invoice getter", () => {
     givenValidCsvObject = {
       vendor: "Vendor One",
       "invoice date": "2023/02/28",
+      "invoice period start": "2023/02/28",
       "due date": "28/03/2023",
       "vat number": "123 4567 89",
       "po number": "370 000",
@@ -82,6 +83,7 @@ describe("CSV Standardised invoice getter", () => {
         vendor_id: "vendor_testvendor1",
         vendor_name: "Vendor One",
         invoice_receipt_date: "2023-02-28",
+        invoice_period_start: "2023-02-28",
         due_date: "2023-03-28",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
@@ -102,6 +104,7 @@ describe("CSV Standardised invoice getter", () => {
         vendor_id: "vendor_testvendor1",
         vendor_name: "Vendor One",
         invoice_receipt_date: "2023-02-28",
+        invoice_period_start: "2023-02-28",
         due_date: "2023-03-28",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
@@ -124,6 +127,7 @@ describe("CSV Standardised invoice getter", () => {
     givenCsvObjectWithInvalidDate = {
       vendor: "Vendor One",
       "invoice date": "2023/02/28",
+      "invoice period start": "2023/02/28",
       "due date": "an invalid date", // <- invalid date
       "vat number": "123 4567 89",
       "po number": "370 000",
@@ -154,6 +158,7 @@ describe("CSV Standardised invoice getter", () => {
     givenCsvObjectWithInvalidNumber = {
       vendor: "Vendor One",
       "invoice date": "2023/02/28",
+      "invoice period start": "2023/02/28",
       "due date": "2023/03/28",
       "vat number": "123 4567 89",
       "po number": "370 000",
@@ -183,6 +188,7 @@ describe("CSV Standardised invoice getter", () => {
     givenCsvObjectWithInvalidNumber = {
       vendor: "Vendor One",
       "invoice date": "2023/02/28",
+      "invoice period start": "2023/02/28",
       "due date": "2023/03/28",
       "vat number": "123 4567 89",
       "po number": "370 000",

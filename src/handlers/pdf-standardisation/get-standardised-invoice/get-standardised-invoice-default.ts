@@ -3,6 +3,7 @@ import { ConfigServicesRow, StandardisedLineItem } from "../../../shared/types";
 import {
   getDueDate,
   getInvoiceReceiptDate,
+  getInvoicePeriodStart,
   getInvoiceReceiptId,
   getItemDescription,
   getPrice,
@@ -34,6 +35,7 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
     vendor_name: vendorServiceConfigRows[0].vendor_name,
     total: getTotal(summaryFields),
     invoice_receipt_date: getInvoiceReceiptDate(summaryFields),
+    invoice_period_start: getInvoicePeriodStart(summaryFields),
     subtotal: getSubtotal(summaryFields),
     due_date: getDueDate(summaryFields),
     tax: getTax(summaryFields),

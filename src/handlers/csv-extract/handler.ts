@@ -91,6 +91,7 @@ const isValidCsvObject = (x: any): x is CsvObject =>
   typeof x === "object" &&
   typeof x.vendor === "string" &&
   typeof x["invoice date"] === "string" &&
+  typeof x["invoice period start"] === "string" &&
   typeof x["due date"] === "string" &&
   typeof x["vat number"] === "string" &&
   typeof x["po number"] === "string" &&
