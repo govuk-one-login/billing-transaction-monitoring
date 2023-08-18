@@ -1,6 +1,5 @@
 export * from "./get-due-date";
 export * from "./get-invoice-receipt-date";
-export * from "./get-invoice-period-start";
 export * from "./get-invoice-receipt-id";
 export * from "./get-item-description";
 export * from "./get-price";

@@ -398,6 +398,7 @@ describe("Standardised invoice getter 0", () => {
     expect(result).toEqual([
       {
         due_date: "mocked due date",
+        invoice_period_start: "mocked invoice receipt date",
         invoice_receipt_date: "mocked invoice receipt date",
         invoice_receipt_id: "mocked invoice receipt ID",
         item_description: "Lying about speedruns to seem cool on the internet",
@@ -509,6 +510,7 @@ describe("Standardised invoice getter 0", () => {
     expect(result).toEqual([
       {
         due_date: "mocked due date",
+        invoice_period_start: "mocked invoice receipt date",
         invoice_receipt_date: "mocked invoice receipt date",
         invoice_receipt_id: "mocked invoice receipt ID",
         item_description: "Lying about speedruns to seem cool on the internet",
@@ -624,6 +626,7 @@ describe("Standardised invoice getter 0", () => {
     expect(result).toEqual([
       {
         due_date: "mocked due date",
+        invoice_period_start: "mocked invoice receipt date",
         invoice_receipt_date: "mocked invoice receipt date",
         invoice_receipt_id: "mocked invoice receipt ID",
         item_description: "Lying about speedruns to seem cool on the internet",
@@ -706,6 +709,7 @@ describe("Standardised invoice getter 0", () => {
     expect(result).toEqual([
       {
         due_date: "mocked due date",
+        invoice_period_start: "mocked invoice receipt date",
         invoice_receipt_date: "mocked invoice receipt date",
         invoice_receipt_id: "mocked invoice receipt ID",
         item_description: mockedDescription,
