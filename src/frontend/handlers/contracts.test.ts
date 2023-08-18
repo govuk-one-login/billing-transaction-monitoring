@@ -61,8 +61,12 @@ describe("contracts handler", () => {
         month: "06",
         prettyMonth: "Jun",
         reconciliationDetails: {
-          tagClass: "govuk-tag--grey",
-          bannerMessage: "Invoice data missing",
+          bannerClass: "govuk-tag--grey",
+          bannerText: "Invoice data missing",
+          statusLabel: {
+            class: "govuk-tag--blue",
+            message: "Pending",
+          },
         },
         details: "View Invoice",
       },
@@ -74,8 +78,12 @@ describe("contracts handler", () => {
         month: "06",
         prettyMonth: "Jun",
         reconciliationDetails: {
-          tagClass: "govuk-tag--green",
-          bannerMessage: "Invoice within threshold",
+          bannerClass: "govuk-tag--green",
+          bannerText: "Invoice within threshold",
+          statusLabel: {
+            class: "govuk-tag--green",
+            message: "Within Threshold",
+          },
         },
         details: "View Invoice",
       },

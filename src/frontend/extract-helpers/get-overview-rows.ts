@@ -1,8 +1,8 @@
 import { getUrl, invoicePage, invoicesPage } from "../pages";
-import { InvoiceBannerStatus, LinkData, statusLabels } from "../utils";
+import { LinkData } from "../utils";
 import { getContractPeriods } from "./get-contract-periods";
 import { getContracts } from "./get-contracts";
-import { getInvoiceBanner } from "./get-invoice-banner";
+import { getInvoiceStatus } from "./get-invoice-status";
 import { getLineItems } from "./get-line-items";
 
 export interface OverviewRow {
@@ -11,8 +11,8 @@ export interface OverviewRow {
   year: string;
   prettyMonth: string;
   reconciliationDetails: {
-    bannerMessage: string;
-    tagClass: string;
+    bannerText: string;
+    bannerClass: string;
   };
   invoiceLinkData: LinkData;
 }
@@ -65,20 +65,9 @@ const getReconciliationDetails = async (
   year: string,
   month: string
 ): Promise<{
-  bannerMessage: string;
-  tagClass: string;
+  bannerText: string;
+  bannerClass: string;
 }> => {
-  let tagClass;
   const lineItems = await getLineItems(contractId, year, month);
-  const bannerMessage = getInvoiceBanner(lineItems).status;
-  if (bannerMessage === InvoiceBannerStatus.invoiceWithinThreshold) {
-    tagClass = statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.class;
-  } else if (bannerMessage === InvoiceBannerStatus.invoiceAboveThreshold) {
-    tagClass = statusLabels.STATUS_LABEL_ABOVE_THRESHOLD.class;
-  } else if (bannerMessage === InvoiceBannerStatus.invoiceBelowThreshold) {
-    tagClass = statusLabels.STATUS_LABEL_BELOW_THRESHOLD.class;
-  } else {
-    tagClass = statusLabels.STATUS_LABEL_PENDING.class;
-  }
-  return { bannerMessage, tagClass };
+  return getInvoiceStatus(lineItems);
 };
