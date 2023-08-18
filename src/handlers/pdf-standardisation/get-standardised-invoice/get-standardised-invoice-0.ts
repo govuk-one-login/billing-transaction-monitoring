@@ -78,7 +78,7 @@ export const getStandardisedInvoice0: StandardisationModule = (
 const getDescriptionData = (
   description: string
 ): { quantity: number; unitPrice: number } | undefined => {
-  const pattern = /\((.+)\s+@\s+(.+)\s+GBP\)/g;
+  const pattern = /\((.{0,12})\s{0,12}@\s{0,12}(.{0,12})\s{0,12}GBP\)/g;
   const match = pattern.exec(description);
 
   if (match !== null) {
