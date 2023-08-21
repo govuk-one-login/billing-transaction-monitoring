@@ -181,7 +181,10 @@ const destroyStack = async (
     ).length;
     const numberLeft = resources.length - numberDeleted;
     const resourcesFailed = resources.filter(
-      (r) => r.ResourceStatus === "DELETE_FAILED"
+      (r) =>
+        r.ResourceStatus === "DELETE_FAILED" ||
+        r.ResourceStatus === "CREATE_COMPLETE" ||
+        r.ResourceStatus === "UPDATE_COMPLETE" // TODO: Remove nonsensical "CREATE_COMPLETE" and "UPDATE_COMPLETE" check once CF is fixed.
     );
 
     console.log(
@@ -238,7 +241,8 @@ const tryToDelete = async (
       console.log(`Trying to remove Athena workgroup ${resourceId}...`);
       return await deleteAthenaWorkgroup(resource);
     default:
-      return resource;
+      return null;
+    // return resource; TODO: Put this line back once strange CF-behaviour is fixed.
   }
 };
 
