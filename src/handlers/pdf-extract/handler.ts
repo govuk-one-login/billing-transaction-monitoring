@@ -1,4 +1,3 @@
-import * as AWS from "aws-sdk";
 import { SQSEvent } from "aws-lambda";
 import { Response } from "../../shared/types";
 import {
@@ -7,6 +6,10 @@ import {
   logger,
 } from "../../shared/utils";
 import { AWS_REGION } from "../../shared/constants";
+import {
+  StartExpenseAnalysisRequest,
+  Textract,
+} from "@aws-sdk/client-textract";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
   // Set Up
@@ -20,7 +23,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     throw new Error("SNS Topic not set.");
   }
 
-  const textract = new AWS.Textract({ region: AWS_REGION });
+  const textract = new Textract({ region: AWS_REGION });
   const response: Response = {
     batchItemFailures: [],
   };
@@ -39,7 +42,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           throw Error(`File not in vendor ID folder: ${bucket}/${filePath}`);
 
         // Define params for Textract API call
-        const params: AWS.Textract.StartExpenseAnalysisRequest = {
+        const params: StartExpenseAnalysisRequest = {
           DocumentLocation: {
             S3Object: {
               Bucket: bucket,
@@ -52,9 +55,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           },
         };
         // Invoke textract function
-        const textractResponse = await textract
-          .startExpenseAnalysis(params)
-          .promise();
+        const textractResponse = await textract.startExpenseAnalysis(params);
         if (textractResponse.JobId === undefined) {
           throw new Error("Textract error");
         }

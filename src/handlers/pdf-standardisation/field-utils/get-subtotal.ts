@@ -1,11 +1,9 @@
-import { Textract } from "aws-sdk";
 import { logger } from "../../../shared/utils";
 import { getHighestConfidenceTextractValue } from "./get-highest-confidence-textract-value";
 import { getNumberFromMoneyText } from "./get-number-from-money-text";
+import { ExpenseField } from "@aws-sdk/client-textract";
 
-export const getSubtotal = (
-  fields: Textract.ExpenseField[]
-): number | undefined => {
+export const getSubtotal = (fields: ExpenseField[]): number | undefined => {
   const subtotal = getHighestConfidenceTextractValue(fields, "SUBTOTAL");
 
   if (subtotal === undefined) return undefined;

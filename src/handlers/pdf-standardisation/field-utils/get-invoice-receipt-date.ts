@@ -1,10 +1,8 @@
-import { Textract } from "aws-sdk";
 import { getHighestConfidenceTextractValue } from "./get-highest-confidence-textract-value";
 import { getStandardisedDateText } from "./get-standardised-date-text";
+import { ExpenseField } from "@aws-sdk/client-textract";
 
-export const getInvoiceReceiptDate = (
-  fields: Textract.ExpenseField[]
-): string => {
+export const getInvoiceReceiptDate = (fields: ExpenseField[]): string => {
   const rawDateText = getHighestConfidenceTextractValue(
     fields,
     "INVOICE_RECEIPT_DATE"

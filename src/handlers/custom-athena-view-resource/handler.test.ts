@@ -1,12 +1,12 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
-import { Athena } from "aws-sdk";
 import { sendCustomResourceResult } from "../../shared/utils";
 import { getAthenaViewResourceData } from "./get-athena-view-resource-data";
 import { handler } from "./handler";
 import { AthenaQueryExecutor } from "../../shared/utils/athena";
 import { AWS_REGION } from "../../shared/constants";
+import { Athena } from "@aws-sdk/client-athena";
 
-jest.mock("aws-sdk");
+jest.mock("@aws-sdk/client-athena");
 const MockedAthenaClass = Athena as jest.MockedClass<typeof Athena>;
 
 jest.mock("../../shared/utils");
@@ -48,9 +48,9 @@ describe("Custom Athena view resource handler", () => {
       QueryExecutionId: mockedQueryExecutionId,
     }));
 
-    mockedAthenaStartQueryExecution = jest.fn(() => ({
-      promise: mockedAthenaStartQueryExecutionPromise,
-    }));
+    mockedAthenaStartQueryExecution = jest.fn(
+      () => mockedAthenaStartQueryExecutionPromise
+    );
 
     mockedAthena = { startQueryExecution: mockedAthenaStartQueryExecution };
 

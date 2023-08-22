@@ -1,8 +1,12 @@
-import { Textract } from "aws-sdk";
+import {
+  ExpenseDocument,
+  GetExpenseAnalysisResponse,
+  Textract,
+} from "@aws-sdk/client-textract";
 import { fetchExpenseDocuments } from "./fetch-expense-documents";
 import { logTextractWarnings } from "./log-textract-warnings";
 
-jest.mock("aws-sdk");
+jest.mock("@aws-sdk/client-textract");
 const MockedTextract = Textract as jest.MockedClass<typeof Textract>;
 
 jest.mock("./log-textract-warnings");
@@ -13,7 +17,7 @@ const mockedLogTextractWarnings = logTextractWarnings as jest.MockedFn<
 describe("Expense documents fetcher", () => {
   let mockedGetExpenseAnalysis: jest.Mock;
   let mockedGetExpenseAnalysisPromise: jest.Mock;
-  let mockedResponse: Textract.GetExpenseAnalysisResponse;
+  let mockedResponse: GetExpenseAnalysisResponse;
   let givenJobId: string;
 
   beforeEach(() => {
@@ -25,9 +29,7 @@ describe("Expense documents fetcher", () => {
       .fn()
       .mockResolvedValue(mockedResponse);
 
-    mockedGetExpenseAnalysis = jest.fn(() => ({
-      promise: mockedGetExpenseAnalysisPromise,
-    }));
+    mockedGetExpenseAnalysis = jest.fn(mockedGetExpenseAnalysisPromise);
 
     MockedTextract.mockReturnValue({
       getExpenseAnalysis: mockedGetExpenseAnalysis,
@@ -57,7 +59,7 @@ describe("Expense documents fetcher", () => {
   });
 
   test("Expense documents fetcher with response warnings", async () => {
-    const mockedWarnings = "mocked warnings" as unknown as Textract.Warnings;
+    const mockedWarnings = [{ ErrorCode: "1", Pages: [1, 2, 3] }];
     mockedResponse.Warnings = mockedWarnings;
 
     await fetchExpenseDocuments(givenJobId);
@@ -98,7 +100,7 @@ describe("Expense documents fetcher", () => {
     mockedResponse.ExpenseDocuments = [
       mockedDocument1,
       mockedDocument2,
-    ] as unknown as Textract.ExpenseDocument[];
+    ] as unknown as ExpenseDocument[];
 
     const result = await fetchExpenseDocuments(givenJobId);
 

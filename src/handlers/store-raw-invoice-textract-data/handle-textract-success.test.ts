@@ -1,4 +1,4 @@
-import { Textract } from "aws-sdk";
+import { ExpenseDocument } from "@aws-sdk/client-textract";
 import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
 import { moveToFolderS3, putS3 } from "../../shared/utils";
 import { handleTextractFailure } from "./handle-textract-failure";
@@ -12,7 +12,7 @@ jest.mock("./handle-textract-failure");
 const mockedHandleTextractFailure = handleTextractFailure as jest.Mock;
 
 describe("Textract success handler", () => {
-  let givenResults: Textract.ExpenseDocument[];
+  let givenResults: ExpenseDocument[];
   let givenResultsBucket: string;
   let givenResultsFileName: string;
   let givenSourceBucket: string;
@@ -22,7 +22,7 @@ describe("Textract success handler", () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    givenResults = ["given result" as Textract.ExpenseDocument];
+    givenResults = ["given result" as ExpenseDocument];
     givenResultsBucket = "given results bucket";
     givenResultsFileName = "given results file name";
     givenSourceBucket = "given source bucket";

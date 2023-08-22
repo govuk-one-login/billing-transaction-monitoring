@@ -1,6 +1,4 @@
-import { Athena } from "aws-sdk/clients/all";
-
-import { ResultSet } from "@aws-sdk/client-athena";
+import { Athena, ResultSet } from "@aws-sdk/client-athena";
 import { Env } from "./types";
 import { AthenaQueryExecutor } from "../../shared/utils/athena";
 import { AWS_REGION } from "../../shared/constants";

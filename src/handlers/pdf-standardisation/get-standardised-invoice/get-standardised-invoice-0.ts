@@ -1,4 +1,3 @@
-import { Textract } from "aws-sdk";
 import {
   ConfigServicesRow,
   StandardisedLineItem,
@@ -18,21 +17,27 @@ import {
   getUnitPrice,
 } from "../field-utils";
 import { StandardisationModule } from "./get-standardised-invoice";
+import {
+  ExpenseDocument,
+  ExpenseField,
+  LineItemFields,
+  LineItemGroup,
+} from "@aws-sdk/client-textract";
 
-interface TextractLineItemGroupWithLineItems extends Textract.LineItemGroup {
+interface TextractLineItemGroupWithLineItems extends LineItemGroup {
   LineItems: TextractLineItemWithFields[];
 }
 
-interface TextractLineItemWithFields extends Textract.LineItemFields {
-  LineItemExpenseFields: Textract.ExpenseField[];
+interface TextractLineItemWithFields extends LineItemFields {
+  LineItemExpenseFields: ExpenseField[];
 }
 
-interface TextractPageWithLineItems extends Textract.ExpenseDocument {
+interface TextractPageWithLineItems extends ExpenseDocument {
   LineItemGroups: TextractLineItemGroupWithLineItems[];
 }
 
 export const getStandardisedInvoice0: StandardisationModule = (
-  allTextractPages: Textract.ExpenseDocument[],
+  allTextractPages: ExpenseDocument[],
   vendorServiceConfigRows: ConfigServicesRow[],
   parserVersion: string,
   originalInvoiceFileName: string
@@ -93,7 +98,7 @@ const getDescriptionData = (
 };
 
 const getLastPageWithLineItems = (
-  textractPages: Textract.ExpenseDocument[]
+  textractPages: ExpenseDocument[]
 ): TextractPageWithLineItems | undefined => {
   const pagesWithItems = textractPages.filter((page) =>
     page.LineItemGroups?.some((group) =>
@@ -106,18 +111,18 @@ const getLastPageWithLineItems = (
 
 const getLineItems = (
   textractPage: TextractPageWithLineItems
-): Textract.LineItemFields[] =>
+): LineItemFields[] =>
   textractPage.LineItemGroups.flat()
     .map((group) => group.LineItems)
     .flat();
 
 const getStandardisedLineItems = (
   summary: StandardisedLineItemSummary,
-  lineItems: Textract.LineItemFields[],
+  lineItems: LineItemFields[],
   vendorServiceConfigRows: ConfigServicesRow[]
 ): StandardisedLineItem[] =>
   lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
-    const itemFields = item.LineItemExpenseFields as Textract.ExpenseField[];
+    const itemFields = item.LineItemExpenseFields as ExpenseField[];
     let nextAcc = [...acc];
     for (const {
       service_name: serviceName,

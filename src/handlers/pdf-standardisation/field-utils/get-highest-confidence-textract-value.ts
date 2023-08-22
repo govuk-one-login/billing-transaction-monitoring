@@ -1,7 +1,7 @@
-import { Textract } from "aws-sdk";
+import { ExpenseField } from "@aws-sdk/client-textract";
 
 export const getHighestConfidenceTextractValue = (
-  fields: Textract.ExpenseField[],
+  fields: ExpenseField[],
   fieldType: string
 ): string | undefined => {
   const candidateFields = fields.filter(
@@ -27,7 +27,7 @@ export const getHighestConfidenceTextractValue = (
   return highestConfidenceField.ValueDetection?.Text;
 };
 
-const getConfidence = (field: Textract.ExpenseField): number => {
+const getConfidence = (field: ExpenseField): number => {
   const typeConfidence = field.Type?.Confidence as number;
   const valueConfidence = field.ValueDetection?.Confidence as number;
   return typeConfidence * valueConfidence;

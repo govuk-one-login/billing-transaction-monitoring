@@ -1,5 +1,4 @@
 import { SQSRecord } from "aws-lambda";
-import { Textract } from "aws-sdk";
 import {
   RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE,
   RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS,
@@ -9,6 +8,7 @@ import { getQueuedExpenseAnalysisNotificationData } from "./get-queued-expense-a
 import { handleTextractFailure } from "./handle-textract-failure";
 import { handleTextractSuccess } from "./handle-textract-success";
 import { storeExpenseDocuments } from "./store-expense-documents";
+import { ExpenseDocument } from "@aws-sdk/client-textract";
 
 jest.mock("../../shared/utils/logger");
 
@@ -26,7 +26,7 @@ jest.mock("./handle-textract-success");
 const mockedHandleTextractSuccess = handleTextractSuccess as jest.Mock;
 
 describe("Expense documents storer", () => {
-  let mockedDocuments: Textract.ExpenseDocument[];
+  let mockedDocuments: ExpenseDocument[];
   let mockedExpenseAnalysisNotificationData: any;
   let mockedJobId: string;
   let mockedSourceBucket: string;

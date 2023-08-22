@@ -1,10 +1,10 @@
-import { Textract } from "aws-sdk";
 import { logTextractWarnings } from "./log-textract-warnings";
+import { ExpenseDocument, Textract } from "@aws-sdk/client-textract";
 
 export const fetchExpenseDocuments = async (
   jobId: string
-): Promise<Textract.ExpenseDocument[]> => {
-  const documents: Textract.ExpenseDocument[] = [];
+): Promise<ExpenseDocument[]> => {
+  const documents: ExpenseDocument[] = [];
 
   const textract = new Textract();
 
@@ -15,7 +15,7 @@ export const fetchExpenseDocuments = async (
       NextToken: paginationToken,
     };
 
-    const response = await textract.getExpenseAnalysis(params).promise();
+    const response = await textract.getExpenseAnalysis(params);
 
     if (response.Warnings !== undefined) logTextractWarnings(response.Warnings);
 

@@ -1,6 +1,6 @@
-import { Textract } from "aws-sdk";
+import { ExpenseField } from "@aws-sdk/client-textract";
 import { getHighestConfidenceTextractValue } from "./get-highest-confidence-textract-value";
 
 export const getItemDescription = (
-  fields: Textract.ExpenseField[]
+  fields: ExpenseField[]
 ): string | undefined => getHighestConfidenceTextractValue(fields, "ITEM");

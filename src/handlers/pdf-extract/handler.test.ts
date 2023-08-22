@@ -1,14 +1,14 @@
 import { SQSEvent } from "aws-lambda";
-import * as AWS from "aws-sdk";
 import {
   createEvent,
   createEventRecordWithS3Body,
 } from "../../../test-helpers/SQS";
 import { getFromEnv } from "../../shared/utils/env";
 import { handler } from "./handler";
+import { Textract } from "@aws-sdk/client-textract";
 
-jest.mock("aws-sdk");
-const MockTextract = AWS.Textract as jest.MockedClass<typeof AWS.Textract>;
+jest.mock("@aws-sdk/client-textract");
+const MockTextract = Textract as jest.MockedClass<typeof Textract>;
 
 jest.mock("../../shared/utils/env");
 const mockedGetFromEnv = getFromEnv as jest.Mock;

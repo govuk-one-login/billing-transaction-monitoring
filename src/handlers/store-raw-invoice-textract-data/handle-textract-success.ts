@@ -1,15 +1,15 @@
-import { Textract } from "aws-sdk";
 import path from "path";
 import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
 import { logger, moveToFolderS3, putS3 } from "../../shared/utils";
 import { handleTextractFailure } from "./handle-textract-failure";
+import { ExpenseDocument } from "@aws-sdk/client-textract";
 
 export async function handleTextractSuccess(
   sourceBucket: string,
   sourceKey: string,
   resultsBucket: string,
   resultsFileName: string,
-  results: Textract.ExpenseDocument[]
+  results: ExpenseDocument[]
 ): Promise<void> {
   try {
     await putS3(resultsBucket, resultsFileName, results);

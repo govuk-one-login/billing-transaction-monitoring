@@ -1,4 +1,3 @@
-import { Textract } from "aws-sdk";
 import { ConfigServicesRow, StandardisedLineItem } from "../../../shared/types";
 import {
   getDueDate,
@@ -14,9 +13,14 @@ import {
   getUnitPrice,
 } from "../field-utils";
 import { StandardisationModule } from "./get-standardised-invoice";
+import {
+  ExpenseDocument,
+  ExpenseField,
+  LineItemFields,
+} from "@aws-sdk/client-textract";
 
 export const getStandardisedInvoiceDefault: StandardisationModule = (
-  textractPages: Textract.ExpenseDocument[],
+  textractPages: ExpenseDocument[],
   vendorServiceConfigRows: ConfigServicesRow[],
   parserVersion: string,
   originalInvoiceFileName: string
@@ -77,16 +81,12 @@ export const getStandardisedInvoiceDefault: StandardisationModule = (
   }, []);
 };
 
-const getLineItems = (
-  textractPages: Textract.ExpenseDocument[]
-): Textract.LineItemFields[] =>
+const getLineItems = (textractPages: ExpenseDocument[]): LineItemFields[] =>
   textractPages
     .map((page) => page.LineItemGroups ?? [])
     .flat()
     .map((group) => group.LineItems ?? [])
     .flat();
 
-const getSummaryFields = (
-  textractPages: Textract.ExpenseDocument[]
-): Textract.ExpenseField[] =>
+const getSummaryFields = (textractPages: ExpenseDocument[]): ExpenseField[] =>
   textractPages.map((page) => page.SummaryFields ?? []).flat();

@@ -1,11 +1,11 @@
-import { Textract } from "aws-sdk";
+import { ExpenseField } from "@aws-sdk/client-textract";
 import { getHighestConfidenceTextractValue } from "./get-highest-confidence-textract-value";
 
 const mockField = (
   type?: string,
   value?: string,
   confidence?: number
-): Textract.ExpenseField => ({
+): ExpenseField => ({
   Type: {
     Text: type,
     Confidence:
@@ -19,7 +19,7 @@ const mockField = (
 });
 
 describe("Highest confidence Textract value getter", () => {
-  let givenFields: Textract.ExpenseField[];
+  let givenFields: ExpenseField[];
   let givenType: string;
 
   beforeEach(() => {

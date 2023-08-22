@@ -1,9 +1,7 @@
-import { Textract } from "aws-sdk";
 import { getHighestConfidenceTextractValue } from "./get-highest-confidence-textract-value";
+import { ExpenseField } from "@aws-sdk/client-textract";
 
-export const getInvoiceReceiptId = (
-  fields: Textract.ExpenseField[]
-): string => {
+export const getInvoiceReceiptId = (fields: ExpenseField[]): string => {
   const receiptId = getHighestConfidenceTextractValue(
     fields,
     "INVOICE_RECEIPT_ID"

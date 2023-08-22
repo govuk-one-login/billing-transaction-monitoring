@@ -1,10 +1,16 @@
-import { Textract } from "aws-sdk";
 import { fetchS3 } from "../../shared/utils";
+import {
+  ExpenseDocument,
+  ExpenseField,
+  ExpenseType,
+  LineItemFields,
+  LineItemGroup,
+} from "@aws-sdk/client-textract";
 
 export const fetchS3TextractData = async (
   bucket: string,
   key: string
-): Promise<Textract.ExpenseDocument[]> => {
+): Promise<ExpenseDocument[]> => {
   const text = await fetchS3(bucket, key);
 
   let documents;
@@ -21,22 +27,22 @@ export const fetchS3TextractData = async (
   return documents;
 };
 
-const isExpenseField = (x: any): x is Textract.ExpenseField =>
+const isExpenseField = (x: any): x is ExpenseField =>
   typeof x === "object" &&
   (x.Type === undefined || isExpenseType(x.Type)) &&
   (x.ValueDetection === undefined || isExpenseType(x.ValueDetection)); // `isExpenseType` works for ExpenseDetection here, because it is the same as ExpenseType except for the Geometry field, but we do not use that
 
-const isExpenseType = (x: any): x is Textract.ExpenseType =>
+const isExpenseType = (x: any): x is ExpenseType =>
   typeof x === "object" &&
   (x.Text === undefined || typeof x.Text === "string") &&
   (x.Confidence === undefined || typeof x.Confidence === "number");
 
-const isLineItem = (x: any): x is Textract.LineItemFields =>
+const isLineItem = (x: any): x is LineItemFields =>
   x.LineItemExpenseFields === undefined ||
   (Array.isArray(x.LineItemExpenseFields) &&
     x.LineItemExpenseFields.every(isExpenseField));
 
-const isLineItemGroup = (x: any): x is Textract.LineItemGroup =>
+const isLineItemGroup = (x: any): x is LineItemGroup =>
   x.LineItems === undefined ||
   (Array.isArray(x.LineItems) && x.LineItems.every(isLineItem));
 

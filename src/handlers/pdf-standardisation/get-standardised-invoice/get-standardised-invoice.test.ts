@@ -1,4 +1,3 @@
-import { Textract } from "aws-sdk";
 import {
   getVendorInvoiceStandardisationModuleId,
   getVendorServiceConfigRows,
@@ -6,6 +5,7 @@ import {
 import { getStandardisedInvoice } from "./get-standardised-invoice";
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
 import { getStandardisedInvoiceDefault } from "./get-standardised-invoice-default";
+import { ExpenseDocument } from "@aws-sdk/client-textract";
 
 jest.mock("../../../shared/utils");
 const mockedGetVendorInvoiceStandardisationModuleId =
@@ -27,7 +27,7 @@ describe("Standardised invoice getter", () => {
   let givenVendorId: string;
   let givenOriginalInvoiceFileName: string;
   let givenParserVersions: Record<string, string>;
-  let givenTextractPages: Textract.ExpenseDocument[];
+  let givenTextractPages: ExpenseDocument[];
 
   beforeEach(() => {
     jest.resetAllMocks();
