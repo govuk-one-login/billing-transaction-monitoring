@@ -1,3 +1,6 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
 Resources:
   FrontEndApi:
     Type: AWS::Serverless::Api
@@ -15,28 +18,24 @@ Resources:
           LambdaAuthorizer:
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
             FunctionPayloadType: REQUEST
-            Identity: 
-              Headers: 
-                - Authorization
+            Identity:
               QueryStrings:
-                - code
-                - state
                 - effect
-                - shouldRedirect
         DefaultAuthorizer: LambdaAuthorizer
       CacheClusterEnabled: true
       CacheClusterSize: '0.5'
-      DefinitionBody: 
+      DefinitionBody:
         openapi: 3.0.2
         info:
-          title: DI Billing Frontend API
-          description: A frontend for the Program Delivery Team to manage billing across Digital
+          title: !Sub ${AWS::StackName}-frontend-api
+          description:
+            A frontend for the Program Delivery Team to manage billing across Digital
             Identity
           version: '1.0'
         servers:
-        - url: https://btm.account.gov.uk
+          - url: https://btm.account.gov.uk
         paths:
-          "/":
+          '/':
             get:
               x-amazon-apigateway-integration:
                 type: 'aws_proxy'
@@ -48,7 +47,7 @@ Resources:
                     responseTemplates:
                       text/html:
                         type: string
-                        example: "<h1>Welcome to DI Billing</h1>"
+                        example: '<h1>Welcome to DI Billing</h1>'
       Domain:
         CertificateArn:
           Fn::ImportValue: !If
@@ -63,7 +62,7 @@ Resources:
           HttpMethod: 'GET'
           CachingEnabled: true
           CacheTtlInSeconds: 300
-      StageName: !Ref Environment
+      StageName: web
       TracingEnabled: true
 
   # A duplicate of FrontEndApi with no fixed domain name
@@ -82,26 +81,24 @@ Resources:
           LambdaAuthorizer:
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
             FunctionPayloadType: REQUEST
-            Identity: 
-              Headers: 
-                - Authorization
+            Identity:
               QueryStrings:
-                - code
-                - state
+                - effect
         DefaultAuthorizer: LambdaAuthorizer
       CacheClusterEnabled: true
       CacheClusterSize: '0.5'
-      DefinitionBody: 
+      DefinitionBody:
         openapi: 3.0.2
         info:
-          title: DI Billing Frontend API
-          description: A frontend for the Program Delivery Team to manage billing across Digital
+          title: !Sub ${AWS::StackName}-frontend-api
+          description:
+            A frontend for the Program Delivery Team to manage billing across Digital
             Identity
           version: '1.0'
         servers:
-        - url: https://btm.account.gov.uk
+          - url: https://btm.account.gov.uk
         paths:
-          "/":
+          '/':
             get:
               x-amazon-apigateway-integration:
                 type: 'aws_proxy'
@@ -113,13 +110,13 @@ Resources:
                     responseTemplates:
                       text/html:
                         type: string
-                        example: "<h1>Welcome to DI Billing</h1>"
+                        example: '<h1>Welcome to DI Billing</h1>'
       MethodSettings:
         - ResourcePath: /
           HttpMethod: 'GET'
           CachingEnabled: true
           CacheTtlInSeconds: 300
-      StageName: !Ref Environment
+      StageName: web
       TracingEnabled: true
 
   FrontEndDomainName:
@@ -158,33 +155,33 @@ Resources:
     Properties:
       KmsKeyId: !GetAtt KmsKey.Arn
       RetentionInDays: 90
-      LogGroupName: !Sub '/aws/vendedlogs/${AWS::StackName}-FE-API-Log-Group'
+      LogGroupName: !Sub /aws/apigateway/${AWS::StackName}-api-access-logs
 
   GoogleClientDetails:
     Type: AWS::SecretsManager::Secret
-    Properties: 
-      Description: "The client id and client key for Sign In with Google"
-      Name: "GoogleClientDetails"
+    Properties:
+      Description: 'The client id and client key for Sign In with Google'
+      Name: !Sub ${AWS::StackName}-google-client-details
       KmsKeyId: !Ref KmsKey
-      SecretString: "{\"clientId\": \"<CLIENT_ID>\", \"clientSecret\": \"<CLIENT_SECRET>\"}"
+      SecretString: '{"clientId": "<CLIENT_ID>", "clientSecret": "<CLIENT_SECRET>"}'
 
   FrontEndAuthFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    DependsOn: 
+    DependsOn:
       - GoogleClientDetails
     Condition: FrontEndEnabled
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
       Handler: frontendAuth.handler
       ReservedConcurrentExecutions: 10
-      KmsKeyArn: !GetAtt  KmsKey.Arn
+      KmsKeyArn: !GetAtt KmsKey.Arn
       Environment:
         Variables:
-          AWS_ACCOUNT_ID: AWS::AccountId
-          GOOGLE_CLIENT_ID: "{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientId}}"
-          GOOGLE_CLIENT_SECRET: "{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientSecret}}"
+          AWS_ACCOUNT_ID: !Sub ${AWS::AccountId}
+          GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientId}}'
+          GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientSecret}}'
           ENV_NAME: !Sub ${Environment}
 
   FrontEndFunction:

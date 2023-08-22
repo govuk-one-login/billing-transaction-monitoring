@@ -6,7 +6,6 @@ import { randomUUID } from "crypto";
 const region = "eu-west-2";
 const accountId = process.env.AWS_ACCOUNT_ID;
 const verb = "GET";
-const stage = process.env.ENV_NAME;
 
 const generatePolicy = ({
   apiId,
@@ -26,7 +25,7 @@ const generatePolicy = ({
       {
         Action: "execute-api:Invoke",
         Effect: effect,
-        Resource: `arn:aws:execute-api:${region}:${accountId}:${apiId}/${stage}/${verb}/`,
+        Resource: `arn:aws:execute-api:${region}:${accountId}:${apiId}/web/${verb}/`,
       },
     ],
   },
@@ -39,18 +38,14 @@ export const handler = async (
   | APIGatewayAuthorizerResult
   | { statusCode: number; headers: { Location: string } }
 > => {
-  // allow unless you've requested you not be allowed by requesting with ?effect=Deny
-  if (event.queryStringParameters?.shouldRedirect) {
-    return {
-      statusCode: 302,
-      headers: {
-        Location: "https://redirect.example.com/path",
-      },
-    };
-  }
   return generatePolicy({
     apiId: event.requestContext.apiId,
     sub: randomUUID(),
-    effect: event.queryStringParameters?.effect ?? "Allow",
+    // allow unless you've requested you not be allowed by requesting with ?effect=Deny
+    effect: event.queryStringParameters?.effect === "deny" ? "Deny" : "Allow",
+    context: {
+      // set context key redirect to true if query param ?shouldRedirect=true
+      redirect: event.queryStringParameters?.shouldRedirect === "true",
+    },
   });
 };
