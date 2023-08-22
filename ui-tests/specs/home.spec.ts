@@ -2,7 +2,7 @@ import { waitForPageLoad } from "../helpers/waits";
 import HomePage from "../pageobjects/homepage";
 import { getLatestInvoicePerVendor } from "../utils/extractTestDatajson";
 import { prettyMonthName } from "../utils/getPrettyMonthName";
-import { generateExpectedBannerDetailsFromPercentagePriceDifference } from "../utils/generateExpectedStatusBannerDetails";
+import { generateExpectedOverviewTableStatusFromPercentagePriceDifference } from "../utils/generateExpectedOverviewTableStatus";
 
 /* UI tests for Home Page. It verifies the page displays the correct heading and subheading.
 It also tests the navigation to the contract list page when the link is clicked */
@@ -45,15 +45,14 @@ describe("Home Page Overview table Tests", () => {
       (invoice): OverviewTable => {
         const monthString = prettyMonthName(invoice.month);
         const reconciliationDetails =
-          generateExpectedBannerDetailsFromPercentagePriceDifference(
+          generateExpectedOverviewTableStatusFromPercentagePriceDifference(
             parseFloat(invoice.price_difference_percentage)
           );
         return {
           contractName: invoice.contract_name,
           vendor: invoice.vendor_name,
           month: `${monthString} ${invoice.year}`,
-          reconciliationDetails:
-            reconciliationDetails.bannerMessage.toUpperCase(),
+          reconciliationDetails,
           details: "View Invoice",
         };
       }
