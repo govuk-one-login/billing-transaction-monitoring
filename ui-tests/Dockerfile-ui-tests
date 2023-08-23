@@ -48,6 +48,7 @@ WORKDIR /test-app
 COPY package.json package-lock.json tsconfig.json wdio.conf.ts ./
 COPY ui-tests ./ui-tests
 COPY src/handlers/int-test-support/ ./src/handlers/int-test-support/
+COPY src/shared/ ./src/shared/
 
 RUN npm ci --ignore-scripts
 
