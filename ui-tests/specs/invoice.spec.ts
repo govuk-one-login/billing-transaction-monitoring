@@ -184,7 +184,6 @@ const assertMeasuredTableData = (
   tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
-  // currently in ui it is Line Item instead of Line item, once fixed the tests will pass
   expectEqual(tableRow["Line item"], filteredItem.service_name);
   expectEqual(tableRow.Quantity, filteredItem.transaction_quantity);
 };
@@ -193,7 +192,6 @@ const assertInvoiceTableData = (
   tableRow: TableRow,
   filteredItem: FullExtractData
 ): void => {
-  // currently in ui it is Line Item instead of Line item, once fixed the tests will pass
   expectEqual(tableRow["Line item"], filteredItem.service_name);
   expectEqual(tableRow.Quantity, filteredItem.billing_quantity);
   expectEqual(tableRow["Unit price"], filteredItem.billing_unit_price);
