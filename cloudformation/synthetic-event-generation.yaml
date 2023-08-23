@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  SyntheticEventGenerationFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for scheduled lambda that does not process events
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-synthetic-event-generation
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
+    Environment:
+      Variables:
+        # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+        CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+        OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
+        POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-synthetic-event-generation-function
+      Handler: syntheticEvents.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Timeout: 180
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+      ReservedConcurrentExecutions: 1
+
+  SyntheticEventGenerationScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub ${AWS::StackName}-synthetic-event-generation-rule
+      Description: Schedules SyntheticEventGenerationFunction to run once per day
+      ScheduleExpression: cron(0 7 ? * * *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt SyntheticEventGenerationFunction.Arn
+          Id: SyntheticEventGenerationFunction
+
+  LambdaPermissionForEvents:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref SyntheticEventGenerationFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt SyntheticEventGenerationScheduledRule.Arn
+
+  LambdaPermissionForS3SyntheticEventGenerationFunction:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref SyntheticEventGenerationFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub arn:aws:s3:::${AWS::StackName}-storage
+
+  SyntheticEventGenerationFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-synthetic-event-generation-function-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref SyntheticEventGenerationFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
