@@ -58,6 +58,7 @@ const config: ConfigCache = {
     ],
   },
   contracts: [],
+  syntheticEvents: []
 };
 
 let configOverrides = Object.create(null);

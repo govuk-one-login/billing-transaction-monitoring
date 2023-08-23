@@ -1,4 +1,5 @@
 import { buildHandler } from "../../handler-context";
+import { ConfigElements } from "../../shared/constants";
 import { stringifyAndSendRecord } from "../../shared/utils";
 import { businessLogic } from "./business-logic";
 import { Env } from "./types";
@@ -17,5 +18,5 @@ export const handler = buildHandler({
     { destination: Env.OUTPUT_QUEUE_URL, store: stringifyAndSendRecord },
   ],
   withBatchItemFailures: false,
-  ConfigCache: [],
+  ConfigCache: [ConfigElements.syntheticEvents],
 });
