@@ -188,6 +188,8 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
+    DependsOn:
+      - GoogleClientDetails
     Condition: UseDomainName
     Properties:
       Environment:
@@ -195,6 +197,8 @@ Resources:
           STORAGE_BUCKET: !Ref StorageBucket
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-frontend-function
+          GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientId}}'
+          GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientSecret}}'
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
         ProxyApiRoot:
@@ -256,12 +260,17 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
+    DependsOn:
+      - GoogleClientDetails
     Condition: IsEphemeral
     Properties:
       Environment:
         Variables:
           STORAGE_BUCKET: !Ref StorageBucket
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-frontend-function
+          GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientId}}'
+          GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientSecret}}'
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
         ProxyApiRoot:
