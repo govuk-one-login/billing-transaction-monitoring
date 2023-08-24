@@ -6,8 +6,12 @@ export const getQuarterMonthFromDate = (date: Date): number => {
   return getQuarterMonthFromMonth(month);
 };
 
-const getQuarterMonthFromMonth = (month: number): number =>
-  month >= 10 ? 10 : month >= 7 ? 7 : month >= 4 ? 4 : 1;
+const getQuarterMonthFromMonth = (month: number): number => {
+  if (month >= 10) return 10;
+  if (month >= 7) return 7;
+  if (month >= 4) return 4;
+  return 1;
+};
 
 export const getQuarterMonthString = (date: Date): string => {
   const quarterMonth = getQuarterMonthFromDate(date);
