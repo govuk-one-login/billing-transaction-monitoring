@@ -51,7 +51,7 @@ COPY src/handlers/int-test-support/ ./src/handlers/int-test-support/
 COPY ui-tests ./ui-tests
 COPY src/shared/ ./src/shared/
 
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 WORKDIR /test-app/integration_tests
 
