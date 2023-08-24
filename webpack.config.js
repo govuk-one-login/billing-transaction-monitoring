@@ -27,6 +27,7 @@ export default {
     frontend: "./src/handlers/frontend/handler.ts",
     server: "./src/frontend/server.ts",
     frontendAuth: "./src/handlers/frontend-auth/handler.ts",
+    syntheticEvents: "./src/handlers/synthetic-events/handler.ts",
   },
   externals: "aws-sdk",
   mode: process.env.NODE_ENV === "dev" ? "development" : "production",

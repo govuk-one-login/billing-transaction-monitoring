@@ -20,28 +20,28 @@ Resources:
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-synthetic-event-generation-function
-        Handler: syntheticEvents.handler
-        KmsKeyArn: !GetAtt KmsKey.Arn
-        Timeout: 180
-        Policies:
-          - AWSLambdaVPCAccessExecutionRole
-          - Statement:
-              - Effect: Allow
-                Action:
-                  - kms:Decrypt
-                  - kms:GenerateDataKey*
-                  - kms:Encrypt
-                Resource: !GetAtt KmsKey.Arn
-              - Effect: Allow
-                Action:
-                  - kms:Decrypt
-                  - kms:GenerateDataKey*
-                  - kms:Encrypt
-                Resource: '*'
-                Condition:
-                  ForAnyValue:StringEquals:
-                    kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
-        ReservedConcurrentExecutions: 1
+      Handler: syntheticEvents.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Timeout: 180
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+      ReservedConcurrentExecutions: 1
 
   SyntheticEventGenerationScheduledRule:
     Type: AWS::Events::Rule
