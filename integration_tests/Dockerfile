@@ -56,8 +56,7 @@ RUN npm ci --ignore-scripts
 WORKDIR /test-app/integration_tests
 
 RUN mv ./run-tests.sh /run-tests.sh
-RUN mv ./run-ui-tests.sh /run-ui-tests.sh
-RUN chmod +x /run-tests.sh  && /run-ui-tests.sh
+RUN chmod +x /run-tests.sh
 
 ## To run unit-tests for starters
 #WORKDIR /test-app
@@ -67,4 +66,4 @@ RUN chmod +x /run-tests.sh  && /run-ui-tests.sh
 
 ENV TEST_VIA_LAMBDA=true
 
-ENTRYPOINT ["/bin/sh","-c","/run-tests.sh; /run-ui-tests.sh"]
+ENTRYPOINT ["/run-tests.sh"]

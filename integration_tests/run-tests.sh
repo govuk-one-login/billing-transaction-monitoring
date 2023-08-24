@@ -19,6 +19,12 @@ TESTS_EXIT_CODE=$?
 
 cp reports/testReport.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
 
-if [ $TESTS_EXIT_CODE -ne 0 ]; then
+npm run test:ui
+
+TESTS_EXIT_CODE=$?
+
+cp reports/ui-test-report*.json $TEST_REPORT_ABSOLUTE_DIR
+
+if [ $TESTS_EXIT_CODE -ne 0 ] || [ $TESTS_EXIT_CODE -ne 0 ] ; then
   exit 1
 fi
