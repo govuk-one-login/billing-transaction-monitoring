@@ -45,7 +45,7 @@ RUN pip3 install --no-cache --upgrade pip setuptools
 
 WORKDIR /test-app
 
-COPY package.json package-lock.json tsconfig.json jest.integration.config.ts ./
+COPY package.json package-lock.json tsconfig.json jest.integration.config.ts wdio.conf.ts ./
 COPY integration_tests ./integration_tests
 COPY src/handlers/int-test-support/ ./src/handlers/int-test-support/
 COPY ui-tests ./ui-tests
@@ -64,6 +64,6 @@ RUN chmod +x /run-tests.sh
 #COPY test-helpers ./test-helpers
 #COPY src ./src
 
-ENV TEST_VIA_LAMBDA=true
+ENV TEST_VIA_LAMBDA=false
 
 ENTRYPOINT ["/run-tests.sh"]
