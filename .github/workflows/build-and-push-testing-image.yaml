@@ -60,7 +60,7 @@ jobs:
           IMAGE_TAG: latest
         run: |
           docker build -f ui-tests/Dockerfile-ui-tests -t btm-ui-tests:$IMAGE_TAG .
-          docker tag btm-e2e-tests:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag btm-ui-tests:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           cosign sign --key awskms:///${CONTAINER_SIGN_KMS_KEY} $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       - name: Assume AWS role for build
@@ -98,6 +98,6 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.BUILD_ECR_TEST_END2END }}
           IMAGE_TAG: latest
         run: |
-          docker tag btm-e2e-tests:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag btm-ui-tests:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           cosign sign --key awskms:///${CONTAINER_SIGN_KMS_KEY} $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
