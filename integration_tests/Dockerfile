@@ -10,7 +10,9 @@ RUN apk add --no-cache \
       cmake \
       git \
       groff \
-      libffi-dev
+      libffi-dev \ 
+      chromium \
+      chromium-chromedriver
 RUN git clone --single-branch --depth 1 -b ${AWS_CLI_VERSION} https://github.com/aws/aws-cli.git
 
 WORKDIR /aws-cli
@@ -46,6 +48,7 @@ WORKDIR /test-app
 COPY package.json package-lock.json tsconfig.json jest.integration.config.ts ./
 COPY integration_tests ./integration_tests
 COPY src/handlers/int-test-support/ ./src/handlers/int-test-support/
+COPY ui-tests ./ui-tests
 COPY src/shared/ ./src/shared/
 
 RUN npm ci
@@ -53,7 +56,8 @@ RUN npm ci
 WORKDIR /test-app/integration_tests
 
 RUN mv ./run-tests.sh /run-tests.sh
-RUN chmod +x /run-tests.sh
+RUN mv ./run-ui-tests.sh /run-ui-tests.sh
+RUN chmod +x /run-tests.sh  && /run-ui-tests.sh
 
 ## To run unit-tests for starters
 #WORKDIR /test-app
@@ -63,4 +67,4 @@ RUN chmod +x /run-tests.sh
 
 ENV TEST_VIA_LAMBDA=true
 
-ENTRYPOINT ["/run-tests.sh"]
+ENTRYPOINT ["/bin/sh","-c","/run-tests.sh; /run-ui-tests.sh"]
