@@ -4,7 +4,7 @@ Transform: AWS::Serverless-2016-10-31
 Resources:
   FrontEndApi:
     Type: AWS::Serverless::Api
-    Condition: UseDomainName
+    Condition: FrontEndEnabled
     DependsOn:
       - FrontEndDomainName
       - FrontEndHostedZoneName
@@ -40,7 +40,20 @@ Resources:
               x-amazon-apigateway-integration:
                 type: 'aws_proxy'
                 httpMethod: 'POST'
-                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndEphemeralFunction.Arn}/invocations'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndFunction.Arn}/invocations'
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseTemplates:
+                      text/html:
+                        type: string
+                        example: '<h1>Welcome to DI Billing</h1>'
+          '/{.+}':
+            get:
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                httpMethod: 'POST'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndFunction.Arn}/invocations'
                 responses:
                   default:
                     statusCode: '200'
@@ -51,66 +64,15 @@ Resources:
       Domain:
         CertificateArn:
           Fn::ImportValue: !If
-            - IsDev
-            - !Sub di-btm-tooling-dev-frontend-certificate-arn
-            - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
+            - IsEphemeral
+            - !Sub di-btm-dev-tooling-ephemeral-frontend-certificate-arn
+            - !If
+              - IsDev
+              - !Sub di-btm-tooling-dev-frontend-certificate-arn
+              - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
         DomainName: !GetAtt FrontEndDomainName.Value
         Route53:
           HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
-      MethodSettings:
-        - ResourcePath: /
-          HttpMethod: 'GET'
-          CachingEnabled: true
-          CacheTtlInSeconds: 300
-      StageName: web
-      TracingEnabled: true
-
-  # A duplicate of FrontEndApi with no fixed domain name
-  # Accessible in ephemeral environments
-  FrontEndEphemeralApi:
-    Type: AWS::Serverless::Api
-    Condition: IsEphemeral
-    DependsOn:
-      - FrontEndEphemeralFunction
-    Properties:
-      AccessLogSetting:
-        DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
-        Format: '{ "requestId":"$context.requestId", "requestTime":"$context.requestTime", "routeKey":"$context.routeKey", "status":"$context.status" }'
-      Auth:
-        Authorizers:
-          LambdaAuthorizer:
-            FunctionArn: !GetAtt FrontEndAuthFunction.Arn
-            FunctionPayloadType: REQUEST
-            Identity:
-              QueryStrings:
-                - effect
-        DefaultAuthorizer: LambdaAuthorizer
-      CacheClusterEnabled: true
-      CacheClusterSize: '0.5'
-      DefinitionBody:
-        openapi: 3.0.2
-        info:
-          title: !Sub ${AWS::StackName}-frontend-api
-          description:
-            A frontend for the Program Delivery Team to manage billing across Digital
-            Identity
-          version: '1.0'
-        servers:
-          - url: https://btm.account.gov.uk
-        paths:
-          '/':
-            get:
-              x-amazon-apigateway-integration:
-                type: 'aws_proxy'
-                httpMethod: 'POST'
-                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndEphemeralFunction.Arn}/invocations'
-                responses:
-                  default:
-                    statusCode: '200'
-                    responseTemplates:
-                      text/html:
-                        type: string
-                        example: '<h1>Welcome to DI Billing</h1>'
       MethodSettings:
         - ResourcePath: /
           HttpMethod: 'GET'
@@ -131,7 +93,16 @@ Resources:
         - !If
           - IsDev
           - btm.dev.account.gov.uk
-          - !Sub btm.${Environment}.account.gov.uk
+          - !If
+            - IsEphemeral
+            - !Join [
+                '',
+                [
+                  !Select [1, !Split ['di-btm-', !Ref AWS::StackName]],
+                  .btm.dev.account.gov.uk,
+                ],
+              ]
+            - !Sub btm.${Environment}.account.gov.uk
       Description: !Sub Front end domain name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
 
   FrontEndHostedZoneName:
@@ -188,17 +159,13 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    DependsOn:
-      - GoogleClientDetails
-    Condition: UseDomainName
+    Condition: FrontEndEnabled
     Properties:
       Environment:
         Variables:
           STORAGE_BUCKET: !Ref StorageBucket
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-frontend-function
-          GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientId}}'
-          GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientSecret}}'
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
         ProxyApiRoot:
@@ -207,77 +174,11 @@ Resources:
             RestApiId: !Ref FrontEndApi
             Path: /
             Method: 'GET'
-      Handler: frontend.handler
-      KmsKeyArn: !GetAtt KmsKey.Arn
-      Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - kms:Decrypt
-                - kms:GenerateDataKey*
-                - kms:Encrypt
-              Resource: !GetAtt KmsKey.Arn
-            - Effect: Allow
-              Action: s3:GetObject
-              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
-            - Effect: Allow
-              Action:
-                - kms:Decrypt
-                - kms:GenerateDataKey*
-                - kms:Encrypt
-              Resource: '*'
-              Condition:
-                ForAnyValue:StringEquals:
-                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
-            - Effect: Allow
-              Action: glue:GetTable
-              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
-            - Effect: Allow
-              Action:
-                - s3:AbortMultipartUpload
-                - s3:GetBucketLocation
-                - s3:GetObject
-                - s3:ListBucket
-                - s3:ListBucketMultipartUploads
-                - s3:ListMultipartUploadParts
-                - s3:PutObject
-              Resource:
-                - !GetAtt StorageBucket.Arn
-                - !Sub ${StorageBucket.Arn}/*
-                - !GetAtt AthenaQueryResultsBucket.Arn
-                - !Sub ${AthenaQueryResultsBucket.Arn}/*
-            - Effect: Allow
-              Action:
-                - athena:StartQueryExecution
-                - athena:GetQueryExecution
-                - athena:GetQueryResults
-              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
-      ReservedConcurrentExecutions: 10
-
-  # A duplicate of FrontEndFunction referencing FrontEndEphemeralApi
-  # Accessible in ephemeral environments
-  FrontEndEphemeralFunction:
-    # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-    Type: AWS::Serverless::Function
-    DependsOn:
-      - GoogleClientDetails
-    Condition: IsEphemeral
-    Properties:
-      Environment:
-        Variables:
-          STORAGE_BUCKET: !Ref StorageBucket
-          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
-          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-frontend-function
-          GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientId}}'
-          GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientSecret}}'
-      FunctionName: !Sub ${AWS::StackName}-frontend-function
-      Events:
-        ProxyApiRoot:
+        ProxyApiAllElse:
           Type: Api
           Properties:
-            RestApiId: !Ref FrontEndEphemeralApi
-            Path: /
+            RestApiId: !Ref FrontEndApi
+            Path: /*
             Method: 'GET'
       Handler: frontend.handler
       KmsKeyArn: !GetAtt KmsKey.Arn

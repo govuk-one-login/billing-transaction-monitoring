@@ -25,7 +25,7 @@ const generatePolicy = ({
       {
         Action: "execute-api:Invoke",
         Effect: effect,
-        Resource: `arn:aws:execute-api:${region}:${accountId}:${apiId}/web/${verb}/`,
+        Resource: `arn:aws:execute-api:${region}:${accountId}:${apiId}/web/${verb}/*`,
       },
     ],
   },
