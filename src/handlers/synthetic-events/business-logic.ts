@@ -6,10 +6,10 @@ export const businessLogic = async (
   _: unknown,
   { config, logger }: HandlerCtx<Env, any, any>
 ): Promise<string[]> => {
-  const syntheticEventsConfig = config[ConfigElements.services];
+  const syntheticEventsConfig = config[ConfigElements.syntheticEvents];
 
   logger.info("Found synth events", syntheticEventsConfig);
-  // look up synthetic event fig
+  // look up synthetic event config
   // for each config entry
   //    if now is within the entry time-range
   //    then collect a new synthetic event
