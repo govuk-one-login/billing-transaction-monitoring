@@ -64,6 +64,8 @@ const config: ConfigCache = {
       quantity: 7,
       startDate: new Date("2005-01-01"),
       frequency: SyntheticEventsFrequency.monthly,
+      vendorId: "vendor_testvendor5",
+      componentId: "my_component_id",
     },
   ],
 };
