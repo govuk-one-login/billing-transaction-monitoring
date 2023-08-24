@@ -25,4 +25,5 @@ export type InvoiceData = {
   dueDateString: string;
   invoiceNumber: string;
   lineItems: LineItem[];
+  isQuarterly: boolean;
 };

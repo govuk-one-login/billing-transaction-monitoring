@@ -1,5 +1,5 @@
-export type CsvColumnTypeName = "date" | "number" | "string";
-export type CsvColumnValue = Date | number | string | undefined;
+export type CsvColumnTypeName = "boolean" | "date" | "number" | "string";
+export type CsvColumnValue = boolean | Date | number | string | undefined;
 
 export type ConfigParser<TConfig extends {} | Array<{}>> = (
   rawFile: string

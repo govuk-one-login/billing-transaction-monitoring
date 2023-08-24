@@ -13,6 +13,7 @@ describe("getVendorId", () => {
         service_regex: "Passport.*check",
         event_name: "VENDOR_1_EVENT_1",
         contract_id: "1",
+        invoice_is_quarterly: false,
       },
       {
         vendor_name: "Vendor Two",
@@ -21,6 +22,7 @@ describe("getVendorId", () => {
         service_regex: "Kbv.*check",
         event_name: "VENDOR_2_EVENT_7",
         contract_id: "1",
+        invoice_is_quarterly: false,
       },
     ];
   });

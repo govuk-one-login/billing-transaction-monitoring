@@ -47,6 +47,9 @@ const parseConfigCsvCell = (
   }
 
   switch (options.type) {
+    case "boolean":
+      return cell === "true";
+
     case "date": {
       const date = new Date(cell);
 

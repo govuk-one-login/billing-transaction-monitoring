@@ -10,11 +10,10 @@ import {
   ListObjectsCommand,
 } from "@aws-sdk/client-s3";
 import type { Command, SmithyConfiguration } from "@smithy/smithy-client";
-import { S3Event, S3EventRecord, SQSRecord } from "aws-lambda";
-import { getFromEnv } from "./env";
-import { logger } from "./logger";
-import { decryptKms } from "./kms";
-import { AWS_REGION } from "../constants";
+import { getFromEnv } from "../env";
+import { logger } from "../logger";
+import { decryptKms } from "../kms";
+import { AWS_REGION } from "../../constants";
 
 type EncryptedS3ObjectMetadata = {
   "x-amz-cek-alg": string;
@@ -37,25 +36,6 @@ export async function deleteS3(bucket: string, key: string): Promise<void> {
 
   await send(deleteCommand);
 }
-
-export const getS3EventRecordsFromSqs = (
-  queueRecord: SQSRecord
-): S3EventRecord[] => {
-  let bodyObject;
-  try {
-    bodyObject = JSON.parse(queueRecord.body);
-  } catch {
-    throw new Error("Record body not valid JSON.");
-  }
-
-  if (typeof bodyObject !== "object")
-    throw new Error("Record body not object.");
-
-  if (!isS3Event(bodyObject))
-    throw new Error("Event record body not valid S3 event.");
-
-  return bodyObject.Records;
-};
 
 export async function fetchS3(bucket: string, key: string): Promise<string> {
   const getCommand = new GetObjectCommand({
@@ -137,14 +117,6 @@ const isEncryptedS3ObjectMetadata = (
   typeof x["x-amz-matdesc"] === "string" &&
   "x-amz-tag-len" in x &&
   typeof x["x-amz-tag-len"] === "string";
-
-const isS3Event = (object: any): object is S3Event =>
-  Array.isArray(object.Records) &&
-  object.Records.every(
-    (record: any) =>
-      typeof record?.s3?.bucket?.name === "string" &&
-      typeof record?.s3?.object?.key === "string"
-  );
 
 export const listS3Keys = async (
   bucket: string,

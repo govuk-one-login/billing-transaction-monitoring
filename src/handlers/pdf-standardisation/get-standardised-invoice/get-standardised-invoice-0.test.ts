@@ -1,4 +1,5 @@
 import { ConfigServicesRow } from "../../../shared/types";
+import { getQuarterStartString } from "../../../shared/utils";
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -13,6 +14,9 @@ import {
   getUnitPrice,
 } from "../field-utils";
 import { getStandardisedInvoice0 } from "./get-standardised-invoice-0";
+
+jest.mock("../../../shared/utils");
+const mockedGetQuarterStartString = getQuarterStartString as jest.Mock;
 
 jest.mock("../field-utils");
 const mockedGetDueDate = getDueDate as jest.Mock;
@@ -47,6 +51,7 @@ describe("Standardised invoice getter 0", () => {
     );
     mockedGetPrice.mockReturnValue("mocked price");
     mockedGetQuantity.mockReturnValue("mocked quantity");
+    mockedGetQuarterStartString.mockReturnValue("mocked quarter start string");
     mockedGetSubtotal.mockReturnValue("mocked subtotal");
     mockedGetTax.mockReturnValue("mocked tax");
     mockedGetTaxPayerId.mockReturnValue("mocked taxPayerId");
@@ -106,6 +111,7 @@ describe("Standardised invoice getter 0", () => {
         service_regex: "lying about speedruns",
         event_name: "DONKEY_KONG",
         contract_id: "1",
+        invoice_is_quarterly: false,
       },
       {
         vendor_name: "Billy Mitchell LLC",
@@ -114,6 +120,7 @@ describe("Standardised invoice getter 0", () => {
         service_regex: "fake Donkey",
         event_name: "donkey_kong",
         contract_id: "1",
+        invoice_is_quarterly: false,
       },
     ];
   });
@@ -404,6 +411,7 @@ describe("Standardised invoice getter 0", () => {
         item_description: "Lying about speedruns to seem cool on the internet",
         parser_version: givenParserVersion,
         originalInvoiceFile: givenOriginalInvoiceFileName,
+        invoice_is_quarterly: false,
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
@@ -516,6 +524,7 @@ describe("Standardised invoice getter 0", () => {
         item_description: "Lying about speedruns to seem cool on the internet",
         parser_version: givenParserVersion,
         originalInvoiceFile: givenOriginalInvoiceFileName,
+        invoice_is_quarterly: false,
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
@@ -632,6 +641,7 @@ describe("Standardised invoice getter 0", () => {
         item_description: "Lying about speedruns to seem cool on the internet",
         parser_version: givenParserVersion,
         originalInvoiceFile: givenOriginalInvoiceFileName,
+        invoice_is_quarterly: false,
         price: "mocked price",
         quantity: "mocked quantity",
         service_name: "Lying About Speedruns",
@@ -715,6 +725,7 @@ describe("Standardised invoice getter 0", () => {
         item_description: mockedDescription,
         parser_version: givenParserVersion,
         originalInvoiceFile: givenOriginalInvoiceFileName,
+        invoice_is_quarterly: false,
         price: "mocked price",
         quantity: mockedQuantity,
         service_name: "Lying About Speedruns",
@@ -771,5 +782,41 @@ describe("Standardised invoice getter 0", () => {
     expect(mockedGetPrice).toHaveBeenCalledWith(
       givenTextractPagesLineItemFields
     );
+  });
+
+  test("Standardised invoice getter 0 with a quarterly invoice", () => {
+    givenVendorServiceConfigRows[0].invoice_is_quarterly = true;
+
+    const result = getStandardisedInvoice0(
+      givenTextractPages,
+      givenVendorServiceConfigRows,
+      givenParserVersion,
+      givenOriginalInvoiceFileName
+    );
+
+    expect(result).toEqual([
+      {
+        due_date: "mocked due date",
+        invoice_period_start: "mocked quarter start string",
+        invoice_receipt_date: "mocked invoice receipt date",
+        invoice_receipt_id: "mocked invoice receipt ID",
+        item_description: "Lying about speedruns to seem cool on the internet",
+        parser_version: givenParserVersion,
+        originalInvoiceFile: givenOriginalInvoiceFileName,
+        invoice_is_quarterly: true,
+        price: "mocked price",
+        quantity: "mocked quantity",
+        service_name: "Lying About Speedruns",
+        contract_id: "1",
+        event_name: "DONKEY_KONG",
+        subtotal: "mocked subtotal",
+        tax: "mocked tax",
+        tax_payer_id: "mocked taxPayerId",
+        total: "mocked total",
+        unit_price: "mocked unit price",
+        vendor_name: "Billy Mitchell LLC",
+        vendor_id: "vendor_billy",
+      },
+    ]);
   });
 });

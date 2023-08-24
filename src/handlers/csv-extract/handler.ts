@@ -90,6 +90,8 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 const isValidCsvObject = (x: any): x is CsvObject =>
   typeof x === "object" &&
   typeof x.vendor === "string" &&
+  typeof x["invoice period start"] === "string" &&
+  typeof x["invoice period end"] === "string" &&
   typeof x["invoice date"] === "string" &&
   typeof x["invoice period start"] === "string" &&
   typeof x["due date"] === "string" &&
