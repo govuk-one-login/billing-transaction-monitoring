@@ -3,7 +3,7 @@ import {
   Constructables,
   Operations,
 } from "../../../../handlers/transaction-csv-to-json-event/convert/transform-dicts";
-import { ConfigCache } from "../../../types";
+import { ConfigCache, SyntheticEventsFrequency } from "../../../types";
 
 // TODO: fill in the rest of these
 const config: ConfigCache = {
@@ -58,7 +58,14 @@ const config: ConfigCache = {
     ],
   },
   contracts: [],
-  syntheticEvents: []
+  syntheticEvents: [
+    {
+      eventName: "VENDOR_5_TPS",
+      quantity: 7,
+      startDate: new Date("2005-01-01"),
+      frequency: SyntheticEventsFrequency.monthly,
+    },
+  ],
 };
 
 let configOverrides = Object.create(null);

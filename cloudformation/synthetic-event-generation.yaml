@@ -41,6 +41,9 @@ Resources:
               Condition:
                 ForAnyValue:StringEquals:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
       ReservedConcurrentExecutions: 1
 
   SyntheticEventGenerationScheduledRule:
