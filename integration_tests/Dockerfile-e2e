@@ -10,8 +10,7 @@ RUN apk add --no-cache \
       cmake \
       git \
       groff \
-      libffi-dev \ chromium \
-      chromium-chromedriver
+      libffi-dev
 RUN git clone --single-branch --depth 1 -b ${AWS_CLI_VERSION} https://github.com/aws/aws-cli.git
 
 WORKDIR /aws-cli
