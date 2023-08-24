@@ -64,6 +64,6 @@ RUN chmod +x /run-tests.sh
 #COPY test-helpers ./test-helpers
 #COPY src ./src
 
-ENV TEST_VIA_LAMBDA=false
+ENV TEST_VIA_LAMBDA=true
 
 ENTRYPOINT ["/run-tests.sh"]
