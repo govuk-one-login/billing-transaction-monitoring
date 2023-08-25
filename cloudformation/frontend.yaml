@@ -143,8 +143,8 @@ Resources:
       Environment:
         Variables:
           AWS_ACCOUNT_ID: !Sub ${AWS::AccountId}
-          GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientId}}'
-          GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:GoogleClientDetails:SecretString:clientSecret}}'
+          GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:google-client-details:SecretString:clientId}}'
+          GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:google-client-details:SecretString:clientSecret}}'
           ENV_NAME: !Sub ${Environment}
 
   FrontEndFunction:
