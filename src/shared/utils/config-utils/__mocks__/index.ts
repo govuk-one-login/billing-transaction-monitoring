@@ -16,6 +16,7 @@ const config: ConfigCache = {
       service_regex: "SDH[0-9]{0,5} paint",
       event_name: "EXECUTIVE_ENDUNKENING_COMPLETED",
       contract_id: "1",
+      invoice_is_quarterly: false,
     },
     {
       vendor_name: "Skippy's",
@@ -24,6 +25,7 @@ const config: ConfigCache = {
       service_regex: "SDH[0-9]{0,5} bubble",
       event_name: "SPIRIT_CONSUMPTION_EXECUTION_TASK_START",
       contract_id: "1",
+      invoice_is_quarterly: false,
     },
   ],
   renamingMap: [["a", "id"]],

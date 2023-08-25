@@ -1,6 +1,11 @@
 import JSPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { InvoiceData } from "./types";
+import {
+  getDateString,
+  getQuarterEndDateString,
+  getQuarterStartDateString,
+} from "../../dateHelper";
 
 export type WriteFunc<TWriteOutput> = (
   file: string,
@@ -16,6 +21,7 @@ export class Invoice {
     this.invoiceNumber = invoice.invoiceNumber;
     this.dueDate = new Date(invoice.dueDateString);
     this.lineItems = invoice.lineItems;
+    this.isQuarterly = invoice.isQuarterly;
   }
 
   public vendor;
@@ -24,6 +30,7 @@ export class Invoice {
   public invoiceNumber;
   public dueDate;
   public lineItems;
+  public isQuarterly;
 
   getQuantity(description?: string): number {
     return this.lineItems
@@ -131,10 +138,20 @@ export const makeMockInvoicePDF =
 export const makeMockInvoiceCSVData = (invoice: Invoice): string => {
   const csvData = [
     ["Vendor", invoice.vendor.name],
-    ["Invoice period start", invoice.date.toISOString().substring(0, 10)],
-    ["Invoice period end", invoice.date.toISOString().substring(0, 10)],
-    ["Invoice Date", invoice.date.toISOString().substring(0, 10)],
-    ["Due Date", invoice.dueDate.toISOString().substring(0, 10)],
+    [
+      "Invoice period start",
+      invoice.isQuarterly
+        ? getQuarterStartDateString(invoice.date)
+        : getDateString(invoice.date),
+    ],
+    [
+      "Invoice period end",
+      invoice.isQuarterly
+        ? getQuarterEndDateString(invoice.date)
+        : getDateString(invoice.date),
+    ],
+    ["Invoice Date", getDateString(invoice.date)],
+    ["Due Date", getDateString(invoice.dueDate)],
     ["VAT Number", invoice.vendor.vatNumber],
     ["WP Number", invoice.vendor.vatNumber],
     ["PO Number", invoice.vendor.vatNumber],
