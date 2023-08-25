@@ -42,8 +42,17 @@ Resources:
                 ForAnyValue:StringEquals:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
             - Effect: Allow
-              Action: s3:GetObject
-              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+              Action:
+                - s3:AbortMultipartUpload
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+                - s3:PutObject
+              Resource:
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
       ReservedConcurrentExecutions: 1
 
   SyntheticEventGenerationScheduledRule:
