@@ -132,8 +132,6 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    DependsOn:
-      - GoogleClientDetails
     Condition: FrontEndEnabled
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
