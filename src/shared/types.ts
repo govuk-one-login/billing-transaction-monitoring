@@ -89,13 +89,13 @@ export enum SyntheticEventsFrequency {
   monthly,
 }
 export interface ConfigSyntheticEventsRow {
-  eventName: string;
+  event_name: string;
   quantity: number;
-  startDate: Date;
-  endDate?: Date;
+  start_date: string;
+  end_date?: string;
   frequency: SyntheticEventsFrequency;
-  vendorId: string;
-  componentId: string;
+  vendor_id: string;
+  component_id: string;
 }
 
 export type GetConfigFile = <TFileName extends ConfigElements>(

@@ -60,12 +60,12 @@ const config: ConfigCache = {
   contracts: [],
   syntheticEvents: [
     {
-      eventName: "VENDOR_5_TPS",
+      event_name: "VENDOR_5_TPS",
       quantity: 7,
-      startDate: new Date("2005-01-01"),
+      start_date: "2005-01-01",
       frequency: SyntheticEventsFrequency.monthly,
-      vendorId: "vendor_testvendor5",
-      componentId: "my_component_id",
+      vendor_id: "vendor_testvendor5",
+      component_id: "my_component_id",
     },
   ],
 };
