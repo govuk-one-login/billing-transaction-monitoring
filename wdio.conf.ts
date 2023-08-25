@@ -3,6 +3,8 @@ import { ReportAggregator, HtmlReporter } from "wdio-html-nice-reporter";
 
 let reportAggregator: ReportAggregator;
 
+const isDocker = process.env.IS_DOCKER === "true";
+
 const determineBaseUrl = (): string => {
   switch (process.env.ENV_NAME) {
     case "dev":
@@ -43,7 +45,15 @@ export const config = {
       browserName,
       // To run tests without headless mode set the args to an empty array [].This is applicable for all browsers expect safari.
       [getBrowserOptions(browserName)]: {
-        args: browserName === "safari" ? [] : ["--headless"],
+        args:
+          browserName === "safari"
+            ? []
+            : [
+                "--headless",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--no-sandbox",
+              ],
       },
     },
   ],
@@ -53,7 +63,9 @@ export const config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  services: ["chromedriver", "geckodriver", "safaridriver", "edgedriver"],
+  services: isDocker
+    ? ["chromedriver"]
+    : ["chromedriver", "geckodriver", "safaridriver", "edgedriver"],
   framework: "mocha",
   reporters: [
     "spec",

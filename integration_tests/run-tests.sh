@@ -19,7 +19,7 @@ INTEGRATION_TESTS_EXIT_CODE=$?
 
 cp reports/testReport.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
 
-npm run test:ui
+npm run test:ui:docker
 
 UI_TESTS_EXIT_CODE=$?
 

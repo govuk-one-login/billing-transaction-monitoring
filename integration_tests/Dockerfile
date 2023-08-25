@@ -10,9 +10,12 @@ RUN apk add --no-cache \
       cmake \
       git \
       groff \
-      libffi-dev \ 
+      libffi-dev \
       chromium \
       chromium-chromedriver
+
+ENV PATH="/usr/bin:${PATH}"
+
 RUN git clone --single-branch --depth 1 -b ${AWS_CLI_VERSION} https://github.com/aws/aws-cli.git
 
 WORKDIR /aws-cli
@@ -38,7 +41,7 @@ RUN apk update && \
       apk upgrade && \
       apk add --no-cache \
       bash \
-      python3
+      python3 chromium chromium-chromedriver
 
 RUN python3 -m ensurepip --upgrade
 RUN pip3 install --no-cache --upgrade pip setuptools
@@ -52,6 +55,8 @@ COPY ui-tests ./ui-tests
 COPY src/shared/ ./src/shared/
 
 RUN npm ci --ignore-scripts
+
+RUN cp /usr/bin/chromedriver /test-app/node_modules/chromedriver/bin/chromedriver
 
 WORKDIR /test-app/integration_tests
 
