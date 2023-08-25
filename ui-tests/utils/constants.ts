@@ -1,4 +1,4 @@
-export const TEST_DATA_FILE_PATH = "../testData/testData.json";
+export const TEST_DATA_FILE_PATH = "../testData/testData.txt";
 
 export enum InvoiceStates {
   invoiceAndEventsMissing = "Invoice and events missing",

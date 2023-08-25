@@ -1,7 +1,12 @@
 import { MONTHS } from "../utils";
 import { getDashboardExtract } from "./get-dashboard-extract";
 
-export type Period = { month: string; year: string; prettyMonth: string };
+export type Period = {
+  month: string;
+  year: string;
+  prettyMonth: string;
+  isQuarter: boolean;
+};
 
 export const getContractPeriods = async (
   contractId: string
@@ -13,17 +18,29 @@ export const getContractPeriods = async (
       year: row.year,
       month: row.month,
       prettyMonth: MONTHS[Number(row.month) - 1],
+      isQuarter: row.invoice_is_quarterly === "true",
     }))
     .filter(
       (row, i, rows) =>
-        rows.findIndex((r) => r.month === row.month && r.year === row.year) ===
-        i
+        rows.findIndex(
+          (r) =>
+            r.year === row.year &&
+            r.month === row.month &&
+            r.isQuarter === row.isQuarter
+        ) === i
     ) // removes duplicates
     .sort((a, b) => {
       if (a.year === b.year) {
-        return +a.month - +b.month;
+        return (
+          (a.isQuarter ? getQuarterlyComparisonValue(+a.month) : +a.month) -
+          (b.isQuarter ? getQuarterlyComparisonValue(+b.month) : +b.month)
+        );
       } else {
         return +a.year - +b.year;
       }
     });
 };
+
+// Subtract 0.1 from first month in quarter, so quarters go just before their first month when sorted
+const getQuarterlyComparisonValue = (firstMonthInQuarter: number): number =>
+  firstMonthInQuarter - 0.1;
