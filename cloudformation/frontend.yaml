@@ -128,14 +128,6 @@ Resources:
       RetentionInDays: 90
       LogGroupName: !Sub /aws/apigateway/${AWS::StackName}-api-access-logs
 
-  GoogleClientDetails:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Description: 'The client id and client key for Sign In with Google'
-      Name: !Sub ${AWS::StackName}-google-client-details
-      KmsKeyId: !Ref KmsKey
-      SecretString: '{"clientId": "<CLIENT_ID>", "clientSecret": "<CLIENT_SECRET>"}'
-
   FrontEndAuthFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
