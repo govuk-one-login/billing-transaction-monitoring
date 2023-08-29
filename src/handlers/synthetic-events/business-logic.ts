@@ -1,45 +1,42 @@
-import { HandlerCtx } from "../../handler-context";
+import { BusinessLogic, HandlerCtx } from "../../handler-context";
 import { Env } from "./types";
 import { ConfigElements } from "../../shared/constants";
 import { ConfigSyntheticEventsRow } from "../../shared/types";
 import { CleanedEventBody } from "../clean/types";
 import crypto from "crypto";
 
-export const businessLogic = async (
-  _: unknown,
-  { config, logger }: HandlerCtx<Env, any, any>
-): Promise<CleanedEventBody[]> => {
-  logger.info("In lambda", config);
+export const businessLogic: BusinessLogic<
+  CleanedEventBody,
+  Env,
+  never,
+  CleanedEventBody
+> = async (_: unknown, { config, logger }: HandlerCtx<Env, any, any>) => {
+  logger.info("config", JSON.stringify(config));
 
   const syntheticEventsConfig = config[
     ConfigElements.syntheticEvents
   ] as ConfigSyntheticEventsRow[];
 
-  logger.info("synth events config");
-  logger.info(JSON.stringify(syntheticEventsConfig));
-
-  const now = Date.now();
+  const now = new Date();
   const events: CleanedEventBody[] = [];
 
   syntheticEventsConfig.forEach((configLine) => {
-    logger.info(configLine.frequency);
-
     if (
-      new Date(configLine.start_date).getUTCDate() < now &&
+      new Date(configLine.start_date).getTime() < now.getTime() &&
       (!configLine.end_date ||
-        new Date(configLine.end_date).getUTCDate() > now) &&
+        new Date(configLine.end_date).getTime() > now.getTime()) &&
       configLine.frequency === "monthly"
     ) {
       const event: CleanedEventBody = {
         vendor_id: configLine.vendor_id,
         event_id: crypto.randomUUID(),
         event_name: configLine.event_name,
-        timestamp: now,
+        timestamp: now.getTime(),
         timestamp_formatted: now.toLocaleString("en-gb"),
         credits: configLine.quantity,
         component_id: configLine.component_id,
       };
-      logger.info(JSON.stringify(event));
+      logger.info("event", JSON.stringify(event));
       events.push(event);
     }
   });
