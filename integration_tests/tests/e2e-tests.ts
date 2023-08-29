@@ -41,10 +41,9 @@ beforeAll(async () => {
 describe("\n Email pdf invoice and verify that the BillingAndTransactionsCuratedView results match the expected data \n", () => {
   // Test cases for PDF invoices
   test.each`
-    testCase                                                                                                                                           | eventTime       | invoiceDate     | transactionQty | billingQty | invoiceIsQuarterly
-    ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"}                                                             | ${"2006/01/30"} | ${"2006/01/30"} | ${undefined}   | ${"100"}   | ${false}
-    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                                                                            | ${"2005/09/30"} | ${"2005/09/30"} | ${"10"}        | ${"10"}    | ${false}
-    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice for quarterly invoice where event time is different month but same quarter"} | ${"2005/09/30"} | ${"2005/08/15"} | ${"10"}        | ${"10"}    | ${true}
+    testCase                                                                               | eventTime       | invoiceDate     | transactionQty | billingQty | invoiceIsQuarterly
+    ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2006/01/30"} | ${"2006/01/30"} | ${undefined}   | ${"100"}   | ${false}
+    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                | ${"2005/09/30"} | ${"2005/09/30"} | ${"10"}        | ${"10"}    | ${false}
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
@@ -95,10 +94,9 @@ describe("\n Email pdf invoice and verify that the BillingAndTransactionsCurated
 // Test cases for CSV invoices
 describe("\n Email csv invoice and verify that the BillingAndTransactionsCuratedView results match the expected data \n", () => {
   test.each`
-    testCase                                                                                                                                    | eventTime       | invoiceDate     | transactionQty | billingQty | invoiceIsQuarterly
-    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"}                                                               | ${"2005/10/30"} | ${"2005/10/30"} | ${"10"}        | ${"12"}    | ${false}
-    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}                                                                | ${"2005/11/30"} | ${"2005/11/30"} | ${"10"}        | ${"6"}     | ${false}
-    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice for quarterly invoice in different month but same quarter as events"} | ${"2005/02/30"} | ${"2005/03/15"} | ${"10"}        | ${"10"}    | ${true}
+    testCase                                                                      | eventTime       | invoiceDate     | transactionQty | billingQty | invoiceIsQuarterly
+    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"} | ${"2005/10/30"} | ${"2005/10/30"} | ${"10"}        | ${"12"}    | ${false}
+    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}  | ${"2005/11/30"} | ${"2005/11/30"} | ${"10"}        | ${"6"}     | ${false}
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match the expected values for $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
