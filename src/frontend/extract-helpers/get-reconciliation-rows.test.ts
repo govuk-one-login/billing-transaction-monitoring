@@ -1,5 +1,9 @@
 import { getReconciliationRows, getTotals } from "./get-reconciliation-rows";
 import { buildLineItem } from "./test-builders";
+import {
+  LineItemStatuses,
+  lineItemStatusLookup,
+} from "../utils/line-item-statuses";
 
 describe("getReconciliationRows", () => {
   const lineItem = {
@@ -17,8 +21,9 @@ describe("getReconciliationRows", () => {
     billing_quantity: "2",
     transaction_quantity: "11",
     quantity_difference: "-9",
-    billing_amount_with_tax: "",
+    billing_amount_with_tax: "£0.00",
     price_difference_percentage: "",
+    invoice_is_quarterly: "false",
   };
 
   test("Should return the data for the Reconciliation Tables when all billing and transaction data is available", () => {
@@ -33,16 +38,13 @@ describe("getReconciliationRows", () => {
         quantityDiscrepancy: "-9",
         priceDiscrepancy: "£-27.50",
         percentageDiscrepancy: "-100.0%",
-        status: {
-          message: "Below Threshold",
-          class: "govuk-tag--blue",
-        },
+        status: lineItemStatusLookup[LineItemStatuses.belowThreshold],
         billingUnitPrice: "£0.0000",
         billingQuantity: "2",
         transactionQuantity: "11",
         billingPrice: "£0.00",
         transactionPrice: "£27.50",
-        billingPriceInclVat: "",
+        billingPriceInclVat: "£0.00",
       },
     ];
     // Act
@@ -57,6 +59,7 @@ describe("getReconciliationRows", () => {
       buildLineItem(lineItem, [
         ["billing_unit_price", ""],
         ["billing_price_formatted", ""],
+        ["billing_amount_with_tax", ""],
         ["price_difference", ""],
         ["billing_quantity", ""],
         ["quantity_difference", ""],
@@ -70,10 +73,7 @@ describe("getReconciliationRows", () => {
         quantityDiscrepancy: "",
         priceDiscrepancy: "",
         percentageDiscrepancy: "Invoice data missing",
-        status: {
-          message: "Pending",
-          class: "govuk-tag--grey",
-        },
+        status: lineItemStatusLookup[LineItemStatuses.invoiceMissing],
         billingQuantity: "Invoice data missing",
         transactionQuantity: "11",
         billingUnitPrice: "Invoice data missing",
@@ -109,10 +109,7 @@ describe("getReconciliationRows", () => {
         quantityDiscrepancy: "",
         priceDiscrepancy: "",
         percentageDiscrepancy: "Events missing",
-        status: {
-          message: "Error",
-          class: "govuk-tag--grey",
-        },
+        status: lineItemStatusLookup[LineItemStatuses.eventsMissing],
         billingQuantity: "300",
         transactionQuantity: "Events missing",
         billingUnitPrice: "£0.3200",
@@ -161,10 +158,7 @@ describe("getReconciliationRows", () => {
         quantityDiscrepancy: "9",
         priceDiscrepancy: "£27.50",
         percentageDiscrepancy: "Unexpected invoice charge",
-        status: {
-          message: "Error",
-          class: "govuk-tag--grey",
-        },
+        status: lineItemStatusLookup[LineItemStatuses.unexpectedCharge],
         billingQuantity: "11",
         transactionQuantity: "2",
         billingUnitPrice: "£2.5000",
@@ -177,10 +171,7 @@ describe("getReconciliationRows", () => {
         quantityDiscrepancy: "0",
         priceDiscrepancy: "£0.00",
         percentageDiscrepancy: "0.0%",
-        status: {
-          message: "Within Threshold",
-          class: "govuk-tag--green",
-        },
+        status: lineItemStatusLookup[LineItemStatuses.withinThreshold],
         billingQuantity: "11",
         transactionQuantity: "11",
         billingUnitPrice: "£9.0909",
@@ -204,10 +195,7 @@ describe("getReconciliationRows", () => {
           quantityDiscrepancy: "0",
           priceDiscrepancy: "£0.00",
           percentageDiscrepancy: "0.0%",
-          status: {
-            message: "Within Threshold",
-            class: "govuk-tag--green",
-          },
+          status: lineItemStatusLookup[LineItemStatuses.withinThreshold],
           billingQuantity: "53430",
           transactionQuantity: "53430",
           billingUnitPrice: "£0.3000",
@@ -233,7 +221,7 @@ describe("getReconciliationRows", () => {
           quantityDiscrepancy: "",
           priceDiscrepancy: "",
           percentageDiscrepancy: "Invoice data missing",
-          status: { message: "Pending", class: "govuk-tag--grey" },
+          status: lineItemStatusLookup[LineItemStatuses.invoiceMissing],
           billingQuantity: "Invoice data missing",
           transactionQuantity: "17321",
           billingUnitPrice: "Invoice data missing",
@@ -259,7 +247,7 @@ describe("getReconciliationRows", () => {
           quantityDiscrepancy: "",
           priceDiscrepancy: "",
           percentageDiscrepancy: "Invoice data missing",
-          status: { message: "Pending", class: "govuk-tag--grey" },
+          status: lineItemStatusLookup[LineItemStatuses.invoiceMissing],
           billingQuantity: "Invoice data missing",
           transactionQuantity: "17321",
           billingUnitPrice: "Invoice data missing",
@@ -272,10 +260,7 @@ describe("getReconciliationRows", () => {
           quantityDiscrepancy: "9",
           priceDiscrepancy: "£27.50",
           percentageDiscrepancy: "Unexpected invoice charge",
-          status: {
-            message: "Error",
-            class: "govuk-tag--grey",
-          },
+          status: lineItemStatusLookup[LineItemStatuses.unexpectedCharge],
           billingQuantity: "11",
           transactionQuantity: "2",
           billingUnitPrice: "£2.5000",
@@ -288,10 +273,7 @@ describe("getReconciliationRows", () => {
           quantityDiscrepancy: "0",
           priceDiscrepancy: "£0.00",
           percentageDiscrepancy: "0.0%",
-          status: {
-            message: "Within Threshold",
-            class: "govuk-tag--green",
-          },
+          status: lineItemStatusLookup[LineItemStatuses.withinThreshold],
           billingQuantity: "11",
           transactionQuantity: "11",
           billingUnitPrice: "£9.0909",
@@ -304,10 +286,7 @@ describe("getReconciliationRows", () => {
           quantityDiscrepancy: "0",
           priceDiscrepancy: "£0.00",
           percentageDiscrepancy: "0.0%",
-          status: {
-            message: "Within Threshold",
-            class: "govuk-tag--green",
-          },
+          status: lineItemStatusLookup[LineItemStatuses.withinThreshold],
           billingQuantity: "53430",
           transactionQuantity: "53430",
           billingUnitPrice: "£0.3000",

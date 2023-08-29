@@ -1,18 +1,19 @@
+import { getMonthQuarter } from "../../shared/utils";
 import { getUrl, invoicePage, invoicesPage } from "../pages";
-import { InvoiceBannerStatus, LinkData, statusLabels } from "../utils";
-import { getContractPeriods } from "./get-contract-periods";
+import { LinkData } from "../utils";
+import { Period, getContractPeriods } from "./get-contract-periods";
 import { getContracts } from "./get-contracts";
-import { getInvoiceBanner } from "./get-invoice-banner";
+import { getInvoiceStatus } from "./get-invoice-status";
 import { getLineItems } from "./get-line-items";
 
 export interface OverviewRow {
   contractLinkData: LinkData;
   vendorName: string;
   year: string;
-  prettyMonth: string;
+  prettyMonthOrQuarter: string;
   reconciliationDetails: {
-    bannerMessage: string;
-    tagClass: string;
+    bannerText: string;
+    bannerClass: string;
   };
   invoiceLinkData: LinkData;
 }
@@ -22,12 +23,13 @@ export const getOverviewRows = async (): Promise<OverviewRow[]> => {
 
   const contracts = await getContracts();
   for (const contract of contracts) {
-    const latestMonth = await getRecentMonth(contract.id);
-    if (latestMonth) {
+    const latestPeriod = await getRecentPeriod(contract.id);
+    if (latestPeriod) {
       const reconciliationDetails = await getReconciliationDetails(
         contract.id,
-        latestMonth.year,
-        latestMonth.month
+        latestPeriod.year,
+        latestPeriod.month,
+        latestPeriod.isQuarter
       );
       const row = {
         contractLinkData: {
@@ -35,14 +37,18 @@ export const getOverviewRows = async (): Promise<OverviewRow[]> => {
           text: contract.name,
         },
         vendorName: contract.vendorName,
-        year: latestMonth.year,
-        prettyMonth: latestMonth.prettyMonth,
+        year: latestPeriod.year,
+        prettyMonthOrQuarter: latestPeriod.isQuarter
+          ? getMonthQuarter(latestPeriod.month)
+          : latestPeriod.prettyMonth,
         reconciliationDetails,
         invoiceLinkData: {
           href: getUrl(invoicePage, {
             contract_id: contract.id,
-            month: latestMonth.month,
-            year: latestMonth.year,
+            monthOrQuarter: latestPeriod.isQuarter
+              ? getMonthQuarter(latestPeriod.month).toLowerCase()
+              : latestPeriod.month,
+            year: latestPeriod.year,
           }),
           text: "View Invoice",
         },
@@ -53,9 +59,7 @@ export const getOverviewRows = async (): Promise<OverviewRow[]> => {
   return overviewRows;
 };
 
-const getRecentMonth = async (
-  contractId: string
-): Promise<{ month: string; year: string; prettyMonth: string }> => {
+const getRecentPeriod = async (contractId: string): Promise<Period> => {
   const contractPeriods = await getContractPeriods(contractId);
   return contractPeriods[contractPeriods.length - 1];
 };
@@ -63,22 +67,17 @@ const getRecentMonth = async (
 const getReconciliationDetails = async (
   contractId: string,
   year: string,
-  month: string
+  month: string,
+  invoiceIsQuarterly?: boolean
 ): Promise<{
-  bannerMessage: string;
-  tagClass: string;
+  bannerText: string;
+  bannerClass: string;
 }> => {
-  let tagClass;
-  const lineItems = await getLineItems(contractId, year, month);
-  const bannerMessage = getInvoiceBanner(lineItems).status;
-  if (bannerMessage === InvoiceBannerStatus.invoiceWithinThreshold) {
-    tagClass = statusLabels.STATUS_LABEL_WITHIN_THRESHOLD.class;
-  } else if (bannerMessage === InvoiceBannerStatus.invoiceAboveThreshold) {
-    tagClass = statusLabels.STATUS_LABEL_ABOVE_THRESHOLD.class;
-  } else if (bannerMessage === InvoiceBannerStatus.invoiceBelowThreshold) {
-    tagClass = statusLabels.STATUS_LABEL_BELOW_THRESHOLD.class;
-  } else {
-    tagClass = statusLabels.STATUS_LABEL_PENDING.class;
-  }
-  return { bannerMessage, tagClass };
+  const lineItems = await getLineItems(
+    contractId,
+    year,
+    month,
+    invoiceIsQuarterly
+  );
+  return getInvoiceStatus(lineItems);
 };

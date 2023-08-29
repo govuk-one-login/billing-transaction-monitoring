@@ -1,15 +1,17 @@
 import { getStandardisedInvoiceKey } from "./get-standardised-invoice-key";
 
-test("Invoice key getter with standardised line item", () => {
+test("Invoice key getter standardised line item", () => {
   const standardisedLineItem = {
     invoice_receipt_id: "370 000",
     vendor_id: "vendor_testvendor1",
     vendor_name: "Vendor One",
-    invoice_receipt_date: "2023-02-28",
+    invoice_receipt_date: "2023-03-01",
+    invoice_period_start: "2023-02-01",
     due_date: "2023-03-28",
     tax_payer_id: "123 4567 89",
     parser_version: "1.0.0",
     originalInvoiceFile: "vendorOne.csv",
+    invoice_is_quarterly: false,
     item_description: "Check one",
     subtotal: 4687.92,
     tax: 937.584,

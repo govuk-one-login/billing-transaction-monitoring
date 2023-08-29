@@ -1,30 +1,41 @@
 {% macro statusGuidance() %}
-  <p class='govuk-body'>Common banner states:</p>
+  <p class='govuk-body'>Green success states:</p>
   <ul class='govuk-list govuk-list--bullet'>
     <li>
-      Invoice within threshold (green) - the discrepancy between measured event data and the invoice is within the threshold tolerance of -1% and 1%. This invoice can be paid.
+      Invoice within threshold - the discrepancy between measured event data and the invoice is within the threshold tolerance of -1% and 1%. This invoice can be paid.
     </li>
     <li>
-      Invoice above threshold (red) - the discrepancy between measured event data and the invoice is above the threshold of 1%. The vendor may have overcharged within the invoice. Contact the Data &amp; Analytics team to confirm measured data and the vendor to confirm the invoice.
+      Invoice below threshold - the discrepancy between measured event data and the invoice is below the threshold of -1%. The vendor may have undercharged within the invoice. Contact the Data & Analytics team to confirm measured data and the vendor to confirm the invoice.
     </li>
     <li>
-      Invoice below threshold (blue) - the discrepancy between measured event data and the invoice is below the threshold of -1%. The vendor may have undercharged within the invoice. Contact the Data &amp; Analytics team to confirm measured data and the vendor to confirm the invoice.
+      Invoice has no charge - both billing and events agree that there is no charge for the events, but a percentage cannot be computed as it would be a division by 0.
     </li>
   </ul>
-  <p class='govuk-body'>Other banner states (grey):</p>
+  <p class='govuk-body'>Blue pending states:</p>
   <ul class='govuk-list govuk-list--bullet'>
     <li>Invoice and events missing - There is no invoices or event data for this month.</li>
     <li>
       Invoice missing - An event has been measured for this month, but there has been no corresponding invoice received.
     </li>
+  </ul>
+  <p class='govuk-body'>Yellow warning states:</p>
+  <ul class='govuk-list govuk-list--bullet'>
     <li>
-      Events missing - An invoice has been received for this month that includes at least one service that there has been no measured data.
-    </li>
-    <li>
-      Unable to find rate - An error has occurred. An invoice has been received that includes at least one service that does not have a corresponding rate per transaction configured. Contact technical support to resolve this error.
+      Invoice above threshold - the discrepancy between measured event data and the invoice is above the threshold of 1%. The vendor may have overcharged within the invoice. Contact the Data & Analytics team to confirm measured data and the vendor to confirm the invoice.
     </li>
     <li>
       Invoice has unexpected charge - Event processing concludes there should be no charge for a particular service for a month (i.e. if all events had a charge £0.00), but the invoice charge is non-zero. In this case, event processing cannot compute a percentage discrepancy, as it would be infinite.
     </li>
   </ul>
-{% endmacro %}
+  <p class='govuk-body'>Red error states:</p>
+  <ul class='govuk-list govuk-list--bullet'>
+    <li>
+      Events missing - An invoice has been received for this month that includes at least one service that there has been no measured data.
+      <li>
+        Unable to find rate - An error has occurred. An invoice has been received that includes at least one service that does not have a corresponding rate per transaction configured. Contact technical support to resolve this error.
+      </li>
+    </ul>
+    <p>
+      <b>Note:</b> There may be multiple line items for the month being shown, but only a single message (and colour) will appear in the top banner, uncommon states take precedent.
+    </p>
+  {% endmacro %}

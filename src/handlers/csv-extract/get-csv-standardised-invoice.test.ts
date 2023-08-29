@@ -4,6 +4,8 @@ import {
   getCsvStandardisedInvoice,
 } from "./get-csv-standardised-invoice";
 
+jest.mock("../../shared/utils/logger");
+
 describe("CSV Standardised invoice getter", () => {
   let givenValidCsvObject: CsvObject;
   let givenCsvObjectWithInvalidDate: CsvObject;
@@ -12,6 +14,8 @@ describe("CSV Standardised invoice getter", () => {
   let givenSourceFileName: string;
 
   beforeEach(() => {
+    jest.resetAllMocks();
+
     givenVendorServiceConfigRows = [
       {
         vendor_name: "Vendor One",
@@ -20,6 +24,7 @@ describe("CSV Standardised invoice getter", () => {
         service_regex: "Check one",
         event_name: "VENDOR_1_EVENT_1",
         contract_id: "1",
+        invoice_is_quarterly: false,
       },
       {
         vendor_name: "Vendor One",
@@ -28,6 +33,16 @@ describe("CSV Standardised invoice getter", () => {
         service_regex: "Check two",
         event_name: "VENDOR_1_EVENT_3",
         contract_id: "1",
+        invoice_is_quarterly: false,
+      },
+      {
+        vendor_name: "Vendor One",
+        vendor_id: "vendor_testvendor1",
+        service_name: "Check four",
+        service_regex: "Check four",
+        event_name: "VENDOR_1_EVENT_5",
+        contract_id: "1",
+        invoice_is_quarterly: true,
       },
     ];
 
@@ -38,6 +53,8 @@ describe("CSV Standardised invoice getter", () => {
     givenValidCsvObject = {
       vendor: "Vendor One",
       "invoice date": "2023/02/28",
+      "invoice period start": "2023/02/28",
+      "invoice period end": "2023/02/28",
       "due date": "28/03/2023",
       "vat number": "123 4567 89",
       "po number": "370 000",
@@ -82,6 +99,7 @@ describe("CSV Standardised invoice getter", () => {
         vendor_id: "vendor_testvendor1",
         vendor_name: "Vendor One",
         invoice_receipt_date: "2023-02-28",
+        invoice_period_start: "2023-02-28",
         due_date: "2023-03-28",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
@@ -96,12 +114,14 @@ describe("CSV Standardised invoice getter", () => {
         unit_price: 0.34,
         total: 5625.504,
         event_name: "VENDOR_1_EVENT_1",
+        invoice_is_quarterly: false,
       },
       {
         invoice_receipt_id: "370 000",
         vendor_id: "vendor_testvendor1",
         vendor_name: "Vendor One",
         invoice_receipt_date: "2023-02-28",
+        invoice_period_start: "2023-02-28",
         due_date: "2023-03-28",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
@@ -116,14 +136,135 @@ describe("CSV Standardised invoice getter", () => {
         unit_price: 3.95,
         total: 393.42,
         event_name: "VENDOR_1_EVENT_3",
+        invoice_is_quarterly: false,
       },
     ]);
+  });
+
+  test("should return quarterly StandardisedLineItems when date range is quarter and service config is quarterly", () => {
+    givenValidCsvObject = {
+      vendor: "Vendor One",
+      "invoice date": "2023/03/31",
+      "invoice period start": "2023/01/01",
+      "invoice period end": "2023/03/31",
+      "due date": "30/04/2023",
+      "vat number": "123 4567 89",
+      "po number": "370 000",
+      version: "1.0.0",
+      lineItems: [
+        {
+          "service name": "Check four",
+          "unit price": "20",
+          quantity: "3",
+          tax: "12",
+          subtotal: "60",
+          total: "72",
+        },
+      ],
+    };
+    const result = getCsvStandardisedInvoice(
+      givenValidCsvObject,
+      "vendor_testvendor1",
+      givenVendorServiceConfigRows,
+      givenSourceFileName
+    );
+
+    expect(result).toEqual([
+      {
+        invoice_receipt_id: "370 000",
+        vendor_id: "vendor_testvendor1",
+        vendor_name: "Vendor One",
+        invoice_receipt_date: "2023-03-31",
+        invoice_period_start: "2023-01-01",
+        due_date: "2023-04-30",
+        tax_payer_id: "123 4567 89",
+        parser_version: "1.0.0",
+        originalInvoiceFile: givenSourceFileName,
+        item_description: "Check four",
+        subtotal: 60,
+        tax: 12,
+        price: 60,
+        quantity: 3,
+        service_name: "Check four",
+        contract_id: "1",
+        unit_price: 20,
+        total: 72,
+        event_name: "VENDOR_1_EVENT_5",
+        invoice_is_quarterly: true,
+      },
+    ]);
+  });
+
+  test("should throw error when date range is quarter but service config is not", () => {
+    givenValidCsvObject = {
+      vendor: "Vendor One",
+      "invoice date": "2023/03/31",
+      "invoice period start": "2023/01/01",
+      "invoice period end": "2023/03/31",
+      "due date": "30/04/2023",
+      "vat number": "123 4567 89",
+      "po number": "370 000",
+      version: "1.0.0",
+      lineItems: [
+        {
+          "service name": "Check two",
+          "unit price": "20",
+          quantity: "3",
+          tax: "12",
+          subtotal: "60",
+          total: "72",
+        },
+      ],
+    };
+
+    expect(() =>
+      getCsvStandardisedInvoice(
+        givenValidCsvObject,
+        "vendor_testvendor1",
+        givenVendorServiceConfigRows,
+        givenSourceFileName
+      )
+    ).toThrow("quarterly flags do not match");
+  });
+
+  test("should throw error when date range is month but service config is quarterly", () => {
+    givenValidCsvObject = {
+      vendor: "Vendor One",
+      "invoice date": "2023/02/01",
+      "invoice period start": "2023/01/01",
+      "invoice period end": "2023/01/31",
+      "due date": "01/03/2023",
+      "vat number": "123 4567 89",
+      "po number": "370 000",
+      version: "1.0.0",
+      lineItems: [
+        {
+          "service name": "Check four",
+          "unit price": "20",
+          quantity: "3",
+          tax: "12",
+          subtotal: "60",
+          total: "72",
+        },
+      ],
+    };
+
+    expect(() =>
+      getCsvStandardisedInvoice(
+        givenValidCsvObject,
+        "vendor_testvendor1",
+        givenVendorServiceConfigRows,
+        givenSourceFileName
+      )
+    ).toThrow("quarterly flags do not match");
   });
 
   test("should throw error when given a valid CsvObject that has an invalid date", () => {
     givenCsvObjectWithInvalidDate = {
       vendor: "Vendor One",
       "invoice date": "2023/02/28",
+      "invoice period start": "2023/02/28",
+      "invoice period end": "2023/02/28",
       "due date": "an invalid date", // <- invalid date
       "vat number": "123 4567 89",
       "po number": "370 000",
@@ -154,6 +295,8 @@ describe("CSV Standardised invoice getter", () => {
     givenCsvObjectWithInvalidNumber = {
       vendor: "Vendor One",
       "invoice date": "2023/02/28",
+      "invoice period start": "2023/02/28",
+      "invoice period end": "2023/02/28",
       "due date": "2023/03/28",
       "vat number": "123 4567 89",
       "po number": "370 000",
@@ -183,6 +326,8 @@ describe("CSV Standardised invoice getter", () => {
     givenCsvObjectWithInvalidNumber = {
       vendor: "Vendor One",
       "invoice date": "2023/02/28",
+      "invoice period start": "2023/02/28",
+      "invoice period end": "2023/02/28",
       "due date": "2023/03/28",
       "vat number": "123 4567 89",
       "po number": "370 000",

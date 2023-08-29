@@ -11,7 +11,7 @@ const storageBucket = `${prefix}-storage`;
 
 export const cleanAndUploadExtractFileForUITest = async (): Promise<void> => {
   const key = "btm_extract_data/full-extract.json";
-  const filePath = "./ui-tests/testData/testData.json";
+  const filePath = "./ui-tests/testData/testData.txt";
   const content = readJsonDataFromFile(filePath);
 
   // deleting existing file with same key

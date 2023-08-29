@@ -1,12 +1,16 @@
-import { percentageDiscrepancySpecialCase, statusLabels } from "../utils";
 import { FullExtractLineItem } from "./types";
+import {
+  findLineItemStatus,
+  LineItemStatus,
+} from "../utils/line-item-statuses";
+import { invoiceStatusLookup } from "../utils";
 
 export interface ReconciliationRow {
   serviceName: string;
   quantityDiscrepancy: string;
   priceDiscrepancy: string;
   percentageDiscrepancy: string;
-  status: { message: string; class: string };
+  status?: LineItemStatus;
   billingQuantity: string;
   transactionQuantity: string;
   billingUnitPrice: string;
@@ -27,7 +31,7 @@ export const getReconciliationRows = (
       percentageDiscrepancy: getPercentageDiscrepancyMessage(
         item.price_difference_percentage
       ),
-      status: getStatus(item.price_difference_percentage),
+      status: findLineItemStatus(item.price_difference_percentage),
       billingQuantity: getQuantity(
         item.billing_quantity,
         item.price_difference_percentage
@@ -82,22 +86,15 @@ export const getTotals = (
   };
 };
 
-const PERCENTAGE_DISCREPANCY = [
-  percentageDiscrepancySpecialCase.MN_NO_CHARGE,
-  percentageDiscrepancySpecialCase.MN_INVOICE_MISSING,
-  percentageDiscrepancySpecialCase.MN_EVENTS_MISSING,
-  percentageDiscrepancySpecialCase.MN_RATES_MISSING,
-  percentageDiscrepancySpecialCase.MN_UNEXPECTED_CHARGE,
-];
-
 const getPercentageDiscrepancyMessage = (
   percentageDiscrepancy: string
 ): string => {
-  return (
-    PERCENTAGE_DISCREPANCY.find(
-      (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
-    )?.bannerText ?? percentageDiscrepancy + "%"
-  );
+  const lineItemStatus = findLineItemStatus(percentageDiscrepancy);
+  if (lineItemStatus?.magicNumber) {
+    return invoiceStatusLookup[lineItemStatus.associatedInvoiceStatus]
+      .bannerText;
+  }
+  return percentageDiscrepancy + "%";
 };
 
 const getQuantity = (
@@ -106,29 +103,15 @@ const getQuantity = (
 ): string => {
   return quantity !== ""
     ? quantity
-    : PERCENTAGE_DISCREPANCY.find(
-        (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
-      )?.bannerText ?? "";
+    : invoiceStatusLookup[
+        findLineItemStatus(percentageDiscrepancy).associatedInvoiceStatus
+      ].bannerText ?? "";
 };
 
 const getPrice = (price: string, percentageDiscrepancy: string): string => {
   return price !== ""
     ? price
-    : PERCENTAGE_DISCREPANCY.find(
-        (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
-      )?.bannerText ?? "";
-};
-
-const getStatus = (
-  percentageDiscrepancy: string
-): { message: string; class: string } => {
-  const warning = PERCENTAGE_DISCREPANCY.find(
-    (discrepancy) => discrepancy.magicNumber === percentageDiscrepancy
-  );
-  if (warning) return warning.statusLabel;
-  if (+percentageDiscrepancy >= 1)
-    return statusLabels.STATUS_LABEL_ABOVE_THRESHOLD;
-  if (+percentageDiscrepancy <= -1)
-    return statusLabels.STATUS_LABEL_BELOW_THRESHOLD;
-  return statusLabels.STATUS_LABEL_WITHIN_THRESHOLD;
+    : invoiceStatusLookup[
+        findLineItemStatus(percentageDiscrepancy).associatedInvoiceStatus
+      ].bannerText ?? "";
 };

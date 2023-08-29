@@ -104,6 +104,8 @@ Resources:
               Type: decimal(12,4)
             - Name: event_name
               Type: string
+            - Name: invoice_is_quarterly
+              Type: boolean
           Compressed: 'true'
           InputFormat: org.apache.hadoop.mapred.TextInputFormat
           Location: !Sub s3://${StorageBucket}/btm_invoice_data/
@@ -138,9 +140,10 @@ Resources:
             sum(price) AS price,
             sum(tax) AS tax,
             year,
-            month
+            month,
+            btm.invoice_is_quarterly
           FROM btm_billing_standardised btm
           LEFT JOIN "btm_contracts_standardised" contract
                   ON (contract_id = contract.id)
-          GROUP BY btm.vendor_id,btm.unit_price,vendor_name,contract.id,contract.name,service_name,event_name,year,month
+          GROUP BY btm.vendor_id,btm.unit_price,vendor_name,contract.id,contract.name,service_name,event_name,year,month,btm.invoice_is_quarterly
         Workgroup: !Ref AthenaInvoiceWorkgroup

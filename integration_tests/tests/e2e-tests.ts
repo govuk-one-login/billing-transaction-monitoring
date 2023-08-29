@@ -10,7 +10,8 @@ import {
 import { getQueryResponse } from "../../src/handlers/int-test-support/helpers/queryHelper";
 import { sendEmail } from "../../src/handlers/int-test-support/helpers/sesHelper";
 import {
-  getVendorServiceAndRatesFromConfig,
+  getNonQuarterlyInvoiceVendorServiceAndRatesFromConfig,
+  getQuarterlyInvoiceVendorServiceAndRatesFromConfig,
   TestData,
   TestDataRetrievedFromConfig,
 } from "../../src/handlers/int-test-support/helpers/testDataHelper";
@@ -20,37 +21,61 @@ import {
   getEmailAddresses,
 } from "../../src/handlers/int-test-support/helpers/emailHelper";
 
-let eventName: string;
-let dataRetrievedFromConfig: TestDataRetrievedFromConfig;
+let nonQuarterlyDataRetrievedFromConfig: TestDataRetrievedFromConfig;
+let nonQuarterlyInvoiceEventName: string;
+let quarterlyDataRetrievedFromConfig: TestDataRetrievedFromConfig | undefined;
+let quarterlyInvoiceEventName: string | undefined;
 
 // Below tests can be run in Dev, build and staging envs but should not be run in the PR stack
 beforeAll(async () => {
-  dataRetrievedFromConfig = await getVendorServiceAndRatesFromConfig();
-  eventName = dataRetrievedFromConfig.eventName;
+  [nonQuarterlyDataRetrievedFromConfig, quarterlyDataRetrievedFromConfig] =
+    await Promise.all([
+      getNonQuarterlyInvoiceVendorServiceAndRatesFromConfig(),
+      getQuarterlyInvoiceVendorServiceAndRatesFromConfig(),
+    ]);
+
+  nonQuarterlyInvoiceEventName = nonQuarterlyDataRetrievedFromConfig.eventName;
+  quarterlyInvoiceEventName = quarterlyDataRetrievedFromConfig?.eventName;
 });
 
 describe("\n Email pdf invoice and verify that the BillingAndTransactionsCuratedView results match the expected data \n", () => {
   // Test cases for PDF invoices
   test.each`
-    testCase                                                                               | eventTime       | transactionQty | billingQty
-    ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2006/01/30"} | ${undefined}   | ${"100"}
-    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                | ${"2005/09/30"} | ${"10"}        | ${"10"}
+    testCase                                                                               | eventTime       | invoiceDate     | transactionQty | billingQty | invoiceIsQuarterly
+    ${"No TransactionQty No TransactionPrice(no events) but has BillingQty Billing Price"} | ${"2006/01/30"} | ${"2006/01/30"} | ${undefined}   | ${"100"}   | ${false}
+    ${"BillingQty BillingPrice equals TransactionQty and TransactionPrice"}                | ${"2005/09/30"} | ${"2005/09/30"} | ${"10"}        | ${"10"}    | ${false}
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
+      if (data.invoiceIsQuarterly && quarterlyInvoiceEventName === undefined)
+        return;
+      await generateTestEvents(
+        data.eventTime,
+        data.transactionQty,
+        data.invoiceIsQuarterly
+          ? (quarterlyInvoiceEventName as string)
+          : nonQuarterlyInvoiceEventName
+      );
       await emailInvoice(data, "pdf");
       await assertResults(data);
     }
   );
 
   test.each`
-    testCase                                                                                 | eventTime       | transactionQty | billingQty
-    ${"No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2005/12/28"} | ${"1"}         | ${undefined}
+    testCase                                                                                                   | eventTime       | transactionQty | billingQty   | invoiceIsQuarterly
+    ${"Non-quarterly and No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"} | ${"2005/12/28"} | ${"1"}         | ${undefined} | ${false}
+    ${"Quarterly and No BillingQty No Billing Price (no invoice) but has TransactionQty TransactionPrice"}     | ${"2005/12/28"} | ${"1"}         | ${undefined} | ${true}
   `(
     "results retrieved from BillingAndTransactionsCuratedView should match with expected $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
+      if (data.invoiceIsQuarterly && quarterlyInvoiceEventName === undefined)
+        return;
+      const dataRetrievedFromConfig = getDataRetrievedFromConfig(data);
+      await generateTestEvents(
+        data.eventTime,
+        data.transactionQty,
+        dataRetrievedFromConfig.eventName
+      );
       const expectedResults = calculateExpectedResults(
         data,
         dataRetrievedFromConfig.unitPrice
@@ -59,7 +84,8 @@ describe("\n Email pdf invoice and verify that the BillingAndTransactionsCurated
         expectedResults,
         data.eventTime,
         dataRetrievedFromConfig.vendorId,
-        dataRetrievedFromConfig.serviceName
+        dataRetrievedFromConfig.serviceName,
+        data.invoiceIsQuarterly
       );
     }
   );
@@ -68,13 +94,21 @@ describe("\n Email pdf invoice and verify that the BillingAndTransactionsCurated
 // Test cases for CSV invoices
 describe("\n Email csv invoice and verify that the BillingAndTransactionsCuratedView results match the expected data \n", () => {
   test.each`
-    testCase                                                                      | eventTime       | transactionQty | billingQty
-    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"} | ${"2005/10/30"} | ${"10"}        | ${"12"}
-    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}  | ${"2005/11/30"} | ${"10"}        | ${"6"}
+    testCase                                                                      | eventTime       | invoiceDate     | transactionQty | billingQty | invoiceIsQuarterly
+    ${"BillingQty BillingPrice greater than TransactionQty and TransactionPrice"} | ${"2005/10/30"} | ${"2005/10/30"} | ${"10"}        | ${"12"}    | ${false}
+    ${"BillingQty BillingPrice lesser than TransactionQty and TransactionPrice"}  | ${"2005/11/30"} | ${"2005/11/30"} | ${"10"}        | ${"6"}     | ${false}
   `(
     "results retrieved from BillingAndTransactionsCuratedView view should match the expected values for $testCase,$eventTime,$transactionQty,$billingQty",
     async (data) => {
-      await generateTestEvents(data.eventTime, data.transactionQty, eventName);
+      if (data.invoiceIsQuarterly && quarterlyInvoiceEventName === undefined)
+        return;
+      await generateTestEvents(
+        data.eventTime,
+        data.transactionQty,
+        data.invoiceIsQuarterly
+          ? (quarterlyInvoiceEventName as string)
+          : nonQuarterlyInvoiceEventName
+      );
       await emailInvoice(data, "csv");
       await assertResults(data);
     }
@@ -86,6 +120,7 @@ export const emailInvoice = async (
   fileType: "pdf" | "csv"
 ): Promise<void> => {
   const { sourceEmail, toEmail } = await getEmailAddresses();
+  const dataRetrievedFromConfig = getDataRetrievedFromConfig(data);
   const { invoiceData, filename } = await createInvoiceWithGivenData(
     data,
     dataRetrievedFromConfig.description,
@@ -112,13 +147,14 @@ export const emailInvoice = async (
 
   // Check they were standardised
   await checkStandardised(
-    new Date(data.eventTime),
+    new Date(data.invoiceDate),
     dataRetrievedFromConfig.vendorId,
     {
       description: dataRetrievedFromConfig.description,
       event_name: dataRetrievedFromConfig.eventName,
     },
-    dataRetrievedFromConfig.description
+    dataRetrievedFromConfig.description,
+    { quarterly: data.invoiceIsQuarterly }
   );
 };
 
@@ -128,33 +164,38 @@ interface ExpectedResults {
   transactionPriceFormatted: string | undefined;
   billingPriceFormatted: number | undefined | string;
   priceDifferencePercentage: string | undefined;
+  invoiceIsQuarterly: string;
 }
 
 export const assertResults = async (data: TestData): Promise<void> => {
+  const dataRetrievedFromConfig = getDataRetrievedFromConfig(data);
   const expectedResults = calculateExpectedResults(
     data,
     dataRetrievedFromConfig.unitPrice
   );
   await assertQueryResultWithTestData(
     expectedResults,
-    data.eventTime,
+    data.invoiceDate ?? data.eventTime,
     dataRetrievedFromConfig.vendorId,
-    dataRetrievedFromConfig.serviceName
+    dataRetrievedFromConfig.serviceName,
+    data.invoiceIsQuarterly
   );
 };
 
 export const assertQueryResultWithTestData = async (
   expectedResults: Record<string, any>,
-  eventTime: string,
+  time: string,
   vendorId: string,
-  serviceName: string
+  serviceName: string,
+  invoiceIsQuarterly: boolean = false
 ): Promise<void> => {
   const tableName = TableNames.BILLING_TRANSACTION_CURATED;
   const response = await getQueryResponse<BillingTransactionCurated>(
     tableName,
     vendorId,
     serviceName,
-    eventTime
+    time,
+    invoiceIsQuarterly
   );
   expect(response.length).toBe(1);
   expect(response[0].billing_price_formatted).toEqual(
@@ -166,16 +207,20 @@ export const assertQueryResultWithTestData = async (
   expect(response[0].price_difference_percentage).toEqual(
     expectedResults.priceDifferencePercentage
   );
+  expect(response[0].invoice_is_quarterly).toEqual(
+    expectedResults.invoiceIsQuarterly
+  );
 };
 
 const calculateExpectedResults = (
-  { billingQty, transactionQty }: TestData,
+  { billingQty, invoiceIsQuarterly, transactionQty }: TestData,
   unitPrice: number
 ): ExpectedResults => {
   const billingPrice = unitPrice * billingQty;
   const transactionPrice = unitPrice * transactionQty;
   const priceDifference = billingPrice - transactionPrice;
   const priceDifferencePercentage = (priceDifference / transactionPrice) * 100;
+  const invoiceIsQuarterlyString = invoiceIsQuarterly?.toString() ?? "false";
 
   function formatCurrency(amount: number): string {
     return amount.toLocaleString("en-GB", {
@@ -191,6 +236,7 @@ const calculateExpectedResults = (
       priceDifferencePercentage: "-1234567.03", // Code for 'invoice data missing'
       billingQty: undefined,
       billingPriceFormatted: undefined,
+      invoiceIsQuarterly: invoiceIsQuarterlyString,
     };
   }
   if (transactionQty === undefined) {
@@ -200,6 +246,7 @@ const calculateExpectedResults = (
       priceDifferencePercentage: "-1234567.04", // Code for 'transaction data missing'
       transactionQty: undefined,
       transactionPriceFormatted: undefined,
+      invoiceIsQuarterly: invoiceIsQuarterlyString,
     };
   } else {
     return {
@@ -208,6 +255,20 @@ const calculateExpectedResults = (
       transactionPriceFormatted: formatCurrency(transactionPrice),
       billingPriceFormatted: formatCurrency(billingPrice),
       priceDifferencePercentage: priceDifferencePercentage.toFixed(1),
+      invoiceIsQuarterly: invoiceIsQuarterlyString,
     };
   }
+};
+
+const getDataRetrievedFromConfig = (
+  data: TestData
+): TestDataRetrievedFromConfig => {
+  const dataRetrievedFromConfig = data.invoiceIsQuarterly
+    ? quarterlyDataRetrievedFromConfig
+    : nonQuarterlyDataRetrievedFromConfig;
+
+  if (dataRetrievedFromConfig === undefined)
+    throw Error("No appropriate config data found");
+
+  return dataRetrievedFromConfig;
 };

@@ -12,7 +12,7 @@
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Contract name</th>
         <th class="govuk-table__header" scope="col">Vendor</th>
-        <th class="govuk-table__header" scope="col">Month</th>
+        <th class="govuk-table__header" scope="col">Period</th>
         <th class="govuk-table__header" scope="col">Reconciliation status</th>
         <th class="govuk-table__header" scope="col">Details</th>
       </tr>
@@ -22,11 +22,11 @@
         <tr class="govuk-table__row">
           <th class="govuk-table__cell">{{ link(row.contractLinkData) }}</th>
           <td class="govuk-table__cell">{{ row.vendorName }}</td>
-          <td class="govuk-table__cell">{{ row.prettyMonth }} {{ row.year }}</td>
+          <td class="govuk-table__cell">{{ row.prettyMonthOrQuarter }} {{ row.year }}</td>
           <td class="govuk-table__cell">
             {{ govukTag({
-                        text: row.reconciliationDetails.bannerMessage,
-                        classes: row.reconciliationDetails.tagClass
+                        text: row.reconciliationDetails.statusLabel.message,
+                        classes: row.reconciliationDetails.statusLabel.class
                         }) }}
           </td>
           <td class="govuk-table__cell">{{ link(row.invoiceLinkData) }}</td>

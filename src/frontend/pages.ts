@@ -153,7 +153,7 @@ export const invoicesPage: Page<InvoicesRequestParams, InvoicesParams> = {
 
 export const invoicePage: Page<InvoiceRequestParams, InvoiceParams> = {
   parent: invoicesPage,
-  relativePath: ":year-:month",
+  relativePath: ":year-:monthOrQuarter",
   njk: "invoice.njk",
   paramsGetter: invoiceParamsGetter,
   titleGetter: invoiceTitleGetter,

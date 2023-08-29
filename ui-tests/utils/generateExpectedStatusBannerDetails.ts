@@ -18,10 +18,10 @@ export const generateExpectedBannerDetailsFromPercentagePriceDifference = (
     bannerColor = Color.green;
     bannerMessage = InvoiceStates.invoiceWithinThreshold;
   } else if (percentageDifference > 1) {
-    bannerColor = Color.red;
+    bannerColor = Color.yellow;
     bannerMessage = InvoiceStates.invoiceAboveThreshold;
   } else if (percentageDifference < -1) {
-    bannerColor = Color.blue;
+    bannerColor = Color.green;
     bannerMessage = InvoiceStates.invoiceBelowThreshold;
   } else {
     throw new Error(`Invalid percentageDifference: ${percentageDifference}`);

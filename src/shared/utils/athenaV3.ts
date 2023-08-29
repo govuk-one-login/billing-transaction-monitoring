@@ -7,17 +7,21 @@ import {
 } from "@aws-sdk/client-athena";
 
 const INTERVAL_MS = 1000;
+const MAX_ATTEMPTS = 10;
 
 export class AthenaQueryExecutor {
   athena: AthenaClient;
-
   intervalMillis: number;
+  maxAttempts: number;
 
-  MAX_ATTEMPTS = 10;
-
-  constructor(athena: AthenaClient, intervalMillis = INTERVAL_MS) {
+  constructor(
+    athena: AthenaClient,
+    intervalMillis = INTERVAL_MS,
+    maxAttempts = MAX_ATTEMPTS
+  ) {
     this.athena = athena;
     this.intervalMillis = intervalMillis;
+    this.maxAttempts = maxAttempts;
   }
 
   async fetchResults(
@@ -56,7 +60,7 @@ export class AthenaQueryExecutor {
   async validate(id: string): Promise<void> {
     let attempts = 0;
 
-    while (attempts < this.MAX_ATTEMPTS) {
+    while (attempts < this.maxAttempts) {
       const getQueryExecutionCommand = new GetQueryExecutionCommand({
         QueryExecutionId: id,
       });
@@ -100,7 +104,7 @@ export class AthenaQueryExecutor {
     }
 
     throw new Error(
-      `Failed to get successful query execution after ${this.MAX_ATTEMPTS} attempts.`
+      `Failed to get successful query execution after ${this.maxAttempts} attempts.`
     );
   }
 }

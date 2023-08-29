@@ -70,8 +70,8 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
-          PARSER_0_VERSION: '1.2.0'
-          PARSER_DEFAULT_VERSION: '1.2.0'
+          PARSER_0_VERSION: '1.3.0'
+          PARSER_DEFAULT_VERSION: '1.3.0'
           LOCAL_ENDPOINT:
             !If [
               IsLocal,

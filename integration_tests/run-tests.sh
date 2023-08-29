@@ -15,10 +15,16 @@ export CONFIG_NAME=${ENV_NAME}
 
 npm run test:integration
 
-TESTS_EXIT_CODE=$?
+INTEGRATION_TESTS_EXIT_CODE=$?
 
 cp reports/testReport.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
 
-if [ $TESTS_EXIT_CODE -ne 0 ]; then
+npm run test:ui
+
+UI_TESTS_EXIT_CODE=$?
+
+cp reports/ui-test-report*.json $TEST_REPORT_ABSOLUTE_DIR
+
+if [ $INTEGRATION_TESTS_EXIT_CODE -ne 0 ] || [ $UI_TESTS_EXIT_CODE -ne 0 ] ; then
   exit 1
 fi

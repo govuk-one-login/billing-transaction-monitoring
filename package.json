@@ -38,7 +38,7 @@
     "aws-lambda": "^1.0.7",
     "aws-sdk-client-mock": "^2.0.0",
     "babel-jest": "^29.0.3",
-    "chromedriver": "^114.0.2",
+    "chromedriver": "^116.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "csvtojson": "^2.0.10",
     "delay": "^5.0.0",
@@ -109,6 +109,7 @@
     "build:css": "sass src/frontend/styles/all.scss src/frontend/styles/all.css",
     "predev": "npm run build:css",
     "prebuild": "npm run build:css",
+    "batch-events": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/batch-events.ts",
     "fetch-s3": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/fetch-s3.ts"
   },
   "lint-staged": {

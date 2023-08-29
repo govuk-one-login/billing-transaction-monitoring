@@ -45,7 +45,9 @@ const isNameable = (x: unknown): x is LineItemFieldsForNaming =>
   x !== null &&
   "event_name" in x &&
   typeof x.event_name === "string" &&
-  "invoice_receipt_date" in x &&
-  typeof x.invoice_receipt_date === "string" &&
+  "invoice_period_start" in x &&
+  typeof x.invoice_period_start === "string" &&
+  "invoice_is_quarterly" in x &&
+  typeof x.invoice_is_quarterly === "boolean" &&
   "vendor_id" in x &&
   typeof x.vendor_id === "string";
