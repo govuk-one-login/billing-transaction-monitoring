@@ -3,8 +3,6 @@ import { ReportAggregator, HtmlReporter } from "wdio-html-nice-reporter";
 
 let reportAggregator: ReportAggregator;
 
-const isDocker = process.env.IS_DOCKER === "true";
-
 const determineBaseUrl = (): string => {
   switch (process.env.ENV_NAME) {
     case "dev":
@@ -63,9 +61,15 @@ export const config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  services: isDocker
-    ? ["chromedriver"]
-    : ["chromedriver", "geckodriver", "safaridriver", "edgedriver"],
+  services: [
+    browserName === "firefox"
+      ? "geckodriver"
+      : browserName === "safari"
+      ? "safaridriver"
+      : browserName === "MicrosoftEdge"
+      ? "edgedriver"
+      : "chromedriver",
+  ],
   framework: "mocha",
   reporters: [
     "spec",
