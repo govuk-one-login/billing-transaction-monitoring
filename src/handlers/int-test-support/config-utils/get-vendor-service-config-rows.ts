@@ -44,7 +44,13 @@ export const getVendorServiceConfigRows = async (
   );
 
   if (!vendorServiceConfigRows.length)
-    throw new Error("No vendor service config rows found");
+    throw new VendorServiceConfigRowsNotFoundError();
 
   return vendorServiceConfigRows;
 };
+
+export class VendorServiceConfigRowsNotFoundError extends Error {
+  constructor() {
+    super("No vendor service config rows found");
+  }
+}
