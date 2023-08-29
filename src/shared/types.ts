@@ -85,15 +85,12 @@ export interface ConfigStandardisationRow {
   invoiceStandardisationModuleId: number;
 }
 
-export enum SyntheticEventsFrequency {
-  monthly,
-}
 export interface ConfigSyntheticEventsRow {
   event_name: string;
   quantity: number;
   start_date: string;
   end_date?: string;
-  frequency: SyntheticEventsFrequency;
+  frequency: string;
   vendor_id: string;
   component_id: string;
 }

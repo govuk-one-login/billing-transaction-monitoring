@@ -3,7 +3,7 @@ import {
   Constructables,
   Operations,
 } from "../../../../handlers/transaction-csv-to-json-event/convert/transform-dicts";
-import { ConfigCache, SyntheticEventsFrequency } from "../../../types";
+import { ConfigCache } from "../../../types";
 
 // TODO: fill in the rest of these
 const config: ConfigCache = {
@@ -63,7 +63,7 @@ const config: ConfigCache = {
       event_name: "VENDOR_5_TPS",
       quantity: 7,
       start_date: "2005-01-01",
-      frequency: SyntheticEventsFrequency.monthly,
+      frequency: "monthly",
       vendor_id: "vendor_testvendor5",
       component_id: "my_component_id",
     },

@@ -1,11 +1,9 @@
 import { HandlerCtx } from "../../handler-context";
 import { Env } from "./types";
 import { ConfigElements } from "../../shared/constants";
-import {
-  ConfigSyntheticEventsRow,
-  SyntheticEventsFrequency,
-} from "../../shared/types";
+import { ConfigSyntheticEventsRow } from "../../shared/types";
 import { CleanedEventBody } from "../clean/types";
+import crypto from "crypto";
 
 export const businessLogic = async (
   _: unknown,
@@ -24,12 +22,13 @@ export const businessLogic = async (
   const events: CleanedEventBody[] = [];
 
   syntheticEventsConfig.forEach((configLine) => {
-    logger.info(typeof configLine.frequency);
+    logger.info(configLine.frequency);
+
     if (
       new Date(configLine.start_date).getUTCDate() < now &&
       (!configLine.end_date ||
         new Date(configLine.end_date).getUTCDate() > now) &&
-      configLine.frequency === SyntheticEventsFrequency.monthly
+      configLine.frequency === "monthly"
     ) {
       const event: CleanedEventBody = {
         vendor_id: configLine.vendor_id,
