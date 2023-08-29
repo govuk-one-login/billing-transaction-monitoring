@@ -31,16 +31,9 @@ export const getContractPeriods = async (
     ) // removes duplicates
     .sort((a, b) => {
       if (a.year === b.year) {
-        return (
-          (a.isQuarter ? getQuarterlyComparisonValue(+a.month) : +a.month) -
-          (b.isQuarter ? getQuarterlyComparisonValue(+b.month) : +b.month)
-        );
+        return +a.month - +b.month;
       } else {
         return +a.year - +b.year;
       }
     });
 };
-
-// Subtract 0.1 from first month in quarter, so quarters go just before their first month when sorted
-const getQuarterlyComparisonValue = (firstMonthInQuarter: number): number =>
-  firstMonthInQuarter - 0.1;

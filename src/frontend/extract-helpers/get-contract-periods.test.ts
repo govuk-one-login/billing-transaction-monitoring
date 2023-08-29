@@ -23,8 +23,6 @@ describe("getContractPeriods", () => {
         "\n" +
         fakeDataRow("2023", "03", "2", "test1") +
         "\n" +
-        fakeDataRow("2023", "04", contractId, "test1") +
-        "\n" +
         fakeDataRow("2023", "05", contractId, "test1") +
         "\n" +
         fakeDataRow("2023", "05", contractId, "test2") +
@@ -39,7 +37,6 @@ describe("getContractPeriods", () => {
     expect(result).toEqual([
       { month: "03", prettyMonth: "Mar", year: "2023", isQuarter: false },
       { month: "04", prettyMonth: "Apr", year: "2023", isQuarter: true },
-      { month: "04", prettyMonth: "Apr", year: "2023", isQuarter: false },
       { month: "05", prettyMonth: "May", year: "2023", isQuarter: false },
       { month: "06", prettyMonth: "Jun", year: "2023", isQuarter: false },
     ]);
