@@ -95,7 +95,7 @@ exports[`home page handler Page displays all overview rows 1`] = `
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Contract name</th>
         <th class="govuk-table__header" scope="col">Vendor</th>
-        <th class="govuk-table__header" scope="col">Month</th>
+        <th class="govuk-table__header" scope="col">Period</th>
         <th class="govuk-table__header" scope="col">Reconciliation status</th>
         <th class="govuk-table__header" scope="col">Details</th>
       </tr>

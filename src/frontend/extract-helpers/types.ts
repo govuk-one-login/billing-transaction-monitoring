@@ -15,4 +15,5 @@ export interface FullExtractLineItem {
   quantity_difference: string;
   billing_amount_with_tax: string;
   price_difference_percentage: string;
+  invoice_is_quarterly: string;
 }

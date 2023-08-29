@@ -24,6 +24,7 @@ describe("getInvoiceStatus", () => {
     quantity_difference: "-9",
     billing_amount_with_tax: "",
     price_difference_percentage: "",
+    invoice_is_quarterly: "false",
   };
 
   test("should return the expected message and warning banner class if there are no line items", () => {
