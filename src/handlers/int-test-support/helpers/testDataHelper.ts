@@ -1,7 +1,10 @@
 import { configStackName } from "./envHelper";
 import { EventPayload } from "./payloadHelper";
 import { getRatesFromConfig } from "../config-utils/get-rate-config-rows";
-import { getVendorServiceConfigRows } from "../config-utils/get-vendor-service-config-rows";
+import {
+  VendorServiceConfigRowsNotFoundError,
+  getVendorServiceConfigRows,
+} from "../config-utils/get-vendor-service-config-rows";
 import { getE2ETestConfig } from "../config-utils/get-e2e-test-config";
 import { checkS3BucketForEventId } from "./commonHelpers";
 import { sendMessageToQueue, Queue } from "./sqsHelper";
@@ -45,17 +48,23 @@ export const getNonQuarterlyInvoiceVendorServiceAndRatesFromConfig =
 
 export const getQuarterlyInvoiceVendorServiceAndRatesFromConfig =
   async (): Promise<TestDataRetrievedFromConfig | undefined> => {
-    const [vendorServiceRows, rateConfigRows] = await Promise.all([
-      getVendorServiceConfigRows(configBucket, {
-        invoice_is_quarterly: "true",
-      }),
-      getRatesFromConfig(configBucket),
-    ]);
+    let rateConfigRows;
+    let vendorServiceRows;
+    try {
+      [vendorServiceRows, rateConfigRows] = await Promise.all([
+        getVendorServiceConfigRows(configBucket, {
+          invoice_is_quarterly: "true",
+        }),
+        getRatesFromConfig(configBucket),
+      ]);
+    } catch (error) {
+      if (error instanceof VendorServiceConfigRowsNotFoundError)
+        return undefined;
+
+      throw error;
+    }
 
     const vendorServiceRow = vendorServiceRows[0];
-
-    if (vendorServiceRow === undefined) return undefined;
-
     const vendorId = vendorServiceRow.vendor_id;
 
     const quarterlyRateConfigRow = rateConfigRows.find(
