@@ -64,7 +64,7 @@ Resources:
     Properties:
       Name: !Sub ${AWS::StackName}-synthetic-event-generation-rule
       Description: Schedules SyntheticEventGenerationFunction to run once per day
-      ScheduleExpression: cron(0 7 ? * * *)
+      ScheduleExpression: cron(0 10 1 * ? *) # Schedule for 10 a.m. on the first of every month
       State: ENABLED
       Targets:
         - Arn: !GetAtt SyntheticEventGenerationFunction.Arn
