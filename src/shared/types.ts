@@ -88,8 +88,8 @@ export interface ConfigStandardisationRow {
 export interface ConfigSyntheticEventsRow {
   event_name: string;
   quantity: number;
-  start_date: string;
-  end_date?: string;
+  start_date: Date;
+  end_date?: Date;
   frequency: string;
   vendor_id: string;
   component_id: string;
