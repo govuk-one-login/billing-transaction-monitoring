@@ -28,6 +28,7 @@ export type BucketAndPrefix = {
 
 type DataAndTarget = {
   data: string;
+  encoding?: BufferEncoding;
   target: S3Object;
 };
 
@@ -127,13 +128,14 @@ const getS3ObjectBasic = async (
 export const getS3Object = callWithRetryAndTimeout(getS3ObjectBasic);
 
 const putS3ObjectBasic = async (
-  dataAndTarget: DataAndTarget,
-  encoding: BufferEncoding = "ascii" // default encoding ascii
+  dataAndTarget: DataAndTarget
 ): Promise<void> => {
   if (runViaLambda()) {
     await sendLambdaCommand(IntTestHelpers.putS3Object, dataAndTarget);
     return;
   }
+
+  const encoding = dataAndTarget.encoding ?? "ascii";
 
   const bucketParams = {
     Bucket: dataAndTarget.target.bucket,
