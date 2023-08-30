@@ -73,7 +73,7 @@ Resources:
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
       Handler: frontendAuth.handler
-      ReservedConcurrentExecutions: 1
+      ReservedConcurrentExecutions: 10
 
   FrontEndFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
@@ -137,4 +137,4 @@ Resources:
                 - athena:GetQueryExecution
                 - athena:GetQueryResults
               Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
-      ReservedConcurrentExecutions: 2
+      ReservedConcurrentExecutions: 10
