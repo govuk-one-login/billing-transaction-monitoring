@@ -5,6 +5,15 @@ import { randomUUID } from "crypto";
 jest.mock("crypto");
 const mockedRandomUUID = randomUUID as jest.Mock;
 
+beforeAll(() => {
+  jest.useFakeTimers();
+  jest.setSystemTime(new Date(2020, 3, 1));
+});
+
+afterAll(() => {
+  jest.useRealTimers();
+});
+
 describe("Synthetic events businessLogic", () => {
   const mockLogger = {
     info: jest.fn(),
@@ -38,9 +47,9 @@ describe("Synthetic events businessLogic", () => {
   const mockEvent = {
     component_id: "test component id",
     event_name: "some event name",
-    timestamp: 1682587329548,
+    timestamp: 1585695600000,
     event_id: "some random id",
-    timestamp_formatted: "the formatted timestamp",
+    timestamp_formatted: "01/04/2020, 00:00:00",
     vendor_id: "some vendor id",
     credits: 5,
   };
