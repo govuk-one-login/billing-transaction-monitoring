@@ -6,7 +6,7 @@ import { CleanedEventBody } from "../clean/types";
 import crypto from "crypto";
 
 export const businessLogic: BusinessLogic<
-  CleanedEventBody,
+  any,
   Env,
   never,
   CleanedEventBody

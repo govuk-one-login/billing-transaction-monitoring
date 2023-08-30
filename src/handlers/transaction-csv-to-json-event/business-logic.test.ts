@@ -42,7 +42,7 @@ describe("transaction-csv-to-json-events businessLogic", () => {
     } as any;
   });
 
-  describe("CSV which can be processsed", () => {
+  describe("CSV which can be processed", () => {
     it("processes CSV and provides warning for line which can't be processed", async () => {
       const result = await businessLogic(
         "a,color,timestamp\none,red,1667262461\ntwo,pink,1667262461",
