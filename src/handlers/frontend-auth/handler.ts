@@ -15,7 +15,7 @@ const generatePolicy = ({
 }: {
   apiId: string;
   sub: string;
-  effect: string | "Allow" | "Deny"; // remove string type once this is tested
+  effect: "Allow" | "Deny";
   context?: Record<string, string | number | boolean | null | undefined>;
 }): APIGatewayAuthorizerResult => ({
   principalId: sub,

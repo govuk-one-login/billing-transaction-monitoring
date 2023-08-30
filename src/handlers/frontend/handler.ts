@@ -14,6 +14,6 @@ export const handler: ProxyHandler = async (event, context, callback) => {
         location: "https://google.com", // this will be swapped for a call to generateAuthUrl in the next PR
       },
     };
-  const iHandler = serverlessExpress({ app });
-  return await iHandler(event, context, callback);
+  const serverlessExpressHandler = serverlessExpress({ app });
+  return await serverlessExpressHandler(event, context, callback);
 };
