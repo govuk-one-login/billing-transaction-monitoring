@@ -1,11 +1,11 @@
-export type CsvColumnTypeName = "date" | "number" | "string";
-export type CsvColumnValue = Date | number | string | undefined;
+export type CsvColumnTypeName = "date" | "number" | "string" | "boolean";
+export type CsvColumnValue = Date | number | string | Boolean | undefined;
 
 export type ConfigParser<TConfig extends {} | Array<{}>> = (
   rawFile: string
 ) => TConfig | Promise<TConfig>;
 
-export interface CsvParserColumnOptions {
+export interface ParserOptions {
   type: CsvColumnTypeName;
   required: boolean;
 }
@@ -13,4 +13,4 @@ export interface CsvParserColumnOptions {
 export type CsvParserOptions<
   TColumn extends string,
   TRow extends Record<TColumn, CsvColumnValue>
-> = Record<keyof TRow, CsvParserColumnOptions>;
+> = Record<keyof TRow, ParserOptions>;

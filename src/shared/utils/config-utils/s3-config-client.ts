@@ -10,6 +10,10 @@ import {
 import { fetchS3 } from "..";
 import { getFromEnv } from "../env";
 import { parseConfigCsv } from "./parse-config-csv";
+import { JSONPath } from "jsonpath-plus";
+import { parseConfigCell } from "./parse-config-cell";
+import { ParserOptions } from "./types";
+import jsonpointer from "jsonpointer";
 
 export const configFileMap: Record<ConfigElements, string> = {
   [ConfigElements.rates]: "rate_tables/rates.csv",
@@ -25,9 +29,27 @@ export const configFileMap: Record<ConfigElements, string> = {
   [ConfigElements.syntheticEvents]: "synthetic_events/synthetic-events.json",
 };
 
-const parseJsonFile = async (rawFile: string): Promise<Json> => {
-  return JSON.parse(rawFile);
-};
+export const parseJsonFile =
+  (options: Record<string, ParserOptions> = {}) =>
+  async (rawFile: string): Promise<Json> => {
+    const json = JSON.parse(rawFile);
+    Object.entries(options).forEach(([path, spec]) => {
+      const rawFields: any[] = JSONPath({
+        path,
+        json,
+      });
+      const pathArray = JSONPath.toPathArray(path);
+      const pointerString = JSONPath.toPointer(pathArray);
+      rawFields.forEach((rawField, ii) => {
+        jsonpointer.set(
+          json,
+          pointerString.replace("..", ii),
+          parseConfigCell(rawField, spec)
+        );
+      });
+    });
+    return json;
+  };
 
 const parserMap = {
   [ConfigElements.rates]: async (rawFile: string) =>
@@ -58,13 +80,15 @@ const parserMap = {
         vendor_id: { type: "string", required: true },
       }
     ),
-  [ConfigElements.renamingMap]: parseJsonFile,
-  [ConfigElements.inferences]: parseJsonFile,
-  [ConfigElements.transformations]: parseJsonFile,
-  [ConfigElements.vat]: parseJsonFile,
-  [ConfigElements.standardisation]: parseJsonFile,
-  [ConfigElements.eventCleaningTransform]: parseJsonFile,
-  [ConfigElements.syntheticEvents]: parseJsonFile,
+  [ConfigElements.renamingMap]: parseJsonFile(),
+  [ConfigElements.inferences]: parseJsonFile(),
+  [ConfigElements.transformations]: parseJsonFile(),
+  [ConfigElements.vat]: parseJsonFile(),
+  [ConfigElements.standardisation]: parseJsonFile(),
+  [ConfigElements.eventCleaningTransform]: parseJsonFile(),
+  [ConfigElements.syntheticEvents]: parseJsonFile({
+    "$.[]start_date": { type: "date", required: true },
+  }),
 };
 
 const parseConfigFile = async <TFileName extends ConfigElements>(

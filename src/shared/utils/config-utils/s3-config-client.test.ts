@@ -1,6 +1,10 @@
 import { ConfigElements } from "../../constants";
 import { getFromEnv } from "../env";
-import { configFileMap, getConfigFile } from "./s3-config-client";
+import {
+  configFileMap,
+  getConfigFile,
+  parseJsonFile,
+} from "./s3-config-client";
 
 jest.mock("../env");
 const mockedGetFromEnv = getFromEnv as jest.Mock;
@@ -95,5 +99,35 @@ describe("getConfigFile", () => {
         ]);
       }
     );
+  });
+});
+
+describe("parseJsonFile", () => {
+  it("things", async () => {
+    const parser = parseJsonFile({
+      "$.[]start_date": { type: "date", required: true },
+    });
+    const result = await parser(`[
+      {
+        "vendor_id": "vendor_testvendor5",
+        "event_name": "VENDOR_5_TPS",
+        "quantity": 7,
+        "start_date": "2005-01-01",
+        "frequency": "monthly",
+        "component_id": "test component id"
+      }, {
+        "vendor_id": "vendor_testvendor5",
+        "event_name": "VENDOR_5_TPS",
+        "quantity": 7,
+        "start_date": "2008-09-12",
+        "frequency": "monthly",
+        "component_id": "test component id"
+      }
+    ]`);
+    if (!Array.isArray(result)) {
+      throw new Error("bad");
+    }
+    expect(result?.[0]?.start_date).toBeInstanceOf(Date);
+    expect(result?.[1]?.start_date).toBeInstanceOf(Date);
   });
 });

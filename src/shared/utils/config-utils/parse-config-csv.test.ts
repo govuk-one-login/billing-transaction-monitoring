@@ -59,7 +59,7 @@ describe("parseConfigCsv", () => {
 
     it("throws error", async () => {
       const resultPromise = parseConfigCsv(givenCsv, givenOptions);
-      await expect(resultPromise).rejects.toThrow("CSV missing required data");
+      await expect(resultPromise).rejects.toThrow("Missing required data");
     });
   });
 
@@ -70,7 +70,7 @@ describe("parseConfigCsv", () => {
 
     it("throws error", async () => {
       const resultPromise = parseConfigCsv(givenCsv, givenOptions);
-      await expect(resultPromise).rejects.toThrow("Invalid date in CSV");
+      await expect(resultPromise).rejects.toThrow("Invalid date");
     });
   });
 
@@ -81,7 +81,7 @@ describe("parseConfigCsv", () => {
 
     it("throws error", async () => {
       const resultPromise = parseConfigCsv(givenCsv, givenOptions);
-      await expect(resultPromise).rejects.toThrow("Invalid number in CSV");
+      await expect(resultPromise).rejects.toThrow("Invalid number");
     });
   });
 });
