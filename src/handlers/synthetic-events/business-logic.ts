@@ -17,7 +17,7 @@ export const businessLogic: BusinessLogic<
 
   const now = new Date();
   const nowTime = now.getTime();
-  const nowFormatted = now.toLocaleString("en-gb");
+  const nowFormatted = now.toLocaleString("UTC");
   const events: CleanedEventBody[] = [];
 
   syntheticEventsConfig.forEach((configLine) => {
