@@ -1,22 +1,19 @@
 import {
-  APIGatewayRequestAuthorizerEvent,
+  APIGatewayTokenAuthorizerEvent,
   APIGatewayAuthorizerResult,
 } from "aws-lambda";
 import { randomUUID } from "crypto";
-const region = "eu-west-2";
-const accountId = process.env.AWS_ACCOUNT_ID;
-const verb = "GET";
 
 const generatePolicy = ({
-  apiId,
   sub,
   effect,
+  resource,
   context,
 }: {
-  apiId: string;
   sub: string;
   effect: "Allow" | "Deny";
   context?: Record<string, string | number | boolean | null | undefined>;
+  resource: string;
 }): APIGatewayAuthorizerResult => ({
   principalId: sub,
   policyDocument: {
@@ -25,7 +22,7 @@ const generatePolicy = ({
       {
         Action: "execute-api:Invoke",
         Effect: effect,
-        Resource: `arn:aws:execute-api:${region}:${accountId}:${apiId}/web/${verb}/*`,
+        Resource: resource,
       },
     ],
   },
@@ -33,19 +30,29 @@ const generatePolicy = ({
 });
 
 export const handler = async (
-  event: APIGatewayRequestAuthorizerEvent
+  event: APIGatewayTokenAuthorizerEvent
 ): Promise<
   | APIGatewayAuthorizerResult
   | { statusCode: number; headers: { Location: string } }
 > => {
+  const [effect, redirect] = ((): ["Allow" | "Deny", boolean] => {
+    switch (event.authorizationToken) {
+      case "allow":
+        return ["Allow", false];
+      case "deny":
+        return ["Deny", true];
+      case "unauthorized":
+        return ["Deny", false];
+      default:
+        return ["Deny", true];
+    }
+  })();
   return generatePolicy({
-    apiId: event.requestContext.apiId,
+    resource: event.methodArn,
     sub: randomUUID(),
-    // allow unless you've requested you not be allowed by requesting with ?effect=Deny
-    effect: event.queryStringParameters?.effect === "deny" ? "Deny" : "Allow",
+    effect,
     context: {
-      // set context key redirect to true if query param ?shouldRedirect=true
-      redirect: event.queryStringParameters?.shouldRedirect === "true",
+      redirect,
     },
   });
 };
