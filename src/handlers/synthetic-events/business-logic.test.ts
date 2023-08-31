@@ -7,7 +7,7 @@ const mockedRandomUUID = randomUUID as jest.Mock;
 
 beforeAll(() => {
   jest.useFakeTimers();
-  jest.setSystemTime(new Date(2020, 3, 1));
+  jest.setSystemTime(Date.UTC(2020, 3, 1));
 });
 
 afterAll(() => {
@@ -47,9 +47,9 @@ describe("Synthetic events businessLogic", () => {
   const mockEvent = {
     component_id: "test component id",
     event_name: "some event name",
-    timestamp: 1585695600000,
+    timestamp: 1585699200000,
     event_id: "some random id",
-    timestamp_formatted: "01/04/2020, 00:00:00",
+    timestamp_formatted: "01/04/2020, 01:00:00",
     vendor_id: "some vendor id",
     credits: 5,
   };
