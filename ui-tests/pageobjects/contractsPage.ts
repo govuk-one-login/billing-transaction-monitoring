@@ -13,6 +13,7 @@ class ContractsPage extends Page {
     const contractElements = await this.listOfContracts;
     let matchedElement;
     for (const contract of contractElements) {
+      await contract.waitForDisplayed();
       const text: string = await contract.getText();
       if (text.includes(vendorName)) {
         matchedElement = contract;
@@ -31,6 +32,7 @@ class ContractsPage extends Page {
   public async getListOfContractsText(): Promise<string[]> {
     const listOfContractText: string[] = [];
     for (const contract of await this.listOfContracts) {
+      await contract.waitForDisplayed();
       const text: string = await contract.getText();
       listOfContractText.push(text);
     }

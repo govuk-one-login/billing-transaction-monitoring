@@ -41,7 +41,8 @@ class InvoicePage extends Page {
   }
 
   public async getStatusBannerTitle(): Promise<string> {
-    await (await this.statusBannerTitle).isDisplayed();
+    const statusBannerTitleElement = await this.statusBannerTitle;
+    await statusBannerTitleElement.waitForDisplayed();
     return await (await this.statusBannerTitle).getText();
   }
 
