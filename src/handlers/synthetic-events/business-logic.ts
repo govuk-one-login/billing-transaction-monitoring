@@ -4,6 +4,7 @@ import { ConfigElements } from "../../shared/constants";
 import { ConfigSyntheticEventsRow } from "../../shared/types";
 import { CleanedEventBody } from "../clean/types";
 import crypto from "crypto";
+import { formatDate } from "../../shared/utils";
 
 export const businessLogic: BusinessLogic<
   any,
@@ -17,7 +18,7 @@ export const businessLogic: BusinessLogic<
 
   const now = new Date();
   const nowTime = now.getTime();
-  const nowFormatted = now.toLocaleString("UTC");
+  const nowFormatted = formatDate(now);
   const events: CleanedEventBody[] = [];
 
   syntheticEventsConfig.forEach((configLine) => {

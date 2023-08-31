@@ -49,7 +49,7 @@ describe("Synthetic events businessLogic", () => {
     event_name: "some event name",
     timestamp: 1585699200000,
     event_id: "some random id",
-    timestamp_formatted: "01/04/2020, 01:00:00",
+    timestamp_formatted: "2020-04-01",
     vendor_id: "some vendor id",
     credits: 5,
   };
