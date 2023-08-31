@@ -31,6 +31,7 @@ RUN rm -rf /usr/local/aws-cli/v2/current/dist/aws_completer /usr/local/aws-cli/v
 RUN find /usr/local/aws-cli/v2/current/dist/awscli/botocore/data -name examples-1.json -delete
 
 FROM node:16-alpine${ALPINE_VERSION} AS run-tests
+USER nonroot
 
 COPY --from=builder /usr/local/bin/python /usr/local/bin/python
 COPY --from=builder /usr/local/lib/ /usr/local/lib/
