@@ -375,10 +375,13 @@ Resources:
             , invoice.quantity billing_quantity
             , txn.quantity transaction_quantity
             , CAST((invoice.price + invoice.tax) AS decimal(10,2)) billing_amount_with_tax
-            , (CASE
-                WHEN invoice.vendor_id IS NULL THEN txn.invoice_is_quarterly
-                ELSE invoice.invoice_is_quarterly
-              END) invoice_is_quarterly
+            , COALESCE(
+                (CASE
+                  WHEN invoice.vendor_id IS NULL THEN txn.invoice_is_quarterly
+                  ELSE invoice.invoice_is_quarterly
+                END),
+                FALSE
+              ) invoice_is_quarterly
           FROM
             btm_transactions_curated txn
             FULL JOIN btm_billing_curated invoice
@@ -396,7 +399,7 @@ Resources:
                   OR invoice.month = '10' AND (txn.month = '10' OR txn.month = '11' OR txn.month = '12')
                 )
                 -- If not quarterly, join on month
-                OR NOT invoice.invoice_is_quarterly
+                OR (NOT invoice.invoice_is_quarterly OR invoice.invoice_is_quarterly IS NULL)
                 AND txn.month = invoice.month
               )
             )
