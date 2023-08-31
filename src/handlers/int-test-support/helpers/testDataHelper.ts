@@ -1,17 +1,22 @@
 import { configStackName } from "./envHelper";
 import { EventPayload } from "./payloadHelper";
 import { getRatesFromConfig } from "../config-utils/get-rate-config-rows";
-import { getVendorServiceConfigRows } from "../config-utils/get-vendor-service-config-rows";
+import {
+  VendorServiceConfigRowsNotFoundError,
+  getVendorServiceConfigRows,
+} from "../config-utils/get-vendor-service-config-rows";
 import { getE2ETestConfig } from "../config-utils/get-e2e-test-config";
 import { checkS3BucketForEventId } from "./commonHelpers";
 import { sendMessageToQueue, Queue } from "./sqsHelper";
 
 const configBucket = configStackName();
 
-export const getVendorServiceAndRatesFromConfig =
+export const getNonQuarterlyInvoiceVendorServiceAndRatesFromConfig =
   async (): Promise<TestDataRetrievedFromConfig> => {
     const [vendorServiceRows, rateConfigRows] = await Promise.all([
-      getVendorServiceConfigRows(configBucket, {}),
+      getVendorServiceConfigRows(configBucket, {
+        invoice_is_quarterly: "false",
+      }),
       getRatesFromConfig(configBucket),
     ]);
     const testDataRetrievedFromConfig = {
@@ -39,6 +44,43 @@ export const getVendorServiceAndRatesFromConfig =
         vendorServiceRows[0].service_name;
     }
     return testDataRetrievedFromConfig;
+  };
+
+export const getQuarterlyInvoiceVendorServiceAndRatesFromConfig =
+  async (): Promise<TestDataRetrievedFromConfig | undefined> => {
+    let rateConfigRows;
+    let vendorServiceRows;
+    try {
+      [vendorServiceRows, rateConfigRows] = await Promise.all([
+        getVendorServiceConfigRows(configBucket, {
+          invoice_is_quarterly: "true",
+        }),
+        getRatesFromConfig(configBucket),
+      ]);
+    } catch (error) {
+      if (error instanceof VendorServiceConfigRowsNotFoundError)
+        return undefined;
+
+      throw error;
+    }
+
+    const vendorServiceRow = vendorServiceRows[0];
+    const vendorId = vendorServiceRow.vendor_id;
+
+    const quarterlyRateConfigRow = rateConfigRows.find(
+      ({ vendor_id }) => vendor_id === vendorId
+    );
+
+    if (quarterlyRateConfigRow === undefined) return undefined;
+
+    return {
+      unitPrice: quarterlyRateConfigRow.unit_price,
+      vendorId,
+      vendorName: vendorServiceRow.vendor_name,
+      eventName: vendorServiceRow.event_name,
+      serviceName: vendorServiceRow.service_name,
+      description: vendorServiceRow.service_name,
+    };
   };
 
 export interface GenerateEventsResult {
@@ -75,6 +117,7 @@ export interface TestDataRetrievedFromConfig {
 
 export interface TestData {
   eventTime: string;
+  invoiceDate: string;
   numberOfTestEvents: number;
   billingQty: number;
   transactionQty: number;
@@ -86,4 +129,5 @@ export interface TestData {
   priceDifferencePercentage: string;
   billingPriceFormatted: string;
   transactionPriceFormatted: string;
+  invoiceIsQuarterly?: boolean;
 }

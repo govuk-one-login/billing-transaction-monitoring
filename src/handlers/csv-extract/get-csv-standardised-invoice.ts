@@ -1,5 +1,10 @@
 import { ConfigServicesRow, StandardisedLineItem } from "../../shared/types";
-import { formatDate, getDate } from "../../shared/utils";
+import {
+  dateRangeIsQuarter,
+  formatDate,
+  getDate,
+  logger,
+} from "../../shared/utils";
 
 export interface LineItem {
   "service name": string;
@@ -14,6 +19,7 @@ export interface CsvObject {
   vendor: string;
   "invoice date": string;
   "invoice period start": string;
+  "invoice period end": string;
   "due date": string;
   "vat number": string;
   "po number": string;
@@ -39,6 +45,10 @@ export const getCsvStandardisedInvoice = (
     tax_payer_id: csvObject["vat number"],
     parser_version: csvObject.version,
     originalInvoiceFile: sourceFileName,
+    invoice_is_quarterly: dateRangeIsQuarter(
+      getDate(csvObject["invoice period start"]),
+      getDate(csvObject["invoice period end"])
+    ),
   };
 
   return csvObject.lineItems.reduce<StandardisedLineItem[]>((acc, item) => {
@@ -50,11 +60,18 @@ export const getCsvStandardisedInvoice = (
       service_regex: serviceRegexPattern,
       event_name: eventName,
       contract_id: contractId,
+      invoice_is_quarterly: invoiceIsQuarterly,
+      vendor_name: vendorName,
     } of vendorServiceConfigRows) {
       const serviceRegex = new RegExp(serviceRegexPattern, "i");
       if (!itemDescription?.match(serviceRegex)) {
         continue;
       }
+
+      if (invoiceIsQuarterly !== summary.invoice_is_quarterly)
+        throw Error(
+          `Service config and line item quarterly flags do not match for "${serviceName}" on invoice ${summary.invoice_receipt_id} received ${summary.invoice_receipt_date} from ${vendorName}`
+        );
 
       nextAcc = [
         ...nextAcc,
@@ -73,6 +90,14 @@ export const getCsvStandardisedInvoice = (
         },
       ];
     }
+
+    if (acc.length === nextAcc.length)
+      logger.warn("No service config found for line item", {
+        vendorId,
+        invoiceReceiptDate: summary.invoice_receipt_date,
+        lastMatchedEventName: acc[acc.length - 1]?.event_name,
+      });
+
     return nextAcc;
   }, []);
 };

@@ -21,7 +21,10 @@ export type FullExtractData = {
   quantity_difference: string;
   billing_amount_with_tax: string;
   price_difference_percentage: string;
+  invoice_is_quarterly: string;
 };
+
+const cachedFileTextByPath: Partial<Record<string, string>> = {};
 
 export const getTestDataFilePath = (): string => {
   const currentFilePath = fileURLToPath(import.meta.url);
@@ -31,7 +34,11 @@ export const getTestDataFilePath = (): string => {
 };
 
 export const readJsonDataFromFile = (filePath: string): string => {
+  const cachedData = cachedFileTextByPath[filePath];
+  if (cachedData) return cachedData;
+
   const fileContent = fs.readFileSync(filePath, "utf-8");
+  cachedFileTextByPath[filePath] = fileContent;
   return fileContent;
 };
 
@@ -126,7 +133,13 @@ export const getInvoicesByContractIdYearMonth = (
 
 export const extractAllUniqueVendorInvoiceDataFomJson = (
   testDataFilepath: string
-): Array<{ vendor: string; year: string; month: string; vendorId: string }> => {
+): Array<{
+  vendor: string;
+  year: string;
+  month: string;
+  vendorId: string;
+  invoiceIsQuarterly: boolean;
+}> => {
   const vendorsNameFromJson = getUniqueVendorNamesFromJson(testDataFilepath);
   const allVendorInvoiceData = [];
 
@@ -139,7 +152,13 @@ export const extractAllUniqueVendorInvoiceDataFomJson = (
       const vendorIds = getUniqueVendorIdsFromJson(vendor);
 
       for (const vendorId of vendorIds) {
-        allVendorInvoiceData.push({ vendor, year, month, vendorId });
+        allVendorInvoiceData.push({
+          vendor,
+          year,
+          month,
+          vendorId,
+          invoiceIsQuarterly: invoiceIsQuarterly({ vendorId, year, month }),
+        });
       }
     }
   }
@@ -168,4 +187,24 @@ export const getLatestInvoicePerVendor = (): FullExtractData[] => {
     }
   }
   return latestInvoices;
+};
+
+const invoiceIsQuarterly = ({
+  vendorId,
+  year,
+  month,
+}: {
+  vendorId: string;
+  year: string;
+  month: string;
+}): boolean => {
+  const testDataFilePath = getTestDataFilePath();
+  const rows = getExtractDataFromJson(testDataFilePath);
+
+  const row = rows.find(
+    (row) =>
+      row.vendor_id === vendorId && row.month === month && row.year === year
+  );
+
+  return row ? row.invoice_is_quarterly === "true" : false;
 };

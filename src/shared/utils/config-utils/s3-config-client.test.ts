@@ -16,9 +16,9 @@ jest.mock("../s3", () => ({
 a,b,0,1,2,2000-01-01,2049-01-01
 c,d,3,,4,2000-01-01,2049-01-01`;
     if (path === configFileMap[ConfigElements.services])
-      return `vendor_name,vendor_id,service_name,service_regex,event_name,contract_id
-a,b,c,d,e,f
-g,h,i,j,k,l`;
+      return `vendor_name,vendor_id,service_name,service_regex,event_name,contract_id,invoice_is_quarterly
+a,b,c,d,e,f,false
+g,h,i,j,k,l,true`;
     return '[{"val_a": "a", "val_b": "c"}, {"val_a": "b", "val_b": "d"}]';
   }),
 }));
@@ -68,6 +68,7 @@ describe("getConfigFile", () => {
           service_regex: "d",
           event_name: "e",
           contract_id: "f",
+          invoice_is_quarterly: false,
         },
         {
           vendor_name: "g",
@@ -76,6 +77,7 @@ describe("getConfigFile", () => {
           service_regex: "j",
           event_name: "k",
           contract_id: "l",
+          invoice_is_quarterly: true,
         },
       ]);
     });

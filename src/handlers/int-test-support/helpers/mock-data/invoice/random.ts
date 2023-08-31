@@ -12,6 +12,7 @@ export interface InvoiceOptions {
   lineItemCount?: number;
   lineItemOptions?: LineItemOptions;
   lineItems?: LineItem[];
+  isQuarterly?: boolean;
 }
 
 export interface LineItemOptions extends Partial<LineItem> {
@@ -119,6 +120,7 @@ export const randomInvoiceData = (options?: InvoiceOptions): InvoiceData => ({
   lineItems:
     options?.lineItems ??
     randomLineItems(options?.lineItemCount ?? 10, options?.lineItemOptions),
+  isQuarterly: options?.isQuarterly ?? false,
 });
 
 export const randomInvoice = (options?: InvoiceOptions): Invoice => {

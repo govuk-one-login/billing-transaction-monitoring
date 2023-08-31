@@ -11,23 +11,21 @@ const storageBucket = `${prefix}-storage`;
 
 export const cleanAndUploadExtractFileForUITest = async (): Promise<void> => {
   const key = "btm_extract_data/full-extract.json";
-  const filePath = "./ui-tests/testData/testData.json";
+  const filePath = "./ui-tests/testData/testData.txt";
   const content = readJsonDataFromFile(filePath);
 
   // deleting existing file with same key
   await deleteS3Objects({ bucket: storageBucket, keys: [key] });
 
   // uploading the file to s3
-  await putS3Object(
-    {
-      data: content,
-      target: {
-        bucket: storageBucket,
-        key,
-      },
+  await putS3Object({
+    data: content,
+    encoding: "utf-8",
+    target: {
+      bucket: storageBucket,
+      key,
     },
-    "utf-8"
-  );
+  });
 
   // verifying that the file exists
   const objectExists = await checkIfS3ObjectExists({

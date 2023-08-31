@@ -43,7 +43,15 @@ export const config = {
       browserName,
       // To run tests without headless mode set the args to an empty array [].This is applicable for all browsers expect safari.
       [getBrowserOptions(browserName)]: {
-        args: browserName === "safari" ? [] : ["--headless"],
+        args:
+          browserName === "safari"
+            ? []
+            : [
+                "--headless",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--no-sandbox",
+              ],
       },
     },
   ],
@@ -53,7 +61,15 @@ export const config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  services: ["chromedriver", "geckodriver", "safaridriver", "edgedriver"],
+  services: [
+    browserName === "firefox"
+      ? "geckodriver"
+      : browserName === "safari"
+      ? "safaridriver"
+      : browserName === "MicrosoftEdge"
+      ? "edgedriver"
+      : "chromedriver",
+  ],
   framework: "mocha",
   reporters: [
     "spec",

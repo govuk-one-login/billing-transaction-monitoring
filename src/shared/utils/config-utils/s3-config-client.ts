@@ -70,6 +70,7 @@ const parserMap = {
       service_regex: { type: "string", required: true },
       event_name: { type: "string", required: true },
       contract_id: { type: "string", required: true },
+      invoice_is_quarterly: { type: "boolean", required: true },
     }),
   [ConfigElements.contracts]: async (rawFile: string) =>
     await parseConfigCsv<keyof ConfigContractsRow, ConfigContractsRow>(

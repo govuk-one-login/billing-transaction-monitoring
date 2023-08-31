@@ -1,30 +1,27 @@
 import { SQSEvent } from "aws-lambda";
-import {
-  fetchS3,
-  getFromEnv,
-  getVendorServiceConfigRows,
-  logger,
-  sendRecord,
-} from "../../shared/utils";
+import { getVendorServiceConfigRows } from "../../shared/utils/config-utils/get-vendor-service-config-rows";
+import { getFromEnv } from "../../shared/utils/env";
+import { logger } from "../../shared/utils/logger";
+import { sendRecord } from "../../shared/utils/sqs";
+import { fetchS3 } from "../../shared/utils/s3";
 import { handler } from "./handler";
 
-jest.mock("../../shared/utils", () => {
-  const original = jest.requireActual("../../shared/utils");
-  return {
-    ...original,
-    fetchS3: jest.fn(),
-    putTextS3: jest.fn(),
-    getVendorServiceConfigRows: jest.fn(),
-    logger: { error: jest.fn() },
-    getStandardisedInvoiceKey: jest.fn(),
-    sendRecord: jest.fn(),
-    getFromEnv: jest.fn(),
-  };
-});
-const mockedFetchS3 = fetchS3 as jest.Mock;
-const mockedGetFromEnv = getFromEnv as jest.Mock;
+jest.mock("../../shared/utils/config-utils/get-vendor-service-config-rows");
 const mockedGetVendorServiceConfigRows =
   getVendorServiceConfigRows as jest.Mock;
+
+jest.mock("../../shared/utils/env");
+const mockedGetFromEnv = getFromEnv as jest.Mock;
+
+jest.mock("../../shared/utils/get-standardised-invoice-key");
+
+jest.mock("../../shared/utils/logger");
+const mockedLogger = logger as jest.MockedObject<typeof logger>;
+
+jest.mock("../../shared/utils/s3/base");
+const mockedFetchS3 = fetchS3 as jest.Mock;
+
+jest.mock("../../shared/utils/sqs");
 const mockedSendRecord = sendRecord as jest.Mock;
 
 describe("CSV Extract handler tests", () => {
@@ -59,6 +56,7 @@ describe("CSV Extract handler tests", () => {
     "Vendor,Skippy’s Everything Shop,,,,,\n" +
     "Invoice Date,2022/1/1,,,,,\n" +
     "Invoice Period Start,2022/1/1,,,,,\n" +
+    "Invoice Period End,2022/1/1,,,,,\n" +
     "Due Date,2022/2/1,,,,,\n" +
     "VAT Number,123 4567 89,,,,,\n" +
     "PO Number,123 4567 89,,,,,\n" +
@@ -75,6 +73,7 @@ describe("CSV Extract handler tests", () => {
       service_regex: "Horse Hoof Whittling",
       event_name: "VENDOR_1_EVENT_1",
       contract_id: "1",
+      invoice_is_quarterly: false,
     },
   ];
 
@@ -87,6 +86,8 @@ describe("CSV Extract handler tests", () => {
     };
 
     mockedGetFromEnv.mockImplementation((key) => mockedEnv[key]);
+
+    mockedLogger.error = jest.fn();
   });
 
   function expectHandlerFailure(errorMessage: string): void {
@@ -254,7 +255,8 @@ describe("CSV Extract handler tests", () => {
       // Test the case with 'Vendor' misspelled
       "Vender,Skippy’s Everything Shop,,,,,\n" +
       "Invoice Date,2022/1/1,,,,,\n" +
-      "Invoice Period Start,2022/1/1,,,,,\n" +
+      "Invoice Period Start,2021/1/1,,,,,\n" +
+      "Invoice Period End,2021/1/1,,,,,\n" +
       "Due Date,2022/2/1,,,,,\n" +
       "VAT Number,123 4567 89,,,,,\n" +
       "PO Number,123 4567 89,,,,,\n" +
@@ -332,6 +334,7 @@ describe("CSV Extract handler tests", () => {
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
         originalInvoiceFile: givenFileName,
+        invoice_is_quarterly: false,
         event_name: "VENDOR_1_EVENT_1",
         item_description: "Horse Hoof Whittling",
         subtotal: 348.6,
@@ -349,8 +352,9 @@ describe("CSV Extract handler tests", () => {
   test("should store the standardised invoice if no errors and no trailing commas table", async () => {
     const validInvoiceData =
       "Vendor,Skippy’s Everything Shop,,,,,\n" +
+      "Invoice Period Start,2021/12/01,,,,,\n" +
+      "Invoice Period End,2021/12/31,,,,,\n" +
       "Invoice Date,2022/1/1,,,,,\n" +
-      "Invoice Period Start,2022/1/1,,,,,\n" +
       "Due Date,2022/2/1,,,,,\n" +
       "VAT Number,123 4567 89,,,,,\n" +
       "PO Number,123 4567 89,,,,,\n" +
@@ -370,11 +374,12 @@ describe("CSV Extract handler tests", () => {
         vendor_id: "vendor123",
         vendor_name: "Skippy’s Everything Shop",
         invoice_receipt_date: "2022-01-01",
-        invoice_period_start: "2022-01-01",
+        invoice_period_start: "2021-12-01",
         due_date: "2022-02-01",
         tax_payer_id: "123 4567 89",
         parser_version: "1.0.0",
         originalInvoiceFile: givenFileName,
+        invoice_is_quarterly: false,
         event_name: "VENDOR_1_EVENT_1",
         item_description: "Horse Hoof Whittling",
         subtotal: 348.6,

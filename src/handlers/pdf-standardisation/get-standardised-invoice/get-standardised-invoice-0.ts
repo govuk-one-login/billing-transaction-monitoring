@@ -4,6 +4,7 @@ import {
   StandardisedLineItem,
   StandardisedLineItemSummary,
 } from "../../../shared/types";
+import { getQuarterStartString } from "../../../shared/utils";
 import {
   getDueDate,
   getInvoiceReceiptDate,
@@ -57,6 +58,7 @@ export const getStandardisedInvoice0: StandardisationModule = (
       ? []
       : getLineItems(lastPageWithLineItems);
 
+  const invoiceIsQuarterly = vendorServiceConfigRows[0].invoice_is_quarterly;
   const invoiceReceiptDate = getInvoiceReceiptDate(summaryFields);
   const summary = {
     invoice_receipt_id: getInvoiceReceiptId(summaryFields),
@@ -64,13 +66,16 @@ export const getStandardisedInvoice0: StandardisationModule = (
     vendor_name: vendorServiceConfigRows[0].vendor_name,
     total: getTotal(summaryFields),
     invoice_receipt_date: invoiceReceiptDate,
-    invoice_period_start: invoiceReceiptDate,
+    invoice_period_start: invoiceIsQuarterly
+      ? getQuarterStartString(invoiceReceiptDate)
+      : invoiceReceiptDate,
     subtotal: getSubtotal(summaryFields),
     due_date: getDueDate(summaryFields),
     tax: getTax(summaryFields),
     tax_payer_id: getTaxPayerId(summaryFields),
     parser_version: parserVersion,
     originalInvoiceFile: originalInvoiceFileName,
+    invoice_is_quarterly: invoiceIsQuarterly,
   };
 
   return getStandardisedLineItems(summary, lineItems, vendorServiceConfigRows);

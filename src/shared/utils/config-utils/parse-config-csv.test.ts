@@ -6,11 +6,12 @@ describe("parseConfigCsv", () => {
   let givenOptions: CsvParserOptions<any, any>;
 
   beforeEach(() => {
-    givenCsv = `dateColumn,numberColumn,stringColumn,optionalColumn
-2000-01-01,123,foo,bar
-2000-01-02,456,baz,`;
+    givenCsv = `booleanColumn,dateColumn,numberColumn,stringColumn,optionalColumn
+true,2000-01-01,123,foo,bar
+false,2000-01-02,456,baz,`;
 
     givenOptions = {
+      booleanColumn: { type: "boolean", required: true },
       dateColumn: { type: "date", required: true },
       numberColumn: { type: "number", required: true },
       stringColumn: { type: "string", required: true },
@@ -24,12 +25,14 @@ describe("parseConfigCsv", () => {
 
       expect(result).toEqual([
         {
+          booleanColumn: true,
           dateColumn: new Date("2000-01-01"),
           numberColumn: 123,
           stringColumn: "foo",
           optionalColumn: "bar",
         },
         {
+          booleanColumn: false,
           dateColumn: new Date("2000-01-02"),
           numberColumn: 456,
           stringColumn: "baz",
@@ -65,7 +68,7 @@ describe("parseConfigCsv", () => {
 
   describe("invalid date", () => {
     beforeEach(() => {
-      givenCsv += "\ninvalid date,123,foo,";
+      givenCsv += "\nfalse,invalid date,123,foo,";
     });
 
     it("throws error", async () => {
@@ -76,7 +79,7 @@ describe("parseConfigCsv", () => {
 
   describe("invalid number", () => {
     beforeEach(() => {
-      givenCsv += "\n2000-01-01,invalid number,foo,";
+      givenCsv += "\nfalse,2000-01-01,invalid number,foo,";
     });
 
     it("throws error", async () => {

@@ -1,10 +1,69 @@
 import {
+  dateRangeIsQuarter,
   formatDate,
   formatDateAsYearMonth,
   formatYearMonthDay,
   getDate,
+  getMonthQuarter,
+  getQuarterMonth,
+  getQuarterStartString,
+  isQuarter,
   padZero,
 } from "./date-utils";
+
+test("1/1-31/3 is identified as quarter", () => {
+  const start = new Date("2022-01-01");
+  const end = new Date("2022-03-31");
+
+  const result = dateRangeIsQuarter(start, end);
+
+  expect(result).toBe(true);
+});
+
+test("1/4-30/6 is identified as quarter", () => {
+  const start = new Date("2022-04-01");
+  const end = new Date("2022-06-30");
+
+  const result = dateRangeIsQuarter(start, end);
+
+  expect(result).toBe(true);
+});
+
+test("1/7-30/9 is identified as quarter", () => {
+  const start = new Date("2022-07-01");
+  const end = new Date("2022-09-30");
+
+  const result = dateRangeIsQuarter(start, end);
+
+  expect(result).toBe(true);
+});
+
+test("1/10-31/12 is identified as quarter", () => {
+  const start = new Date("2022-10-01");
+  const end = new Date("2022-12-31");
+
+  const result = dateRangeIsQuarter(start, end);
+
+  expect(result).toBe(true);
+});
+
+test("1/1-30/3 is identified as not a quarter", () => {
+  const start = new Date("2022-01-01");
+  const end = new Date("2022-03-30");
+
+  const result = dateRangeIsQuarter(start, end);
+
+  expect(result).toBe(false);
+});
+
+test("1/1-31/12 is identified as not a quarter", () => {
+  const start = new Date("2022-01-01");
+  const end = new Date("2022-12-31");
+
+  const result = dateRangeIsQuarter(start, end);
+
+  expect(result).toBe(false);
+});
 
 test("Date is got from yyyy/mm/dd", () => {
   const string = "2022/01/30";
@@ -141,4 +200,196 @@ test("Throws error if not given a valid date", async () => {
   expect(() => formatDate(new Date("abc"))).toThrowError(
     "Unsupported date format"
   );
+});
+
+describe("Month Quarter Getter", () => {
+  test("Month Quarter Getter with month number `NaN`", () => {
+    const givenMonth = NaN;
+
+    expect(() => getMonthQuarter(givenMonth)).toThrow(
+      "Failed to determine quarter"
+    );
+  });
+
+  test("Month Quarter Getter with month string 'foo'", () => {
+    const givenMonth = "foo";
+
+    expect(() => getMonthQuarter(givenMonth)).toThrow(
+      "Failed to determine quarter"
+    );
+  });
+
+  test("Month Quarter Getter with month number < 1", () => {
+    const givenMonth = 0.9;
+
+    expect(() => getMonthQuarter(givenMonth)).toThrow(
+      "Failed to determine quarter"
+    );
+  });
+
+  test("Month Quarter Getter with month number 1", () => {
+    const givenMonth = 1;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q4");
+  });
+
+  test("Month Quarter Getter with month string '01'", () => {
+    const givenMonth = "01";
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q4");
+  });
+
+  test("Month Quarter Getter with month number 2", () => {
+    const givenMonth = 2;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q4");
+  });
+
+  test("Month Quarter Getter with month number 3", () => {
+    const givenMonth = 3;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q4");
+  });
+
+  test("Month Quarter Getter with month number 3.9", () => {
+    const givenMonth = 3.9;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q4");
+  });
+
+  test("Month Quarter Getter with month number 4", () => {
+    const givenMonth = 4;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q1");
+  });
+
+  test("Month Quarter Getter with month number 6.9", () => {
+    const givenMonth = 6.9;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q1");
+  });
+
+  test("Month Quarter Getter with month number 8", () => {
+    const givenMonth = 8;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q2");
+  });
+
+  test("Month Quarter Getter with month number 11", () => {
+    const givenMonth = 11;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q3");
+  });
+
+  test("Month Quarter Getter with month number 12.1", () => {
+    const givenMonth = 12.1;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q3");
+  });
+
+  test("Month Quarter Getter with month number 13", () => {
+    const givenMonth = 13;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q3");
+  });
+
+  test("Month Quarter Getter with month number 123.456", () => {
+    const givenMonth = 123.456;
+    const result = getMonthQuarter(givenMonth);
+    expect(result).toBe("Q3");
+  });
+});
+
+describe("Quarter Month Getter", () => {
+  test("Quarter Month Getter with non-quarter string", () => {
+    const givenQuarter = "foo";
+    expect(() => getQuarterMonth(givenQuarter)).toThrow("Invalid");
+  });
+
+  test("Quarter Month Getter with Q1", () => {
+    const givenQuarter = "Q1";
+    const result = getQuarterMonth(givenQuarter);
+    expect(result).toBe(4);
+  });
+
+  test("Quarter Month Getter with Q2", () => {
+    const givenQuarter = "Q2";
+    const result = getQuarterMonth(givenQuarter);
+    expect(result).toBe(7);
+  });
+
+  test("Quarter Month Getter with Q3", () => {
+    const givenQuarter = "Q3";
+    const result = getQuarterMonth(givenQuarter);
+    expect(result).toBe(10);
+  });
+
+  test("Quarter Month Getter with Q4", () => {
+    const givenQuarter = "Q4";
+    const result = getQuarterMonth(givenQuarter);
+    expect(result).toBe(1);
+  });
+});
+
+describe("Quarter Start String Getter", () => {
+  test("Quarter Start String Getter with date at start of quarter", () => {
+    const givenDate = new Date("2000-01-01");
+    const result = getQuarterStartString(givenDate);
+    expect(result).toBe("2000-01-01");
+  });
+
+  test("Quarter Start String Getter with date in middle of quarter", () => {
+    const givenDate = new Date("2000-05-15");
+    const result = getQuarterStartString(givenDate);
+    expect(result).toBe("2000-04-01");
+  });
+
+  test("Quarter Start String Getter with date at end of quarter", () => {
+    const givenDate = new Date("2000-09-30");
+    const result = getQuarterStartString(givenDate);
+    expect(result).toBe("2000-07-01");
+  });
+
+  test("Quarter Start String Getter with date string", () => {
+    const givenString = "2000-12-31";
+    const result = getQuarterStartString(givenString);
+    expect(result).toBe("2000-10-01");
+  });
+
+  test("Quarter Start String Getter with invalid date", () => {
+    const givenDate = new Date("foo");
+    expect(() => getQuarterStartString(givenDate)).toThrow("Unsupported");
+  });
+});
+
+describe("Quarter Type Guard", () => {
+  test("Quarter Type Guard with non-quarter string", () => {
+    const givenString = "foo";
+    const result = isQuarter(givenString);
+    expect(result).toBe(false);
+  });
+
+  test("Quarter Type Guard with Q1", () => {
+    const givenString = "Q1";
+    const result = isQuarter(givenString);
+    expect(result).toBe(true);
+  });
+
+  test("Quarter Type Guard with Q2", () => {
+    const givenString = "Q2";
+    const result = isQuarter(givenString);
+    expect(result).toBe(true);
+  });
+
+  test("Quarter Type Guard with Q3", () => {
+    const givenString = "Q3";
+    const result = isQuarter(givenString);
+    expect(result).toBe(true);
+  });
+
+  test("Quarter Type Guard with Q4", () => {
+    const givenString = "Q4";
+    const result = isQuarter(givenString);
+    expect(result).toBe(true);
+  });
 });
