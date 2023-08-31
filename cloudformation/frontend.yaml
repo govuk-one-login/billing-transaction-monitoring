@@ -17,10 +17,6 @@ Resources:
         Authorizers:
           LambdaAuthorizer:
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
-            FunctionPayloadType: REQUEST
-            Identity:
-              QueryStrings:
-                - effect
         DefaultAuthorizer: LambdaAuthorizer
       CacheClusterEnabled: true
       CacheClusterSize: '0.5'
