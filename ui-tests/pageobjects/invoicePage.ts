@@ -1,4 +1,5 @@
 import Page from "./page";
+import { waitForElementDisplayed } from "../helpers/waits";
 
 class InvoicePage extends Page {
   /**
@@ -42,18 +43,20 @@ class InvoicePage extends Page {
 
   public async getStatusBannerTitle(): Promise<string> {
     const statusBannerTitleElement = await this.statusBannerTitle;
+    await waitForElementDisplayed(statusBannerTitleElement);
     await statusBannerTitleElement.waitForDisplayed();
     return await (await this.statusBannerTitle).getText();
   }
 
   public async getStatusBannerColor(): Promise<string> {
     const statusBannerElement = await this.statusBanner;
-    await statusBannerElement.waitForDisplayed();
+    await waitForElementDisplayed(statusBannerElement);
     const color = await statusBannerElement.getCSSProperty("background-color");
     return color.parsed.hex ?? "";
   }
 
   public async clickOnInvoiceBreadcrumbsLink(): Promise<void> {
+    await waitForElementDisplayed(await this.invoiceBreadcrumbsLink);
     await (await this.invoiceBreadcrumbsLink).click();
   }
 }

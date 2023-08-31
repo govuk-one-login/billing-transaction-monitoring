@@ -1,3 +1,4 @@
+import { waitForElementDisplayed } from "../helpers/waits";
 export default class Page {
   public async open(path: string): Promise<void> {
     await browser.url(`/${path}`);
@@ -24,22 +25,27 @@ export default class Page {
   }
 
   public async isPageHeadingDisplayed(): Promise<boolean> {
+    await waitForElementDisplayed(await this.pageHeading);
     return await (await this.pageHeading).isDisplayed();
   }
 
   public async getPageHeadingText(): Promise<string> {
+    await waitForElementDisplayed(await this.pageHeading);
     return await (await this.pageHeading).getText();
   }
 
   public async isPageSubHeadingDisplayed(): Promise<boolean> {
+    await waitForElementDisplayed(await this.pageSubHeading);
     return await (await this.pageSubHeading).isDisplayed();
   }
 
   public async getPageSubHeadingText(): Promise<string> {
+    await waitForElementDisplayed(await this.pageSubHeading);
     return await (await this.pageSubHeading).getText();
   }
 
   public async getPageParagraphText(): Promise<string> {
+    await waitForElementDisplayed(await this.pageParagraphText);
     return await (await this.pageParagraphText).getText();
   }
 
@@ -47,7 +53,7 @@ export default class Page {
     tableElement: WebdriverIO.Element
   ): Promise<Array<{ [key: string]: string }>> {
     const tableData: Array<{ [key: string]: string }> = [];
-
+    await waitForElementDisplayed(tableElement);
     const rows = await tableElement.$$("tbody tr");
     const headerRow = await tableElement.$("thead tr");
     const headerColumns = await headerRow.$$("th");
@@ -81,6 +87,7 @@ export default class Page {
   }
 
   public async clickOnCookiesFooterLink(): Promise<void> {
+    await waitForElementDisplayed(await this.cookiesFooterLink);
     await (await this.cookiesFooterLink).click();
   }
 }
