@@ -33,7 +33,8 @@ Resources:
               ArnEquals:
                 aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
             Effect: Allow
-            Principal: '*'
+            Principal:
+              Service: sns.amazonaws.com
             Resource: !GetAtt AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue.Arn
       Queues:
         - !Ref AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue
