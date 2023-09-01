@@ -7,6 +7,10 @@ import { ProxyHandler } from "aws-lambda";
 initApp(app, middleware);
 
 export const handler: ProxyHandler = async (event, context, callback) => {
+  console.log(
+    "🚀 ~ file: handler.ts:11 ~ consthandler:ProxyHandler= ~ event.requestContext:",
+    event.requestContext
+  );
   if (event.requestContext?.authorizer?.redirect)
     return {
       statusCode: 302,
