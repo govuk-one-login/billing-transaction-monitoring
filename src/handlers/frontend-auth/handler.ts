@@ -38,11 +38,18 @@ export const handler = async (
   | APIGatewayAuthorizerResult
   | { statusCode: number; headers: { Location: string } }
 > => {
+  console.log("🚀 ~ file: handler.ts:46 ~ event.headers:", event.headers);
+  console.log("🚀 ~ file: handler.ts:43 ~ event.methodArn:", event.methodArn);
+  console.log(
+    "🚀 ~ file: handler.ts:46 ~ event.requestContext:",
+    event.requestContext
+  );
+  console.log("🚀 ~ file: handler.ts:48 ~ process.env:", process.env);
   return generatePolicy({
     apiId: event.requestContext.apiId,
     sub: randomUUID(),
-    // allow unless you've requested you not be allowed by requesting with ?effect=Deny
-    effect: event.queryStringParameters?.effect === "deny" ? "Deny" : "Allow",
+    // allow unless you've requested you not be allowed by requesting with a Cookies containing deny
+    effect: event.headers?.Cookies?.match("deny") ? "Deny" : "Allow",
     context: {
       // set context key redirect to true if query param ?shouldRedirect=true
       redirect: event.queryStringParameters?.shouldRedirect === "true",
