@@ -1,4 +1,5 @@
 import Page from "./page";
+import { waitForElementDisplayed } from "../helpers/waits";
 
 class InvoicesListPage extends Page {
   public get invoicesList(): Promise<WebdriverIO.Element[]> {
@@ -16,6 +17,7 @@ class InvoicesListPage extends Page {
   }
 
   public async clickOnContractsBreadcrumbsLink(): Promise<void> {
+    await waitForElementDisplayed(await this.contractsBreadcrumbsLink);
     await (await this.contractsBreadcrumbsLink).click();
   }
 }

@@ -18,16 +18,14 @@ export const cleanAndUploadExtractFileForUITest = async (): Promise<void> => {
   await deleteS3Objects({ bucket: storageBucket, keys: [key] });
 
   // uploading the file to s3
-  await putS3Object(
-    {
-      data: content,
-      target: {
-        bucket: storageBucket,
-        key,
-      },
+  await putS3Object({
+    data: content,
+    encoding: "utf-8",
+    target: {
+      bucket: storageBucket,
+      key,
     },
-    "utf-8"
-  );
+  });
 
   // verifying that the file exists
   const objectExists = await checkIfS3ObjectExists({

@@ -10,7 +10,7 @@ import {
 } from "../utils/extractTestDatajson";
 import { generateExpectedBannerDetailsFromPercentagePriceDifference } from "../utils/generateExpectedStatusBannerDetails";
 import { generateExpectedStatusFromPercentagePriceDifference } from "../utils/generateExpectedStatusFromPriceDifference";
-import { quarterName } from "../utils/getPrettyMonthName";
+import { quarterName, prettyMonthName } from "../utils/getPrettyMonthName";
 import { getVendorContractIdFromConfig } from "../utils/getVendorContractId";
 import { formatPercentageDifference } from "../utils/invoiceDataFormatters";
 
@@ -63,6 +63,13 @@ describe("Invoice Page Test", () => {
           month,
           invoiceIsQuarterly
         );
+        const pageTitle = await InvoicePage.getPageHeadingText();
+        const monthOrQuarterString = invoiceIsQuarterly
+          ? quarterName(month)
+          : prettyMonthName(month);
+        expect(pageTitle).toContain(
+          `${vendor} (${monthOrQuarterString} ${year})`
+        );
       });
 
       it(`should display correct status banner color and message`, async () => {
@@ -71,6 +78,12 @@ describe("Invoice Page Test", () => {
           year,
           month
         );
+        expectEqual(
+          await InvoicePage.getStatusBannerTitle(),
+          generateExpectedBannerDetailsFromPercentagePriceDifference(
+            priceDifferencePercentage
+          ).bannerMessage
+        );
         const expectedBannerColor =
           generateExpectedBannerDetailsFromPercentagePriceDifference(
             priceDifferencePercentage
@@ -78,12 +91,6 @@ describe("Invoice Page Test", () => {
         expectEqual(
           await InvoicePage.getStatusBannerColor(),
           expectedBannerColor
-        );
-        expectEqual(
-          await InvoicePage.getStatusBannerTitle(),
-          generateExpectedBannerDetailsFromPercentagePriceDifference(
-            priceDifferencePercentage
-          ).bannerMessage
         );
       });
 

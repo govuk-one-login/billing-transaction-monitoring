@@ -15,3 +15,18 @@ export const waitForPageLoad = async (): Promise<void> => {
 
   throw new Error("Page did not load within the specified time.");
 };
+
+export const waitForElementDisplayed = async (
+  element: WebdriverIO.Element,
+  timeout: number = 5000
+): Promise<void> => {
+  await browser.waitUntil(
+    async () => {
+      return await element.isDisplayed();
+    },
+    {
+      timeout,
+      timeoutMsg: `Element did not displayed within ${timeout}ms`,
+    }
+  );
+};
