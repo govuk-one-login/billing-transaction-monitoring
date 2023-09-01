@@ -20,7 +20,7 @@ Resources:
             FunctionPayloadType: REQUEST
             Identity:
               Headers:
-                - Cookies
+                - Cookie
         DefaultAuthorizer: LambdaAuthorizer
       CacheClusterEnabled: true
       CacheClusterSize: '0.5'
