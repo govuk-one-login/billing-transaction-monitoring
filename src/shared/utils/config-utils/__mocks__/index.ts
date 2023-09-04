@@ -64,8 +64,8 @@ const config: ConfigCache = {
     {
       event_name: "VENDOR_5_TPS",
       quantity: 7,
-      start_date: new Date("2005-01-01"),
-      end_date: new Date("2025-01-01"),
+      start_date: "2005-01-01",
+      end_date: "2025-01-01",
       frequency: "monthly",
       vendor_id: "vendor_testvendor5",
       component_id: "my_component_id",

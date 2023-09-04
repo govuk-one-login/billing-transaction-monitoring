@@ -23,8 +23,9 @@ export const businessLogic: BusinessLogic<
 
   syntheticEventsConfig.forEach((configLine) => {
     if (
-      configLine.start_date.getTime() < nowTime &&
-      (!configLine.end_date || configLine.end_date.getTime() > nowTime) &&
+      new Date(configLine.start_date).getTime() < nowTime &&
+      (!configLine.end_date ||
+        new Date(configLine.end_date).getTime() > nowTime) &&
       configLine.frequency === "monthly"
     ) {
       const event: CleanedEventBody = {
