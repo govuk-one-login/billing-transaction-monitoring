@@ -33,7 +33,8 @@ Resources:
               ArnEquals:
                 aws:SourceArn: !Ref AmazonTextractRawInvoiceDataTopic
             Effect: Allow
-            Principal: '*'
+            Principal:
+              Service: sns.amazonaws.com
             Resource: !GetAtt AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue.Arn
       Queues:
         - !Ref AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueue
@@ -177,8 +178,7 @@ Resources:
             - Effect: Allow
               Action:
                 - s3:PutObject
-              Resource:
-                !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
+              Resource: !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
       ReservedConcurrentExecutions: 1
 
   RawInvoiceTextractDataStorageFunctionAlarm:

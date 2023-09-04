@@ -25,8 +25,9 @@ export const businessLogic: BusinessLogic<
     switch (configLine.type) {
       case "fixed": {
         if (
-          configLine.start_date.getTime() < nowTime &&
-          (!configLine.end_date || configLine.end_date.getTime() > nowTime) &&
+          new Date(configLine.start_date).getTime() < nowTime &&
+          (!configLine.end_date ||
+            new Date(configLine.end_date).getTime() > nowTime) &&
           configLine.frequency === "monthly"
         ) {
           const event: CleanedEventBody = {
@@ -44,8 +45,9 @@ export const businessLogic: BusinessLogic<
       }
       case "shortfall": {
         if (
-          configLine.start_date.getTime() < nowTime &&
-          (!configLine.end_date || configLine.end_date.getTime() > nowTime) &&
+          new Date(configLine.start_date).getTime() < nowTime &&
+          (!configLine.end_date ||
+            new Date(configLine.end_date).getTime() > nowTime) &&
           configLine.frequency === "monthly"
         ) {
           const event: CleanedEventBody = {

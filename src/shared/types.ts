@@ -95,8 +95,8 @@ export interface ConfigSyntheticEventsRow {
   type: SyntheticEventType;
   event_name: string;
   quantity: number;
-  start_date: Date;
-  end_date?: Date;
+  start_date: string;
+  end_date?: string;
   frequency: SyntheticEventFrequency;
   vendor_id: string;
   component_id: string;
