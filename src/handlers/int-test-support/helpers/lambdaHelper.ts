@@ -65,3 +65,13 @@ const invokeLambda = async (
     throw err;
   }
 };
+
+export const invokeSyntheticLambda = async (
+  payload: string
+): Promise<InvokeLambdaResponse> => {
+  const params: InvokeLambdaParams = {
+    functionName: `${resourcePrefix()}-synthetic-event-generation`,
+    payload,
+  };
+  return await invokeLambda(params);
+};
