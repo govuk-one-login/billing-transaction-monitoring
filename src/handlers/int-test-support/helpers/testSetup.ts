@@ -36,7 +36,7 @@ const deleteS3ObjectsAndPoll = async (
       }),
     (s3Objects) => s3Objects.length === 0,
     {
-      timeout: 60000,
+      timeout: 80000,
       interval: 10000,
       notCompleteErrorMessage: `${prefix} folder could not be deleted because it still contains objects`,
     }
