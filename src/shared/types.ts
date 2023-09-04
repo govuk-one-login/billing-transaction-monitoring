@@ -87,12 +87,17 @@ export interface ConfigStandardisationRow {
   invoiceStandardisationModuleId: number;
 }
 
+type SyntheticEventType = "fixed" | "shortfall";
+
+type SyntheticEventFrequency = "monthly" | "quarterly";
+
 export interface ConfigSyntheticEventsRow {
+  type: SyntheticEventType;
   event_name: string;
   quantity: number;
   start_date: Date;
   end_date?: Date;
-  frequency: string;
+  frequency: SyntheticEventFrequency;
   vendor_id: string;
   component_id: string;
 }

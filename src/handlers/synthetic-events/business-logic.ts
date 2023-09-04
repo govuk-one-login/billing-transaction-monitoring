@@ -22,21 +22,45 @@ export const businessLogic: BusinessLogic<
   const events: CleanedEventBody[] = [];
 
   syntheticEventsConfig.forEach((configLine) => {
-    if (
-      configLine.start_date.getTime() < nowTime &&
-      (!configLine.end_date || configLine.end_date.getTime() > nowTime) &&
-      configLine.frequency === "monthly"
-    ) {
-      const event: CleanedEventBody = {
-        vendor_id: configLine.vendor_id,
-        event_id: crypto.randomUUID(),
-        event_name: configLine.event_name,
-        timestamp: nowTime,
-        timestamp_formatted: nowFormatted,
-        credits: configLine.quantity,
-        component_id: configLine.component_id,
-      };
-      events.push(event);
+    switch (configLine.type) {
+      case "fixed": {
+        if (
+          configLine.start_date.getTime() < nowTime &&
+          (!configLine.end_date || configLine.end_date.getTime() > nowTime) &&
+          configLine.frequency === "monthly"
+        ) {
+          const event: CleanedEventBody = {
+            vendor_id: configLine.vendor_id,
+            event_id: crypto.randomUUID(),
+            event_name: configLine.event_name,
+            timestamp: nowTime,
+            timestamp_formatted: nowFormatted,
+            credits: configLine.quantity,
+            component_id: configLine.component_id,
+          };
+          events.push(event);
+        }
+        break;
+      }
+      case "shortfall": {
+        if (
+          configLine.start_date.getTime() < nowTime &&
+          (!configLine.end_date || configLine.end_date.getTime() > nowTime) &&
+          configLine.frequency === "monthly"
+        ) {
+          const event: CleanedEventBody = {
+            vendor_id: configLine.vendor_id,
+            event_id: crypto.randomUUID(),
+            event_name: configLine.event_name,
+            timestamp: nowTime,
+            timestamp_formatted: nowFormatted,
+            credits: configLine.quantity,
+            component_id: configLine.component_id,
+          };
+          events.push(event);
+        }
+        break;
+      }
     }
   });
   return events;
