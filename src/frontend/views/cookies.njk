@@ -3,7 +3,9 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% extends "common/layout/base.njk" %}
 {% block beforeContent %}
-  {{ govukBreadcrumbs(breadcrumbData) }}
+  <nav>
+    {{ govukBreadcrumbs(breadcrumbData) }}
+  </nav>
 {% endblock beforeContent %}
 {% block content %}
   <div class="govuk-grid-row">
