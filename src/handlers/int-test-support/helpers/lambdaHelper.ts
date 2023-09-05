@@ -8,6 +8,7 @@ import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
 import type { HelperDict } from "../handler";
 import { IntTestHelpers, SerializableData } from "../types";
+import { poll } from "./commonHelpers";
 import { configName, envName, resourcePrefix, runViaLambda } from "./envHelper";
 
 export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
@@ -88,9 +89,26 @@ export const restartLambda = async (functionName: string): Promise<void> => {
       },
     };
     await lambdaClient.send(new UpdateFunctionConfigurationCommand(params));
-    console.log(`Successfully restarted ${functionName}`);
+    await checkLambdaStatus(functionName, 80000);
   } catch (error) {
-    console.error(`Error restarting function ${functionName}:`, error);
+    console.error(`Error initiating function ${functionName}:`, error);
     throw error;
   }
+};
+
+const checkLambdaStatus = async (
+  functionName: string,
+  timeoutMs: number
+): Promise<boolean> => {
+  const pollLambdaStatus = async (): Promise<boolean> => {
+    const response = await lambdaClient.send(
+      new GetFunctionConfigurationCommand({ FunctionName: functionName })
+    );
+    return response.LastUpdateStatus === "Successful";
+  };
+  return await poll(pollLambdaStatus, (result) => result, {
+    timeout: timeoutMs,
+    interval: 5000,
+    notCompleteErrorMessage: `Error getting status for function: ${functionName}`,
+  });
 };
