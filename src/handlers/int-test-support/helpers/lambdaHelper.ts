@@ -8,7 +8,7 @@ import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
 import type { HelperDict } from "../handler";
 import { IntTestHelpers, SerializableData } from "../types";
-import { configName, envName, resourcePrefix } from "./envHelper";
+import { configName, envName, resourcePrefix, runViaLambda } from "./envHelper";
 
 export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
   command: THelper,
@@ -72,6 +72,10 @@ const invokeLambda = async (
 };
 
 export const restartLambda = async (functionName: string): Promise<void> => {
+  if (runViaLambda()) {
+    await sendLambdaCommand(IntTestHelpers.restartLambda, functionName);
+    return;
+  }
   try {
     const { Environment } = await lambdaClient.send(
       new GetFunctionConfigurationCommand({ FunctionName: functionName })
