@@ -232,23 +232,13 @@ Resources:
           AttributeDataType: String
           Mutable: true
           Required: true
-        - Name: given_name
-          AttributeDataType: String
-          Mutable: true
-          Required: true
-        - Name: family_name
-          AttributeDataType: String
-          Mutable: true
-          Required: true
       UsernameAttributes:
         - email
       AutoVerifiedAttributes:
         - email
-      MfaConfiguration: OFF
+      MfaConfiguration: ON
       UserPoolAddOns:
-        AdvancedSecurityMode: OFF
-      SignInAliases:
-        email: EMAIL
+        AdvancedSecurityMode: ENFORCED
 
   FrontEndUserPoolIdentityProviderGoogle:
     Type: AWS::Cognito::UserPoolIdentityProvider
