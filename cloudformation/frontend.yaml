@@ -15,13 +15,13 @@ Resources:
         Format: '{ "requestId":"$context.requestId", "requestTime":"$context.requestTime", "routeKey":"$context.routeKey", "status":"$context.status" }'
       Auth:
         Authorizers:
-          LambdaAuthorizer:
-            FunctionArn: !GetAtt FrontEndAuthFunction.Arn
-            FunctionPayloadType: REQUEST
-            Identity:
-              Headers:
-                - Cookie
-        DefaultAuthorizer: LambdaAuthorizer
+          CognitoAuthorizer:
+            AuthorizationScopes: 
+             - profile
+             - email 
+             - openid
+            UserPoolArn: !GetAtt FrontEndUserPool.Arn
+        DefaultAuthorizer: CognitoAuthorizer
       CacheClusterEnabled: true
       CacheClusterSize: '0.5'
       DefinitionBody:
@@ -215,3 +215,51 @@ Resources:
                 - athena:GetQueryResults
               Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
       ReservedConcurrentExecutions: 10
+
+  FrontEndUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          TemporaryPasswordValidityDays: 7
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: given_name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: family_name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      MfaConfiguration: OFF
+      UserPoolAddOns:
+        AdvancedSecurityMode: OFF
+      SignInAliases:
+        email: EMAIL
+
+  FrontEndUserPoolIdentityProviderGoogle:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      ProviderDetails:
+        client_id: '{{resolve:secretsmanager:google-client-details:SecretString:clientId}}'
+        client_secret: '{{resolve:secretsmanager:google-client-details:SecretString:clientSecret}}'
+        authorize_scopes: "profile email openid"
+      ProviderName: Google
+      ProviderType: Google
+      UserPoolId:
+        Ref: FrontEndUserPool
+      AttributeMapping:
+        email: google_id
