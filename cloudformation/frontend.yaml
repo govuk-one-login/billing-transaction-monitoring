@@ -235,8 +235,8 @@ Resources:
       UsernameAttributes:
         - email
       AutoVerifiedAttributes:
-        - email
-      MfaConfiguration: ON
+        - email 
+      # MfaConfiguration: ON
       UserPoolAddOns:
         AdvancedSecurityMode: ENFORCED
 
