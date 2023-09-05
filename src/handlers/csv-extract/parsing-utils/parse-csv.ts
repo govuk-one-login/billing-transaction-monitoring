@@ -86,9 +86,16 @@ const applyStructure = (
   );
 };
 
+const getCells = (row: string): string[] => {
+  // Allow quote-wrapped values with possible commas, and possible quotation marks encoded by doubling them up
+  const cellPattern = /(?:,|^)(?:"([^"]*(?:""[^"]*)*)"|([^,"]*))/g;
+  const matches = [...row.matchAll(cellPattern)];
+  return matches.map((match) => match[1]?.replace(/""/g, '"') ?? match[2]);
+};
+
 export const parseCsv = (csv: string): object => {
   const rows = csv.split(/\r?\n/);
-  const cells = rows.map((row) => row.split(","));
+  const cells = rows.map(getCells);
   const { kvps, lineItems } = applyStructure(cells);
   return { ...kvps, lineItems };
 };
