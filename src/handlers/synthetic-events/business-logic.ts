@@ -1,20 +1,17 @@
-import { BusinessLogic, HandlerCtx } from "../../handler-context";
+import { BusinessLogic } from "../../handler-context";
 import { Env } from "./types";
 import { ConfigElements } from "../../shared/constants";
-import { ConfigSyntheticEventsRow } from "../../shared/types";
 import { CleanedEventBody } from "../clean/types";
 import crypto from "crypto";
 import { formatDate } from "../../shared/utils";
 
 export const businessLogic: BusinessLogic<
-  any,
+  unknown,
   Env,
-  never,
+  ConfigElements.syntheticEvents,
   CleanedEventBody
-> = async (_: unknown, { config }: HandlerCtx<Env, any, any>) => {
-  const syntheticEventsConfig = config[
-    ConfigElements.syntheticEvents
-  ] as ConfigSyntheticEventsRow[];
+> = async (_, { config }) => {
+  const syntheticEventsConfig = config[ConfigElements.syntheticEvents];
 
   const now = new Date();
   const nowTime = now.getTime();
