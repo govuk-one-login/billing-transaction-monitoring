@@ -83,7 +83,8 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
     
       <div class="govuk-width-container ">
         
-  <div class="govuk-breadcrumbs">
+  <nav>
+    <div class="govuk-breadcrumbs">
   <ol class="govuk-breadcrumbs__list">
   
     
@@ -101,6 +102,7 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
   </ol>
 </div>
 
+  </nav>
 
         <main class="govuk-main-wrapper " id="main-content" role="main">
           
