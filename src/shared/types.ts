@@ -89,11 +89,12 @@ export interface ConfigStandardisationRow {
 
 type SyntheticEventType = "fixed" | "shortfall";
 
-type SyntheticEventFrequency = "monthly" | "quarterly";
+export type SyntheticEventFrequency = "monthly" | "quarterly";
 
 export interface ConfigSyntheticEventsRow {
   type: SyntheticEventType;
   event_name: string;
+  shortfall_event_name?: string;
   quantity: number;
   start_date: string;
   end_date?: string;
