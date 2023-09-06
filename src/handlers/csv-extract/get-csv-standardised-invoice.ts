@@ -112,6 +112,6 @@ function formatMoney(str: string): number {
 function formatQuantity(str: string): number {
   if (!str) throw new Error(`Empty quantity field in csv: ${str}`);
   const quantity = getNumberFromWholeQuantityText(str);
-  if (isNaN(quantity)) Error(`Unsupported quantity format: ${str}`);
+  if (isNaN(quantity)) throw new Error(`Unsupported quantity format: ${str}`);
   return quantity;
 }
