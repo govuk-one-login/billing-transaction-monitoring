@@ -61,13 +61,20 @@ RUN cp /usr/bin/chromedriver /test-app/node_modules/chromedriver/bin/chromedrive
 WORKDIR /test-app/integration_tests
 
 RUN mv ./run-tests.sh /run-tests.sh
-RUN chmod +x /run-tests.sh
 
 ## To run unit-tests for starters
 #WORKDIR /test-app
 #COPY jest.config.cjs ./
 #COPY test-helpers ./test-helpers
 #COPY src ./src
+
+RUN addgroup -S btm_user_group
+RUN adduser -S btm_user -G btm_user_group
+RUN chown -R btm_user: /run-tests.sh
+RUN chmod -R u+x /run-tests.sh
+RUN chown -R btm_user: /test-app
+RUN chmod -R u+rwx /test-app
+USER btm_user
 
 ENV TEST_VIA_LAMBDA=true
 
