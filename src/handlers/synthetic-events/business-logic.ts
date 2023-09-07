@@ -1,10 +1,10 @@
-import { BusinessLogic, HandlerCtx } from "../../handler-context";
+import { BusinessLogic } from "../../handler-context";
 import { Env } from "./types";
 import { ConfigElements } from "../../shared/constants";
 import { ConfigSyntheticEventsRow } from "../../shared/types";
 import { CleanedEventBody } from "../clean/types";
 import crypto from "crypto";
-import { formatDate, isQuarter } from "../../shared/utils";
+import { formatDate } from "../../shared/utils";
 import { getDashboardExtract } from "../../frontend/extract-helpers/get-dashboard-extract";
 import { FullExtractLineItem } from "../../frontend/extract-helpers/types";
 
@@ -26,14 +26,12 @@ import { FullExtractLineItem } from "../../frontend/extract-helpers/types";
  * idempotent).
  */
 export const businessLogic: BusinessLogic<
-  any,
+  unknown,
   Env,
-  never,
+  ConfigElements.syntheticEvents,
   CleanedEventBody
-> = async (_: unknown, { config }: HandlerCtx<Env, any, any>) => {
-  const syntheticEventsConfig = config[
-    ConfigElements.syntheticEvents
-  ] as ConfigSyntheticEventsRow[];
+> = async (_, { config }) => {
+  const syntheticEventsConfig = config[ConfigElements.syntheticEvents];
 
   const dashboardData = await getDashboardExtract();
 
@@ -44,8 +42,6 @@ export const businessLogic: BusinessLogic<
   // shortfall  quarterly   previous qtr
 
   const now = new Date();
-  const nowTime = now.getTime();
-  const nowFormatted = formatDate(now);
   const events: CleanedEventBody[] = [];
 
   syntheticEventsConfig.forEach((configLine) => {
@@ -59,8 +55,7 @@ export const businessLogic: BusinessLogic<
       if (configLine.quantity > existingEventCount) {
         events.push(
           createEvent(
-            nowTime,
-            nowFormatted,
+            new Date(period.year, period.month),
             configLine,
             configLine.quantity - existingEventCount
           )
@@ -76,17 +71,20 @@ function countExistingEvents(
   period: Period,
   dashboardData: FullExtractLineItem[]
 ): number {
-  // const eventTypes =
-  //   configLine.type === "shortfall"
-  //     ? [configLine.event_name, configLine.shortfall_event_name]
-  //     : [configLine.event_name];
+  const eventTypes =
+    configLine.type === "shortfall"
+      ? [configLine.event_name, configLine.shortfall_event_name]
+      : [configLine.event_name];
 
-  // TODO
-  return 0;
-  // return dashboardData.filter(
-  //   (lineItem) => lineItem.vendor_id === configLine.vendor_id &&
-  //     lineItem.
-  // );
+  return dashboardData
+    .filter(
+      (lineItem) =>
+        lineItem.vendor_id === configLine.vendor_id &&
+        lineItem.event_name === configLine.event_name &&
+        eventTypes.includes(lineItem.event_name)
+    )
+    .map((lineItem) => +lineItem.transaction_quantity)
+    .reduce<number>((sum, quantity) => sum + quantity, 0);
 }
 
 type Period = {
@@ -96,8 +94,7 @@ type Period = {
 };
 
 function createEvent(
-  nowTime: number,
-  nowFormatted: string,
+  time: Date,
   configLine: ConfigSyntheticEventsRow,
   credits: number
 ): CleanedEventBody {
@@ -105,8 +102,8 @@ function createEvent(
     vendor_id: configLine.vendor_id,
     event_id: crypto.randomUUID(),
     event_name: configLine.event_name,
-    timestamp: nowTime,
-    timestamp_formatted: nowFormatted,
+    timestamp: time.getTime(),
+    timestamp_formatted: formatDate(time),
     credits,
     component_id: configLine.component_id,
   };

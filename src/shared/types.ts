@@ -87,7 +87,7 @@ export interface ConfigStandardisationRow {
   invoiceStandardisationModuleId: number;
 }
 
-type SyntheticEventType = "fixed" | "shortfall";
+export type SyntheticEventType = "fixed" | "shortfall";
 
 export type SyntheticEventFrequency = "monthly" | "quarterly";
 

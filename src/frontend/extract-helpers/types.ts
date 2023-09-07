@@ -2,6 +2,7 @@ export interface FullExtractLineItem {
   vendor_id: string;
   vendor_name: string;
   service_name: string;
+  event_name: string;
   contract_id: string;
   contract_name: string;
   year: string;
