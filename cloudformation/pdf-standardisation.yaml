@@ -34,6 +34,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-pdf-standardisation-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+      MessageRetentionPeriod: 1209600
 
   PdfStandardisationDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -72,12 +73,7 @@ Resources:
           OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
           PARSER_0_VERSION: '1.3.0'
           PARSER_DEFAULT_VERSION: '1.3.0'
-          LOCAL_ENDPOINT:
-            !If [
-              IsLocal,
-              'http://s3.localhost.localstack.cloud:4566',
-              !Ref AWS::NoValue,
-            ]
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', !Ref AWS::NoValue]
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-pdf-standardisation-function
       Events:
         PdfStandardisationEvent:

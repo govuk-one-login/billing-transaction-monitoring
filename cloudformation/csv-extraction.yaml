@@ -19,12 +19,7 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           OUTPUT_QUEUE_URL: !Ref StandardisedInvoiceStorageQueue
-          LOCAL_ENDPOINT:
-            !If [
-              IsLocal,
-              'http://s3.localhost.localstack.cloud:4566',
-              !Ref AWS::NoValue,
-            ]
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', !Ref AWS::NoValue]
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-csv-extract-function
       Events:
         CsvExtractEvent:
@@ -122,6 +117,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-csv-extract-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+      MessageRetentionPeriod: 1209600
 
   CsvExtractQueueDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
