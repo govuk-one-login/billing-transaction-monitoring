@@ -6,7 +6,7 @@ import crypto from "crypto";
 import { formatDate } from "../../shared/utils";
 
 export const businessLogic: BusinessLogic<
-  unknown,
+  {},
   Env,
   ConfigElements.syntheticEvents,
   CleanedEventBody

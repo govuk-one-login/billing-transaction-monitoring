@@ -60,7 +60,7 @@ describe("Synthetic events businessLogic", () => {
       undefined,
       "monthly"
     );
-    const result = await businessLogic(undefined, mockContext);
+    const result = await businessLogic({}, mockContext);
 
     expect(result).toEqual([mockEvent]);
   });
@@ -71,7 +71,7 @@ describe("Synthetic events businessLogic", () => {
       undefined,
       "monthly"
     );
-    const result = await businessLogic(undefined, mockContext);
+    const result = await businessLogic({}, mockContext);
 
     expect(result).toEqual([]);
   });
@@ -82,7 +82,7 @@ describe("Synthetic events businessLogic", () => {
       new Date("2049-01-01"),
       "monthly"
     );
-    const result = await businessLogic(undefined, mockContext);
+    const result = await businessLogic({}, mockContext);
 
     expect(result).toEqual([mockEvent]);
   });
@@ -93,7 +93,7 @@ describe("Synthetic events businessLogic", () => {
       new Date("2010-01-01"),
       "monthly"
     );
-    const result = await businessLogic(undefined, mockContext);
+    const result = await businessLogic({}, mockContext);
 
     expect(result).toEqual([]);
   });
@@ -104,7 +104,7 @@ describe("Synthetic events businessLogic", () => {
       undefined,
       "daily"
     );
-    const result = await businessLogic(undefined, mockContext);
+    const result = await businessLogic({}, mockContext);
 
     expect(result).toEqual([]);
   });
