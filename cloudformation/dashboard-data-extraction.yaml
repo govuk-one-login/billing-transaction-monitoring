@@ -21,6 +21,8 @@ Resources:
           QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
           DESTINATION_BUCKET: !Sub ${AWS::StackName}-storage
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
+      EventInvokeConfig:
+        MaximumEventAgeInSeconds: 60
       Handler: dashboardExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Timeout: 180
