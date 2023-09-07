@@ -6,6 +6,9 @@ import {
   moveToFolderS3,
   putTextS3,
 } from "../../shared/utils";
+import { StandardisedLineItemSummary } from "../../shared/types";
+import path from "path";
+import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
 
 export async function storeLineItem(
   record: SQSRecord,
@@ -25,6 +28,11 @@ export async function storeLineItem(
       "Event record body is not object with valid fields for generating a file name."
     );
 
+  if (!isStandardisedLineItemSummary(bodyObject))
+    throw new Error(
+      "Event record body is not object with valid fields for generating a file name."
+    );
+
   const [itemKey, itemKeyPrefix] = getStandardisedInvoiceKey(
     destinationFolder,
     bodyObject
@@ -38,6 +46,13 @@ export async function storeLineItem(
   );
 
   await Promise.all(archivePromises);
+
+  const originalInvoiceFile = bodyObject.originalInvoiceFile;
+
+  const sourceFolderPath = path.dirname(itemKey); // You might need to import 'path' if not already imported
+  const successFolderPath = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceFolderPath}`;
+
+  await moveToFolderS3(bucket, originalInvoiceFile, successFolderPath);
 }
 
 const isNameable = (x: unknown): x is LineItemFieldsForNaming =>
@@ -51,3 +66,18 @@ const isNameable = (x: unknown): x is LineItemFieldsForNaming =>
   typeof x.invoice_is_quarterly === "boolean" &&
   "vendor_id" in x &&
   typeof x.vendor_id === "string";
+
+const isStandardisedLineItemSummary = (
+  x: unknown
+): x is StandardisedLineItemSummary =>
+  isNameable(x) &&
+  "invoice_receipt_id" in x &&
+  typeof x.invoice_receipt_id === "string" &&
+  "total" in x &&
+  typeof x.total === "number" &&
+  "invoice_receipt_date" in x &&
+  typeof x.invoice_receipt_date === "string" &&
+  "parser_version" in x &&
+  typeof x.parser_version === "string" &&
+  "originalInvoiceFile" in x &&
+  typeof x.originalInvoiceFile === "string";
