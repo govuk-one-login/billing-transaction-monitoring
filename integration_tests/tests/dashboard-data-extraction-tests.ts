@@ -128,7 +128,7 @@ describe("\n DashboardDataExtractFunction", () => {
   );
 });
 
-interface BtmMonthlyExtract {
+export interface BtmMonthlyExtract {
   vendor_id: string;
   vendor_name: string;
   service_name: string;

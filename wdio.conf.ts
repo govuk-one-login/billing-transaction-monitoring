@@ -86,6 +86,8 @@ export const config = {
   },
   onPrepare: async function (): Promise<void> {
     await cleanAndUploadExtractFileForUITest();
+    // wait for 30 secs
+    await new Promise((resolve) => setTimeout(resolve, 30000));
     reportAggregator = new ReportAggregator({
       outputDir: "./ui-tests/reports/",
       filename: `ui-test-report-${new Date().toISOString()}.html`,
