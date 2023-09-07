@@ -5,7 +5,6 @@ import {
   checkIfS3ObjectExists,
 } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import { readJsonDataFromFile } from "../utils/extractTestDatajson";
-import { restartLambda } from "../../src/handlers/int-test-support/helpers/lambdaHelper";
 
 const prefix = resourcePrefix();
 const storageBucket = `${prefix}-storage`;
@@ -34,9 +33,7 @@ export const cleanAndUploadExtractFileForUITest = async (): Promise<void> => {
     key,
   });
 
-  if (objectExists) {
-    await restartLambda(`${prefix}-frontend-function`);
-  } else {
+  if (!objectExists) {
     throw new Error(
       `Failed to verify that the file was uploaded to ${storageBucket}/${key}`
     );

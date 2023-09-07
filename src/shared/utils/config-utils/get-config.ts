@@ -6,14 +6,26 @@ export type CachedConfigPromisesByElement = Partial<{
   [T in ConfigElements]: Promise<ConfigCache[T]>;
 }>;
 
-const cachedConfigPromisesByFile: CachedConfigPromisesByElement = {};
+type GetConfigOptions = {
+  withCache?: boolean;
+};
+
+let cachedConfigPromisesByFile: CachedConfigPromisesByElement = {};
 
 export const getConfig = async <T extends ConfigElements>(
-  fileName: T
+  fileName: T,
+  { withCache = true }: GetConfigOptions = {}
 ): Promise<ConfigCache[T]> => {
-  const cachedPromise = cachedConfigPromisesByFile[fileName];
-  if (cachedPromise !== undefined) return await cachedPromise;
+  if (withCache) {
+    const cachedPromise = cachedConfigPromisesByFile[fileName];
+    if (cachedPromise !== undefined) return await cachedPromise;
+  }
+
   const promise = getConfigFile(fileName);
   (cachedConfigPromisesByFile[fileName] as Promise<ConfigCache[T]>) = promise;
   return await promise;
+};
+
+export const clearConfigCache = (): void => {
+  cachedConfigPromisesByFile = {};
 };
