@@ -17,11 +17,11 @@ import {
   startQueryExecutionCommand,
   getQueryResults,
 } from "./helpers/athenaHelper";
+import { restartLambda, invokeLambda } from "./helpers/lambdaHelper";
 import { createInvoiceInS3 } from "./helpers/mock-data/invoice/helpers";
 import { sendEmail } from "./helpers/sesHelper";
 import { IntTestHelpers, TestSupportEvent, TestSupportReturn } from "./types";
 import { sendMessageToQueue } from "./helpers/sqsHelper";
-import { invokeLambda } from "./helpers/lambdaHelper";
 
 export interface HelperDict {
   [IntTestHelpers.getS3Object]: typeof getS3Object;
@@ -39,6 +39,7 @@ export interface HelperDict {
   [IntTestHelpers.createInvoiceInS3]: typeof createInvoiceInS3;
   [IntTestHelpers.sendEmail]: typeof sendEmail;
   [IntTestHelpers.sendMessageToQueue]: typeof sendMessageToQueue;
+  [IntTestHelpers.restartLambda]: typeof restartLambda;
   [IntTestHelpers.invokeLambda]: typeof invokeLambda;
 }
 
@@ -58,6 +59,7 @@ const functionMap: HelperDict = {
   [IntTestHelpers.createInvoiceInS3]: createInvoiceInS3,
   [IntTestHelpers.sendEmail]: sendEmail,
   [IntTestHelpers.sendMessageToQueue]: sendMessageToQueue,
+  [IntTestHelpers.restartLambda]: restartLambda,
   [IntTestHelpers.invokeLambda]: invokeLambda,
 };
 

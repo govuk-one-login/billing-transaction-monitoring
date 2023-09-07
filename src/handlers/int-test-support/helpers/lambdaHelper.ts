@@ -1,4 +1,9 @@
-import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
+import {
+  GetFunctionConfigurationCommand,
+  InvokeCommand,
+  InvokeCommandInput,
+  UpdateFunctionConfigurationCommand,
+} from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
 import type { HelperDict } from "../handler";
@@ -69,6 +74,30 @@ export const invokeLambda = async (
   } catch (err) {
     console.error(err);
     throw err;
+  }
+};
+
+export const restartLambda = async (functionName: string): Promise<void> => {
+  if (runViaLambda()) {
+    await sendLambdaCommand(IntTestHelpers.restartLambda, functionName);
+    return;
+  }
+  try {
+    const { Environment } = await lambdaClient.send(
+      new GetFunctionConfigurationCommand({ FunctionName: functionName })
+    );
+    const currentEnv = Environment?.Variables ?? {};
+    const params = {
+      FunctionName: functionName,
+      Environment: {
+        Variables: currentEnv,
+      },
+    };
+    await lambdaClient.send(new UpdateFunctionConfigurationCommand(params));
+    console.log(`Successfully restarted ${functionName}`);
+  } catch (error) {
+    console.error(`Error restarting function ${functionName}:`, error);
+    throw error;
   }
 };
 
