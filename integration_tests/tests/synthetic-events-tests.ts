@@ -8,14 +8,14 @@ import {
 } from "../../src/handlers/int-test-support/config-utils/get-synthetic-events-config-rows";
 import { TransactionCurated } from "./transaction-view-athena-tests";
 
-const currentDate = new Date();
-const year = String(currentDate.getFullYear());
-const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-const day = String(currentDate.getDate()).padStart(2, "0");
-const afterLambdaInvokeTime = new Date();
-let syntheticEventsConfig: SyntheticEventsConfigRow[];
-
 describe("\n Synthetic Events Generation Tests\n", () => {
+  const currentDate = new Date();
+  const year = String(currentDate.getFullYear());
+  const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+  const day = String(currentDate.getDate()).padStart(2, "0");
+  const afterLambdaInvokeTime = new Date();
+  let syntheticEventsConfig: SyntheticEventsConfigRow[];
+
   beforeAll(async () => {
     const prefix = resourcePrefix();
     const storageBucket = `${prefix}-storage`;
