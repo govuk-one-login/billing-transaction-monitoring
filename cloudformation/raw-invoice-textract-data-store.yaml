@@ -22,6 +22,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-amazon-textract-raw-invoice-data-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+      MessageRetentionPeriod: 1209600
 
   AmazonTextractRawInvoiceDataTopicSubscriptionDeadLetterQueuePolicy:
     Type: AWS::SQS::QueuePolicy
@@ -104,6 +105,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-raw-invoice-textract-data-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+      MessageRetentionPeriod: 1209600
 
   RawInvoiceTextractDataDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -178,8 +180,7 @@ Resources:
             - Effect: Allow
               Action:
                 - s3:PutObject
-              Resource:
-                !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
+              Resource: !Join ['/', [!GetAtt RawInvoiceTextractDataBucket.Arn, '*']]
       ReservedConcurrentExecutions: 1
 
   RawInvoiceTextractDataStorageFunctionAlarm:

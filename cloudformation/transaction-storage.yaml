@@ -16,6 +16,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-storage-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+      MessageRetentionPeriod: 1209600
 
   # Does not seem to work locally: https://github.com/localstack/localstack/issues/7131
   StorageDeadLetterQueueAlarm:
@@ -60,12 +61,7 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_BUCKET: !Ref StorageBucket
           EVENT_DATA_FOLDER: 'btm_event_data'
-          LOCAL_ENDPOINT:
-            !If [
-              IsLocal,
-              'http://s3.localhost.localstack.cloud:4566',
-              !Ref AWS::NoValue,
-            ]
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', !Ref AWS::NoValue]
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-storage-function
       Handler: storeTransactions.handler
       Policies:
