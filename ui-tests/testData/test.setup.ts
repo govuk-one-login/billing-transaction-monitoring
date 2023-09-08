@@ -14,6 +14,9 @@ export const cleanAndUploadExtractFileForUITest = async (): Promise<void> => {
   const filePath = "./ui-tests/testData/testData.txt";
   const content = readJsonDataFromFile(filePath);
 
+  // wait two minutes for any extract function invocations to finish
+  await new Promise((resolve) => setTimeout(resolve, 2 * 60 * 1000));
+
   // deleting existing file with same key
   await deleteS3Objects({ bucket: storageBucket, keys: [key] });
 

@@ -62,7 +62,7 @@ false,2000-01-02,456,baz,`;
 
     it("throws error", async () => {
       const resultPromise = parseConfigCsv(givenCsv, givenOptions);
-      await expect(resultPromise).rejects.toThrow("CSV missing required data");
+      await expect(resultPromise).rejects.toThrow("Missing required data");
     });
   });
 
@@ -73,7 +73,7 @@ false,2000-01-02,456,baz,`;
 
     it("throws error", async () => {
       const resultPromise = parseConfigCsv(givenCsv, givenOptions);
-      await expect(resultPromise).rejects.toThrow("Invalid date in CSV");
+      await expect(resultPromise).rejects.toThrow("Invalid date");
     });
   });
 
@@ -84,7 +84,7 @@ false,2000-01-02,456,baz,`;
 
     it("throws error", async () => {
       const resultPromise = parseConfigCsv(givenCsv, givenOptions);
-      await expect(resultPromise).rejects.toThrow("Invalid number in CSV");
+      await expect(resultPromise).rejects.toThrow("Invalid number");
     });
   });
 });

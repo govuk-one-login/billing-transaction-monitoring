@@ -195,6 +195,59 @@ describe("CSV Standardised invoice getter", () => {
     ]);
   });
 
+  test("should return StandardisedLineItems when no version given and numeric fields have commas, pound symbols, and spaces", () => {
+    givenValidCsvObject = {
+      vendor: "Vendor One",
+      "invoice date": "2023/02/01",
+      "invoice period start": "2023/01/01",
+      "invoice period end": "2023/01/31",
+      "due date": "01/03/2023",
+      "vat number": "123 4567 89",
+      "po number": "370 000",
+      lineItems: [
+        {
+          "service name": "Check one",
+          "unit price": "0.34",
+          quantity: "13,788",
+          tax: "£937.584",
+          subtotal: "£ 4,687.92",
+          total: "£ 5,625.504",
+        },
+      ],
+    };
+    const result = getCsvStandardisedInvoice(
+      givenValidCsvObject,
+      "vendor_testvendor1",
+      givenVendorServiceConfigRows,
+      givenSourceFileName
+    );
+
+    expect(result).toEqual([
+      {
+        invoice_receipt_id: "370 000",
+        vendor_id: "vendor_testvendor1",
+        vendor_name: "Vendor One",
+        invoice_receipt_date: "2023-02-01",
+        invoice_period_start: "2023-01-01",
+        due_date: "2023-03-01",
+        tax_payer_id: "123 4567 89",
+        parser_version: "",
+        originalInvoiceFile: givenSourceFileName,
+        item_description: "Check one",
+        subtotal: 4687.92,
+        tax: 937.584,
+        price: 4687.92,
+        quantity: 13788,
+        service_name: "Check one",
+        contract_id: "1",
+        unit_price: 0.34,
+        total: 5625.504,
+        event_name: "VENDOR_1_EVENT_1",
+        invoice_is_quarterly: false,
+      },
+    ]);
+  });
+
   test("should throw error when date range is quarter but service config is not", () => {
     givenValidCsvObject = {
       vendor: "Vendor One",
@@ -319,7 +372,7 @@ describe("CSV Standardised invoice getter", () => {
         givenVendorServiceConfigRows,
         givenSourceFileName
       )
-    ).toThrowError("Unsupported number format: x");
+    ).toThrowError("Unsupported money format: x");
   });
 
   test("should throw error when given a valid CsvObject that has an empty number field", () => {
@@ -350,6 +403,6 @@ describe("CSV Standardised invoice getter", () => {
         givenVendorServiceConfigRows,
         givenSourceFileName
       )
-    ).toThrowError("Empty number field in csv: ");
+    ).toThrowError("Empty money field in csv: ");
   });
 });
