@@ -23,8 +23,6 @@ Resources:
       Handler: syntheticEvents.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Timeout: 180
-      Events:
-
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:

@@ -6,7 +6,6 @@ import {
   SyntheticEventFrequency,
   SyntheticEventType,
 } from "../../shared/types";
-// import { CleanedEventBody } from "../clean/types";
 import { formatDate, getFromEnv } from "../../shared/utils";
 import { getDashboardExtract } from "../../frontend/extract-helpers/get-dashboard-extract";
 import { FullExtractLineItem } from "../../frontend/extract-helpers/types";
@@ -122,7 +121,7 @@ describe("Synthetic events businessLogic", () => {
   it("generates no events if no scheduled synthetic events", async () => {
     mockedGetDashboardExtract.mockResolvedValueOnce([]);
     const mockContext = generateMockContext([]);
-    const result = await businessLogic(undefined, mockContext);
+    const result = await businessLogic({}, mockContext);
 
     expect(result).toEqual([]);
   });
@@ -141,7 +140,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("fixed", "monthly", futureActiveStart, futureActiveEnd),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([]);
       });
@@ -154,7 +153,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("fixed", "monthly", pastActiveStart, futureActiveEnd),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([]);
       });
@@ -164,7 +163,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("fixed", "monthly", pastActiveStart, pastActiveEnd),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -190,7 +189,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("fixed", "monthly", pastActiveStart, pastActiveEnd),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -207,7 +206,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("fixed", "monthly", pastActiveStart, undefined),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -244,7 +243,7 @@ describe("Synthetic events businessLogic", () => {
             futureActiveEnd
           ),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([]);
       });
@@ -257,7 +256,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("fixed", "quarterly", pastActiveStart, futureActiveEnd),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([]);
       });
@@ -267,7 +266,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("fixed", "quarterly", pastActiveStart, pastActiveEnd),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -293,7 +292,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("fixed", "quarterly", pastActiveStart, pastActiveEnd),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -310,7 +309,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("fixed", "quarterly", pastActiveStart, undefined),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -348,7 +347,7 @@ describe("Synthetic events businessLogic", () => {
             futureActiveEnd
           ),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([]);
       });
@@ -366,7 +365,7 @@ describe("Synthetic events businessLogic", () => {
             futureActiveEnd
           ),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([]);
       });
@@ -376,7 +375,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("shortfall", "monthly", pastActiveStart, pastActiveEnd),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -402,7 +401,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("shortfall", "monthly", pastActiveStart, pastActiveEnd),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -419,7 +418,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("shortfall", "monthly", pastActiveStart, undefined),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -449,7 +448,7 @@ describe("Synthetic events businessLogic", () => {
             futureActiveEnd
           ),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([]);
       });
@@ -467,7 +466,7 @@ describe("Synthetic events businessLogic", () => {
             futureActiveEnd
           ),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([]);
       });
@@ -482,7 +481,7 @@ describe("Synthetic events businessLogic", () => {
             pastActiveEnd
           ),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -513,7 +512,7 @@ describe("Synthetic events businessLogic", () => {
             pastActiveEnd
           ),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {
@@ -530,7 +529,7 @@ describe("Synthetic events businessLogic", () => {
         const mockContext = generateMockContext([
           getConfigRow("shortfall", "quarterly", pastActiveStart, undefined),
         ]);
-        const result = await businessLogic(undefined, mockContext);
+        const result = await businessLogic({}, mockContext);
 
         expect(result).toEqual([
           {

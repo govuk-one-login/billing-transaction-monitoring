@@ -3,6 +3,8 @@ import {
   dateRangeIsQuarter,
   formatDate,
   getDate,
+  getNumberFromMoneyText,
+  getNumberFromWholeQuantityText,
   logger,
 } from "../../shared/utils";
 
@@ -23,7 +25,7 @@ export interface CsvObject {
   "due date": string;
   "vat number": string;
   "po number": string;
-  version: string;
+  version?: string;
   lineItems: LineItem[];
 }
 
@@ -43,7 +45,7 @@ export const getCsvStandardisedInvoice = (
     ),
     due_date: formatDate(getDate(csvObject["due date"])),
     tax_payer_id: csvObject["vat number"],
-    parser_version: csvObject.version,
+    parser_version: csvObject.version ?? "",
     originalInvoiceFile: sourceFileName,
     invoice_is_quarterly: dateRangeIsQuarter(
       getDate(csvObject["invoice period start"]),
@@ -79,14 +81,14 @@ export const getCsvStandardisedInvoice = (
           ...summary,
           event_name: eventName,
           item_description: itemDescription,
-          subtotal: formatNumber(item.subtotal),
-          price: formatNumber(item.subtotal),
-          quantity: formatNumber(item.quantity),
+          subtotal: formatMoney(item.subtotal),
+          price: formatMoney(item.subtotal),
+          quantity: formatQuantity(item.quantity),
           service_name: serviceName,
           contract_id: contractId,
-          unit_price: formatNumber(item["unit price"]),
-          tax: formatNumber(item.tax),
-          total: formatNumber(item.total),
+          unit_price: formatMoney(item["unit price"]),
+          tax: formatMoney(item.tax),
+          total: formatMoney(item.total),
         },
       ];
     }
@@ -102,10 +104,14 @@ export const getCsvStandardisedInvoice = (
   }, []);
 };
 
-function formatNumber(str: string): number {
-  if (isNaN(Number(str))) {
-    throw new Error(`Unsupported number format: ${str}`);
-  } else if (!str) {
-    throw new Error(`Empty number field in csv: ${str}`);
-  } else return Number(str);
+function formatMoney(str: string): number {
+  if (!str) throw new Error(`Empty money field in csv: ${str}`);
+  return getNumberFromMoneyText(str);
+}
+
+function formatQuantity(str: string): number {
+  if (!str) throw new Error(`Empty quantity field in csv: ${str}`);
+  const quantity = getNumberFromWholeQuantityText(str);
+  if (isNaN(quantity)) throw new Error(`Unsupported quantity format: ${str}`);
+  return quantity;
 }

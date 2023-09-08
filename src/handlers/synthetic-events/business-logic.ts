@@ -26,7 +26,7 @@ import { FullExtractLineItem } from "../../frontend/extract-helpers/types";
  * idempotent).
  */
 export const businessLogic: BusinessLogic<
-  unknown,
+  {},
   Env,
   ConfigElements.syntheticEvents,
   CleanedEventBody
@@ -34,12 +34,6 @@ export const businessLogic: BusinessLogic<
   const syntheticEventsConfig = config[ConfigElements.syntheticEvents];
 
   const dashboardData = await getDashboardExtract();
-
-  // TYPE       FREQUENCY   KEY MONTH
-  // fixed      monthly     current
-  // fixed      quarterly   current qtr
-  // shortfall  monthly     previous
-  // shortfall  quarterly   previous qtr
 
   const now = new Date();
   const events: CleanedEventBody[] = [];

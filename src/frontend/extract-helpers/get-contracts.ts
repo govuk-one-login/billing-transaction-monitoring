@@ -5,8 +5,8 @@ export type Contract = { id: string; name: string; vendorName: string };
 
 export const getContracts = async (): Promise<Contract[]> => {
   const [services, contracts] = await Promise.all([
-    getConfig(ConfigElements.services),
-    getConfig(ConfigElements.contracts),
+    getConfig(ConfigElements.services, { withCache: false }),
+    getConfig(ConfigElements.contracts, { withCache: false }),
   ]);
 
   return contracts.map((contract) => {
