@@ -4,16 +4,17 @@ import { ReportAggregator, HtmlReporter } from "wdio-html-nice-reporter";
 let reportAggregator: ReportAggregator;
 
 const determineBaseUrl = (): string => {
-  switch (process.env.ENV_NAME) {
-    case "dev":
-      return "https://btm.dev.account.gov.uk/";
-    case "build":
-      return "https://btm.build.account.gov.uk/";
-    case "staging":
-      return "https://btm.staging.account.gov.uk/";
-    default:
-      return "http://localhost:3000";
-  }
+  // switch (process.env.ENV_NAME) {
+  //   case "dev":
+  //     return "https://btm.dev.account.gov.uk/";
+  //   case "build":
+  //     return "https://btm.build.account.gov.uk/";
+  //   case "staging":
+  //     return "https://btm.staging.account.gov.uk/";
+  //   default:
+  //     return "http://localhost:3000";
+  // }
+  return "https://PUT_YOUR_ENV_NAME_HERE.btm.dev.account.gov.uk/";
 };
 const baseUrl = determineBaseUrl();
 
