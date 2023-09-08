@@ -80,8 +80,9 @@ function countExistingEvents(
     .filter(
       (lineItem) =>
         lineItem.vendor_id === configLine.vendor_id &&
-        lineItem.event_name === configLine.event_name &&
-        eventTypes.includes(lineItem.event_name)
+        eventTypes.includes(lineItem.event_name) &&
+        +lineItem.year === period.year &&
+        +lineItem.month - 1 === period.month
     )
     .map((lineItem) => +lineItem.transaction_quantity)
     .reduce<number>((sum, quantity) => sum + quantity, 0);
@@ -112,7 +113,7 @@ function createEvent(
 function getPeriodStart(date: Date, isQuarter: boolean): Period {
   return {
     year: date.getFullYear(),
-    month: isQuarter ? date.getMonth() : Math.ceil(date.getMonth() / 3) * 3,
+    month: isQuarter ? Math.floor(date.getMonth() / 3) * 3 : date.getMonth(),
     isQuarterly: isQuarter,
   };
 }
@@ -150,7 +151,8 @@ function getActivePeriods(
 ): Period[] {
   const periods: Period[] = [];
   const isQuarterly = configLine.frequency === "quarterly";
-  const lastPeriod = getPeriodStart(
+  const nowPeriod = getPeriodStart(now, isQuarterly);
+  const endPeriod = getPeriodStart(
     configLine.end_date ? new Date(configLine.end_date) : now,
     isQuarterly
   );
@@ -158,12 +160,29 @@ function getActivePeriods(
     new Date(configLine.start_date),
     isQuarterly
   );
-  while (
-    periodIsBefore(currentPeriod, lastPeriod) ||
-    (configLine.type === "fixed" && periodsAreEqual(currentPeriod, lastPeriod))
-  ) {
-    periods.push(currentPeriod);
-    currentPeriod = nextPeriod(currentPeriod, isQuarterly);
+  if (configLine.type === "fixed") {
+    // Loop from the first period in the range through to the last, including the 'now' period but nothing
+    // after that, as fixed events can be generated at any time within a period.
+    while (
+      !periodIsBefore(nowPeriod, currentPeriod) &&
+      (periodIsBefore(currentPeriod, endPeriod) ||
+        periodsAreEqual(currentPeriod, endPeriod))
+    ) {
+      periods.push(currentPeriod);
+      currentPeriod = nextPeriod(currentPeriod, isQuarterly);
+    }
+  } else {
+    // Loop from the first period in the range through to the last, excluding the 'now' period and everything
+    // after that, as shortfall events do not fire until after the current period is finished.
+    while (
+      !periodIsBefore(nowPeriod, currentPeriod) &&
+      !periodsAreEqual(nowPeriod, currentPeriod) &&
+      (periodIsBefore(currentPeriod, endPeriod) ||
+        periodsAreEqual(currentPeriod, endPeriod))
+    ) {
+      periods.push(currentPeriod);
+      currentPeriod = nextPeriod(currentPeriod, isQuarterly);
+    }
   }
   return periods;
 }

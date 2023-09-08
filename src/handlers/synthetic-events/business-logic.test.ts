@@ -7,22 +7,24 @@ import {
   SyntheticEventType,
 } from "../../shared/types";
 // import { CleanedEventBody } from "../clean/types";
-import { fetchS3, getFromEnv } from "../../shared/utils";
+import { formatDate, getFromEnv } from "../../shared/utils";
+import { getDashboardExtract } from "../../frontend/extract-helpers/get-dashboard-extract";
+import { FullExtractLineItem } from "../../frontend/extract-helpers/types";
+import { CleanedEventBody } from "../clean/types";
 
 jest.mock("crypto");
 const mockedRandomUUID = randomUUID as jest.Mock;
 
-jest.mock("../../shared/utils", () => ({
-  ...jest.requireActual("../../shared/utils"),
-  fetchS3: jest.fn(),
-  getFromEnv: jest.fn(),
-}));
-const mockedFetchS3 = fetchS3 as jest.Mock;
+jest.mock("../../frontend/extract-helpers/get-dashboard-extract");
+const mockedGetDashboardExtract = getDashboardExtract as jest.Mock;
+jest.mock("../../shared/utils/env");
 const mockedGetFromEnv = getFromEnv as jest.Mock;
+
+const now = new Date("2020-03-02");
 
 beforeAll(() => {
   jest.useFakeTimers();
-  jest.setSystemTime(Date.UTC(2020, 3, 1));
+  jest.setSystemTime(now);
 });
 
 afterAll(() => {
@@ -72,23 +74,53 @@ const getExtractRow = (
   eventName: string,
   year: string,
   month: string,
-  isQuarterly: boolean,
-  quantity: number
-): string =>
-  `{"vendor_id":"vendor1","vendor_name":"Vendor 1","contract_name":"Contract 1","billing_unit_price":"","billing_amount_with_tax":"","billing_price_formatted":"","transaction_price_formatted":"","price_difference":"","billing_quantity":"","quantity_difference":"","price_difference_percentage":"-1234567.03","contract_id":"contract1",` +
-  `"year":"${year}","month":"${month}","invoice_is_quarterly":"${isQuarterly}","transaction_quantity":"${quantity}",` +
-  `"service_name":"Service for ${eventName}","event_name":"${eventName}"}`;
+  isQuarterly: string,
+  quantity: string
+): FullExtractLineItem => {
+  return {
+    vendor_id: "some vendor id",
+    vendor_name: "Vendor 1",
+    contract_name: "Contract 1",
+    billing_unit_price: "",
+    billing_amount_with_tax: "",
+    billing_price_formatted: "",
+    transaction_price_formatted: "",
+    price_difference: "",
+    billing_quantity: "",
+    quantity_difference: "",
+    price_difference_percentage: "-1234567.03",
+    contract_id: "contract1",
+    year,
+    month,
+    invoice_is_quarterly: isQuarterly,
+    transaction_quantity: quantity,
+    service_name: `Service for ${eventName}`,
+    event_name: eventName,
+  };
+};
+
+const baseExpectedEvent: CleanedEventBody = {
+  component_id: "test component id",
+  event_name: eventName,
+  timestamp: 1585699200000,
+  event_id: "some random id",
+  timestamp_formatted: "2020-04-01",
+  vendor_id: "some vendor id",
+  credits: 5,
+};
 
 describe("Synthetic events businessLogic", () => {
   beforeEach(() => {
+    jest.resetAllMocks();
+
     mockedGetFromEnv.mockImplementation((key) =>
       key === "STORAGE_BUCKET" ? "given storage bucket" : undefined
     );
     mockedRandomUUID.mockReturnValue("some random id");
-    mockedFetchS3.mockResolvedValue("");
   });
 
   it("generates no events if no scheduled synthetic events", async () => {
+    mockedGetDashboardExtract.mockResolvedValueOnce([]);
     const mockContext = generateMockContext([]);
     const result = await businessLogic(undefined, mockContext);
 
@@ -97,105 +129,418 @@ describe("Synthetic events businessLogic", () => {
 
   describe("Fixed synthetic events", () => {
     describe("Monthly frequency", () => {
-      const pastStartDate = "2020/02/15";
-      const pastEndDate = "2020/02/20";
-      const futureStartDate = "2020/04/05";
-      const futureEndDate = "2020/04/15";
+      const nowMonthStart = new Date("2020-03-01");
+      const pastMonthStart = "2020/02/01";
+      const pastActiveStart = "2020/02/15";
+      const pastActiveEnd = "2020/02/20";
+      const futureActiveStart = "2020/04/05";
+      const futureActiveEnd = "2020/04/15";
 
-      it("generates no events if scheduled events are in future", async () => {
+      test("generates no events if scheduled events are in future", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "monthly", futureStartDate, futureEndDate),
+          getConfigRow("fixed", "monthly", futureActiveStart, futureActiveEnd),
         ]);
         const result = await businessLogic(undefined, mockContext);
 
         expect(result).toEqual([]);
       });
 
-      it("generates no events if scheduled events already generated", async () => {
-        mockedFetchS3.mockResolvedValue(
-          getExtractRow(eventName, "2023", "02", false, 10) +
-            "\n" +
-            getExtractRow(eventName, "2023", "03", false, 10)
-        );
+      test("generates no events if scheduled events already generated", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(eventName, "2020", "02", "false", "10"),
+          getExtractRow(eventName, "2020", "03", "false", "10"),
+        ]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "monthly", pastStartDate, futureEndDate),
+          getConfigRow("fixed", "monthly", pastActiveStart, futureActiveEnd),
         ]);
         const result = await businessLogic(undefined, mockContext);
 
         expect(result).toEqual([]);
       });
 
-      it("generates no events if scheduled events are in past", async () => {
+      it("generates events to fill in a past month if necessary", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "monthly", pastStartDate, pastEndDate),
+          getConfigRow("fixed", "monthly", pastActiveStart, pastActiveEnd),
         ]);
         const result = await businessLogic(undefined, mockContext);
 
-        expect(result).toEqual([]);
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastMonthStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastMonthStart)),
+            credits: 10,
+          },
+        ]);
       });
 
-      // describe("active config", async () => {
-      //   mockedFetchS3.mockResolvedValue(
-      //     getExtractRow("monthly_already_generated", "2023", "03", false, 10) +
-      //       "\n" +
-      //       getExtractRow("monthly_partially_generated", "2023", "03", false, 5)
-      //   );
-      // });
+      it("generates additional events, in case the target number is increased in config", async () => {
+        const alreadyGeneratedEventCount = 7;
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(
+            eventName,
+            "2020",
+            "02",
+            "false",
+            `${alreadyGeneratedEventCount}`
+          ),
+        ]);
+        const mockContext = generateMockContext([
+          getConfigRow("fixed", "monthly", pastActiveStart, pastActiveEnd),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastMonthStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastMonthStart)),
+            credits: 10 - alreadyGeneratedEventCount,
+          },
+        ]);
+      });
+
+      it("generates events to fill in all months up to the present time but no further", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
+        const mockContext = generateMockContext([
+          getConfigRow("fixed", "monthly", pastActiveStart, undefined),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastMonthStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastMonthStart)),
+            credits: 10,
+          },
+          {
+            ...baseExpectedEvent,
+            timestamp: nowMonthStart.getTime(),
+            timestamp_formatted: formatDate(nowMonthStart),
+            credits: 10,
+          },
+        ]);
+      });
     });
-    //
-    // const mockEvent: CleanedEventBody = {
-    //   component_id: "test component id",
-    //   event_name: eventName,
-    //   timestamp: 1585699200000,
-    //   event_id: "some random id",
-    //   timestamp_formatted: "2020-04-01",
-    //   vendor_id: "some vendor id",
-    //   credits: 5,
-    // };
-    //
-    // it("generates events after start date but with no end date in config", async () => {
-    //   const result = await businessLogic(undefined, mockContext);
-    //
-    //   expect(result).toEqual([mockEvent]);
-    // });
-    //
-    // it("generates no events before start date and with no end date in config", async () => {
-    //   const mockContext = generateMockContext([
-    //     {
-    //       ...baseConfigRow,
-    //       start_date: "2049-01-01",
-    //       end_date: undefined,
-    //     },
-    //   ]);
-    //   const result = await businessLogic(undefined, mockContext);
-    //
-    //   expect(result).toEqual([]);
-    // });
-    //
-    // it("generates events when now is between start and end dates in config", async () => {
-    //   const mockContext = generateMockContext([
-    //     {
-    //       ...baseConfigRow,
-    //       start_date: "2005-01-01",
-    //       end_date: "2049-01-01",
-    //     },
-    //   ]);
-    //   const result = await businessLogic(undefined, mockContext);
-    //
-    //   expect(result).toEqual([mockEvent]);
-    // });
-    //
-    // it("generates no events when now is not between start and end dates in config", async () => {
-    //   const mockContext = generateMockContext([
-    //     {
-    //       ...baseConfigRow,
-    //       start_date: "2005-01-01",
-    //       end_date: "2010-01-01",
-    //     },
-    //   ]);
-    //   const result = await businessLogic(undefined, mockContext);
-    //
-    //   expect(result).toEqual([]);
-    // });
+
+    describe("Quarterly frequency", () => {
+      const nowQuarterStart = new Date("2020-01-01");
+      const pastQuarterStart = "2019/10/01";
+      const pastActiveStart = "2019/11/15";
+      const pastActiveEnd = "2019/12/15";
+      const futureActiveStart = "2020/04/05";
+      const futureActiveEnd = "2020/05/15";
+
+      test("generates no events if scheduled events are in future", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
+        const mockContext = generateMockContext([
+          getConfigRow(
+            "fixed",
+            "quarterly",
+            futureActiveStart,
+            futureActiveEnd
+          ),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([]);
+      });
+
+      test("generates no events if scheduled events already generated", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(eventName, "2019", "10", "true", "10"),
+          getExtractRow(eventName, "2020", "01", "true", "10"),
+        ]);
+        const mockContext = generateMockContext([
+          getConfigRow("fixed", "quarterly", pastActiveStart, futureActiveEnd),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([]);
+      });
+
+      it("generates events to fill in a past quarter if necessary", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
+        const mockContext = generateMockContext([
+          getConfigRow("fixed", "quarterly", pastActiveStart, pastActiveEnd),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastQuarterStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastQuarterStart)),
+            credits: 10,
+          },
+        ]);
+      });
+
+      it("generates additional events, in case the target number is increased in config", async () => {
+        const alreadyGeneratedEventCount = 7;
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(
+            eventName,
+            "2019",
+            "10",
+            "true",
+            `${alreadyGeneratedEventCount}`
+          ),
+        ]);
+        const mockContext = generateMockContext([
+          getConfigRow("fixed", "quarterly", pastActiveStart, pastActiveEnd),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastQuarterStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastQuarterStart)),
+            credits: 10 - alreadyGeneratedEventCount,
+          },
+        ]);
+      });
+
+      it("generates events up to the present time but no further", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
+        const mockContext = generateMockContext([
+          getConfigRow("fixed", "quarterly", pastActiveStart, undefined),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastQuarterStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastQuarterStart)),
+            credits: 10,
+          },
+          {
+            ...baseExpectedEvent,
+            timestamp: nowQuarterStart.getTime(),
+            timestamp_formatted: formatDate(nowQuarterStart),
+            credits: 10,
+          },
+        ]);
+      });
+    });
+  });
+
+  describe("Shortfall synthetic events", () => {
+    describe("Monthly frequency", () => {
+      const pastMonthStart = "2020/02/01";
+      const pastActiveStart = "2020/02/15";
+      const pastActiveEnd = "2020/02/20";
+      const futureActiveStart = "2020/04/05";
+      const futureActiveEnd = "2020/04/15";
+
+      test("generates no events if scheduled events are in future", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
+        const mockContext = generateMockContext([
+          getConfigRow(
+            "shortfall",
+            "monthly",
+            futureActiveStart,
+            futureActiveEnd
+          ),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([]);
+      });
+
+      test("generates no events if scheduled events already generated", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(eventName, "2020", "02", "false", "10"),
+          getExtractRow(eventName, "2020", "03", "false", "10"),
+        ]);
+        const mockContext = generateMockContext([
+          getConfigRow(
+            "shortfall",
+            "monthly",
+            pastActiveStart,
+            futureActiveEnd
+          ),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([]);
+      });
+
+      it("generates events to fill in a past month if necessary", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
+        const mockContext = generateMockContext([
+          getConfigRow("shortfall", "monthly", pastActiveStart, pastActiveEnd),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastMonthStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastMonthStart)),
+            credits: 10,
+          },
+        ]);
+      });
+
+      it("generates additional events to meet a shortfall of existing events", async () => {
+        const alreadyGeneratedEventCount = 7;
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(
+            eventName,
+            "2020",
+            "02",
+            "false",
+            `${alreadyGeneratedEventCount}`
+          ),
+        ]);
+        const mockContext = generateMockContext([
+          getConfigRow("shortfall", "monthly", pastActiveStart, pastActiveEnd),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastMonthStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastMonthStart)),
+            credits: 10 - alreadyGeneratedEventCount,
+          },
+        ]);
+      });
+
+      it("generates events to fill in all months up to the present time but no further", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
+        const mockContext = generateMockContext([
+          getConfigRow("shortfall", "monthly", pastActiveStart, undefined),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastMonthStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastMonthStart)),
+            credits: 10,
+          },
+        ]);
+      });
+    });
+
+    describe("Quarterly frequency", () => {
+      const pastQuarterStart = "2019/10/01";
+      const pastActiveStart = "2019/11/15";
+      const pastActiveEnd = "2019/12/15";
+      const futureActiveStart = "2020/04/05";
+      const futureActiveEnd = "2020/05/15";
+
+      test("generates no events if scheduled events are in future", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
+        const mockContext = generateMockContext([
+          getConfigRow(
+            "shortfall",
+            "quarterly",
+            futureActiveStart,
+            futureActiveEnd
+          ),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([]);
+      });
+
+      test("generates no events if scheduled events already generated", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(eventName, "2019", "10", "true", "10"),
+          getExtractRow(eventName, "2020", "01", "true", "10"),
+        ]);
+        const mockContext = generateMockContext([
+          getConfigRow(
+            "shortfall",
+            "quarterly",
+            pastActiveStart,
+            futureActiveEnd
+          ),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([]);
+      });
+
+      it("generates events to fill in a past quarter if necessary", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
+        const mockContext = generateMockContext([
+          getConfigRow(
+            "shortfall",
+            "quarterly",
+            pastActiveStart,
+            pastActiveEnd
+          ),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastQuarterStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastQuarterStart)),
+            credits: 10,
+          },
+        ]);
+      });
+
+      it("generates additional events, in case the target number is increased in config", async () => {
+        const alreadyGeneratedEventCount = 7;
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(
+            eventName,
+            "2019",
+            "10",
+            "true",
+            `${alreadyGeneratedEventCount}`
+          ),
+        ]);
+        const mockContext = generateMockContext([
+          getConfigRow(
+            "shortfall",
+            "quarterly",
+            pastActiveStart,
+            pastActiveEnd
+          ),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastQuarterStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastQuarterStart)),
+            credits: 10 - alreadyGeneratedEventCount,
+          },
+        ]);
+      });
+
+      it("generates events up to the present time but no further", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([]);
+        const mockContext = generateMockContext([
+          getConfigRow("shortfall", "quarterly", pastActiveStart, undefined),
+        ]);
+        const result = await businessLogic(undefined, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            timestamp: new Date(pastQuarterStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastQuarterStart)),
+            credits: 10,
+          },
+        ]);
+      });
+    });
   });
 });
