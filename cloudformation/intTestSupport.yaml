@@ -96,6 +96,11 @@ Resources:
                 - glue:GetDatabase
               Resource: '*'
             - Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource:
+                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-*
+            - Effect: Allow
               Action: ses:SendRawEmail
               Resource: !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
             - Effect: Allow
