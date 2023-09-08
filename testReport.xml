@@ -1,249 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="59" failures="3" errors="0" time="423.839">
-  <testsuite name="Email" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:25:49" time="88.66" tests="5">
-    <testcase classname="Email CSV attachment" name="Email CSV attachment" time="5.72">
+<testsuites name="jest tests" tests="57" failures="0" errors="0" time="406.596">
+  <testsuite name="Email" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:05:55" time="110.476" tests="5">
+    <testcase classname="Email CSV attachment" name="Email CSV attachment" time="5.439">
     </testcase>
-    <testcase classname="Email PDF attachment" name="Email PDF attachment" time="1.646">
+    <testcase classname="Email PDF attachment" name="Email PDF attachment" time="2.796">
     </testcase>
-    <testcase classname="Email CSV and PDF" name="Email CSV and PDF" time="2.615">
+    <testcase classname="Email CSV and PDF" name="Email CSV and PDF" time="2.471">
     </testcase>
-    <testcase classname="Email CSV, PDF and JPEG" name="Email CSV, PDF and JPEG" time="2.74">
+    <testcase classname="Email CSV, PDF and JPEG" name="Email CSV, PDF and JPEG" time="2.753">
     </testcase>
-    <testcase classname="Email Various attachments" name="Email Various attachments" time="2.44">
-    </testcase>
-  </testsuite>
-  <testsuite name="New invoice with same month, vendor, service as old line item" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:25:48" time="238.263" tests="1">
-    <testcase classname="New invoice with same month, vendor, service as old line item should archive old line item" name="New invoice with same month, vendor, service as old line item should archive old line item" time="166.036">
+    <testcase classname="Email Various attachments" name="Email Various attachments" time="2.861">
     </testcase>
   </testsuite>
-  <testsuite name="
- DashboardDataExtractFunction" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:25:49" time="306.888" tests="2">
-    <testcase classname="
- DashboardDataExtractFunction should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised non-quarterly invoice data is stored in s3" name="
- DashboardDataExtractFunction should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised non-quarterly invoice data is stored in s3" time="82.73">
-    </testcase>
-    <testcase classname="
- DashboardDataExtractFunction should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised quarterly invoice data is stored in s3" name="
- DashboardDataExtractFunction should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised quarterly invoice data is stored in s3" time="151.812">
-    </testcase>
-  </testsuite>
-  <testsuite name="
- Upload invoice standardised data to s3 directly and check the billing curated view" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:30:56" time="23.895" tests="1">
-    <testcase classname="
- Upload invoice standardised data to s3 directly and check the billing curated view Uploaded invoice standardised data should match the results from billing curated view" name="
- Upload invoice standardised data to s3 directly and check the billing curated view Uploaded invoice standardised data should match the results from billing curated view" time="22.284">
+  <testsuite name="New invoice with same month, vendor, service as old line item" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:05:55" time="230.614" tests="1">
+    <testcase classname="New invoice with same month, vendor, service as old line item should archive old line item" name="New invoice with same month, vendor, service as old line item should archive old line item" time="135.635">
     </testcase>
   </testsuite>
   <testsuite name="
  Happy path - Upload valid mock invoice and verify data is seen in the billing view
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:25:49" time="364.118" tests="4">
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:05:55" time="303.287" tests="4">
     <testcase classname="
  Happy path - Upload valid mock invoice and verify data is seen in the billing view
  upload valid non-quarterly pdf file in raw-invoice bucket and see that we can see the data in the view" name="
  Happy path - Upload valid mock invoice and verify data is seen in the billing view
- upload valid non-quarterly pdf file in raw-invoice bucket and see that we can see the data in the view" time="174.669">
+ upload valid non-quarterly pdf file in raw-invoice bucket and see that we can see the data in the view" time="73.56">
     </testcase>
     <testcase classname="
  Happy path - Upload valid mock invoice and verify data is seen in the billing view
  upload valid quarterly pdf file in raw-invoice bucket and see that we can see the data in the view" name="
  Happy path - Upload valid mock invoice and verify data is seen in the billing view
- upload valid quarterly pdf file in raw-invoice bucket and see that we can see the data in the view" time="33.735">
+ upload valid quarterly pdf file in raw-invoice bucket and see that we can see the data in the view" time="72.929">
     </testcase>
     <testcase classname="
  Happy path - Upload valid mock invoice and verify data is seen in the billing view
  upload valid non-quarterly csv file in raw-invoice bucket and check that we can see the data in the view" name="
  Happy path - Upload valid mock invoice and verify data is seen in the billing view
- upload valid non-quarterly csv file in raw-invoice bucket and check that we can see the data in the view" time="51.712">
+ upload valid non-quarterly csv file in raw-invoice bucket and check that we can see the data in the view" time="31.086">
     </testcase>
     <testcase classname="
  Happy path - Upload valid mock invoice and verify data is seen in the billing view
  upload valid quarterly csv file in raw-invoice bucket and check that we can see the data in the view" name="
  Happy path - Upload valid mock invoice and verify data is seen in the billing view
- upload valid quarterly csv file in raw-invoice bucket and check that we can see the data in the view" time="31.723">
+ upload valid quarterly csv file in raw-invoice bucket and check that we can see the data in the view" time="31.136">
     </testcase>
   </testsuite>
   <testsuite name="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
-" errors="0" failures="1" skipped="0" timestamp="2023-09-08T15:27:17" time="283.48" tests="5">
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:07:45" time="193.129" tests="5">
     <testcase classname="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
  results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty and No TransactionPrice No BillingPrice ,2,£0.00,2,£0.00,-1234567.01" name="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
- results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty and No TransactionPrice No BillingPrice ,2,£0.00,2,£0.00,-1234567.01" time="126.404">
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty and No TransactionPrice No BillingPrice ,2,£0.00,2,£0.00,-1234567.01" time="40.11">
     </testcase>
     <testcase classname="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
  results retrieved from billing and transaction_curated view query should match with expected BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice ,2,£0.00,11,£27.50,-100.0" name="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
- results retrieved from billing and transaction_curated view query should match with expected BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice ,2,£0.00,11,£27.50,-100.0" time="50.599">
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty less than TransactionQty and No BillingPrice but has TransactionPrice ,2,£0.00,11,£27.50,-100.0" time="48.523">
     </testcase>
     <testcase classname="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
  results retrieved from billing and transaction_curated view query should match with expected BillingQty greater than TransactionQty and No TransactionPrice but has BillingPrice,11,£27.50,2,£0.00,-1234567.05" name="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
- results retrieved from billing and transaction_curated view query should match with expected BillingQty greater than TransactionQty and No TransactionPrice but has BillingPrice,11,£27.50,2,£0.00,-1234567.05" time="34.736">
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty greater than TransactionQty and No TransactionPrice but has BillingPrice,11,£27.50,2,£0.00,-1234567.05" time="34.331">
     </testcase>
     <testcase classname="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
  results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty but BillingPrice greater than TransactionPrice,2,£6.66,2,£2.46,170.7317" name="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
- results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty but BillingPrice greater than TransactionPrice,2,£6.66,2,£2.46,170.7317" time="34.758">
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty but BillingPrice greater than TransactionPrice,2,£6.66,2,£2.46,170.7317" time="33.737">
     </testcase>
     <testcase classname="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
  results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty for quarterly invoice with different month but same quarter as events,2,£0.64,2,£0.64,0.0" name="
 Upload pdf invoice to raw invoice bucket and verify BillingAndTransactionsCuratedView results matches with expected data 
- results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty for quarterly invoice with different month but same quarter as events,2,£0.64,2,£0.64,0.0" time="34.812">
-      <failure>Error: expect(received).toEqual(expected) // deep equality
-
-Expected: &quot;£0.64&quot;
-Received: &quot;£4,110.94&quot;
-    at assertQueryResultWithTestData (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/integration_tests/tests/billing-and-transaction-view-tests.ts:88:47)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/integration_tests/tests/billing-and-transaction-view-tests.ts:57:7</failure>
+ results retrieved from billing and transaction_curated view query should match with expected BillingQty equals TransactionQty for quarterly invoice with different month but same quarter as events,2,£0.64,2,£0.64,0.0" time="33.785">
     </testcase>
   </testsuite>
   <testsuite name="
- Synthetic Events Generation Tests
-" errors="0" failures="2" skipped="0" timestamp="2023-09-08T15:31:53" time="13.637" tests="2">
+ Upload invoice standardised data to s3 directly and check the billing curated view" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:10:58" time="23.985" tests="1">
     <testcase classname="
- Synthetic Events Generation Tests
- should validate the events in the transaction_standardised table contain all required fields when the current date is between start_date and end_date" name="
- Synthetic Events Generation Tests
- should validate the events in the transaction_standardised table contain all required fields when the current date is between start_date and end_date" time="0.002">
-      <failure>ResourceNotFoundException: Function not found: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-458-synthetic-event-generation
-    at de_ResourceNotFoundExceptionRes (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:5460:23)
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3319:25)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at invokeLambda (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at invokeSyntheticLambda (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:82:10)
-    at Object.&lt;anonymous&gt; (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/integration_tests/tests/synthetic-events-tests.ts:24:20)</failure>
-      <failure>TypeError: Cannot read properties of undefined (reading &apos;0&apos;)
-    at Object.&lt;anonymous&gt; (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/integration_tests/tests/synthetic-events-tests.ts:30:114)
-    at Object.asyncJestTest (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:125:37)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/queueRunner.js:41:12
-    at new Promise (&lt;anonymous&gt;)
-    at mapper (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/queueRunner.js:68:41
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)</failure>
-    </testcase>
-    <testcase classname="
- Synthetic Events Generation Tests
- should validate the transaction_curated view  has expected synthetic quantity when the current date is between start_date and end_date" name="
- Synthetic Events Generation Tests
- should validate the transaction_curated view  has expected synthetic quantity when the current date is between start_date and end_date" time="0">
-      <failure>ResourceNotFoundException: Function not found: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-458-synthetic-event-generation
-    at de_ResourceNotFoundExceptionRes (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:5460:23)
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3319:25)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at invokeLambda (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at invokeSyntheticLambda (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:82:10)
-    at Object.&lt;anonymous&gt; (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/integration_tests/tests/synthetic-events-tests.ts:24:20)</failure>
-      <failure>TypeError: Cannot read properties of undefined (reading &apos;0&apos;)
-    at Object.&lt;anonymous&gt; (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/integration_tests/tests/synthetic-events-tests.ts:56:109)
-    at Object.asyncJestTest (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:125:37)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/queueRunner.js:41:12
-    at new Promise (&lt;anonymous&gt;)
-    at mapper (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/jest-jasmine2/build/queueRunner.js:68:41
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)</failure>
+ Upload invoice standardised data to s3 directly and check the billing curated view Uploaded invoice standardised data should match the results from billing curated view" name="
+ Upload invoice standardised data to s3 directly and check the billing curated view Uploaded invoice standardised data should match the results from billing curated view" time="21.477">
     </testcase>
   </testsuite>
   <testsuite name="
-Upload events to s3 directly and check the transaction curated view 
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:31:19" time="54.905" tests="4">
+ DashboardDataExtractFunction" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:05:55" time="333.556" tests="2">
     <testcase classname="
-Upload events to s3 directly and check the transaction curated view 
- data retrieved from transaction_curated athena view should match the input data VENDOR_1_EVENT_1, vendor_testvendor1, 2, 2005/06/30 10:00" name="
-Upload events to s3 directly and check the transaction curated view 
- data retrieved from transaction_curated athena view should match the input data VENDOR_1_EVENT_1, vendor_testvendor1, 2, 2005/06/30 10:00" time="13.757">
+ DashboardDataExtractFunction should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised non-quarterly invoice data is stored in s3" name="
+ DashboardDataExtractFunction should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised non-quarterly invoice data is stored in s3" time="81.598">
     </testcase>
     <testcase classname="
-Upload events to s3 directly and check the transaction curated view 
- data retrieved from transaction_curated athena view should match the input data VENDOR_2_EVENT_2, vendor_testvendor2, 2, 2005/07/10 10:00" name="
-Upload events to s3 directly and check the transaction curated view 
- data retrieved from transaction_curated athena view should match the input data VENDOR_2_EVENT_2, vendor_testvendor2, 2, 2005/07/10 10:00" time="12.311">
-    </testcase>
-    <testcase classname="
-Upload events to s3 directly and check the transaction curated view 
- data retrieved from transaction_curated athena view should match the input data VENDOR_3_EVENT_4, vendor_testvendor3, 7, 2005/08/10 10:00" name="
-Upload events to s3 directly and check the transaction curated view 
- data retrieved from transaction_curated athena view should match the input data VENDOR_3_EVENT_4, vendor_testvendor3, 7, 2005/08/10 10:00" time="13.725">
-    </testcase>
-    <testcase classname="
-Upload events to s3 directly and check the transaction curated view 
- data retrieved from transaction_curated athena view should match the input data VENDOR_3_EVENT_6, vendor_testvendor3, 14, 2005/09/10 10:00" name="
-Upload events to s3 directly and check the transaction curated view 
- data retrieved from transaction_curated athena view should match the input data VENDOR_3_EVENT_6, vendor_testvendor3, 14, 2005/09/10 10:00" time="13.806">
+ DashboardDataExtractFunction should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised quarterly invoice data is stored in s3" name="
+ DashboardDataExtractFunction should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised quarterly invoice data is stored in s3" time="151.167">
     </testcase>
   </testsuite>
-  <testsuite name="Given a csv with event data is uploaded to the transaction csv bucket" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:06" time="9.898" tests="1">
-    <testcase classname="Given a csv with event data is uploaded to the transaction csv bucket stores the events we care about in the storage bucket" name="Given a csv with event data is uploaded to the transaction csv bucket stores the events we care about in the storage bucket" time="3.535">
-    </testcase>
-  </testsuite>
-  <testsuite name="
- Unhappy path - Upload invalid pdf to the raw invoice bucket test
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:16" time="6.905" tests="1">
-    <testcase classname="
- Unhappy path - Upload invalid pdf to the raw invoice bucket test
- should move the original raw invoice to failed folder in s3 raw-invoice bucket upon uploading the invalid pdf file " name="
- Unhappy path - Upload invalid pdf to the raw invoice bucket test
- should move the original raw invoice to failed folder in s3 raw-invoice bucket upon uploading the invalid pdf file " time="4.538">
-    </testcase>
-  </testsuite>
-  <testsuite name="
- Clean Function - Happy path tests
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:01" time="29.449" tests="6">
-    <testcase classname="
- Clean Function - Happy path tests
- should store cleaned events in the storage bucket and check credit field value" name="
- Clean Function - Happy path tests
- should store cleaned events in the storage bucket and check credit field value" time="2.938">
-    </testcase>
-    <testcase classname="
- Clean Function - Happy path tests
- should store cleaned events in the storage bucket and check credit field value" name="
- Clean Function - Happy path tests
- should store cleaned events in the storage bucket and check credit field value" time="1.479">
-    </testcase>
-    <testcase classname="
- Clean Function - Happy path tests
- should store cleaned events in the storage bucket and check credit field value" name="
- Clean Function - Happy path tests
- should store cleaned events in the storage bucket and check credit field value" time="1.462">
-    </testcase>
-    <testcase classname="
- Clean Function - Unhappy path tests
- should not store event with invalid ComponentId in the storage bucket" name="
- Clean Function - Unhappy path tests
- should not store event with invalid ComponentId in the storage bucket" time="7.141">
-    </testcase>
-    <testcase classname="
- Clean Function - Unhappy path tests
- should not store event with invalid Timestamp in the storage bucket" name="
- Clean Function - Unhappy path tests
- should not store event with invalid Timestamp in the storage bucket" time="7.142">
-    </testcase>
-    <testcase classname="
- Clean Function - Unhappy path tests
- should not store event with invalid timestamp formatted in the storage bucket" name="
- Clean Function - Unhappy path tests
- should not store event with invalid timestamp formatted in the storage bucket" time="7.166">
+  <testsuite name="Given a csv with event data is uploaded to the transaction csv bucket" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:11:28" time="8.898" tests="1">
+    <testcase classname="Given a csv with event data is uploaded to the transaction csv bucket stores the events we care about in the storage bucket" name="Given a csv with event data is uploaded to the transaction csv bucket stores the events we care about in the storage bucket" time="2.189">
     </testcase>
   </testsuite>
   <testsuite name="
  Happy path tests 
 
  Generate valid event and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:14" time="16.695" tests="3">
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:11:37" time="10.898" tests="3">
     <testcase classname="
  Happy path tests 
 
@@ -252,7 +113,7 @@ Upload events to s3 directly and check the transaction curated view
  Happy path tests 
 
  Generate valid event and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
- Filter function cloud watch logs should contain eventid" time="8.459">
+ Filter function cloud watch logs should contain eventid" time="4.276">
     </testcase>
     <testcase classname="
  Happy path tests 
@@ -262,7 +123,7 @@ Upload events to s3 directly and check the transaction curated view
  Happy path tests 
 
  Generate valid event and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
- Clean function cloud watch logs should contain eventid" time="1.683">
+ Clean function cloud watch logs should contain eventid" time="1.424">
     </testcase>
     <testcase classname="
  Happy path tests 
@@ -272,177 +133,255 @@ Upload events to s3 directly and check the transaction curated view
  Happy path tests 
 
  Generate valid event and check cloud watch logs lambda functions Filter,Clean, Store Transactions contains eventId
- Store Transactions function cloud watch logs should contain eventid" time="1.43">
+ Store Transactions function cloud watch logs should contain eventid" time="1.346">
     </testcase>
   </testsuite>
-  <testsuite name="Execute athena query to retrieve rate details" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:23" time="12.241" tests="1">
-    <testcase classname="Execute athena query to retrieve rate details retrieved rate details should match rate csv uploaded in s3 config bucket" name="Execute athena query to retrieve rate details retrieved rate details should match rate csv uploaded in s3 config bucket" time="10.97">
+  <testsuite name="
+ Clean Function - Happy path tests
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:11:22" time="27.561" tests="6">
+    <testcase classname="
+ Clean Function - Happy path tests
+ should store cleaned events in the storage bucket and check credit field value" name="
+ Clean Function - Happy path tests
+ should store cleaned events in the storage bucket and check credit field value" time="2.223">
+    </testcase>
+    <testcase classname="
+ Clean Function - Happy path tests
+ should store cleaned events in the storage bucket and check credit field value" name="
+ Clean Function - Happy path tests
+ should store cleaned events in the storage bucket and check credit field value" time="1.291">
+    </testcase>
+    <testcase classname="
+ Clean Function - Happy path tests
+ should store cleaned events in the storage bucket and check credit field value" name="
+ Clean Function - Happy path tests
+ should store cleaned events in the storage bucket and check credit field value" time="1.294">
+    </testcase>
+    <testcase classname="
+ Clean Function - Unhappy path tests
+ should not store event with invalid ComponentId in the storage bucket" name="
+ Clean Function - Unhappy path tests
+ should not store event with invalid ComponentId in the storage bucket" time="7.086">
+    </testcase>
+    <testcase classname="
+ Clean Function - Unhappy path tests
+ should not store event with invalid Timestamp in the storage bucket" name="
+ Clean Function - Unhappy path tests
+ should not store event with invalid Timestamp in the storage bucket" time="7.085">
+    </testcase>
+    <testcase classname="
+ Clean Function - Unhappy path tests
+ should not store event with invalid timestamp formatted in the storage bucket" name="
+ Clean Function - Unhappy path tests
+ should not store event with invalid timestamp formatted in the storage bucket" time="7.087">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+ Unhappy path - Upload invalid pdf to the raw invoice bucket test
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:11:48" time="6.238" tests="1">
+    <testcase classname="
+ Unhappy path - Upload invalid pdf to the raw invoice bucket test
+ should move the original raw invoice to failed folder in s3 raw-invoice bucket upon uploading the invalid pdf file " name="
+ Unhappy path - Upload invalid pdf to the raw invoice bucket test
+ should move the original raw invoice to failed folder in s3 raw-invoice bucket upon uploading the invalid pdf file " time="4.868">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+Upload events to s3 directly and check the transaction curated view 
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:10:59" time="57.258" tests="4">
+    <testcase classname="
+Upload events to s3 directly and check the transaction curated view 
+ data retrieved from transaction_curated athena view should match the input data VENDOR_1_EVENT_1, vendor_testvendor1, 2, 2005/06/30 10:00" name="
+Upload events to s3 directly and check the transaction curated view 
+ data retrieved from transaction_curated athena view should match the input data VENDOR_1_EVENT_1, vendor_testvendor1, 2, 2005/06/30 10:00" time="13.198">
+    </testcase>
+    <testcase classname="
+Upload events to s3 directly and check the transaction curated view 
+ data retrieved from transaction_curated athena view should match the input data VENDOR_2_EVENT_2, vendor_testvendor2, 2, 2005/07/10 10:00" name="
+Upload events to s3 directly and check the transaction curated view 
+ data retrieved from transaction_curated athena view should match the input data VENDOR_2_EVENT_2, vendor_testvendor2, 2, 2005/07/10 10:00" time="11.809">
+    </testcase>
+    <testcase classname="
+Upload events to s3 directly and check the transaction curated view 
+ data retrieved from transaction_curated athena view should match the input data VENDOR_3_EVENT_4, vendor_testvendor3, 7, 2005/08/10 10:00" name="
+Upload events to s3 directly and check the transaction curated view 
+ data retrieved from transaction_curated athena view should match the input data VENDOR_3_EVENT_4, vendor_testvendor3, 7, 2005/08/10 10:00" time="14.546">
+    </testcase>
+    <testcase classname="
+Upload events to s3 directly and check the transaction curated view 
+ data retrieved from transaction_curated athena view should match the input data VENDOR_3_EVENT_6, vendor_testvendor3, 14, 2005/09/10 10:00" name="
+Upload events to s3 directly and check the transaction curated view 
+ data retrieved from transaction_curated athena view should match the input data VENDOR_3_EVENT_6, vendor_testvendor3, 14, 2005/09/10 10:00" time="14.477">
+    </testcase>
+  </testsuite>
+  <testsuite name="Execute athena query to retrieve rate details" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:11:50" time="12.408" tests="1">
+    <testcase classname="Execute athena query to retrieve rate details retrieved rate details should match rate csv uploaded in s3 config bucket" name="Execute athena query to retrieve rate details retrieved rate details should match rate csv uploaded in s3 config bucket" time="10.663">
     </testcase>
   </testsuite>
   <testsuite name="
  Invoice data buckets exists in S3
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:35" time="3.039" tests="3">
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:12:02" time="2.523" tests="3">
     <testcase classname="
  Invoice data buckets exists in S3
  Raw invoice bucket should exists in S3" name="
  Invoice data buckets exists in S3
- Raw invoice bucket should exists in S3" time="0.604">
+ Raw invoice bucket should exists in S3" time="0.376">
     </testcase>
     <testcase classname="
  Invoice data buckets exists in S3
  Raw invoice textract data bucket should exists in S3" name="
  Invoice data buckets exists in S3
- Raw invoice textract data bucket should exists in S3" time="0.602">
+ Raw invoice textract data bucket should exists in S3" time="0.383">
     </testcase>
     <testcase classname="
  Invoice data buckets exists in S3
  Storage bucket should exists in S3" name="
  Invoice data buckets exists in S3
- Storage bucket should exists in S3" time="0.568">
+ Storage bucket should exists in S3" time="0.369">
     </testcase>
   </testsuite>
   <testsuite name="
  Filter function - Happy path tests
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:30" time="11.332" tests="2">
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:11:54" time="10.585" tests="2">
     <testcase classname="
  Filter function - Happy path tests
  should store event in the storage bucket for a valid event" name="
  Filter function - Happy path tests
- should store event in the storage bucket for a valid event" time="2.775">
+ should store event in the storage bucket for a valid event" time="2.192">
     </testcase>
     <testcase classname="
  Filter Function - Unhappy path tests
  should not store events with invalid EventName in the storage bucket" name="
  Filter Function - Unhappy path tests
- should not store events with invalid EventName in the storage bucket" time="7.144">
+ should not store events with invalid EventName in the storage bucket" time="7.086">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+ Store function test
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:12:05" time="3.541" tests="1">
+    <testcase classname="
+ Store function test
+ should store cleaned events in the storage bucket" name="
+ Store function test
+ should store cleaned events in the storage bucket" time="2.094">
     </testcase>
   </testsuite>
   <testsuite name="
  Execute athena query to retrieve vendor service details
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:31" time="12.37" tests="1">
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:11:56" time="13.585" tests="1">
     <testcase classname="
  Execute athena query to retrieve vendor service details
  retrieved vendor service details should match with vendor service csv uploaded in s3 config bucket " name="
  Execute athena query to retrieve vendor service details
- retrieved vendor service details should match with vendor service csv uploaded in s3 config bucket " time="10.976">
+ retrieved vendor service details should match with vendor service csv uploaded in s3 config bucket " time="10.705">
     </testcase>
   </testsuite>
   <testsuite name="
  Verify VAT details exists in S3 config bucket
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:43" time="2.36" tests="1">
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:12:09" time="1.698" tests="1">
     <testcase classname="
  Verify VAT details exists in S3 config bucket
  S3 config bucket should contain VAT details matches with expected vat config file " name="
  Verify VAT details exists in S3 config bucket
- S3 config bucket should contain VAT details matches with expected vat config file " time="0.626">
+ S3 config bucket should contain VAT details matches with expected vat config file " time="0.43">
+    </testcase>
+  </testsuite>
+  <testsuite name="
+ Execute athena query to retrieve contract details details
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:12:05" time="12.136" tests="1">
+    <testcase classname="
+ Execute athena query to retrieve contract details details
+ retrieved contract details should match with contract csv uploaded in s3 config bucket " name="
+ Execute athena query to retrieve contract details details
+ retrieved contract details should match with contract csv uploaded in s3 config bucket " time="10.633">
     </testcase>
   </testsuite>
   <testsuite name="
 Generate valid event and execute athena query
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:29:47" time="180.338" tests="14">
+" errors="0" failures="0" skipped="0" timestamp="2023-09-08T16:09:45" time="174.394" tests="14">
     <testcase classname="
 Generate valid event and execute athena query
  should contain eventId in the generated query results" name="
 Generate valid event and execute athena query
- should contain eventId in the generated query results" time="13.274">
+ should contain eventId in the generated query results" time="12.394">
     </testcase>
     <testcase classname="
 Generate valid UTC+0 event at one second after midnight on 1 Oct UTC+1 and execute athena query
  should contain eventId in the generated query results for October" name="
 Generate valid UTC+0 event at one second after midnight on 1 Oct UTC+1 and execute athena query
- should contain eventId in the generated query results for October" time="12.118">
+ should contain eventId in the generated query results for October" time="11.704">
     </testcase>
     <testcase classname="
 Generate valid UTC+0 event at 59 minutes and 59 seconds after midnight on 1 Oct UTC+1 and execute athena query
  should contain eventId in the generated query results for October" name="
 Generate valid UTC+0 event at 59 minutes and 59 seconds after midnight on 1 Oct UTC+1 and execute athena query
- should contain eventId in the generated query results for October" time="12.084">
+ should contain eventId in the generated query results for October" time="11.716">
     </testcase>
     <testcase classname="
 Generate valid UTC+0 event at one hour and one second after midnight on 1 Oct UTC+1 and execute athena query
  should contain eventId in the generated query results for October" name="
 Generate valid UTC+0 event at one hour and one second after midnight on 1 Oct UTC+1 and execute athena query
- should contain eventId in the generated query results for October" time="12.105">
+ should contain eventId in the generated query results for October" time="11.734">
     </testcase>
     <testcase classname="
 Generate valid UTC+0 event at one second after midnight on 1 Feb UTC+0 and execute athena query
  should contain eventId in the generated query results for February" name="
 Generate valid UTC+0 event at one second after midnight on 1 Feb UTC+0 and execute athena query
- should contain eventId in the generated query results for February" time="12.071">
+ should contain eventId in the generated query results for February" time="11.738">
     </testcase>
     <testcase classname="
 Generate valid UTC-6 event at one second after midnight on 1 Oct UTC+1 and execute athena query
  should contain eventId in the generated query results for October" name="
 Generate valid UTC-6 event at one second after midnight on 1 Oct UTC+1 and execute athena query
- should contain eventId in the generated query results for October" time="13.659">
+ should contain eventId in the generated query results for October" time="11.691">
     </testcase>
     <testcase classname="
 Generate valid UTC-6 event at 59 minutes and 59 seconds after midnight on 1 Oct UTC+1 and execute athena query
  should contain eventId in the generated query results for October" name="
 Generate valid UTC-6 event at 59 minutes and 59 seconds after midnight on 1 Oct UTC+1 and execute athena query
- should contain eventId in the generated query results for October" time="12.121">
+ should contain eventId in the generated query results for October" time="12.182">
     </testcase>
     <testcase classname="
 Generate valid UTC-6 event at one hour and one second after midnight on 1 Oct UTC+1 and execute athena query
  should contain eventId in the generated query results for October" name="
 Generate valid UTC-6 event at one hour and one second after midnight on 1 Oct UTC+1 and execute athena query
- should contain eventId in the generated query results for October" time="12.066">
+ should contain eventId in the generated query results for October" time="11.745">
     </testcase>
     <testcase classname="
 Generate valid UTC-6 event at one second after midnight on 1 Feb UTC+0 and execute athena query
  should contain eventId in the generated query results for February" name="
 Generate valid UTC-6 event at one second after midnight on 1 Feb UTC+0 and execute athena query
- should contain eventId in the generated query results for February" time="12.052">
+ should contain eventId in the generated query results for February" time="11.741">
     </testcase>
     <testcase classname="
 Generate valid UTC+6 event at one second after midnight on 1 Oct UTC+1 and execute athena query
  should contain eventId in the generated query results for October" name="
 Generate valid UTC+6 event at one second after midnight on 1 Oct UTC+1 and execute athena query
- should contain eventId in the generated query results for October" time="12.052">
+ should contain eventId in the generated query results for October" time="11.71">
     </testcase>
     <testcase classname="
 Generate valid UTC+6 event at 59 minutes and 59 seconds after midnight on 1 Oct UTC+1 and execute athena query
  should contain eventId in the generated query results for October" name="
 Generate valid UTC+6 event at 59 minutes and 59 seconds after midnight on 1 Oct UTC+1 and execute athena query
- should contain eventId in the generated query results for October" time="12.12">
+ should contain eventId in the generated query results for October" time="11.703">
     </testcase>
     <testcase classname="
 Generate valid UTC+6 event at one hour and one second after midnight on 1 Oct UTC+1 and execute athena query
  should contain eventId in the generated query results for October" name="
 Generate valid UTC+6 event at one hour and one second after midnight on 1 Oct UTC+1 and execute athena query
- should contain eventId in the generated query results for October" time="12.119">
+ should contain eventId in the generated query results for October" time="11.718">
     </testcase>
     <testcase classname="
 Generate valid UTC+6 event at one second after midnight on 1 Feb UTC+0 and execute athena query
  should contain eventId in the generated query results for February" name="
 Generate valid UTC+6 event at one second after midnight on 1 Feb UTC+0 and execute athena query
- should contain eventId in the generated query results for February" time="12.135">
+ should contain eventId in the generated query results for February" time="11.728">
     </testcase>
     <testcase classname="
 Generate invalid event and execute athena query
  should not contain eventId in the generated query results" name="
 Generate invalid event and execute athena query
- should not contain eventId in the generated query results" time="17.524">
-    </testcase>
-  </testsuite>
-  <testsuite name="
- Store function test
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:42" time="7.142" tests="1">
-    <testcase classname="
- Store function test
- should store cleaned events in the storage bucket" name="
- Store function test
- should store cleaned events in the storage bucket" time="5.363">
-    </testcase>
-  </testsuite>
-  <testsuite name="
- Execute athena query to retrieve contract details details
-" errors="0" failures="0" skipped="0" timestamp="2023-09-08T15:32:38" time="12.333" tests="1">
-    <testcase classname="
- Execute athena query to retrieve contract details details
- retrieved contract details should match with contract csv uploaded in s3 config bucket " name="
- Execute athena query to retrieve contract details details
- retrieved contract details should match with contract csv uploaded in s3 config bucket " time="10.982">
+ should not contain eventId in the generated query results" time="17.387">
     </testcase>
   </testsuite>
 </testsuites>
