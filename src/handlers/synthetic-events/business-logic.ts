@@ -15,7 +15,8 @@ import { FullExtractLineItem } from "../../frontend/extract-helpers/types";
  * events generate a fixed number of events every month, or quarter, and can be generated
  * as soon as we are inside that month or quarter.  "Shortfall" synthetic events generate
  * enough events to meet a target for a given month or quarter, and are generated only after
- * that month or quarter is ended.
+ * that month or quarter is ended.  Shortfall events have a different event type than the
+ * type they are padding out, since they appear as separate line items on invoices.
  *
  * A similar strategy will work for both types: for each month or quarter in a config
  * entry's active range, see if enough events have already been generated, and generate
