@@ -96,7 +96,10 @@ function createEvent(
   return {
     vendor_id: configLine.vendor_id,
     event_id: crypto.randomUUID(),
-    event_name: configLine.event_name,
+    event_name:
+      configLine.type === "shortfall" && configLine.shortfall_event_name
+        ? configLine.shortfall_event_name
+        : configLine.event_name,
     timestamp: time.getTime(),
     timestamp_formatted: formatDate(time),
     credits,

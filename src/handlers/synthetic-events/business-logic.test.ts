@@ -35,6 +35,7 @@ const eventName = "some event name";
 const baseConfigRow = {
   vendor_id: "some vendor id",
   event_name: eventName,
+  shortfall_event_name: eventName + "-shortfall",
   quantity: 10,
   component_id: "test component id",
 };
@@ -380,6 +381,7 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
+            event_name: eventName + "-shortfall",
             timestamp: new Date(pastMonthStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastMonthStart)),
             credits: 10,
@@ -406,6 +408,7 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
+            event_name: eventName + "-shortfall",
             timestamp: new Date(pastMonthStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastMonthStart)),
             credits: 10 - alreadyGeneratedEventCount,
@@ -423,6 +426,7 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
+            event_name: eventName + "-shortfall",
             timestamp: new Date(pastMonthStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastMonthStart)),
             credits: 10,
@@ -486,6 +490,7 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
+            event_name: eventName + "-shortfall",
             timestamp: new Date(pastQuarterStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastQuarterStart)),
             credits: 10,
@@ -517,6 +522,7 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
+            event_name: eventName + "-shortfall",
             timestamp: new Date(pastQuarterStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastQuarterStart)),
             credits: 10 - alreadyGeneratedEventCount,
@@ -534,6 +540,7 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
+            event_name: eventName + "-shortfall",
             timestamp: new Date(pastQuarterStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastQuarterStart)),
             credits: 10,
