@@ -3,6 +3,7 @@ Transform: AWS::Serverless-2016-10-31
 
 Resources:
   FrontEndApi:
+    # checkov:skip=CKV_AWS_120: No caching for now
     Type: AWS::Serverless::Api
     Condition: FrontEndEnabled
     DependsOn:
@@ -15,21 +16,20 @@ Resources:
         Format: '{ "requestId":"$context.requestId", "requestTime":"$context.requestTime", "routeKey":"$context.routeKey", "status":"$context.status" }'
       Auth:
         Authorizers:
-          CognitoAuthorizer:
-            AuthorizationScopes: 
-             - profile
-             - email 
-             - openid
-            UserPoolArn: !GetAtt FrontEndUserPool.Arn
-        DefaultAuthorizer: CognitoAuthorizer
-      CacheClusterEnabled: true
-      CacheClusterSize: '0.5'
+          LambdaAuthorizer:
+            FunctionArn: !GetAtt FrontEndAuthFunction.Arn
+            FunctionPayloadType: REQUEST
+            Identity:
+              ReauthorizeEvery: 0
+              StageVariables:
+                - AUTH_ENABLED
+        DefaultAuthorizer: LambdaAuthorizer
+      CacheClusterEnabled: false
       DefinitionBody:
         openapi: 3.0.2
         info:
           title: !Sub ${AWS::StackName}-frontend-api
-          description:
-            A frontend for the Program Delivery Team to manage billing across Digital
+          description: A frontend for the Program Delivery Team to manage billing across Digital
             Identity
           version: '1.0'
         servers:
@@ -62,14 +62,7 @@ Resources:
                         type: string
                         example: '<h1>Welcome to DI Billing</h1>'
       Domain:
-        CertificateArn:
-          Fn::ImportValue: !If
-            - IsEphemeral
-            - !Sub di-btm-dev-tooling-ephemeral-frontend-certificate-arn
-            - !If
-              - IsDev
-              - !Sub di-btm-tooling-dev-frontend-certificate-arn
-              - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
+        CertificateArn: !GetAtt FrontEndCertificateArn.Value
         DomainName: !GetAtt FrontEndDomainName.Value
         Route53:
           HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
@@ -79,6 +72,8 @@ Resources:
           CachingEnabled: true
           CacheTtlInSeconds: 300
       StageName: web
+      Variables:
+        AUTH_ENABLED: true
       TracingEnabled: true
 
   FrontEndDomainName:
@@ -95,13 +90,7 @@ Resources:
           - btm.dev.account.gov.uk
           - !If
             - IsEphemeral
-            - !Join [
-                '',
-                [
-                  !Select [1, !Split ['di-btm-', !Ref AWS::StackName]],
-                  .btm.dev.account.gov.uk,
-                ],
-              ]
+            - !Join ['', [!Select [1, !Split ['di-btm-', !Ref AWS::StackName]], .btm.dev.account.gov.uk]]
             - !Sub btm.${Environment}.account.gov.uk
       Description: !Sub Front end domain name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
 
@@ -120,6 +109,22 @@ Resources:
           - !Sub btm.${Environment}.account.gov.uk.
       Description: !Sub Front end Route 53 Hosted Zone name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
 
+  FrontEndCertificateArn:
+    Type: AWS::SSM::Parameter
+    Condition: FrontEndEnabled
+    Properties:
+      Name: !Sub ${AWS::StackName}-frontend-certificate-arn
+      Type: String
+      Value:
+        Fn::ImportValue: !If
+          - IsEphemeral
+          - !Sub di-btm-dev-tooling-ephemeral-frontend-certificate-arn
+          - !If
+            - IsDev
+            - !Sub di-btm-tooling-dev-frontend-certificate-arn
+            - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
+      Description: !Sub Front end certificate ARN used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
+
   FrontEndApiLogGroup:
     Type: AWS::Logs::LogGroup
     Condition: FrontEndEnabled
@@ -135,6 +140,7 @@ Resources:
     Condition: FrontEndEnabled
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
+      MemorySize: 512
       Handler: frontendAuth.handler
       ReservedConcurrentExecutions: 10
       KmsKeyArn: !GetAtt KmsKey.Arn
@@ -143,7 +149,7 @@ Resources:
           AWS_ACCOUNT_ID: !Sub ${AWS::AccountId}
           GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:google-client-details:SecretString:clientId}}'
           GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:google-client-details:SecretString:clientSecret}}'
-          
+
   FrontEndFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
@@ -215,41 +221,3 @@ Resources:
                 - athena:GetQueryResults
               Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
       ReservedConcurrentExecutions: 10
-
-  FrontEndUserPool:
-    Type: AWS::Cognito::UserPool
-    Properties:
-      Policies:
-        PasswordPolicy:
-          MinimumLength: 8
-          RequireUppercase: true
-          RequireLowercase: true
-          RequireNumbers: true
-          RequireSymbols: true
-          TemporaryPasswordValidityDays: 7
-      Schema:
-        - Name: email
-          AttributeDataType: String
-          Mutable: true
-          Required: true
-      UsernameAttributes:
-        - email
-      AutoVerifiedAttributes:
-        - email 
-      # MfaConfiguration: ON
-      UserPoolAddOns:
-        AdvancedSecurityMode: ENFORCED
-
-  FrontEndUserPoolIdentityProviderGoogle:
-    Type: AWS::Cognito::UserPoolIdentityProvider
-    Properties:
-      ProviderDetails:
-        client_id: '{{resolve:secretsmanager:google-client-details:SecretString:clientId}}'
-        client_secret: '{{resolve:secretsmanager:google-client-details:SecretString:clientSecret}}'
-        authorize_scopes: "profile email openid"
-      ProviderName: Google
-      ProviderType: Google
-      UserPoolId:
-        Ref: FrontEndUserPool
-      AttributeMapping:
-        email: google_id
