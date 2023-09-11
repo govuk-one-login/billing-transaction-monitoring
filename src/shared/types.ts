@@ -53,7 +53,7 @@ export interface ConfigCache {
   [ConfigElements.vat]: Array<{ rate: number; start: string }>;
   [ConfigElements.standardisation]: ConfigStandardisationRow[];
   [ConfigElements.eventCleaningTransform]: { credits: Command };
-  [ConfigElements.syntheticEvents]: ConfigSyntheticEventsRow[];
+  [ConfigElements.syntheticEvents]: SyntheticEventDefinition[];
 }
 
 export interface ConfigRatesRow {
@@ -91,7 +91,7 @@ export type SyntheticEventType = "fixed" | "shortfall";
 
 export type SyntheticEventFrequency = "monthly" | "quarterly";
 
-export interface ConfigSyntheticEventsRow {
+export interface SyntheticEventDefinition {
   type: SyntheticEventType;
   event_name: string;
   shortfall_event_name?: string;

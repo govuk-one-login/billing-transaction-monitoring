@@ -2,7 +2,7 @@ import { HandlerCtx } from "../../handler-context";
 import { businessLogic } from "./business-logic";
 import { randomUUID } from "crypto";
 import {
-  ConfigSyntheticEventsRow,
+  SyntheticEventDefinition,
   SyntheticEventFrequency,
   SyntheticEventType,
 } from "../../shared/types";
@@ -32,7 +32,7 @@ afterAll(() => {
 
 const eventName = "some event name";
 
-const baseConfigRow = {
+const baseSyntheticEventDefinition = {
   vendor_id: "some vendor id",
   event_name: eventName,
   shortfall_event_name: eventName + "-shortfall",
@@ -40,14 +40,14 @@ const baseConfigRow = {
   component_id: "test component id",
 };
 
-const getConfigRow = (
+const getSyntheticEventDefinition = (
   type: SyntheticEventType,
   frequency: SyntheticEventFrequency,
   start: string,
   end: string | undefined
-): ConfigSyntheticEventsRow => {
+): SyntheticEventDefinition => {
   return {
-    ...baseConfigRow,
+    ...baseSyntheticEventDefinition,
     start_date: start,
     end_date: end,
     type,
@@ -60,7 +60,7 @@ const mockLogger = {
 };
 
 const generateMockContext = (
-  rows: ConfigSyntheticEventsRow[]
+  rows: SyntheticEventDefinition[]
 ): HandlerCtx<any, any, any> => {
   return {
     config: {
@@ -139,7 +139,12 @@ describe("Synthetic events businessLogic", () => {
       test("generates no events if scheduled events are in future", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "monthly", futureActiveStart, futureActiveEnd),
+          getSyntheticEventDefinition(
+            "fixed",
+            "monthly",
+            futureActiveStart,
+            futureActiveEnd
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -152,7 +157,12 @@ describe("Synthetic events businessLogic", () => {
           getExtractRow(eventName, "2020", "03", "false", "10"),
         ]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "monthly", pastActiveStart, futureActiveEnd),
+          getSyntheticEventDefinition(
+            "fixed",
+            "monthly",
+            pastActiveStart,
+            futureActiveEnd
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -162,7 +172,12 @@ describe("Synthetic events businessLogic", () => {
       it("generates events to fill in a past month if necessary", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "monthly", pastActiveStart, pastActiveEnd),
+          getSyntheticEventDefinition(
+            "fixed",
+            "monthly",
+            pastActiveStart,
+            pastActiveEnd
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -188,7 +203,12 @@ describe("Synthetic events businessLogic", () => {
           ),
         ]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "monthly", pastActiveStart, pastActiveEnd),
+          getSyntheticEventDefinition(
+            "fixed",
+            "monthly",
+            pastActiveStart,
+            pastActiveEnd
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -205,7 +225,12 @@ describe("Synthetic events businessLogic", () => {
       it("generates events to fill in all months up to the present time but no further", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "monthly", pastActiveStart, undefined),
+          getSyntheticEventDefinition(
+            "fixed",
+            "monthly",
+            pastActiveStart,
+            undefined
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -237,7 +262,7 @@ describe("Synthetic events businessLogic", () => {
       test("generates no events if scheduled events are in future", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow(
+          getSyntheticEventDefinition(
             "fixed",
             "quarterly",
             futureActiveStart,
@@ -255,7 +280,12 @@ describe("Synthetic events businessLogic", () => {
           getExtractRow(eventName, "2020", "01", "true", "10"),
         ]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "quarterly", pastActiveStart, futureActiveEnd),
+          getSyntheticEventDefinition(
+            "fixed",
+            "quarterly",
+            pastActiveStart,
+            futureActiveEnd
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -265,7 +295,12 @@ describe("Synthetic events businessLogic", () => {
       it("generates events to fill in a past quarter if necessary", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "quarterly", pastActiveStart, pastActiveEnd),
+          getSyntheticEventDefinition(
+            "fixed",
+            "quarterly",
+            pastActiveStart,
+            pastActiveEnd
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -291,7 +326,12 @@ describe("Synthetic events businessLogic", () => {
           ),
         ]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "quarterly", pastActiveStart, pastActiveEnd),
+          getSyntheticEventDefinition(
+            "fixed",
+            "quarterly",
+            pastActiveStart,
+            pastActiveEnd
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -308,7 +348,12 @@ describe("Synthetic events businessLogic", () => {
       it("generates events up to the present time but no further", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow("fixed", "quarterly", pastActiveStart, undefined),
+          getSyntheticEventDefinition(
+            "fixed",
+            "quarterly",
+            pastActiveStart,
+            undefined
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -341,7 +386,7 @@ describe("Synthetic events businessLogic", () => {
       test("generates no events if scheduled events are in future", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow(
+          getSyntheticEventDefinition(
             "shortfall",
             "monthly",
             futureActiveStart,
@@ -359,7 +404,7 @@ describe("Synthetic events businessLogic", () => {
           getExtractRow(eventName, "2020", "03", "false", "10"),
         ]);
         const mockContext = generateMockContext([
-          getConfigRow(
+          getSyntheticEventDefinition(
             "shortfall",
             "monthly",
             pastActiveStart,
@@ -374,7 +419,12 @@ describe("Synthetic events businessLogic", () => {
       it("generates events to fill in a past month if necessary", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow("shortfall", "monthly", pastActiveStart, pastActiveEnd),
+          getSyntheticEventDefinition(
+            "shortfall",
+            "monthly",
+            pastActiveStart,
+            pastActiveEnd
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -401,7 +451,12 @@ describe("Synthetic events businessLogic", () => {
           ),
         ]);
         const mockContext = generateMockContext([
-          getConfigRow("shortfall", "monthly", pastActiveStart, pastActiveEnd),
+          getSyntheticEventDefinition(
+            "shortfall",
+            "monthly",
+            pastActiveStart,
+            pastActiveEnd
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -419,7 +474,12 @@ describe("Synthetic events businessLogic", () => {
       it("generates events to fill in all months up to the present time but no further", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow("shortfall", "monthly", pastActiveStart, undefined),
+          getSyntheticEventDefinition(
+            "shortfall",
+            "monthly",
+            pastActiveStart,
+            undefined
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
@@ -445,7 +505,7 @@ describe("Synthetic events businessLogic", () => {
       test("generates no events if scheduled events are in future", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow(
+          getSyntheticEventDefinition(
             "shortfall",
             "quarterly",
             futureActiveStart,
@@ -463,7 +523,7 @@ describe("Synthetic events businessLogic", () => {
           getExtractRow(eventName, "2020", "01", "true", "10"),
         ]);
         const mockContext = generateMockContext([
-          getConfigRow(
+          getSyntheticEventDefinition(
             "shortfall",
             "quarterly",
             pastActiveStart,
@@ -478,7 +538,7 @@ describe("Synthetic events businessLogic", () => {
       it("generates events to fill in a past quarter if necessary", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow(
+          getSyntheticEventDefinition(
             "shortfall",
             "quarterly",
             pastActiveStart,
@@ -510,7 +570,7 @@ describe("Synthetic events businessLogic", () => {
           ),
         ]);
         const mockContext = generateMockContext([
-          getConfigRow(
+          getSyntheticEventDefinition(
             "shortfall",
             "quarterly",
             pastActiveStart,
@@ -533,7 +593,12 @@ describe("Synthetic events businessLogic", () => {
       it("generates events up to the present time but no further", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
-          getConfigRow("shortfall", "quarterly", pastActiveStart, undefined),
+          getSyntheticEventDefinition(
+            "shortfall",
+            "quarterly",
+            pastActiveStart,
+            undefined
+          ),
         ]);
         const result = await businessLogic({}, mockContext);
 
