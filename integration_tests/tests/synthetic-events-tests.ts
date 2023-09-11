@@ -8,19 +8,21 @@ import {
 } from "../../src/handlers/int-test-support/config-utils/get-synthetic-events-config-rows";
 import { TransactionCurated } from "./transaction-view-athena-tests";
 
+const getDateElements = (
+  date: Date
+): { year: string; month: string; day: string } => {
+  const year = String(date.getUTCFullYear());
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return { year, month, day };
+};
+
 describe("\n Synthetic Events Generation Tests\n", () => {
-  const currentDate = new Date();
-  const year = String(currentDate.getFullYear());
-  const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-  const day = String(currentDate.getDate()).padStart(2, "0");
-  const afterLambdaInvokeTime = new Date();
+  const { year, month, day } = getDateElements(new Date());
+  const currentDateString = `${year}-${month}-${day}`;
   let syntheticEventsConfig: SyntheticEventsConfigRow[];
 
   beforeAll(async () => {
-    const prefix = resourcePrefix();
-    const storageBucket = `${prefix}-storage`;
-    const folderPrefix = `btm_event_data/${year}/${month}/${day}/`;
-    await deleteS3ObjectsAndPoll(storageBucket, folderPrefix);
     const result = await invokeSyntheticLambda("");
     expect(result.statusCode).toBe(200);
     syntheticEventsConfig = await getSyntheticEventsConfig();
@@ -44,12 +46,14 @@ describe("\n Synthetic Events Generation Tests\n", () => {
     );
     expect(queryResults[0].year).toEqual(year);
     expect(queryResults[0].month).toEqual(month);
-    expect(new Date(queryResults[0].timestamp).getTime()).toBeLessThanOrEqual(
-      afterLambdaInvokeTime.getTime()
-    );
-    expect(
-      new Date(queryResults[0].timestamp_formatted).getTime()
-    ).toBeLessThanOrEqual(afterLambdaInvokeTime.getTime());
+    const {
+      year: eventYear,
+      month: eventMonth,
+      day: eventDay,
+    } = getDateElements(new Date(queryResults[0].timestamp));
+    const eventDateString = `${eventYear}-${eventMonth}-${eventDay}`;
+    expect(eventDateString).toEqual(currentDateString);
+    expect(queryResults[0].timestamp_formatted).toEqual(currentDateString);
   });
 
   test("should validate the transaction_curated view  has expected synthetic quantity when the current date is between start_date and end_date", async () => {
@@ -61,6 +65,13 @@ describe("\n Synthetic Events Generation Tests\n", () => {
     expect(queryResults[0].quantity).toEqual(
       syntheticEventsConfig[0].quantity.toString()
     );
+  });
+
+  afterAll(async () => {
+    const prefix = resourcePrefix();
+    const storageBucket = `${prefix}-storage`;
+    const folderPrefix = `btm_event_data/${year}/${month}/${day}/`;
+    await deleteS3ObjectsAndPoll(storageBucket, folderPrefix);
   });
 });
 
