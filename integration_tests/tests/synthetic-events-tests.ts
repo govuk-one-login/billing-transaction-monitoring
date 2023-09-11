@@ -1,12 +1,15 @@
 import { invokeSyntheticLambda } from "../../src/handlers/int-test-support/helpers/lambdaHelper";
 import { queryAthena } from "../../src/handlers/int-test-support/helpers/queryHelper";
-import { deleteS3ObjectsAndPoll } from "../../src/handlers/int-test-support/helpers/testSetup";
 import { resourcePrefix } from "../../src/handlers/int-test-support/helpers/envHelper";
 import {
   getSyntheticEventsConfig,
   SyntheticEventsConfigRow,
 } from "../../src/handlers/int-test-support/config-utils/get-synthetic-events-config-rows";
 import { TransactionCurated } from "./transaction-view-athena-tests";
+import {
+  deleteS3Objects,
+  getS3Objects,
+} from "../../src/handlers/int-test-support/helpers/s3Helper";
 
 const getDateElements = (
   date: Date
@@ -21,16 +24,22 @@ describe("\n Synthetic Events Generation Tests\n", () => {
   const { year, month, day } = getDateElements(new Date());
   const currentDateString = `${year}-${month}-${day}`;
   let syntheticEventsConfig: SyntheticEventsConfigRow[];
+  let testStartTime: Date;
 
   beforeAll(async () => {
-    const result = await invokeSyntheticLambda("");
+    testStartTime = new Date();
+    const result = await invokeSyntheticLambda();
     expect(result.statusCode).toBe(200);
     syntheticEventsConfig = await getSyntheticEventsConfig();
   });
 
   test("should validate the events in the transaction_standardised table contain all required fields when the current date is between start_date and end_date", async () => {
-    const queryString = `SELECT * FROM "btm_transactions_standardised" where vendor_id = '${syntheticEventsConfig[0].vendor_id}' AND event_name='${syntheticEventsConfig[0].event_name}'`;
-    const queryResults = await queryAthena<Transactions_Standardised>(
+    const queryString = `SELECT * FROM "btm_transactions_standardised" where vendor_id = '${
+      syntheticEventsConfig[0].vendor_id
+    }' AND event_name='${
+      syntheticEventsConfig[0].event_name
+    }' AND timestamp >= from_iso8601_timestamp('${testStartTime.toISOString()}')`;
+    const queryResults = await queryAthena<TransactionsStandardised>(
       queryString
     );
     expect(queryResults.length).toBe(1);
@@ -57,7 +66,7 @@ describe("\n Synthetic Events Generation Tests\n", () => {
   });
 
   test("should validate the transaction_curated view  has expected synthetic quantity when the current date is between start_date and end_date", async () => {
-    const queryString = `SELECT * FROM "btm_transactions_curated" where vendor_id = '${syntheticEventsConfig[0].vendor_id}' AND event_name='${syntheticEventsConfig[0].event_name}'`;
+    const queryString = `SELECT * FROM "btm_transactions_curated" where vendor_id = '${syntheticEventsConfig[0].vendor_id}' AND event_name='${syntheticEventsConfig[0].event_name}' AND month ='${month}' AND year ='${year}'`;
     const queryResults = (
       await queryAthena<TransactionCurated>(queryString)
     ).flat();
@@ -71,11 +80,25 @@ describe("\n Synthetic Events Generation Tests\n", () => {
     const prefix = resourcePrefix();
     const storageBucket = `${prefix}-storage`;
     const folderPrefix = `btm_event_data/${year}/${month}/${day}/`;
-    await deleteS3ObjectsAndPoll(storageBucket, folderPrefix);
+    const s3Objects = await getS3Objects(
+      { bucketName: storageBucket, prefix: folderPrefix },
+      testStartTime
+    );
+    for (const s3Object of s3Objects) {
+      const parsedObject = JSON.parse(s3Object);
+      if (
+        parsedObject.vendor_id === syntheticEventsConfig[0].vendor_id &&
+        parsedObject.event_name === syntheticEventsConfig[0].event_name
+      ) {
+        const event_id = parsedObject.event_id;
+        const objKey = `${folderPrefix}${event_id}.json`;
+        await deleteS3Objects({ bucket: storageBucket, keys: [objKey] });
+      }
+    }
   });
 });
 
-export type Transactions_Standardised = {
+export type TransactionsStandardised = {
   vendor_id: string;
   event_id: string;
   event_name: string;

@@ -72,12 +72,11 @@ export const invokeLambda = async (
   }
 };
 
-export const invokeSyntheticLambda = async (
-  payload: string
-): Promise<InvokeLambdaResponse> => {
-  const params: InvokeLambdaParams = {
-    functionName: `${resourcePrefix()}-synthetic-event-generation`,
-    payload,
+export const invokeSyntheticLambda =
+  async (): Promise<InvokeLambdaResponse> => {
+    const params: InvokeLambdaParams = {
+      functionName: `${resourcePrefix()}-synthetic-event-generation`,
+      payload: "",
+    };
+    return await invokeLambda(params);
   };
-  return await invokeLambda(params);
-};
