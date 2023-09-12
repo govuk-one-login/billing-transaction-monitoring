@@ -20,7 +20,7 @@ Resources:
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
             FunctionPayloadType: REQUEST
             Identity:
-              ReauthorizeEvery: 0
+              ReauthorizeEvery: !If [FrontEndAuthEnabled, 0, 3600]
               StageVariables:
                 - AUTH_ENABLED
         DefaultAuthorizer: LambdaAuthorizer
@@ -131,7 +131,7 @@ Resources:
     Properties:
       KmsKeyId: !GetAtt KmsKey.Arn
       RetentionInDays: 90
-      LogGroupName: !Sub /aws/apigateway/${AWS::StackName}-api-access-logs
+      LogGroupName: !Sub /aws/vendedlogs/apigateway/${AWS::StackName}-api-access-logs
 
   FrontEndAuthFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
