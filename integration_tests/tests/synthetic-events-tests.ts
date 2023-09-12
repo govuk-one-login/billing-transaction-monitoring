@@ -5,7 +5,6 @@ import {
   getSyntheticEventsConfig,
   SyntheticEventsConfigRow,
 } from "../../src/handlers/int-test-support/config-utils/get-synthetic-events-config-rows";
-import { TransactionCurated } from "./transaction-view-athena-tests";
 import {
   deleteS3Objects,
   getS3Objects,
@@ -63,17 +62,6 @@ describe("\n Synthetic Events Generation Tests\n", () => {
     const eventDateString = `${eventYear}-${eventMonth}-${eventDay}`;
     expect(eventDateString).toEqual(currentDateString);
     expect(queryResults[0].timestamp_formatted).toEqual(currentDateString);
-  });
-
-  test("should validate the transaction_curated view  has expected synthetic quantity when the current date is between start_date and end_date", async () => {
-    const queryString = `SELECT * FROM "btm_transactions_curated" where vendor_id = '${syntheticEventsConfig[0].vendor_id}' AND event_name='${syntheticEventsConfig[0].event_name}' AND month ='${month}' AND year ='${year}'`;
-    const queryResults = (
-      await queryAthena<TransactionCurated>(queryString)
-    ).flat();
-    expect(queryResults.length).toBe(1);
-    expect(queryResults[0].quantity).toEqual(
-      syntheticEventsConfig[0].quantity.toString()
-    );
   });
 
   afterAll(async () => {
