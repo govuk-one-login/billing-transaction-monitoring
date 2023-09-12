@@ -1,29 +1,27 @@
 import {
-  APIGatewayRequestAuthorizerEvent,
   APIGatewayAuthorizerResult,
+  APIGatewayRequestAuthorizerEvent,
 } from "aws-lambda";
 import { randomUUID } from "crypto";
 import { google } from "googleapis";
-import { serialize, parse } from "cookie";
-import { Credentials } from "google-auth-library";
+import { parse, serialize } from "cookie";
+import { Credentials, OAuth2Client } from "google-auth-library";
+import { getConfig, logger } from "../../shared/utils";
+import { ConfigElements } from "../../shared/constants";
+
 const region = "eu-west-2";
 const accountId = process.env.AWS_ACCOUNT_ID;
 const verb = "GET";
 
-const allowedUsers = [
-  "nithya.kannan@digital.cabinet-office.gov.uk",
-  "peter.hinterseer@digital.cabinet-office.gov.uk",
-  "mark.schnitzius@digital.cabinet-office.gov.uk",
-  "gareth.johnson@digital.cabinet-office.gov.uk",
-  "mark.potter@digital.cabinet-office.gov.uk",
-];
+const allowedUsers = async (): Promise<string[]> =>
+  await getConfig(ConfigElements.allowedUsers);
 
-type CookieInfo = {
+type CookieContent = {
   email: string;
   tokens: Credentials;
 };
 
-const isCookieInfo = (x: any): x is CookieInfo =>
+const isCookieInfo = (x: any): x is CookieContent =>
   x.email &&
   typeof x.email === "string" &&
   x.tokens &&
@@ -31,16 +29,14 @@ const isCookieInfo = (x: any): x is CookieInfo =>
 
 const generatePolicy = ({
   apiId,
-  sub,
   effect,
   context,
 }: {
   apiId: string;
-  sub: string;
   effect: "Allow" | "Deny";
   context?: Record<string, string | number | boolean | null | undefined>;
 }): APIGatewayAuthorizerResult => ({
-  principalId: sub,
+  principalId: randomUUID(),
   policyDocument: {
     Version: "2012-10-17",
     Statement: [
@@ -72,11 +68,6 @@ export const handler = async (
     `https://${event.requestContext.domainName}/oauth2/redirect`
   );
 
-  let authenticated = false;
-  let shouldRedirect = false;
-  let redirectUrl = "";
-  let setCookieContent: CookieInfo | undefined;
-
   if (event.path === "/oauth2/redirect") {
     console.log("Fetching access tokens...");
 
@@ -99,97 +90,160 @@ export const handler = async (
 
     if (!userInfo.data.email) throw new Error("Unable to fetch userinfo.");
 
-    setCookieContent = { email: userInfo.data.email, tokens };
-    shouldRedirect = true;
-    redirectUrl = "/";
+    console.log("Fetched userinfo and tokens: ", { userInfo, tokens });
 
-    console.log("Gathered data: ", {
-      userInfo,
-      tokens,
-      shouldRedirect,
-      redirectUrl,
+    return sendRedirect(event, {
+      setCookieContent: { email: userInfo.data.email, tokens },
+      url: "/",
     });
   }
 
-  if (event.headers?.cookie) {
-    const receivedCookie = parse(event.headers.cookie);
-    const cookieContent = JSON.parse(receivedCookie.Authentication ?? "{}");
+  const receivedCookieContent = getContentFromCookie(event.headers?.cookie);
 
-    console.log("Parsed cookie: ", cookieContent);
+  if (!receivedCookieContent)
+    return sendRedirectToGoogleAuthUrl(event, oauth2Client);
 
-    if (!isCookieInfo(cookieContent)) throw new Error("Wrong cookie format.");
+  oauth2Client.setCredentials(receivedCookieContent.tokens);
 
-    oauth2Client.setCredentials(cookieContent.tokens);
+  const newTokens = await refreshTokenIfExpired(
+    receivedCookieContent?.tokens,
+    oauth2Client
+  );
 
-    const {
-      id_token: idToken,
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      expiry_date: tokenExpiry,
-    } = cookieContent.tokens;
-
-    if (
-      !accessToken ||
-      !idToken ||
-      !refreshToken ||
-      !cookieContent ||
-      !tokenExpiry
-    )
-      throw new Error("Missing necessary token-information in cookie.");
-
-    if (tokenExpiry < Date.now()) {
-      console.log("Access token expired. Refreshing token...");
-
-      const refreshResponse = await oauth2Client.refreshAccessToken();
-      setCookieContent = {
-        email: cookieContent.email,
-        tokens: refreshResponse.credentials,
-      };
-      shouldRedirect = true;
-      redirectUrl = event.path;
-    } else {
-      const ticket = await oauth2Client.verifyIdToken({
-        idToken,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
-
-      console.log("Ticket info: ", ticket.getAttributes());
-
-      const payload = ticket.getPayload();
-      if (
-        payload?.email &&
-        payload.email_verified &&
-        allowedUsers.includes(payload.email)
-      )
-        authenticated = true;
-    }
-  }
-
-  if (!authenticated && !redirectUrl) {
-    shouldRedirect = true;
-    redirectUrl = oauth2Client.generateAuthUrl({
-      access_type: "offline",
-      prompt: "consent",
-      scope: "email",
+  if (newTokens) {
+    return sendRedirect(event, {
+      setCookieContent: {
+        email: receivedCookieContent?.email,
+        tokens: newTokens,
+      },
     });
   }
 
-  if (setCookieContent) console.log("Setting cookie:", setCookieContent);
+  if (
+    await authenticateAndAuthorise(receivedCookieContent.tokens, oauth2Client)
+  ) {
+    return allowRequest(event);
+  } else {
+    return denyRequest(event);
+  }
+};
+
+const sendRedirectToGoogleAuthUrl = (
+  event: APIGatewayRequestAuthorizerEvent,
+  oauth2Client: OAuth2Client
+): APIGatewayAuthorizerResult => {
+  const redirectUrl = oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    prompt: "consent",
+    scope: "email",
+  });
+  return sendRedirect(event, { url: redirectUrl });
+};
+
+const sendRedirect = (
+  event: APIGatewayRequestAuthorizerEvent,
+  options: { setCookieContent?: CookieContent; url?: string }
+): APIGatewayAuthorizerResult => {
+  if (options.setCookieContent)
+    console.log("Setting cookie:", options.setCookieContent);
 
   return generatePolicy({
     apiId: event.requestContext.apiId,
-    sub: randomUUID(),
     effect: "Allow",
     context: {
-      redirect: shouldRedirect,
-      redirectUrl,
-      authCookie: setCookieContent
-        ? serialize("Authentication", JSON.stringify(setCookieContent), {
-            httpOnly: true,
-            secure: true,
-            path: "/",
-          })
+      redirect: true,
+      redirectUrl: options.url ?? event.path,
+      authCookie: options.setCookieContent
+        ? serialize(
+            "Authentication",
+            JSON.stringify(options.setCookieContent),
+            {
+              httpOnly: true,
+              secure: true,
+              path: "/",
+            }
+          )
         : undefined,
     },
   });
+};
+
+const allowRequest = (
+  event: APIGatewayRequestAuthorizerEvent
+): APIGatewayAuthorizerResult =>
+  generatePolicy({
+    apiId: event.requestContext.apiId,
+    effect: "Allow",
+    context: {},
+  });
+
+const denyRequest = (
+  event: APIGatewayRequestAuthorizerEvent
+): APIGatewayAuthorizerResult =>
+  generatePolicy({
+    apiId: event.requestContext.apiId,
+    effect: "Deny",
+    context: {},
+  });
+
+const refreshTokenIfExpired = async (
+  tokens: Credentials,
+  oauth2Client: OAuth2Client
+): Promise<Credentials | undefined> => {
+  const {
+    id_token: idToken,
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    expiry_date: tokenExpiry,
+  } = tokens;
+
+  if (!accessToken || !idToken || !refreshToken || !tokenExpiry)
+    throw new Error("Missing necessary token-information in cookie.");
+
+  if (tokenExpiry < Date.now()) {
+    console.log("Access token expired. Refreshing token...");
+
+    const refreshResponse = await oauth2Client.refreshAccessToken();
+    return refreshResponse.credentials;
+  }
+};
+
+const authenticateAndAuthorise = async (
+  tokens: Credentials,
+  oauth2Client: OAuth2Client
+): Promise<boolean> => {
+  if (!tokens.id_token) return false;
+
+  const ticket = await oauth2Client.verifyIdToken({
+    idToken: tokens.id_token,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+
+  console.log("Ticket info: ", ticket.getAttributes());
+
+  const payload = ticket.getPayload();
+  if (payload?.email && payload.email_verified) {
+    if ((await allowedUsers()).includes(payload.email)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const getContentFromCookie = (
+  cookieHeader: string | undefined
+): CookieContent | undefined => {
+  if (!cookieHeader) return;
+
+  const receivedCookie = parse(cookieHeader);
+  const cookieContent = JSON.parse(receivedCookie.Authentication ?? "{}");
+
+  console.log("Parsed cookie: ", cookieContent);
+
+  if (!isCookieInfo(cookieContent)) {
+    logger.info("Wrong cookie format.");
+    return;
+  }
+
+  return cookieContent;
 };

@@ -147,8 +147,23 @@ Resources:
       Environment:
         Variables:
           AWS_ACCOUNT_ID: !Sub ${AWS::AccountId}
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:google-client-details:SecretString:clientId}}'
           GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:google-client-details:SecretString:clientSecret}}'
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
 
   FrontEndFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
