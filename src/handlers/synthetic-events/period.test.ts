@@ -27,7 +27,7 @@ describe("Period tests", () => {
         expect(
           getPeriodStart(new Date(data.date), data.quarterly as boolean)
         ).toEqual({
-          month: expectedDate.getMonth(),
+          month: expectedDate.getMonth() + 1,
           year: expectedDate.getFullYear(),
           isQuarterly: data.quarterly as boolean,
         });
@@ -95,15 +95,15 @@ describe("Period tests", () => {
   describe("nextPeriod", () => {
     test.each`
       year    | month | quarterly | expectedYear | expectedMonth
-      ${2019} | ${0}  | ${false}  | ${2019}      | ${1}
       ${2019} | ${1}  | ${false}  | ${2019}      | ${2}
-      ${2020} | ${1}  | ${false}  | ${2020}      | ${2}
-      ${2015} | ${3}  | ${false}  | ${2015}      | ${4}
-      ${2015} | ${11} | ${false}  | ${2016}      | ${0}
-      ${2019} | ${0}  | ${true}   | ${2019}      | ${3}
-      ${2019} | ${3}  | ${true}   | ${2019}      | ${6}
-      ${2020} | ${6}  | ${true}   | ${2020}      | ${9}
-      ${2015} | ${9}  | ${true}   | ${2016}      | ${0}
+      ${2019} | ${2}  | ${false}  | ${2019}      | ${3}
+      ${2020} | ${2}  | ${false}  | ${2020}      | ${3}
+      ${2015} | ${4}  | ${false}  | ${2015}      | ${5}
+      ${2015} | ${12} | ${false}  | ${2016}      | ${1}
+      ${2019} | ${1}  | ${true}   | ${2019}      | ${4}
+      ${2019} | ${4}  | ${true}   | ${2019}      | ${7}
+      ${2020} | ${7}  | ${true}   | ${2020}      | ${10}
+      ${2015} | ${10} | ${true}   | ${2016}      | ${1}
     `(
       "Expect $year1-$month1 before $year2-$month2 to be $expectedResult",
       async ({ ...data }) => {

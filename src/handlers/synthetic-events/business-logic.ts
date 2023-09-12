@@ -60,7 +60,7 @@ export const businessLogic: BusinessLogic<
       if (syntheticEventDefinition.quantity > existingEventCount) {
         events.push(
           createEvent(
-            new Date(period.year, period.month),
+            new Date(period.year, period.month - 1),
             syntheticEventDefinition,
             syntheticEventDefinition.quantity - existingEventCount
           )
@@ -90,7 +90,7 @@ function countExistingEvents(
         lineItem.vendor_id === syntheticEventDefinition.vendor_id &&
         eventTypes.includes(lineItem.event_name) &&
         +lineItem.year === period.year &&
-        +lineItem.month - 1 === period.month
+        +lineItem.month === period.month
     )
     .map((lineItem) => +lineItem.transaction_quantity)
     .reduce<number>((sum, quantity) => sum + quantity, 0);

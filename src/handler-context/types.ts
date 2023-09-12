@@ -3,7 +3,7 @@ import { ConfigElements } from "../shared/constants";
 import { PickedConfigCache } from "../shared/types";
 import { HandlerOutputs } from "./context-builder";
 
-export type HandlerMessageBody = string | {} | unknown;
+export type HandlerMessageBody = string | {};
 
 export interface HandlerIncomingMessage<TBody extends HandlerMessageBody> {
   id?: string;

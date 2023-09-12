@@ -23,13 +23,13 @@ describe("getActivePeriods", () => {
 
       const pastPeriod: Period = {
         year: 2019,
-        month: 11, // December
+        month: 12,
         isQuarterly: false,
       };
 
       const presentPeriod: Period = {
         year: 2020,
-        month: 0, // January
+        month: 1,
         isQuarterly: false,
       };
 
@@ -73,13 +73,13 @@ describe("getActivePeriods", () => {
 
       const pastPeriod: Period = {
         year: 2019,
-        month: 9, // Octboer
+        month: 10,
         isQuarterly: true,
       };
 
       const presentPeriod: Period = {
         year: 2020,
-        month: 0, // January
+        month: 1,
         isQuarterly: true,
       };
 
@@ -125,7 +125,7 @@ describe("getActivePeriods", () => {
 
       const pastPeriod: Period = {
         year: 2019,
-        month: 11, // December
+        month: 12,
         isQuarterly: false,
       };
 
@@ -153,7 +153,7 @@ describe("getActivePeriods", () => {
         ).toEqual([pastPeriod]);
       });
 
-      test("finds active periods only up to and including the present if start is in past and there is no end date", async () => {
+      test("finds active periods only up to but not including the present if start is in past and there is no end date", async () => {
         expect(
           getActivePeriods(now, "monthly", "shortfall", pastMidMonthStart)
         ).toEqual([pastPeriod]);
@@ -169,7 +169,7 @@ describe("getActivePeriods", () => {
 
       const pastPeriod: Period = {
         year: 2019,
-        month: 9, // Octboer
+        month: 10,
         isQuarterly: true,
       };
 

@@ -1,12 +1,14 @@
 export type Period = {
-  month: number;
+  month: number; // 1-based, i.e. 1 is January
   year: number;
   isQuarterly: boolean;
 };
 
 export const getPeriodStart = (date: Date, isQuarterly: boolean): Period => ({
   year: date.getFullYear(),
-  month: isQuarterly ? Math.floor(date.getMonth() / 3) * 3 : date.getMonth(),
+  month: isQuarterly
+    ? Math.floor(date.getMonth() / 3) * 3 + 1
+    : date.getMonth() + 1,
   isQuarterly,
 });
 
@@ -21,7 +23,7 @@ export const periodsAreEqual = (period1: Period, period2: Period): boolean =>
 
 export const nextPeriod = (period: Period): Period => {
   const newMonth = period.month + (period.isQuarterly ? 3 : 1);
-  if (newMonth > 11) {
+  if (newMonth > 12) {
     return {
       month: newMonth - 12,
       year: period.year + 1,
