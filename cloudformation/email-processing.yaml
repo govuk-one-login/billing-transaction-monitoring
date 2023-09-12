@@ -34,6 +34,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-email-processing-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+      MessageRetentionPeriod: 1209600
 
   EmailProcessingDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -69,12 +70,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           DESTINATION_BUCKET: !Ref RawInvoiceBucket
-          LOCAL_ENDPOINT:
-            !If [
-              IsLocal,
-              'http://s3.localhost.localstack.cloud:4566',
-              !Ref AWS::NoValue,
-            ]
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', !Ref AWS::NoValue]
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-email-processing-function
       Events:
         EmailProcessingEvent:

@@ -1,15 +1,13 @@
+import { getNumberFromMoneyText } from "../../../shared/utils";
 import { getHighestConfidenceTextractValue } from "./get-highest-confidence-textract-value";
-import { getNumberFromMoneyText } from "./get-number-from-money-text";
 import { getUnitPrice } from "./get-unit-price";
 
 jest.mock("../../../shared/utils");
+const mockedGetNumberFromMoneyText = getNumberFromMoneyText as jest.Mock;
 
 jest.mock("./get-highest-confidence-textract-value");
 const mockedGetHighestConfidenceTextractValue =
   getHighestConfidenceTextractValue as jest.Mock;
-
-jest.mock("./get-number-from-money-text");
-const mockedGetNumberFromMoneyText = getNumberFromMoneyText as jest.Mock;
 
 describe("Unit price getter", () => {
   beforeEach(() => {

@@ -85,11 +85,7 @@ Resources:
           projection.month.type: integer
           projection.month.digits: 2
           projection.month.range: 1,12
-          storage.location.template:
-            !Join [
-              '',
-              ['s3://', !Ref StorageBucket, '/btm_event_data/${year}/${month}'],
-            ]
+          storage.location.template: !Join ['', ['s3://', !Ref StorageBucket, '/btm_event_data/${year}/${month}']]
         PartitionKeys:
           - { Name: year, Type: string }
           - { Name: month, Type: string }
@@ -303,6 +299,7 @@ Resources:
             vendor_id
             , vendor_name
             , service_name
+            , event_name
             , contract_id
             , contract_name
             , CAST(year AS VARCHAR) year
@@ -333,6 +330,7 @@ Resources:
             vendor_id
             , vendor_name
             , service_name
+            , event_name
             , contract_id
             , contract_name
             , year
@@ -374,6 +372,7 @@ Resources:
             , txn.price transaction_price
             , invoice.quantity billing_quantity
             , txn.quantity transaction_quantity
+            , txn.event_name
             , CAST((invoice.price + invoice.tax) AS decimal(10,2)) billing_amount_with_tax
             , COALESCE(
                 (CASE
@@ -416,8 +415,7 @@ Resources:
           EncryptionConfiguration:
             EncryptionOption: SSE_KMS
             KmsKey: !GetAtt KmsKey.Arn
-          OutputLocation:
-            !Join ['', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
+          OutputLocation: !Join ['', ['s3://', !Ref AthenaQueryResultsBucket, '/']]
 
   AthenaQueryResultsBucket:
     Type: AWS::S3::Bucket

@@ -5,8 +5,8 @@ export const getContractAndVendorName = async (
   contractId: string
 ): Promise<{ vendorName: string; contractName: string }> => {
   const [services, contracts] = await Promise.all([
-    getConfig(ConfigElements.services),
-    getConfig(ConfigElements.contracts),
+    getConfig(ConfigElements.services, { withCache: false }),
+    getConfig(ConfigElements.contracts, { withCache: false }),
   ]);
 
   const contract = contracts.find((contract) => contract.id === contractId);

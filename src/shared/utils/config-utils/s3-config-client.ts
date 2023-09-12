@@ -23,6 +23,7 @@ export const configFileMap: Record<ConfigElements, string> = {
   [ConfigElements.standardisation]: "vendor-invoice-standardisation.json",
   [ConfigElements.eventCleaningTransform]: "event_transforms/config.json",
   [ConfigElements.allowedUsers]: "allowed-users.json",
+  [ConfigElements.syntheticEvents]: "synthetic_events/synthetic-events.json",
 };
 
 const parseJsonFile = async (rawFile: string): Promise<Json> => {
@@ -66,6 +67,7 @@ const parserMap = {
   [ConfigElements.standardisation]: parseJsonFile,
   [ConfigElements.eventCleaningTransform]: parseJsonFile,
   [ConfigElements.allowedUsers]: parseJsonFile,
+  [ConfigElements.syntheticEvents]: parseJsonFile,
 };
 
 const parseConfigFile = async <TFileName extends ConfigElements>(

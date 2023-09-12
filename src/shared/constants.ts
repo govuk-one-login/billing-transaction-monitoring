@@ -11,6 +11,7 @@ export enum ConfigElements {
   standardisation = "standardisation",
   eventCleaningTransform = "eventCleaningTransform",
   allowedUsers = "allowedUsers",
+  syntheticEvents = "syntheticEvents"
 }
 
 export const RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE = "failed";

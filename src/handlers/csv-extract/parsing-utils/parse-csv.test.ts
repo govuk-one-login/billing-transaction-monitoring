@@ -110,4 +110,29 @@ describe("Parse CSV tests", () => {
 
     expect(result).toEqual(expected);
   });
+
+  test("should parse correctly with quote-wrapped values that have commas and quotation marks", async () => {
+    const fileData =
+      "Vendor,Skippy’s Everything Shop,,,,,\n" +
+      ",,,,,,\n" +
+      "Service Name,Unit Price,Quantity,Tax,Subtotal,Total,\n" +
+      '"Horse ""Hoof"" Whittling","12,000.45","28",69.72,348.6,418.32,\n';
+    const expected = {
+      vendor: "Skippy’s Everything Shop",
+      lineItems: [
+        {
+          "service name": 'Horse "Hoof" Whittling',
+          "unit price": "12,000.45",
+          quantity: "28",
+          tax: "69.72",
+          subtotal: "348.6",
+          total: "418.32",
+        },
+      ],
+    };
+
+    const result = parseCsv(fileData);
+
+    expect(result).toEqual(expected);
+  });
 });

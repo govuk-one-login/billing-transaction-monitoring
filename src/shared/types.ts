@@ -54,6 +54,7 @@ export interface ConfigCache {
   [ConfigElements.standardisation]: ConfigStandardisationRow[];
   [ConfigElements.eventCleaningTransform]: { credits: Command };
   [ConfigElements.allowedUsers]: string[];
+  [ConfigElements.syntheticEvents]: ConfigSyntheticEventsRow[];
 }
 
 export interface ConfigRatesRow {
@@ -85,6 +86,16 @@ export interface ConfigContractsRow {
 export interface ConfigStandardisationRow {
   vendorId: string;
   invoiceStandardisationModuleId: number;
+}
+
+export interface ConfigSyntheticEventsRow {
+  event_name: string;
+  quantity: number;
+  start_date: string;
+  end_date?: string;
+  frequency: string;
+  vendor_id: string;
+  component_id: string;
 }
 
 export type GetConfigFile = <TFileName extends ConfigElements>(

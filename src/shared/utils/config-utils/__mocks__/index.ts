@@ -61,6 +61,17 @@ const config: ConfigCache = {
   },
   contracts: [],
   allowedUsers: ["allowed@user.com"],
+  syntheticEvents: [
+    {
+      event_name: "VENDOR_5_TPS",
+      quantity: 7,
+      start_date: "2005-01-01",
+      end_date: "2025-01-01",
+      frequency: "monthly",
+      vendor_id: "vendor_testvendor5",
+      component_id: "my_component_id",
+    },
+  ],
 };
 
 let configOverrides = Object.create(null);
