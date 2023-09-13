@@ -21,47 +21,9 @@ type CookieContent = {
   tokens: Credentials;
 };
 
-const isCookieInfo = (x: any): x is CookieContent =>
-  x.email &&
-  typeof x.email === "string" &&
-  x.tokens &&
-  typeof x.tokens === "object";
-
-const generatePolicy = ({
-  apiId,
-  effect,
-  context,
-}: {
-  apiId: string;
-  effect: "Allow" | "Deny";
-  context?: Record<string, string | number | boolean | null | undefined>;
-}): APIGatewayAuthorizerResult => ({
-  principalId: randomUUID(),
-  policyDocument: {
-    Version: "2012-10-17",
-    Statement: [
-      {
-        Action: "execute-api:Invoke",
-        Effect: effect,
-        Resource: `arn:aws:execute-api:${region}:${accountId}:${apiId}/web/${verb}/*`,
-      },
-    ],
-  },
-  context,
-});
-
 export const handler = async (
   event: APIGatewayRequestAuthorizerEvent
 ): Promise<APIGatewayAuthorizerResult> => {
-  console.log("🚀 ~ file: handler.ts:41 ~ event:", event);
-  console.log("🚀 ~ file: handler.ts:42 ~ event.headers:", event.headers);
-  console.log("🚀 ~ file: handler.ts:43 ~ event.methodArn:", event.methodArn);
-  console.log(
-    "🚀 ~ file: handler.ts:45 ~ event.requestContext:",
-    event.requestContext
-  );
-  console.log("🚀 ~ file: handler.ts:48 ~ process.env:", process.env);
-
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -69,8 +31,6 @@ export const handler = async (
   );
 
   if (event.path === "/oauth2/redirect") {
-    console.log("Fetching access tokens...");
-
     let tokens;
     if (event.queryStringParameters?.code) {
       const response = await oauth2Client.getToken(
@@ -83,14 +43,10 @@ export const handler = async (
 
     oauth2Client.setCredentials(tokens);
 
-    console.log("Fetching user info...");
-
     const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
     const userInfo = await oauth2.userinfo.v2.me.get();
 
     if (!userInfo.data.email) throw new Error("Unable to fetch userinfo.");
-
-    console.log("Fetched userinfo and tokens: ", { userInfo, tokens });
 
     return sendRedirect(event, {
       setCookieContent: { email: userInfo.data.email, tokens },
@@ -120,13 +76,49 @@ export const handler = async (
   }
 
   if (
-    await authenticateAndAuthorise(receivedCookieContent.tokens, oauth2Client)
+    await isAuthenticateAndAuthorised(
+      receivedCookieContent.tokens,
+      oauth2Client
+    )
   ) {
     return allowRequest(event);
   } else {
     return denyRequest(event);
   }
 };
+
+const isCookieInfo = (x: unknown): x is CookieContent =>
+  typeof x === "object" &&
+  x !== null &&
+  "email" in x &&
+  typeof x.email === "string" &&
+  "tokens" in x &&
+  typeof x.tokens === "object" &&
+  // Nothing more is assertable about tokens since all fields are optional
+  x.tokens !== null;
+
+const generatePolicy = ({
+  apiId,
+  effect,
+  context,
+}: {
+  apiId: string;
+  effect: "Allow" | "Deny";
+  context?: Record<string, string | number | boolean | null | undefined>;
+}): APIGatewayAuthorizerResult => ({
+  principalId: randomUUID(),
+  policyDocument: {
+    Version: "2012-10-17",
+    Statement: [
+      {
+        Action: "execute-api:Invoke",
+        Effect: effect,
+        Resource: `arn:aws:execute-api:${region}:${accountId}:${apiId}/web/${verb}/*`,
+      },
+    ],
+  },
+  context,
+});
 
 const sendRedirectToGoogleAuthUrl = (
   event: APIGatewayRequestAuthorizerEvent,
@@ -144,8 +136,7 @@ const sendRedirect = (
   event: APIGatewayRequestAuthorizerEvent,
   options: { setCookieContent?: CookieContent; url?: string }
 ): APIGatewayAuthorizerResult => {
-  if (options.setCookieContent)
-    console.log("Setting cookie:", options.setCookieContent);
+  if (options.setCookieContent) console.log("Setting cookie");
 
   return generatePolicy({
     apiId: event.requestContext.apiId,
@@ -208,7 +199,7 @@ const refreshTokenIfExpired = async (
   }
 };
 
-const authenticateAndAuthorise = async (
+const isAuthenticateAndAuthorised = async (
   tokens: Credentials,
   oauth2Client: OAuth2Client
 ): Promise<boolean> => {
@@ -218,8 +209,6 @@ const authenticateAndAuthorise = async (
     idToken: tokens.id_token,
     audience: process.env.GOOGLE_CLIENT_ID,
   });
-
-  console.log("Ticket info: ", ticket.getAttributes());
 
   const payload = ticket.getPayload();
   if (payload?.email && payload.email_verified) {
@@ -236,9 +225,15 @@ const getContentFromCookie = (
   if (!cookieHeader) return;
 
   const receivedCookie = parse(cookieHeader);
-  const cookieContent = JSON.parse(receivedCookie.Authentication ?? "{}");
 
-  console.log("Parsed cookie: ", cookieContent);
+  let cookieContent;
+
+  try {
+    cookieContent = JSON.parse(receivedCookie.Authentication ?? "{}");
+  } catch {
+    logger.info("Unparsable cookie.");
+    return;
+  }
 
   if (!isCookieInfo(cookieContent)) {
     logger.info("Wrong cookie format.");
