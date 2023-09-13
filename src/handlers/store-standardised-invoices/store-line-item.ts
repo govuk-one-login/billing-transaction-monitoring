@@ -3,12 +3,13 @@ import {
   getStandardisedInvoiceKey,
   LineItemFieldsForNaming,
   listS3Keys,
+  logger,
   moveToFolderS3,
   putTextS3,
 } from "../../shared/utils";
 import { StandardisedLineItemSummary } from "../../shared/types";
-import path from "path";
 import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
+import { resourcePrefix } from "../int-test-support/helpers/envHelper";
 
 export async function storeLineItem(
   record: SQSRecord,
@@ -38,7 +39,7 @@ export async function storeLineItem(
     bodyObject
   );
   const staleItemKeys = await listS3Keys(bucket, itemKeyPrefix);
-
+  logger.info(`Putting text to ${bucket} ${itemKey}`);
   await putTextS3(bucket, itemKey, record.body);
 
   const archivePromises = staleItemKeys.map(
@@ -47,12 +48,13 @@ export async function storeLineItem(
 
   await Promise.all(archivePromises);
 
-  const originalInvoiceFile = bodyObject.originalInvoiceFile;
+  const rawInvoiceBucket = `${resourcePrefix()}-raw-invoice`;
+  const sourceKey = `${bodyObject.vendor_id}/${bodyObject.originalInvoiceFile}`;
+  const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
 
-  const sourceFolderPath = path.dirname(itemKey); // You might need to import 'path' if not already imported
-  const successFolderPath = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceFolderPath}`;
+  logger.info(`moving ${sourceKey} to ${destinationKey}`);
 
-  await moveToFolderS3(bucket, originalInvoiceFile, successFolderPath);
+  await moveToFolderS3(rawInvoiceBucket, sourceKey, destinationKey);
 }
 
 const isNameable = (x: unknown): x is LineItemFieldsForNaming =>
