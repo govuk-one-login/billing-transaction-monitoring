@@ -12,6 +12,7 @@ on:
 env:
   AWS_REGION: eu-west-2
   ENV_NAME: pr-${{ github.event.pull_request.number }}
+  SAM_DEPLOY_PARAMETER_OVERRIDES: CodeSigningConfigArn=${{ secrets.DEV_GH_ACTIONS_CODE_SIGNING_CONFIG_ARN }} PermissionsBoundary=${{ secrets.DEV_GH_ACTIONS_PERMISSIONS_BOUNDARY_ARN }}
 
 jobs:
   build-and-deploy:
@@ -48,11 +49,13 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_PR_ROLE_ARN }}
       - name: SAM validate
         run: sam validate
       - name: SAM deploy
-        run: npm run sam:deploy
+        env:
+          SIGNING_PROFILE: ${{ secrets.DEV_SIGNING_PROFILE_NAME }}
+        run: src/tools/deploy-pr-stack.sh
 
   run-integration-tests:
     needs: [build-and-deploy]

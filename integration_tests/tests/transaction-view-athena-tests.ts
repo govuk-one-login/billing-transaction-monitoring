@@ -102,7 +102,7 @@ describe("\nUpload events to s3 directly and check the transaction curated view 
   );
 });
 
-type TransactionCurated = Array<{
+export type TransactionCurated = Array<{
   vendor_id: string;
   vendor_name: string;
   event_name: string;
