@@ -2,19 +2,19 @@ import { HandlerCtx } from "../../handler-context";
 import { businessLogic } from "./business-logic";
 import { randomUUID } from "crypto";
 import {
+  FullExtractLineItem,
   SyntheticEventDefinition,
   SyntheticEventFrequency,
   SyntheticEventType,
 } from "../../shared/types";
 import { formatDate, getFromEnv } from "../../shared/utils";
-import { getDashboardExtract } from "../../frontend/extract-helpers/get-dashboard-extract";
-import { FullExtractLineItem } from "../../frontend/extract-helpers/types";
+import { getDashboardExtract } from "../../shared/utils/config-utils/get-dashboard-extract";
 import { CleanedEventBody } from "../clean/types";
 
 jest.mock("crypto");
 const mockedRandomUUID = randomUUID as jest.Mock;
 
-jest.mock("../../frontend/extract-helpers/get-dashboard-extract");
+jest.mock("../../shared/utils/config-utils/get-dashboard-extract");
 const mockedGetDashboardExtract = getDashboardExtract as jest.Mock;
 jest.mock("../../shared/utils/env");
 const mockedGetFromEnv = getFromEnv as jest.Mock;

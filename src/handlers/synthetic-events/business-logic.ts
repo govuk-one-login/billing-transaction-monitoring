@@ -1,12 +1,14 @@
 import { BusinessLogic } from "../../handler-context";
 import { Env } from "./types";
 import { ConfigElements } from "../../shared/constants";
-import { SyntheticEventDefinition } from "../../shared/types";
+import {
+  FullExtractLineItem,
+  SyntheticEventDefinition,
+} from "../../shared/types";
 import { CleanedEventBody } from "../clean/types";
 import crypto from "crypto";
 import { formatDate } from "../../shared/utils";
-import { getDashboardExtract } from "../../frontend/extract-helpers/get-dashboard-extract";
-import { FullExtractLineItem } from "../../frontend/extract-helpers/types";
+import { getDashboardExtract } from "../../shared/utils/config-utils/get-dashboard-extract";
 import { getActivePeriods } from "./get-active-periods";
 import { Period } from "./period";
 

@@ -1,5 +1,5 @@
 import { MONTHS } from "../utils";
-import { getDashboardExtract } from "./get-dashboard-extract";
+import { getDashboardExtract } from "../../shared/utils/config-utils/get-dashboard-extract";
 
 export type Period = {
   month: string;
