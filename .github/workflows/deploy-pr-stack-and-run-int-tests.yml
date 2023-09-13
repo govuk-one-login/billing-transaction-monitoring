@@ -19,6 +19,8 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
+    env:
+      TEST_ROLE_ARN: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -62,6 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: true
+      TEST_VIA_LAMBDA: true
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -73,7 +76,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TOOLING_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
       - name: Run integration tests
         run: npm run test:ephemeralEnvs
       - name: Deploy Jest HTML report to Github Pages
