@@ -101,6 +101,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-pdf-extract-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+      MessageRetentionPeriod: 1209600
 
   PdfExtractQueueDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -124,12 +125,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub ${AWS::StackName}-textract-role
-      PermissionsBoundary:
-        !If [
-          UsePermissionsBoundary,
-          !Ref PermissionsBoundary,
-          !Ref AWS::NoValue,
-        ]
+      PermissionsBoundary: !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:

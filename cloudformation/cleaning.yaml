@@ -16,6 +16,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-clean-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+      MessageRetentionPeriod: 1209600
 
   CleanDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -50,8 +51,7 @@ Resources:
       Environment:
         Variables:
           OUTPUT_QUEUE_URL: !Ref StorageQueue
-          LOCAL_ENDPOINT:
-            !If [IsLocal, 'http://localhost:4566', !Ref AWS::NoValue]
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', !Ref AWS::NoValue]
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-clean-function
       Events:

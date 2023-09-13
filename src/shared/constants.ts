@@ -10,6 +10,7 @@ export enum ConfigElements {
   vat = "vat",
   standardisation = "standardisation",
   eventCleaningTransform = "eventCleaningTransform",
+  syntheticEvents = "syntheticEvents"
 }
 
 export const RAW_INVOICE_TEXTRACT_DATA_FOLDER_FAILURE = "failed";

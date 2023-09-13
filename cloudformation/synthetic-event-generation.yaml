@@ -2,11 +2,11 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  DashboardDataExtractFunction:
+  SyntheticEventGenerationFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for scheduled lambda that does not process events
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${AWS::StackName}-dashboard-data-extract-function
+      FunctionName: !Sub ${AWS::StackName}-synthetic-event-generation
       VpcConfig:
         SecurityGroupIds:
           - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
@@ -17,13 +17,10 @@ Resources:
       Environment:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
-          DATABASE_NAME: !Sub ${AWS::StackName}-calculations
-          QUERY_RESULTS_BUCKET: !Sub s3://${AthenaQueryResultsBucket}
-          DESTINATION_BUCKET: !Sub ${AWS::StackName}-storage
-          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-dashboard-extract-function
-      EventInvokeConfig:
-        MaximumEventAgeInSeconds: 60
-      Handler: dashboardExtract.handler
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+          OUTPUT_QUEUE_URL: !Ref StorageQueue
+          POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-synthetic-event-generation-function
+      Handler: syntheticEvents.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Timeout: 180
       Policies:
@@ -37,13 +34,6 @@ Resources:
               Resource: !GetAtt KmsKey.Arn
             - Effect: Allow
               Action:
-                - s3:GetObject
-                - s3:ListBucket
-              Resource:
-                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}
-                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
-            - Effect: Allow
-              Action:
                 - kms:Decrypt
                 - kms:GenerateDataKey*
                 - kms:Encrypt
@@ -51,9 +41,6 @@ Resources:
               Condition:
                 ForAnyValue:StringEquals:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
-            - Effect: Allow
-              Action: glue:GetTable
-              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
             - Effect: Allow
               Action:
                 - s3:AbortMultipartUpload
@@ -64,55 +51,51 @@ Resources:
                 - s3:ListMultipartUploadParts
                 - s3:PutObject
               Resource:
-                - !Sub arn:aws:s3:::${AWS::StackName}-storage
-                - !Sub arn:aws:s3:::${AWS::StackName}-storage/*
-                - !GetAtt AthenaQueryResultsBucket.Arn
-                - !Sub ${AthenaQueryResultsBucket.Arn}/*
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
             - Effect: Allow
               Action:
-                - athena:StartQueryExecution
-                - athena:GetQueryExecution
-                - athena:GetQueryResults
-              Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
+                - sqs:SendMessage
+              Resource: !GetAtt StorageQueue.Arn
       ReservedConcurrentExecutions: 1
 
-  DashboardDataExtractScheduledRule:
+  SyntheticEventGenerationScheduledRule:
     Type: AWS::Events::Rule
     Properties:
-      Name: !Sub ${AWS::StackName}-dashboard-data-extract-rule
-      Description: Schedules DashboardDataExtractFunction to run once per day
-      ScheduleExpression: cron(0 7 ? * * *)
+      Name: !Sub ${AWS::StackName}-synthetic-event-generation-rule
+      Description: Schedules SyntheticEventGenerationFunction to run once per month
+      ScheduleExpression: cron(0 10 1 * ? *) # Schedule for 10 a.m. on the first of every month
       State: ENABLED
       Targets:
-        - Arn: !GetAtt DashboardDataExtractFunction.Arn
-          Id: DashboardDataExtractFunction
+        - Arn: !GetAtt SyntheticEventGenerationFunction.Arn
+          Id: SyntheticEventGenerationFunction
 
   LambdaPermissionForEvents:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref DashboardDataExtractFunction
+      FunctionName: !Ref SyntheticEventGenerationFunction
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-      SourceArn: !GetAtt DashboardDataExtractScheduledRule.Arn
+      SourceArn: !GetAtt SyntheticEventGenerationScheduledRule.Arn
 
-  LambdaPermissionForS3DashboardDataExtractFunction:
+  LambdaPermissionForS3SyntheticEventGenerationFunction:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref DashboardDataExtractFunction
+      FunctionName: !Ref SyntheticEventGenerationFunction
       Action: lambda:InvokeFunction
       Principal: s3.amazonaws.com
       SourceArn: !Sub arn:aws:s3:::${AWS::StackName}-storage
 
-  DashboardDataExtractFunctionAlarm:
+  SyntheticEventGenerationFunctionAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub ${AWS::StackName}-dashboard-data-extract-function-alarm
+      AlarmName: !Sub ${AWS::StackName}-synthetic-event-generation-function-alarm
       AlarmActions:
         - !GetAtt AlarmTopicParameter.Value
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName
-          Value: !Ref DashboardDataExtractFunction
+          Value: !Ref SyntheticEventGenerationFunction
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda

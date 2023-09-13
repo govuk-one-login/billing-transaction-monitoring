@@ -1,9 +1,4 @@
-import {
-  GetFunctionConfigurationCommand,
-  InvokeCommand,
-  InvokeCommandInput,
-  UpdateFunctionConfigurationCommand,
-} from "@aws-sdk/client-lambda";
+import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
 import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
 import type { HelperDict } from "../handler";
@@ -46,9 +41,15 @@ type InvokeLambdaResponse = {
   payload?: Uint8Array;
 };
 
-const invokeLambda = async (
+export const invokeLambda = async (
   params: InvokeLambdaParams
 ): Promise<InvokeLambdaResponse> => {
+  if (runViaLambda() && !params.forceWithoutLambda) {
+    return (await sendLambdaCommand(
+      IntTestHelpers.invokeLambda,
+      params
+    )) as unknown as InvokeLambdaResponse;
+  }
   const command: InvokeCommandInput = {
     FunctionName: params.functionName,
     InvocationType: "RequestResponse",
@@ -71,26 +72,11 @@ const invokeLambda = async (
   }
 };
 
-export const restartLambda = async (functionName: string): Promise<void> => {
-  if (runViaLambda()) {
-    await sendLambdaCommand(IntTestHelpers.restartLambda, functionName);
-    return;
-  }
-  try {
-    const { Environment } = await lambdaClient.send(
-      new GetFunctionConfigurationCommand({ FunctionName: functionName })
-    );
-    const currentEnv = Environment?.Variables ?? {};
-    const params = {
-      FunctionName: functionName,
-      Environment: {
-        Variables: currentEnv,
-      },
+export const invokeSyntheticLambda =
+  async (): Promise<InvokeLambdaResponse> => {
+    const params: InvokeLambdaParams = {
+      functionName: `${resourcePrefix()}-synthetic-event-generation`,
+      payload: "",
     };
-    await lambdaClient.send(new UpdateFunctionConfigurationCommand(params));
-    console.log(`Successfully restarted ${functionName}`);
-  } catch (error) {
-    console.error(`Error restarting function ${functionName}:`, error);
-    throw error;
-  }
-};
+    return await invokeLambda(params);
+  };

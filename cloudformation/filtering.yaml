@@ -18,6 +18,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-filter-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+      MessageRetentionPeriod: 1209600
 
   FilterDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -54,8 +55,7 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           OUTPUT_QUEUE_URL: !Ref CleanQueue
-          LOCAL_ENDPOINT:
-            !If [IsLocal, 'http://localhost:4566', !Ref AWS::NoValue]
+          LOCAL_ENDPOINT: !If [IsLocal, 'http://localhost:4566', !Ref AWS::NoValue]
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-filter-function
       Handler: filter.handler
@@ -68,16 +68,8 @@ Resources:
                 - sqs:GetQueueAttributes
                 - sqs:ReceiveMessage
               Resource:
-                - !If [
-                    DeployFilterQueue,
-                    !GetAtt FilterQueue.Arn,
-                    !Ref AWS::NoValue,
-                  ]
-                - !If [
-                    IsEnvForPerformanceTests,
-                    !GetAtt FilterQueueForPerformanceTests.Arn,
-                    !Ref AWS::NoValue,
-                  ]
+                - !If [DeployFilterQueue, !GetAtt FilterQueue.Arn, !Ref AWS::NoValue]
+                - !If [IsEnvForPerformanceTests, !GetAtt FilterQueueForPerformanceTests.Arn, !Ref AWS::NoValue]
                 - !If [
                     IsHigherEnv,
                     !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-queue-arn}}',
@@ -94,11 +86,7 @@ Resources:
                 - kms:Encrypt
               Resource:
                 - !GetAtt KmsKey.Arn
-                - !If [
-                    IsEnvForPerformanceTests,
-                    !GetAtt PerformanceTestingKmsKey.Arn,
-                    !Ref AWS::NoValue,
-                  ]
+                - !If [IsEnvForPerformanceTests, !GetAtt PerformanceTestingKmsKey.Arn, !Ref AWS::NoValue]
                 - !If [
                     IsHigherEnv,
                     !Sub '{{resolve:ssm:${ConfigStackParameter.Value}-transaction-input-kms-key-arn}}',
@@ -215,6 +203,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-perf-test-filter-dlq
       KmsMasterKeyId: !GetAtt KmsKey.Arn
+      MessageRetentionPeriod: 1209600
 
   FilterQueueForPerformanceTestsPolicy:
     Condition: IsEnvForPerformanceTests

@@ -34,5 +34,5 @@ export enum IntTestHelpers {
   createInvoiceInS3 = "createInvoiceInS3",
   sendEmail = "sendEmail",
   sendMessageToQueue = "sendMessageToQueue",
-  restartLambda = "restartLambda",
+  invokeLambda = "invokeLambda",
 }

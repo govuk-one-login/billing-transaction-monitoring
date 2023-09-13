@@ -393,4 +393,48 @@ describe("CSV Extract handler tests", () => {
       })
     );
   });
+
+  test("should store the standardised invoice if no version given", async () => {
+    const validInvoiceData =
+      "Vendor,Skippy’s Everything Shop,,,,,\n" +
+      "Invoice Period Start,2021/12/01,,,,,\n" +
+      "Invoice Period End,2021/12/31,,,,,\n" +
+      "Invoice Date,2022/1/1,,,,,\n" +
+      "Due Date,2022/2/1,,,,,\n" +
+      "VAT Number,123 4567 89,,,,,\n" +
+      "PO Number,123 4567 89,,,,,\n" +
+      ",,,,,,\n" +
+      "Service Name,Unit Price,Quantity,Tax,Subtotal,Total\n" +
+      "Horse Hoof Whittling,12.45,28,69.72,348.6,418.32\n";
+    mockedFetchS3.mockReturnValueOnce(validInvoiceData);
+    mockedGetVendorServiceConfigRows.mockResolvedValue(vendorServiceConfigRows);
+    const result = await handler(validEvent);
+    expect(result).toEqual({ batchItemFailures: [] });
+    expect(mockedSendRecord).toHaveBeenCalledTimes(1);
+    expect(mockedSendRecord).toHaveBeenCalledWith(
+      givenOutputQueueUrl,
+      JSON.stringify({
+        invoice_receipt_id: "123 4567 89",
+        vendor_id: "vendor123",
+        vendor_name: "Skippy’s Everything Shop",
+        invoice_receipt_date: "2022-01-01",
+        invoice_period_start: "2021-12-01",
+        due_date: "2022-02-01",
+        tax_payer_id: "123 4567 89",
+        parser_version: "",
+        originalInvoiceFile: givenFileName,
+        invoice_is_quarterly: false,
+        event_name: "VENDOR_1_EVENT_1",
+        item_description: "Horse Hoof Whittling",
+        subtotal: 348.6,
+        price: 348.6,
+        quantity: 28,
+        service_name: "Horse Hoof Whittling",
+        contract_id: "1",
+        unit_price: 12.45,
+        tax: 69.72,
+        total: 418.32,
+      })
+    );
+  });
 });
