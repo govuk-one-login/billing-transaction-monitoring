@@ -63,13 +63,7 @@ Conditions:
   IsEnvWithAutoTests: !Not [!Equals [!Ref TestRoleArn, none]]
   IsEnvForPerformanceTests: !Equals [!Ref Environment, staging]
   UsePrivateConfigStack: !Not [!Equals [!Ref PrivateConfigStack, none]]
-  DeployFilterQueue:
-    !Not [
-      !Or [
-        !Equals [!Ref Environment, production],
-        !Equals [!Ref Environment, integration],
-      ],
-    ]
+  DeployFilterQueue: !Not [!Or [!Equals [!Ref Environment, production], !Equals [!Ref Environment, integration]]]
   IsLocal: !Equals [!Ref Environment, local]
   # This is a workaround for the pipeline in dev being deployed with Environment=build due to hardcoded permissions
   IsDev: !Equals [!Select [2, !Split ['-', !Ref AWS::StackName]], dev]
@@ -118,14 +112,18 @@ Conditions:
         !Equals [!Ref AWS::StackName, di-btm-production],
       ],
     ]
+  FrontEndAuthEnabled:
+    !Or [
+      !Equals [!Ref AWS::StackName, di-btm-staging],
+      !Equals [!Ref AWS::StackName, di-btm-integration],
+      !Equals [!Ref AWS::StackName, di-btm-production],
+    ]
 
 Globals:
   Function:
-    CodeSigningConfigArn:
-      !If [UseCodeSigning, !Ref CodeSigningConfigArn, !Ref AWS::NoValue]
+    CodeSigningConfigArn: !If [UseCodeSigning, !Ref CodeSigningConfigArn, !Ref AWS::NoValue]
     KmsKeyArn: !GetAtt KmsKey.Arn
-    PermissionsBoundary:
-      !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
+    PermissionsBoundary: !If [UsePermissionsBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
     Runtime: nodejs16.x
     Timeout: 30
     CodeUri: dist/

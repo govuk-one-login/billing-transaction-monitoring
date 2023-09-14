@@ -23,6 +23,9 @@ type CookieContent = {
 export const handler = async (
   event: APIGatewayRequestAuthorizerEvent
 ): Promise<APIGatewayAuthorizerResult> => {
+  if (event.stageVariables?.AUTH_ENABLED === "false")
+    return allowRequest(event);
+
   const oauth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,

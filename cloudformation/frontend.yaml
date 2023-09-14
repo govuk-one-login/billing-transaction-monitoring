@@ -73,7 +73,7 @@ Resources:
           CacheTtlInSeconds: 300
       StageName: web
       Variables:
-        AUTH_ENABLED: true
+        AUTH_ENABLED: !If [FrontEndAuthEnabled, true, false]
       TracingEnabled: true
 
   FrontEndDomainName:
