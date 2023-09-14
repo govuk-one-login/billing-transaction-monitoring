@@ -91,6 +91,7 @@ Resources:
           ARCHIVE_FOLDER: btm_invoice_data_archived
           DESTINATION_BUCKET: !Ref StorageBucket
           DESTINATION_FOLDER: btm_invoice_data
+          RAW_INVOICE_BUCKET: !Ref RawInvoiceBucket
           LOCAL_ENDPOINT: !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', !Ref AWS::NoValue]
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-standardised-invoice-storage-function
       Events:
