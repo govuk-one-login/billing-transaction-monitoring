@@ -147,10 +147,8 @@ export async function moveS3(
     Key: destinationKey,
   });
 
-  logger.info("copying...", { copyCommand });
   await send(copyCommand);
 
-  logger.info("deleting...");
   await deleteS3(sourceBucket, sourceKey);
 }
 
