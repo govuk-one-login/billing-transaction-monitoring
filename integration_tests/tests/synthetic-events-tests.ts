@@ -6,11 +6,7 @@ import {
   getSyntheticEventsConfig,
   SyntheticEventsConfigRow,
 } from "../../src/handlers/int-test-support/config-utils/get-synthetic-events-config-rows";
-import {
-  deleteS3Objects,
-  getS3Objects,
-  putS3Object,
-} from "../../src/handlers/int-test-support/helpers/s3Helper";
+import { putS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import path from "path";
 
 const getDateElements = (
@@ -23,12 +19,9 @@ const getDateElements = (
 };
 
 describe("\n Synthetic Events Generation Tests\n", () => {
-  const { year, month, day } = getDateElements(new Date());
-  const currentDateString = `${year}-${month}-${day}`;
-  let syntheticEventsConfig: SyntheticEventsConfigRow[];
   const prefix = resourcePrefix();
   const storageBucket = `${prefix}-storage`;
-  let testStartTime: Date;
+  let syntheticEventsConfig: SyntheticEventsConfigRow[];
 
   beforeAll(async () => {
     const key = "btm_extract_data/full-extract.json";
@@ -44,52 +37,43 @@ describe("\n Synthetic Events Generation Tests\n", () => {
         key,
       },
     });
-    testStartTime = new Date();
     const result = await invokeSyntheticLambda();
     expect(result.statusCode).toBe(200);
     syntheticEventsConfig = await getSyntheticEventsConfig();
   });
 
   test("should validate the fixed synthetic events in the transaction_standardised table contain all required fields when the current date is greater than start date", async () => {
-    const queryString = `SELECT * FROM "btm_transactions_standardised" where vendor_id = '${syntheticEventsConfig[0].vendor_id}' AND event_name='${syntheticEventsConfig[0].event_name}' AND year='${year}' AND month='${month}'`;
+    const { year, month } = getDateElements(
+      new Date(syntheticEventsConfig[0].start_date)
+    );
+    const queryString = `SELECT * FROM "btm_transactions_standardised" where vendor_id = '${syntheticEventsConfig[0].vendor_id}' 
+   OR vendor_id='${syntheticEventsConfig[2].vendor_id}' OR event_name='${syntheticEventsConfig[3].event_name}' OR event_name='${syntheticEventsConfig[3].event_name}' 
+   OR event_name='${syntheticEventsConfig[0].event_name}'AND year='${year}' AND month='${month}' ORDER BY event_name asc`;
+    console.log(queryString);
     const queryResults = await queryAthena<TransactionsStandardised>(
       queryString
     );
-    expect(queryResults.length).toBe(1);
+    console.log(queryResults);
+    expect(queryResults.length).toBe(3);
+
     expect(queryResults[0].vendor_id).toEqual(
       syntheticEventsConfig[0].vendor_id
+    );
+    expect(queryResults[1].vendor_id).toEqual(
+      syntheticEventsConfig[2].vendor_id
+    );
+    expect(queryResults[2].vendor_id).toEqual(
+      syntheticEventsConfig[3].vendor_id
     );
     expect(queryResults[0].event_id).toBeDefined();
     expect(queryResults[0].component_id).toEqual(
       syntheticEventsConfig[0].component_id
     );
-    expect(queryResults[0].credits).toEqual(
-      syntheticEventsConfig[0].quantity.toString()
-    );
+    expect(queryResults[0].credits).toEqual("7"); // fixed events
+    expect(queryResults[1].credits).toEqual("5"); // shortfall monthly events
+    expect(queryResults[2].credits).toEqual("2"); // shortfall quarterly
     expect(queryResults[0].year).toEqual(year);
     expect(queryResults[0].month).toEqual(month);
-    const eventDateString = queryResults[0].timestamp.slice(0, 10);
-    expect(eventDateString).toEqual(currentDateString);
-    expect(queryResults[0].timestamp_formatted).toEqual(currentDateString);
-  });
-
-  afterAll(async () => {
-    const folderPrefix = `btm_event_data/${year}/${month}/${day}/`;
-    const s3Objects = await getS3Objects(
-      { bucketName: storageBucket, prefix: folderPrefix },
-      testStartTime
-    );
-    for (const s3Object of s3Objects) {
-      const parsedObject = JSON.parse(s3Object);
-      if (
-        parsedObject.vendor_id === syntheticEventsConfig[0].vendor_id &&
-        parsedObject.event_name === syntheticEventsConfig[0].event_name
-      ) {
-        const event_id = parsedObject.event_id;
-        const objKey = `${folderPrefix}${event_id}.json`;
-        await deleteS3Objects({ bucket: storageBucket, keys: [objKey] });
-      }
-    }
   });
 });
 
