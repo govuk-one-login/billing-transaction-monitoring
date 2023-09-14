@@ -18,6 +18,7 @@ describe("getActivePeriods", () => {
       const now = new Date("2020-01-02");
 
       const pastMidMonthStart = new Date("2019/12/15");
+      const pastMidMonthEnd = new Date("2019/12/20");
       const futureMidMonthStart = new Date("2020/02/05");
       const futureMidMonthEnd = new Date("2020/02/15");
 
@@ -45,6 +46,18 @@ describe("getActivePeriods", () => {
         ).toEqual([]);
       });
 
+      test("finds active periods only up to and including the end date if start and end are in past", async () => {
+        expect(
+          getActivePeriods(
+            now,
+            "monthly",
+            "fixed",
+            pastMidMonthStart,
+            pastMidMonthEnd
+          )
+        ).toEqual([pastPeriod]);
+      });
+
       test("finds active periods only up to and including the present if start is in past and end is in future", async () => {
         expect(
           getActivePeriods(
@@ -68,6 +81,7 @@ describe("getActivePeriods", () => {
       const now = new Date("2020-02-02");
 
       const pastMidQuarterStart = new Date("2019/11/15");
+      const pastMidQuarterEnd = new Date("2019/12/15");
       const futureMidQuarterStart = new Date("2020/05/05");
       const futureMidQuarterEnd = new Date("2020/05/15");
 
@@ -93,6 +107,18 @@ describe("getActivePeriods", () => {
             futureMidQuarterEnd
           )
         ).toEqual([]);
+      });
+
+      test("finds active periods only up to and including the present if start and end are in past", async () => {
+        expect(
+          getActivePeriods(
+            now,
+            "quarterly",
+            "fixed",
+            pastMidQuarterStart,
+            pastMidQuarterEnd
+          )
+        ).toEqual([pastPeriod]);
       });
 
       test("finds active periods only up to and including the present if start is in past and end is in future", async () => {
