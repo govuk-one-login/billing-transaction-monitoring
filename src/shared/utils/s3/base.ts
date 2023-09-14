@@ -147,8 +147,10 @@ export async function moveS3(
     Key: destinationKey,
   });
 
+  console.log("copying...");
   await send(copyCommand);
 
+  console.log("deleting...");
   await deleteS3(sourceBucket, sourceKey);
 }
 

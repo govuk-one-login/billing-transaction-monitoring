@@ -1,4 +1,5 @@
 import { SQSRecord } from "aws-lambda";
+import path from "path";
 import {
   getStandardisedInvoiceKey,
   LineItemFieldsForNaming,
@@ -51,10 +52,11 @@ export async function storeLineItem(
   const rawInvoiceBucket = `${resourcePrefix()}-raw-invoice`;
   const sourceKey = `${bodyObject.vendor_id}/${bodyObject.originalInvoiceFile}`;
   const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
+  const successfulRawInvoiceFolder = path.dirname(destinationKey);
 
-  logger.info(`moving ${sourceKey} to ${destinationKey}`);
+  logger.info(`moving ${sourceKey} to ${successfulRawInvoiceFolder}`);
 
-  await moveToFolderS3(rawInvoiceBucket, sourceKey, destinationKey);
+  await moveToFolderS3(rawInvoiceBucket, sourceKey, successfulRawInvoiceFolder);
 }
 
 const isNameable = (x: unknown): x is LineItemFieldsForNaming =>
