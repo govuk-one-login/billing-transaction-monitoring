@@ -19,6 +19,7 @@ Resources:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           OUTPUT_QUEUE_URL: !Ref StorageQueue
+          STORAGE_BUCKET: !Ref StorageBucket
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-synthetic-event-generation-function
       Handler: syntheticEvents.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
@@ -53,6 +54,8 @@ Resources:
               Resource:
                 - !Sub arn:aws:s3:::${ConfigStackParameter.Value}
                 - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+                - !Sub arn:aws:s3:::${AWS::StackName}-storage
+                - !Sub arn:aws:s3:::${AWS::StackName}-storage/*
             - Effect: Allow
               Action:
                 - sqs:SendMessage
