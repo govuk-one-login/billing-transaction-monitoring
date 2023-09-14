@@ -3,7 +3,6 @@ import {
   APIGatewayRequestAuthorizerEvent,
 } from "aws-lambda";
 import { randomUUID } from "crypto";
-import { google } from "googleapis";
 import { parse, serialize } from "cookie";
 import { Credentials, OAuth2Client } from "google-auth-library";
 import { getConfig, logger } from "../../shared/utils";
@@ -24,32 +23,35 @@ type CookieContent = {
 export const handler = async (
   event: APIGatewayRequestAuthorizerEvent
 ): Promise<APIGatewayAuthorizerResult> => {
-  const oauth2Client = new google.auth.OAuth2(
+  const oauth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     `https://${event.requestContext.domainName}/oauth2/redirect`
   );
 
   if (event.path === "/oauth2/redirect") {
-    let tokens;
+    let tokens: Credentials | undefined;
     if (event.queryStringParameters?.code) {
-      const response = await oauth2Client.getToken(
+      ({ tokens } = await oauth2Client.getToken(
         event.queryStringParameters.code
-      );
-      tokens = response.tokens;
+      ));
     }
 
-    if (!tokens) throw new Error("Unable to fetch access tokens.");
+    if (!tokens) throw new Error("Unable to fetch tokens.");
 
     oauth2Client.setCredentials(tokens);
 
-    const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
-    const userInfo = await oauth2.userinfo.v2.me.get();
+    if (!oauth2Client.credentials.access_token)
+      throw new Error("No access token available in credentials");
 
-    if (!userInfo.data.email) throw new Error("Unable to fetch userinfo.");
+    const { email } = await oauth2Client.getTokenInfo(
+      oauth2Client.credentials.access_token
+    );
+
+    if (!email) throw new Error("Email could not be derived from access token");
 
     return sendRedirect(event, {
-      setCookieContent: { email: userInfo.data.email, tokens },
+      setCookieContent: { email, tokens },
       url: "/",
     });
   }
