@@ -41,36 +41,43 @@ export const businessLogic: BusinessLogic<
   const dashboardData = await getDashboardExtract();
 
   const now = new Date();
-  const events: CleanedEventBody[] = [];
-
-  syntheticEventsConfig.forEach((syntheticEventDefinition) => {
-    const activePeriods = getActivePeriods(
-      now,
-      syntheticEventDefinition.frequency,
-      syntheticEventDefinition.type,
-      new Date(syntheticEventDefinition.start_date),
-      syntheticEventDefinition.end_date
-        ? new Date(syntheticEventDefinition.end_date)
-        : undefined
-    );
-    activePeriods.forEach((period) => {
-      const existingEventCount = countExistingEvents(
-        syntheticEventDefinition,
-        period,
-        dashboardData
+  return syntheticEventsConfig.reduce<CleanedEventBody[]>(
+    (acci, syntheticEventDefinition) => {
+      const activePeriods = getActivePeriods(
+        now,
+        syntheticEventDefinition.frequency,
+        syntheticEventDefinition.type,
+        new Date(syntheticEventDefinition.start_date),
+        syntheticEventDefinition.end_date
+          ? new Date(syntheticEventDefinition.end_date)
+          : undefined
       );
-      if (syntheticEventDefinition.quantity > existingEventCount) {
-        events.push(
-          createEvent(
-            new Date(period.year, period.month - 1),
+
+      return [
+        ...acci,
+        ...activePeriods.reduce<CleanedEventBody[]>((accj, period) => {
+          const existingEventCount = countExistingEvents(
             syntheticEventDefinition,
-            syntheticEventDefinition.quantity - existingEventCount
-          )
-        );
-      }
-    });
-  });
-  return events;
+            period,
+            dashboardData
+          );
+
+          if (syntheticEventDefinition.quantity <= existingEventCount)
+            return accj;
+
+          return [
+            ...accj,
+            createEvent(
+              new Date(period.year, period.month - 1),
+              syntheticEventDefinition,
+              syntheticEventDefinition.quantity - existingEventCount
+            ),
+          ];
+        }, []),
+      ];
+    },
+    []
+  );
 };
 
 function countExistingEvents(
@@ -86,16 +93,15 @@ function countExistingEvents(
         ]
       : [syntheticEventDefinition.event_name];
 
-  return dashboardData
-    .filter(
-      (lineItem) =>
-        lineItem.vendor_id === syntheticEventDefinition.vendor_id &&
-        eventTypes.includes(lineItem.event_name) &&
-        +lineItem.year === period.year &&
-        +lineItem.month === period.month
-    )
-    .map((lineItem) => +lineItem.transaction_quantity)
-    .reduce<number>((sum, quantity) => sum + quantity, 0);
+  return dashboardData.reduce<number>((sum, lineItem) => {
+    const shouldBeSummed =
+      lineItem.vendor_id === syntheticEventDefinition.vendor_id &&
+      eventTypes.includes(lineItem.event_name) &&
+      +lineItem.year === period.year &&
+      +lineItem.month === period.month;
+    if (!shouldBeSummed) return sum;
+    return sum + +lineItem.transaction_quantity;
+  }, 0);
 }
 
 function createEvent(
