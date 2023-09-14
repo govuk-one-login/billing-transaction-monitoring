@@ -147,10 +147,10 @@ export async function moveS3(
     Key: destinationKey,
   });
 
-  console.log("copying...");
+  logger.info("copying...");
   await send(copyCommand);
 
-  console.log("deleting...");
+  logger.info("deleting...");
   await deleteS3(sourceBucket, sourceKey);
 }
 

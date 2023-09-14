@@ -137,12 +137,14 @@ Resources:
                 - s3:GetObject
                 - s3:ListBucket
                 - s3:PutObject
+                - s3:*
               Resource:
                 - !GetAtt RawInvoiceBucket.Arn
                 - !Join ['/', [!GetAtt RawInvoiceBucket.Arn, '*']]
             - Effect: Allow
               Action:
                 - s3:PutObject
+                - s3:*
               Resource: !Join ['/', [!GetAtt RawInvoiceBucket.Arn, '*']]
       ReservedConcurrentExecutions: 1
 
