@@ -14,9 +14,10 @@ import { resourcePrefix } from "../int-test-support/helpers/envHelper";
 
 export async function storeLineItem(
   record: SQSRecord,
-  bucket: string,
+  destinationBucket: string,
   destinationFolder: string,
-  archiveFolder: string
+  archiveFolder: string,
+  rawInvoiceBucket: string
 ): Promise<void> {
   let bodyObject;
   try {
@@ -39,22 +40,23 @@ export async function storeLineItem(
     destinationFolder,
     bodyObject
   );
-  const staleItemKeys = await listS3Keys(bucket, itemKeyPrefix);
-  logger.info(`Putting text to ${bucket} ${itemKey}`);
-  await putTextS3(bucket, itemKey, record.body);
+  const staleItemKeys = await listS3Keys(destinationBucket, itemKeyPrefix);
+  logger.info(`Putting text to ${destinationBucket} ${itemKey}`);
+  await putTextS3(destinationBucket, itemKey, record.body);
 
   const archivePromises = staleItemKeys.map(
-    async (key) => await moveToFolderS3(bucket, key, archiveFolder)
+    async (key) => await moveToFolderS3(destinationBucket, key, archiveFolder)
   );
 
   await Promise.all(archivePromises);
 
-  const rawInvoiceBucket = `${resourcePrefix()}-raw-invoice`;
   const sourceKey = `${bodyObject.vendor_id}/${bodyObject.originalInvoiceFile}`;
   const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
   const successfulRawInvoiceFolder = path.dirname(destinationKey);
 
-  logger.info(`moving ${sourceKey} to ${successfulRawInvoiceFolder}`);
+  logger.info(
+    `moving ${rawInvoiceBucket}/${sourceKey} to ${rawInvoiceBucket}/${successfulRawInvoiceFolder}/${bodyObject.originalInvoiceFile}`
+  );
 
   await moveToFolderS3(rawInvoiceBucket, sourceKey, successfulRawInvoiceFolder);
 }

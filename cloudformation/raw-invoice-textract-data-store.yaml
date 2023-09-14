@@ -141,6 +141,7 @@ Resources:
         Variables:
           DESTINATION_BUCKET: !Ref RawInvoiceTextractDataBucket
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-raw-textract-storage-function
+          RAW_INVOICE_BUCKET: !Ref RawInvoiceBucket
       Events:
         RawInvoiceTextractDataEvent:
           Type: SQS

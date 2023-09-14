@@ -147,7 +147,7 @@ export async function moveS3(
     Key: destinationKey,
   });
 
-  logger.info("copying...");
+  logger.info("copying...", { copyCommand });
   await send(copyCommand);
 
   logger.info("deleting...");
