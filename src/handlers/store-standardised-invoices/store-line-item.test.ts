@@ -18,8 +18,9 @@ describe("Line item storer", () => {
   let mockedStandardisedLineItemKey: string;
   let mockedStandardisedLineItemPrefix: string;
   let givenArchiveFolder: string;
-  let givenBucket: string;
+  let givenDestinationBucket: string;
   let givenDestinationFolder: string;
+  let givenRawInvoiceBucket: string;
   let givenRecord: SQSRecord;
   let givenRecordBodyEventName: string;
   let givenRecordBodyInvoicePeriodStart: string;
@@ -43,8 +44,9 @@ describe("Line item storer", () => {
     mockedListS3Keys.mockResolvedValue([mockedS3StaleKey]);
 
     givenArchiveFolder = "given archive folder";
-    givenBucket = "given bucket";
+    givenDestinationBucket = "given bucket";
     givenDestinationFolder = "given destination folder";
+    givenRawInvoiceBucket = "given raw invoice bucket";
 
     givenRecordBodyEventName = "given record body event name";
     givenRecordBodyInvoicePeriodStart =
@@ -65,9 +67,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow("not valid JSON");
@@ -81,9 +84,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow("is not object");
@@ -97,9 +101,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -117,9 +122,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -137,9 +143,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -157,9 +164,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -177,9 +185,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -197,9 +206,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -217,9 +227,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -237,9 +248,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -257,9 +269,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -278,15 +291,16 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
     expect(mockedListS3Keys).toHaveBeenCalledTimes(1);
     expect(mockedListS3Keys).toHaveBeenCalledWith(
-      givenBucket,
+      givenDestinationBucket,
       mockedStandardisedLineItemPrefix
     );
     expect(mockedPutTextS3).not.toHaveBeenCalled();
@@ -300,9 +314,10 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
@@ -313,7 +328,7 @@ describe("Line item storer", () => {
     );
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
-      givenBucket,
+      givenDestinationBucket,
       mockedStandardisedLineItemKey,
       givenRecord.body
     );
@@ -327,15 +342,16 @@ describe("Line item storer", () => {
 
     const resultPromise = storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
     expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(1);
     expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
-      givenBucket,
+      givenDestinationBucket,
       mockedS3StaleKey,
       givenArchiveFolder
     );
@@ -344,9 +360,10 @@ describe("Line item storer", () => {
   test("Line item storer with valid input and working S3 calls", async () => {
     const result = await storeLineItem(
       givenRecord,
-      givenBucket,
+      givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder
+      givenArchiveFolder,
+      givenRawInvoiceBucket
     );
     expect(result).toBeUndefined();
   });
