@@ -20,6 +20,7 @@ describe("Store Standardised Invoices handler tests", () => {
       ARCHIVE_FOLDER: "given archive folder",
       DESTINATION_BUCKET: "given destination bucket",
       DESTINATION_FOLDER: "given destination folder",
+      RAW_INVOICE_BUCKET: "given raw invoice bucket",
     };
 
     mockedGetFromEnv.mockImplementation((key) => mockedEnv[key]);
@@ -43,6 +44,13 @@ describe("Store Standardised Invoices handler tests", () => {
     delete mockedEnv.DESTINATION_FOLDER;
     await expect(handler(givenEvent)).rejects.toThrowError(
       "Destination folder"
+    );
+  });
+
+  test("Store Standardised Invoices handler with no raw invoice bucket set", async () => {
+    delete mockedEnv.RAW_INVOICE_BUCKET;
+    await expect(handler(givenEvent)).rejects.toThrowError(
+      "Raw invoice bucket"
     );
   });
 
