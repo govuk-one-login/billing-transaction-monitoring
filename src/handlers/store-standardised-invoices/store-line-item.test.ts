@@ -6,6 +6,7 @@ import {
   putTextS3,
 } from "../../shared/utils";
 import { storeLineItem } from "./store-line-item";
+import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
 
 jest.mock("../../shared/utils");
 const mockedGetStandardisedInvoiceKey = getStandardisedInvoiceKey as jest.Mock;
@@ -26,6 +27,7 @@ describe("Line item storer", () => {
   let givenRecordBodyInvoicePeriodStart: string;
   let givenRecordBodyObject: Record<string, unknown>;
   let givenRecordBodyVendorId: string;
+  let givenRecordBodyOriginalInvoiceFile: string;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -48,6 +50,9 @@ describe("Line item storer", () => {
     givenDestinationFolder = "given destination folder";
     givenRawInvoiceBucket = "given raw invoice bucket";
 
+    givenRecordBodyOriginalInvoiceFile =
+      "given record body original invoice file";
+
     givenRecordBodyEventName = "given record body event name";
     givenRecordBodyInvoicePeriodStart =
       "given record body invoice period start";
@@ -57,6 +62,7 @@ describe("Line item storer", () => {
       invoice_period_start: givenRecordBodyInvoicePeriodStart,
       vendor_id: givenRecordBodyVendorId,
       invoice_is_quarterly: false,
+      originalInvoiceFile: givenRecordBodyOriginalInvoiceFile,
     };
 
     givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
@@ -366,5 +372,71 @@ describe("Line item storer", () => {
       givenRawInvoiceBucket
     );
     expect(result).toBeUndefined();
+  });
+
+  test("failure to move to s3 if aws error", async () => {
+    const mockedError = "mocked error";
+    mockedMoveToFolderS3
+      .mockRejectedValue(mockedError)
+      .mockResolvedValueOnce(undefined);
+
+    let resultError;
+    try {
+      await storeLineItem(
+        givenRecord,
+        givenDestinationBucket,
+        givenDestinationFolder,
+        givenArchiveFolder,
+        givenRawInvoiceBucket
+      );
+    } catch (error) {
+      resultError = error;
+    }
+
+    expect(resultError).toBe(mockedError);
+    expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(2);
+    expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
+      givenRawInvoiceBucket,
+      `${givenRecordBodyObject.vendor_id}/${givenRecordBodyObject.originalInvoiceFile}`,
+      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenRecordBodyObject.vendor_id}`
+    );
+  });
+
+  test("successfully move to s3 with no aws error", async () => {
+    await storeLineItem(
+      givenRecord,
+      givenDestinationBucket,
+      givenDestinationFolder,
+      givenArchiveFolder,
+      givenRawInvoiceBucket
+    );
+
+    expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(2);
+    expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
+      givenRawInvoiceBucket,
+      `${givenRecordBodyObject.vendor_id}/${givenRecordBodyObject.originalInvoiceFile}`,
+      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenRecordBodyObject.vendor_id}`
+    );
+  });
+
+  test("check if originalInvoiceFile is parsed", async () => {
+    delete givenRecordBodyObject.originalInvoiceFile;
+    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+
+    const resultPromise = storeLineItem(
+      givenRecord,
+      givenDestinationBucket,
+      givenDestinationFolder,
+      givenArchiveFolder,
+      givenRawInvoiceBucket
+    );
+
+    await expect(resultPromise).rejects.toThrow(
+      "is not object with valid fields"
+    );
+    expect(mockedGetStandardisedInvoiceKey).not.toHaveBeenCalled();
+    expect(mockedListS3Keys).not.toHaveBeenCalled();
+    expect(mockedPutTextS3).not.toHaveBeenCalled();
+    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
 });

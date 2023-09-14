@@ -10,7 +10,6 @@ import {
 } from "../../shared/utils";
 import { StandardisedLineItemSummary } from "../../shared/types";
 import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
-import { resourcePrefix } from "../int-test-support/helpers/envHelper";
 
 export async function storeLineItem(
   record: SQSRecord,
@@ -76,14 +75,7 @@ const isNameable = (x: unknown): x is LineItemFieldsForNaming =>
 const isStandardisedLineItemSummary = (
   x: unknown
 ): x is StandardisedLineItemSummary =>
-  isNameable(x) &&
-  "invoice_receipt_id" in x &&
-  typeof x.invoice_receipt_id === "string" &&
-  "total" in x &&
-  typeof x.total === "number" &&
-  "invoice_receipt_date" in x &&
-  typeof x.invoice_receipt_date === "string" &&
-  "parser_version" in x &&
-  typeof x.parser_version === "string" &&
+  typeof x === "object" &&
+  x !== null &&
   "originalInvoiceFile" in x &&
   typeof x.originalInvoiceFile === "string";
