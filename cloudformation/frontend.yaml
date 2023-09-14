@@ -140,7 +140,7 @@ Resources:
     Condition: FrontEndEnabled
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
-      MemorySize: 512
+      MemorySize: 256
       Handler: frontendAuth.handler
       ReservedConcurrentExecutions: 10
       KmsKeyArn: !GetAtt KmsKey.Arn
