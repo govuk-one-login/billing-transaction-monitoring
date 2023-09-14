@@ -72,13 +72,15 @@ describe("Store Standardised Invoices handler tests", () => {
       givenRecord1,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
-      mockedEnv.ARCHIVE_FOLDER
+      mockedEnv.ARCHIVE_FOLDER,
+      mockedEnv.RAW_INVOICE_BUCKET
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord2,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
-      mockedEnv.ARCHIVE_FOLDER
+      mockedEnv.ARCHIVE_FOLDER,
+      mockedEnv.RAW_INVOICE_BUCKET
     );
     expect(result).toEqual({
       batchItemFailures: [
@@ -106,13 +108,15 @@ describe("Store Standardised Invoices handler tests", () => {
       givenRecord1,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
-      mockedEnv.ARCHIVE_FOLDER
+      mockedEnv.ARCHIVE_FOLDER,
+      mockedEnv.RAW_INVOICE_BUCKET
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord2,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
-      mockedEnv.ARCHIVE_FOLDER
+      mockedEnv.ARCHIVE_FOLDER,
+      mockedEnv.RAW_INVOICE_BUCKET
     );
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given record 1 message ID" }],
