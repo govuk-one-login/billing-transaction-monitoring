@@ -30,14 +30,8 @@ Install husky hooks:
 npm run husky:install
 ```
 
-## Check before commit
-
-```sh
-npm run build:template
-checkov -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies
-```
-
-N.B. You may get Python errors due to conflicting dependencies with SAM CLI. If you do, run this and try again:
+This will install a series of checks that are done when building and deploying.  If you see Python errors
+when it tries to run checkov, these may be due to conflicting dependencies with SAM CLI; run this and try again:
 
 ```sh
 pip3 install checkov
