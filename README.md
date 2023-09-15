@@ -30,13 +30,6 @@ Install husky hooks:
 npm run husky:install
 ```
 
-This will install a series of checks that are done when building and deploying.  If you see Python errors
-when it tries to run checkov, these may be due to conflicting dependencies with SAM CLI; run this and try again:
-
-```sh
-pip3 install checkov
-```
-
 ### Running the integration tests
 
 To run the tests against aws environment
