@@ -102,8 +102,27 @@ const isCookieInfo = (x: unknown): x is CookieContent =>
   typeof x.email === "string" &&
   "tokens" in x &&
   typeof x.tokens === "object" &&
-  // Nothing more is assertable about tokens since all fields are optional
-  x.tokens !== null;
+  isCredentials(x.tokens);
+
+const isCredentials = (x: unknown): x is Credentials =>
+  typeof x === "object" &&
+  x !== null &&
+  (!("refresh_token" in x) ||
+    x.refresh_token == null ||
+    typeof x.refresh_token === "string") &&
+  (!("expiry_date" in x) ||
+    x.expiry_date == null ||
+    typeof x.expiry_date === "number") &&
+  (!("access_token" in x) ||
+    x.access_token == null ||
+    typeof x.access_token === "string") &&
+  (!("token_type" in x) ||
+    x.token_type == null ||
+    typeof x.token_type === "string") &&
+  (!("id_token" in x) ||
+    x.id_token == null ||
+    typeof x.id_token === "string") &&
+  (!("scope" in x) || x.scope === undefined || typeof x.scope === "string");
 
 const generatePolicy = ({
   apiId,
