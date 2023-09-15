@@ -19,6 +19,67 @@ const getDateElements = (
   return { year, month, day };
 };
 
+describe("\n Synthetic Events Generation Tests\n", () => {
+  const prefix = resourcePrefix();
+  const storageBucket = `${prefix}-storage`;
+  let syntheticEventsConfig: SyntheticEventsConfigRow[];
+  let extractJson: FullExtractData[];
+
+  beforeAll(async () => {
+    const key = "btm_extract_data/full-extract.json";
+    const filePath = "../payloads/full-extract-synthetic-events.txt";
+    const filename = path.join(__dirname, filePath);
+    const fileData = fs.readFileSync(filename).toString();
+    const jsonArray = "[" + fileData.replace(/\n/g, ",") + "]";
+    extractJson = JSON.parse(jsonArray);
+    // uploading the extract file to s3
+    await putS3Object({
+      data: fileData,
+      encoding: "utf-8",
+      target: {
+        bucket: storageBucket,
+        key,
+      },
+    });
+    const result = await invokeSyntheticLambda();
+    expect(result.statusCode).toBe(200);
+    syntheticEventsConfig = await getSyntheticEventsConfig();
+  });
+
+  test("should generate synthetic events for missing events in the full extract", async () => {
+    for (const config of syntheticEventsConfig) {
+      const matchingExtractItem = findMatchingExtractItem(config, extractJson);
+      if (!matchingExtractItem) {
+        await validateSyntheticEvent(config, matchingExtractItem);
+      }
+    }
+  });
+
+  test("should generate synthetic events when the quantity in the full extract is less than the synthetic config quantity", async () => {
+    for (const config of syntheticEventsConfig) {
+      const matchingExtractItem = findMatchingExtractItem(config, extractJson);
+      if (
+        matchingExtractItem &&
+        Number(matchingExtractItem.transaction_quantity) < config.quantity
+      ) {
+        await validateSyntheticEvent(config, matchingExtractItem);
+      }
+    }
+  });
+
+  test("should not generate synthetic events when the event exists and the quantity in the extract matches with synthetic config quantity", async () => {
+    for (const config of syntheticEventsConfig) {
+      const matchingExtractItem = findMatchingExtractItem(config, extractJson);
+      if (
+        matchingExtractItem &&
+        Number(matchingExtractItem.transaction_quantity) >= config.quantity
+      ) {
+        await validateSyntheticEvent(config, matchingExtractItem);
+      }
+    }
+  });
+});
+
 const findMatchingExtractItem = (
   config: SyntheticEventsConfigRow,
   extractJson: FullExtractData[]
@@ -72,67 +133,6 @@ const validateSyntheticEvent = async (
     expect(queryResults.length).toBe(0);
   }
 };
-
-describe("\n Synthetic Events Generation Tests\n", () => {
-  const prefix = resourcePrefix();
-  const storageBucket = `${prefix}-storage`;
-  let syntheticEventsConfig: SyntheticEventsConfigRow[];
-  let extractJson: FullExtractData[];
-
-  beforeAll(async () => {
-    const key = "btm_extract_data/full-extract.json";
-    const filePath = "../payloads/full-extract.txt";
-    const filename = path.join(__dirname, filePath);
-    const fileData = fs.readFileSync(filename).toString();
-    const jsonArray = "[" + fileData.replace(/\n/g, ",") + "]";
-    extractJson = JSON.parse(jsonArray);
-    // uploading the extract file to s3
-    await putS3Object({
-      data: fileData,
-      encoding: "utf-8",
-      target: {
-        bucket: storageBucket,
-        key,
-      },
-    });
-    const result = await invokeSyntheticLambda();
-    expect(result.statusCode).toBe(200);
-    syntheticEventsConfig = await getSyntheticEventsConfig();
-  });
-
-  test("should generate synthetic events when the event is missing from the full extract", async () => {
-    for (const config of syntheticEventsConfig) {
-      const matchingExtractItem = findMatchingExtractItem(config, extractJson);
-      if (!matchingExtractItem) {
-        await validateSyntheticEvent(config, matchingExtractItem);
-      }
-    }
-  });
-
-  test("should generate synthetic events when the quantity in the full extract is less than the configured quantity", async () => {
-    for (const config of syntheticEventsConfig) {
-      const matchingExtractItem = findMatchingExtractItem(config, extractJson);
-      if (
-        matchingExtractItem &&
-        Number(matchingExtractItem.transaction_quantity) < config.quantity
-      ) {
-        await validateSyntheticEvent(config, matchingExtractItem);
-      }
-    }
-  });
-
-  test("should not generate synthetic events when the event exists and the quantity matches or exceeds the configured quantity", async () => {
-    for (const config of syntheticEventsConfig) {
-      const matchingExtractItem = findMatchingExtractItem(config, extractJson);
-      if (
-        matchingExtractItem &&
-        Number(matchingExtractItem.transaction_quantity) >= config.quantity
-      ) {
-        await validateSyntheticEvent(config, matchingExtractItem);
-      }
-    }
-  });
-});
 
 export type TransactionsStandardised = {
   vendor_id: string;
