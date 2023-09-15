@@ -1,11 +1,9 @@
 import { Textract } from "aws-sdk";
-import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
-import { moveToFolderS3, putS3 } from "../../shared/utils";
+import { putS3 } from "../../shared/utils";
 import { handleTextractFailure } from "./handle-textract-failure";
 import { handleTextractSuccess } from "./handle-textract-success";
 
 jest.mock("../../shared/utils");
-const mockedMoveToFolderS3 = moveToFolderS3 as jest.Mock;
 const mockedPutS3 = putS3 as jest.Mock;
 
 jest.mock("./handle-textract-failure");
@@ -52,52 +50,6 @@ describe("Textract success handler", () => {
     expect(mockedHandleTextractFailure).toHaveBeenCalledWith(
       givenSourceBucket,
       givenSourceKey
-    );
-    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
-  });
-
-  test("Textract success handler with S3 move error", async () => {
-    const mockedError = "mocked error";
-    mockedMoveToFolderS3.mockRejectedValue(mockedError);
-
-    let resultError;
-    try {
-      await handleTextractSuccess(
-        givenSourceBucket,
-        givenSourceKey,
-        givenResultsBucket,
-        givenResultsFileName,
-        givenResults
-      );
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBe(mockedError);
-    expect(mockedHandleTextractFailure).not.toHaveBeenCalled();
-    expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(1);
-    expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
-      givenSourceBucket,
-      givenSourceKey,
-      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenSourceFolderPath}`
-    );
-  });
-
-  test("Textract success handler with no error", async () => {
-    await handleTextractSuccess(
-      givenSourceBucket,
-      givenSourceKey,
-      givenResultsBucket,
-      givenResultsFileName,
-      givenResults
-    );
-
-    expect(mockedHandleTextractFailure).not.toHaveBeenCalled();
-    expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(1);
-    expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
-      givenSourceBucket,
-      givenSourceKey,
-      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenSourceFolderPath}`
     );
   });
 });

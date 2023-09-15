@@ -73,7 +73,7 @@ Resources:
         - Arn: !GetAtt SyntheticEventGenerationFunction.Arn
           Id: SyntheticEventGenerationFunction
 
-  LambdaPermissionForEvents:
+  LambdaPermissionForSyntheticEvents:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref SyntheticEventGenerationFunction
