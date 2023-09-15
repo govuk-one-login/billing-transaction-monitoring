@@ -36,3 +36,15 @@ export const nextPeriod = (period: Period): Period => {
     isQuarterly: period.isQuarterly,
   };
 };
+
+export const periodContains = (period1: Period, period2: Period): boolean => {
+  return (
+    periodsAreEqual(period1, period2) ||
+    (period1.isQuarterly &&
+      !period2.isQuarterly &&
+      period1.year === period2.year &&
+      (period1.month === period2.month ||
+        period1.month + 1 === period2.month ||
+        period1.month + 2 === period2.month))
+  );
+};

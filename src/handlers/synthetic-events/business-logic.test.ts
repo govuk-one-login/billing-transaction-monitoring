@@ -31,12 +31,14 @@ afterAll(() => {
 });
 
 const eventName = "some event name";
+const shortfallEventName = eventName + "-shortfall";
 
+const targetQuantity = 10;
 const baseSyntheticEventDefinition = {
   vendor_id: "some vendor id",
   event_name: eventName,
-  shortfall_event_name: eventName + "-shortfall",
-  quantity: 10,
+  shortfall_event_name: shortfallEventName,
+  quantity: targetQuantity,
   component_id: "test component id",
 };
 
@@ -151,10 +153,10 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([]);
       });
 
-      test("generates no events if scheduled events already generated", async () => {
+      test("generates no events if scheduled events already generated or exceeded", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([
           getExtractRow(eventName, "2020", "02", "false", "10"),
-          getExtractRow(eventName, "2020", "03", "false", "10"),
+          getExtractRow(eventName, "2020", "03", "false", "15"),
         ]);
         const mockContext = generateMockContext([
           getSyntheticEventDefinition(
@@ -186,7 +188,7 @@ describe("Synthetic events businessLogic", () => {
             ...baseExpectedEvent,
             timestamp: new Date(pastMonthStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastMonthStart)),
-            credits: 10,
+            credits: targetQuantity,
           },
         ]);
       });
@@ -217,7 +219,7 @@ describe("Synthetic events businessLogic", () => {
             ...baseExpectedEvent,
             timestamp: new Date(pastMonthStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastMonthStart)),
-            credits: 10 - alreadyGeneratedEventCount,
+            credits: targetQuantity - alreadyGeneratedEventCount,
           },
         ]);
       });
@@ -239,13 +241,13 @@ describe("Synthetic events businessLogic", () => {
             ...baseExpectedEvent,
             timestamp: new Date(pastMonthStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastMonthStart)),
-            credits: 10,
+            credits: targetQuantity,
           },
           {
             ...baseExpectedEvent,
             timestamp: nowMonthStart.getTime(),
             timestamp_formatted: formatDate(nowMonthStart),
-            credits: 10,
+            credits: targetQuantity,
           },
         ]);
       });
@@ -274,10 +276,10 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([]);
       });
 
-      test("generates no events if scheduled events already generated", async () => {
+      test("generates no events if scheduled events already generated or exceeded", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([
           getExtractRow(eventName, "2019", "10", "true", "10"),
-          getExtractRow(eventName, "2020", "01", "true", "10"),
+          getExtractRow(eventName, "2020", "01", "true", "15"),
         ]);
         const mockContext = generateMockContext([
           getSyntheticEventDefinition(
@@ -309,7 +311,7 @@ describe("Synthetic events businessLogic", () => {
             ...baseExpectedEvent,
             timestamp: new Date(pastQuarterStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastQuarterStart)),
-            credits: 10,
+            credits: targetQuantity,
           },
         ]);
       });
@@ -340,7 +342,7 @@ describe("Synthetic events businessLogic", () => {
             ...baseExpectedEvent,
             timestamp: new Date(pastQuarterStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastQuarterStart)),
-            credits: 10 - alreadyGeneratedEventCount,
+            credits: targetQuantity - alreadyGeneratedEventCount,
           },
         ]);
       });
@@ -362,13 +364,13 @@ describe("Synthetic events businessLogic", () => {
             ...baseExpectedEvent,
             timestamp: new Date(pastQuarterStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastQuarterStart)),
-            credits: 10,
+            credits: targetQuantity,
           },
           {
             ...baseExpectedEvent,
             timestamp: nowQuarterStart.getTime(),
             timestamp_formatted: formatDate(nowQuarterStart),
-            credits: 10,
+            credits: targetQuantity,
           },
         ]);
       });
@@ -398,10 +400,10 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([]);
       });
 
-      test("generates no events if scheduled events already generated", async () => {
+      test("generates no events if monitored events already generated or exceeded", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([
           getExtractRow(eventName, "2020", "02", "false", "10"),
-          getExtractRow(eventName, "2020", "03", "false", "10"),
+          getExtractRow(eventName, "2020", "03", "false", "15"),
         ]);
         const mockContext = generateMockContext([
           getSyntheticEventDefinition(
@@ -416,7 +418,25 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([]);
       });
 
-      it("generates events to fill in a past month if necessary", async () => {
+      test("generates no events if shortfall events already generated or exceeded", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(shortfallEventName, "2020", "02", "false", "10"),
+          getExtractRow(shortfallEventName, "2020", "03", "false", "15"),
+        ]);
+        const mockContext = generateMockContext([
+          getSyntheticEventDefinition(
+            "shortfall",
+            "monthly",
+            pastActiveStart,
+            futureActiveEnd
+          ),
+        ]);
+        const result = await businessLogic({}, mockContext);
+
+        expect(result).toEqual([]);
+      });
+
+      it("generates events to fill in a past month with no events", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
           getSyntheticEventDefinition(
@@ -431,15 +451,15 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
-            event_name: eventName + "-shortfall",
+            event_name: shortfallEventName,
             timestamp: new Date(pastMonthStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastMonthStart)),
-            credits: 10,
+            credits: targetQuantity,
           },
         ]);
       });
 
-      it("generates additional events to meet a shortfall of existing events", async () => {
+      it("generates enough shortfall events to meet the target (standard case)", async () => {
         const alreadyGeneratedEventCount = 7;
         mockedGetDashboardExtract.mockResolvedValueOnce([
           getExtractRow(
@@ -463,10 +483,10 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
-            event_name: eventName + "-shortfall",
+            event_name: shortfallEventName,
             timestamp: new Date(pastMonthStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastMonthStart)),
-            credits: 10 - alreadyGeneratedEventCount,
+            credits: targetQuantity - alreadyGeneratedEventCount,
           },
         ]);
       });
@@ -486,10 +506,10 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
-            event_name: eventName + "-shortfall",
+            event_name: shortfallEventName,
             timestamp: new Date(pastMonthStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastMonthStart)),
-            credits: 10,
+            credits: targetQuantity,
           },
         ]);
       });
@@ -517,10 +537,10 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([]);
       });
 
-      test("generates no events if scheduled events already generated", async () => {
+      test("generates no events if monitored events already meet or exceed target", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([
           getExtractRow(eventName, "2019", "10", "true", "10"),
-          getExtractRow(eventName, "2020", "01", "true", "10"),
+          getExtractRow(eventName, "2020", "01", "true", "15"),
         ]);
         const mockContext = generateMockContext([
           getSyntheticEventDefinition(
@@ -535,7 +555,25 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([]);
       });
 
-      it("generates events to fill in a past quarter if necessary", async () => {
+      test("generates no events if shortfall events already meet or exceed target", async () => {
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(shortfallEventName, "2019", "10", "true", "10"),
+          getExtractRow(shortfallEventName, "2020", "01", "true", "15"),
+        ]);
+        const mockContext = generateMockContext([
+          getSyntheticEventDefinition(
+            "shortfall",
+            "quarterly",
+            pastActiveStart,
+            futureActiveEnd
+          ),
+        ]);
+        const result = await businessLogic({}, mockContext);
+
+        expect(result).toEqual([]);
+      });
+
+      it("generates events to fill in a past quarter with no events", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([]);
         const mockContext = generateMockContext([
           getSyntheticEventDefinition(
@@ -550,23 +588,23 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
-            event_name: eventName + "-shortfall",
+            event_name: shortfallEventName,
             timestamp: new Date(pastQuarterStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastQuarterStart)),
-            credits: 10,
+            credits: targetQuantity,
           },
         ]);
       });
 
-      it("generates additional events, in case the target number is increased in config", async () => {
-        const alreadyGeneratedEventCount = 7;
+      it("generates enought shortfall events to meet the target (standard case)", async () => {
+        const existingEventCount = 7;
         mockedGetDashboardExtract.mockResolvedValueOnce([
           getExtractRow(
             eventName,
             "2019",
             "10",
             "true",
-            `${alreadyGeneratedEventCount}`
+            `${existingEventCount}`
           ),
         ]);
         const mockContext = generateMockContext([
@@ -582,10 +620,57 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
-            event_name: eventName + "-shortfall",
+            event_name: shortfallEventName,
             timestamp: new Date(pastQuarterStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastQuarterStart)),
-            credits: 10 - alreadyGeneratedEventCount,
+            credits: targetQuantity - existingEventCount,
+          },
+        ]);
+      });
+
+      it("generates quarterly shortfall events to meet the target when tracked event is monthly", async () => {
+        const targetEventCount = targetQuantity;
+        const existingMonthlyEventCount = 3;
+        mockedGetDashboardExtract.mockResolvedValueOnce([
+          getExtractRow(
+            eventName,
+            "2019",
+            "10",
+            "false",
+            `${existingMonthlyEventCount}`
+          ),
+          getExtractRow(
+            eventName,
+            "2019",
+            "11",
+            "false",
+            `${existingMonthlyEventCount}`
+          ),
+          getExtractRow(
+            eventName,
+            "2019",
+            "12",
+            "false",
+            `${existingMonthlyEventCount}`
+          ),
+        ]);
+        const mockContext = generateMockContext([
+          getSyntheticEventDefinition(
+            "shortfall",
+            "quarterly",
+            pastActiveStart,
+            pastActiveEnd
+          ),
+        ]);
+        const result = await businessLogic({}, mockContext);
+
+        expect(result).toEqual([
+          {
+            ...baseExpectedEvent,
+            event_name: shortfallEventName,
+            timestamp: new Date(pastQuarterStart).getTime(),
+            timestamp_formatted: formatDate(new Date(pastQuarterStart)),
+            credits: targetEventCount - 3 * existingMonthlyEventCount,
           },
         ]);
       });
@@ -605,10 +690,10 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([
           {
             ...baseExpectedEvent,
-            event_name: eventName + "-shortfall",
+            event_name: shortfallEventName,
             timestamp: new Date(pastQuarterStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastQuarterStart)),
-            credits: 10,
+            credits: targetQuantity,
           },
         ]);
       });
