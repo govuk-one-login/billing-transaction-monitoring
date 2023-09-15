@@ -18,10 +18,12 @@ export const getSyntheticEventsConfig = async (): Promise<
 };
 
 export interface SyntheticEventsConfigRow {
+  type: "fixed" | "shortfall";
   vendor_id: string;
   event_name: string;
+  shortfall_event_name?: string;
   quantity: number;
   start_date: number;
-  frequency: number;
+  frequency: "monthly" | "quaterly";
   component_id: string;
 }

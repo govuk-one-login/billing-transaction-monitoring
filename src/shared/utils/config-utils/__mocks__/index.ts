@@ -62,6 +62,7 @@ const config: ConfigCache = {
   contracts: [],
   syntheticEvents: [
     {
+      type: "fixed",
       event_name: "VENDOR_5_TPS",
       quantity: 7,
       start_date: "2005-01-01",

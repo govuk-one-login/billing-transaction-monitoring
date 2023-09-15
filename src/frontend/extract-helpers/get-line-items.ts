@@ -1,5 +1,5 @@
-import { getDashboardExtract } from "./get-dashboard-extract";
-import { FullExtractLineItem } from "./types";
+import { getDashboardExtract } from "../../shared/utils/config-utils/get-dashboard-extract";
+import { FullExtractLineItem } from "../../shared/types";
 
 export const getLineItems = async (
   contractId: string,
