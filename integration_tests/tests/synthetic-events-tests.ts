@@ -10,13 +10,10 @@ import { putS3Object } from "../../src/handlers/int-test-support/helpers/s3Helpe
 import path from "path";
 import { FullExtractData } from "../../src/handlers/int-test-support/types";
 
-const getDateElements = (
-  date: Date
-): { year: string; month: string; day: string } => {
+const getDateElements = (date: Date): { year: string; month: string } => {
   const year = String(date.getUTCFullYear());
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = "01";
-  return { year, month, day };
+  return { year, month };
 };
 
 describe("\n Synthetic Events Generation Tests\n", () => {
