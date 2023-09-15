@@ -8,6 +8,7 @@ import {
 } from "../../src/handlers/int-test-support/config-utils/get-synthetic-events-config-rows";
 import { putS3Object } from "../../src/handlers/int-test-support/helpers/s3Helper";
 import path from "path";
+import { FullExtractData } from "../../src/handlers/int-test-support/types";
 
 const getDateElements = (
   date: Date
@@ -18,16 +19,73 @@ const getDateElements = (
   return { year, month, day };
 };
 
+const findMatchingExtractItem = (
+  config: SyntheticEventsConfigRow,
+  extractJson: FullExtractData[]
+): FullExtractData | undefined => {
+  const eventName =
+    config.type === "shortfall"
+      ? config.shortfall_event_name
+      : config.event_name;
+  return extractJson.find(
+    (item) =>
+      item.event_name === eventName && item.vendor_id === config.vendor_id
+  );
+};
+
+const validateSyntheticEvent = async (
+  config: SyntheticEventsConfigRow,
+  matchingExtractItem: FullExtractData | undefined
+): Promise<void> => {
+  const eventName =
+    config.type === "shortfall"
+      ? config.shortfall_event_name
+      : config.event_name;
+  const { year, month } = getDateElements(new Date(config.start_date));
+
+  const queryString = `SELECT * FROM "btm_transactions_standardised" WHERE vendor_id = '${config.vendor_id}'
+  AND event_name='${eventName}' AND year='${year}' AND month='${month}'`;
+
+  const queryResults = await queryAthena<TransactionsStandardised>(queryString);
+
+  if (
+    !matchingExtractItem ||
+    Number(matchingExtractItem.transaction_quantity) < Number(config.quantity)
+  ) {
+    // validate when there is  no matching event in the extract or a shortfall
+    expect(queryResults.length).toBe(1);
+    const result = queryResults[0];
+    expect(result.vendor_id).toEqual(config.vendor_id);
+    expect(result.event_id).toBeDefined();
+    expect(result.component_id).toEqual(config.component_id);
+    const expectedCredits = matchingExtractItem
+      ? Number(config.quantity) -
+        Number(matchingExtractItem.transaction_quantity)
+      : Number(config.quantity);
+    expect(result.credits).toEqual(expectedCredits.toString());
+    expect(result.timestamp.substring(0, 10)).toEqual(config.start_date);
+    expect(result.timestamp_formatted).toEqual(config.start_date);
+    expect(result.year).toEqual(year);
+    expect(result.month).toEqual(month);
+  } else {
+    // validate when the event exists and the quantity in extract matches with config)
+    expect(queryResults.length).toBe(0);
+  }
+};
+
 describe("\n Synthetic Events Generation Tests\n", () => {
   const prefix = resourcePrefix();
   const storageBucket = `${prefix}-storage`;
   let syntheticEventsConfig: SyntheticEventsConfigRow[];
+  let extractJson: FullExtractData[];
 
   beforeAll(async () => {
     const key = "btm_extract_data/full-extract.json";
     const filePath = "../payloads/full-extract.txt";
     const filename = path.join(__dirname, filePath);
     const fileData = fs.readFileSync(filename).toString();
+    const jsonArray = "[" + fileData.replace(/\n/g, ",") + "]";
+    extractJson = JSON.parse(jsonArray);
     // uploading the extract file to s3
     await putS3Object({
       data: fileData,
@@ -42,38 +100,37 @@ describe("\n Synthetic Events Generation Tests\n", () => {
     syntheticEventsConfig = await getSyntheticEventsConfig();
   });
 
-  test("should validate the fixed synthetic events in the transaction_standardised table contain all required fields when the current date is greater than start date", async () => {
-    const { year, month } = getDateElements(
-      new Date(syntheticEventsConfig[0].start_date)
-    );
-    const queryString = `SELECT * FROM "btm_transactions_standardised" where vendor_id = '${syntheticEventsConfig[0].vendor_id}' 
-   OR vendor_id='${syntheticEventsConfig[2].vendor_id}' OR event_name='${syntheticEventsConfig[3].event_name}' OR event_name='${syntheticEventsConfig[3].event_name}' 
-   OR event_name='${syntheticEventsConfig[0].event_name}'AND year='${year}' AND month='${month}' ORDER BY event_name asc`;
-    console.log(queryString);
-    const queryResults = await queryAthena<TransactionsStandardised>(
-      queryString
-    );
-    console.log(queryResults);
-    expect(queryResults.length).toBe(3);
+  test("should generate synthetic events when the event is missing from the full extract", async () => {
+    for (const config of syntheticEventsConfig) {
+      const matchingExtractItem = findMatchingExtractItem(config, extractJson);
+      if (!matchingExtractItem) {
+        await validateSyntheticEvent(config, matchingExtractItem);
+      }
+    }
+  });
 
-    expect(queryResults[0].vendor_id).toEqual(
-      syntheticEventsConfig[0].vendor_id
-    );
-    expect(queryResults[1].vendor_id).toEqual(
-      syntheticEventsConfig[2].vendor_id
-    );
-    expect(queryResults[2].vendor_id).toEqual(
-      syntheticEventsConfig[3].vendor_id
-    );
-    expect(queryResults[0].event_id).toBeDefined();
-    expect(queryResults[0].component_id).toEqual(
-      syntheticEventsConfig[0].component_id
-    );
-    expect(queryResults[0].credits).toEqual("7"); // fixed events
-    expect(queryResults[1].credits).toEqual("5"); // shortfall monthly events
-    expect(queryResults[2].credits).toEqual("2"); // shortfall quarterly
-    expect(queryResults[0].year).toEqual(year);
-    expect(queryResults[0].month).toEqual(month);
+  test("should generate synthetic events when the quantity in the full extract is less than the configured quantity", async () => {
+    for (const config of syntheticEventsConfig) {
+      const matchingExtractItem = findMatchingExtractItem(config, extractJson);
+      if (
+        matchingExtractItem &&
+        Number(matchingExtractItem.transaction_quantity) < config.quantity
+      ) {
+        await validateSyntheticEvent(config, matchingExtractItem);
+      }
+    }
+  });
+
+  test("should not generate synthetic events when the event exists and the quantity matches or exceeds the configured quantity", async () => {
+    for (const config of syntheticEventsConfig) {
+      const matchingExtractItem = findMatchingExtractItem(config, extractJson);
+      if (
+        matchingExtractItem &&
+        Number(matchingExtractItem.transaction_quantity) >= config.quantity
+      ) {
+        await validateSyntheticEvent(config, matchingExtractItem);
+      }
+    }
   });
 });
 
