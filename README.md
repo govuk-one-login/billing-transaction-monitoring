@@ -24,6 +24,12 @@ Install packages from lock file:
 npm ci
 ```
 
+Install checkov:
+
+```sh
+pip3 install checkov
+```
+
 Install husky hooks:
 
 ```sh
