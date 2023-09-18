@@ -3,7 +3,7 @@ import { fromUtf8, toUtf8 } from "@aws-sdk/util-utf8-node";
 import { lambdaClient } from "../clients";
 import type { HelperDict } from "../handler";
 import { IntTestHelpers, SerializableData } from "../types";
-import { configName, envName, resourcePrefix } from "./envHelper";
+import { configName, envName, resourcePrefix, runViaLambda } from "./envHelper";
 
 export const sendLambdaCommand = async <THelper extends IntTestHelpers>(
   command: THelper,
@@ -41,9 +41,15 @@ type InvokeLambdaResponse = {
   payload?: Uint8Array;
 };
 
-const invokeLambda = async (
+export const invokeLambda = async (
   params: InvokeLambdaParams
 ): Promise<InvokeLambdaResponse> => {
+  if (runViaLambda() && !params.forceWithoutLambda) {
+    return (await sendLambdaCommand(
+      IntTestHelpers.invokeLambda,
+      params
+    )) as unknown as InvokeLambdaResponse;
+  }
   const command: InvokeCommandInput = {
     FunctionName: params.functionName,
     InvocationType: "RequestResponse",
@@ -65,3 +71,12 @@ const invokeLambda = async (
     throw err;
   }
 };
+
+export const invokeSyntheticLambda =
+  async (): Promise<InvokeLambdaResponse> => {
+    const params: InvokeLambdaParams = {
+      functionName: `${resourcePrefix()}-synthetic-event-generation`,
+      payload: "",
+    };
+    return await invokeLambda(params);
+  };

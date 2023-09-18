@@ -63,6 +63,7 @@ const config: ConfigCache = {
   allowedUsers: ["allowed@user.com"],
   syntheticEvents: [
     {
+      type: "fixed",
       event_name: "VENDOR_5_TPS",
       quantity: 7,
       start_date: "2005-01-01",

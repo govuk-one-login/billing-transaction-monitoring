@@ -27,6 +27,8 @@ Resources:
               Type: string
             - Name: service_name
               Type: string
+            - Name: event_name
+              Type: string
             - Name: contract_id
               Type: string
             - Name: contract_name

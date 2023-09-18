@@ -11,6 +11,7 @@ describe("getInvoiceStatus", () => {
     vendor_id: "vendor_testvendor4",
     vendor_name: "Vendor Four",
     service_name: "Passport check",
+    event_name: "event1",
     contract_id: "4",
     contract_name: "FOOBAR1",
     year: "2005",

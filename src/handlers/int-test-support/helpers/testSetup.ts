@@ -12,6 +12,7 @@ export default async function globalSetup(): Promise<void> {
   console.log("Cleaning up the environment before test execution starts");
   await Promise.all([
     deleteS3ObjectsAndPoll(storageBucket, "btm_event_data/2005"),
+    deleteS3ObjectsAndPoll(storageBucket, "btm_event_data/2007"),
     deleteS3ObjectsAndPoll(storageBucket, "btm_invoice_data"),
     deleteS3ObjectsAndPoll(storageBucket, "btm_extract_data"),
     deleteS3ObjectsAndPoll(emailBucket),
@@ -21,7 +22,7 @@ export default async function globalSetup(): Promise<void> {
   console.log("All previous test data has been cleaned.");
 }
 
-const deleteS3ObjectsAndPoll = async (
+export const deleteS3ObjectsAndPoll = async (
   bucketName: string,
   prefix: string = ""
 ): Promise<void> => {

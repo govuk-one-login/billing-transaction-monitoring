@@ -1,9 +1,9 @@
-import { FullExtractLineItem } from "./types";
 import {
   findLineItemStatus,
   LineItemStatus,
 } from "../utils/line-item-statuses";
 import { invoiceStatusLookup } from "../utils";
+import { FullExtractLineItem } from "../../shared/types";
 
 export interface ReconciliationRow {
   serviceName: string;

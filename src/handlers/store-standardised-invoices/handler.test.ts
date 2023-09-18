@@ -20,6 +20,7 @@ describe("Store Standardised Invoices handler tests", () => {
       ARCHIVE_FOLDER: "given archive folder",
       DESTINATION_BUCKET: "given destination bucket",
       DESTINATION_FOLDER: "given destination folder",
+      RAW_INVOICE_BUCKET: "given raw invoice bucket",
     };
 
     mockedGetFromEnv.mockImplementation((key) => mockedEnv[key]);
@@ -46,6 +47,13 @@ describe("Store Standardised Invoices handler tests", () => {
     );
   });
 
+  test("Store Standardised Invoices handler with no raw invoice bucket set", async () => {
+    delete mockedEnv.RAW_INVOICE_BUCKET;
+    await expect(handler(givenEvent)).rejects.toThrowError(
+      "Raw invoice bucket"
+    );
+  });
+
   test("Store Standardised Invoices handler with two failing records", async () => {
     mockedStoreLineItem.mockRejectedValue(undefined);
 
@@ -64,13 +72,15 @@ describe("Store Standardised Invoices handler tests", () => {
       givenRecord1,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
-      mockedEnv.ARCHIVE_FOLDER
+      mockedEnv.ARCHIVE_FOLDER,
+      mockedEnv.RAW_INVOICE_BUCKET
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord2,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
-      mockedEnv.ARCHIVE_FOLDER
+      mockedEnv.ARCHIVE_FOLDER,
+      mockedEnv.RAW_INVOICE_BUCKET
     );
     expect(result).toEqual({
       batchItemFailures: [
@@ -98,13 +108,15 @@ describe("Store Standardised Invoices handler tests", () => {
       givenRecord1,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
-      mockedEnv.ARCHIVE_FOLDER
+      mockedEnv.ARCHIVE_FOLDER,
+      mockedEnv.RAW_INVOICE_BUCKET
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
       givenRecord2,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
-      mockedEnv.ARCHIVE_FOLDER
+      mockedEnv.ARCHIVE_FOLDER,
+      mockedEnv.RAW_INVOICE_BUCKET
     );
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: "given record 1 message ID" }],
