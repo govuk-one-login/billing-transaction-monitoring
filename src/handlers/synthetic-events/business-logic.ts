@@ -10,7 +10,7 @@ import crypto from "crypto";
 import { formatDate } from "../../shared/utils";
 import { getDashboardExtract } from "../../shared/utils/config-utils/get-dashboard-extract";
 import { getActivePeriods } from "./get-active-periods";
-import { Period } from "./period";
+import { Period, periodContains } from "./period";
 
 /**
  * Checks the synthetic events config, and generates events accordingly.
@@ -94,11 +94,15 @@ function countExistingEvents(
       : [syntheticEventDefinition.event_name];
 
   return dashboardData.reduce<number>((sum, lineItem) => {
+    const lineItemPeriod: Period = {
+      year: +lineItem.year,
+      month: +lineItem.month,
+      isQuarterly: lineItem.invoice_is_quarterly === "true",
+    };
     const shouldBeSummed =
       lineItem.vendor_id === syntheticEventDefinition.vendor_id &&
       eventTypes.includes(lineItem.event_name) &&
-      +lineItem.year === period.year &&
-      +lineItem.month === period.month;
+      periodContains(period, lineItemPeriod);
     if (!shouldBeSummed) return sum;
     return sum + +lineItem.transaction_quantity;
   }, 0);
