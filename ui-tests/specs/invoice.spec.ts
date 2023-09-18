@@ -89,7 +89,7 @@ describe("Invoice Page Test", () => {
             priceDifferencePercentage
           ).bannerColor;
         expectEqual(
-          await InvoicePage.getStatusBannerColor(),
+          await InvoicePage.getStatusBannerColor(expectedBannerColor),
           expectedBannerColor
         );
       });

@@ -47,11 +47,37 @@ class InvoicePage extends Page {
     return await (await this.statusBannerTitle).getText();
   }
 
-  public async getStatusBannerColor(): Promise<string> {
+  public async waitForColorToMatch(
+    element: WebdriverIO.Element,
+    expectedColor: string,
+    timeout: number = 5000
+  ): Promise<string> {
+    let actualColor = "";
+    await browser.waitUntil(
+      async () => {
+        const color = await element.getCSSProperty("background-color");
+        actualColor = color.parsed.hex ?? "";
+        return actualColor === expectedColor;
+      },
+      {
+        timeout,
+        timeoutMsg: `Expected banner color to be ${expectedColor} but it did not appear within ${timeout}ms`,
+      }
+    );
+    return actualColor;
+  }
+
+  public async getStatusBannerColor(
+    expectedColor: string,
+    timeout: number = 5000
+  ): Promise<string> {
     const statusBannerElement = await this.statusBanner;
     await waitForElementDisplayed(statusBannerElement);
-    const color = await statusBannerElement.getCSSProperty("background-color");
-    return color.parsed.hex ?? "";
+    return await this.waitForColorToMatch(
+      statusBannerElement,
+      expectedColor,
+      timeout
+    );
   }
 
   public async clickOnInvoiceBreadcrumbsLink(): Promise<void> {
