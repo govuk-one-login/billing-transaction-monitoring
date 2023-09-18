@@ -9,9 +9,9 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   if (archiveFolder === undefined || archiveFolder.length === 0)
     throw new Error("Archive folder not set.");
 
-  const bucket = getFromEnv("DESTINATION_BUCKET");
+  const destinationBucket = getFromEnv("DESTINATION_BUCKET");
 
-  if (bucket === undefined || bucket.length === 0)
+  if (destinationBucket === undefined || destinationBucket.length === 0)
     throw new Error("Destination bucket not set.");
 
   const destinationFolder = getFromEnv("DESTINATION_FOLDER");
@@ -19,11 +19,22 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   if (destinationFolder === undefined || destinationFolder.length === 0)
     throw new Error("Destination folder not set.");
 
+  const rawInvoiceBucket = getFromEnv("RAW_INVOICE_BUCKET");
+
+  if (rawInvoiceBucket === undefined || rawInvoiceBucket.length === 0)
+    throw new Error("Raw invoice bucket not set.");
+
   const response: Response = { batchItemFailures: [] };
 
   const promises = event.Records.map(async (record) => {
     try {
-      await storeLineItem(record, bucket, destinationFolder, archiveFolder);
+      await storeLineItem(
+        record,
+        destinationBucket,
+        destinationFolder,
+        archiveFolder,
+        rawInvoiceBucket
+      );
     } catch (error) {
       logger.error("Handler failure", { error });
       response.batchItemFailures.push({ itemIdentifier: record.messageId });

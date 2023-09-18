@@ -316,7 +316,7 @@ describe("Synthetic events businessLogic", () => {
         ]);
       });
 
-      it("generates additional events, in case the target number is increased in config", async () => {
+      it("generates enough shortfall events to meet the target (standard case)", async () => {
         const alreadyGeneratedEventCount = 7;
         mockedGetDashboardExtract.mockResolvedValueOnce([
           getExtractRow(
@@ -400,7 +400,7 @@ describe("Synthetic events businessLogic", () => {
         expect(result).toEqual([]);
       });
 
-      test("generates no events if monitored events already generated or exceeded", async () => {
+      test("generates no events if scheduled events already generated or exceeded", async () => {
         mockedGetDashboardExtract.mockResolvedValueOnce([
           getExtractRow(eventName, "2020", "02", "false", "10"),
           getExtractRow(eventName, "2020", "03", "false", "15"),
@@ -596,7 +596,7 @@ describe("Synthetic events businessLogic", () => {
         ]);
       });
 
-      it("generates enought shortfall events to meet the target (standard case)", async () => {
+      it("generates enough shortfall events to meet the target (standard case)", async () => {
         const existingEventCount = 7;
         mockedGetDashboardExtract.mockResolvedValueOnce([
           getExtractRow(
@@ -629,7 +629,6 @@ describe("Synthetic events businessLogic", () => {
       });
 
       it("generates quarterly shortfall events to meet the target when tracked event is monthly", async () => {
-        const targetEventCount = targetQuantity;
         const existingMonthlyEventCount = 3;
         mockedGetDashboardExtract.mockResolvedValueOnce([
           getExtractRow(
@@ -670,7 +669,7 @@ describe("Synthetic events businessLogic", () => {
             event_name: shortfallEventName,
             timestamp: new Date(pastQuarterStart).getTime(),
             timestamp_formatted: formatDate(new Date(pastQuarterStart)),
-            credits: targetEventCount - 3 * existingMonthlyEventCount,
+            credits: targetQuantity - 3 * existingMonthlyEventCount,
           },
         ]);
       });
