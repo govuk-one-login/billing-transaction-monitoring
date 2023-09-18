@@ -74,6 +74,15 @@ export const config = {
   reporters: [
     "spec",
     [
+      "junit",
+      {
+        outputDir: "./ui-tests/reports/junitReports",
+        outputFileFormat: function () {
+          return "uiTestReport.xml";
+        },
+      },
+    ],
+    [
       HtmlReporter,
       {
         outputDir: `./ui-tests/reports/`,
