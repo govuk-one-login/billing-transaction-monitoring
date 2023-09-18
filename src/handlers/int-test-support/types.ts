@@ -36,3 +36,24 @@ export enum IntTestHelpers {
   sendMessageToQueue = "sendMessageToQueue",
   invokeLambda = "invokeLambda",
 }
+
+export type FullExtractData = {
+  vendor_id: string;
+  vendor_name: string;
+  event_name: string;
+  service_name: string;
+  contract_id: string;
+  contract_name: string;
+  year: string;
+  month: string;
+  billing_unit_price: string;
+  billing_price_formatted: string;
+  transaction_price_formatted: string;
+  price_difference: string;
+  billing_quantity: string;
+  transaction_quantity: string;
+  quantity_difference: string;
+  billing_amount_with_tax: string;
+  price_difference_percentage: string;
+  invoice_is_quarterly: string;
+};

@@ -1,8 +1,8 @@
+import { FullExtractData } from "../../src/handlers/int-test-support/types";
 import { waitForPageLoad } from "../helpers/waits";
 import InvoicePage from "../pageobjects/invoicePage";
 import { expectEqual } from "../utils/customTestAssertion";
 import {
-  FullExtractData,
   getInvoicesByContractIdYearMonth,
   getTestDataFilePath,
   extractAllUniqueVendorInvoiceDataFomJson,
