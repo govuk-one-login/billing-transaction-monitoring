@@ -53,7 +53,7 @@ export interface ConfigCache {
   [ConfigElements.vat]: Array<{ rate: number; start: string }>;
   [ConfigElements.standardisation]: ConfigStandardisationRow[];
   [ConfigElements.eventCleaningTransform]: { credits: Command };
-  [ConfigElements.syntheticEvents]: ConfigSyntheticEventsRow[];
+  [ConfigElements.syntheticEvents]: SyntheticEventDefinition[];
 }
 
 export interface ConfigRatesRow {
@@ -87,12 +87,18 @@ export interface ConfigStandardisationRow {
   invoiceStandardisationModuleId: number;
 }
 
-export interface ConfigSyntheticEventsRow {
+export type SyntheticEventType = "fixed" | "shortfall";
+
+export type SyntheticEventFrequency = "monthly" | "quarterly";
+
+export interface SyntheticEventDefinition {
+  type: SyntheticEventType;
   event_name: string;
+  shortfall_event_name?: string;
   quantity: number;
   start_date: string;
   end_date?: string;
-  frequency: string;
+  frequency: SyntheticEventFrequency;
   vendor_id: string;
   component_id: string;
 }
@@ -105,3 +111,24 @@ export type PickedConfigCache<TFileName extends ConfigElements> = Pick<
   ConfigCache,
   TFileName
 >;
+
+export interface FullExtractLineItem {
+  vendor_id: string;
+  vendor_name: string;
+  service_name: string;
+  event_name: string;
+  contract_id: string;
+  contract_name: string;
+  year: string;
+  month: string;
+  billing_unit_price: string;
+  billing_price_formatted: string;
+  transaction_price_formatted: string;
+  price_difference: string;
+  billing_quantity: string;
+  transaction_quantity: string;
+  quantity_difference: string;
+  billing_amount_with_tax: string;
+  price_difference_percentage: string;
+  invoice_is_quarterly: string;
+}

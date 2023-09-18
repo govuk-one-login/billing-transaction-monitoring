@@ -1,10 +1,10 @@
 import { InvoiceStatus, InvoiceStatuses, invoiceStatusLookup } from "../utils";
-import { FullExtractLineItem } from "./types";
 import {
   LineItemStatus,
   LineItemStatuses,
   lineItemStatusLookup,
 } from "../utils/line-item-statuses";
+import { FullExtractLineItem } from "../../shared/types";
 
 // Note that these are just the special cases that we want to show a warning for --
 // NO_CHARGE is also a possible value in a line item but, it doesn't cause a warning.

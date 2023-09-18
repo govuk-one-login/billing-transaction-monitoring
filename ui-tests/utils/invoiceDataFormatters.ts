@@ -1,5 +1,5 @@
+import { FullExtractData } from "../../src/handlers/int-test-support/types";
 import { InvoiceStates, percentageDiscrepancySpecialCase } from "./constants";
-import { FullExtractData } from "./extractTestDatajson";
 
 export const formatPercentageDifference = (
   percentageDifference: number

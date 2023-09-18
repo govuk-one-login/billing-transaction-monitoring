@@ -1,7 +1,7 @@
-import { fetchS3, getFromEnv } from "../../shared/utils";
+import { fetchS3, getFromEnv } from "../index";
 import { getDashboardExtract } from "./get-dashboard-extract";
 
-jest.mock("../../shared/utils");
+jest.mock("../index");
 const mockedFetchS3 = fetchS3 as jest.Mock;
 const mockedGetFromEnv = getFromEnv as jest.Mock;
 

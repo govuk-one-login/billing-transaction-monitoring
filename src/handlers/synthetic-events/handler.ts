@@ -6,7 +6,7 @@ import { ConfigElements } from "../../shared/constants";
 
 export const handler = buildHandler({
   businessLogic,
-  envVars: [Env.OUTPUT_QUEUE_URL],
+  envVars: [Env.OUTPUT_QUEUE_URL, Env.STORAGE_BUCKET],
   incomingMessageBodyTypeGuard: (
     maybeIncomingMessageBody: unknown
   ): maybeIncomingMessageBody is never => true,

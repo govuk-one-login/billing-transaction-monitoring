@@ -1,5 +1,5 @@
-import { fetchS3, getFromEnv } from "../../shared/utils";
-import { FullExtractLineItem } from "./types";
+import { fetchS3, getFromEnv } from "../index";
+import { FullExtractLineItem } from "../../types";
 
 export const getDashboardExtract = async (): Promise<FullExtractLineItem[]> => {
   const sourceBucket = getFromEnv("STORAGE_BUCKET");
