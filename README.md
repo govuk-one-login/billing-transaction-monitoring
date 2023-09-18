@@ -24,23 +24,16 @@ Install packages from lock file:
 npm ci
 ```
 
+Install checkov:
+
+```sh
+pip3 install checkov
+```
+
 Install husky hooks:
 
 ```sh
 npm run husky:install
-```
-
-## Check before commit
-
-```sh
-npm run build:template
-checkov -f template.yaml --framework cloudformation --external-checks-git git@github.com:alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies
-```
-
-N.B. You may get Python errors due to conflicting dependencies with SAM CLI. If you do, run this and try again:
-
-```sh
-pip3 install checkov
 ```
 
 ### Running the integration tests

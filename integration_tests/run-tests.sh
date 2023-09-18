@@ -23,7 +23,7 @@ npm run test:ui
 
 UI_TESTS_EXIT_CODE=$?
 
-cp ./ui-tests/reports/ui-test-report*.json $TEST_REPORT_ABSOLUTE_DIR
+cp ./ui-tests/reports/junitReports/uiTestReport.xml $TEST_REPORT_ABSOLUTE_DIR
 
 if [ $INTEGRATION_TESTS_EXIT_CODE -ne 0 ] || [ $UI_TESTS_EXIT_CODE -ne 0 ] ; then
   exit 1

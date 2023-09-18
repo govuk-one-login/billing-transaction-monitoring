@@ -2,6 +2,7 @@ import {
   getPeriodStart,
   nextPeriod,
   Period,
+  periodContains,
   periodIsBefore,
   periodsAreEqual,
 } from "./period";
@@ -118,6 +119,54 @@ describe("Period tests", () => {
           isQuarterly: data.quarterly,
         };
         expect(nextPeriod(period)).toEqual(expectedNextPeriod);
+      }
+    );
+  });
+
+  describe("periodContains", () => {
+    test.each`
+      year1   | month1 | quarterly1 | year2   | month2 | quarterly2 | expectedResult
+      ${2019} | ${1}   | ${false}   | ${2019} | ${1}   | ${false}   | ${true}
+      ${2019} | ${12}  | ${false}   | ${2019} | ${12}  | ${false}   | ${true}
+      ${2019} | ${1}   | ${false}   | ${2019} | ${2}   | ${false}   | ${false}
+      ${2019} | ${2}   | ${false}   | ${2019} | ${1}   | ${false}   | ${false}
+      ${2019} | ${2}   | ${false}   | ${2020} | ${2}   | ${false}   | ${false}
+      ${2019} | ${1}   | ${true}    | ${2019} | ${1}   | ${true}    | ${true}
+      ${2019} | ${10}  | ${true}    | ${2019} | ${10}  | ${true}    | ${true}
+      ${2019} | ${1}   | ${true}    | ${2019} | ${4}   | ${true}    | ${false}
+      ${2019} | ${4}   | ${true}    | ${2019} | ${1}   | ${true}    | ${false}
+      ${2019} | ${1}   | ${true}    | ${2020} | ${1}   | ${true}    | ${false}
+      ${2019} | ${1}   | ${true}    | ${2019} | ${1}   | ${false}   | ${true}
+      ${2019} | ${1}   | ${true}    | ${2019} | ${2}   | ${false}   | ${true}
+      ${2019} | ${1}   | ${true}    | ${2019} | ${3}   | ${false}   | ${true}
+      ${2019} | ${1}   | ${true}    | ${2019} | ${4}   | ${false}   | ${false}
+      ${2019} | ${4}   | ${true}    | ${2019} | ${4}   | ${false}   | ${true}
+      ${2019} | ${4}   | ${true}    | ${2019} | ${5}   | ${false}   | ${true}
+      ${2019} | ${4}   | ${true}    | ${2019} | ${6}   | ${false}   | ${true}
+      ${2019} | ${4}   | ${true}    | ${2019} | ${7}   | ${false}   | ${false}
+      ${2019} | ${7}   | ${true}    | ${2019} | ${7}   | ${false}   | ${true}
+      ${2019} | ${7}   | ${true}    | ${2019} | ${8}   | ${false}   | ${true}
+      ${2019} | ${7}   | ${true}    | ${2019} | ${9}   | ${false}   | ${true}
+      ${2019} | ${7}   | ${true}    | ${2019} | ${10}  | ${false}   | ${false}
+      ${2019} | ${10}  | ${true}    | ${2019} | ${10}  | ${false}   | ${true}
+      ${2019} | ${10}  | ${true}    | ${2019} | ${11}  | ${false}   | ${true}
+      ${2019} | ${10}  | ${true}    | ${2019} | ${12}  | ${false}   | ${true}
+      ${2019} | ${10}  | ${true}    | ${2019} | ${9}   | ${false}   | ${false}
+      ${2019} | ${1}   | ${false}   | ${2019} | ${1}   | ${true}    | ${false}
+    `(
+      "Expect $year1-$month1-$quarterly contains $year2-$month2-$quarterly2 to be $expectedResult",
+      async ({ ...data }) => {
+        const period1: Period = {
+          year: data.year1,
+          month: data.month1,
+          isQuarterly: data.quarterly1,
+        };
+        const period2: Period = {
+          year: data.year2,
+          month: data.month2,
+          isQuarterly: data.quarterly2,
+        };
+        expect(periodContains(period1, period2)).toEqual(data.expectedResult);
       }
     );
   });
