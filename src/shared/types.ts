@@ -53,6 +53,7 @@ export interface ConfigCache {
   [ConfigElements.vat]: Array<{ rate: number; start: string }>;
   [ConfigElements.standardisation]: ConfigStandardisationRow[];
   [ConfigElements.eventCleaningTransform]: { credits: Command };
+  [ConfigElements.allowedUsers]: string[];
   [ConfigElements.syntheticEvents]: SyntheticEventDefinition[];
 }
 

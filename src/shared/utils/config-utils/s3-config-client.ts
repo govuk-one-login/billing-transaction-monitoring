@@ -22,6 +22,7 @@ export const configFileMap: Record<ConfigElements, string> = {
   [ConfigElements.vat]: "uk-vat.json",
   [ConfigElements.standardisation]: "vendor-invoice-standardisation.json",
   [ConfigElements.eventCleaningTransform]: "event_transforms/config.json",
+  [ConfigElements.allowedUsers]: "allowed-users.json",
   [ConfigElements.syntheticEvents]: "synthetic_events/synthetic-events.json",
 };
 
@@ -65,6 +66,7 @@ const parserMap = {
   [ConfigElements.vat]: parseJsonFile,
   [ConfigElements.standardisation]: parseJsonFile,
   [ConfigElements.eventCleaningTransform]: parseJsonFile,
+  [ConfigElements.allowedUsers]: parseJsonFile,
   [ConfigElements.syntheticEvents]: parseJsonFile,
 };
 
