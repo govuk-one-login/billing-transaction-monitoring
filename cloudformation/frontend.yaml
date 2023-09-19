@@ -1,31 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
 Resources:
   FrontEndApi:
-    Type: AWS::Serverless::HttpApi
+    # checkov:skip=CKV_AWS_120: No caching for now
+    Type: AWS::Serverless::Api
     Condition: FrontEndEnabled
     DependsOn:
       - FrontEndDomainName
       - FrontEndHostedZoneName
+      - FrontEndFunction
     Properties:
-      AccessLogSettings:
+      AccessLogSetting:
         DestinationArn: !GetAtt FrontEndApiLogGroup.Arn
         Format: '{ "requestId":"$context.requestId", "requestTime":"$context.requestTime", "routeKey":"$context.routeKey", "status":"$context.status" }'
       Auth:
         Authorizers:
           LambdaAuthorizer:
-            AuthorizerPayloadFormatVersion: '2.0'
-            EnableFunctionDefaultPermissions: true
-            EnableSimpleResponses: true
             FunctionArn: !GetAtt FrontEndAuthFunction.Arn
+            FunctionPayloadType: REQUEST
+            Identity:
+              ReauthorizeEvery: !If [FrontEndAuthEnabled, 0, 3600]
+              StageVariables:
+                - AUTH_ENABLED
         DefaultAuthorizer: LambdaAuthorizer
+      CacheClusterEnabled: false
+      DefinitionBody:
+        openapi: 3.0.2
+        info:
+          title: !Sub ${AWS::StackName}-frontend-api
+          description: A frontend for the Program Delivery Team to manage billing across Digital
+            Identity
+          version: '1.0'
+        servers:
+          - url: https://btm.account.gov.uk
+        paths:
+          '/':
+            get:
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                httpMethod: 'POST'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndFunction.Arn}/invocations'
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseTemplates:
+                      text/html:
+                        type: string
+                        example: '<h1>Welcome to DI Billing</h1>'
+          '/{.+}':
+            get:
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                httpMethod: 'POST'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FrontEndFunction.Arn}/invocations'
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseTemplates:
+                      text/html:
+                        type: string
+                        example: '<h1>Welcome to DI Billing</h1>'
       Domain:
-        CertificateArn:
-          Fn::ImportValue: !If
-            - IsDev
-            - !Sub di-btm-tooling-dev-frontend-certificate-arn
-            - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
+        CertificateArn: !GetAtt FrontEndCertificateArn.Value
         DomainName: !GetAtt FrontEndDomainName.Value
         Route53:
           HostedZoneName: !GetAtt FrontEndHostedZoneName.Value
+      MethodSettings:
+        - ResourcePath: /
+          HttpMethod: 'GET'
+          CachingEnabled: true
+          CacheTtlInSeconds: 300
+      StageName: web
+      Variables:
+        AUTH_ENABLED: !If [FrontEndAuthEnabled, true, false]
+      TracingEnabled: true
 
   FrontEndDomainName:
     Type: AWS::SSM::Parameter
@@ -39,7 +88,10 @@ Resources:
         - !If
           - IsDev
           - btm.dev.account.gov.uk
-          - !Sub btm.${Environment}.account.gov.uk
+          - !If
+            - IsEphemeral
+            - !Join ['', [!Select [1, !Split ['di-btm-', !Ref AWS::StackName]], .btm.dev.account.gov.uk]]
+            - !Sub btm.${Environment}.account.gov.uk
       Description: !Sub Front end domain name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
 
   FrontEndHostedZoneName:
@@ -57,13 +109,29 @@ Resources:
           - !Sub btm.${Environment}.account.gov.uk.
       Description: !Sub Front end Route 53 Hosted Zone name used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
 
+  FrontEndCertificateArn:
+    Type: AWS::SSM::Parameter
+    Condition: FrontEndEnabled
+    Properties:
+      Name: !Sub ${AWS::StackName}-frontend-certificate-arn
+      Type: String
+      Value:
+        Fn::ImportValue: !If
+          - IsEphemeral
+          - !Sub di-btm-dev-tooling-ephemeral-frontend-certificate-arn
+          - !If
+            - IsDev
+            - !Sub di-btm-tooling-dev-frontend-certificate-arn
+            - !Sub di-btm-tooling-${Environment}-frontend-certificate-arn
+      Description: !Sub Front end certificate ARN used by app stack ${AWS::StackName}. Do not edit, managed by CloudFormation.
+
   FrontEndApiLogGroup:
     Type: AWS::Logs::LogGroup
     Condition: FrontEndEnabled
     Properties:
       KmsKeyId: !GetAtt KmsKey.Arn
       RetentionInDays: 90
-      LogGroupName: !Sub '/aws/vendedlogs/${AWS::StackName}-FE-API-Log-Group'
+      LogGroupName: !Sub /aws/vendedlogs/apigateway/${AWS::StackName}-api-access-logs
 
   FrontEndAuthFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
@@ -72,8 +140,30 @@ Resources:
     Condition: FrontEndEnabled
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
+      MemorySize: 256
       Handler: frontendAuth.handler
       ReservedConcurrentExecutions: 10
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Environment:
+        Variables:
+          AWS_ACCOUNT_ID: !Sub ${AWS::AccountId}
+          CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
+          GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:google-client-details:SecretString:clientId}}'
+          GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:google-client-details:SecretString:clientSecret}}'
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
 
   FrontEndFunction:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
@@ -89,9 +179,17 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}-frontend-function
       Events:
         ProxyApiRoot:
-          Type: HttpApi
+          Type: Api
           Properties:
-            ApiId: !Ref FrontEndApi
+            RestApiId: !Ref FrontEndApi
+            Path: /
+            Method: 'GET'
+        ProxyApiAllElse:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FrontEndApi
+            Path: /*
+            Method: 'GET'
       Handler: frontend.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:

@@ -60,6 +60,7 @@ const config: ConfigCache = {
     ],
   },
   contracts: [],
+  allowedUsers: ["allowed@user.com"],
   syntheticEvents: [
     {
       type: "fixed",
