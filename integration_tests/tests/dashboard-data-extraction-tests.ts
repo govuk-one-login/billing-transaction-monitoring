@@ -70,7 +70,14 @@ describe("\n DashboardDataExtractFunction", () => {
             key: `btm_extract_data/full-extract.json`,
           }),
         (result) => {
-          return result?.includes(data.quantity.toString()) ?? false;
+          return (
+            (result?.includes(data.quantity.toString()) &&
+              result?.includes(
+                standardisedInvoiceObject.vendor_id.toString()
+              ) &&
+              result?.includes(standardisedInvoiceObject.event_name)) ??
+            false
+          );
         },
         {
           timeout: 280000,
