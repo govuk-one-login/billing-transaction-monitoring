@@ -98,7 +98,7 @@ const getDecrypted = async (
   );
 
   if (authTagLength > 0) decipher.setAuthTag(authTag);
-
+  logger.info(`data: ${data}`);
   return decipher.update(data, undefined, "utf-8") + decipher.final("utf-8");
 };
 

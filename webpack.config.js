@@ -22,6 +22,7 @@ export default {
     pdfStandardisation: "./src/handlers/pdf-standardisation/handler.ts",
     csvExtract: "./src/handlers/csv-extract/handler.ts",
     dashboardExtract: "./src/handlers/dashboard-extract/handler.ts",
+    eventBucketing: "./src/handlers/event-bucketing/handler.ts",
     storeStandardisedInvoices:
       "./src/handlers/store-standardised-invoices/handler.ts",
     frontend: "./src/handlers/frontend/handler.ts",

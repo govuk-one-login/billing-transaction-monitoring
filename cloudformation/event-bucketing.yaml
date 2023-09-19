@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  EventBucketingFunction:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for scheduled lambda that does not process events
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-event-bucketing-function
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-AWSServicesEndpointSecurityGroupId
+        SubnetIds:
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdA
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdB
+          - Fn::ImportValue: !Sub di-btm-${Environment}-vpc-PrivateSubnetIdC
+      Environment:
+        Variables:
+          # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
+          STORAGE_BUCKET: !Sub ${AWS::StackName}-storage
+      EventInvokeConfig:
+        MaximumEventAgeInSeconds: 60
+      Handler: eventBucketing.handler
+      KmsKeyArn: !GetAtt KmsKey.Arn
+      Timeout: 180
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              Resource:
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}
+                - !Sub arn:aws:s3:::${ConfigStackParameter.Value}/*
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:GenerateDataKey*
+                - kms:Encrypt
+              Resource: '*'
+              Condition:
+                ForAnyValue:StringEquals:
+                  kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
+            - Effect: Allow
+              Action: glue:GetTable
+              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
+            - Effect: Allow
+              Action:
+                - s3:AbortMultipartUpload
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListMultipartUploadParts
+                - s3:PutObject
+              Resource:
+                - !Sub arn:aws:s3:::${AWS::StackName}-storage
+                - !Sub arn:aws:s3:::${AWS::StackName}-storage/*
+      ReservedConcurrentExecutions: 1
+
+  EventBucketingScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub ${AWS::StackName}-event-bucketing-rule
+      Description: Schedules EventBucketingFunction to run once per day
+      ScheduleExpression: cron(0 3 ? * * *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt EventBucketingFunction.Arn
+          Id: EventBucketingFunction
+
+  LambdaPermissionForEvents:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref EventBucketingFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt EventBucketingScheduledRule.Arn
+
+  LambdaPermissionForS3EventBucketingFunction:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref EventBucketingFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub arn:aws:s3:::${AWS::StackName}-storage
+
+  EventBucketingFunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-event-bucketing-function-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref EventBucketingFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
