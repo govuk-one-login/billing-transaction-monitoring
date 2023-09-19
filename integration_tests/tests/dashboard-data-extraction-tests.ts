@@ -75,7 +75,7 @@ describe("\n DashboardDataExtractFunction", () => {
               result?.includes(
                 standardisedInvoiceObject.vendor_id.toString()
               ) &&
-              result?.includes(standardisedInvoiceObject.event_name)) ??
+              result?.includes(standardisedInvoiceObject.service_name)) ??
             false
           );
         },

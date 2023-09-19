@@ -16,7 +16,7 @@ describe("New invoice with same month, vendor, service as old line item", () => 
   let givenService1LineItem: S3Object | undefined;
 
   test("should archive old line item", async () => {
-    const givenDate = new Date("2007-02-10");
+    const givenDate = new Date("2006-02-10");
 
     // Get vendor that uses default PDF parser
     const {
