@@ -86,6 +86,8 @@ describe("\n DashboardDataExtractFunction", () => {
         }
       );
 
+      // wait for 2 seconds before executing Athena query
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       // Check the btm_monthly_extract table results match with uploaded standardised invoice data object.
       const queryString = `SELECT * FROM "btm_monthly_extract" where vendor_id ='${standardisedInvoiceObject.vendor_id}' AND year='${year}' AND month='${month}'`;
       const response = await queryAthena<BtmMonthlyExtract>(queryString);
