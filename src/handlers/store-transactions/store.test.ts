@@ -30,7 +30,7 @@ describe("store", () => {
     );
   });
 
-  it("works for dates in summer near midnight", async () => {
+  it("works for dates in summer just before midnight", async () => {
     const bucket = "test_bucket";
     const message = {
       timestamp: 1693523298156,
@@ -49,6 +49,28 @@ describe("store", () => {
       bucket,
       "event_data_folder/2023/08/31/event_001.json",
       '{"timestamp":1693523298156,"event_id":"event_001","a":1,"b":2,"c":3}'
+    );
+  });
+
+  it("works for dates in summer just after midnight", async () => {
+    const bucket = "test_bucket";
+    const message = {
+      timestamp: 1688166124493,
+      event_id: "event_001",
+      a: 1,
+      b: 2,
+      c: 3,
+    } as unknown as CleanedEventBody;
+    const ctx = {
+      env: {
+        EVENT_DATA_FOLDER: "event_data_folder",
+      },
+    } as unknown as HandlerCtx<any, any, any>;
+    await store(bucket, message, ctx);
+    expect(putTextS3).toHaveBeenCalledWith(
+      bucket,
+      "event_data_folder/2023/06/30/event_001.json",
+      '{"timestamp":1688166124493,"event_id":"event_001","a":1,"b":2,"c":3}'
     );
   });
 });
