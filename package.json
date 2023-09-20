@@ -40,6 +40,7 @@
     "aws-sdk-client-mock": "^2.0.0",
     "babel-jest": "^29.0.3",
     "chromedriver": "^116.0.0",
+    "commander": "^11.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "csvtojson": "^2.0.10",
     "delay": "^5.0.0",
@@ -112,7 +113,8 @@
     "predev": "npm run build:css",
     "prebuild": "npm run build:css",
     "batch-events": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/batch-events.ts",
-    "fetch-s3": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/fetch-s3.ts"
+    "fetch-s3": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/fetch-s3.ts",
+    "augment-dcs-csv": "NODE_OPTIONS=--es-module-specifier-resolution=node ts-node --esm src/tools/augment-dcs-csv.ts"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
