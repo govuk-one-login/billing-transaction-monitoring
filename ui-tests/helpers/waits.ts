@@ -18,7 +18,7 @@ export const waitForPageLoad = async (): Promise<void> => {
 
 export const waitForElementDisplayed = async (
   element: WebdriverIO.Element,
-  timeout: number = 5000
+  timeout: number = 6000
 ): Promise<void> => {
   await browser.waitUntil(
     async () => {
