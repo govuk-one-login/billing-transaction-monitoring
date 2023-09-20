@@ -64,6 +64,11 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           sourceFileName
         );
 
+        logger.info(
+          "raw line items",
+          JSON.stringify(standardisedInvoice.map((li) => JSON.stringify(li)))
+        );
+
         if (standardisedInvoice.length === 0) {
           throw new Error("No matching line items in csv invoice.");
         }
@@ -72,6 +77,8 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
           const standardisedInvoiceText = JSON.stringify(item);
           await sendRecord(outputQueueUrl, standardisedInvoiceText);
         });
+
+        logger.info("Promises count", `${lineItemPromises.length}`);
 
         await Promise.all(lineItemPromises);
       });
