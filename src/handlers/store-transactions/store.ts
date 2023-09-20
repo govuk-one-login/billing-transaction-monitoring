@@ -10,7 +10,8 @@ export const store = async (
   const { event_id, timestamp } = message;
   const key = `${env.EVENT_DATA_FOLDER}/${formatDate(
     new Date(timestamp),
-    "/"
+    "/",
+    "utc"
   )}/${event_id}.json`;
   await putTextS3(bucket, key, JSON.stringify(message));
 };
