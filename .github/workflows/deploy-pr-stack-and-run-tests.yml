@@ -1,4 +1,4 @@
-name: Deploy CF-stack and run integration tests on PR
+name: Deploy CF-stack and run tests on PR
 
 on:
   pull_request:
@@ -114,3 +114,34 @@ jobs:
             git push origin gh-pages
           fi
         if: always()
+
+  run-ui-tests:
+    needs: [build-and-deploy]
+    permissions:
+      contents: write
+      id-token: write
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: true
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - name: Assume AWS GitHub actions tooling role in dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
+      - name: Run UI tests
+        run: npm run test:ui
+      - name: Deploy UI Test HTML report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./ui-tests/reports
+          commit_message: 'Deploy UI HTML report to gh-pages'
+          keep_files: true

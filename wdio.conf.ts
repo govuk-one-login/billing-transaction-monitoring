@@ -12,7 +12,7 @@ const determineBaseUrl = (): string => {
     case "staging":
       return "https://btm.staging.account.gov.uk/";
     default:
-      return "http://localhost:3000";
+      return `https://${process.env.ENV_NAME}.btm.dev.account.gov.uk`;
   }
 };
 const baseUrl = determineBaseUrl();
