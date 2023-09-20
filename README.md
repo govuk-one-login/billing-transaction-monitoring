@@ -180,3 +180,7 @@ To run tests in Chrome, Firefox , Microsoft Edge and Safari use the following co
 ```sh
 export BROWSER=chrome && npm run test:ui # or firefox, MicrosoftEdge, safari 
 ```
+
+## Lambda function code pattern
+
+Some of our AWS Lambda function handlers are written with the `buildHandler` function from `src/handler-context`. For more info on this, see [`src/handler-context/README.md`](src/handler-context/README.md)
