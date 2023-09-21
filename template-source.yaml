@@ -114,7 +114,7 @@ Conditions:
         !Equals [!Ref AWS::StackName, di-btm-production],
       ],
     ]
-    FrontEndAuthEnabled:
+  FrontEndAuthEnabled:
     !Or [
       !Equals [!Ref AWS::StackName, di-btm-auth-demo],
       !Equals [!Ref AWS::StackName, di-btm-staging],
