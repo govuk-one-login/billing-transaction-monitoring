@@ -35,7 +35,7 @@ const fileString = fileBuffer.toString();
 const augmentedSegment = `${event_name},${component_id},${vendor_id}`;
 
 const [eventIds, dateStrings] = fileString
-  .split(/,|\n/)
+  .split(/[,\n]/)
   .reduce<[string[], string[]]>(
     (acc, cur, i) => {
       acc[i % 2].push(cur);
