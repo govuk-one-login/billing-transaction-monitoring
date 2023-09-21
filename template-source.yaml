@@ -107,8 +107,6 @@ Conditions:
   FrontEndEnabled:
     !Not [
       !Or [
-        !Equals [!Ref AWS::StackName, di-btm-dev],
-        !Equals [!Ref AWS::StackName, di-btm-build],
         !Equals [!Ref AWS::StackName, di-btm-staging],
         !Equals [!Ref AWS::StackName, di-btm-integration],
         !Equals [!Ref AWS::StackName, di-btm-production],
