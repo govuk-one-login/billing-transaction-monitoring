@@ -123,6 +123,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     env:
+      TEST_VIA_LAMBDA: true
       FORCE_COLOR: true
     steps:
       - name: Check out repository code
