@@ -12,6 +12,7 @@ interface ResultArguments {
   event: CloudFormationCustomResourceEvent;
   reason: string;
   status: CloudFormationCustomResourceResponse["Status"];
+  physicalId?: string;
 }
 
 export const sendCustomResourceResult = async ({
@@ -19,13 +20,14 @@ export const sendCustomResourceResult = async ({
   event,
   reason,
   status,
+  physicalId,
 }: ResultArguments): Promise<void> =>
   await new Promise((resolve, reject) => {
     const result: CloudFormationCustomResourceResponse = {
       LogicalResourceId: event.LogicalResourceId,
       PhysicalResourceId:
         event.RequestType === "Create"
-          ? context.logStreamName
+          ? physicalId ?? context.logStreamName
           : event.PhysicalResourceId,
       Reason: reason,
       RequestId: event.RequestId,

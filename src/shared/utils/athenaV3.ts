@@ -5,6 +5,7 @@ import {
   ResultSet,
   StartQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
+import { StartQueryExecutionCommandInput } from "@aws-sdk/client-athena/dist-types/commands/StartQueryExecutionCommand";
 
 const INTERVAL_MS = 1000;
 const MAX_ATTEMPTS = 10;
@@ -28,7 +29,7 @@ export class AthenaQueryExecutor {
     sql: string,
     queryResultsBucket: string
   ): Promise<ResultSet> {
-    const params = {
+    const params: StartQueryExecutionCommandInput = {
       QueryString: sql,
       ResultConfiguration: {
         OutputLocation: queryResultsBucket,
