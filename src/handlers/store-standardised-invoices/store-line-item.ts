@@ -39,6 +39,8 @@ export async function storeLineItem(
     destinationFolder,
     bodyObject
   );
+  logger.info(`Listing s3 keys for ${destinationBucket} ${itemKeyPrefix}`);
+
   const staleItemKeys = await listS3Keys(destinationBucket, itemKeyPrefix);
   logger.info(`Putting text to ${destinationBucket} ${itemKey}`);
   await putTextS3(destinationBucket, itemKey, record.body);
