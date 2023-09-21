@@ -104,7 +104,7 @@ Conditions:
       !Equals [!Ref AWS::StackName, di-btm-integration],
       !Equals [!Ref AWS::StackName, di-btm-production],
     ]
-  FrontEndEnabled: false
+  FrontEndEnabled: !Not [!Ref Environment, local]
   FrontEndAuthEnabled:
     !Or [
       !Equals [!Ref AWS::StackName, di-btm-auth-demo],
