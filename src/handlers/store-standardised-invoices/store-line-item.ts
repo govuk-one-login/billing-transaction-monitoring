@@ -1,5 +1,3 @@
-import { SQSRecord } from "aws-lambda";
-import path from "path";
 import {
   getStandardisedInvoiceKey,
   LineItemFieldsForNaming,
@@ -9,57 +7,47 @@ import {
   putTextS3,
 } from "../../shared/utils";
 import { StandardisedLineItemSummary } from "../../shared/types";
-import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
 
 export async function storeLineItem(
-  record: SQSRecord,
+  record: StandardisedLineItemSummary,
   destinationBucket: string,
   destinationFolder: string,
-  archiveFolder: string,
-  rawInvoiceBucket: string
+  archiveFolder: string
 ): Promise<void> {
-  let bodyObject;
-  try {
-    bodyObject = JSON.parse(record.body);
-  } catch {
-    throw new Error("Record body not valid JSON.");
-  }
-
-  if (!isNameable(bodyObject))
+  logger.info(`isNamable:${destinationBucket} ${JSON.stringify(record)}`);
+  if (!isNameable(record))
     throw new Error(
       "Event record body is not object with valid fields for generating a file name."
     );
 
-  if (!isStandardisedLineItemSummary(bodyObject))
+  logger.info(
+    `isStandardisedLineItemSummary:${destinationBucket} ${JSON.stringify(
+      record
+    )}`
+  );
+  if (!isStandardisedLineItemSummary(record))
     throw new Error(
       "Event record body is not object with valid fields for generating a file name."
     );
 
+  logger.info(
+    `getStandardisedInvoiceKey:${destinationBucket} ${JSON.stringify(record)}`
+  );
   const [itemKey, itemKeyPrefix] = getStandardisedInvoiceKey(
     destinationFolder,
-    bodyObject
+    record
   );
   logger.info(`Listing s3 keys for ${destinationBucket} ${itemKeyPrefix}`);
 
   const staleItemKeys = await listS3Keys(destinationBucket, itemKeyPrefix);
   logger.info(`Putting text to ${destinationBucket} ${itemKey}`);
-  await putTextS3(destinationBucket, itemKey, record.body);
+  await putTextS3(destinationBucket, itemKey, JSON.stringify(record));
 
   const archivePromises = staleItemKeys.map(
     async (key) => await moveToFolderS3(destinationBucket, key, archiveFolder)
   );
 
   await Promise.all(archivePromises);
-
-  const sourceKey = `${bodyObject.vendor_id}/${bodyObject.originalInvoiceFile}`;
-  const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
-  const successfulRawInvoiceFolder = path.dirname(destinationKey);
-
-  logger.info(
-    `moving ${rawInvoiceBucket}/${sourceKey} to ${rawInvoiceBucket}/${successfulRawInvoiceFolder}/${bodyObject.originalInvoiceFile}`
-  );
-
-  await moveToFolderS3(rawInvoiceBucket, sourceKey, successfulRawInvoiceFolder);
 }
 
 const isNameable = (x: unknown): x is LineItemFieldsForNaming =>

@@ -1,4 +1,3 @@
-import { SQSRecord } from "aws-lambda";
 import {
   getStandardisedInvoiceKey,
   listS3Keys,
@@ -7,6 +6,7 @@ import {
 } from "../../shared/utils";
 import { storeLineItem } from "./store-line-item";
 import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
+import { StandardisedLineItem } from "../../shared/types";
 
 jest.mock("../../shared/utils");
 const mockedGetStandardisedInvoiceKey = getStandardisedInvoiceKey as jest.Mock;
@@ -22,10 +22,9 @@ describe("Line item storer", () => {
   let givenDestinationBucket: string;
   let givenDestinationFolder: string;
   let givenRawInvoiceBucket: string;
-  let givenRecord: SQSRecord;
+  let givenRecord: StandardisedLineItem;
   let givenRecordBodyEventName: string;
   let givenRecordBodyInvoicePeriodStart: string;
-  let givenRecordBodyObject: Record<string, unknown>;
   let givenRecordBodyVendorId: string;
   let givenRecordBodyOriginalInvoiceFile: string;
 
@@ -57,26 +56,25 @@ describe("Line item storer", () => {
     givenRecordBodyInvoicePeriodStart =
       "given record body invoice period start";
     givenRecordBodyVendorId = "given record body vendor ID";
-    givenRecordBodyObject = {
+    givenRecord = {
       event_name: givenRecordBodyEventName,
+      invoice_receipt_id: "1",
+      invoice_receipt_date: "2023-01-01",
+      total: 2023.23,
+      parser_version: "2",
       invoice_period_start: givenRecordBodyInvoicePeriodStart,
       vendor_id: givenRecordBodyVendorId,
       invoice_is_quarterly: false,
       originalInvoiceFile: givenRecordBodyOriginalInvoiceFile,
     };
-
-    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
   });
 
   test("Line item storer with record body that is not JSON", async () => {
-    givenRecord = { body: "{" } as any;
-
     const resultPromise = storeLineItem(
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow("not valid JSON");
@@ -92,8 +90,7 @@ describe("Line item storer", () => {
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow("is not object");
@@ -109,8 +106,7 @@ describe("Line item storer", () => {
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -123,15 +119,15 @@ describe("Line item storer", () => {
   });
 
   test("Line item storer with record body object with no event name", async () => {
-    delete givenRecordBodyObject.event_name;
-    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+    // @ts-expect-error
+    delete givenRecord.event_name;
+    givenRecord = { body: JSON.stringify(givenRecord) } as any;
 
     const resultPromise = storeLineItem(
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -144,15 +140,14 @@ describe("Line item storer", () => {
   });
 
   test("Line item storer with record body object with non-string event name", async () => {
-    givenRecordBodyObject.event_name = 123;
-    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+    givenRecord.event_name = 123 as any;
+    givenRecord = { body: JSON.stringify(givenRecord) } as any;
 
     const resultPromise = storeLineItem(
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -165,15 +160,15 @@ describe("Line item storer", () => {
   });
 
   test("Line item storer with record body object with no invoice period start string", async () => {
-    delete givenRecordBodyObject.invoice_period_start;
-    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+    // @ts-expect-error
+    delete givenRecord.invoice_period_start;
+    givenRecord = { body: JSON.stringify(givenRecord) } as any;
 
     const resultPromise = storeLineItem(
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -186,15 +181,14 @@ describe("Line item storer", () => {
   });
 
   test("Line item storer with record body object with non-string invoice period start", async () => {
-    givenRecordBodyObject.invoice_period_start = true;
-    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+    givenRecord.invoice_period_start = true as any;
+    givenRecord = { body: JSON.stringify(givenRecord) } as any;
 
     const resultPromise = storeLineItem(
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -207,15 +201,14 @@ describe("Line item storer", () => {
   });
 
   test("Line item storer with record body object with no vendor ID", async () => {
-    delete givenRecordBodyObject.vendor_id;
-    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+    delete givenRecord.vendor_id;
+    givenRecord = { body: JSON.stringify(givenRecord) } as any;
 
     const resultPromise = storeLineItem(
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -228,15 +221,14 @@ describe("Line item storer", () => {
   });
 
   test("Line item storer with record body object with non-string vendor ID", async () => {
-    givenRecordBodyObject.invoice_period_start = null;
-    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+    givenRecord.invoice_period_start = null as any;
+    givenRecord = { body: JSON.stringify(givenRecord) } as any;
 
     const resultPromise = storeLineItem(
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -249,15 +241,15 @@ describe("Line item storer", () => {
   });
 
   test("Line item storer with record body object with no invoice-is-quarterly option", async () => {
-    delete givenRecordBodyObject.invoice_is_quarterly;
-    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+    // @ts-expect-error
+    delete givenRecord.invoice_is_quarterly;
+    givenRecord = { body: JSON.stringify(givenRecord) } as any;
 
     const resultPromise = storeLineItem(
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -270,15 +262,14 @@ describe("Line item storer", () => {
   });
 
   test("Line item storer with record body object with non-Boolean invoice-is-quarterly option", async () => {
-    givenRecordBodyObject.invoice_is_quarterly = "foo";
-    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+    givenRecord.invoice_is_quarterly = "foo" as any;
+    givenRecord = { body: JSON.stringify(givenRecord) } as any;
 
     const resultPromise = storeLineItem(
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(
@@ -299,8 +290,7 @@ describe("Line item storer", () => {
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
@@ -322,21 +312,20 @@ describe("Line item storer", () => {
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
     expect(mockedGetStandardisedInvoiceKey).toHaveBeenCalledTimes(1);
     expect(mockedGetStandardisedInvoiceKey).toHaveBeenCalledWith(
       givenDestinationFolder,
-      givenRecordBodyObject
+      givenRecord
     );
     expect(mockedPutTextS3).toHaveBeenCalledTimes(1);
     expect(mockedPutTextS3).toHaveBeenCalledWith(
       givenDestinationBucket,
       mockedStandardisedLineItemKey,
-      givenRecord.body
+      JSON.stringify(givenRecord)
     );
     expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
   });
@@ -350,8 +339,7 @@ describe("Line item storer", () => {
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(mockedErrorMessage);
@@ -368,8 +356,7 @@ describe("Line item storer", () => {
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
     expect(result).toBeUndefined();
   });
@@ -386,8 +373,7 @@ describe("Line item storer", () => {
         givenRecord,
         givenDestinationBucket,
         givenDestinationFolder,
-        givenArchiveFolder,
-        givenRawInvoiceBucket
+        givenArchiveFolder
       );
     } catch (error) {
       resultError = error;
@@ -397,8 +383,8 @@ describe("Line item storer", () => {
     expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(2);
     expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
       givenRawInvoiceBucket,
-      `${givenRecordBodyObject.vendor_id}/${givenRecordBodyObject.originalInvoiceFile}`,
-      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenRecordBodyObject.vendor_id}`
+      `${givenRecord.vendor_id}/${givenRecord.originalInvoiceFile}`,
+      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenRecord.vendor_id}`
     );
   });
 
@@ -407,28 +393,27 @@ describe("Line item storer", () => {
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(2);
     expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
       givenRawInvoiceBucket,
-      `${givenRecordBodyObject.vendor_id}/${givenRecordBodyObject.originalInvoiceFile}`,
-      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenRecordBodyObject.vendor_id}`
+      `${givenRecord.vendor_id}/${givenRecord.originalInvoiceFile}`,
+      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenRecord.vendor_id}`
     );
   });
 
   test("check if originalInvoiceFile is parsed", async () => {
-    delete givenRecordBodyObject.originalInvoiceFile;
-    givenRecord = { body: JSON.stringify(givenRecordBodyObject) } as any;
+    // @ts-expect-error
+    delete givenRecord.originalInvoiceFile;
+    givenRecord = { body: JSON.stringify(givenRecord) } as any;
 
     const resultPromise = storeLineItem(
       givenRecord,
       givenDestinationBucket,
       givenDestinationFolder,
-      givenArchiveFolder,
-      givenRawInvoiceBucket
+      givenArchiveFolder
     );
 
     await expect(resultPromise).rejects.toThrow(

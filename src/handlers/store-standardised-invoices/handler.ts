@@ -1,9 +1,12 @@
 import { SQSEvent } from "aws-lambda";
-import { Response } from "../../shared/types";
-import { getFromEnv, logger } from "../../shared/utils";
+import { Response, StandardisedLineItem } from "../../shared/types";
+import { getFromEnv, logger, moveToFolderS3 } from "../../shared/utils";
 import { storeLineItem } from "./store-line-item";
+import path from "path";
+import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
+  const records: StandardisedLineItem[] = JSON.parse(event.Records[0].body);
   const archiveFolder = getFromEnv("ARCHIVE_FOLDER");
 
   if (archiveFolder === undefined || archiveFolder.length === 0)
@@ -26,21 +29,36 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
   const response: Response = { batchItemFailures: [] };
 
-  const promises = event.Records.map(async (record) => {
+  const promises = records.map(async (record) => {
     try {
       await storeLineItem(
         record,
         destinationBucket,
         destinationFolder,
-        archiveFolder,
-        rawInvoiceBucket
+        archiveFolder
       );
     } catch (error) {
-      logger.error("Handler failure", { error });
-      response.batchItemFailures.push({ itemIdentifier: record.messageId });
+      logger.error(`Handler failure for ${JSON.stringify(record)}`, { error });
+      response.batchItemFailures.push({
+        itemIdentifier: record.item_id
+          ? record.item_id.toLocaleString()
+          : JSON.stringify(record),
+      });
     }
   });
 
   await Promise.all(promises);
+
+  const firstRecord = records[0];
+  const sourceKey = `${firstRecord.vendor_id}/${firstRecord.originalInvoiceFile}`;
+  const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
+  const successfulRawInvoiceFolder = path.dirname(destinationKey);
+
+  logger.info(
+    `moving ${rawInvoiceBucket}/${sourceKey} to ${rawInvoiceBucket}/${successfulRawInvoiceFolder}/${firstRecord.originalInvoiceFile}`
+  );
+
+  await moveToFolderS3(rawInvoiceBucket, sourceKey, successfulRawInvoiceFolder);
+
   return response;
 };
