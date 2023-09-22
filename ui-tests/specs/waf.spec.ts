@@ -15,6 +15,6 @@ describe("WAF Tests", () => {
     await waitForPageLoad();
     await expect(
       async () => await HomePage.isPageHeadingDisplayed()
-    ).rejects.toThrow("Element did not displayed");
+    ).rejects.toThrow("Page heading was not displayed");
   });
 });

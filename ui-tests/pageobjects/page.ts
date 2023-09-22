@@ -25,7 +25,10 @@ export default class Page {
   }
 
   public async isPageHeadingDisplayed(): Promise<boolean> {
-    await waitForElementDisplayed(await this.pageHeading);
+    await waitForElementDisplayed(await this.pageHeading, {
+      name: "Page heading",
+    });
+
     return true;
   }
 
