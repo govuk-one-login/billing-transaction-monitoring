@@ -1,9 +1,12 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
-import { Athena } from "aws-sdk";
 import { logger, sendCustomResourceResult } from "../../shared/utils";
 import { getAthenaViewResourceData } from "./get-athena-view-resource-data";
-import { AthenaQueryExecutor } from "../../shared/utils/athena";
+import { AthenaQueryExecutor } from "../../shared/utils/athenaV3";
 import { AWS_REGION } from "../../shared/constants";
+import {
+  AthenaClient,
+  StartQueryExecutionCommand,
+} from "@aws-sdk/client-athena";
 
 export const handler = async (
   event: CloudFormationCustomResourceEvent,
@@ -13,10 +16,10 @@ export const handler = async (
     const { database, name, query, workgroup } =
       getAthenaViewResourceData(event);
 
-    const athena = new Athena({ region: AWS_REGION });
+    const athenaClient = new AthenaClient({ region: AWS_REGION });
 
-    const { QueryExecutionId: queryExecutionId } = await athena
-      .startQueryExecution({
+    const { QueryExecutionId: queryExecutionId } = await athenaClient.send(
+      new StartQueryExecutionCommand({
         QueryExecutionContext: {
           Database: database,
         },
@@ -26,12 +29,12 @@ export const handler = async (
             : `CREATE OR REPLACE VIEW "${name}" AS ${query}`,
         WorkGroup: workgroup,
       })
-      .promise();
+    );
 
     if (queryExecutionId === undefined)
       throw new Error("Failed to start query execution and get ID.");
 
-    const validator = new AthenaQueryExecutor(athena);
+    const validator = new AthenaQueryExecutor(athenaClient);
     await validator.validate(queryExecutionId);
 
     await sendCustomResourceResult({
@@ -39,6 +42,7 @@ export const handler = async (
       event,
       reason: `${name} ${event.RequestType.toLowerCase()}d in ${database}`,
       status: "SUCCESS",
+      physicalId: `${database}/${workgroup}/${name}`,
     });
   } catch (error) {
     logger.error("Handler failure", { error });
