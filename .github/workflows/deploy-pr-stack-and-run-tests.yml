@@ -142,7 +142,7 @@ jobs:
       - name: Copy UI reports
         if: always()
         run: |
-          cp ./ui-tests/reports/ui-test-report-*.html ./ui-tests/reports/
+          cp ./ui-tests/reports/*.html ./ui-tests/reports/
       - name: Deploy UI Test HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
