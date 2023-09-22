@@ -236,3 +236,121 @@ Resources:
                 - athena:GetQueryResults
               Resource: !Sub arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary
       ReservedConcurrentExecutions: 10
+
+  FronEndWebAclAssociation:
+    Type: AWS::WAFv2::WebACLAssociation
+    Condition: FrontEndEnabled
+    Properties:
+      ResourceArn: !Sub arn:aws:apigateway:${AWS::Region}::/restapis/${FrontEndApi}/stages/${FrontEndApiwebStage}
+      WebACLArn: !GetAtt WebAcl.Arn
+
+  WebAcl:
+    Type: AWS::WAFv2::WebACL
+    Condition: FrontEndEnabled
+    Properties:
+      Name: !Sub ${AWS::StackName}-acl
+      DefaultAction:
+        Allow: {}
+      Rules:
+        - Name: AWS-CRS
+          Priority: 0
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub ${AWS::StackName}-aws-crs-metric
+        - Name: Bad-Inputs
+          Priority: 1
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesKnownBadInputsRuleSet
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub ${AWS::StackName}-bad-inputs-metric
+        - Name: Anonymous-IpList
+          Priority: 2
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesAnonymousIpList
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub ${AWS::StackName}-anonymous-iplist-metric
+        - Name: SQLInject-RuleSet
+          Priority: 3
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesSQLiRuleSet
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub ${AWS::StackName}-SQLinjection-ruleset-metric
+        - Name: RateBased-CountIpRule
+          Priority: 4
+          Statement:
+            RateBasedStatement:
+              Limit: 100
+              AggregateKeyType: IP
+          Action:
+            Count: {}
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub ${AWS::StackName}-RateBased-CountIp-ruleset-metric
+            SampledRequestsEnabled: true
+      Scope: REGIONAL
+      VisibilityConfig:
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: !Sub ${AWS::StackName}-metric
+
+  WebAclLogConfig:
+    Type: AWS::WAFv2::LoggingConfiguration
+    Condition: FrontEndEnabled
+    Properties:
+      ResourceArn: !GetAtt WebAcl.Arn
+      LogDestinationConfigs:
+        - !GetAtt WebAclLogGroup.Arn
+      LoggingFilter:
+        DefaultBehavior: KEEP
+        Filters:
+          - Behavior: KEEP
+            Conditions:
+              - ActionCondition:
+                  Action: BLOCK
+              - ActionCondition:
+                  Action: COUNT
+            Requirement: MEETS_ANY
+      RedactedFields:
+        - SingleHeader:
+            Name: password
+
+  WebAclLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: FrontEndEnabled
+    Properties:
+      KmsKeyId: !GetAtt KmsKey.Arn
+      LogGroupName: !Sub aws-waf-logs-${AWS::StackName}-cloudwatch-logs
+      RetentionInDays: 90
+
+  WebAclLogSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Condition: IsSplunkForwardingActiveAndFrontEndEnabled
+    Properties:
+      DestinationArn: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
+      FilterPattern: ''
+      LogGroupName: !Ref WebAclLogGroup

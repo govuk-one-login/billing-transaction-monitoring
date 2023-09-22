@@ -3,6 +3,8 @@ import { ReportAggregator, HtmlReporter } from "wdio-html-nice-reporter";
 
 let reportAggregator: ReportAggregator;
 
+const localUrl = "http://localhost:3000";
+
 const determineBaseUrl = (): string => {
   switch (process.env.ENV_NAME) {
     case "dev":
@@ -12,7 +14,7 @@ const determineBaseUrl = (): string => {
     case "staging":
       return "https://btm.staging.account.gov.uk/";
     default:
-      return "http://localhost:3000";
+      return localUrl;
   }
 };
 const baseUrl = determineBaseUrl();
@@ -37,6 +39,7 @@ export const config = {
     },
   },
   specs: ["./ui-tests/specs/**/*.spec.ts"],
+  exclude: baseUrl === localUrl ? ["./ui-tests/specs/waf.spec.ts"] : [],
   maxInstances,
   capabilities: [
     {
