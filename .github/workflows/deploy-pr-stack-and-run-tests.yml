@@ -141,6 +141,8 @@ jobs:
         run: npm run test:ui
       - name: Deploy UI Test HTML report to Github Pages
         if: always()
+        run: |
+          cp ./ui-tests/reports/ui-test-report-*.html ./ui-tests/reports/
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
