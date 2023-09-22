@@ -87,6 +87,23 @@ Resources:
         - Arn: !GetAtt DashboardDataExtractFunction.Arn
           Id: DashboardDataExtractFunction
 
+  DashboardDataExtractFailedInvocationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-dashboard-data-extract-failed-invocation-alarm
+      AlarmActions:
+        - !GetAtt AlarmTopicParameter.Value
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: RuleName
+          Value: !Ref DashboardDataExtractScheduledRule
+      EvaluationPeriods: 1
+      MetricName: FailedInvocations
+      Namespace: AWS/Events
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
+
   LambdaPermissionForEvents:
     Type: AWS::Lambda::Permission
     Properties:
