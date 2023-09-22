@@ -6,7 +6,6 @@ import path from "path";
 import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
 
 export const handler = async (event: SQSEvent): Promise<Response> => {
-  const records: StandardisedLineItem[] = JSON.parse(event.Records[0].body);
   const archiveFolder = getFromEnv("ARCHIVE_FOLDER");
 
   if (archiveFolder === undefined || archiveFolder.length === 0)
@@ -27,38 +26,51 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   if (rawInvoiceBucket === undefined || rawInvoiceBucket.length === 0)
     throw new Error("Raw invoice bucket not set.");
 
+  for (const records of event.Records) {
+    if (!records || !records.body) {
+      throw new Error("Record contains no body");
+    }
+  }
+
+  const recordBodies: StandardisedLineItem[] = [];
+  for (const records of event.Records) {
+    recordBodies.push(JSON.parse(records.body));
+  }
   const response: Response = { batchItemFailures: [] };
 
-  const promises = records.map(async (record) => {
+  const promises = recordBodies.map(async (body) => {
     try {
       await storeLineItem(
-        record,
+        body,
         destinationBucket,
         destinationFolder,
         archiveFolder
       );
     } catch (error) {
-      logger.error(`Handler failure for ${JSON.stringify(record)}`, { error });
+      logger.error(`Handler failure for ${JSON.stringify(body)}`, { error });
       response.batchItemFailures.push({
-        itemIdentifier: record.item_id
-          ? record.item_id.toLocaleString()
-          : JSON.stringify(record),
+        itemIdentifier: JSON.stringify(body),
       });
     }
   });
 
   await Promise.all(promises);
 
-  const firstRecord = records[0];
-  const sourceKey = `${firstRecord.vendor_id}/${firstRecord.originalInvoiceFile}`;
-  const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
-  const successfulRawInvoiceFolder = path.dirname(destinationKey);
+  if (response.batchItemFailures.length === 0) {
+    const firstRecord = recordBodies[0];
+    const sourceKey = `${firstRecord.vendor_id}/${firstRecord.originalInvoiceFile}`;
+    const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
+    const successfulRawInvoiceFolder = path.dirname(destinationKey);
 
-  logger.info(
-    `moving ${rawInvoiceBucket}/${sourceKey} to ${rawInvoiceBucket}/${successfulRawInvoiceFolder}/${firstRecord.originalInvoiceFile}`
-  );
+    logger.info(
+      `moving ${rawInvoiceBucket}/${sourceKey} to ${rawInvoiceBucket}/${successfulRawInvoiceFolder}/${firstRecord.originalInvoiceFile}`
+    );
 
-  await moveToFolderS3(rawInvoiceBucket, sourceKey, successfulRawInvoiceFolder);
-
+    await moveToFolderS3(
+      rawInvoiceBucket,
+      sourceKey,
+      successfulRawInvoiceFolder
+    );
+  }
   return response;
 };

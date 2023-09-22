@@ -2,7 +2,6 @@ import {
   getStandardisedInvoiceKey,
   LineItemFieldsForNaming,
   listS3Keys,
-  logger,
   moveToFolderS3,
   putTextS3,
 } from "../../shared/utils";
@@ -14,33 +13,22 @@ export async function storeLineItem(
   destinationFolder: string,
   archiveFolder: string
 ): Promise<void> {
-  logger.info(`isNamable:${destinationBucket} ${JSON.stringify(record)}`);
   if (!isNameable(record))
     throw new Error(
       "Event record body is not object with valid fields for generating a file name."
     );
 
-  logger.info(
-    `isStandardisedLineItemSummary:${destinationBucket} ${JSON.stringify(
-      record
-    )}`
-  );
   if (!isStandardisedLineItemSummary(record))
     throw new Error(
       "Event record body is not object with valid fields for generating a file name."
     );
 
-  logger.info(
-    `getStandardisedInvoiceKey:${destinationBucket} ${JSON.stringify(record)}`
-  );
   const [itemKey, itemKeyPrefix] = getStandardisedInvoiceKey(
     destinationFolder,
     record
   );
-  logger.info(`Listing s3 keys for ${destinationBucket} ${itemKeyPrefix}`);
 
   const staleItemKeys = await listS3Keys(destinationBucket, itemKeyPrefix);
-  logger.info(`Putting text to ${destinationBucket} ${itemKey}`);
   await putTextS3(destinationBucket, itemKey, JSON.stringify(record));
 
   const archivePromises = staleItemKeys.map(

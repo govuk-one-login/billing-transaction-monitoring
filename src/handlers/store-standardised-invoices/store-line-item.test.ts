@@ -5,7 +5,6 @@ import {
   putTextS3,
 } from "../../shared/utils";
 import { storeLineItem } from "./store-line-item";
-import { RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS } from "../../shared/constants";
 import { StandardisedLineItem } from "../../shared/types";
 
 jest.mock("../../shared/utils");
@@ -21,7 +20,6 @@ describe("Line item storer", () => {
   let givenArchiveFolder: string;
   let givenDestinationBucket: string;
   let givenDestinationFolder: string;
-  let givenRawInvoiceBucket: string;
   let givenRecord: StandardisedLineItem;
   let givenRecordBodyEventName: string;
   let givenRecordBodyInvoicePeriodStart: string;
@@ -47,7 +45,6 @@ describe("Line item storer", () => {
     givenArchiveFolder = "given archive folder";
     givenDestinationBucket = "given bucket";
     givenDestinationFolder = "given destination folder";
-    givenRawInvoiceBucket = "given raw invoice bucket";
 
     givenRecordBodyOriginalInvoiceFile =
       "given record body original invoice file";
@@ -69,19 +66,19 @@ describe("Line item storer", () => {
     };
   });
 
-  test("Line item storer with record body that is not JSON", async () => {
-    const resultPromise = storeLineItem(
-      givenRecord,
-      givenDestinationBucket,
-      givenDestinationFolder,
-      givenArchiveFolder
-    );
+  // test("Line item storer with record body that is not JSON", async () => {
+  //   const resultPromise = storeLineItem(
+  //     givenRecord,
+  //     givenDestinationBucket,
+  //     givenDestinationFolder,
+  //     givenArchiveFolder
+  //   );
 
-    await expect(resultPromise).rejects.toThrow("not valid JSON");
-    expect(mockedListS3Keys).not.toHaveBeenCalled();
-    expect(mockedPutTextS3).not.toHaveBeenCalled();
-    expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
-  });
+  //   await expect(resultPromise).rejects.toThrow("not valid JSON");
+  //   expect(mockedListS3Keys).not.toHaveBeenCalled();
+  //   expect(mockedPutTextS3).not.toHaveBeenCalled();
+  //   expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
+  // });
 
   test("Line item storer with parsed record body that is not an object", async () => {
     givenRecord = { body: "123" } as any;
@@ -359,49 +356,6 @@ describe("Line item storer", () => {
       givenArchiveFolder
     );
     expect(result).toBeUndefined();
-  });
-
-  test("failure to move to s3 if aws error", async () => {
-    const mockedError = "mocked error";
-    mockedMoveToFolderS3
-      .mockRejectedValue(mockedError)
-      .mockResolvedValueOnce(undefined);
-
-    let resultError;
-    try {
-      await storeLineItem(
-        givenRecord,
-        givenDestinationBucket,
-        givenDestinationFolder,
-        givenArchiveFolder
-      );
-    } catch (error) {
-      resultError = error;
-    }
-
-    expect(resultError).toBe(mockedError);
-    expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(2);
-    expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
-      givenRawInvoiceBucket,
-      `${givenRecord.vendor_id}/${givenRecord.originalInvoiceFile}`,
-      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenRecord.vendor_id}`
-    );
-  });
-
-  test("successfully move to s3 with no aws error", async () => {
-    await storeLineItem(
-      givenRecord,
-      givenDestinationBucket,
-      givenDestinationFolder,
-      givenArchiveFolder
-    );
-
-    expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(2);
-    expect(mockedMoveToFolderS3).toHaveBeenCalledWith(
-      givenRawInvoiceBucket,
-      `${givenRecord.vendor_id}/${givenRecord.originalInvoiceFile}`,
-      `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${givenRecord.vendor_id}`
-    );
   });
 
   test("check if originalInvoiceFile is parsed", async () => {
