@@ -75,15 +75,6 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
 
         const standardisedInvoiceText = JSON.stringify(standardisedInvoice);
         await sendRecord(outputQueueUrl, standardisedInvoiceText);
-
-        // const lineItemPromises = standardisedInvoice.map(async (item) => {
-        //   const standardisedInvoiceText = JSON.stringify(item);
-        //   await sendRecord(outputQueueUrl, standardisedInvoiceText);
-        // });
-
-        // logger.info("Promises count", `${lineItemPromises.length}`);
-
-        // await Promise.all(lineItemPromises);
       });
 
       await Promise.all(recordPromises);

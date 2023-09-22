@@ -38,12 +38,8 @@ export async function sendStandardisedLineItems(
       originalInvoiceFileName
     );
 
-    const lineItemPromises = standardisedInvoice.map(async (item) => {
-      const standardisedInvoiceText = JSON.stringify(item);
-      await sendRecord(outputQueueUrl, standardisedInvoiceText);
-    });
-
-    await Promise.all(lineItemPromises);
+    const standardisedInvoiceText = JSON.stringify(standardisedInvoice);
+    await sendRecord(outputQueueUrl, standardisedInvoiceText);
   });
 
   await Promise.all(recordPromises);
