@@ -92,7 +92,8 @@ const clearBucket = async (
   // console.log('listObjectVersions: ', result);
   if (isAWSError(result)) {
     console.log(`error listing bucket objects: ${result.error as string}`);
-    return resource;
+    console.log(`Assuming bucket ${bucket} is already gone.`);
+    return null;
   }
 
   const items = [...(result.Versions ?? []), ...(result.DeleteMarkers ?? [])];
@@ -117,7 +118,8 @@ const clearBucket = async (
 const deleteBucket = async (
   resource: StackResourceSummary
 ): Promise<StackResourceSummary | null> => {
-  await clearBucket(resource);
+  const clearResult = await clearBucket(resource);
+  if (clearResult === null) return null;
   return await deleteEmptyBucket(resource);
 };
 
@@ -163,10 +165,14 @@ const listAllStackResources = async (
 };
 
 const destroyStack = async (
-  stackName: string
+  stackName: string,
+  ignoreResources?: string[]
 ): Promise<StackResourceSummary[]> => {
   const deleteResult = await cfClient.send(
-    new DeleteStackCommand({ StackName: stackName })
+    new DeleteStackCommand({
+      StackName: stackName,
+      RetainResources: ignoreResources,
+    })
   );
   if (isAWSError(deleteResult)) {
     console.log(deleteResult.error.toString());
@@ -183,6 +189,7 @@ const destroyStack = async (
     const resourcesFailed = resources.filter(
       (r) =>
         r.ResourceStatus === "DELETE_FAILED" ||
+        r.ResourceStatus === "DELETE_SKIPPED" ||
         r.ResourceStatus === "CREATE_COMPLETE" ||
         r.ResourceStatus === "UPDATE_COMPLETE" // TODO: Remove nonsensical "CREATE_COMPLETE" and "UPDATE_COMPLETE" check once CF is fixed.
     );
@@ -266,6 +273,7 @@ console.log(
   `!!! Tearing down stack "${stackName}" in 5 seconds. Abort with CTRL-c if that's not correct. !!!`
 );
 await wait(5000);
+
 console.log(`Starting teardown of stack "${stackName}"...`);
 
 const resourcesFailed = await destroyStack(stackName);
@@ -274,9 +282,18 @@ if (resourcesFailed.length > 0) {
     await Promise.all(resourcesFailed.map(async (r) => await tryToDelete(r)))
   ).filter(isStackResourceSummary);
 
+  // Athena views fail to delete due to a missing permission in the permissions-boundary.
+  // But they can be ignored on teardown as they are deleted as part of the Athena database.
+  const ignoredResources = resourcesFailed
+    .filter((res) => res.ResourceType === "Custom::AthenaView")
+    .map((res) => res.LogicalResourceId ?? "");
+
   if (resourcesRemainingAfterRemediation.length === 0) {
     console.log("Retrying to delete stack...");
-    resourcesRemainingAfterRemediation = await destroyStack(stackName);
+    resourcesRemainingAfterRemediation = await destroyStack(
+      stackName,
+      ignoredResources
+    );
   }
 
   if (resourcesRemainingAfterRemediation.length > 0) {

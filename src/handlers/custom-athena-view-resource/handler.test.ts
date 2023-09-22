@@ -1,13 +1,19 @@
 import { CloudFormationCustomResourceEvent, Context } from "aws-lambda";
-import { Athena } from "aws-sdk";
 import { sendCustomResourceResult } from "../../shared/utils";
 import { getAthenaViewResourceData } from "./get-athena-view-resource-data";
 import { handler } from "./handler";
-import { AthenaQueryExecutor } from "../../shared/utils/athena";
 import { AWS_REGION } from "../../shared/constants";
+import { AthenaQueryExecutor } from "../../shared/utils/athenaV3";
+import {
+  AthenaClient,
+  StartQueryExecutionCommand,
+} from "@aws-sdk/client-athena";
 
-jest.mock("aws-sdk");
-const MockedAthenaClass = Athena as jest.MockedClass<typeof Athena>;
+jest.mock("@aws-sdk/client-athena");
+const MockedAthenaClass = AthenaClient as jest.MockedClass<typeof AthenaClient>;
+const MockedQueryCommand = StartQueryExecutionCommand as jest.MockedClass<
+  typeof StartQueryExecutionCommand
+>;
 
 jest.mock("../../shared/utils");
 const mockedSendCustomResourceResult =
@@ -18,15 +24,14 @@ const mockedSendCustomResourceResult =
 jest.mock("./get-athena-view-resource-data");
 const mockedGetAthenaViewResourceData = getAthenaViewResourceData as jest.Mock;
 
-jest.mock("../../shared/utils/athena");
+jest.mock("../../shared/utils/athenaV3");
 const MockedQueryExecutionValidator = AthenaQueryExecutor as jest.MockedClass<
   typeof AthenaQueryExecutor
 >;
 
 describe("Custom Athena view resource handler", () => {
   let mockedAthena: any;
-  let mockedAthenaStartQueryExecution: jest.Mock;
-  let mockedAthenaStartQueryExecutionPromise: jest.Mock;
+  let mockedAthenaClientSendFunction: jest.Mock;
   let mockedDatabase: string;
   let mockedName: string;
   let mockedQuery: string;
@@ -44,15 +49,11 @@ describe("Custom Athena view resource handler", () => {
 
     mockedQueryExecutionId = "mocked query execution ID";
 
-    mockedAthenaStartQueryExecutionPromise = jest.fn(() => ({
+    mockedAthenaClientSendFunction = jest.fn(() => ({
       QueryExecutionId: mockedQueryExecutionId,
     }));
 
-    mockedAthenaStartQueryExecution = jest.fn(() => ({
-      promise: mockedAthenaStartQueryExecutionPromise,
-    }));
-
-    mockedAthena = { startQueryExecution: mockedAthenaStartQueryExecution };
+    mockedAthena = { send: mockedAthenaClientSendFunction };
 
     MockedAthenaClass.mockReturnValue(mockedAthena);
 
@@ -111,21 +112,22 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedAthenaStartQueryExecution).toHaveBeenCalledTimes(1);
-    expect(mockedAthenaStartQueryExecution).toHaveBeenCalledWith({
+    expect(mockedAthenaClientSendFunction).toHaveBeenCalledTimes(1);
+    expect(MockedQueryCommand).toHaveBeenCalledTimes(1);
+    expect(MockedQueryCommand).toHaveBeenCalledWith({
       QueryExecutionContext: {
         Database: mockedDatabase,
       },
       QueryString: `CREATE OR REPLACE VIEW "${mockedName}" AS ${mockedQuery}`,
       WorkGroup: mockedWorkgroup,
     });
-    expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledTimes(1);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining("created"),
       status: "SUCCESS",
+      physicalId: "mocked database/mocked workgroup/mocked name",
     });
   });
 
@@ -139,20 +141,22 @@ describe("Custom Athena view resource handler", () => {
 
     expect(MockedAthenaClass).toHaveBeenCalledTimes(1);
     expect(MockedAthenaClass).toHaveBeenCalledWith({ region: AWS_REGION });
-    expect(mockedAthenaStartQueryExecution).toHaveBeenCalledTimes(1);
-    expect(mockedAthenaStartQueryExecution).toHaveBeenCalledWith({
+    expect(mockedAthenaClientSendFunction).toHaveBeenCalledTimes(1);
+    expect(MockedQueryCommand).toHaveBeenCalledTimes(1);
+    expect(MockedQueryCommand).toHaveBeenCalledWith({
       QueryExecutionContext: {
         Database: mockedDatabase,
       },
       QueryString: `DROP VIEW IF EXISTS "${mockedName}"`,
       WorkGroup: mockedWorkgroup,
     });
-    expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
+    expect(mockedAthenaClientSendFunction).toHaveBeenCalledTimes(1);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining("deleted"),
       status: "SUCCESS",
+      physicalId: "mocked database/mocked workgroup/mocked name",
     });
   });
 
@@ -164,25 +168,27 @@ describe("Custom Athena view resource handler", () => {
 
     await handler(givenEvent, givenContext);
 
-    expect(mockedAthenaStartQueryExecution).toHaveBeenCalledTimes(1);
-    expect(mockedAthenaStartQueryExecution).toHaveBeenCalledWith({
+    expect(mockedAthenaClientSendFunction).toHaveBeenCalledTimes(1);
+    expect(MockedQueryCommand).toHaveBeenCalledTimes(1);
+    expect(MockedQueryCommand).toHaveBeenCalledWith({
       QueryExecutionContext: {
         Database: mockedDatabase,
       },
       QueryString: `CREATE OR REPLACE VIEW "${mockedName}" AS ${mockedQuery}`,
       WorkGroup: mockedWorkgroup,
     });
-    expect(mockedAthenaStartQueryExecutionPromise).toHaveBeenCalledTimes(1);
+    expect(mockedAthenaClientSendFunction).toHaveBeenCalledTimes(1);
     expect(mockedSendCustomResourceResult).toHaveBeenCalledWith({
       context: givenContext,
       event: givenEvent,
       reason: expect.stringContaining("updated"),
       status: "SUCCESS",
+      physicalId: "mocked database/mocked workgroup/mocked name",
     });
   });
 
   test("Custom Athena view resource handler with query execution start error", async () => {
-    mockedAthenaStartQueryExecutionPromise.mockRejectedValue(undefined);
+    mockedAthenaClientSendFunction.mockRejectedValue(undefined);
 
     const givenEvent = validEvent;
 
@@ -198,7 +204,7 @@ describe("Custom Athena view resource handler", () => {
   });
 
   test("Custom Athena view resource handler with query execution start result without ID", async () => {
-    mockedAthenaStartQueryExecutionPromise.mockResolvedValue({});
+    mockedAthenaClientSendFunction.mockResolvedValue({});
 
     const givenEvent = validEvent;
 
