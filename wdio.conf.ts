@@ -88,7 +88,7 @@ export const config = {
     [
       HtmlReporter,
       {
-        outputDir: `./ui-tests/reports/htmlReports`,
+        outputDir: `./ui-tests/reports/htmlReports/test-report`,
       },
     ],
   ],
@@ -99,7 +99,7 @@ export const config = {
   onPrepare: async function (): Promise<void> {
     await cleanAndUploadExtractFileForUITest();
     reportAggregator = new ReportAggregator({
-      outputDir: "./ui-tests/reports/htmlReports",
+      outputDir: "./ui-tests/reports/htmlReports/test-report",
       filename: `test-report-ui-${new Date().toISOString()}.html`,
       reportTitle: `Billing and Transaction Monitoring UI Tests (BaseURL:${baseUrl}) `,
       browserName,
