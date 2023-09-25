@@ -58,7 +58,7 @@ export const config = {
       },
     },
   ],
-  logLevel: "info",
+  logLevel: "error",
   bail: 0,
   baseUrl,
   waitforTimeout: 10000,
@@ -88,7 +88,7 @@ export const config = {
     [
       HtmlReporter,
       {
-        outputDir: `./ui-tests/reports/htmlReports/test-report`,
+        outputDir: `./ui-tests/reports/htmlReports/`,
       },
     ],
   ],
@@ -99,7 +99,7 @@ export const config = {
   onPrepare: async function (): Promise<void> {
     await cleanAndUploadExtractFileForUITest();
     reportAggregator = new ReportAggregator({
-      outputDir: "./ui-tests/reports/htmlReports/test-report",
+      outputDir: "./ui-tests/reports/htmlReports/",
       filename: `test-report-ui-${new Date().toISOString()}.html`,
       reportTitle: `Billing and Transaction Monitoring UI Tests (BaseURL:${baseUrl}) `,
       browserName,
