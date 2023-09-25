@@ -139,3 +139,35 @@ jobs:
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
       - name: Run UI tests
         run: npm run test:ui
+      - name: Deploy UI Test HTML report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./ui-tests/reports/htmlReports
+          commit_message: 'Deploy UI HTML report to gh-pages'
+          keep_files: true
+      - name: Check out gh-pages branch
+        if: always()
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+      - name: Keep only last 1 ui html reports in gh-pages
+        env:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "Github Actions"
+          git fetch
+          git branch
+          git checkout origin/main -- integration_tests/cleanup-jest-html-reports.sh
+          cd ui-tests/reports/htmlReports
+          ../integration_tests/cleanup-jest-html-reports.sh 1
+          if git diff --exit-code >/dev/null; then
+            echo "No directories were deleted.Skipping commit."
+          else
+            git add -A
+            git commit -m "cleanup old reports" --allow-empty
+            git push origin gh-pages
+          fi
+        if: always()

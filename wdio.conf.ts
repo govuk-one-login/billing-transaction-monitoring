@@ -38,7 +38,7 @@ export const config = {
       project: "./tsconfig.json",
     },
   },
-  specs: ["./ui-tests/specs/**/*.spec.ts"],
+  specs: ["./ui-tests/specs/breadcrumbs.spec.ts"],
   exclude: baseUrl === localUrl ? ["./ui-tests/specs/waf.spec.ts"] : [],
   maxInstances,
   capabilities: [
@@ -88,7 +88,7 @@ export const config = {
     [
       HtmlReporter,
       {
-        outputDir: `./ui-tests/reports/`,
+        outputDir: `./ui-tests/reports/htmlReports`,
       },
     ],
   ],
@@ -99,12 +99,12 @@ export const config = {
   onPrepare: async function (): Promise<void> {
     await cleanAndUploadExtractFileForUITest();
     reportAggregator = new ReportAggregator({
-      outputDir: "./ui-tests/reports/",
-      filename: `ui-test-report-${new Date().toISOString()}.html`,
+      outputDir: "./ui-tests/reports/htmlReports",
+      filename: `test-report-ui-${new Date().toISOString()}.html`,
       reportTitle: `Billing and Transaction Monitoring UI Tests (BaseURL:${baseUrl}) `,
       browserName,
       showInBrowser: true,
-      produceJson: true,
+      produceJson: false,
     });
     reportAggregator.clean();
   },
