@@ -14,7 +14,7 @@ env:
   ENV_NAME: pr-${{ github.event.pull_request.number }}
   SAM_DEPLOY_PARAMETER_OVERRIDES: CodeSigningConfigArn=${{ secrets.DEV_GH_ACTIONS_CODE_SIGNING_CONFIG_ARN }} PermissionsBoundary=${{ secrets.DEV_GH_ACTIONS_PERMISSIONS_BOUNDARY_ARN }}
 
-# jobs:
+jobs:
 #   build-and-deploy:
 #     permissions:
 #       contents: read
