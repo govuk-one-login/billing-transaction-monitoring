@@ -15,32 +15,43 @@ import {
 
 describe("\n DashboardDataExtractFunction", () => {
   test.each`
-    testCase           | vendorId                | vendorName       | invoiceReceiptDate | dueDate         | originalInvoiceFile      | invoiceIsQuarterly | eventName             | itemDescription                       | serviceName                           | contractId | contractName                                 | quantity
-    ${"non-quarterly"} | ${"vendor_testvendor5"} | ${"Vendor Five"} | ${"2005-05-31"}    | ${"2005-06-30"} | ${"pdf_testvendor5.pdf"} | ${false}           | ${"VENDOR_5_EVENT_1"} | ${"Five Data Validation Application"} | ${"Five Data Validation Application"} | ${"5"}     | ${ContractName.vendor_testvendor5_contract1} | ${12091}
-    ${"quarterly"}     | ${"vendor_testvendor6"} | ${"Vendor Six"}  | ${"2005-06-30"}    | ${"2005-07-31"} | ${"pdf_testvendor6.pdf"} | ${true}            | ${"VENDOR_6_EVENT_1"} | ${"Six Data Validation Application"}  | ${"Six Data Validation Application"}  | ${"6"}     | ${ContractName.vendor_testvendor6_contract1} | ${12092}
+    testCase           | vendorId                | vendorName       | invoiceReceiptDate | dueDate         | originalInvoiceFile      | invoiceIsQuarterly | eventName             | itemDescription                       | serviceName                           | contractId | contractName
+    ${"non-quarterly"} | ${"vendor_testvendor5"} | ${"Vendor Five"} | ${"2005-05-31"}    | ${"2005-06-30"} | ${"pdf_testvendor5.pdf"} | ${false}           | ${"VENDOR_5_EVENT_1"} | ${"Five Data Validation Application"} | ${"Five Data Validation Application"} | ${"5"}     | ${ContractName.vendor_testvendor5_contract1}
+    ${"quarterly"}     | ${"vendor_testvendor6"} | ${"Vendor Six"}  | ${"2005-06-30"}    | ${"2005-07-31"} | ${"pdf_testvendor6.pdf"} | ${true}            | ${"VENDOR_6_EVENT_1"} | ${"Six Data Validation Application"}  | ${"Six Data Validation Application"}  | ${"6"}     | ${ContractName.vendor_testvendor6_contract1}
   `(
     "should save an updated full-extract.json file, which is reflected in the btm_monthly_extract table, when standardised $testCase invoice data is stored in s3",
     async (data) => {
+      const minQuantity = 1000;
+      const maxQuantity = 20000;
+      const quantity = crypto.randomInt(minQuantity, maxQuantity);
+      const unit_price = 0.32;
+      const subtotal = parseFloat((unit_price * quantity).toFixed(2));
+      const tax = parseFloat((subtotal * 0.2).toFixed(2));
+      const total = parseFloat((subtotal + tax).toFixed(2));
+
       const standardisedInvoiceObject = {
-        invoice_receipt_id: "bme-653950781",
+        invoice_receipt_id: crypto.randomBytes(5).toString("hex"),
         vendor_id: data.vendorId,
         vendor_name: data.vendorName,
-        total: 4933.13,
+        total,
         invoice_receipt_date: new Date(data.invoiceReceiptDate),
-        subtotal: 4110.94,
+        subtotal,
         due_date: data.dueDate,
-        tax_payer_id: "GB72937880",
+        tax_payer_id: `GB${crypto
+          .randomBytes(4)
+          .toString("hex")
+          .toUpperCase()}`,
         parser_version: "default_1.3.0",
         originalInvoiceFile: data.originalInvoiceFile,
         invoice_is_quarterly: data.invoiceIsQuarterly,
-        tax: 822.19,
+        tax,
         event_name: data.eventName,
         item_description: data.itemDescription,
-        price: 4110.94,
-        quantity: data.quantity,
+        price: subtotal,
+        quantity,
         service_name: data.serviceName,
         contract_id: data.contractId,
-        unit_price: 0.34,
+        unit_price,
       };
 
       const uuid = crypto.randomBytes(3).toString("hex");
@@ -70,7 +81,7 @@ describe("\n DashboardDataExtractFunction", () => {
             key: `btm_extract_data/full-extract.json`,
           }),
         (result) => {
-          return result?.includes(data.quantity.toString()) ?? false;
+          return result?.includes(quantity.toString()) ?? false;
         },
         {
           timeout: 280000,
@@ -78,7 +89,6 @@ describe("\n DashboardDataExtractFunction", () => {
           notCompleteErrorMessage: `Standardised Invoice data not found in storage/btm_extract_data/full-extract.json`,
         }
       );
-
       // Check the btm_monthly_extract table results match with uploaded standardised invoice data object.
       const queryString = `SELECT * FROM "btm_monthly_extract" where vendor_id ='${standardisedInvoiceObject.vendor_id}' AND year='${year}' AND month='${month}'`;
       const response = await queryAthena<BtmMonthlyExtract>(queryString);
