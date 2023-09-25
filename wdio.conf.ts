@@ -58,7 +58,7 @@ export const config = {
       },
     },
   ],
-  logLevel: "error",
+  logLevel: "info",
   bail: 0,
   baseUrl,
   waitforTimeout: 10000,
@@ -108,7 +108,6 @@ export const config = {
     });
     reportAggregator.clean();
   },
-
   onComplete: async function (): Promise<void> {
     await reportAggregator.createReport();
   },
