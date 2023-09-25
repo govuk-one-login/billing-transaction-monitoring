@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="Breadcrumbs Tests" timestamp="2023-09-25T21:32:43" time="10.734" tests="1" failures="1" errors="1" skipped="0">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Breadcrumbs Tests"/>
+      <property name="capabilities" value="chrome.117_0_5938_88.linux"/>
+      <property name="file" value="file://./ui-tests/specs/breadcrumbs.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_88.linux.Breadcrumbs_Tests" name="Should display the expected number of breadcrumbs on each page" time="10.075">
+      <failure/>
+      <error message="Can't call click on element with selector &quot;=View Invoice&quot; because element wasn't found"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
+COMMAND: GET /session/0a07807d1abd217fca5a76e2f8311c34/url - {}
+RESULT: {}
+RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/element - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/0a07807d1abd217fca5a76e2f8311c34/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: DELETE /session/0a07807d1abd217fca5a76e2f8311c34 - {}
+RESULT: {}
+]]></system-out>
+      <system-err><![CDATA[
+Error: Can't call click on element with selector "=View Invoice" because element wasn't found
+    at async HomePage.clickOnViewInvoiceLink (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/homepage.ts:33:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/breadcrumbs.spec.ts:24:5)
+]]></system-err>
+    </testcase>
+  </testsuite>
+</testsuites>
