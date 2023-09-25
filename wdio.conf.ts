@@ -18,6 +18,7 @@ const determineBaseUrl = (): string => {
   }
 };
 const baseUrl = determineBaseUrl();
+console.log(baseUrl)
 
 const browserName: string = process.env.BROWSER ?? "chrome";
 const maxInstances: number = browserName === "safari" ? 1 : 10;
