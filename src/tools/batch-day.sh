@@ -46,9 +46,9 @@ read -p 'Press Enter to proceed...' var
 npm run batch-events
 
 echo
-echo "===> MANUAL STEP!"
-echo "Manually delete files on s3://di-btm-production-storage/btm_event_data/$1/$2/$3"
-read -p 'Press Enter when done...' var
+echo "About to delete files in s3://di-btm-production-storage/btm_event_data/$1/$2/$3"
+read -p 'Press Enter to proceed...' var
+aws s3 rm --recursive s3://di-btm-production-storage/btm_event_data/$1/$2/$3
 
 echo
 echo "About to run:"
