@@ -158,6 +158,8 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "Github Actions"
+          git fetch
+          git branch
           git checkout origin/main -- integration_tests/cleanup-jest-html-reports.sh
           cd ui-tests/reports/htmlReports
           ../integration_tests/cleanup-jest-html-reports.sh 1
