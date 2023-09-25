@@ -18,7 +18,6 @@ const determineBaseUrl = (): string => {
   }
 };
 const baseUrl = determineBaseUrl();
-console.log(baseUrl)
 
 const browserName: string = process.env.BROWSER ?? "chrome";
 const maxInstances: number = browserName === "safari" ? 1 : 10;
@@ -100,7 +99,7 @@ export const config = {
   onPrepare: async function (): Promise<void> {
     await cleanAndUploadExtractFileForUITest();
     reportAggregator = new ReportAggregator({
-      outputDir: "./ui-tests/reports/htmlReports",
+      outputDir: "./ui-tests/reports/",
       filename: `ui-test-report-${new Date().toISOString()}.html`,
       reportTitle: `Billing and Transaction Monitoring UI Tests (BaseURL:${baseUrl}) `,
       browserName,
