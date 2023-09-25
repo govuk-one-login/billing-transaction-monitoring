@@ -144,7 +144,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./ui-tests/reports/htmlReports
+          publish_dir: ./ui-tests/reports
           commit_message: 'Deploy UI HTML report to gh-pages'
           keep_files: true
       - name: Check out gh-pages branch
@@ -158,8 +158,6 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "Github Actions"
-          git fetch
-          git branch
           git checkout origin/main -- integration_tests/cleanup-jest-html-reports.sh
           cd ui-tests/reports/htmlReports
           ../integration_tests/cleanup-jest-html-reports.sh 1
