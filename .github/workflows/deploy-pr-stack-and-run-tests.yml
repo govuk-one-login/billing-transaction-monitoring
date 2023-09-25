@@ -116,7 +116,7 @@ jobs:
   #       if: always()
 
   run-ui-tests:
-    # needs: [run-integration-tests]
+    needs: [build-and-deploy]
     # if: always()
     permissions:
       contents: write
