@@ -111,8 +111,9 @@ To run integration tests against a private stack, make sure to set the env-varia
 `CONFIG_NAME` if necessary) accordingly and run:
 
 ```sh
-npm run test:integration
+npm run test:ephemeralEnvs
 ```
+This will run all integration tests that do not require email functionality.
 
 ### Alerts in ephemeral environments
 

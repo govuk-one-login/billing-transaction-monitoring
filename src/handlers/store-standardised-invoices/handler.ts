@@ -32,9 +32,10 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     }
   }
 
-  const recordBodies: StandardisedLineItem[] = [];
+  let recordBodies: StandardisedLineItem[] = [];
   for (const records of event.Records) {
-    recordBodies.push(JSON.parse(records.body));
+    const recordList: StandardisedLineItem[] = JSON.parse(records.body);
+    recordBodies = recordBodies.concat(recordList);
   }
   const response: Response = { batchItemFailures: [] };
 

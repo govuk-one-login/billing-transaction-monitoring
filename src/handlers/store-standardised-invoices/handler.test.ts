@@ -104,13 +104,24 @@ describe("Store Standardised Invoices handler tests", () => {
   test("Store Standardised Invoices handler with one failing and one passing record", async () => {
     mockedStoreLineItem.mockRejectedValueOnce(undefined);
 
+    const body1 = {
+      item_id: 123456,
+      originalInvoiceFile: "testFile1",
+      vendor_id: 987654,
+    };
     const givenRecord1 = {
+      vendor_id: 123456,
       messageId: "given record 1 message ID",
-      body: '[{"item_id":123456,"originalInvoiceFile":"testFile"}]',
+      body: JSON.stringify([body1]),
     } as unknown as SQSRecord;
+    const body2 = {
+      item_id: 135769,
+      originalInvoiceFile: "testFile2",
+      vendor_id: 987654,
+    };
     const givenRecord2 = {
       messageId: "given record 2 message ID",
-      body: '[{"item_id":135769,"originalInvoiceFile":"testFile3"}]',
+      body: JSON.stringify(body2),
     } as unknown as SQSRecord;
     givenEvent.Records.push(givenRecord1, givenRecord2);
 
@@ -118,19 +129,19 @@ describe("Store Standardised Invoices handler tests", () => {
 
     expect(mockedStoreLineItem).toHaveBeenCalledTimes(2);
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
-      JSON.parse(givenRecord1.body),
+      body1,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
       mockedEnv.ARCHIVE_FOLDER
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
-      JSON.parse(givenRecord2.body),
+      body2,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
       mockedEnv.ARCHIVE_FOLDER
     );
     expect(result).toEqual({
-      batchItemFailures: [{ itemIdentifier: givenRecord1.body }],
+      batchItemFailures: [{ itemIdentifier: JSON.stringify(body1) }],
     });
     expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(0);
   });
@@ -138,17 +149,22 @@ describe("Store Standardised Invoices handler tests", () => {
   test("Store Standard", async () => {
     const body1 = {
       item_id: 123456,
-      originalInvoiceFile: "testFile",
+      originalInvoiceFile: "testFile1",
       vendor_id: 987654,
     };
     const givenRecord1 = {
       vendor_id: 123456,
       messageId: "given record 1 message ID",
-      body: JSON.stringify(body1),
+      body: JSON.stringify([body1]),
     } as unknown as SQSRecord;
+    const body2 = {
+      item_id: 135769,
+      originalInvoiceFile: "testFile2",
+      vendor_id: 987654,
+    };
     const givenRecord2 = {
       messageId: "given record 2 message ID",
-      body: '[{"item_id":135769,"originalInvoiceFile":"testFile3"}]',
+      body: JSON.stringify(body2),
     } as unknown as SQSRecord;
     givenEvent.Records.push(givenRecord1, givenRecord2);
 
@@ -156,13 +172,13 @@ describe("Store Standardised Invoices handler tests", () => {
 
     expect(mockedStoreLineItem).toHaveBeenCalledTimes(2);
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
-      JSON.parse(givenRecord1.body),
+      body1,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
       mockedEnv.ARCHIVE_FOLDER
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
-      JSON.parse(givenRecord2.body),
+      body2,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
       mockedEnv.ARCHIVE_FOLDER
