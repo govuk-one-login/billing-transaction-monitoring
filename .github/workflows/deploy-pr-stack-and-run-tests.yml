@@ -152,7 +152,8 @@ jobs:
           ls
           cd jest-html-reports
           /tmp/cleanup-jest-html-reports.sh 5
-          cd ./uiHtmlReports
+          cd ..
+          cd uiHtmlReports
           ls
           /tmp/cleanup-jest-html-reports.sh 2
           if git diff --exit-code >/dev/null; then
