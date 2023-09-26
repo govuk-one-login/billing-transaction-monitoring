@@ -1,59 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="Breadcrumbs Tests" timestamp="2023-09-26T12:10:16" time="14.009" tests="1" failures="0" errors="0" skipped="0">
+  <testsuite name="Breadcrumbs Tests" timestamp="2023-09-26T12:20:53" time="13.776" tests="1" failures="0" errors="0" skipped="0">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Breadcrumbs Tests"/>
       <property name="capabilities" value="chrome.117_0_5938_88.linux"/>
       <property name="file" value="file://./ui-tests/specs/breadcrumbs.spec.ts"/>
     </properties>
-    <testcase classname="chrome.117_0_5938_88.linux.Breadcrumbs_Tests" name="Should display the expected number of breadcrumbs on each page" time="6.537">
+    <testcase classname="chrome.117_0_5938_88.linux.Breadcrumbs_Tests" name="Should display the expected number of breadcrumbs on each page" time="6.144">
       <system-out><![CDATA[
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
 RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/element - {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/element - {"using":"link text","value":"View Invoice"}
 RESULT: {"using":"link text","value":"View Invoice"}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/element/230CE797DB58F79DE155602599C21139_element_4/click - {}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/element/62F207F0C13E13ED5BCDD1D7AAABD9A6_element_4/click - {}
 RESULT: {}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
 RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: GET /session/7486c74d110f7d8eb612bde69f7b3ab4/element/4B9E8EB9A3351FF46C420D32ABC1F95A_element_8/text - {}
+COMMAND: GET /session/8b0a5ac292adb30795a66d339f45e1bb/element/182C8947AFCD5E5C8E0C93B058E7F8C2_element_8/text - {}
 RESULT: {}
-COMMAND: GET /session/7486c74d110f7d8eb612bde69f7b3ab4/element/4B9E8EB9A3351FF46C420D32ABC1F95A_element_9/text - {}
+COMMAND: GET /session/8b0a5ac292adb30795a66d339f45e1bb/element/182C8947AFCD5E5C8E0C93B058E7F8C2_element_9/text - {}
 RESULT: {}
-COMMAND: GET /session/7486c74d110f7d8eb612bde69f7b3ab4/element/4B9E8EB9A3351FF46C420D32ABC1F95A_element_10/text - {}
+COMMAND: GET /session/8b0a5ac292adb30795a66d339f45e1bb/element/182C8947AFCD5E5C8E0C93B058E7F8C2_element_10/text - {}
 RESULT: {}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/element - {"using":"css selector","value":"a[href$=\"/invoices\"]"}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/element - {"using":"css selector","value":"a[href$=\"/invoices\"]"}
 RESULT: {"using":"css selector","value":"a[href$=\"/invoices\"]"}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"4B9E8EB9A3351FF46C420D32ABC1F95A_element_11","ELEMENT":"4B9E8EB9A3351FF46C420D32ABC1F95A_element_11"}]}
-RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"4B9E8EB9A3351FF46C420D32ABC1F95A_element_11","ELEMENT":"4B9E8EB9A3351FF46C420D32ABC1F95A_element_11"}]}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/element - {"using":"css selector","value":"a[href$=\"/invoices\"]"}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"182C8947AFCD5E5C8E0C93B058E7F8C2_element_11","ELEMENT":"182C8947AFCD5E5C8E0C93B058E7F8C2_element_11"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"182C8947AFCD5E5C8E0C93B058E7F8C2_element_11","ELEMENT":"182C8947AFCD5E5C8E0C93B058E7F8C2_element_11"}]}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/element - {"using":"css selector","value":"a[href$=\"/invoices\"]"}
 RESULT: {"using":"css selector","value":"a[href$=\"/invoices\"]"}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/element/4B9E8EB9A3351FF46C420D32ABC1F95A_element_11/click - {}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/element/182C8947AFCD5E5C8E0C93B058E7F8C2_element_11/click - {}
 RESULT: {}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
 RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
 RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: GET /session/7486c74d110f7d8eb612bde69f7b3ab4/element/3CB5B0CD383A33692A3B0FF2FA0390DE_element_15/text - {}
+COMMAND: GET /session/8b0a5ac292adb30795a66d339f45e1bb/element/0B1B242C30D80C69FE4D6EDB0D0FF5CE_element_13/text - {}
 RESULT: {}
-COMMAND: GET /session/7486c74d110f7d8eb612bde69f7b3ab4/element/3CB5B0CD383A33692A3B0FF2FA0390DE_element_16/text - {}
+COMMAND: GET /session/8b0a5ac292adb30795a66d339f45e1bb/element/0B1B242C30D80C69FE4D6EDB0D0FF5CE_element_14/text - {}
 RESULT: {}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/element - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/element - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
 RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"3CB5B0CD383A33692A3B0FF2FA0390DE_element_17","ELEMENT":"3CB5B0CD383A33692A3B0FF2FA0390DE_element_17"}]}
-RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"3CB5B0CD383A33692A3B0FF2FA0390DE_element_17","ELEMENT":"3CB5B0CD383A33692A3B0FF2FA0390DE_element_17"}]}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/element - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"0B1B242C30D80C69FE4D6EDB0D0FF5CE_element_15","ELEMENT":"0B1B242C30D80C69FE4D6EDB0D0FF5CE_element_15"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"0B1B242C30D80C69FE4D6EDB0D0FF5CE_element_15","ELEMENT":"0B1B242C30D80C69FE4D6EDB0D0FF5CE_element_15"}]}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/element - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
 RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/element/3CB5B0CD383A33692A3B0FF2FA0390DE_element_17/click - {}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/element/0B1B242C30D80C69FE4D6EDB0D0FF5CE_element_15/click - {}
 RESULT: {}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
 RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
-COMMAND: POST /session/7486c74d110f7d8eb612bde69f7b3ab4/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
+COMMAND: POST /session/8b0a5ac292adb30795a66d339f45e1bb/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
 RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: GET /session/7486c74d110f7d8eb612bde69f7b3ab4/element/1EB1ABA48AC94613C6BFD94ADE55C11F_element_19/text - {}
+COMMAND: GET /session/8b0a5ac292adb30795a66d339f45e1bb/element/B2FEEA868A23BBCF57AE4B41109F165E_element_21/text - {}
 RESULT: {}
-COMMAND: DELETE /session/7486c74d110f7d8eb612bde69f7b3ab4 - {}
+COMMAND: DELETE /session/8b0a5ac292adb30795a66d339f45e1bb - {}
 RESULT: {}
 ]]></system-out>
     </testcase>
