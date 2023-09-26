@@ -160,7 +160,6 @@ jobs:
           git config user.name "Github Actions"
           git fetch
           git branch
-          git checkout origin/main -- integration_tests/cleanup-jest-html-reports.sh
           cd htmlReports
           ls
           ../integration_tests/cleanup-jest-html-reports.sh 1
