@@ -127,6 +127,9 @@ jobs:
   cleanup-and-publish-reports:
     needs: [run-ui-tests]
     if: always()
+    permissions:
+      contents: write
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -155,3 +158,4 @@ jobs:
             git commit -m "cleanup old reports" --allow-empty
             git push origin gh-pages
           fi
+        if: always()
