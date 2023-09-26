@@ -120,7 +120,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./ui-tests/reports
+          publish_dir: ./ui-tests/reports/uiHtmlReports
           commit_message: 'Deploy UI HTML report to gh-pages'
           keep_files: true
 
@@ -149,7 +149,7 @@ jobs:
           git config user.name "Github Actions"
           cd jest-html-reports
           /tmp/cleanup-jest-html-reports.sh 5
-          cd ../htmlReports
+          cd ../uiHtmlReports
           /tmp/cleanup-jest-html-reports.sh 1
           if git diff --exit-code >/dev/null; then
             echo "No directories were deleted.Skipping commit."
