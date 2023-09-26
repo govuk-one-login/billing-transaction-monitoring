@@ -1,63 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="Breadcrumbs Tests" timestamp="2023-09-26T00:39:44" time="8.328" tests="1" failures="0" errors="0" skipped="0">
+  <testsuite name="Breadcrumbs Tests" timestamp="2023-09-26T08:13:40" time="11.341" tests="1" failures="1" errors="1" skipped="0">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Breadcrumbs Tests"/>
       <property name="capabilities" value="chrome.117_0_5938_88.linux"/>
       <property name="file" value="file://./ui-tests/specs/breadcrumbs.spec.ts"/>
     </properties>
-    <testcase classname="chrome.117_0_5938_88.linux.Breadcrumbs_Tests" name="Should display the expected number of breadcrumbs on each page" time="4.801">
+    <testcase classname="chrome.117_0_5938_88.linux.Breadcrumbs_Tests" name="Should display the expected number of breadcrumbs on each page" time="10.13">
+      <failure/>
+      <error message="Can't call click on element with selector &quot;=View Invoice&quot; because element wasn't found"/>
       <system-out><![CDATA[
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: GET /session/72326ac93f6978d8b13d7f744c091b4d/url - {}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
+COMMAND: GET /session/5717503cba29385e832467d7fe8cfe3f/url - {}
 RESULT: {}
 RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/element - {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/element - {"using":"link text","value":"View Invoice"}
 RESULT: {"using":"link text","value":"View Invoice"}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/element/36E4B10C2405FEE1197A01C21CFCCDEA_element_4/click - {}
-RESULT: {}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: GET /session/72326ac93f6978d8b13d7f744c091b4d/element/B053DAACF313A9C3392DE745B51357DB_element_8/text - {}
-RESULT: {}
-COMMAND: GET /session/72326ac93f6978d8b13d7f744c091b4d/element/B053DAACF313A9C3392DE745B51357DB_element_9/text - {}
-RESULT: {}
-COMMAND: GET /session/72326ac93f6978d8b13d7f744c091b4d/element/B053DAACF313A9C3392DE745B51357DB_element_10/text - {}
-RESULT: {}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/element - {"using":"css selector","value":"a[href$=\"/invoices\"]"}
-RESULT: {"using":"css selector","value":"a[href$=\"/invoices\"]"}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"B053DAACF313A9C3392DE745B51357DB_element_11","ELEMENT":"B053DAACF313A9C3392DE745B51357DB_element_11"}]}
-RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"B053DAACF313A9C3392DE745B51357DB_element_11","ELEMENT":"B053DAACF313A9C3392DE745B51357DB_element_11"}]}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/element - {"using":"css selector","value":"a[href$=\"/invoices\"]"}
-RESULT: {"using":"css selector","value":"a[href$=\"/invoices\"]"}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/element/B053DAACF313A9C3392DE745B51357DB_element_11/click - {}
-RESULT: {}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
-RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: GET /session/72326ac93f6978d8b13d7f744c091b4d/element/4A98D925763BB5B8CE0C23EACDA17EC3_element_13/text - {}
-RESULT: {}
-COMMAND: GET /session/72326ac93f6978d8b13d7f744c091b4d/element/4A98D925763BB5B8CE0C23EACDA17EC3_element_14/text - {}
-RESULT: {}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/element - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
-RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"4A98D925763BB5B8CE0C23EACDA17EC3_element_15","ELEMENT":"4A98D925763BB5B8CE0C23EACDA17EC3_element_15"}]}
-RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"4A98D925763BB5B8CE0C23EACDA17EC3_element_15","ELEMENT":"4A98D925763BB5B8CE0C23EACDA17EC3_element_15"}]}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/element - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
-RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/element/4A98D925763BB5B8CE0C23EACDA17EC3_element_15/click - {}
-RESULT: {}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
-RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
-COMMAND: POST /session/72326ac93f6978d8b13d7f744c091b4d/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: GET /session/72326ac93f6978d8b13d7f744c091b4d/element/49F9369C1C79CCBAFC23CF3A3CDDBCE5_element_19/text - {}
-RESULT: {}
-COMMAND: DELETE /session/72326ac93f6978d8b13d7f744c091b4d - {}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/5717503cba29385e832467d7fe8cfe3f/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: DELETE /session/5717503cba29385e832467d7fe8cfe3f - {}
 RESULT: {}
 ]]></system-out>
+      <system-err><![CDATA[
+Error: Can't call click on element with selector "=View Invoice" because element wasn't found
+    at async HomePage.clickOnViewInvoiceLink (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/homepage.ts:33:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/breadcrumbs.spec.ts:24:5)
+]]></system-err>
     </testcase>
   </testsuite>
 </testsuites>
