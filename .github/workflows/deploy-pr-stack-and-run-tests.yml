@@ -162,6 +162,7 @@ jobs:
           git branch
           git checkout origin/main -- integration_tests/cleanup-jest-html-reports.sh
           cd htmlReports
+          ls
           ../integration_tests/cleanup-jest-html-reports.sh 1
           if git diff --exit-code >/dev/null; then
             echo "No directories were deleted.Skipping commit."
