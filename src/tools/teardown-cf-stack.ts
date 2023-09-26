@@ -5,12 +5,7 @@
  *
  */
 
-import {
-  DeleteBucketCommand,
-  DeleteObjectCommand,
-  ListObjectVersionsCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import { S3Client } from "@aws-sdk/client-s3";
 import {
   CloudFormationClient,
   DeleteStackCommand,
@@ -20,10 +15,7 @@ import {
 import { AthenaClient, DeleteWorkGroupCommand } from "@aws-sdk/client-athena";
 import { AWS_REGION } from "../shared/constants";
 import { getFromEnv } from "../shared/utils";
-
-interface AWSError {
-  error: any;
-}
+import { AWSError, clearBucket, deleteEmptyBucket } from "./common";
 
 const isAWSError = (object: any): object is AWSError =>
   (object as AWSError).error;
@@ -31,96 +23,17 @@ const isAWSError = (object: any): object is AWSError =>
 const isStackResourceSummary = (object: any): object is StackResourceSummary =>
   object?.ResourceStatus;
 
-const isNull = (object: any): object is null => object === null;
-
 const wait = async (milliseconds: number): Promise<void> => {
   return await new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
-
-const deleteObject = async (
-  bucket: string,
-  objectName: string,
-  version: string
-): Promise<string | null> => {
-  const result = await s3Client
-    .send(
-      new DeleteObjectCommand({
-        Bucket: bucket,
-        Key: objectName,
-        VersionId: version,
-      })
-    )
-    .catch((err) => {
-      return { error: err };
-    });
-  // console.log('deleteObject: ', result);
-  if (isAWSError(result)) {
-    console.log(
-      `error deleting ${objectName} in bucket ${bucket}: ${
-        result.error as string
-      }`
-    );
-    return objectName;
-  } else return null;
-};
-
-const deleteEmptyBucket = async (
-  resource: StackResourceSummary
-): Promise<StackResourceSummary | null> => {
-  const bucket = resource.PhysicalResourceId ?? "";
-  const result = await s3Client
-    .send(new DeleteBucketCommand({ Bucket: bucket }))
-    .catch((err) => {
-      return { error: err };
-    });
-  // console.log('deleteBucket: ', result);
-  if (isAWSError(result)) {
-    console.log(`error deleting bucket ${bucket}: ${result.error as string}`);
-    return resource;
-  } else return null;
-};
-
-const clearBucket = async (
-  resource: StackResourceSummary
-): Promise<StackResourceSummary | null> => {
-  const bucket = resource.PhysicalResourceId ?? "";
-  const result = await s3Client
-    .send(new ListObjectVersionsCommand({ Bucket: bucket }))
-    .catch((err) => {
-      return { error: err };
-    });
-  // console.log('listObjectVersions: ', result);
-  if (isAWSError(result)) {
-    console.log(`error listing bucket objects: ${result.error as string}`);
-    console.log(`Assuming bucket ${bucket} is already gone.`);
-    return null;
-  }
-
-  const items = [...(result.Versions ?? []), ...(result.DeleteMarkers ?? [])];
-  const deleteResults = await Promise.all(
-    items.map(
-      async (item) =>
-        await deleteObject(bucket, item.Key ?? "", item.VersionId ?? "")
-    )
-  );
-  const deleteCount = deleteResults.filter(isNull).length;
-  console.log(
-    `Bucket: ${bucket}: ${deleteCount} objects deleted, ${
-      deleteResults.length - deleteCount
-    } errors encountered`
-  );
-
-  if (deleteResults.length > deleteCount) return resource;
-  if (result.IsTruncated ?? false) return await clearBucket(resource);
-  return null;
 };
 
 const deleteBucket = async (
   resource: StackResourceSummary
 ): Promise<StackResourceSummary | null> => {
-  const clearResult = await clearBucket(resource);
-  if (clearResult === null) return null;
-  return await deleteEmptyBucket(resource);
+  const bucketName = resource.PhysicalResourceId ?? "";
+  const clearResult = await clearBucket(s3Client, bucketName);
+  if (clearResult.successfulCount === 0) return null;
+  return (await deleteEmptyBucket(s3Client, bucketName)) ? resource : null;
 };
 
 const listAllStackResources = async (
