@@ -129,16 +129,16 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Check out current branch
+      - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Copy cleanup script from current branch
+      - name: Copy cleanup script to tmp
         run:  |
           cp $GITHUB_WORKSPACE/integration_tests/cleanup-jest-html-reports.sh /tmp/
       - name: Check out gh-pages branch
         uses: actions/checkout@v3
         with:
           ref: gh-pages
-      - name: Cleanup old reports 
+      - name: Use cleanup script from current branch to clean gh-pages
         env:
           github_token: ${{ secrets.GITHUB_TOKEN }}
         run: |
