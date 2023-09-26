@@ -10,7 +10,7 @@ echo Keeping at max $num_of_items_to_keep test-report items
 ls -dt1 test-report-*
 
 ls -dt1 test-report-* |
-  tail -n +$((num_of_dir_to_keep+1)) |
+  tail -n +$((num_of_items_to_keep+1)) |
   xargs rm -rfv
 
 echo Remaining test-report items:
