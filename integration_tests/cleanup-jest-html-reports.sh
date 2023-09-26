@@ -12,4 +12,4 @@ ls -dt1 test-report* 2>/dev/null |
   xargs rm -rfv
 
 echo Remaining test-report items:
-ls -dt1 test-report* 2>/dev/null
+ls -d test-report* 2>/dev/null
