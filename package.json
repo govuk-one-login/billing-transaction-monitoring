@@ -39,7 +39,7 @@
     "aws-lambda": "^1.0.7",
     "aws-sdk-client-mock": "^2.0.0",
     "babel-jest": "^29.0.3",
-    "chromedriver": "^116.0.0",
+    "chromedriver": "^117.0.2",
     "copy-webpack-plugin": "^11.0.0",
     "csvtojson": "^2.0.10",
     "delay": "^5.0.0",

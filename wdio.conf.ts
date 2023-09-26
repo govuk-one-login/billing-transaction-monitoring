@@ -14,7 +14,7 @@ const determineBaseUrl = (): string => {
     case "staging":
       return "https://btm.staging.account.gov.uk/";
     default:
-      return localUrl;
+      return `https://${process.env.ENV_NAME}.btm.dev.account.gov.uk`;
   }
 };
 const baseUrl = determineBaseUrl();
@@ -88,7 +88,7 @@ export const config = {
     [
       HtmlReporter,
       {
-        outputDir: `./ui-tests/reports/`,
+        outputDir: `./ui-tests/reports/uiHtmlReports`,
       },
     ],
   ],
@@ -99,12 +99,12 @@ export const config = {
   onPrepare: async function (): Promise<void> {
     await cleanAndUploadExtractFileForUITest();
     reportAggregator = new ReportAggregator({
-      outputDir: "./ui-tests/reports/",
-      filename: `ui-test-report-${new Date().toISOString()}.html`,
+      outputDir: "./ui-tests/reports/uiHtmlReports",
+      filename: `test-report-ui-${new Date().toISOString()}.html`,
       reportTitle: `Billing and Transaction Monitoring UI Tests (BaseURL:${baseUrl}) `,
       browserName,
       showInBrowser: true,
-      produceJson: true,
+      produceJson: false,
     });
     reportAggregator.clean();
   },
