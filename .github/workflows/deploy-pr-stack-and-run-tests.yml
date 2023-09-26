@@ -115,12 +115,14 @@ jobs:
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
       - name: Run UI tests
         run: npm run test:ui
+      - name: List files in UI test report dir
+        run: ls ./ui-tests/reports
       - name: Deploy UI Test HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./ui-tests/reports
+          publish_dir: ../ui-tests/reports/
           commit_message: 'Deploy UI HTML report to gh-pages'
           keep_files: true
 
