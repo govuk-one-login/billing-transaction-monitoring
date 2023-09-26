@@ -59,40 +59,40 @@ jobs:
           SIGNING_PROFILE: ${{ secrets.DEV_SIGNING_PROFILE_NAME }}
         run: src/tools/deploy-pr-stack.sh
 
-  # run-integration-tests:
-  #   needs: [build-and-deploy]
-  #   permissions:
-  #     contents: write
-  #     id-token: write
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     FORCE_COLOR: true
-  #     TEST_VIA_LAMBDA: true
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v3
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16
-  #     - run: npm ci
-  #     - name: Assume AWS GitHub actions tooling role in dev
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-region: ${{ env.AWS_REGION }}
-  #         role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
-  #     - name: Run integration tests
-  #       run: npm run test:ephemeralEnvs
-  #     - name: Deploy Jest HTML report to Github Pages
-  #       if: always()
-  #       uses: peaceiris/actions-gh-pages@v3
-  #       with:
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}
-  #         publish_dir: ./reports
-  #         commit_message: 'Deploy Jest HTML report to gh-pages'
-  #         keep_files: true
+  run-integration-tests:
+    needs: [build-and-deploy]
+    permissions:
+      contents: write
+      id-token: write
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: true
+      TEST_VIA_LAMBDA: true
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - name: Assume AWS GitHub actions tooling role in dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
+      - name: Run integration tests
+        run: npm run test:ephemeralEnvs
+      - name: Deploy Integration test HTML report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./reports
+          commit_message: 'Deploy Integration test HTML report to gh-pages'
+          keep_files: true
 
   run-ui-tests:
-    needs: [build-and-deploy]
+    needs: [run-integration-tests]
     if: always()
     permissions:
       contents: write
@@ -115,8 +115,6 @@ jobs:
           role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
       - name: Run UI tests
         run: npm run test:ui
-      - name: List files in UI test report dir
-        run: ls ./ui-tests/reports
       - name: Deploy UI Test HTML report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
@@ -127,7 +125,7 @@ jobs:
           keep_files: true
 
   cleanup-and-publish-reports:
-    needs: [run-ui-tests]
+    needs: [run-integration-tests, run-ui-tests]
     if: always()
     permissions:
       contents: write
@@ -137,7 +135,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Copy cleanup script to tmp
-        run:  |
+        run: |
           cp $GITHUB_WORKSPACE/integration_tests/cleanup-jest-html-reports.sh /tmp/
       - name: Check out gh-pages branch
         uses: actions/checkout@v3
@@ -149,13 +147,11 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "Github Actions"
-          ls
           cd jest-html-reports
           /tmp/cleanup-jest-html-reports.sh 5
           cd ..
           cd uiHtmlReports
-          ls
-          /tmp/cleanup-jest-html-reports.sh 2
+          /tmp/cleanup-jest-html-reports.sh 5
           if git diff --exit-code >/dev/null; then
             echo "No directories were deleted.Skipping commit."
           else
