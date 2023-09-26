@@ -19,7 +19,6 @@ describe("Breadcrumbs Tests", () => {
   });
 
   it("Should display the expected number of breadcrumbs on each page", async () => {
-    console.log(browser.getUrl())
     await checkBreadcrumbsCount(HomePage, 0);
     await HomePage.clickOnViewInvoiceLink();
     await checkBreadcrumbsCount(HomePage, 3);

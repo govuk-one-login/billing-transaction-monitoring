@@ -276,18 +276,21 @@ Resources:
             SampledRequestsEnabled: true
             CloudWatchMetricsEnabled: true
             MetricName: !Sub ${AWS::StackName}-bad-inputs-metric
-        - Name: Anonymous-IpList
-          Priority: 2
-          Statement:
-            ManagedRuleGroupStatement:
-              VendorName: AWS
-              Name: AWSManagedRulesAnonymousIpList
-          OverrideAction:
-            None: {}
-          VisibilityConfig:
-            SampledRequestsEnabled: true
-            CloudWatchMetricsEnabled: true
-            MetricName: !Sub ${AWS::StackName}-anonymous-iplist-metric
+        - !If
+          - IsEphemeral
+          - Ref: AWS::NoValue
+          - Name: Anonymous-IpList
+            Priority: 2
+            Statement:
+              ManagedRuleGroupStatement:
+                VendorName: AWS
+                Name: AWSManagedRulesAnonymousIpList
+            OverrideAction:
+              None: {}
+            VisibilityConfig:
+              SampledRequestsEnabled: true
+              CloudWatchMetricsEnabled: true
+              MetricName: !Sub ${AWS::StackName}-anonymous-iplist-metric
         - Name: SQLInject-RuleSet
           Priority: 3
           Statement:
