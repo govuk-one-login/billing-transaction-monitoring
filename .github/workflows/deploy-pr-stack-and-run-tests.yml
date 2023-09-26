@@ -132,7 +132,8 @@ jobs:
       - name: Check out current branch
         uses: actions/checkout@v3
       - name: Copy cleanup script from current branch
-        run:  cp /integration_tests/cleanup-jest-html-reports.sh /tmp/
+        run:  |
+          cp $GITHUB_WORKSPACE/integration_tests/cleanup-jest-html-reports.sh /tmp/
       - name: Check out gh-pages branch
         uses: actions/checkout@v3
         with:
