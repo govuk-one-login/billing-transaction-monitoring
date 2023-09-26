@@ -1,61 +1,633 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="Breadcrumbs Tests" timestamp="2023-09-26T21:00:00" time="11.507" tests="1" failures="0" errors="0" skipped="0">
+  <testsuite name="Home Page Tests" timestamp="2023-09-26T21:43:02" time="22.751" tests="3" failures="3" errors="3" skipped="0">
     <properties>
       <property name="specId" value="0"/>
-      <property name="suiteName" value="Breadcrumbs Tests"/>
-      <property name="capabilities" value="chrome.117_0_5938_88.linux"/>
-      <property name="file" value="file://./ui-tests/specs/breadcrumbs.spec.ts"/>
+      <property name="suiteName" value="Home Page Tests"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/home.spec.ts"/>
     </properties>
-    <testcase classname="chrome.117_0_5938_88.linux.Breadcrumbs_Tests" name="Should display the expected number of breadcrumbs on each page" time="6.605">
+    <testcase classname="chrome.117_0_5938_92.linux.Home_Page_Tests" name="Should display Billings and reconciliation as the heading" time="6.142">
+      <failure/>
+      <error message="Page heading was not displayed within 6000ms"/>
       <system-out><![CDATA[
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/element - {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":".govuk-heading-xl"}
+RESULT: {"using":"css selector","value":".govuk-heading-xl"}
+]]></system-out>
+      <system-err><![CDATA[
+Error: Page heading was not displayed within 6000ms
+    at async waitForElementDisplayed (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/helpers/waits.ts:23:3)
+    at async HomePage.isPageHeadingDisplayed (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/page.ts:28:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/home.spec.ts:17:12)
+]]></system-err>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Home_Page_Tests" name="Should display Billings and reconciliation for the OneLogin programme as the page sub heading" time="6.022">
+      <failure/>
+      <error message="Element was not displayed within 6000ms"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"p.govuk-body"}
+RESULT: {"using":"css selector","value":"p.govuk-body"}
+]]></system-out>
+      <system-err><![CDATA[
+Error: Element was not displayed within 6000ms
+    at async waitForElementDisplayed (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/helpers/waits.ts:23:3)
+    at async HomePage.getPageParagraphText (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/page.ts:51:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/home.spec.ts:24:12)
+]]></system-err>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Home_Page_Tests" name="Should navigate to the Contracts page when clicked on the link" time="10.021">
+      <failure/>
+      <error message="Can't call click on element with selector &quot;a[href$=&quot;/contracts&quot;]&quot; because element wasn't found"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
+]]></system-out>
+      <system-err><![CDATA[
+Error: Can't call click on element with selector "a[href$="/contracts"]" because element wasn't found
+    at async HomePage.clickOnContractsPageLink (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/homepage.ts:29:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/home.spec.ts:30:5)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Home Page Overview table Tests" timestamp="2023-09-26T21:43:24" time="30.395" tests="3" failures="3" errors="3" skipped="0">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Home Page Overview table Tests"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/home.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Home_Page_Overview_table_Tests" name="Should display the overview table with correct data" time="10.128">
+      <failure/>
+      <error message="Can't call parentElement on element with selector &quot;caption*=Overview&quot; because element wasn't found"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/url - {"url":"https://pr-489.btm.dev.account.gov.uk/"}
+RESULT: {"url":"https://pr-489.btm.dev.account.gov.uk/"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+RESULT: {"using":"xpath","value":".//caption[contains(., \"Overview\") and not(.//caption)]"}
+]]></system-out>
+      <system-err><![CDATA[
+Error: Can't call parentElement on element with selector "caption*=Overview" because element wasn't found
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/home.spec.ts:43:51)
+]]></system-err>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Home_Page_Overview_table_Tests" name="Should navigate to the correct contract page on Contract Name click" time="10.132">
+      <failure/>
+      <error message="Can't call click on element with selector &quot;a[href*=&quot;/contracts/1/invoices&quot;]&quot; because element wasn't found"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/url - {"url":"https://pr-489.btm.dev.account.gov.uk/"}
+RESULT: {"url":"https://pr-489.btm.dev.account.gov.uk/"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+RESULT: {"using":"css selector","value":"a[href*=\"/contracts/1/invoices\"]"}
+]]></system-out>
+      <system-err><![CDATA[
+Error: Can't call click on element with selector "a[href*="/contracts/1/invoices"]" because element wasn't found
+    at async HomePage.clickOnFirstContractInTable (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/homepage.ts:37:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/home.spec.ts:85:5)
+]]></system-err>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Home_Page_Overview_table_Tests" name="Should navigate to the correct invoice page on View Invoice click" time="10.126">
+      <failure/>
+      <error message="Can't call click on element with selector &quot;=View Invoice&quot; because element wasn't found"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/url - {"url":"https://pr-489.btm.dev.account.gov.uk/"}
+RESULT: {"url":"https://pr-489.btm.dev.account.gov.uk/"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/element - {"using":"link text","value":"View Invoice"}
 RESULT: {"using":"link text","value":"View Invoice"}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/element/CC34AE2BD96E562947802489D93AFCE3_element_4/click - {}
-RESULT: {}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: GET /session/c5657893af8ede1851cc454d05c4e676/element/7470023A914343C37CEFB5165C948426_element_6/text - {}
-RESULT: {}
-COMMAND: GET /session/c5657893af8ede1851cc454d05c4e676/element/7470023A914343C37CEFB5165C948426_element_7/text - {}
-RESULT: {}
-COMMAND: GET /session/c5657893af8ede1851cc454d05c4e676/element/7470023A914343C37CEFB5165C948426_element_8/text - {}
-RESULT: {}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/element - {"using":"css selector","value":"a[href$=\"/invoices\"]"}
-RESULT: {"using":"css selector","value":"a[href$=\"/invoices\"]"}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"7470023A914343C37CEFB5165C948426_element_9","ELEMENT":"7470023A914343C37CEFB5165C948426_element_9"}]}
-RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"7470023A914343C37CEFB5165C948426_element_9","ELEMENT":"7470023A914343C37CEFB5165C948426_element_9"}]}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/element - {"using":"css selector","value":"a[href$=\"/invoices\"]"}
-RESULT: {"using":"css selector","value":"a[href$=\"/invoices\"]"}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/element/7470023A914343C37CEFB5165C948426_element_9/click - {}
-RESULT: {}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
-RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: GET /session/c5657893af8ede1851cc454d05c4e676/element/5D81DD5AB9C7EA93889636F4CDC83721_element_13/text - {}
-RESULT: {}
-COMMAND: GET /session/c5657893af8ede1851cc454d05c4e676/element/5D81DD5AB9C7EA93889636F4CDC83721_element_14/text - {}
-RESULT: {}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/element - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
-RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"5D81DD5AB9C7EA93889636F4CDC83721_element_15","ELEMENT":"5D81DD5AB9C7EA93889636F4CDC83721_element_15"}]}
-RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"5D81DD5AB9C7EA93889636F4CDC83721_element_15","ELEMENT":"5D81DD5AB9C7EA93889636F4CDC83721_element_15"}]}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/element - {"using":"css selector","value":"a[href$=\"/contracts\"]"}
-RESULT: {"using":"css selector","value":"a[href$=\"/contracts\"]"}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/element/5D81DD5AB9C7EA93889636F4CDC83721_element_15/click - {}
-RESULT: {}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
-RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
-COMMAND: POST /session/c5657893af8ede1851cc454d05c4e676/elements - {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-RESULT: {"using":"css selector","value":"li.govuk-breadcrumbs__list-item"}
-COMMAND: GET /session/c5657893af8ede1851cc454d05c4e676/element/F74B3B3D00597E462ED25A81876B88CB_element_19/text - {}
-RESULT: {}
-COMMAND: DELETE /session/c5657893af8ede1851cc454d05c4e676 - {}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: POST /session/a83c4d98056ae88c87759325257c6378/elements - {"using":"link text","value":"View Invoice"}
+RESULT: {"using":"link text","value":"View Invoice"}
+COMMAND: DELETE /session/a83c4d98056ae88c87759325257c6378 - {}
 RESULT: {}
 ]]></system-out>
+      <system-err><![CDATA[
+Error: Can't call click on element with selector "=View Invoice" because element wasn't found
+    at async HomePage.clickOnViewInvoiceLink (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/homepage.ts:33:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/home.spec.ts:96:5)
+]]></system-err>
+    </testcase>
+  </testsuite>
+</testsuites>endor_Four,Invoice:2005-02" name="before each hook for Vendor Vendor Four Invoice 2005 02" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor Two Invoice 2005 07" timestamp="2023-09-26T21:43:02" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Two,Invoice:2005-07"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Two,Invoice:2005-07" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Two,Invoice:2005-07" name="before each hook for Vendor Vendor Two Invoice 2005 07" time="0.001">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor One Invoice 2023 01" timestamp="2023-09-26T21:43:02" time="0" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-01"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-01" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-01" name="before each hook for Vendor Vendor One Invoice 2023 01" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor One Invoice 2023 02" timestamp="2023-09-26T21:43:02" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-02"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-02" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-02" name="before each hook for Vendor Vendor One Invoice 2023 02" time="0.001">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor One Invoice 2023 03" timestamp="2023-09-26T21:43:02" time="0" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-03"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-03" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-03" name="before each hook for Vendor Vendor One Invoice 2023 03" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor One Invoice 2023 04" timestamp="2023-09-26T21:43:02" time="0" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-04"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-04" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-04" name="before each hook for Vendor Vendor One Invoice 2023 04" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor One Invoice 2023 05" timestamp="2023-09-26T21:43:02" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-05"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-05" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-05" name="before each hook for Vendor Vendor One Invoice 2023 05" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor One Invoice 2023 06" timestamp="2023-09-26T21:43:02" time="0" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-06"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-06" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-06" name="before each hook for Vendor Vendor One Invoice 2023 06" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor One Invoice 2023 07" timestamp="2023-09-26T21:43:02" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-07"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-07" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-07" name="before each hook for Vendor Vendor One Invoice 2023 07" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor One Invoice 2004 12" timestamp="2023-09-26T21:43:02" time="0" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor One,Invoice:2004-12"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2004-12" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2004-12" name="before each hook for Vendor Vendor One Invoice 2004 12" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor Six Invoice 2005 Q2" timestamp="2023-09-26T21:43:02" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Six,Invoice:2005-Q2"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Six,Invoice:2005-Q2" name="should display correct status banner color and message" time="0">
+      <skipped/>
+      <system-out><![CDATA[
+COMMAND: DELETE /session/176f39b9b13209c991420ce7e75f3158 - {}
+RESULT: {}
+]]></system-out>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Six,Invoice:2005-Q2" name="before each hook for Vendor Vendor Six Invoice 2005 Q2" time="0.001">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-489-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
     </testcase>
   </testsuite>
 </testsuites>
