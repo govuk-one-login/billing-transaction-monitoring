@@ -120,7 +120,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./ui-tests/reports/uiHtmlReports
+          publish_dir: ./ui-tests/reports
           commit_message: 'Deploy UI HTML report to gh-pages'
           keep_files: true
 
