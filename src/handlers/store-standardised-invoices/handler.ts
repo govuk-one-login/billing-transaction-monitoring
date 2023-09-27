@@ -35,7 +35,7 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     const recordItemFailures: Array<{ itemIdentifier: string }> = [];
 
     const promises = recordBody.map(async (line) =>
-      await processLines(
+      processLines(
         line,
         destinationBucket,
         destinationFolder,
