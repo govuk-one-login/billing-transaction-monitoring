@@ -38,7 +38,7 @@ export const config = {
       project: "./tsconfig.json",
     },
   },
-  specs: ["./ui-tests/specs/breadcrumbs.spec.ts"],
+  specs: ["./ui-tests/specs/**/*.spec.ts"],
   exclude: baseUrl === localUrl ? ["./ui-tests/specs/waf.spec.ts"] : [],
   maxInstances,
   capabilities: [
