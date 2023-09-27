@@ -66,20 +66,6 @@ describe("Line item storer", () => {
     };
   });
 
-  // test("Line item storer with record body that is not JSON", async () => {
-  //   const resultPromise = storeLineItem(
-  //     givenRecord,
-  //     givenDestinationBucket,
-  //     givenDestinationFolder,
-  //     givenArchiveFolder
-  //   );
-
-  //   await expect(resultPromise).rejects.toThrow("not valid JSON");
-  //   expect(mockedListS3Keys).not.toHaveBeenCalled();
-  //   expect(mockedPutTextS3).not.toHaveBeenCalled();
-  //   expect(mockedMoveToFolderS3).not.toHaveBeenCalled();
-  // });
-
   test("Line item storer with parsed record body that is not an object", async () => {
     givenRecord = { body: "123" } as any;
 
