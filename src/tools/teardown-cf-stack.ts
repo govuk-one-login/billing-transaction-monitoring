@@ -9,6 +9,7 @@ import { S3Client } from "@aws-sdk/client-s3";
 import {
   CloudFormationClient,
   DeleteStackCommand,
+  DescribeStacksCommand,
   ListStackResourcesCommand,
   StackResourceSummary,
 } from "@aws-sdk/client-cloudformation";
@@ -92,6 +93,20 @@ const destroyStack = async (
     process.exit(-1);
   }
   while (true) {
+    const stackState = await cfClient.send(
+      new DescribeStacksCommand({ StackName: stackName })
+    );
+    if (isAWSError(stackState) || !stackState.Stacks) {
+      console.log(`Error getting stack state for ${stackName}`);
+      process.exit(-1);
+    }
+
+    const stackStatus = stackState.Stacks[0].StackStatus;
+
+    if (stackStatus === "DELETE_COMPLETE") {
+      return [];
+    }
+
     const resources: StackResourceSummary[] = await listAllStackResources(
       stackName
     );
@@ -111,7 +126,11 @@ const destroyStack = async (
       `Resources: total: ${resources.length}  deleted: ${numberDeleted}  remaining: ${numberLeft}  failed: ${resourcesFailed.length}`
     );
 
-    if (resourcesFailed.length === numberLeft) {
+    if (
+      stackStatus === "DELETE_FAILED" ||
+      (resourcesFailed.length === numberLeft &&
+        stackStatus !== "DELETE_IN_PROGRESS")
+    ) {
       console.log(
         `First run completed, could not delete ${resourcesFailed.length} resource(s).`
       );
