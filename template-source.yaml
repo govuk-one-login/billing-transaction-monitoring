@@ -110,6 +110,8 @@ Conditions:
         !Equals [!Ref AWS::StackName, di-btm-staging],
         !Equals [!Ref AWS::StackName, di-btm-integration],
         !Equals [!Ref AWS::StackName, di-btm-production],
+        !Equals [!Ref AWS::StackName, di-btm-dev],
+        !Equals [!Ref AWS::StackName, di-btm-build],
       ],
     ]
   IsSplunkForwardingActiveAndFrontEndEnabled:
