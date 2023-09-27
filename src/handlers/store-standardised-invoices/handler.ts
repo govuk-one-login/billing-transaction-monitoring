@@ -27,17 +27,14 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     throw new Error("Raw invoice bucket not set.");
 
   for (const records of event.Records) {
-    if (!records || !records.body) {
+    if (!records?.body) {
       throw new Error("Record contains no body");
     }
   }
-
-  let recordBodies: StandardisedLineItem[] = [];
-  for (const records of event.Records) {
-    const recordList: StandardisedLineItem[] = JSON.parse(records.body);
-    recordBodies = recordBodies.concat(recordList);
-  }
   const response: Response = { batchItemFailures: [] };
+  const recordBodies: StandardisedLineItem[] = event.Records.flatMap(
+    (records) => JSON.parse(records.body)
+  );
 
   const promises = recordBodies.map(async (body) => {
     try {
