@@ -34,43 +34,74 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
     const recordBody: StandardisedLineItem[] = JSON.parse(record.body);
     const recordItemFailures: Array<{ itemIdentifier: string }> = [];
 
-    const promises = recordBody.map(async (line) => {
-      try {
-        await storeLineItem(
-          line,
-          destinationBucket,
-          destinationFolder,
-          archiveFolder
-        );
-      } catch (error) {
-        logger.error(`Handler failure for ${JSON.stringify(line)}`, { error });
-        recordItemFailures.push({
-          itemIdentifier: JSON.stringify(line),
-        });
-      }
-    });
+    const promises = recordBody.map(async (line) =>
+      await processLines(
+        line,
+        destinationBucket,
+        destinationFolder,
+        archiveFolder,
+        recordItemFailures
+      )
+    );
 
     await Promise.all(promises);
 
-    if (recordItemFailures.length === 0) {
-      const firstRecord = recordBody[0];
-      const sourceKey = `${firstRecord.vendor_id}/${firstRecord.originalInvoiceFile}`;
-      const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
-      const successfulRawInvoiceFolder = path.dirname(destinationKey);
-
-      logger.info(
-        `moving ${rawInvoiceBucket}/${sourceKey} to ${rawInvoiceBucket}/${successfulRawInvoiceFolder}/${firstRecord.originalInvoiceFile}`
-      );
-
-      await moveToFolderS3(
-        rawInvoiceBucket,
-        sourceKey,
-        successfulRawInvoiceFolder
-      );
-    } else {
-      response.batchItemFailures =
-        response.batchItemFailures.concat(recordItemFailures);
-    }
+    await moveSuccessful(
+      recordItemFailures,
+      recordBody[0],
+      rawInvoiceBucket,
+      response
+    );
   }
   return response;
+};
+
+const moveSuccessful = async (
+  recordItemFailures: Array<{ itemIdentifier: string }>,
+  recordEntry: StandardisedLineItem,
+  rawInvoiceBucket: string,
+  response: Response
+): Promise<void> => {
+  if (recordItemFailures.length === 0) {
+    const sourceKey = `${recordEntry.vendor_id}/${recordEntry.originalInvoiceFile}`;
+    const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
+    const successfulRawInvoiceFolder = path.dirname(destinationKey);
+
+    logger.info(
+      `moving ${rawInvoiceBucket}/${sourceKey} to ${rawInvoiceBucket}/${successfulRawInvoiceFolder}/${recordEntry.originalInvoiceFile}`
+    );
+
+    await moveToFolderS3(
+      rawInvoiceBucket,
+      sourceKey,
+      successfulRawInvoiceFolder
+    );
+  } else {
+    response.batchItemFailures =
+      response.batchItemFailures.concat(recordItemFailures);
+  }
+};
+
+const processLines = async (
+  recordEntry: StandardisedLineItem,
+  destinationBucket: string,
+  destinationFolder: string,
+  archiveFolder: string,
+  recordItemFailures: Array<{ itemIdentifier: string }>
+): Promise<void> => {
+  try {
+    await storeLineItem(
+      recordEntry,
+      destinationBucket,
+      destinationFolder,
+      archiveFolder
+    );
+  } catch (error) {
+    logger.error(`Handler failure for ${JSON.stringify(recordEntry)}`, {
+      error,
+    });
+    recordItemFailures.push({
+      itemIdentifier: JSON.stringify(recordEntry),
+    });
+  }
 };
