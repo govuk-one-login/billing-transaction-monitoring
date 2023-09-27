@@ -14,6 +14,26 @@ describe("Store Standardised Invoices handler tests", () => {
   let mockedEnv: Partial<Record<string, string>>;
   let givenEvent: SQSEvent;
 
+  const body1 = {
+    item_id: 123456,
+    originalInvoiceFile: "testFile1",
+    vendor_id: 987654,
+  };
+  const givenRecord1 = {
+    vendor_id: 123456,
+    messageId: "given record 1 message ID",
+    body: JSON.stringify([body1]),
+  } as unknown as SQSRecord;
+  const body2 = {
+    item_id: 135769,
+    originalInvoiceFile: "testFile2",
+    vendor_id: 987654,
+  };
+  const givenRecord2 = {
+    messageId: "given record 2 message ID",
+    body: JSON.stringify([body2]),
+  } as unknown as SQSRecord;
+
   beforeEach(() => {
     jest.resetAllMocks();
 
@@ -67,62 +87,33 @@ describe("Store Standardised Invoices handler tests", () => {
 
   test("Store Standardised Invoices handler with two failing records", async () => {
     mockedStoreLineItem.mockRejectedValue(undefined);
-
-    const givenRecord1 = {
-      messageId: "given record 1 message ID",
-      body: '{"item_id":123456,"originalInvoiceFile":"testFile"}',
-    } as unknown as SQSRecord;
-    const givenRecord2 = {
-      messageId: "given record 2 message ID",
-      body: '{"item_id":135769,"originalInvoiceFile":"testFile3"}',
-    } as unknown as SQSRecord;
     givenEvent.Records.push(givenRecord1, givenRecord2);
 
     const result = await handler(givenEvent);
 
     expect(mockedStoreLineItem).toHaveBeenCalledTimes(2);
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
-      JSON.parse(givenRecord1.body),
+      body1,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
       mockedEnv.ARCHIVE_FOLDER
     );
     expect(mockedStoreLineItem).toHaveBeenCalledWith(
-      JSON.parse(givenRecord2.body),
+      body2,
       mockedEnv.DESTINATION_BUCKET,
       mockedEnv.DESTINATION_FOLDER,
       mockedEnv.ARCHIVE_FOLDER
     );
     expect(result).toEqual({
       batchItemFailures: [
-        { itemIdentifier: givenRecord1.body },
-        { itemIdentifier: givenRecord2.body },
+        { itemIdentifier: JSON.stringify(body1) },
+        { itemIdentifier: JSON.stringify(body2) },
       ],
     });
   });
 
   test("Store Standardised Invoices handler with one failing and one passing record", async () => {
     mockedStoreLineItem.mockRejectedValueOnce(undefined);
-
-    const body1 = {
-      item_id: 123456,
-      originalInvoiceFile: "testFile1",
-      vendor_id: 987654,
-    };
-    const givenRecord1 = {
-      vendor_id: 123456,
-      messageId: "given record 1 message ID",
-      body: JSON.stringify([body1]),
-    } as unknown as SQSRecord;
-    const body2 = {
-      item_id: 135769,
-      originalInvoiceFile: "testFile2",
-      vendor_id: 987654,
-    };
-    const givenRecord2 = {
-      messageId: "given record 2 message ID",
-      body: JSON.stringify(body2),
-    } as unknown as SQSRecord;
     givenEvent.Records.push(givenRecord1, givenRecord2);
 
     const result = await handler(givenEvent);
@@ -143,29 +134,15 @@ describe("Store Standardised Invoices handler tests", () => {
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: JSON.stringify(body1) }],
     });
-    expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(0);
+    expect(mockedMoveToFolderS3).toHaveBeenCalledTimes(1);
+    expect(mockedMoveToFolderS3).toBeCalledWith(
+      mockedEnv.RAW_INVOICE_BUCKET,
+      `${body2.vendor_id}/${body2.originalInvoiceFile}`,
+      `successful/${body2.vendor_id}`
+    );
   });
 
   test("Store Standard", async () => {
-    const body1 = {
-      item_id: 123456,
-      originalInvoiceFile: "testFile1",
-      vendor_id: 987654,
-    };
-    const givenRecord1 = {
-      vendor_id: 123456,
-      messageId: "given record 1 message ID",
-      body: JSON.stringify([body1]),
-    } as unknown as SQSRecord;
-    const body2 = {
-      item_id: 135769,
-      originalInvoiceFile: "testFile2",
-      vendor_id: 987654,
-    };
-    const givenRecord2 = {
-      messageId: "given record 2 message ID",
-      body: JSON.stringify(body2),
-    } as unknown as SQSRecord;
     givenEvent.Records.push(givenRecord1, givenRecord2);
 
     const result = await handler(givenEvent);
@@ -186,11 +163,16 @@ describe("Store Standardised Invoices handler tests", () => {
     expect(result).toEqual({
       batchItemFailures: [],
     });
-    expect(mockedMoveToFolderS3).toBeCalledTimes(1);
+    expect(mockedMoveToFolderS3).toBeCalledTimes(2);
     expect(mockedMoveToFolderS3).toBeCalledWith(
       mockedEnv.RAW_INVOICE_BUCKET,
       `${body1.vendor_id}/${body1.originalInvoiceFile}`,
       `successful/${body1.vendor_id}`
+    );
+    expect(mockedMoveToFolderS3).toBeCalledWith(
+      mockedEnv.RAW_INVOICE_BUCKET,
+      `${body2.vendor_id}/${body2.originalInvoiceFile}`,
+      `successful/${body2.vendor_id}`
     );
   });
 });

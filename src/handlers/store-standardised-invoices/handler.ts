@@ -26,49 +26,51 @@ export const handler = async (event: SQSEvent): Promise<Response> => {
   if (rawInvoiceBucket === undefined || rawInvoiceBucket.length === 0)
     throw new Error("Raw invoice bucket not set.");
 
-  for (const records of event.Records) {
-    if (!records?.body) {
+  const response: Response = { batchItemFailures: [] };
+  for (const record of event.Records) {
+    if (!record?.body) {
       throw new Error("Record contains no body");
     }
-  }
-  const response: Response = { batchItemFailures: [] };
-  const recordBodies: StandardisedLineItem[] = event.Records.flatMap(
-    (records) => JSON.parse(records.body)
-  );
+    const recordBody: StandardisedLineItem[] = JSON.parse(record.body);
+    const recordItemFailures: Array<{ itemIdentifier: string }> = [];
 
-  const promises = recordBodies.map(async (body) => {
-    try {
-      await storeLineItem(
-        body,
-        destinationBucket,
-        destinationFolder,
-        archiveFolder
+    const promises = recordBody.map(async (line) => {
+      try {
+        await storeLineItem(
+          line,
+          destinationBucket,
+          destinationFolder,
+          archiveFolder
+        );
+      } catch (error) {
+        logger.error(`Handler failure for ${JSON.stringify(line)}`, { error });
+        recordItemFailures.push({
+          itemIdentifier: JSON.stringify(line),
+        });
+      }
+    });
+
+    await Promise.all(promises);
+
+    if (recordItemFailures.length === 0) {
+      const firstRecord = recordBody[0];
+      const sourceKey = `${firstRecord.vendor_id}/${firstRecord.originalInvoiceFile}`;
+      const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
+      const successfulRawInvoiceFolder = path.dirname(destinationKey);
+
+      logger.info(
+        `moving ${rawInvoiceBucket}/${sourceKey} to ${rawInvoiceBucket}/${successfulRawInvoiceFolder}/${firstRecord.originalInvoiceFile}`
       );
-    } catch (error) {
-      logger.error(`Handler failure for ${JSON.stringify(body)}`, { error });
-      response.batchItemFailures.push({
-        itemIdentifier: JSON.stringify(body),
-      });
+
+      await moveToFolderS3(
+        rawInvoiceBucket,
+        sourceKey,
+        successfulRawInvoiceFolder
+      );
+    } else {
+      response.batchItemFailures =
+        response.batchItemFailures.concat(recordItemFailures);
     }
-  });
-
-  await Promise.all(promises);
-
-  if (response.batchItemFailures.length === 0) {
-    const firstRecord = recordBodies[0];
-    const sourceKey = `${firstRecord.vendor_id}/${firstRecord.originalInvoiceFile}`;
-    const destinationKey = `${RAW_INVOICE_TEXTRACT_DATA_FOLDER_SUCCESS}/${sourceKey}`;
-    const successfulRawInvoiceFolder = path.dirname(destinationKey);
-
-    logger.info(
-      `moving ${rawInvoiceBucket}/${sourceKey} to ${rawInvoiceBucket}/${successfulRawInvoiceFolder}/${firstRecord.originalInvoiceFile}`
-    );
-
-    await moveToFolderS3(
-      rawInvoiceBucket,
-      sourceKey,
-      successfulRawInvoiceFolder
-    );
   }
   return response;
 };
