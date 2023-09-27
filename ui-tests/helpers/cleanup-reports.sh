@@ -8,7 +8,7 @@ num_of_reports_to_keep=$1
 echo Keeping at max $num_of_reports_to_keep test-reports
 
 ls -1 test-report-* | sort -r |
-  tail -n +$((num_of_items_to_keep+1)) |
+  tail -n +$((num_of_reports_to_keep+1)) |
   xargs rm -rfv
 
 echo Remaining test-reports:
