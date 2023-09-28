@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="WAF Tests" timestamp="2023-09-28T14:16:21" time="2.102" tests="2" failures="2" errors="2" skipped="0">
+  <testsuite name="WAF Tests" timestamp="2023-09-28T16:39:39" time="1.521" tests="2" failures="2" errors="2" skipped="0">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="WAF Tests"/>
       <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
       <property name="file" value="file://./ui-tests/specs/waf.spec.ts"/>
     </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.WAF_Tests" name="Should not block requests with query parameters in general" time="1.272">
+    <testcase classname="chrome.117_0_5938_92.linux.WAF_Tests" name="Should not block requests with query parameters in general" time="1.135">
       <failure/>
       <error message="unknown error: net::ERR_NAME_NOT_RESOLVED&#xA;  (Session info: headless chrome=117.0.5938.92)"/>
       <system-out><![CDATA[
-COMMAND: POST /session/d6d0b867788563e202a192e9c2199510/url - {"url":"https://pr-496.btm.dev.account.gov.uk/?foo=bar"}
+COMMAND: POST /session/209c1c5e1d3fca700efed52c7929fc1f/url - {"url":"https://pr-497.btm.dev.account.gov.uk/?foo=bar"}
 ]]></system-out>
       <system-err><![CDATA[
 unknown error: unknown error: net::ERR_NAME_NOT_RESOLVED
@@ -20,12 +20,12 @@ unknown error: unknown error: net::ERR_NAME_NOT_RESOLVED
     at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/waf.spec.ts:8:5)
 ]]></system-err>
     </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.WAF_Tests" name="Should block request with with script tag in query parameter" time="0.827">
+    <testcase classname="chrome.117_0_5938_92.linux.WAF_Tests" name="Should block request with with script tag in query parameter" time="0.384">
       <failure/>
       <error message="unknown error: net::ERR_NAME_NOT_RESOLVED&#xA;  (Session info: headless chrome=117.0.5938.92)"/>
       <system-out><![CDATA[
-COMMAND: POST /session/d6d0b867788563e202a192e9c2199510/url - {"url":"https://pr-496.btm.dev.account.gov.uk/?foo=%3Cscript%3E"}
-COMMAND: DELETE /session/d6d0b867788563e202a192e9c2199510 - {}
+COMMAND: POST /session/209c1c5e1d3fca700efed52c7929fc1f/url - {"url":"https://pr-497.btm.dev.account.gov.uk/?foo=%3Cscript%3E"}
+COMMAND: DELETE /session/209c1c5e1d3fca700efed52c7929fc1f - {}
 RESULT: {}
 ]]></system-out>
       <system-err><![CDATA[
@@ -45,21 +45,7 @@ unknown error: unknown error: net::ERR_NAME_NOT_RESOLVED
 ]]></system-err>
     </testcase>
   </testsuite>
-</testsuites>/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Five" time="0.018">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+</testsuites>ner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
     at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
     at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
     at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
@@ -68,177 +54,22 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Four" time="0.004">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
+  </testsuite>
+  <testsuite name="Vendor Vendor Three Invoice 2023 03" timestamp="2023-09-28T16:39:40" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Three,Invoice:2023-03"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Three,Invoice:2023-03" name="should display correct status banner color and message" time="0">
+      <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Two" time="0.003">
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Three,Invoice:2023-03" name="before each hook for Vendor Vendor Three Invoice 2023 03" time="0">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor One" time="0.002">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Six" time="0.001">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Three" time="0.006">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Five" time="0.006">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Four" time="0.012">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Two" time="0.025">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor One" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Six" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-out><![CDATA[
-COMMAND: DELETE /session/e02ff0748ed21350e5caba6b950dc63a - {}
-RESULT: {}
-]]></system-out>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
     at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
     at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
     at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
@@ -253,7 +84,24 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-</testsuites>rotocols/Aws_restJson1.js:3346:20)
+  <testsuite name="Vendor Vendor Three Invoice 2005 08" timestamp="2023-09-28T16:39:40" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Three,Invoice:2005-08"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Three,Invoice:2005-08" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Three,Invoice:2005-08" name="before each hook for Vendor Vendor Three Invoice 2005 08" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
     at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
     at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
@@ -265,7 +113,210 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 01" timestamp="2023-09-28T14:16:21" time="0" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor Five Invoice 2005 12" timestamp="2023-09-28T16:39:40" time="0" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Five,Invoice:2005-12"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-12" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-12" name="before each hook for Vendor Vendor Five Invoice 2005 12" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor Five Invoice 2005 05" timestamp="2023-09-28T16:39:40" time="0.019" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Five,Invoice:2005-05"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-05" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-05" name="before each hook for Vendor Vendor Five Invoice 2005 05" time="0.001">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor Five Invoice 2005 11" timestamp="2023-09-28T16:39:40" time="0.012" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Five,Invoice:2005-11"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-11" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-11" name="before each hook for Vendor Vendor Five Invoice 2005 11" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor Four Invoice 2005 04" timestamp="2023-09-28T16:39:40" time="0" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Four,Invoice:2005-04"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-04" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-04" name="before each hook for Vendor Vendor Four Invoice 2005 04" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor Four Invoice 2005 03" timestamp="2023-09-28T16:39:40" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Four,Invoice:2005-03"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-03" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-03" name="before each hook for Vendor Vendor Four Invoice 2005 03" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor Four Invoice 2005 02" timestamp="2023-09-28T16:39:40" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Four,Invoice:2005-02"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-02" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-02" name="before each hook for Vendor Vendor Four Invoice 2005 02" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor Two Invoice 2005 07" timestamp="2023-09-28T16:39:40" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Vendor: Vendor Two,Invoice:2005-07"/>
+      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
+      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
+    </properties>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Two,Invoice:2005-07" name="should display correct status banner color and message" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Two,Invoice:2005-07" name="before each hook for Vendor Vendor Two Invoice 2005 07" time="0">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor One Invoice 2023 01" timestamp="2023-09-28T16:39:40" time="0" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-01"/>
@@ -277,9 +328,9 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     </testcase>
     <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-01" name="before each hook for Vendor Vendor One Invoice 2023 01" time="0">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
     at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
     at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
     at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
@@ -294,7 +345,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 02" timestamp="2023-09-28T14:16:21" time="0" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 02" timestamp="2023-09-28T16:39:40" time="0.001" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-02"/>
@@ -306,9 +357,9 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     </testcase>
     <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-02" name="before each hook for Vendor Vendor One Invoice 2023 02" time="0">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
     at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
     at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
     at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
@@ -323,7 +374,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 03" timestamp="2023-09-28T14:16:21" time="0.046" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 03" timestamp="2023-09-28T16:39:40" time="0" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-03"/>
@@ -333,11 +384,11 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-03" name="should display correct status banner color and message" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-03" name="before each hook for Vendor Vendor One Invoice 2023 03" time="0.027">
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-03" name="before each hook for Vendor Vendor One Invoice 2023 03" time="0">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
     at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
     at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
     at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
@@ -352,7 +403,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 04" timestamp="2023-09-28T14:16:21" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 04" timestamp="2023-09-28T16:39:40" time="0.001" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-04"/>
@@ -364,9 +415,9 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     </testcase>
     <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-04" name="before each hook for Vendor Vendor One Invoice 2023 04" time="0.001">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
     at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
     at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
     at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
@@ -381,7 +432,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 05" timestamp="2023-09-28T14:16:21" time="0.006" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 05" timestamp="2023-09-28T16:39:40" time="0.012" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-05"/>
@@ -391,11 +442,11 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-05" name="should display correct status banner color and message" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-05" name="before each hook for Vendor Vendor One Invoice 2023 05" time="0.006">
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-05" name="before each hook for Vendor Vendor One Invoice 2023 05" time="0">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
     at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
     at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
     at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
@@ -410,7 +461,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 06" timestamp="2023-09-28T14:16:21" time="0.006" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 06" timestamp="2023-09-28T16:39:40" time="0.012" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-06"/>
@@ -420,11 +471,11 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-06" name="should display correct status banner color and message" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-06" name="before each hook for Vendor Vendor One Invoice 2023 06" time="0.001">
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-06" name="before each hook for Vendor Vendor One Invoice 2023 06" time="0.012">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
     at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
     at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
     at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
@@ -439,7 +490,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 07" timestamp="2023-09-28T14:16:21" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 07" timestamp="2023-09-28T16:39:40" time="0.001" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-07"/>
@@ -449,11 +500,11 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-07" name="should display correct status banner color and message" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-07" name="before each hook for Vendor Vendor One Invoice 2023 07" time="0.001">
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-07" name="before each hook for Vendor Vendor One Invoice 2023 07" time="0">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
     at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
     at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
     at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
@@ -468,7 +519,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2004 12" timestamp="2023-09-28T14:16:21" time="0" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2004 12" timestamp="2023-09-28T16:39:40" time="0.001" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2004-12"/>
@@ -478,11 +529,11 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2004-12" name="should display correct status banner color and message" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2004-12" name="before each hook for Vendor Vendor One Invoice 2004 12" time="0">
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2004-12" name="before each hook for Vendor Vendor One Invoice 2004 12" time="0.001">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
     at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
     at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
     at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
@@ -497,7 +548,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor Six Invoice 2005 Q2" timestamp="2023-09-28T14:16:21" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor Six Invoice 2005 Q2" timestamp="2023-09-28T16:39:40" time="0.003" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor Six,Invoice:2005-Q2"/>
@@ -507,15 +558,15 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Six,Invoice:2005-Q2" name="should display correct status banner color and message" time="0">
       <skipped/>
       <system-out><![CDATA[
-COMMAND: DELETE /session/9175e3894d6b2d65f4c389e757aa473d - {}
+COMMAND: DELETE /session/4ba54266b65b86afca15607a17c81e75 - {}
 RESULT: {}
 ]]></system-out>
     </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Six,Invoice:2005-Q2" name="before each hook for Vendor Vendor Six Invoice 2005 Q2" time="0">
+    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Six,Invoice:2005-Q2" name="before each hook for Vendor Vendor Six Invoice 2005 Q2" time="0.002">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-496-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-497-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
     at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
     at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
     at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
