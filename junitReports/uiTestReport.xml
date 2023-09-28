@@ -1,532 +1,625 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="WAF Tests" timestamp="2023-09-28T08:05:15" time="2.644" tests="2" failures="2" errors="2" skipped="0">
+  <testsuite name="Contracts Page Test" timestamp="2023-09-28T08:39:09" time="20.881" tests="7" failures="7" errors="7" skipped="0">
     <properties>
       <property name="specId" value="0"/>
-      <property name="suiteName" value="WAF Tests"/>
+      <property name="suiteName" value="Contracts Page Test"/>
       <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
-      <property name="file" value="file://./ui-tests/specs/waf.spec.ts"/>
+      <property name="file" value="file://./ui-tests/specs/contract.spec.ts"/>
     </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.WAF_Tests" name="Should not block requests with query parameters in general" time="1.809">
+    <testcase classname="chrome.117_0_5938_92.linux.Contracts_Page_Test" name="UI list of vendors should match with vendor names in test data file" time="7.8">
       <failure/>
-      <error message="unknown error: net::ERR_NAME_NOT_RESOLVED&#xA;  (Session info: headless chrome=117.0.5938.92)"/>
+      <error message="expect(received).toBeTruthy()&#xA;&#xA;Received: false"/>
       <system-out><![CDATA[
-COMMAND: POST /session/1be6e5b54698ee4df38805039e11cd9c/url - {"url":"https://pr-490.btm.dev.account.gov.uk/?foo=bar"}
-]]></system-out>
-      <system-err><![CDATA[
-unknown error: unknown error: net::ERR_NAME_NOT_RESOLVED
-  (Session info: headless chrome=117.0.5938.92)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/waf.spec.ts:8:5)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.WAF_Tests" name="Should block request with with script tag in query parameter" time="0.819">
-      <failure/>
-      <error message="unknown error: net::ERR_NAME_NOT_RESOLVED&#xA;  (Session info: headless chrome=117.0.5938.92)"/>
-      <system-out><![CDATA[
-COMMAND: POST /session/1be6e5b54698ee4df38805039e11cd9c/url - {"url":"https://pr-490.btm.dev.account.gov.uk/?foo=%3Cscript%3E"}
-COMMAND: DELETE /session/1be6e5b54698ee4df38805039e11cd9c - {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/url - {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+RESULT: {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_4","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_4"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_4","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_4"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/DB58006BC6BAE59AA8BDED69425F65E1_element_4/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_5","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_5"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_5","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_5"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/DB58006BC6BAE59AA8BDED69425F65E1_element_5/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_6","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_6"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_6","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_6"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/DB58006BC6BAE59AA8BDED69425F65E1_element_6/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_7","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_7"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_7","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_7"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/DB58006BC6BAE59AA8BDED69425F65E1_element_7/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_8","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_8"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_8","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_8"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/DB58006BC6BAE59AA8BDED69425F65E1_element_8/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_9","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_9"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_9","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_9"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/DB58006BC6BAE59AA8BDED69425F65E1_element_9/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_10","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_10"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_10","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_10"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/DB58006BC6BAE59AA8BDED69425F65E1_element_10/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_11","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_11"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_11","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_11"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/DB58006BC6BAE59AA8BDED69425F65E1_element_11/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_12","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_12"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"DB58006BC6BAE59AA8BDED69425F65E1_element_12","ELEMENT":"DB58006BC6BAE59AA8BDED69425F65E1_element_12"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/DB58006BC6BAE59AA8BDED69425F65E1_element_12/text - {}
 RESULT: {}
 ]]></system-out>
       <system-err><![CDATA[
-unknown error: unknown error: net::ERR_NAME_NOT_RESOLVED
-  (Session info: headless chrome=117.0.5938.92)
+Error: expect(received).toBeTruthy()
+
+Received: false
+    at file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/contract.spec.ts:32:9
+    at Array.forEach (<anonymous>)
+    at Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/contract.spec.ts:29:27)
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/waf.spec.ts:14:5)
 ]]></system-err>
     </testcase>
-  </testsuite>
-</testsuites>ion info: headless chrome=117.0.5938.92)"/>
-      <system-err><![CDATA[
-unknown error: unknown error: net::ERR_NAME_NOT_RESOLVED
-  (Session info: headless chrome=117.0.5938.92)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/home.spec.ts:38:5)
-]]></system-err>
-    </testcase>
-  </testsuite>
-</testsuites>/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Five" time="0">
+    <testcase classname="chrome.117_0_5938_92.linux.Contracts_Page_Test" name="Should navigate to the invoice list page for Vendor Five" time="4.35">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Four" time="0.003">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Two" time="0.001">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor One" time="0.001">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Six" time="0.001">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Three" time="0.001">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Five" time="0.001">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Four" time="0.001">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Two" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor One" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Six" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <error message="Contract element with vendor name &quot;Vendor Five&quot; not found"/>
       <system-out><![CDATA[
-COMMAND: DELETE /session/2fd2d8cbbc6d95621e118116b1e931d7 - {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/url - {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+RESULT: {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_14","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_14"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_14","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_14"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_14/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_15","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_15"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_15","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_15"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_15/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_16","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_16"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_16","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_16"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_16/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_17","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_17"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_17","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_17"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_17/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_18","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_18"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_18","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_18"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_18/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_19","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_19"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_19","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_19"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_19/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_20","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_20"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_20","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_20"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_20/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_21","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_21"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_21","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_21"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_21/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_22","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_22"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_22","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_22"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_22/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_14","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_14"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_14","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_14"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_14/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_15","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_15"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_15","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_15"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_15/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_16","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_16"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_16","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_16"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_16/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_17","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_17"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_17","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_17"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_17/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_18","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_18"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_18","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_18"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_18/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_19","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_19"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_19","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_19"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_19/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_20","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_20"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_20","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_20"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_20/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_21","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_21"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_21","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_21"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_21/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_22","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_22"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F43B3B214D4B405145CBBD4B14E16F49_element_22","ELEMENT":"F43B3B214D4B405145CBBD4B14E16F49_element_22"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F43B3B214D4B405145CBBD4B14E16F49_element_22/text - {}
 RESULT: {}
 ]]></system-out>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+Error: Contract element with vendor name "Vendor Five" not found
+    at ContractsPage.clickContractByVendorName (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/contractsPage.ts:25:13)
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/contract.spec.ts:41:7)
 ]]></system-err>
     </testcase>
-  </testsuite>
-</testsuites>nt-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 01" timestamp="2023-09-28T08:05:15" time="0" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-01"/>
-      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-01" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-01" name="before each hook for Vendor Vendor One Invoice 2023 01" time="0">
+    <testcase classname="chrome.117_0_5938_92.linux.Contracts_Page_Test" name="Should navigate to the invoice list page for Vendor Four" time="1.75">
       <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 02" timestamp="2023-09-28T08:05:15" time="0.001" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-02"/>
-      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-02" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-02" name="before each hook for Vendor Vendor One Invoice 2023 02" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 03" timestamp="2023-09-28T08:05:15" time="0" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-03"/>
-      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-03" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-03" name="before each hook for Vendor Vendor One Invoice 2023 03" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 04" timestamp="2023-09-28T08:05:15" time="0.001" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-04"/>
-      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-04" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-04" name="before each hook for Vendor Vendor One Invoice 2023 04" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 05" timestamp="2023-09-28T08:05:15" time="0" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-05"/>
-      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-05" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-05" name="before each hook for Vendor Vendor One Invoice 2023 05" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 06" timestamp="2023-09-28T08:05:15" time="0.001" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-06"/>
-      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-06" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-06" name="before each hook for Vendor Vendor One Invoice 2023 06" time="0.001">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 07" timestamp="2023-09-28T08:05:15" time="0" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-07"/>
-      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-07" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-07" name="before each hook for Vendor Vendor One Invoice 2023 07" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2004 12" timestamp="2023-09-28T08:05:15" time="0.001" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor One,Invoice:2004-12"/>
-      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2004-12" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2004-12" name="before each hook for Vendor Vendor One Invoice 2004 12" time="0.001">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
-      <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
-    at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
-]]></system-err>
-    </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor Six Invoice 2005 Q2" timestamp="2023-09-28T08:05:15" time="0" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor Six,Invoice:2005-Q2"/>
-      <property name="capabilities" value="chrome.117_0_5938_92.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Six,Invoice:2005-Q2" name="should display correct status banner color and message" time="0">
-      <skipped/>
+      <error message="Contract element with vendor name &quot;Vendor Four&quot; not found"/>
       <system-out><![CDATA[
-COMMAND: DELETE /session/fa16f7c5cd8c2e43576b59d4bd071015 - {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/url - {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+RESULT: {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_26","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_26"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_26","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_26"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_26/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_27","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_27"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_27","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_27"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_27/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_28","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_28"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_28","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_28"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_28/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_29","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_29"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_29","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_29"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_29/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_30","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_30"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_30","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_30"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_30/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_31","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_31"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_31","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_31"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_31/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_32","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_32"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_32","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_32"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_32/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_33","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_33"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_33","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_33"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_33/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_34","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_34"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_34","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_34"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_34/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_26","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_26"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_26","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_26"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_26/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_27","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_27"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_27","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_27"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_27/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_28","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_28"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_28","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_28"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_28/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_29","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_29"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_29","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_29"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_29/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_30","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_30"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_30","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_30"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_30/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_31","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_31"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_31","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_31"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_31/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_32","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_32"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_32","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_32"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_32/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_33","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_33"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_33","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_33"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_33/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_34","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_34"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"AAB8922F9ED94117EF2CE83267758C96_element_34","ELEMENT":"AAB8922F9ED94117EF2CE83267758C96_element_34"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/AAB8922F9ED94117EF2CE83267758C96_element_34/text - {}
 RESULT: {}
 ]]></system-out>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_92.linux.Invoice_Page_Test.Vendor:_Vendor_Six,Invoice:2005-Q2" name="before each hook for Vendor Vendor Six Invoice 2005 Q2" time="0">
-      <failure/>
-      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
-AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-490-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
-    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
-    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
-    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+Error: Contract element with vendor name "Vendor Four" not found
+    at ContractsPage.clickContractByVendorName (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/contractsPage.ts:25:13)
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
-    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
-    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/contract.spec.ts:41:7)
+]]></system-err>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Contracts_Page_Test" name="Should navigate to the invoice list page for Vendor One" time="1.855">
+      <failure/>
+      <error message="Contract element with vendor name &quot;Vendor One&quot; not found"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/url - {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+RESULT: {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_36","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_36"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_36","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_36"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_36/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_37","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_37"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_37","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_37"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_37/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_38","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_38"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_38","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_38"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_38/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_39","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_39"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_39","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_39"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_39/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_40","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_40"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_40","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_40"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_40/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_41","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_41"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_41","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_41"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_41/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_42","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_42"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_42","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_42"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_42/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_43","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_43"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_43","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_43"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_43/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_44","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_44"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_44","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_44"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_44/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_36","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_36"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_36","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_36"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_36/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_37","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_37"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_37","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_37"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_37/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_38","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_38"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_38","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_38"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_38/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_39","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_39"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_39","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_39"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_39/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_40","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_40"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_40","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_40"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_40/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_41","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_41"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_41","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_41"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_41/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_42","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_42"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_42","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_42"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_42/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_43","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_43"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_43","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_43"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_43/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_44","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_44"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"33C8D6D8B14AC229E206AC2FB7D717F0_element_44","ELEMENT":"33C8D6D8B14AC229E206AC2FB7D717F0_element_44"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/33C8D6D8B14AC229E206AC2FB7D717F0_element_44/text - {}
+RESULT: {}
+]]></system-out>
+      <system-err><![CDATA[
+Error: Contract element with vendor name "Vendor One" not found
+    at ContractsPage.clickContractByVendorName (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/contractsPage.ts:25:13)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/contract.spec.ts:41:7)
+]]></system-err>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Contracts_Page_Test" name="Should navigate to the invoice list page for Vendor Six" time="1.632">
+      <failure/>
+      <error message="Contract element with vendor name &quot;Vendor Six&quot; not found"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/url - {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+RESULT: {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_46","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_46"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_46","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_46"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_46/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_47","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_47"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_47","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_47"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_47/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_48","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_48"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_48","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_48"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_48/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_49","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_49"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_49","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_49"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_49/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_50","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_50"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_50","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_50"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_50/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_51","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_51"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_51","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_51"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_51/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_52","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_52"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_52","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_52"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_52/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_53","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_53"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_53","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_53"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_53/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_54","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_54"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_54","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_54"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_54/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_46","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_46"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_46","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_46"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_46/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_47","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_47"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_47","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_47"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_47/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_48","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_48"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_48","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_48"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_48/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_49","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_49"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_49","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_49"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_49/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_50","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_50"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_50","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_50"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_50/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_51","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_51"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_51","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_51"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_51/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_52","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_52"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_52","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_52"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_52/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_53","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_53"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_53","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_53"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_53/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_54","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_54"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F10D30359C0AAF485D0D7CC1DC019A5A_element_54","ELEMENT":"F10D30359C0AAF485D0D7CC1DC019A5A_element_54"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F10D30359C0AAF485D0D7CC1DC019A5A_element_54/text - {}
+RESULT: {}
+]]></system-out>
+      <system-err><![CDATA[
+Error: Contract element with vendor name "Vendor Six" not found
+    at ContractsPage.clickContractByVendorName (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/contractsPage.ts:25:13)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/contract.spec.ts:41:7)
+]]></system-err>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Contracts_Page_Test" name="Should navigate to the invoice list page for Vendor Three" time="2.09">
+      <failure/>
+      <error message="Contract element with vendor name &quot;Vendor Three&quot; not found"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/url - {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+RESULT: {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_56","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_56"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_56","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_56"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_56/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_57","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_57"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_57","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_57"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_57/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_58","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_58"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_58","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_58"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_58/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_59","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_59"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_59","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_59"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_59/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_60","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_60"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_60","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_60"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_60/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_61","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_61"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_61","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_61"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_61/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_62","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_62"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_62","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_62"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_62/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_63","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_63"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_63","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_63"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_63/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_64","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_64"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_64","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_64"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_64/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_56","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_56"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_56","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_56"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_56/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_57","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_57"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_57","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_57"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_57/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_58","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_58"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_58","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_58"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_58/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_59","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_59"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_59","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_59"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_59/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_60","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_60"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_60","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_60"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_60/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_61","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_61"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_61","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_61"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_61/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_62","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_62"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_62","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_62"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_62/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_63","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_63"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_63","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_63"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_63/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_64","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_64"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"F0B6806FD549238393DB9BA78D699DEC_element_64","ELEMENT":"F0B6806FD549238393DB9BA78D699DEC_element_64"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/F0B6806FD549238393DB9BA78D699DEC_element_64/text - {}
+RESULT: {}
+]]></system-out>
+      <system-err><![CDATA[
+Error: Contract element with vendor name "Vendor Three" not found
+    at ContractsPage.clickContractByVendorName (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/contractsPage.ts:25:13)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/contract.spec.ts:41:7)
+]]></system-err>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_92.linux.Contracts_Page_Test" name="Should navigate to the invoice list page for Vendor Two" time="1.381">
+      <failure/>
+      <error message="Contract element with vendor name &quot;Vendor Two&quot; not found"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/url - {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+RESULT: {"url":"https://pr-487.btm.dev.account.gov.uk/contracts"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+RESULT: {"script":"return (() => document.readyState === \"complete\").apply(null, arguments)","args":[]}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_66","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_66"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_66","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_66"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_66/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_67","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_67"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_67","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_67"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_67/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_68","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_68"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_68","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_68"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_68/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_69","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_69"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_69","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_69"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_69/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_70","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_70"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_70","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_70"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_70/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_71","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_71"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_71","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_71"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_71/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_72","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_72"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_72","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_72"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_72/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_73","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_73"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_73","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_73"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_73/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_74","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_74"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_74","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_74"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_74/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/elements - {"using":"css selector","value":"ul.govuk-list li a"}
+RESULT: {"using":"css selector","value":"ul.govuk-list li a"}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_66","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_66"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_66","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_66"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_66/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_67","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_67"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_67","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_67"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_67/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_68","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_68"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_68","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_68"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_68/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_69","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_69"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_69","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_69"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_69/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_70","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_70"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_70","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_70"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_70/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_71","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_71"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_71","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_71"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_71/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_72","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_72"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_72","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_72"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_72/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_73","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_73"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_73","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_73"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_73/text - {}
+RESULT: {}
+COMMAND: POST /session/0472ae8d4d3549d814546179493d39d2/execute/sync - {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_74","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_74"}]}
+RESULT: {"script":"return (function isElementDisplayed(element) {\n    function nodeIsElement(node) {\n        if (!node) {\n            return false;\n        }\n        switch (node.nodeType) {\n            case Node.ELEMEN ... (7807 more bytes)","args":[{"element-6066-11e4-a52e-4f735466cecf":"C8839865E0DBFE8AF280BF204CCB5F65_element_74","ELEMENT":"C8839865E0DBFE8AF280BF204CCB5F65_element_74"}]}
+COMMAND: GET /session/0472ae8d4d3549d814546179493d39d2/element/C8839865E0DBFE8AF280BF204CCB5F65_element_74/text - {}
+RESULT: {}
+COMMAND: DELETE /session/0472ae8d4d3549d814546179493d39d2 - {}
+RESULT: {}
+]]></system-out>
+      <system-err><![CDATA[
+Error: Contract element with vendor name "Vendor Two" not found
+    at ContractsPage.clickContractByVendorName (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/pageobjects/contractsPage.ts:25:13)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/contract.spec.ts:41:7)
 ]]></system-err>
     </testcase>
   </testsuite>
