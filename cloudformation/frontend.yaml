@@ -148,8 +148,8 @@ Resources:
         Variables:
           AWS_ACCOUNT_ID: !Sub ${AWS::AccountId}
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
-          # GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:google-client-details:SecretString:clientId}}'
-          # GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:google-client-details:SecretString:clientSecret}}'
+          GOOGLE_CLIENT_ID: '{{resolve:secretsmanager:google-client-details:SecretString:clientId}}'
+          GOOGLE_CLIENT_SECRET: '{{resolve:secretsmanager:google-client-details:SecretString:clientSecret}}'
       Policies:
         - Statement:
             - Effect: Allow
