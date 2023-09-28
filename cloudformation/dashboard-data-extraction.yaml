@@ -25,7 +25,7 @@ Resources:
         MaximumEventAgeInSeconds: 60
       Handler: dashboardExtract.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
-      Timeout: 180
+      Timeout: 900
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:
