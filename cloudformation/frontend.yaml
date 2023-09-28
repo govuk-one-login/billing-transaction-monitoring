@@ -350,10 +350,10 @@ Resources:
       LogGroupName: !Sub aws-waf-logs-${AWS::StackName}-cloudwatch-logs
       RetentionInDays: 90
 
-  # WebAclLogSubscription:
-  #   Type: AWS::Logs::SubscriptionFilter
-  #   Condition: IsSplunkForwardingActiveAndFrontEndEnabled
-  #   Properties:
-  #     DestinationArn: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
-  #     FilterPattern: ''
-  #     LogGroupName: !Ref WebAclLogGroup
+  WebAclLogSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Condition: IsSplunkForwardingActiveAndFrontEndEnabled
+    Properties:
+      DestinationArn: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
+      FilterPattern: ''
+      LogGroupName: !Ref WebAclLogGroup
