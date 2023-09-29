@@ -225,10 +225,10 @@ describe("Standardised invoice sender", () => {
         givenParserVersions
       )
     ).rejects.toThrowError(mockedErrorText);
-    expect(mockedSendRecord).toHaveBeenCalledTimes(4);
+    expect(mockedSendRecord).toHaveBeenCalledTimes(2);
     expect(mockedSendRecord).toHaveBeenCalledWith(
       givenOutputQueueUrl,
-      JSON.stringify("mocked Textract line item 1")
+      JSON.stringify(mockedStandardisedInvoice)
     );
   });
 

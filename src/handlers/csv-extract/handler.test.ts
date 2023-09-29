@@ -324,28 +324,30 @@ describe("CSV Extract handler tests", () => {
     expect(mockedSendRecord).toHaveBeenCalledTimes(1);
     expect(mockedSendRecord).toHaveBeenCalledWith(
       givenOutputQueueUrl,
-      JSON.stringify({
-        invoice_receipt_id: "123 4567 89",
-        vendor_id: "vendor123",
-        vendor_name: "Skippy’s Everything Shop",
-        invoice_receipt_date: "2022-01-01",
-        invoice_period_start: "2022-01-01",
-        due_date: "2022-02-01",
-        tax_payer_id: "123 4567 89",
-        parser_version: "1.0.0",
-        originalInvoiceFile: givenFileName,
-        invoice_is_quarterly: false,
-        event_name: "VENDOR_1_EVENT_1",
-        item_description: "Horse Hoof Whittling",
-        subtotal: 348.6,
-        price: 348.6,
-        quantity: 28,
-        service_name: "Horse Hoof Whittling",
-        contract_id: "1",
-        unit_price: 12.45,
-        tax: 69.72,
-        total: 418.32,
-      })
+      JSON.stringify([
+        {
+          invoice_receipt_id: "123 4567 89",
+          vendor_id: "vendor123",
+          vendor_name: "Skippy’s Everything Shop",
+          invoice_receipt_date: "2022-01-01",
+          invoice_period_start: "2022-01-01",
+          due_date: "2022-02-01",
+          tax_payer_id: "123 4567 89",
+          parser_version: "1.0.0",
+          originalInvoiceFile: givenFileName,
+          invoice_is_quarterly: false,
+          event_name: "VENDOR_1_EVENT_1",
+          item_description: "Horse Hoof Whittling",
+          subtotal: 348.6,
+          price: 348.6,
+          quantity: 28,
+          service_name: "Horse Hoof Whittling",
+          contract_id: "1",
+          unit_price: 12.45,
+          tax: 69.72,
+          total: 418.32,
+        },
+      ])
     );
   });
 
@@ -369,28 +371,30 @@ describe("CSV Extract handler tests", () => {
     expect(mockedSendRecord).toHaveBeenCalledTimes(1);
     expect(mockedSendRecord).toHaveBeenCalledWith(
       givenOutputQueueUrl,
-      JSON.stringify({
-        invoice_receipt_id: "123 4567 89",
-        vendor_id: "vendor123",
-        vendor_name: "Skippy’s Everything Shop",
-        invoice_receipt_date: "2022-01-01",
-        invoice_period_start: "2021-12-01",
-        due_date: "2022-02-01",
-        tax_payer_id: "123 4567 89",
-        parser_version: "1.0.0",
-        originalInvoiceFile: givenFileName,
-        invoice_is_quarterly: false,
-        event_name: "VENDOR_1_EVENT_1",
-        item_description: "Horse Hoof Whittling",
-        subtotal: 348.6,
-        price: 348.6,
-        quantity: 28,
-        service_name: "Horse Hoof Whittling",
-        contract_id: "1",
-        unit_price: 12.45,
-        tax: 69.72,
-        total: 418.32,
-      })
+      JSON.stringify([
+        {
+          invoice_receipt_id: "123 4567 89",
+          vendor_id: "vendor123",
+          vendor_name: "Skippy’s Everything Shop",
+          invoice_receipt_date: "2022-01-01",
+          invoice_period_start: "2021-12-01",
+          due_date: "2022-02-01",
+          tax_payer_id: "123 4567 89",
+          parser_version: "1.0.0",
+          originalInvoiceFile: givenFileName,
+          invoice_is_quarterly: false,
+          event_name: "VENDOR_1_EVENT_1",
+          item_description: "Horse Hoof Whittling",
+          subtotal: 348.6,
+          price: 348.6,
+          quantity: 28,
+          service_name: "Horse Hoof Whittling",
+          contract_id: "1",
+          unit_price: 12.45,
+          tax: 69.72,
+          total: 418.32,
+        },
+      ])
     );
   });
 
@@ -413,28 +417,30 @@ describe("CSV Extract handler tests", () => {
     expect(mockedSendRecord).toHaveBeenCalledTimes(1);
     expect(mockedSendRecord).toHaveBeenCalledWith(
       givenOutputQueueUrl,
-      JSON.stringify({
-        invoice_receipt_id: "123 4567 89",
-        vendor_id: "vendor123",
-        vendor_name: "Skippy’s Everything Shop",
-        invoice_receipt_date: "2022-01-01",
-        invoice_period_start: "2021-12-01",
-        due_date: "2022-02-01",
-        tax_payer_id: "123 4567 89",
-        parser_version: "",
-        originalInvoiceFile: givenFileName,
-        invoice_is_quarterly: false,
-        event_name: "VENDOR_1_EVENT_1",
-        item_description: "Horse Hoof Whittling",
-        subtotal: 348.6,
-        price: 348.6,
-        quantity: 28,
-        service_name: "Horse Hoof Whittling",
-        contract_id: "1",
-        unit_price: 12.45,
-        tax: 69.72,
-        total: 418.32,
-      })
+      JSON.stringify([
+        {
+          invoice_receipt_id: "123 4567 89",
+          vendor_id: "vendor123",
+          vendor_name: "Skippy’s Everything Shop",
+          invoice_receipt_date: "2022-01-01",
+          invoice_period_start: "2021-12-01",
+          due_date: "2022-02-01",
+          tax_payer_id: "123 4567 89",
+          parser_version: "",
+          originalInvoiceFile: givenFileName,
+          invoice_is_quarterly: false,
+          event_name: "VENDOR_1_EVENT_1",
+          item_description: "Horse Hoof Whittling",
+          subtotal: 348.6,
+          price: 348.6,
+          quantity: 28,
+          service_name: "Horse Hoof Whittling",
+          contract_id: "1",
+          unit_price: 12.45,
+          tax: 69.72,
+          total: 418.32,
+        },
+      ])
     );
   });
 });
