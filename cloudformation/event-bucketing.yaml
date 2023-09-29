@@ -49,9 +49,6 @@ Resources:
                 ForAnyValue:StringEquals:
                   kms:ResourceAliases: !Sub alias/key-${ConfigStackParameter.Value}-general
             - Effect: Allow
-              Action: glue:GetTable
-              Resource: !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*
-            - Effect: Allow
               Action:
                 - s3:AbortMultipartUpload
                 - s3:GetBucketLocation
@@ -60,6 +57,7 @@ Resources:
                 - s3:ListBucketMultipartUploads
                 - s3:ListMultipartUploadParts
                 - s3:PutObject
+                - s3:DeleteObject
               Resource:
                 - !Sub arn:aws:s3:::${AWS::StackName}-storage
                 - !Sub arn:aws:s3:::${AWS::StackName}-storage/*
