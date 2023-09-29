@@ -5,7 +5,6 @@ Resources:
   FrontEndApi:
     # checkov:skip=CKV_AWS_120: No caching for now
     Type: AWS::Serverless::Api
-    Condition: FrontEndEnabled
     DependsOn:
       - FrontEndDomainName
       - FrontEndHostedZoneName
@@ -78,7 +77,6 @@ Resources:
 
   FrontEndDomainName:
     Type: AWS::SSM::Parameter
-    Condition: FrontEndEnabled
     Properties:
       Name: !Sub ${AWS::StackName}-frontend-domain-name
       Type: String
@@ -96,7 +94,6 @@ Resources:
 
   FrontEndHostedZoneName:
     Type: AWS::SSM::Parameter
-    Condition: FrontEndEnabled
     Properties:
       Name: !Sub ${AWS::StackName}-frontend-hosted-zone-name
       Type: String
@@ -111,7 +108,6 @@ Resources:
 
   FrontEndCertificateArn:
     Type: AWS::SSM::Parameter
-    Condition: FrontEndEnabled
     Properties:
       Name: !Sub ${AWS::StackName}-frontend-certificate-arn
       Type: String
@@ -127,7 +123,6 @@ Resources:
 
   FrontEndApiLogGroup:
     Type: AWS::Logs::LogGroup
-    Condition: FrontEndEnabled
     Properties:
       KmsKeyId: !GetAtt KmsKey.Arn
       RetentionInDays: 90
@@ -137,7 +132,6 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    Condition: FrontEndEnabled
     Properties:
       FunctionName: !Sub ${AWS::StackName}-frontend-auth-function
       MemorySize: 256
@@ -169,7 +163,6 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for front end lambda
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
-    Condition: FrontEndEnabled
     Properties:
       Environment:
         Variables:
@@ -239,14 +232,12 @@ Resources:
 
   FrontEndWebAclAssociation:
     Type: AWS::WAFv2::WebACLAssociation
-    Condition: FrontEndEnabled
     Properties:
       ResourceArn: !Sub arn:aws:apigateway:${AWS::Region}::/restapis/${FrontEndApi}/stages/${FrontEndApiwebStage}
       WebACLArn: !GetAtt WebAcl.Arn
 
   WebAcl:
     Type: AWS::WAFv2::WebACL
-    Condition: FrontEndEnabled
     Properties:
       Name: !Sub ${AWS::StackName}-acl
       DefaultAction:
@@ -323,7 +314,6 @@ Resources:
 
   WebAclLogConfig:
     Type: AWS::WAFv2::LoggingConfiguration
-    Condition: FrontEndEnabled
     Properties:
       ResourceArn: !GetAtt WebAcl.Arn
       LogDestinationConfigs:
@@ -344,7 +334,6 @@ Resources:
 
   WebAclLogGroup:
     Type: AWS::Logs::LogGroup
-    Condition: FrontEndEnabled
     Properties:
       KmsKeyId: !GetAtt KmsKey.Arn
       LogGroupName: !Sub aws-waf-logs-${AWS::StackName}-cloudwatch-logs
@@ -352,7 +341,7 @@ Resources:
 
   WebAclLogSubscription:
     Type: AWS::Logs::SubscriptionFilter
-    Condition: IsSplunkForwardingActiveAndFrontEndEnabled
+    Condition: IsSplunkForwardingActive
     Properties:
       DestinationArn: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
       FilterPattern: ''

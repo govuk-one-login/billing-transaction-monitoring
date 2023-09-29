@@ -104,9 +104,6 @@ Conditions:
       !Equals [!Ref AWS::StackName, di-btm-integration],
       !Equals [!Ref AWS::StackName, di-btm-production],
     ]
-  FrontEndEnabled: !Not [!Equals [!Ref AWS::StackName, di-btm-production]]
-  IsSplunkForwardingActiveAndFrontEndEnabled:
-    !Or [!Equals [!Ref AWS::StackName, di-btm-dev], !Equals [!Ref AWS::StackName, di-btm-build]]
   FrontEndAuthEnabled:
     !Or [
       !Equals [!Ref AWS::StackName, di-btm-auth-demo],
