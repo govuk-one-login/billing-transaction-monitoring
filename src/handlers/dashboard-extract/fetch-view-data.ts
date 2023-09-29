@@ -11,6 +11,6 @@ export async function fetchViewData(
   env: Record<Env, string>
 ): Promise<ResultSet> {
   const fetchDataSql = `SELECT * FROM "${env.DATABASE_NAME}".btm_billing_and_transactions_curated`;
-  const executor = new AthenaQueryExecutor(athena, QUERY_WAIT);
+  const executor = new AthenaQueryExecutor(athena, QUERY_WAIT, 15);
   return await executor.fetchResults(fetchDataSql, env.QUERY_RESULTS_BUCKET);
 }
