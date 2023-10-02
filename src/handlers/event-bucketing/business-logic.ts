@@ -51,7 +51,7 @@ export const businessLogic: BusinessLogic<
     );
   }
 
-  return new Array<String>();
+  return [messageBody];
 };
 
 const getKeysFromDates = (messageBody?: MessageBody): string[] => {
