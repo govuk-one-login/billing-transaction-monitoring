@@ -83,7 +83,7 @@ const getKeysFromDates = (messageBody?: MessageBody): string[] => {
   return keyArray;
 };
 
-const checkForProcessedFileKeys = (fileKeys: string[]): Boolean => {
+const checkForProcessedFileKeys = (fileKeys: string[]): boolean => {
   return fileKeys.some((fileKey) => {
     const fileKeyParts = fileKey.split("/");
     return fileKeyParts[fileKeyParts.length - 1].startsWith(
@@ -92,6 +92,6 @@ const checkForProcessedFileKeys = (fileKeys: string[]): Boolean => {
   });
 };
 
-const checkForProcessedFileContent = (fileContent: string): Boolean => {
+const checkForProcessedFileContent = (fileContent: string): boolean => {
   return (fileContent.match(/\n/g) ?? []).length > 0;
 };
