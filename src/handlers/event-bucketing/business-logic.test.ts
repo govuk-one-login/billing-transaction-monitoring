@@ -32,6 +32,7 @@ describe("Event bucketing businessLogic", () => {
     givenCtx = {
       env: {
         STORAGE_BUCKET: "storage_bucket",
+        BUCKETING_DAYS_TO_PROCESS: "7",
       },
       logger: {
         info: givenInfoLogger,
@@ -129,13 +130,13 @@ describe("Event bucketing businessLogic", () => {
 
     await businessLogic(validIncomingEventBody, givenCtx);
 
-    expect(mockedGetKeys).toBeCalledTimes(30);
+    expect(mockedGetKeys).toBeCalledTimes(7);
 
-    expect(mockedGetFileContent).toBeCalledTimes(60);
+    expect(mockedGetFileContent).toBeCalledTimes(14);
 
-    expect(mockedBackupEventFile).toBeCalledTimes(60);
+    expect(mockedBackupEventFile).toBeCalledTimes(14);
 
-    expect(mockedStoreBucketingFile).toBeCalledTimes(30);
+    expect(mockedStoreBucketingFile).toBeCalledTimes(7);
   });
 
   test("Processing 1 folder with 501 files, expecting 2 consolidation files", async () => {

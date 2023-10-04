@@ -17,7 +17,8 @@ export type EnvVarName =
   | "QUERY_RESULTS_BUCKET"
   | "STORAGE_BUCKET"
   | "TEXTRACT_ROLE"
-  | "TEXTRACT_SNS_TOPIC";
+  | "TEXTRACT_SNS_TOPIC"
+  | "BUCKETING_DAYS_TO_PROCESS";
 
 export const getFromEnv = (varName: EnvVarName): string | undefined =>
   process.env[varName];

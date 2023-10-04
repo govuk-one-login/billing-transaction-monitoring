@@ -13,7 +13,10 @@ export const businessLogic: BusinessLogic<
   ConfigCache,
   MessageBody
 > = async (messageBody, { env }) => {
-  const foldersToProcess = getKeysFromDates(messageBody);
+  const foldersToProcess = getKeysFromDates(
+    env.BUCKETING_DAYS_TO_PROCESS,
+    messageBody
+  );
   for (const folderKey of foldersToProcess) {
     const keys = await getKeys(env.STORAGE_BUCKET, folderKey);
     // skip processed files (automated method)
@@ -54,14 +57,17 @@ export const businessLogic: BusinessLogic<
   return [messageBody];
 };
 
-const getKeysFromDates = (messageBody?: MessageBody): string[] => {
+const getKeysFromDates = (
+  bucketingDaysToProcess: string,
+  messageBody?: MessageBody
+): string[] => {
   let startDate;
   let endDate;
   if (messageBody?.start_date !== undefined) {
     startDate = new Date(messageBody.start_date);
   } else {
     startDate = new Date();
-    startDate.setDate(startDate.getDate() - 30);
+    startDate.setDate(startDate.getDate() - parseInt(bucketingDaysToProcess));
   }
   if (messageBody?.end_date !== undefined) {
     endDate = new Date(messageBody.end_date);

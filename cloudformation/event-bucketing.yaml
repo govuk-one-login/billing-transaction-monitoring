@@ -18,11 +18,12 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_BUCKET: !Sub ${AWS::StackName}-storage
+          BUCKETING_DAYS_TO_PROCESS: 7
       EventInvokeConfig:
         MaximumEventAgeInSeconds: 60
       Handler: eventBucketing.handler
       KmsKeyArn: !GetAtt KmsKey.Arn
-      Timeout: 180
+      Timeout: 900
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:
