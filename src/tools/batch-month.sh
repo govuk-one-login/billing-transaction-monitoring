@@ -19,6 +19,12 @@ echo aws s3 sync "s3://di-btm-production-storage/btm_event_data/$1/$2/" "s3://di
 read -p 'Press Enter to proceed...' var
 aws s3 sync "s3://di-btm-production-storage/btm_event_data/$1/$2/" "s3://di-btm-production-storage/btm_event_data_copy/btm_event_data/$1/$2/"
 
+echo
+echo "About to re-run backup, check for any errors!"
+echo aws s3 sync "s3://di-btm-production-storage/btm_event_data/$1/$2/" "s3://di-btm-production-storage/btm_event_data_copy/btm_event_data/$1/$2/"
+read -p 'Press Enter to proceed...' var
+aws s3 sync "s3://di-btm-production-storage/btm_event_data/$1/$2/" "s3://di-btm-production-storage/btm_event_data_copy/btm_event_data/$1/$2/"
+
 mkdir -p downloaded-events
 echo
 echo "About to run:"
@@ -28,6 +34,12 @@ rm -rf downloaded-events/*
 
 echo
 echo "About to run:"
+echo aws s3 sync "s3://di-btm-production-storage/btm_event_data/$1/$2/" downloaded-events/$1/$2
+read -p 'Press Enter to proceed...' var
+aws s3 sync "s3://di-btm-production-storage/btm_event_data/$1/$2/" downloaded-events/$1/$2
+
+echo
+echo "About to rerun downloading of data, check for errors!"
 echo aws s3 sync "s3://di-btm-production-storage/btm_event_data/$1/$2/" downloaded-events/$1/$2
 read -p 'Press Enter to proceed...' var
 aws s3 sync "s3://di-btm-production-storage/btm_event_data/$1/$2/" downloaded-events/$1/$2
@@ -51,7 +63,18 @@ read -p 'Press Enter to proceed...' var
 aws s3 rm --recursive s3://di-btm-production-storage/btm_event_data/$1/$2
 
 echo
+echo "About to rerun deletion of files in s3://di-btm-production-storage/btm_event_data/$1/$2/$3, check for errors!"
+read -p 'Press Enter to proceed...' var
+aws s3 rm --recursive s3://di-btm-production-storage/btm_event_data/$1/$2
+
+echo
 echo "About to run:"
+echo aws s3 sync batched-events/$1/$2 "s3://di-btm-production-storage/btm_event_data/$1/$2"
+read -p 'Press Enter to proceed...' var
+aws s3 sync batched-events/$1/$2 "s3://di-btm-production-storage/btm_event_data/$1/$2"
+
+echo
+echo "About to re-run upload of batch data, check for errors!"
 echo aws s3 sync batched-events/$1/$2 "s3://di-btm-production-storage/btm_event_data/$1/$2"
 read -p 'Press Enter to proceed...' var
 aws s3 sync batched-events/$1/$2 "s3://di-btm-production-storage/btm_event_data/$1/$2"
