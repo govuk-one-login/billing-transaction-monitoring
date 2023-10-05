@@ -1,25 +1,86 @@
-name: Deploy CF-stack and run tests on PR
+name: Deploy Local Eph Env and Run test
 
 on:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-    branches-ignore:
-      - 'no-int-test/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Input Ephemeral environments purpose to Build'
+        type: environment
+        required: true
+      perform_build_only:
+        description: ' Select if only build is required '
+        required: true
+        default: false
+        type: boolean
+      perform_build_and_Deploy:
+        description: 'Select if build and Deploy is required'
+        required: true
+        default: false
+        type: boolean
+      perform_inttest:
+        description: 'Select if Integration Test is required to run tests'
+        required: true
+        default: true
+        type: boolean
+      perform_UItest:
+        description: 'Select if UI Test is required to run tests'
+        required: true
+        default: false
+        type: boolean
 
 env:
   AWS_REGION: eu-west-2
-  ENV_NAME: pr-${{ github.event.pull_request.number }}
+  ENV_NAME: ${{ github.actor }}-${{ input.environment }}
   SAM_DEPLOY_PARAMETER_OVERRIDES: CodeSigningConfigArn=${{ secrets.DEV_GH_ACTIONS_CODE_SIGNING_CONFIG_ARN }} PermissionsBoundary=${{ secrets.DEV_GH_ACTIONS_PERMISSIONS_BOUNDARY_ARN }}
 
 jobs:
+  buildonly:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    if: ${{ inputs.perform_build_only }}
+    env:
+      TEST_ROLE_ARN: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm test
+      - name: Build lambdas
+        run: npm run build
+      - name: SAM setup
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+      - name: Merge template files into template.yaml
+        run: npm run build:template
+      - name: Check for potential CloudFormation security issues
+        uses: bridgecrewio/checkov-action@master
+        with:
+          file: template.yaml
+          framework: cloudformation
+          quiet: true
+          soft_fail: false
+      - name: SAM build
+        run: sam build
+      - name: Assume AWS GitHub actions tooling role in dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_PR_ROLE_ARN }}
+      - name: SAM validate
+        run: sam validate
+
   build-and-deploy:
     permissions:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
+    if: ${{ inputs.perform_build_and_Deploy }}
     env:
       TEST_ROLE_ARN: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
     steps:
@@ -65,6 +126,7 @@ jobs:
       contents: write
       id-token: write
     runs-on: ubuntu-latest
+    if: ${{ inputs.perform_inttest }}
     env:
       FORCE_COLOR: true
       TEST_VIA_LAMBDA: true
@@ -93,7 +155,7 @@ jobs:
 
   run-ui-tests:
     needs: [run-integration-tests]
-    if: always()
+    if: ${{ inputs.perform_UItest }}
     permissions:
       contents: write
       id-token: write
@@ -123,41 +185,3 @@ jobs:
           publish_dir: ./ui-tests/reports
           commit_message: 'Deploy UI HTML report to gh-pages'
           keep_files: true
-
-  cleanup-and-publish-reports:
-    needs: [run-integration-tests, run-ui-tests]
-    if: always()
-    permissions:
-      contents: write
-      id-token: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - name: Copy cleanup script to tmp
-        run: |
-          cp $GITHUB_WORKSPACE/integration_tests/cleanup-jest-html-reports.sh /tmp/
-          cp $GITHUB_WORKSPACE/ui-tests/helpers/cleanup-reports.sh /tmp/cleanup-ui-reports.sh
-      - name: Check out gh-pages branch
-        uses: actions/checkout@v3
-        with:
-          ref: gh-pages
-      - name: Use cleanup script from current branch to clean gh-pages
-        env:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.email "actions@github.com"
-          git config user.name "Github Actions"
-          cd jest-html-reports
-          /tmp/cleanup-jest-html-reports.sh 5
-          cd ..
-          cd uiHtmlReports
-          /tmp/cleanup-ui-reports.sh 5
-          if git diff --exit-code >/dev/null; then
-            echo "No directories were deleted.Skipping commit."
-          else
-            git add -A
-            git commit -m "cleanup old reports" --allow-empty
-            git push origin gh-pages
-          fi
-        if: always()
