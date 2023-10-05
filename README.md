@@ -185,3 +185,10 @@ export BROWSER=chrome && npm run test:ui # or firefox, MicrosoftEdge, safari
 ## Lambda function code pattern
 
 Some of our AWS Lambda function handlers are written with the `buildHandler` function from `src/handler-context`. For more info on this, see [`src/handler-context/README.md`](src/handler-context/README.md)
+
+## Running manual workflows to build, deploy or test
+
+A workflow has been created so that developers can build, deploy and test code in the cloud, with the help of GitHub Actions.     
+
+To run this workflow, open the repository in GitHub, go to Actions, and select the `Deploy Local Eph Env and Run test` workflow. On the right-hand side of the screen, click the `Run workflow` button. Here you can select the branch on which you want to run the workflow and whether you need to build, to build and deploy, to run Integrations tests or to run UI Tests.  
+The version of the workflow that will run will be the one found in the branch selected in the popup screen. 
