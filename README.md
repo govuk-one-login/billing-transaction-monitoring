@@ -1,5 +1,5 @@
 # Billing & Transaction Monitoring
-Branch used for github images testing
+Branch used for github image testing
 
 Monitors user identity verification events for billing purposes
 
