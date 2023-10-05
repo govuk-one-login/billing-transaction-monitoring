@@ -1,0 +1,187 @@
+name: Deploy Local Eph Env and Run test
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Input Ephemeral environments purpose to Build'
+        type: environment
+        required: true
+      perform_build_only:
+        description: ' Select if only build is required '
+        required: true
+        default: false
+        type: boolean
+      perform_build_and_Deploy:
+        description: 'Select if build and Deploy is required'
+        required: true
+        default: false
+        type: boolean
+      perform_inttest:
+        description: 'Select if Integration Test is required to run tests'
+        required: true
+        default: true
+        type: boolean
+      perform_UItest:
+        description: 'Select if UI Test is required to run tests'
+        required: true
+        default: false
+        type: boolean
+
+env:
+  AWS_REGION: eu-west-2
+  ENV_NAME: ${{ github.actor }}-${{ input.environment }}
+  SAM_DEPLOY_PARAMETER_OVERRIDES: CodeSigningConfigArn=${{ secrets.DEV_GH_ACTIONS_CODE_SIGNING_CONFIG_ARN }} PermissionsBoundary=${{ secrets.DEV_GH_ACTIONS_PERMISSIONS_BOUNDARY_ARN }}
+
+jobs:
+  buildonly:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    if: ${{ inputs.perform_build_only }}
+    env:
+      TEST_ROLE_ARN: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm test
+      - name: Build lambdas
+        run: npm run build
+      - name: SAM setup
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+      - name: Merge template files into template.yaml
+        run: npm run build:template
+      - name: Check for potential CloudFormation security issues
+        uses: bridgecrewio/checkov-action@master
+        with:
+          file: template.yaml
+          framework: cloudformation
+          quiet: true
+          soft_fail: false
+      - name: SAM build
+        run: sam build
+      - name: Assume AWS GitHub actions tooling role in dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_PR_ROLE_ARN }}
+      - name: SAM validate
+        run: sam validate
+
+  build-and-deploy:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    if: ${{ inputs.perform_build_and_Deploy }}
+    env:
+      TEST_ROLE_ARN: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm test
+      - name: Build lambdas
+        run: npm run build
+      - name: SAM setup
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+      - name: Merge template files into template.yaml
+        run: npm run build:template
+      - name: Check for potential CloudFormation security issues
+        uses: bridgecrewio/checkov-action@master
+        with:
+          file: template.yaml
+          framework: cloudformation
+          quiet: true
+          soft_fail: false
+      - name: SAM build
+        run: sam build
+      - name: Assume AWS GitHub actions tooling role in dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_PR_ROLE_ARN }}
+      - name: SAM validate
+        run: sam validate
+      - name: SAM deploy
+        env:
+          SIGNING_PROFILE: ${{ secrets.DEV_SIGNING_PROFILE_NAME }}
+        run: src/tools/deploy-pr-stack.sh
+
+  run-integration-tests:
+    needs: [build-and-deploy]
+    permissions:
+      contents: write
+      id-token: write
+    runs-on: ubuntu-latest
+    if: ${{ inputs.perform_inttest }}
+    env:
+      FORCE_COLOR: true
+      TEST_VIA_LAMBDA: true
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - name: Assume AWS GitHub actions tooling role in dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
+      - name: Run integration tests
+        run: npm run test:ephemeralEnvs
+      - name: Deploy Integration test HTML report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./reports
+          commit_message: 'Deploy Integration test HTML report to gh-pages'
+          keep_files: true
+
+  run-ui-tests:
+    needs: [run-integration-tests]
+    if: ${{ inputs.perform_UItest }}
+    permissions:
+      contents: write
+      id-token: write
+    runs-on: ubuntu-latest
+    env:
+      TEST_VIA_LAMBDA: true
+      FORCE_COLOR: true
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - name: Assume AWS GitHub actions tooling role in dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.DEV_GH_ACTIONS_TEST_ROLE_ARN }}
+      - name: Run UI tests
+        run: npm run test:ui
+      - name: Deploy UI Test HTML report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./ui-tests/reports
+          commit_message: 'Deploy UI HTML report to gh-pages'
+          keep_files: true
