@@ -3,7 +3,7 @@ name: Build and push testing image
 on:
   push:
     branches:
-      - main
+      - test-run-github-images
 
 env:
   AWS_REGION: eu-west-2
