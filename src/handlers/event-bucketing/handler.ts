@@ -5,7 +5,7 @@ import { Env } from "./types";
 
 export const handler = buildHandler({
   businessLogic,
-  envVars: [Env.STORAGE_BUCKET],
+  envVars: [Env.STORAGE_BUCKET, Env.BUCKETING_DAYS_TO_PROCESS],
   incomingMessageBodyTypeGuard: isValidIncomingMessageBody,
   outputs: [],
   withBatchItemFailures: false,
