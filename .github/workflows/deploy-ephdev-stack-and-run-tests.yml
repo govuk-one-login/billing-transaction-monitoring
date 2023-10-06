@@ -30,7 +30,7 @@ on:
 
 env:
   AWS_REGION: eu-west-2
-  ENV_NAME: ${{ github.actor }}-${{ input.environment }}
+  ENV_NAME: ${{ github.actor }}-${{ inputs.environment }}
   SAM_DEPLOY_PARAMETER_OVERRIDES: CodeSigningConfigArn=${{ secrets.DEV_GH_ACTIONS_CODE_SIGNING_CONFIG_ARN }} PermissionsBoundary=${{ secrets.DEV_GH_ACTIONS_PERMISSIONS_BOUNDARY_ARN }}
 
 jobs:
