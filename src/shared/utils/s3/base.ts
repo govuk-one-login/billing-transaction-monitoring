@@ -197,7 +197,7 @@ const send = async <T extends ServiceInputTypes, U extends ServiceOutputTypes>(
   await s3
     .send(command)
     .then((data) => {
-      logger.info("Sent S3 command", { metadata: data.$metadata });
+      logger.debug("Sent S3 command", { metadata: data.$metadata });
       return data;
     })
     .catch((err) => {
