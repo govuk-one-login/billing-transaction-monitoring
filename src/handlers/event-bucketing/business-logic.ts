@@ -12,15 +12,17 @@ export const businessLogic: BusinessLogic<
   Env,
   ConfigCache,
   MessageBody
-> = async (messageBody, { env }) => {
+> = async (messageBody, { env, logger }) => {
   const foldersToProcess = getKeysFromDates(
     env.BUCKETING_DAYS_TO_PROCESS,
     messageBody
   );
   for (const folderKey of foldersToProcess) {
+    logger.info(`getting files for ${folderKey}`);
     const keys = await getKeys(env.STORAGE_BUCKET, folderKey);
     // skip processed files (automated method)
-    if (checkForProcessedFileKeys(keys)) {
+    if (!keys.length || checkForProcessedFileKeys(keys)) {
+      logger.info(`${folderKey} does not require processing`);
       continue;
     }
     const contents: string[] = [];
@@ -35,6 +37,7 @@ export const businessLogic: BusinessLogic<
         }
       })
     );
+    logger.info(`files backed up for ${folderKey}`);
     // do not want to process buckets with only one or no events
     if (contents.length < 2) {
       continue;
@@ -46,12 +49,14 @@ export const businessLogic: BusinessLogic<
     }
     fileStrings.push(contents.join("\n"));
 
+    logger.info(`creating consolidated files for ${folderKey}`);
     await Promise.all(
       fileStrings.map(async (str) => {
         // create consolidated backup file
         await storeBucketingFile(env.STORAGE_BUCKET, folderKey, str);
       })
     );
+    logger.info(`${folderKey} processed successfully`);
   }
 
   return [messageBody];
