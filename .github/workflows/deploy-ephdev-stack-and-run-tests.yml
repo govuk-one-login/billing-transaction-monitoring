@@ -3,10 +3,13 @@ name: Deploy Local Eph Env and Run test
 on:
   workflow_dispatch:
     inputs:
+      env_name:
+        description: ' Enter yourname or purpose all in lowercase'
+        required: true
       perform_build_only:
         description: ' Select if only build is required '
         required: true
-        default: false
+        default: true
         type: boolean
       perform_build_and_Deploy:
         description: 'Select if build and Deploy is required'
@@ -14,19 +17,19 @@ on:
         default: false
         type: boolean
       perform_inttest:
-        description: 'Select if Integration Test is required to run tests'
+        description: 'Select if Integration Test is required'
         required: true
-        default: true
+        default: false
         type: boolean
       perform_UItest:
-        description: 'Select if UI Test is required to run tests'
+        description: 'Select if UI Test is required '
         required: true
         default: false
         type: boolean
 
 env:
   AWS_REGION: eu-west-2
-  ENV_NAME: ephEnv-${{ github.actor }}
+  ENV_NAME: ephenv-${{ github.event.inputs.env_name }}
   SAM_DEPLOY_PARAMETER_OVERRIDES: CodeSigningConfigArn=${{ secrets.DEV_GH_ACTIONS_CODE_SIGNING_CONFIG_ARN }} PermissionsBoundary=${{ secrets.DEV_GH_ACTIONS_PERMISSIONS_BOUNDARY_ARN }}
 
 jobs:
