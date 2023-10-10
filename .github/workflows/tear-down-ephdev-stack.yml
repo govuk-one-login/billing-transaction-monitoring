@@ -9,7 +9,7 @@ on:
 
 env:
   AWS_REGION: eu-west-2
-  ENV_NAME: pr-${{ github.event.inputs.env_name }}
+  ENV_NAME: ephenv-${{ github.event.inputs.env_name }}
 
 jobs:
   tear-down-cf-stack:
