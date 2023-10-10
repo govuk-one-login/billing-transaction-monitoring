@@ -192,7 +192,7 @@ A workflow has been created so that developers can build, deploy and test code i
 
 To run this workflow, open the repository in GitHub, go to Actions, and select the `Deploy Local Eph Env and Run test` workflow. On the right-hand side of the screen, click the `Run workflow` button. Here you can select the branch on which you want to run the workflow and whether you need to build, to build and deploy, to run Integrations tests or to run UI Tests.
 
-Note :  Please enter your name or purpose ( should be a short name or purpose  and  all in lower case without )
+Note :  Please enter your name or purpose ( should be a short name or purpose  and  all in lower case )
 
 
 The version of the workflow that will run will be the one found in the branch selected in the popup screen. 
