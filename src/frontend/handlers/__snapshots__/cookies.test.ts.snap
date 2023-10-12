@@ -151,6 +151,12 @@ exports[`cookies handler Page displays cookie info 1`] = `
                   </a>
                 </li>
               
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="/accessibility">
+                    Accessibility
+                  </a>
+                </li>
+              
             </ul>
           
           

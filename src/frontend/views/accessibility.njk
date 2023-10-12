@@ -1,0 +1,49 @@
+{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% extends "common/layout/base.njk" %}
+
+{% block beforeContent %}
+  <nav>
+    {{ govukBreadcrumbs(breadcrumbData) }}
+  </nav>
+{% endblock beforeContent %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">{{ organizationName }} Accessibility Statement</h1>
+
+      <div class="govuk-section" id="accessibilityStatement">
+        <h2 class="govuk-heading-l">Accessibility Statement</h2>
+        <div class="govuk-body">{{ organizationName }} is committed to making its {{ websiteOrApp }} accessible, in accordance with the Public Sector Bodies Websites (No. 2) Accessibility Regulations 2018.</div>
+        <div class="govuk-body"> {{ statementScope | safe }}</div>
+        <div class="govuk-body"><a href="https://mcmw.abilitynet.org.uk/" class="govuk-link"> AbilityNet </a> has advice on making your device easier to use if you have a disability.</div>
+      </div>
+
+      <div class="govuk-section" id="complianceStatus">
+        <h2 class="govuk-heading-l">Compliance Status</h2>
+        <div class="govuk-body">This website is fully compliant with the Web Content Accessibility Guidelines (WCAG) version {{ wcagVersion }} AA standard: <a href="https://www.w3.org/TR/WCAG21/" class="govuk-link">Web Content Accessibility Guidelines version 2.1</a></div>
+      </div>
+
+      <div class="govuk-section" id="preparation">
+        <h2 class="govuk-heading-l">Preparation of this accessibility statement</h2>
+        <div class="govuk-body">This statement was prepared on {{ statementDate }}.</div>
+        <div class="govuk-body">The statement was last reviewed on {{ statementLastReviewDate }}.</div>
+        <div class="govuk-body">The method used to prepare the statement: {{ statementPreparationMethod }}</div>
+      </div>
+
+      <div class="govuk-section" id="feedbackAndContact">
+        <h2 class="govuk-heading-l">Feedback and contact information</h2>
+        <div class="govuk-body">For any complaints please contact the Billing Transaction Monitoring Team via internal support </a> </div>
+        <div class="govuk-body">Provide a description of, and a link to, the feedback mechanism to be used to notify the public sector body of any compliance failures and to request information and content excluded from the scope of the Directive.</div>
+      </div>
+
+      <div class="govuk-section" id="enforcementProcedure">
+        <h2 class="govuk-heading-l">Enforcement procedure</h2>
+        <div class="govuk-body">The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies {{ websiteOrApp }} (No. 2) Accessibility Regulations 2018 (the 'accessibility regulations').</div>
+        <div class="govuk-body">If you're not happy with how we respond to your complaint please <a href="https://www.equalityadvisoryservice.com/" class="govuk-link">contact the Equality Advisory and Support Service (EASS). </a> </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

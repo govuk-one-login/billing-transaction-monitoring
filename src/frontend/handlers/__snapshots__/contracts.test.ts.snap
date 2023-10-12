@@ -132,6 +132,12 @@ exports[`contracts handler Page displays all contracts 1`] = `
                   </a>
                 </li>
               
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="/accessibility">
+                    Accessibility
+                  </a>
+                </li>
+              
             </ul>
           
           
