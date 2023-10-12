@@ -25,9 +25,8 @@ export const businessLogic: BusinessLogic<
       parseInt(env.BUCKETING_FILE_COUNT)
     );
     logger.info(`${keys.length} keys ready to process in ${folderKey}`);
-    // skip processed files (automated method)
-    // TODO: check for additional files even if bucketed files are present
     keys = filterProcessedFileKeys(keys);
+    // skip processed files (automated method)
     if (!keys.length) {
       logger.info(`${folderKey} does not require further processing`);
       continue;
