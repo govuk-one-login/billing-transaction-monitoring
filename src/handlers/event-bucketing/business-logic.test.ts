@@ -33,6 +33,7 @@ describe("Event bucketing businessLogic", () => {
       env: {
         STORAGE_BUCKET: "storage_bucket",
         BUCKETING_DAYS_TO_PROCESS: "7",
+        BUCKETING_FILE_COUNT: "3000",
       },
       logger: {
         info: givenInfoLogger,
@@ -95,7 +96,7 @@ describe("Event bucketing businessLogic", () => {
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
       folder1.key,
-      9999999
+      parseInt(givenCtx.env.BUCKETING_FILE_COUNT)
     );
 
     expect(mockedGetFileContent).toBeCalledTimes(2);
@@ -137,7 +138,9 @@ describe("Event bucketing businessLogic", () => {
 
     expect(mockedBackupEventFile).toBeCalledTimes(14);
 
-    expect(mockedStoreBucketingFile).toBeCalledTimes(7);
+    expect(mockedStoreBucketingFile).toBeCalledTimes(
+      parseInt(givenCtx.env.BUCKETING_DAYS_TO_PROCESS)
+    );
   });
 
   test("Processing 1 folder with 501 files, expecting 2 consolidation files", async () => {
@@ -152,7 +155,7 @@ describe("Event bucketing businessLogic", () => {
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
       folder1.key,
-      9999999
+      parseInt(givenCtx.env.BUCKETING_FILE_COUNT)
     );
 
     expect(mockedGetFileContent).toBeCalledTimes(501);
@@ -172,12 +175,12 @@ describe("Event bucketing businessLogic", () => {
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
       folder1.key,
-      9999999
+      parseInt(givenCtx.env.BUCKETING_FILE_COUNT)
     );
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
       folder2.key,
-      9999999
+      parseInt(givenCtx.env.BUCKETING_FILE_COUNT)
     );
 
     expect(mockedGetFileContent).toBeCalledTimes(2);
@@ -217,12 +220,12 @@ describe("Event bucketing businessLogic", () => {
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
       folder1.key,
-      9999999
+      parseInt(givenCtx.env.BUCKETING_FILE_COUNT)
     );
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
       folder2.key,
-      9999999
+      parseInt(givenCtx.env.BUCKETING_FILE_COUNT)
     );
 
     expect(mockedGetFileContent).toBeCalledTimes(3);

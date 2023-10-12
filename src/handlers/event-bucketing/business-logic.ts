@@ -19,16 +19,16 @@ export const businessLogic: BusinessLogic<
   );
   for (const folderKey of foldersToProcess) {
     logger.info(`getting files for ${folderKey}`);
-    const keys: string[] = await getKeys(
+    let keys: string[] = await getKeys(
       env.STORAGE_BUCKET,
       folderKey,
-      9999999
+      parseInt(env.BUCKETING_FILE_COUNT)
     );
     logger.info(`${keys.length} keys ready to process in ${folderKey}`);
     // skip processed files (automated method)
     // TODO: check for additional files even if bucketed files are present
-    // keys = filterProcessedFileKeys(keys);
-    if (!keys.length || checkForProcessedFileKeys(keys)) {
+    keys = filterProcessedFileKeys(keys);
+    if (!keys.length) {
       logger.info(`${folderKey} does not require further processing`);
       continue;
     }
@@ -44,7 +44,7 @@ export const businessLogic: BusinessLogic<
         }
       })
     );
-    logger.info(`files backed up for ${folderKey}`);
+    logger.info(`finished baccking up files`);
     // do not want to process buckets with only one or no events
     if (contents.length < 2) {
       continue;
@@ -101,23 +101,14 @@ const getKeysFromDates = (
   return keyArray;
 };
 
-const checkForProcessedFileKeys = (fileKeys: string[]): boolean => {
-  return fileKeys.some((fileKey) => {
+const filterProcessedFileKeys = (fileKeys: string[]): string[] => {
+  return fileKeys.filter((fileKey) => {
     const fileKeyParts = fileKey.split("/");
-    return fileKeyParts[fileKeyParts.length - 1].startsWith(
+    return !fileKeyParts[fileKeyParts.length - 1].startsWith(
       "bucketing-extract-"
     );
   });
 };
-
-// const filterProcessedFileKeys = (fileKeys: string[]): string[] => {
-//   return fileKeys.filter((fileKey) => {
-//     const fileKeyParts = fileKey.split("/");
-//     return fileKeyParts[fileKeyParts.length - 1].startsWith(
-//       "bucketing-extract-"
-//     );
-//   });
-// };
 
 const checkForProcessedFileContent = (fileContent: string): boolean => {
   return (fileContent.match(/\n/g) ?? []).length > 0;

@@ -18,7 +18,8 @@ Resources:
         Variables:
           # checkov:skip=CKV_AWS_173: These environment variables do not require encryption.
           STORAGE_BUCKET: !Sub ${AWS::StackName}-storage
-          BUCKETING_DAYS_TO_PROCESS: 7
+          BUCKETING_DAYS_TO_PROCESS: 1
+          BUCKETING_FILE_COUNT: 3000
       EventInvokeConfig:
         MaximumEventAgeInSeconds: 60
       Handler: eventBucketing.handler

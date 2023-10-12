@@ -19,6 +19,7 @@ describe("Store Standardised Invoices handler tests", () => {
     mockedEnv = {
       BUCKETING_DAYS_TO_PROCESS: "given days to process",
       STORAGE_BUCKET: "given storage bucket",
+      BUCKETING_FILE_COUNT: "given file count",
     };
 
     mockedGetFromEnv.mockImplementation((key) => mockedEnv[key]);
