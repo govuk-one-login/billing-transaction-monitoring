@@ -94,7 +94,8 @@ describe("Event bucketing businessLogic", () => {
     expect(mockedGetKeys).toBeCalledTimes(1);
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
-      folder1.key
+      folder1.key,
+      9999999
     );
 
     expect(mockedGetFileContent).toBeCalledTimes(2);
@@ -150,7 +151,8 @@ describe("Event bucketing businessLogic", () => {
     expect(mockedGetKeys).toBeCalledTimes(1);
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
-      folder1.key
+      folder1.key,
+      9999999
     );
 
     expect(mockedGetFileContent).toBeCalledTimes(501);
@@ -169,11 +171,13 @@ describe("Event bucketing businessLogic", () => {
     expect(mockedGetKeys).toBeCalledTimes(2);
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
-      folder1.key
+      folder1.key,
+      9999999
     );
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
-      folder2.key
+      folder2.key,
+      9999999
     );
 
     expect(mockedGetFileContent).toBeCalledTimes(2);
@@ -212,11 +216,13 @@ describe("Event bucketing businessLogic", () => {
     expect(mockedGetKeys).toBeCalledTimes(2);
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
-      folder1.key
+      folder1.key,
+      9999999
     );
     expect(mockedGetKeys).toBeCalledWith(
       givenCtx.env.STORAGE_BUCKET,
-      folder2.key
+      folder2.key,
+      9999999
     );
 
     expect(mockedGetFileContent).toBeCalledTimes(3);

@@ -19,10 +19,17 @@ export const businessLogic: BusinessLogic<
   );
   for (const folderKey of foldersToProcess) {
     logger.info(`getting files for ${folderKey}`);
-    const keys = await getKeys(env.STORAGE_BUCKET, folderKey);
+    const keys: string[] = await getKeys(
+      env.STORAGE_BUCKET,
+      folderKey,
+      9999999
+    );
+    logger.info(`${keys.length} keys ready to process in ${folderKey}`);
     // skip processed files (automated method)
+    // TODO: check for additional files even if bucketed files are present
+    // keys = filterProcessedFileKeys(keys);
     if (!keys.length || checkForProcessedFileKeys(keys)) {
-      logger.info(`${folderKey} does not require processing`);
+      logger.info(`${folderKey} does not require further processing`);
       continue;
     }
     const contents: string[] = [];
@@ -102,6 +109,15 @@ const checkForProcessedFileKeys = (fileKeys: string[]): boolean => {
     );
   });
 };
+
+// const filterProcessedFileKeys = (fileKeys: string[]): string[] => {
+//   return fileKeys.filter((fileKey) => {
+//     const fileKeyParts = fileKey.split("/");
+//     return fileKeyParts[fileKeyParts.length - 1].startsWith(
+//       "bucketing-extract-"
+//     );
+//   });
+// };
 
 const checkForProcessedFileContent = (fileContent: string): boolean => {
   return (fileContent.match(/\n/g) ?? []).length > 0;

@@ -20,9 +20,10 @@ export const storeBucketingFile = async (
 
 export const getKeys = async (
   bucket: string,
-  key: string
+  key: string,
+  maxKeys?: number
 ): Promise<string[]> => {
-  return await listS3Keys(bucket, key);
+  return await listS3Keys(bucket, key, maxKeys);
 };
 
 export const getFileContent = async (
@@ -36,14 +37,24 @@ export const backUpEventFile = async (
   bucket: string,
   sourceKey: string
 ): Promise<void> => {
-  return await moveS3(bucket, sourceKey, bucket, `btm_event_data_copy/${sourceKey}`);
+  return await moveS3(
+    bucket,
+    sourceKey,
+    bucket,
+    `btm_event_data_copy/${sourceKey}`
+  );
 };
 
 export const moveBucketedFile = async (
   bucket: string,
   sourceKey: string
 ): Promise<void> => {
-  return await moveS3(bucket, `btm_event_data_copy/${sourceKey}`, bucket, sourceKey);
+  return await moveS3(
+    bucket,
+    `btm_event_data_copy/${sourceKey}`,
+    bucket,
+    sourceKey
+  );
 };
 
 export const deleteFile = async (

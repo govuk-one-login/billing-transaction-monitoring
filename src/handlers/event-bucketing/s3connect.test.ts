@@ -28,8 +28,8 @@ describe("store", () => {
   });
 
   it("gets the file keys from S3 that belong to the provided bucket and folder", async () => {
-    await getKeys(bucket, folderKey);
-    expect(listS3Keys).toHaveBeenCalledWith(bucket, folderKey);
+    await getKeys(bucket, folderKey, 7000);
+    expect(listS3Keys).toHaveBeenCalledWith(bucket, folderKey, 7000);
   });
 
   it("returns the file content for the givenfile key and S3 bucket", async () => {

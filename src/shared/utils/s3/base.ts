@@ -120,11 +120,13 @@ const isEncryptedS3ObjectMetadata = (
 
 export const listS3Keys = async (
   bucket: string,
-  prefix: string
+  prefix: string,
+  maxKeys?: number
 ): Promise<string[]> => {
   const listCommand = new ListObjectsCommand({
     Bucket: bucket,
     Prefix: prefix,
+    MaxKeys: maxKeys,
   });
 
   const result = await send(listCommand);
