@@ -1,41 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="Home Page Tests" timestamp="2023-10-13T09:33:51" time="1.274" tests="1" failures="1" errors="1" skipped="0">
+  <testsuite name="WAF Tests" timestamp="2023-10-13T09:35:30" time="1.785" tests="2" failures="2" errors="2" skipped="0">
     <properties>
       <property name="specId" value="0"/>
-      <property name="suiteName" value="Home Page Tests"/>
+      <property name="suiteName" value="WAF Tests"/>
       <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/home.spec.ts"/>
+      <property name="file" value="file://./ui-tests/specs/waf.spec.ts"/>
     </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Home_Page_Tests" name="before all hook for Home Page Tests" time="1.274">
+    <testcase classname="chrome.117_0_5938_132.linux.WAF_Tests" name="Should not block requests with query parameters in general" time="1.291">
       <failure/>
       <error message="unknown error: net::ERR_NAME_NOT_RESOLVED&#xA;  (Session info: headless chrome=117.0.5938.132)"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/b69c307373de2eceebfb2d5193c016d0/url - {"url":"https://pr-512.btm.dev.account.gov.uk/?foo=bar"}
+]]></system-out>
       <system-err><![CDATA[
 unknown error: unknown error: net::ERR_NAME_NOT_RESOLVED
   (Session info: headless chrome=117.0.5938.132)
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
-    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/home.spec.ts:12:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/waf.spec.ts:8:5)
+]]></system-err>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_132.linux.WAF_Tests" name="Should block request with with script tag in query parameter" time="0.492">
+      <failure/>
+      <error message="unknown error: net::ERR_NAME_NOT_RESOLVED&#xA;  (Session info: headless chrome=117.0.5938.132)"/>
+      <system-out><![CDATA[
+COMMAND: POST /session/b69c307373de2eceebfb2d5193c016d0/url - {"url":"https://pr-512.btm.dev.account.gov.uk/?foo=%3Cscript%3E"}
+COMMAND: DELETE /session/b69c307373de2eceebfb2d5193c016d0 - {}
+RESULT: {}
+]]></system-out>
+      <system-err><![CDATA[
+unknown error: unknown error: net::ERR_NAME_NOT_RESOLVED
+  (Session info: headless chrome=117.0.5938.132)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async Context.<anonymous> (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/ui-tests/specs/waf.spec.ts:14:5)
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Home Page Overview table Tests" timestamp="2023-10-13T09:33:52" time="0.489" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Home Page Overview table Tests"/>
-      <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/home.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Home_Page_Overview_table_Tests" name="Should display the overview table with correct data" time="0">
-      <skipped/>
-      <system-out><![CDATA[
-COMMAND: POST /session/a2285140e6ba7e592ace0584e03176f2/url - {"url":"https://pr-512.btm.dev.account.gov.uk/"}
-COMMAND: DELETE /session/a2285140e6ba7e592ace0584e03176f2 - {}
-RESULT: {}
-]]></system-out>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Home_Page_Overview_table_Tests" name="before each hook for Home Page Overview table Tests" time="0.487">
-      <failure/>
-      <error message="unknown error: net::ERR_NAME_NOT_RESOLVED&#xA;  (Session info: headless chrome=117.0.5938.132)"/>
+</testsuites>ion info: headless chrome=117.0.5938.132)"/>
       <system-err><![CDATA[
 unknown error: unknown error: net::ERR_NAME_NOT_RESOLVED
   (Session info: headless chrome=117.0.5938.132)
@@ -44,27 +45,12 @@ unknown error: unknown error: net::ERR_NAME_NOT_RESOLVED
 ]]></system-err>
     </testcase>
   </testsuite>
-</testsuites>ork/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
-    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
-    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+</testsuites>/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
     at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor Three Invoice 2023 03" timestamp="2023-10-13T09:33:51" time="0.001" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor Three,Invoice:2023-03"/>
-      <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Three,Invoice:2023-03" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Three,Invoice:2023-03" name="before each hook for Vendor Vendor Three Invoice 2023 03" time="0">
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Five" time="0.001">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -82,18 +68,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor Three Invoice 2005 08" timestamp="2023-10-13T09:33:51" time="0.001" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor Three,Invoice:2005-08"/>
-      <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Three,Invoice:2005-08" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Three,Invoice:2005-08" name="before each hook for Vendor Vendor Three Invoice 2005 08" time="0">
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Four" time="0.037">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -111,18 +86,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor Five Invoice 2005 12" timestamp="2023-10-13T09:33:51" time="0" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor Five,Invoice:2005-12"/>
-      <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-12" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-12" name="before each hook for Vendor Vendor Five Invoice 2005 12" time="0">
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Two" time="0.012">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -140,18 +104,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor Five Invoice 2005 05" timestamp="2023-10-13T09:33:51" time="0.001" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor Five,Invoice:2005-05"/>
-      <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-05" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-05" name="before each hook for Vendor Vendor Five Invoice 2005 05" time="0">
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor One" time="0.008">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -169,18 +122,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor Five Invoice 2005 11" timestamp="2023-10-13T09:33:51" time="0.023" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor Five,Invoice:2005-11"/>
-      <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-11" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Five,Invoice:2005-11" name="before each hook for Vendor Vendor Five Invoice 2005 11" time="0.023">
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should display the correct vendor name for Vendor Six" time="0.015">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -198,18 +140,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor Four Invoice 2005 04" timestamp="2023-10-13T09:33:51" time="0" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor Four,Invoice:2005-04"/>
-      <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-04" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-04" name="before each hook for Vendor Vendor Four Invoice 2005 04" time="0">
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Three" time="0.014">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -227,18 +158,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor Four Invoice 2005 03" timestamp="2023-10-13T09:33:51" time="0.001" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor Four,Invoice:2005-03"/>
-      <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-03" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-03" name="before each hook for Vendor Vendor Four Invoice 2005 03" time="0">
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Five" time="0.002">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -256,18 +176,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor Four Invoice 2005 02" timestamp="2023-10-13T09:33:51" time="0.001" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor Four,Invoice:2005-02"/>
-      <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-02" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Four,Invoice:2005-02" name="before each hook for Vendor Vendor Four Invoice 2005 02" time="0">
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Four" time="0.022">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -285,18 +194,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
-  </testsuite>
-  <testsuite name="Vendor Vendor Two Invoice 2005 07" timestamp="2023-10-13T09:33:51" time="0.006" tests="2" failures="1" errors="1" skipped="1">
-    <properties>
-      <property name="specId" value="0"/>
-      <property name="suiteName" value="Vendor: Vendor Two,Invoice:2005-07"/>
-      <property name="capabilities" value="chrome.117_0_5938_132.linux"/>
-      <property name="file" value="file://./ui-tests/specs/invoice.spec.ts"/>
-    </properties>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Two,Invoice:2005-07" name="should display correct status banner color and message" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Two,Invoice:2005-07" name="before each hook for Vendor Vendor Two Invoice 2005 07" time="0.001">
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Two" time="0.002">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -314,8 +212,60 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
 ]]></system-err>
     </testcase>
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor One" time="0.032">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+    <testcase classname="chrome.117_0_5938_132.linux.InvoicesList_Page" name="should return the correct unique invoice count for Vendor Six" time="0.004">
+      <failure/>
+      <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
+      <system-out><![CDATA[
+COMMAND: DELETE /session/d6d8c365f59e38630f18b4a05ac6aa82 - {}
+RESULT: {}
+]]></system-out>
+      <system-err><![CDATA[
+AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action
+    at throwDefaultError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:8:22)
+    at /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/smithy-client/dist-cjs/default-error-handler.js:18:39
+    at de_InvokeCommandError (/home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 01" timestamp="2023-10-13T09:33:51" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+</testsuites>k/client-lambda/dist-cjs/protocols/Aws_restJson1.js:3346:20)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-signing/dist-cjs/awsAuthMiddleware.js:14:20
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@smithy/middleware-retry/dist-cjs/retryMiddleware.js:27:46
+    at async /home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:7:26
+    at async invokeLambda (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:60:22)
+    at async sendLambdaCommand (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/lambdaHelper.ts:19:18)
+    at async getS3ObjectBasic (file:///home/runner/work/di-billing-transaction-monitoring/di-billing-transaction-monitoring/src/handlers/int-test-support/helpers/s3Helper.ts:97:12)
+]]></system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="Vendor Vendor One Invoice 2023 01" timestamp="2023-10-13T09:35:30" time="0.001" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-01"/>
@@ -325,7 +275,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-01" name="should display correct status banner color and message" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-01" name="before each hook for Vendor Vendor One Invoice 2023 01" time="0">
+    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-01" name="before each hook for Vendor Vendor One Invoice 2023 01" time="0.001">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -344,7 +294,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 02" timestamp="2023-10-13T09:33:51" time="0" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 02" timestamp="2023-10-13T09:35:30" time="0" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-02"/>
@@ -373,7 +323,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 03" timestamp="2023-10-13T09:33:51" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 03" timestamp="2023-10-13T09:35:30" time="0.001" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-03"/>
@@ -383,7 +333,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-03" name="should display correct status banner color and message" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-03" name="before each hook for Vendor Vendor One Invoice 2023 03" time="0.001">
+    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-03" name="before each hook for Vendor Vendor One Invoice 2023 03" time="0">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -402,7 +352,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 04" timestamp="2023-10-13T09:33:51" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 04" timestamp="2023-10-13T09:35:30" time="0" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-04"/>
@@ -431,7 +381,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 05" timestamp="2023-10-13T09:33:51" time="0" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 05" timestamp="2023-10-13T09:35:30" time="0.036" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-05"/>
@@ -441,7 +391,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-05" name="should display correct status banner color and message" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-05" name="before each hook for Vendor Vendor One Invoice 2023 05" time="0">
+    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-05" name="before each hook for Vendor Vendor One Invoice 2023 05" time="0.036">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -460,7 +410,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 06" timestamp="2023-10-13T09:33:51" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 06" timestamp="2023-10-13T09:35:30" time="0.001" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-06"/>
@@ -470,7 +420,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-06" name="should display correct status banner color and message" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-06" name="before each hook for Vendor Vendor One Invoice 2023 06" time="0.001">
+    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2023-06" name="before each hook for Vendor Vendor One Invoice 2023 06" time="0">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -489,7 +439,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2023 07" timestamp="2023-10-13T09:33:51" time="0" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2023 07" timestamp="2023-10-13T09:35:30" time="0" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2023-07"/>
@@ -518,7 +468,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor One Invoice 2004 12" timestamp="2023-10-13T09:33:51" time="0.001" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor One Invoice 2004 12" timestamp="2023-10-13T09:35:30" time="0" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor One,Invoice:2004-12"/>
@@ -528,7 +478,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2004-12" name="should display correct status banner color and message" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2004-12" name="before each hook for Vendor Vendor One Invoice 2004 12" time="0.001">
+    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_One,Invoice:2004-12" name="before each hook for Vendor Vendor One Invoice 2004 12" time="0">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
@@ -547,7 +497,7 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
 ]]></system-err>
     </testcase>
   </testsuite>
-  <testsuite name="Vendor Vendor Six Invoice 2005 Q2" timestamp="2023-10-13T09:33:51" time="0" tests="2" failures="1" errors="1" skipped="1">
+  <testsuite name="Vendor Vendor Six Invoice 2005 Q2" timestamp="2023-10-13T09:35:30" time="0.001" tests="2" failures="1" errors="1" skipped="1">
     <properties>
       <property name="specId" value="0"/>
       <property name="suiteName" value="Vendor: Vendor Six,Invoice:2005-Q2"/>
@@ -557,11 +507,11 @@ AccessDeniedException: User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-g
     <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Six,Invoice:2005-Q2" name="should display correct status banner color and message" time="0">
       <skipped/>
       <system-out><![CDATA[
-COMMAND: DELETE /session/3c0ba9d8c6f353a38fd838c59a992c9e - {}
+COMMAND: DELETE /session/48de68a20203a4934ab9d261e0c074ff - {}
 RESULT: {}
 ]]></system-out>
     </testcase>
-    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Six,Invoice:2005-Q2" name="before each hook for Vendor Vendor Six Invoice 2005 Q2" time="0">
+    <testcase classname="chrome.117_0_5938_132.linux.Invoice_Page_Test.Vendor:_Vendor_Six,Invoice:2005-Q2" name="before each hook for Vendor Vendor Six Invoice 2005 Q2" time="0.001">
       <failure/>
       <error message="User: arn:aws:sts::582874090139:assumed-role/di-btm-dev-github-actions-test-role/GitHubActions is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:eu-west-2:582874090139:function:di-btm-pr-512-int-test-support-function because no identity-based policy allows the lambda:InvokeFunction action"/>
       <system-err><![CDATA[
