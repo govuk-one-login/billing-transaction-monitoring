@@ -346,3 +346,29 @@ Resources:
       DestinationArn: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
       FilterPattern: ''
       LogGroupName: !Ref WebAclLogGroup
+
+  frontendapiLogSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Condition: IsSpunkandProd
+    Properties:
+      DestinationArn: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
+      FilterPattern: ''
+      LogGroupName: !Ref FrontEndApiLogGroup
+
+  frontendauthlambdaLogSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    DependsOn: FrontEndAuthFunction
+    Condition: IsSpunkandProd
+    Properties:
+      DestinationArn: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
+      FilterPattern: ''
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-frontend-function
+
+  frontendlambdaLogSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    DependsOn: FrontEndFunction
+    Condition: IsSpunkandProd
+    Properties:
+      DestinationArn: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
+      FilterPattern: ''
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-frontend-auth-function
