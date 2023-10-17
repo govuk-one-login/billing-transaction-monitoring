@@ -111,6 +111,9 @@ Conditions:
       !Equals [!Ref AWS::StackName, di-btm-integration],
       !Equals [!Ref AWS::StackName, di-btm-production],
     ]
+  IsSpunkandProd: !And
+     - !Condition IsSplunkForwardingActive
+     - !Condition IsProduction
 
 Globals:
   Function:
