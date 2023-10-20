@@ -139,6 +139,12 @@ exports[`invoices handler Page displays months and years of invoices 1`] = `
                   </a>
                 </li>
               
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="/accessibility">
+                    Accessibility
+                  </a>
+                </li>
+              
             </ul>
           
           

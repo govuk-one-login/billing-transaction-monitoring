@@ -34,6 +34,11 @@ import {
   cookiesParamsGetter,
   cookiesTitleGetter,
 } from "./handlers/cookies";
+import{
+  AccessibilityParams,
+  accessibilityParamsGetter,
+  accesabilityTitleGetter,
+} from "./handlers/accessibility";
 
 export type PageParamsGetter<TParams, TReturn> = (
   request: Request<TParams>
@@ -102,9 +107,10 @@ const getPageParams = async <TParams extends Record<string, string>, TReturn>(
   request: Request<TParams>,
   response: Response
 ): Promise<TReturn> => {
-  const [pageTitle, cookiesLink, breadcrumbData, options] = await Promise.all([
+  const [pageTitle, cookiesLink, accessibilityLink, breadcrumbData, options] = await Promise.all([
     page.titleGetter(request.params),
     getLinkData(cookiesPage, request.params),
+    getLinkData(accessibilityPage, request.params),
     getBreadcrumbData(page, request),
     page.paramsGetter(request),
   ]);
@@ -112,6 +118,7 @@ const getPageParams = async <TParams extends Record<string, string>, TReturn>(
   return {
     ...options,
     pageTitle,
+    accessibilityLink,
     cookiesLink,
     breadcrumbData,
     cspNonce: response.locals.cspNonce,
@@ -182,6 +189,14 @@ export const errorPage: Page<{}, ErrorPageParams> = {
   titleGetter: errorTitleGetter,
 };
 
+export const accessibilityPage: Page<{}, AccessibilityParams>={
+  parent: homePage,
+  relativePath: "accessibility",
+  njk:"accessibility.njk",
+  paramsGetter: accessibilityParamsGetter,
+  titleGetter: accesabilityTitleGetter,
+}
+
 export const PAGES = [
   homePage,
   cookiesPage,
@@ -189,4 +204,5 @@ export const PAGES = [
   invoicesPage,
   invoicePage,
   authorisationFailedPage,
+  accessibilityPage,
 ];

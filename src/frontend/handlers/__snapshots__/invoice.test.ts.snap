@@ -417,6 +417,12 @@ exports[`invoice handler Page displays Invoice above threshold banner text and t
                   </a>
                 </li>
               
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="/accessibility">
+                    Accessibility
+                  </a>
+                </li>
+              
             </ul>
           
           
@@ -884,6 +890,12 @@ exports[`invoice handler Page displays Invoice line items in the Reconciliation 
                 <li class="govuk-footer__inline-list-item">
                   <a class="govuk-footer__link" href="/cookies">
                     Cookies
+                  </a>
+                </li>
+              
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="/accessibility">
+                    Accessibility
                   </a>
                 </li>
               

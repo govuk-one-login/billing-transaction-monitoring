@@ -119,6 +119,7 @@ describe("Page", () => {
           },
           pageTitle: "GrandchildType",
           cookiesLink: { text: "Cookies", href: "/cookies" },
+          accessibilityLink: { text:"Accessibility", href: "/accessibility"},
           some_id: "someValue",
           cspNonce: "someCsp",
         }
