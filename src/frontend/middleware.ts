@@ -17,6 +17,7 @@ const generateNonce: RequestHandler = (_, response, next) => {
 const generateCSP: RequestHandler = (request, response, next) => {
   helmet({
     strictTransportSecurity: {
+      maxAge: 31536000,
       includeSubDomains: true,
     },
     contentSecurityPolicy: {
@@ -25,9 +26,8 @@ const generateCSP: RequestHandler = (request, response, next) => {
         "frame-src": ["https://accounts.google.com/gsi/"],
         "script-src": ["'self'", `'nonce-${response.locals.cspNonce}'`],
         "style-src": ["'self'", "https://accounts.google.com/gsi/style"],
-        "font-src":["'self'", "https://accounts.google.com/gsi/style"],
+        "font-src": ["'self'", "https://accounts.google.com/gsi/style"],
       },
-      
     },
   })(request, response, next);
 };
@@ -53,10 +53,10 @@ const securityTxt: RequestHandler = (_, res) =>
     "https://vdp.cabinetoffice.gov.uk/.well-known/security.txt"
   );
 
-const reduceFingerprinting: RequestHandler = (req, res, next)=>{
+const reduceFingerprinting: RequestHandler = (req, res, next) => {
   res.removeHeader("X-Powered-By");
   next();
-}
+};
 
 export const middleware: Middlewares = [
   { handler: generateNonce },
@@ -65,7 +65,7 @@ export const middleware: Middlewares = [
   { handler: staticScripts, route: "/assets/scripts" },
   { handler: staticStyles, route: "/assets/styles" },
   { handler: securityTxt, route: "/.well-known/security.txt" },
-  { handler: reduceFingerprinting},
+  { handler: reduceFingerprinting },
 ];
 
 export const unitTestMiddleware: Middlewares = [
@@ -73,7 +73,7 @@ export const unitTestMiddleware: Middlewares = [
   { handler: staticScripts, route: "/assets/scripts" },
   { handler: staticStyles, route: "/assets/styles" },
   { handler: generateCSP },
-  { handler: reduceFingerprinting}
+  { handler: reduceFingerprinting },
 ];
 
 export const handleErrors: ErrorRequestHandler = (
@@ -85,8 +85,6 @@ export const handleErrors: ErrorRequestHandler = (
   logger.error("Express app error", { error });
   const errorPageHandler = getHandler(errorPage);
   response.status(500);
-  response.set({'Content-Security-Policy':{
-    
-  }});
+  response.set({ "Content-Security-Policy": {} });
   errorPageHandler(request, response, next);
 };
