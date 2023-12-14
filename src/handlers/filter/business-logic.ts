@@ -11,5 +11,14 @@ export const businessLogic: BusinessLogic<
     services.map(({ event_name }) => event_name)
   );
 
-  return validEventNames.has(messageBody.event_name) ? [messageBody] : [];
+  let valid: boolean;
+
+  valid = validEventNames.has(messageBody.event_name);
+
+  // If the driving permit is set, only allow DVLA events to be counted
+  if (valid && messageBody.restricted !== undefined) {
+    valid = messageBody.restricted.drivingPermit[0].issuedBy === "DVLA";
+  }
+
+  return valid ? [messageBody] : [];
 };
