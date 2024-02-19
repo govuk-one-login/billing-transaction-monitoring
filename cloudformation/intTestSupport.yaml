@@ -31,6 +31,7 @@ Resources:
                 - email-sender-password-arn
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-int-test-support-function
       Handler: intTestSupport.handler
+      MemorySize: 512
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaVPCAccessExecutionRole
