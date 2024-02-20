@@ -27,6 +27,7 @@ Resources:
               - ReportBatchItemFailures
             Queue: !GetAtt PdfExtractQueue.Arn
       Handler: pdfExtract.handler
+      MemorySize: 256
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaVPCAccessExecutionRole

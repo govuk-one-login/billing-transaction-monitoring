@@ -64,6 +64,7 @@ Resources:
           LOCAL_ENDPOINT: !If [IsLocal, 'http://s3.localhost.localstack.cloud:4566', !Ref AWS::NoValue]
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-storage-function
       Handler: storeTransactions.handler
+      MemorySize: 256
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:

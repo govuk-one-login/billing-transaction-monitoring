@@ -22,6 +22,7 @@ Resources:
           STORAGE_BUCKET: !Ref StorageBucket
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-synthetic-event-generation-function
       Handler: syntheticEvents.handler
+      MemorySize: 256
       KmsKeyArn: !GetAtt KmsKey.Arn
       Timeout: 180
       Policies:

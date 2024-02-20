@@ -184,6 +184,7 @@ Resources:
             Path: /*
             Method: 'GET'
       Handler: frontend.handler
+      MemorySize: 256
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - Statement:

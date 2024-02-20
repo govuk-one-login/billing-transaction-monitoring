@@ -60,6 +60,7 @@ Resources:
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-transaction-csv-to-json-event-function
       Handler: transactionCsvToJsonEvent.handler
+      MemorySize: 256
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:

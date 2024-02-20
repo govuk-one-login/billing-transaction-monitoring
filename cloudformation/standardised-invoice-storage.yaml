@@ -102,6 +102,7 @@ Resources:
               - ReportBatchItemFailures
             Queue: !GetAtt StandardisedInvoiceStorageQueue.Arn
       Handler: storeStandardisedInvoices.handler
+      MemorySize: 256
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:

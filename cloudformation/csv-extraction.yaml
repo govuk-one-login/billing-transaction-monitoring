@@ -29,6 +29,7 @@ Resources:
               - ReportBatchItemFailures
             Queue: !GetAtt CsvExtractQueue.Arn
       Handler: csvExtract.handler
+      MemorySize: 256
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaVPCAccessExecutionRole
