@@ -24,6 +24,7 @@ Resources:
       EventInvokeConfig:
         MaximumEventAgeInSeconds: 60
       Handler: dashboardExtract.handler
+      MemorySize: 256
       KmsKeyArn: !GetAtt KmsKey.Arn
       Timeout: 900
       Policies:

@@ -20,6 +20,7 @@ Resources:
         TargetArn: !GetAtt CustomAthenaViewResourceFunctionDeadLetterQueue.Arn
         Type: SQS
       Handler: customAthenaViewResource.handler
+      MemorySize: 256
       KmsKeyArn: !GetAtt KmsKey.Arn
       Policies:
         - AWSLambdaVPCAccessExecutionRole

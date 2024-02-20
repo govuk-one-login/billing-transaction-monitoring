@@ -59,6 +59,7 @@ Resources:
           CONFIG_BUCKET: !GetAtt ConfigStackParameter.Value
           POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}-filter-function
       Handler: filter.handler
+      MemorySize: 256
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:

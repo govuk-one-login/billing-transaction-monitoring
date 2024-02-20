@@ -83,6 +83,7 @@ Resources:
               - ReportBatchItemFailures
             Queue: !GetAtt PdfStandardisationQueue.Arn
       Handler: pdfStandardisation.handler
+      MemorySize: 256
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:

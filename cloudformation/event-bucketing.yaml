@@ -22,6 +22,7 @@ Resources:
       EventInvokeConfig:
         MaximumEventAgeInSeconds: 60
       Handler: eventBucketing.handler
+      MemorySize: 4096
       KmsKeyArn: !GetAtt KmsKey.Arn
       Timeout: 900
       Policies:
