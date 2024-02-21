@@ -65,11 +65,9 @@ describe("Filter businessLogic", () => {
       timestamp_formatted: "2022-11-07T16:00:11.000Z",
       component_id: "IPV",
       restricted: {
-        drivingPermit: [
-          {
-            issuedBy: "DVLA",
-          },
-        ],
+        drivingPermit: {
+          issuedBy: ["DVLA"],
+        },
       },
     };
 
@@ -77,7 +75,7 @@ describe("Filter businessLogic", () => {
     expect(result).toEqual([validRecord]);
   });
 
-  it("returns message with valid event name and DVLA", async () => {
+  it("returns message with valid event name and DVA", async () => {
     const validRecord = {
       event_id: "VENDOR_1_EVENT_1_WITH_DVA",
       event_name: "DL_VENDOR_1_EVENT_1",
@@ -85,11 +83,9 @@ describe("Filter businessLogic", () => {
       timestamp_formatted: "2022-11-07T16:00:11.000Z",
       component_id: "IPV",
       restricted: {
-        drivingPermit: [
-          {
-            issuedBy: "DVA",
-          },
-        ],
+        drivingPermit: {
+          issuedBy: ["DVA"],
+        },
       },
     };
 

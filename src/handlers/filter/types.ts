@@ -6,11 +6,11 @@ export interface MessageBody {
 }
 
 export type Restricted = {
-  drivingPermit: DrivingPermit[];
+  drivingPermit: DrivingPermit;
 };
 
 export type DrivingPermit = {
-  issuedBy: string;
+  issuedBy: string[];
 };
 
 export enum Env {

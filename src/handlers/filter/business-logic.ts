@@ -16,8 +16,12 @@ export const businessLogic: BusinessLogic<
   valid = validEventNames.has(messageBody.event_name);
 
   // If the driving permit is set, only allow DVLA events to be counted
-  if (valid && messageBody.restricted !== undefined) {
-    valid = messageBody.restricted.drivingPermit[0].issuedBy === "DVLA";
+  if (
+    valid &&
+    messageBody.restricted !== undefined &&
+    messageBody.restricted.drivingPermit !== undefined
+  ) {
+    valid = messageBody.restricted.drivingPermit.issuedBy[0] === "DVLA";
   }
 
   return valid ? [messageBody] : [];
