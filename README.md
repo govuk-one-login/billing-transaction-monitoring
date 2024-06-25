@@ -1,3 +1,17 @@
+# Archived Repository
+
+The BTM application has been retired and thus this repo archived. The tool and its associated aws environments have been decommisioned.
+
+The functionality has been brought into the data analytics platform. Ask the data pod for info.
+
+To bring back, recreate the environments and deploy this and the btm-config repositories to them.
+
+Note that an upgrade to the latest AWS SDK may be required at that point, this uses V2. 
+
+Additionally, note that the athena query used in this application can struggle with large numbers of event files. If resurrecting the BTM application, you may want to consider batching those up into smaller number of files on ingestion.
+
+Otherwise, have fun.
+
 # Billing & Transaction Monitoring
 
 Monitors user identity verification events for billing purposes
